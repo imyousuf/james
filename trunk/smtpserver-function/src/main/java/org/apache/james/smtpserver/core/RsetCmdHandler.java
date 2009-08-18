@@ -26,6 +26,8 @@ import java.util.Collection;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 
 /**
@@ -37,13 +39,13 @@ public class RsetCmdHandler implements CommandHandler {
      */
     private final static String COMMAND_NAME = "RSET";
 
-    /*
+    /**
      * handles RSET command
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
-    public void onCommand(SMTPSession session) {
-        doRSET(session, session.getCommandArgument());
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        return doRSET(session, parameters);
     }
 
 
@@ -53,18 +55,15 @@ public class RsetCmdHandler implements CommandHandler {
      *
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
+     * @return 
      */
-    private void doRSET(SMTPSession session, String argument) {
-        String responseString = "";
+    private SMTPResponse doRSET(SMTPSession session, String argument) {
         if ((argument == null) || (argument.length() == 0)) {
-
             session.resetState();
-
-            responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK";
+            return new SMTPResponse(SMTPRetCode.MAIL_OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK");
         } else {
-            responseString = "500 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with RSET command";
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.DELIVERY_INVALID_ARG)+" Unexpected argument provided with RSET command");
         }
-        session.writeResponse(responseString);
     }
 
     /**
@@ -72,7 +71,7 @@ public class RsetCmdHandler implements CommandHandler {
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("RSET");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     }

@@ -30,8 +30,10 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
 
@@ -52,7 +54,7 @@ import org.apache.mailet.Mail;
  * &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt; &lt;/handler&gt;
  */
 public class SpamAssassinHandler extends AbstractLogEnabled implements
-        MessageHandler, Configurable {
+        MessageHook, Configurable {
 
     /**
      * The port spamd is listen on
@@ -140,17 +142,16 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
+     * @see org.apache.james.smtpserver.hook.MessageHook#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public void onMessage(SMTPSession session) {
+    public HookResult onMessage(SMTPSession session, Mail mail) {
 
         // Not scan the message if relaying allowed
         if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            return;
+            return null;
         }
 
         try {
-            Mail mail = session.getMail();
             MimeMessage message = mail.getMessage();
             SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost,
                     spamdPort);
@@ -174,25 +175,19 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
                     // if the hits are bigger the rejectionHits reject the
                     // message
                     if (spamdRejectionHits <= hits) {
-                        String responseString = "554 "
-                                + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                        DSNStatus.SECURITY_OTHER)
-                                + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected";
                         StringBuffer buffer = new StringBuffer(256).append(
                                 "Rejected message from ").append(
                                 session.getState().get(SMTPSession.SENDER)
                                         .toString()).append(" from host ")
                                 .append(session.getRemoteHost()).append(" (")
-                                .append(session.getRemoteIPAddress()).append(
-                                        ") " + responseString).append(
-                                        ". Required rejection hits: "
-                                                + spamdRejectionHits
-                                                + " hits: " + hits);
+                                .append(session.getRemoteIPAddress()).append(") This message reach the spam hits treshold. Required rejection hits: ")
+                                .append(spamdRejectionHits).append(" hits: ")
+                                .append(hits);
                         getLogger().info(buffer.toString());
-                        session.writeResponse(responseString);
 
                         // Message reject .. abort it!
-                        session.abortMessage();
+                        return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                        DSNStatus.SECURITY_OTHER) + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected");
                     }
                 } catch (NumberFormatException e) {
                     // hits unknown
@@ -201,6 +196,6 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
         } catch (MessagingException e) {
             getLogger().error(e.getMessage());
         }
-
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }

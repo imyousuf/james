@@ -26,6 +26,8 @@ import java.util.Collection;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 
 /**
@@ -40,11 +42,11 @@ public class VrfyCmdHandler implements CommandHandler {
      * This method informs the client that the command is
      * not implemented.
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
-    public void onCommand(SMTPSession session) {
-        String responseString = "502 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" VRFY is not supported";
-        session.writeResponse(responseString);
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        return new SMTPResponse(SMTPRetCode.UNIMPLEMENTED_COMMAND, 
+                DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" VRFY is not supported");
     }
     
     /**
@@ -52,7 +54,7 @@ public class VrfyCmdHandler implements CommandHandler {
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("VRFY");
+        implCommands.add(COMMAND_NAME);
         
         return implCommands;
     }

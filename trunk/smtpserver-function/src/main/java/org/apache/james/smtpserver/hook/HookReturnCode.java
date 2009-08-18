@@ -19,26 +19,12 @@
 
 
 
-package org.apache.james.smtpserver;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-/**
- * 
- * Simple class to allow a cast from a java.io.Reader to a java.io.InputStream
- * 
- * $Id$
- * 
- */
-public class ReaderInputStream extends InputStream {
-    private Reader reader = null;
-    public ReaderInputStream(Reader reader) {
-        this.reader = reader;
-    }
-    /**
-     * @see java.io.InputStream#read()
-     */
-    public int read() throws IOException {
-        return reader.read();
-    }
+
+package org.apache.james.smtpserver.hook;
+
+public class HookReturnCode {
+    public final static int OK = 0;
+    public final static int DENY = 1;
+    public final static int DENYSOFT = 2;
+    public final static int DECLINED = 3;
 }

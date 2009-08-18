@@ -21,20 +21,21 @@
 
 package org.apache.james.smtpserver.core;
 
+import java.util.Collection;
+
+import javax.mail.MessagingException;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.MessageHandler;
-import org.apache.james.smtpserver.MessageSizeException;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.mailet.Mail;
-
-import javax.mail.MessagingException;
-
-import java.util.Collection;
 
 
 /**
@@ -42,7 +43,7 @@ import java.util.Collection;
   */
 public class SendMailHandler
     extends AbstractLogEnabled
-    implements MessageHandler, Serviceable {
+    implements MessageHook, Serviceable {
 
     private MailServer mailServer;
 
@@ -57,12 +58,9 @@ public class SendMailHandler
      * Adds header to the message
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
-    public void onMessage(SMTPSession session) {
+    public HookResult onMessage(SMTPSession session, Mail mail) {
         getLogger().debug("sending mail");
 
-        Mail mail = session.getMail();
-        
-        String responseString = null;
         try {
             mailServer.sendMail(mail);
             Collection theRecipients = mail.getRecipients();
@@ -83,42 +81,11 @@ public class SendMailHandler
                          .append(recipientString);
                 getLogger().info(infoBuffer.toString());
             }
-         } catch (MessagingException me) {
-              // Grab any exception attached to this one.
-              Exception e = me.getNextException();
-              // If there was an attached exception, and it's a
-              // MessageSizeException
-              if (e != null && e instanceof MessageSizeException) {
-                   // Add an item to the state to suppress
-                   // logging of extra lines of data
-                   // that are sent after the size limit has
-                   // been hit.
-                   session.getState().put(SMTPSession.MESG_FAILED, Boolean.TRUE);
-                   // then let the client know that the size
-                   // limit has been hit.
-                   responseString = "552 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_MSG_TOO_BIG)+" Error processing message.";
-                   StringBuffer errorBuffer =
-                     new StringBuffer(256)
-                         .append("Rejected message from ")
-                         .append(session.getState().get(SMTPSession.SENDER).toString())
-                         .append(" from host ")
-                         .append(session.getRemoteHost())
-                         .append(" (")
-                         .append(session.getRemoteIPAddress())
-                         .append(") exceeding system maximum message size of ")
-                         .append(session.getConfigurationData().getMaxMessageSize());
-                   getLogger().error(errorBuffer.toString());
-              } else {
-                   responseString = "451 "+DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.";
-                   getLogger().error("Unknown error occurred while processing DATA.", me);
-              }
-              session.writeResponse(responseString);
-              return;
-         }
-         responseString = "250 "+DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received";
-         session.writeResponse(responseString);
-
-    
+        } catch (MessagingException me) {
+            getLogger().error("Unknown error occurred while processing DATA.", me);
+            return new HookResult(HookReturnCode.DENYSOFT,DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.");
+        }
+        return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
     }
 
 }

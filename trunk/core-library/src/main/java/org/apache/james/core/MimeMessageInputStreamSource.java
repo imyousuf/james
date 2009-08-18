@@ -26,6 +26,7 @@ import javax.mail.util.SharedFileInputStream;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,6 +111,21 @@ public class MimeMessageInputStreamSource
         }
     }
 
+    public MimeMessageInputStreamSource(String key) throws MessagingException {
+        try {
+            file = File.createTempFile(key, ".m64");
+            sourceId = file.getCanonicalPath();
+        } catch (IOException e) {
+            throw new MessagingException("Unable to get canonical file path: " + e.getMessage(), e);
+        } finally {
+            // if sourceId is null while file is not null then we had
+            // an IOxception and we have to clean the file.
+            if (sourceId == null && file != null) {
+                file.delete();
+            }
+        }
+    }
+    
     /**
      * Returns the unique identifier of this input stream source
      *
@@ -139,6 +155,14 @@ public class MimeMessageInputStreamSource
         return file.length();
     }
 
+    /**
+     * @return
+     * @throws FileNotFoundException
+     */
+    public OutputStream getWritableOutputStream() throws FileNotFoundException {
+        return new FileOutputStream(file);
+    }
+    
     /**
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */

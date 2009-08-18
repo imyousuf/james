@@ -21,12 +21,15 @@
 
 package org.apache.james.smtpserver.core;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.smtpserver.MessageHandler;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MessageHook;
+import org.apache.mailet.Mail;
 
 import javax.mail.internet.MimeMessage;
 
@@ -36,7 +39,7 @@ import javax.mail.internet.MimeMessage;
   */
 public class SetMimeHeaderHandler
     extends AbstractLogEnabled
-    implements MessageHandler, Configurable {
+    implements MessageHook, Configurable {
 
     /**
      * The header name and value that needs to be added
@@ -78,13 +81,15 @@ public class SetMimeHeaderHandler
         this.headerValue = headerValue;
     }
 
+
     /**
      * Adds header to the message
-     * @see org.apache.james.smtpserver#onMessage(SMTPSession)
+     *
+     * @see org.apache.james.smtpserver.hook.MessageHook#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public void onMessage(SMTPSession session) {
+    public HookResult onMessage(SMTPSession session, Mail mail) {
         try {
-            MimeMessage message = session.getMail().getMessage ();
+            MimeMessage message = mail.getMessage ();
 
             //Set the header name and value (supplied at init time).
             if(headerName != null) {
@@ -95,6 +100,8 @@ public class SetMimeHeaderHandler
         } catch (javax.mail.MessagingException me) {
             getLogger().error(me.getMessage());
         }
+        
+        return new HookResult(HookReturnCode.DECLINED);
     }
 
 

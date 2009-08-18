@@ -22,48 +22,40 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.mailet.MailAddress;
 
 /**
  * 
  * This handler can be used to just ignore duplicated recipients. 
  */
-public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements CommandHandler {
+public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements RcptHook {
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    public Collection getImplCommands() {
-        Collection c = new ArrayList();
-        c.add("RCPT");
-    
-        return c;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
-    public void onCommand(SMTPSession session) {
-        MailAddress rcpt = (MailAddress) session.getState().get(SMTPSession.CURRENT_RECIPIENT);
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         Collection rcptList = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
     
         // Check if the recipient is allready in the rcpt list
         if(rcptList != null && rcptList.contains(rcpt)) {
             StringBuffer responseBuffer = new StringBuffer();
         
-            responseBuffer.append("250 " + DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_VALID) + " Recipient <")
-                          .append(rcpt.toString()).append("> OK");
-            session.writeResponse(responseBuffer.toString());
-            session.setStopHandlerProcessing(true);
-            
+            responseBuffer.append(DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_VALID))
+                          .append(" Recipient <")
+                          .append(rcpt.toString())
+                          .append("> OK");
             getLogger().debug("Duplicate recipient not add to recipient list: " + rcpt.toString());
+            return new HookResult(HookReturnCode.OK,SMTPRetCode.MAIL_OK, responseBuffer.toString());
         }
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }

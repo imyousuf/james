@@ -72,7 +72,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private MailServer mailServer;
     
     /**
-     * The DNSService to use for queries
+     * The DNSServer to use for queries
      */
     private DNSService dnsServer;
     
@@ -84,14 +84,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private final static int AUTH_REQUIRED = 1;
     private final static int AUTH_ANNOUNCE = 2;
     private int authRequired = AUTH_DISABLED;
-
-    /**
-     * Whether the server verifies that the user
-     * actually sending an email matches the
-     * authentication credentials attached to the
-     * SMTP interaction.
-     */
-    private boolean verifyIdentity = false;
 
     /**
      * Whether the server needs helo to be send first
@@ -138,7 +130,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     public void service( final ServiceManager manager ) throws ServiceException {
         super.service( manager );
         serviceManager = manager;
-        mailetcontext = (MailetContext) manager.lookup(MailetContext.class.getName());
+        mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
         users = (UsersRepository) manager.lookup(UsersRepository.ROLE);
         dnsServer = (DNSService) manager.lookup(DNSService.ROLE); 
@@ -160,13 +152,8 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
             else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
             else authRequired = AUTH_DISABLED;
-            verifyIdentity = handlerConfiguration.getChild("verifyIdentity").getValueAsBoolean(false);
             if (authRequired != AUTH_DISABLED) {
-                if (verifyIdentity) {
-                    getLogger().info("This SMTP server requires authentication and verifies that the authentication credentials match the sender address.");
-                } else {
-                    getLogger().info("This SMTP server requires authentication, but doesn't verify that the authentication credentials match the sender address.");
-                }
+                getLogger().info("This SMTP server requires authentication.");
             } else {
                 getLogger().info("This SMTP server does not require authentication.");
             }
@@ -252,7 +239,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesService#initialize()
+     * @see org.apache.james.core.AbstractJamesService#initialize()
      */
     public void initialize() throws Exception {
         super.initialize();
@@ -260,28 +247,27 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#getDefaultPort()
+     * @see org.apache.james.core.AbstractJamesService#getDefaultPort()
      */
      protected int getDefaultPort() {
         return 25;
      }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#getServiceType()
+     * @see org.apache.james.core.AbstractJamesService#getServiceType()
      */
     public String getServiceType() {
         return "SMTP Service";
     }
-
+    
     /**
-     * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
+     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
      */
-    public ProtocolHandler newProtocolHandlerInstance() {
-        SMTPHandler theHandler = new SMTPHandler();
-        //pass the handler chain to every SMTPhandler
-        theHandler.setHandlerChain(handlerChain);
-        return theHandler;
+    public Class getCreatedClass() {
+        return SMTPHandler.class;
     }
+
+
 
     /**
      * A class to provide SMTP handler configuration to the handlers
@@ -315,7 +301,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired(String)
+         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthSupported(String)
          */
         public boolean isRelayingAllowed(String remoteIP) {
             boolean relayingAllowed = false;
@@ -325,31 +311,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             return relayingAllowed;
         }
 
-        /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired(String)
-         */
-        public boolean isAuthRequired(String remoteIP) {
-              if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
-            boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
-            if (authorizedNetworks != null) {
-                authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
-            }
-            return authRequired;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isAuthRequired()
-         */
-        public boolean isAuthRequired() {
-            return SMTPServer.this.authRequired != AUTH_DISABLED;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#isVerifyIdentity()
-         */
-        public boolean isVerifyIdentity() {
-            return SMTPServer.this.verifyIdentity;
-        }
 
         /**
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getMailServer()
@@ -387,16 +348,44 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         // TODO Auto-generated method stub
         return SMTPServer.this.addressBracketsEnforcement;
     }
+
+		public boolean isAuthRequired(String remoteIP) {
+			 if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
+	            boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
+	            if (authorizedNetworks != null) {
+	                authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+	            }
+	            return authRequired;
+		}
+
+		public boolean isAuthRequired() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean isVerifyIdentity() {
+			// TODO Auto-generated method stub
+			return false;
+		}
         
-        //TODO: IF we create here an interface to get DNSService
+        //TODO: IF we create here an interface to get DNSServer
         //      we should access it from the SMTPHandlers
 
     }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#getConfigurationData()
+     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
      */
     protected Object getConfigurationData() {
         return theConfigData;
     }
+
+	@Override
+	 public ProtocolHandler newProtocolHandlerInstance() {
+        SMTPHandler theHandler = new SMTPHandler();
+        //pass the handler chain to every SMTPhandler
+        theHandler.setHandlerChain(handlerChain);
+        return theHandler;
+    }
+
 }

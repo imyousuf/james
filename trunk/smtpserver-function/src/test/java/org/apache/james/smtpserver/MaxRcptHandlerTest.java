@@ -25,43 +25,31 @@ package org.apache.james.smtpserver;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.mail.internet.ParseException;
+
 import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.MaxRcptHandler;
-import org.apache.james.smtpserver.junkscore.JunkScore;
-import org.apache.james.smtpserver.junkscore.JunkScoreImpl;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.mailet.MailAddress;
 
 
 
 public class MaxRcptHandlerTest extends TestCase{
     
-    private String response;
-    
     private SMTPSession setupMockedSession(final int rcptCount) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
-            boolean processing = false;
-            
+
             public Map getState() {
                 return state;
             }
             
             public boolean isRelayingAllowed() {
                 return false;
-            }
-            
-            public void writeResponse(String resp) {
-                response = resp;
-            }
-            
-            public void setStopHandlerProcessing(boolean processing) {
-                this.processing = processing;
-            }
-            
-            public boolean getStopHandlerProcessing() {
-                return processing;
             }
             
             public int getRcptCount() {
@@ -72,50 +60,31 @@ public class MaxRcptHandlerTest extends TestCase{
         return session;
     }
     
-    public void testRejectMaxRcpt() {
+    public void testRejectMaxRcpt() throws ParseException {
         SMTPSession session = setupMockedSession(3);
         MaxRcptHandler handler = new MaxRcptHandler();
     
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.setAction("reject");
+        //handler.setAction("reject");
         handler.setMaxRcpt(2);
-        handler.onCommand(session);
+        int resp = handler.doRcpt(session,null,new MailAddress("test@test")).getResult();
     
-        assertNotNull("Rejected.. To many recipients", response);
-        assertTrue("Reject.. Stop processing",session.getStopHandlerProcessing());
+        assertEquals("Rejected.. To many recipients", resp, HookReturnCode.DENY);
     }
+  
     
-    public void testAddScoreMaxRcpt() {
-        SMTPSession session = setupMockedSession(3);
-        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
-    
-        MaxRcptHandler handler = new MaxRcptHandler();
-    
-        ContainerUtil.enableLogging(handler,new MockLogger());
-    
-        handler.setAction("junkScore");
-        handler.setScore(20);
-        handler.setMaxRcpt(2);
-        handler.onCommand(session);
-    
-        assertNull("Not Rejected.. we use junkScore action", response);
-        assertFalse("Not Rejected.. we use junkScore action",session.getStopHandlerProcessing());
-        assertEquals("Get Score", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("MaxRcptCheck"),20.0,0d);
-    }
-    
-    public void testNotRejectMaxRcpt() {
+    public void testNotRejectMaxRcpt() throws ParseException {
         SMTPSession session = setupMockedSession(3);
         MaxRcptHandler handler = new MaxRcptHandler();
     
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.setAction("reject");
+
         handler.setMaxRcpt(4);
-        handler.onCommand(session);
-    
-        assertNull("Not Rejected..", response);
-        assertFalse("Not stop processing",session.getStopHandlerProcessing());
+        int resp = handler.doRcpt(session,null,new MailAddress("test@test")).getResult();
+        
+        assertEquals("Not Rejected..", resp, HookReturnCode.DECLINED);
     }
 
 }

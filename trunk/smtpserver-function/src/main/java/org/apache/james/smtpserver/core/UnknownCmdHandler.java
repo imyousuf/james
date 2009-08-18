@@ -26,6 +26,8 @@ import java.util.Collection;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 
 /**
@@ -38,28 +40,19 @@ public class UnknownCmdHandler implements CommandHandler {
      */
     public static final String UNKNOWN_COMMAND = "UNKNOWN";
     
-    private boolean stopHandlerProcessing = true;
-
     /**
      * Handler method called upon receipt of an unrecognized command.
      * Returns an error response and logs the command.
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
+     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
-    public void onCommand(SMTPSession session) {
-
-        //If there was message failure, don't consider it as an unknown command
-        if (session.getState().get(SMTPSession.MESG_FAILED) != null) {
-            return;
-        }
-
-        session.getResponseBuffer().append("500 "+DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
+    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+        StringBuffer result = new StringBuffer();
+        result.append(DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
                       .append(" Command ")
-                      .append(session.getCommandName())
+                      .append(command)
                       .append(" unrecognized.");
-        String responseString = session.clearResponseBuffer();
-
-        session.writeResponse(responseString);
+        return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, result);
     }
     
     /**
@@ -67,7 +60,7 @@ public class UnknownCmdHandler implements CommandHandler {
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("UNKNOWN");
+        implCommands.add(UNKNOWN_COMMAND);
         
         return implCommands;
     }

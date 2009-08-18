@@ -24,7 +24,6 @@ package org.apache.james.smtpserver;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
-import org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader;
 import org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.MaxRcptHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler;
@@ -45,7 +44,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private boolean m_ehloResolv = false;
     private boolean m_senderDomainResolv = false;
     private boolean m_checkAuthNetworks = false;
-    private boolean m_checkAuthClients = false;
     private boolean m_heloEhloEnforcement = true;
     private boolean m_reverseEqualsHelo = false;
     private boolean m_reverseEqualsEhlo = false;
@@ -69,6 +67,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     {
         m_maxMessageSizeKB = kilobytes;
     }
+    
     
     public int getMaxMessageSize() {
         return m_maxMessageSizeKB;
@@ -125,10 +124,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         m_senderDomainResolv = true; 
     }
     
-    public void setCheckAuthClients(boolean ignore) {
-        m_checkAuthClients = ignore; 
-    }
-    
     public void setMaxRcpt(int maxRcpt) {
         m_maxRcpt = maxRcpt; 
     }
@@ -144,6 +139,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     public void setAddressBracketsEnforcement(boolean addressBracketsEnforcement) {
         this.m_addressBracketsEnforcement = addressBracketsEnforcement;
     }
+    
 
     public void init() throws ConfigurationException {
 
@@ -182,10 +178,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
             config.addChild(handler);
 
         }
-
-        config.addChild(createHandler(CoreFilterCmdHandlerLoader.class
-                .getName(), null));
-
         if (m_heloResolv || m_ehloResolv) {
             DefaultConfiguration d = createHandler(
                     ResolvableEhloHeloHandler.class.getName(), null);
@@ -206,8 +198,8 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
             DefaultConfiguration d = createHandler(
                     ValidSenderDomainHandler.class.getName(), null);
             d.setAttribute("command", "MAIL");
-            d.addChild(Util.getValuedConfiguration("checkAuthClients",
-                    m_checkAuthClients + ""));
+            d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
+                    m_checkAuthNetworks + ""));
             config.addChild(d);
         }
         if (m_maxRcpt > 0) {
@@ -217,11 +209,10 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
             d.addChild(Util.getValuedConfiguration("maxRcpt", m_maxRcpt + ""));
             config.addChild(d);
         }
+       
+        
         config.addChild(createHandler(CoreCmdHandlerLoader.class.getName(),
                 null));
-        config.addChild(createHandler(
-                org.apache.james.smtpserver.core.SendMailHandler.class
-                        .getName(), null));
         handlerConfig.addChild(config);
         addChild(handlerConfig);
     }

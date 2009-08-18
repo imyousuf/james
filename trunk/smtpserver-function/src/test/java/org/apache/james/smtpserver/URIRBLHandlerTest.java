@@ -42,11 +42,11 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.core.filter.fastfail.URIRBLHandler;
-import org.apache.james.smtpserver.junkscore.JunkScore;
-import org.apache.james.smtpserver.junkscore.JunkScoreImpl;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.test.mock.MockMimeMessage;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.mailet.base.test.FakeMimeMessage;
-import org.apache.mailet.base.test.FakeMail;
+import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.mailet.Mail;
 
 public class URIRBLHandlerTest extends TestCase {
@@ -55,15 +55,10 @@ public class URIRBLHandlerTest extends TestCase {
     private static final String GOOD_DOMAIN = "good.apache.org";
     private static final String URISERVER = "multi.surbl.org.";
     private SMTPSession mockedSMTPSession;
-
-    private String response = null;
-    
-    public void setUp() {
-        // reset reponse
-        response = null;
-    }
+    private Mail mockedMail;
 
     private SMTPSession setupMockedSMTPSession(final Mail mail) {
+        mockedMail = mail;
         mockedSMTPSession = new AbstractSMTPSession() {
 
             private HashMap state = new HashMap();
@@ -73,15 +68,6 @@ public class URIRBLHandlerTest extends TestCase {
             private String host = "localhost";
 
             private boolean relayingAllowed;
-
-            private boolean processing;
-            
-            public void abortMessage() {
-            }
-
-            public Mail getMail() {
-                return mail;
-            }
 
             public String getRemoteHost() {
                 return host;
@@ -103,37 +89,21 @@ public class URIRBLHandlerTest extends TestCase {
             public void setRelayingAllowed(boolean relayingAllowed) {
                 this.relayingAllowed = relayingAllowed;
             }
-
-            public void writeResponse(String respString) {
-                response = respString;
-            }
-            
-            public void setStopHandlerProcessing(boolean processing) {
-                this.processing = processing;
-            }
-            
-            public boolean getStopHandlerProcessing() {
-                return processing;
-            }
         };
 
         return mockedSMTPSession;
 
     }
 
-    private String getResponse() {
-        return response;
-    }
-
     private Mail setupMockedMail(MimeMessage message) {
-        FakeMail mail = new FakeMail();
+        MockMail mail = new MockMail();
         mail.setMessage(message);
         return mail;
     }
 
     public MimeMessage setupMockedMimeMessage(String text)
             throws MessagingException {
-        MimeMessage message = new MimeMessage(new FakeMimeMessage());
+        MimeMessage message = new MimeMessage(new MockMimeMessage());
         message.setText(text);
         message.saveChanges();
 
@@ -141,12 +111,12 @@ public class URIRBLHandlerTest extends TestCase {
     }
     
     public MimeMessage setupMockedMimeMessageMP(String text) throws MessagingException {
-        MimeMessage message = new MimeMessage(new FakeMimeMessage());
+        MimeMessage message = new MimeMessage(new MockMimeMessage());
         
-//      Create the message part 
+        // Create the message part 
         BodyPart messageBodyPart = new MimeBodyPart();
 
-//         Fill the message
+        // Fill the message
         messageBodyPart.setText(text);
 
         Multipart multipart = new MimeMultipart();
@@ -163,7 +133,7 @@ public class URIRBLHandlerTest extends TestCase {
      *
      */
     private DNSService setupMockedDnsServer() {
-        DNSService mockedDnsServer = new AbstractDNSServer() {
+    	DNSService mockedDnsServer = new AbstractDNSServer() {
 
             public Collection findTXTRecords(String hostname) {
                 List res = new ArrayList();
@@ -203,12 +173,11 @@ public class URIRBLHandlerTest extends TestCase {
         URIRBLHandler handler = new URIRBLHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
-        handler.setDnsServer(setupMockedDnsServer());
+        handler.setDNSService(setupMockedDnsServer());
         handler.setUriRblServer(servers);
-        handler.onMessage(session);
+        HookResult response = handler.onMessage(session, mockedMail);
 
-        assertFalse("Not Stop handler processing", session.getStopHandlerProcessing());
-        assertNull("Email was not rejected", getResponse());
+        assertEquals("Email was not rejected", response.getResult(),HookReturnCode.DECLINED);
     }
     
     public void testBlocked() throws IOException, MessagingException {
@@ -221,12 +190,11 @@ public class URIRBLHandlerTest extends TestCase {
         URIRBLHandler handler = new URIRBLHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
-        handler.setDnsServer(setupMockedDnsServer());
+        handler.setDNSService(setupMockedDnsServer());
         handler.setUriRblServer(servers);
-        handler.onMessage(session);
+        HookResult response = handler.onMessage(session, mockedMail);
 
-        assertTrue("Stop handler processing", session.getStopHandlerProcessing());
-        assertNotNull("Email was rejected", getResponse());
+        assertEquals("Email was rejected", response.getResult(), HookReturnCode.DENY);
     }
     
     public void testBlockedMultiPart() throws IOException, MessagingException {
@@ -239,14 +207,14 @@ public class URIRBLHandlerTest extends TestCase {
         URIRBLHandler handler = new URIRBLHandler();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
-        handler.setDnsServer(setupMockedDnsServer());
+        handler.setDNSService(setupMockedDnsServer());
         handler.setUriRblServer(servers);
-        handler.onMessage(session);
+        HookResult response = handler.onMessage(session, mockedMail);
 
-        assertTrue("Stop handler processing", session.getStopHandlerProcessing());
-        assertNotNull("Email was rejected", getResponse());
+        assertEquals("Email was rejected", response.getResult(), HookReturnCode.DENY);
     }
-    
+
+    /*
     public void testAddJunkScore() throws IOException, MessagingException {
         
         ArrayList servers = new ArrayList();
@@ -262,10 +230,10 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         handler.setAction("junkScore");
         handler.setScore(20);
-        handler.onMessage(session);
+        HookResult response = handler.onMessage(session, mockedMail);
 
-        assertFalse("Not stop handler processing", session.getStopHandlerProcessing());
-        assertNull("Email was not rejected", getResponse());
+        assertNull("Email was not rejected", response);
         assertEquals("JunkScore added", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("UriRBLCheck"), 20.0, 0d);
     }
+    */
 }

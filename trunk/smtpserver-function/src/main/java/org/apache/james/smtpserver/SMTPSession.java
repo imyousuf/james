@@ -17,16 +17,8 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
 
-
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.mailet.Mail;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -37,78 +29,11 @@ import java.util.Map;
 public interface SMTPSession {
 
     // Keys used to store/lookup data in the internal state hash map
-    public final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
     public final static String SENDER = "SENDER_ADDRESS";     // Sender's email address
     public final static String RCPT_LIST = "RCPT_LIST";   // The message recipients
     public final static String CURRENT_HELO_MODE = "CURRENT_HELO_MODE"; // HELO or EHLO
     public final static String CURRENT_HELO_NAME = "CURRENT_HELO_NAME"; 
-    public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
-
-    /**
-     * Writes response string to the client
-     *
-     * @param respString String that needs to send to the client
-     */
-    void writeResponse(String respString);
-
-    /**
-     * Reads a line of characters off the command line.
-     *
-     * @return the trimmed input line
-     * @throws IOException if an exception is generated reading in the input characters
-     */
-    String readCommandLine() throws IOException;
-
-
-    /**
-     * Returns ResponseBuffer, this optimizes the unecessary creation of resources
-     * by each handler object
-     *
-     * @return responseBuffer
-     */
-    StringBuffer getResponseBuffer();
-
-    /**
-     * Clears the response buffer, returning the String of characters in the buffer.
-     *
-     * @return the data in the response buffer
-     */
-    String clearResponseBuffer();
-
-    /**
-     * Returns Inputstream for handling messages and commands
-     *
-     * @return InputStream object
-     */
-    InputStream getInputStream();
-
-    /**
-     * Returns currently process command name
-     *
-     * @return current command name
-     */
-    String getCommandName();
-
-    /**
-     * Returns currently process command argument
-     *
-     * @return current command argument
-     */
-    String getCommandArgument();
-
-    /**
-     * Returns Mail object for message handlers to process
-     *
-     * @return Mail object
-     */
-    Mail getMail();
-
-    /**
-     * Sets the MailImpl object for further processing
-     *
-     * @param mail MailImpl object
-     */
-    void setMail(Mail mail);
+    public final static String SESSION_STATE_MAP = "SESSION_STATE_MAP"; // the Session state 
 
     /**
      * Returns host name of the client
@@ -123,25 +48,6 @@ public interface SMTPSession {
      * @return host ip address of the client
      */
     String getRemoteIPAddress();
-
-    /**
-     * this makes the message to be dropped inprotocol
-     *
-     */
-    void abortMessage();
-
-    /**
-     * this makes the session to close
-     *
-     */
-    void endSession();
-
-    /**
-     * Returns the session status
-     *
-     * @return if the session is open or closed
-     */
-    boolean isSessionEnded();
 
     /**
      * Returns Map that consists of the state of the SMTPSession per mail
@@ -182,14 +88,7 @@ public interface SMTPSession {
      *
      * @return authentication required or not
      */
-    boolean isAuthRequired();
-    
-    /**
-     * Returns whether remote server needs to send HELO/EHLO
-     *
-     * @return HELO/EHLO required or not
-     */
-    boolean useHeloEhloEnforcement();
+    boolean isAuthSupported();
 
     /**
      * Returns the user name associated with this SMTP interaction.
@@ -206,13 +105,6 @@ public interface SMTPSession {
     void setUser(String user);
 
     /**
-     * Returns Watchdog object used for handling timeout
-     *
-     * @return Watchdog object
-     */
-    Watchdog getWatchdog();
-
-    /**
      * Returns the SMTP session id
      *
      * @return SMTP session id
@@ -225,26 +117,6 @@ public interface SMTPSession {
      * @return recipient count
      */
     int getRcptCount();
-
-    /**
-     * Set to true if the handlerprocessing should be stopped
-     * 
-     * @param b true or false
-     */
-    void setStopHandlerProcessing(boolean b);
-    
-    /**
-     * Return if handlerprocessing should be stopped
-     * 
-     * @return true or false
-     */
-    boolean getStopHandlerProcessing();
-    
-    
-    /**
-     * Reset the Connection state
-     */
-    void resetConnectionState();
     
     /**
      * Returns Map that consists of the state of the SMTPSession per connection
@@ -253,5 +125,27 @@ public interface SMTPSession {
      */
     Map getConnectionState();
 
+    /**
+     * Put a new line handler in the chain
+     * @param overrideCommandHandler
+     */
+    void pushLineHandler(LineHandler overrideCommandHandler);
+    
+    /**
+     * Pop the last command handler 
+     */
+    void popLineHandler();
+
+    /**
+     * Write an SMTPResponse to the client
+     */
+    void writeSMTPResponse(SMTPResponse response);
+    
+    /**
+     * Sleep for the given ms 
+     * 
+     * @param ms the time to sleep in milliseconds
+     */
+    void sleep(long ms);
 }
 

@@ -17,6 +17,8 @@
  * under the License.                                           *
  ****************************************************************/
 
+
+
 package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.activity.Initializable;
@@ -30,18 +32,12 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
-import org.apache.james.smtpserver.core.SendMailHandler;
-import org.apache.james.smtpserver.core.UnknownCmdHandler;
-import org.apache.james.smtpserver.core.filter.CoreFilterCmdHandlerLoader;
+import org.apache.james.smtpserver.core.CoreMessageHookLoader;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -50,17 +46,34 @@ import java.util.Properties;
   */
 public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable, Initializable {
 
-    private HashMap commandHandlerMap = new HashMap();
-    private ArrayList messageHandlers = new ArrayList();
-    private ArrayList connectHandlers = new ArrayList();
+    private List handlers = new LinkedList();
 
-    private final CommandHandler unknownHandler = new UnknownCmdHandler();
     private ServiceManager serviceManager;
     
-    private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
-
+    /**
+     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     */
     public void service(ServiceManager arg0) throws ServiceException {
         serviceManager = arg0;
+    }
+
+    /**
+     * ExtensibleHandler wiring
+     * 
+     * @throws WiringException 
+     */
+    private void wireExtensibleHandlers() throws WiringException {
+        for (Iterator h = handlers.iterator(); h.hasNext(); ) {
+            Object handler = h.next();
+            if (handler instanceof ExtensibleHandler) {
+                List markerInterfaces = ((ExtensibleHandler) handler).getMarkerInterfaces();
+                for (int i= 0;i < markerInterfaces.size(); i++) {
+                    Class markerInterface = (Class) markerInterfaces.get(i);
+                    List extensions = getHandlers(markerInterface);
+                    ((ExtensibleHandler) handler).wireExtensions(markerInterface,extensions);
+                }
+            }
+        }
     }
 
     /**
@@ -71,17 +84,12 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
      */
     public void configure(Configuration configuration)
             throws ConfigurationException {
-        addToMap(UnknownCmdHandler.UNKNOWN_COMMAND, unknownHandler);
         if (configuration == null
                 || configuration.getChildren("handler") == null
                 || configuration.getChildren("handler").length == 0) {
             configuration = new DefaultConfiguration("handlerchain");
             Properties cmds = new Properties();
-            cmds.setProperty("Default CoreCmdFilterHandlerLoader",
-                    CoreFilterCmdHandlerLoader.class.getName());
             cmds.setProperty("Default CoreCmdHandlerLoader", CoreCmdHandlerLoader.class
-                    .getName());
-            cmds.setProperty("Default SendMailHandler", SendMailHandler.class
                     .getName());
             Enumeration e = cmds.keys();
             while (e.hasMoreElements()) {
@@ -95,22 +103,20 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             Configuration[] children = configuration.getChildren("handler");
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-            // load the BaseFilterCmdHandler
-            loadClass(classLoader, CoreFilterCmdHandlerLoader.class.getName(),
-                    addHandler(null, CoreFilterCmdHandlerLoader.class.getName()));
 
             // load the configured handlers
             if (children != null) {
+
+                // load the core handlers
+                loadClass(classLoader, CoreCmdHandlerLoader.class.getName(),
+                        addHandler(null, CoreCmdHandlerLoader.class.getName()));
+                
                 for (int i = 0; i < children.length; i++) {
                     String className = children[i].getAttribute("class");
                     if (className != null) {
 
                         // ignore base handlers.
-                        if (!className.equals(CoreFilterCmdHandlerLoader.class
-                                .getName())
-                                && !className.equals(CoreCmdHandlerLoader.class
-                                        .getName())
-                                && !className.equals(SendMailHandler.class
+                        if (!className.equals(CoreCmdHandlerLoader.class
                                         .getName())) {
 
                             // load the handler
@@ -118,68 +124,30 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                         }
                     }
                 }
+                // load core messageHandlers
+                loadClass(classLoader, CoreMessageHookLoader.class.getName(),
+                        addHandler(null, CoreMessageHookLoader.class.getName()));
 
-                // load the BaseCmdHandler and SendMailHandler
-                loadClass(classLoader, CoreCmdHandlerLoader.class.getName(),
-                        addHandler(null, CoreCmdHandlerLoader.class.getName()));
-                loadClass(classLoader, SendMailHandler.class.getName(),
-                        addHandler(null, SendMailHandler.class.getName()));
             }
         }
-
-        // the size must be greater than 1 because we added UnknownCmdHandler to
-        // the map
-
-        if (commandHandlerMap.size() < 2) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("No commandhandlers configured");
-            }
-            throw new ConfigurationException("No commandhandlers configured");
-        } else {
-            boolean found = true;
-            for (int i = 0; i < mandatoryCommands.length; i++) {
-                if (!commandHandlerMap.containsKey(mandatoryCommands[i])) {
-                    if (getLogger().isErrorEnabled()) {
-                        getLogger().error(
-                                "No commandhandlers configured for the command:"
-                                        + mandatoryCommands[i]);
-                    }
-                    found = false;
-                    break;
-                }
-            }
-
-            if (!found) {
-                throw new ConfigurationException(
-                        "No commandhandlers configured for mandatory commands");
-            }
-
-            if (messageHandlers.size() == 0) {
-                if (getLogger().isErrorEnabled()) {
-                    getLogger()
-                            .error(
-                                    "No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
-                }
-                throw new ConfigurationException("No messageHandler configured");
-            }
-
-        }
-
     }
     
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        Iterator h = commandHandlerMap.keySet().iterator();
+//        SMTPCommandDispatcherLineHandler commandDispatcherLineHandler = new SMTPCommandDispatcherLineHandler();
+//        commandDispatcherLineHandler.enableLogging(getLogger());
+//        handlers.add(commandDispatcherLineHandler);
+        
+        Iterator h = handlers.iterator();
     
         while(h.hasNext()) {
-            List handlers = (List) commandHandlerMap.get(h.next());
-            Iterator h2 = handlers.iterator();
-            while (h2.hasNext()) {
-              ContainerUtil.initialize(h2.next());
-            }
+            Object next = h.next();
+            ContainerUtil.initialize(next);
         }
+        wireExtensibleHandlers();
+
     }
 
     /**
@@ -204,28 +172,16 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             // configure the handler
             ContainerUtil.configure(handler, config);
 
-            // if it is a connect handler add it to list of connect handlers
-            if (handler instanceof ConnectHandler) {
-                connectHandlers.add(handler);
-                if (getLogger().isInfoEnabled()) {
-                    getLogger().info("Added ConnectHandler: " + className);
-                }
-            }
-
             // if it is a commands handler add it to the map with key as command
             // name
-            if (handler instanceof CommandsHandler) {
-                Map c = ((CommandsHandler) handler).getCommands();
+            if (handler instanceof HandlersPackage) {
+                List c = ((HandlersPackage) handler).getHandlers();
 
-                Iterator cmdKeys = c.keySet().iterator();
-
-                while (cmdKeys.hasNext()) {
-                    String commandName = cmdKeys.next().toString();
-                    String cName = c.get(commandName).toString();
+                for (Iterator i = c.iterator(); i.hasNext(); ) {
+                    String cName = i.next().toString();
 
                     DefaultConfiguration cmdConf = new DefaultConfiguration(
                             "handler");
-                    cmdConf.setAttribute("command", commandName);
                     cmdConf.setAttribute("class", cName);
 
                     loadClass(classLoader, cName, cmdConf);
@@ -233,41 +189,13 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
             }
 
-            // if it is a command handler add it to the map with key as command
-            // name
-            if (handler instanceof CommandHandler) {
-                String commandName = config.getAttribute("command");
-                String cmds[] = commandName.split(",");
-                Collection implCmds = ((CommandHandler) handler).getImplCommands();
-
-                for (int i = 0; i < cmds.length; i++) {
-                    commandName = cmds[i].trim().toUpperCase(Locale.US);
-
-                    // Check if the commandHandler implement the configured command
-                    if (implCmds.contains(commandName)) {
-                        addToMap(commandName, (CommandHandler) handler);
-                        if (getLogger().isInfoEnabled()) {
-                            getLogger().info(
-                                    "Added Commandhandler: " + className);
-                        }
-                    } else {
-                        // The Configured command is not implemented. Throw an exception
-                        throw new ConfigurationException("Commandhandler "
-                                + className + " not implement the command "
-                                + commandName);
-                    }
-
-                }
-
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Added Handler: " + className);
             }
-
-            // if it is a message handler add it to list of message handlers
-            if (handler instanceof MessageHandler) {
-                messageHandlers.add(handler);
-                if (getLogger().isInfoEnabled()) {
-                    getLogger().info("Added MessageHandler: " + className);
-                }
-            }
+            
+            // fill the big handler table
+            handlers.add(handler);
+            
         } catch (ClassNotFoundException ex) {
             if (getLogger().isErrorEnabled()) {
                 getLogger().error("Failed to add Commandhandler: " + className,
@@ -312,59 +240,22 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         cmdConf.setAttribute("class",className);
         return cmdConf;
     }
-
+    
     /**
-     * Add it to map (key as command name, value is an array list of commandhandlers)
-     *
-     * @param commandName the command name which will be key
-     * @param cmdHandler The commandhandler object
+     * Returns a list of handler of the requested type.
+     * 
+     * @param type the type of handler we're interested in
+     * @return a List of handlers
      */
-    private void addToMap(String commandName, CommandHandler cmdHandler) {
-        ArrayList handlers = (ArrayList)commandHandlerMap.get(commandName);
-        if(handlers == null) {
-            handlers = new ArrayList();
-            commandHandlerMap.put(commandName, handlers);
+    public LinkedList getHandlers(Class type) {
+        LinkedList result = new LinkedList();
+        for (Iterator i = handlers.iterator(); i.hasNext(); ) {
+            Object handler = i.next();
+            if (type.isInstance(handler)) {
+                result.add(handler);
+            }
         }
-        handlers.add(cmdHandler);
-    }
-
-    /**
-     * Returns all the configured commandhandlers for the specified command
-     *
-     * @param command the command name which will be key
-     * @return List of commandhandlers
-     */
-    List getCommandHandlers(String command) {
-        if (command == null) {
-            return null;
-        }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Lookup command handler for command: " + command);
-        }
-        List handlers =  (List)commandHandlerMap.get(command);
-        if(handlers == null) {
-            handlers = (List)commandHandlerMap.get(UnknownCmdHandler.UNKNOWN_COMMAND);
-        }
-
-        return handlers;
-    }
-
-    /**
-     * Returns all the configured message handlers
-     *
-     * @return List of message handlers
-     */
-    List getMessageHandlers() {
-        return messageHandlers;
-    }
-
-    /**
-     * Returns all the configured connect handlers
-     *
-     * @return List of connect handlers
-     */
-    List getConnectHandlers() {
-        return connectHandlers;
+        return result;
     }
 
 }

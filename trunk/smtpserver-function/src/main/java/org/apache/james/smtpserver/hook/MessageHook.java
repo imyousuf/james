@@ -16,20 +16,21 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.smtpserver.hook;
 
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.mailet.Mail;
 
-
-package org.apache.james.smtpserver;
-
-import java.util.Map;
-
-public interface CommandsHandler {
-    
+/**
+ * Custom message handlers must implement this interface
+ * The message hooks will be server-wide common to all the SMTPHandlers,
+ * therefore the handlers must store all the state information
+ * in the SMTPSession object
+ */
+public interface MessageHook {
     /**
-     * Return a Map which contains a set of CommandHandlers
-     * 
-     * @return Map
+     * Handle Message
      */
-    Map getCommands();
+    HookResult onMessage(SMTPSession session, Mail mail);
 
 }

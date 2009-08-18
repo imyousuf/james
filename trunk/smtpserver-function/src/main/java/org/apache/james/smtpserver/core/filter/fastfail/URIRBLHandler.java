@@ -37,20 +37,22 @@ import javax.mail.internet.MimePart;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.MessageHandler;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.urirbl.URIScanner;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MessageHook;
+import org.apache.mailet.Mail;
 
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
  */
-public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler,
+public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
     Serviceable {
 
     private DNSService dnsServer;
@@ -64,12 +66,12 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
     private final static String LISTED_DOMAIN ="LISTED_DOMAIN";
     
     private final static String URBLSERVER = "URBL_SERVER";
-    
+
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSService) serviceMan.lookup(DNSService.ROLE));
+    	setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
     }
 
     /**
@@ -114,8 +116,6 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
             setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
         
-        super.configure(arg0);
-
     }
    
     /**
@@ -138,13 +138,13 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
     }
 
     /**
-     * Set the DNSService
+     * Set the DNSServer
      * 
-     * @param dnsServer
-     *            The DNSService
+     * @param service
+     *            The DNSServer
      */
-    public void setDnsServer(DNSService dnsServer) {
-        this.dnsServer = dnsServer;
+    public void setDNSService(DNSService service) {
+        this.dnsServer = service;
     }
 
     /**
@@ -157,10 +157,38 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
     }
     
     /**
-     * @see org.apache.james.smtpserver.MessageHandler#onMessage(SMTPSession)
+     * @see org.apache.james.smtpserver.hook.MessageHook#onMessage(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.Mail)
      */
-    public void onMessage(SMTPSession session) {
-        doProcessing(session);
+    public HookResult onMessage(SMTPSession session, Mail mail) {
+        if (check(session, mail)) {
+            String uRblServer = (String) session.getState().get(URBLSERVER);
+            String target = (String) session.getState().get(LISTED_DOMAIN);
+            String detail = null;
+
+            // we should try to retrieve details
+            if (getDetail) {
+                Collection txt = dnsServer.findTXTRecords(target+ "." + uRblServer);
+
+                // Check if we found a txt record
+                if (!txt.isEmpty()) {
+                    // Set the detail
+                    detail = txt.iterator().next().toString();
+
+                }
+            }
+
+            if (detail != null) {
+                return new HookResult(HookReturnCode.DENY, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+                    + "Rejected: message contains domain " + target + " listed by " + uRblServer +" . Details: " 
+                    + detail);
+            } else {
+                return new HookResult(HookReturnCode.DENY, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+                    + " Rejected: message contains domain " + target + " listed by " + uRblServer);
+            }  
+
+        } else {
+            return new HookResult(HookReturnCode.DECLINED);
+        }
     }
 
     /**
@@ -202,9 +230,9 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
+     * Check method
      */
-    protected boolean check(SMTPSession session) {
+    protected boolean check(SMTPSession session, Mail mail) {
         MimeMessage message;
         
         // Not scan the message if relaying allowed
@@ -213,7 +241,7 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
         }
         
         try {
-            message = session.getMail().getMessage();
+            message = mail.getMessage();
 
             HashSet domains = scanMailForDomains(message);
 
@@ -238,7 +266,6 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
                         session.getState().put(URBLSERVER, uRblServer);
                         session.getState().put(LISTED_DOMAIN,target);
 
-                        session.abortMessage();
                         return true;
 
                     } catch (UnknownHostException uhe) {
@@ -254,42 +281,42 @@ public class URIRBLHandler extends AbstractJunkHandler implements MessageHandler
         return false;
     }
 
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
-     */
-    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
-        JunkHandlerData data = new JunkHandlerData();
-    
-        String uRblServer = (String) session.getState().get(URBLSERVER);
-        String target = (String) session.getState().get(LISTED_DOMAIN);
-        String detail = null;
-
-        // we should try to retrieve details
-        if (getDetail) {
-            Collection txt = dnsServer.findTXTRecords(target+ "." + uRblServer);
-
-            // Check if we found a txt record
-            if (!txt.isEmpty()) {
-                // Set the detail
-                detail = txt.iterator().next().toString();
-
-            }
-        }
-
-        if (detail != null) {
-           
-            data.setRejectResponseString("554 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-                + "Rejected: message contains domain " + target + " listed by " + uRblServer +" . Details: " 
-                + detail);
-        } else {
-            data.setRejectResponseString("554 " + DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-                + " Rejected: message contains domain " + target + " listed by " + uRblServer);
-        }  
-
-        data.setJunkScoreLogString("Message sent by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " because " + target + " is listed. Add junkScore: " + getScore());
-        data.setRejectLogString("Rejected: message contains domain " + target + " listed by " + uRblServer);
-        data.setScoreName("UriRBLCheck");
-        return data;
-    }
-
+//    /**
+//     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
+//     */
+//    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
+//        JunkHandlerData data = new JunkHandlerData();
+//    
+//        String uRblServer = (String) session.getState().get(URBLSERVER);
+//        String target = (String) session.getState().get(LISTED_DOMAIN);
+//        String detail = null;
+//
+//        // we should try to retrieve details
+//        if (getDetail) {
+//            Collection txt = dnsServer.findTXTRecords(target+ "." + uRblServer);
+//
+//            // Check if we found a txt record
+//            if (!txt.isEmpty()) {
+//                // Set the detail
+//                detail = txt.iterator().next().toString();
+//
+//            }
+//        }
+//
+//        if (detail != null) {
+//           
+//            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+//                + "Rejected: message contains domain " + target + " listed by " + uRblServer +" . Details: " 
+//                + detail));
+//        } else {
+//            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
+//                + " Rejected: message contains domain " + target + " listed by " + uRblServer));
+//        }  
+//
+//        data.setJunkScoreLogString("Message sent by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " because " + target + " is listed. Add junkScore: " + getScore());
+//        data.setRejectLogString("Rejected: message contains domain " + target + " listed by " + uRblServer);
+//        data.setScoreName("UriRBLCheck");
+//        return data;
+//    }
+//
 }

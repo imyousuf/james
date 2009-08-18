@@ -16,21 +16,31 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.smtpserver.core;
 
-
-
-package org.apache.james.smtpserver;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.mailet.MailAddress;
 
 /**
- * Custom message handlers must implement this interface
- * The message handlers will be server-wide common to all the SMTPHandlers,
- * therefore the handlers must store all the state information
- * in the SMTPSession object
+ * This hook will stop the hook chain if relaying is allowed
  */
-public interface MessageHandler {
-    /*
-     * Handle Message
-    **/
-    void onMessage(SMTPSession session);
+public class AcceptRecipientIfRelayingIsAllowed extends AbstractLogEnabled implements
+        RcptHook {
+
+    /**
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession,
+     *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     */
+    public HookResult doRcpt(SMTPSession session, MailAddress sender,
+            MailAddress rcpt) {
+        if (session.isRelayingAllowed()) {
+            return new HookResult(HookReturnCode.OK);
+        }
+        return new HookResult(HookReturnCode.DECLINED);
+    }
 
 }
