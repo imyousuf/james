@@ -17,62 +17,90 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.core;
-
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
-
+import org.apache.james.smtpserver.hook.HeloHook;
+import org.apache.james.smtpserver.hook.HookResult;
 
 /**
-  * Handles HELO command
-  */
-public class HeloCmdHandler extends AbstractLogEnabled implements CommandHandler {
+ * Handles HELO command
+ */
+public class HeloCmdHandler extends AbstractHookableCmdHandler implements
+        CommandHandler {
 
     /**
      * The name of the command handled by the command handler
      */
-    private final static String COMMAND_NAME = "HELO";   
-      
-    /**
-     * process HELO command
-     *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-    **/
-    public void onCommand(SMTPSession session) {
-        doHELO(session, session.getCommandArgument());
-    }
+    private final static String COMMAND_NAME = "HELO";
 
-    /**
-     * @param session SMTP session object
-     * @param argument the argument passed in with the command by the SMTP client
-     */
-    private void doHELO(SMTPSession session, String argument) {
-        String responseString = null;
-
-        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE, COMMAND_NAME);
-        session.getResponseBuffer().append("250 ").append(
-                session.getConfigurationData().getHelloName())
-                .append(" Hello ").append(argument).append(" (").append(
-                        session.getRemoteHost()).append(" [").append(
-                        session.getRemoteIPAddress()).append("])");
-        responseString = session.clearResponseBuffer();
-        session.writeResponse(responseString);
-    }
-    
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
     public Collection getImplCommands() {
         Collection implCommands = new ArrayList();
-        implCommands.add("HELO");
-        
+        implCommands.add(COMMAND_NAME);
+
         return implCommands;
-    } 
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#doCoreCmd(org.apache.james.smtpserver.SMTPSession,
+     *      java.lang.String, java.lang.String)
+     */
+    protected SMTPResponse doCoreCmd(SMTPSession session, String command,
+            String parameters) {
+        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE,
+                COMMAND_NAME);
+        StringBuffer response = new StringBuffer();
+        response.append(session.getConfigurationData().getHelloName()).append(
+                " Hello ").append(parameters).append(" (").append(
+                session.getRemoteHost()).append(" [").append(
+                session.getRemoteIPAddress()).append("])");
+        return new SMTPResponse(SMTPRetCode.MAIL_OK, response);
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#doFilterChecks(org.apache.james.smtpserver.SMTPSession,
+     *      java.lang.String, java.lang.String)
+     */
+    protected SMTPResponse doFilterChecks(SMTPSession session, String command,
+            String parameters) {
+        session.resetState();
+
+        if (parameters == null) {
+            return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,
+                    DSNStatus.getStatus(DSNStatus.PERMANENT,
+                            DSNStatus.DELIVERY_INVALID_ARG)
+                            + " Domain address required: " + COMMAND_NAME);
+        } else {
+            // store provided name
+            session.getState().put(SMTPSession.CURRENT_HELO_NAME, parameters);
+            return null;
+        }
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHookInterface()
+     */
+    protected Class getHookInterface() {
+        return HeloHook.class;
+    }
+
+
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object, org.apache.james.smtpserver.SMTPSession, java.lang.String)
+     */
+    protected HookResult callHook(Object rawHook, SMTPSession session, String parameters) {
+        return ((HeloHook) rawHook).doHelo(session, parameters);
+    }
+
+
 }

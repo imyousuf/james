@@ -16,33 +16,36 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.MailHook;
 import org.apache.mailet.MailAddress;
 
+/**
+ * Add MFDNSCheck feature to SMTPServer. This handler reject mail from domains which have not an an valid MX record.  
+ * 
+ */
 public class ValidSenderDomainHandler
-    extends AbstractJunkHandler
-    implements CommandHandler, Configurable, Serviceable {
+    extends AbstractLogEnabled
+    implements MailHook, Configurable, Serviceable {
     
-    private boolean checkAuthClients = false;
-    
+    private boolean checkAuthNetworks = false;
     private DNSService dnsServer = null;
 
     
@@ -51,19 +54,17 @@ public class ValidSenderDomainHandler
      */
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
         
-        Configuration configRelay = handlerConfiguration.getChild("checkAuthClients",false);
+        Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
         if(configRelay != null) {
-            setCheckAuthClients(configRelay.getValueAsBoolean(false));
+            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
-        
-        super.configure(handlerConfiguration);
     }
     
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDnsServer((DNSService) serviceMan.lookup(DNSService.ROLE));
+        setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
     }
     
     /**
@@ -71,78 +72,55 @@ public class ValidSenderDomainHandler
      * 
      * @param dnsServer The DnsServer
      */
-    public void setDnsServer(DNSService dnsServer) {
+    public void setDNSService(DNSService dnsServer) {
         this.dnsServer = dnsServer;
     }
     
     /**
-     * Enable checking of authorized clients
+     * Enable checking of authorized networks
      * 
-     * @param checkAuthClients Set to true to enable
+     * @param checkAuthNetworks Set to true to enable
      */
-    public void setCheckAuthClients(boolean checkAuthClients) {
-        this.checkAuthClients = checkAuthClients;
+    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
+        this.checkAuthNetworks = checkAuthNetworks;
     }
+
     
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
-    public void onCommand(SMTPSession session) {
-        doProcessing(session);
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected boolean check(SMTPSession session) {
-        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-            
+    protected boolean check(SMTPSession session, MailAddress senderAddress) {
         // null sender so return
         if (senderAddress == null) return false;
-            
-        /**
-         * don't check if the ip address is allowed to relay. Only check if it is set in the config. 
-         */
-        if (checkAuthClients || !session.isRelayingAllowed()) {
-            Collection records = null;
-            
-                
-            // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
-            try {
-                records = dnsServer.findMXRecords(senderAddress.getHost());
-            } catch (TemporaryResolutionException e) {
-                // TODO: Should we reject temporary ?
-            }
-        
-            if (records == null || records.size() == 0) {
-                session.getState().remove(SMTPSession.SENDER);
-                return true;
-            }
+
+        // Not scan the message if relaying allowed
+        if (session.isRelayingAllowed() && !checkAuthNetworks) {
+            getLogger().info("YES");
+
+        	return false;
         }
+
+        Collection records = null;
+            
+        // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
+        try {
+            records = dnsServer.findMXRecords(senderAddress.getDomain());
+        } catch (TemporaryResolutionException e) {
+            // TODO: Should we reject temporary ?
+        }
+    
+        if (records == null || records.size() == 0) {
+            return true;
+        }
+
         return false;
     }
     
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     * @see org.apache.james.smtpserver.hook.MailHook#doMail(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress)
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("MAIL");
-        
-        return implCommands;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
-     */
-    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
-        MailAddress senderAddress = (MailAddress) session.getState().get(SMTPSession.SENDER);
-        JunkHandlerData data = new JunkHandlerData();
-    
-        data.setRejectResponseString("501 "+DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + senderAddress + " contains a domain with no valid MX records");
-        data.setJunkScoreLogString("Sender " + senderAddress + " contains a domain with no valid MX records. Add Junkscore: " + getScore());
-        data.setRejectLogString("Sender " + senderAddress + " contains a domain with no valid MX records");
-        data.setScoreName("ValidSenderDomainCheck");
-        return data;
+    public HookResult doMail(SMTPSession session, MailAddress sender) {
+        if (check(session,sender)) {
+            return new HookResult(HookReturnCode.DENY,SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_SYNTAX_SENDER)+ " sender " + sender + " contains a domain with no valid MX records");
+        } else {
+            return new HookResult(HookReturnCode.DECLINED);
+        }
     }
 }

@@ -21,18 +21,22 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.mailet.MailAddress;
 
+/**
+ * Add tarpit support to SMTPServer. See http://www.palomine.net/qmail/tarpit.html for more information
+ *
+ */
 public class TarpitHandler extends AbstractLogEnabled implements
-        CommandHandler, Configurable {
+        RcptHook, Configurable {
 
     private int tarpitRcptCount = 0;
 
@@ -86,40 +90,18 @@ public class TarpitHandler extends AbstractLogEnabled implements
     }
 
     /**
-     * Add a sleep for the given milliseconds
-     * 
-     * @param timeInMillis
-     *            Time in ms
-     * @throws InterruptedException
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    private void sleep(float timeInMillis) throws InterruptedException {
-        Thread.sleep((long) timeInMillis);
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
-    public void onCommand(SMTPSession session) {
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
 
         int rcptCount = 0;
         rcptCount = session.getRcptCount();
         rcptCount++;
 
         if (rcptCount > tarpitRcptCount) {
-            try {
-                sleep(tarpitSleepTime);
-            } catch (InterruptedException e) {
-            }
+            session.sleep(tarpitSleepTime);
         }
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
-     */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
-        implCommands.add("RCPT");
         
-        return implCommands;
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }

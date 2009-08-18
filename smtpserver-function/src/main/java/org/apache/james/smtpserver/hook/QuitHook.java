@@ -19,24 +19,22 @@
 
 
 
-package org.apache.james.smtpserver;
 
-import java.io.IOException;
+package org.apache.james.smtpserver.hook;
+
+import org.apache.james.smtpserver.SMTPSession;
 
 /**
-  * This exception is used to indicate when a new MimeMessage has exceeded
-  * the maximum message size for the server, as configured in the conf file.
-  *
-  * @version 0.5.1
-  */
-public class MessageSizeException extends IOException {
+ * Implement this interfaces to hook in the MAIL Command
+ * 
+ */
+public interface QuitHook {
 
     /**
-     * Sole contructor for this class.  This constructor sets
-     * the exception message to a fixed error message.
+     * Return the HookResult after run the hook
+     * 
+     * @param session the SMTPSession
+     * @return HockResult
      */
-    public MessageSizeException() {
-        super("Message size exceeds fixed maximum message size.");
-    }
+    public HookResult doQuit(SMTPSession session);
 }
-

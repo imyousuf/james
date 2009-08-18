@@ -21,16 +21,20 @@
 
 package org.apache.james.smtpserver.core;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.james.smtpserver.HandlersPackage;
+import org.apache.james.smtpserver.core.esmtp.AuthCmdHandler;
+import org.apache.james.smtpserver.core.esmtp.EhloCmdHandler;
+import org.apache.james.smtpserver.core.esmtp.MailSizeEsmtpExtension;
 
-import org.apache.james.smtpserver.CommandsHandler;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class represent the base command handlers which are shipped with james.
  */
-public class CoreCmdHandlerLoader implements CommandsHandler {
+public class CoreCmdHandlerLoader implements HandlersPackage {
 
+    private final Object COMMANDDISPATCHER = SMTPCommandDispatcherLineHandler.class.getName();
     private final Object AUTHCMDHANDLER = AuthCmdHandler.class.getName();
     private final Object DATACMDHANDLER = DataCmdHandler.class.getName();
     private final Object EHLOCMDHANDLER = EhloCmdHandler.class.getName();
@@ -43,26 +47,41 @@ public class CoreCmdHandlerLoader implements CommandsHandler {
     private final Object RCPTCMDHANDLER = RcptCmdHandler.class.getName();
     private final Object RSETCMDHANDLER = RsetCmdHandler.class.getName();
     private final Object VRFYCMDHANDLER = VrfyCmdHandler.class.getName();
+    private final Object MAILSIZEHOOK = MailSizeEsmtpExtension.class.getName();
+    private final Object WELCOMEMESSAGEHANDLER = WelcomeMessageHandler.class.getName();
+    private final Object USERSREPOSITORYAUTHHANDLER = UsersRepositoryAuthHook.class.getName();
+    private final Object POSTMASTERABUSEHOOK = PostmasterAbuseRcptHook.class.getName();
+    private final Object AUTHREQUIREDTORELAY = AuthRequiredToRelayRcptHook.class.getName();
+    private final Object SENDERAUTHIDENTITYVERIFICATION = SenderAuthIdentifyVerificationRcptHook.class.getName();
+    private final Object DATALINEMESSAGEHOOKHANDLER = DataLineMessageHookHandler.class.getName();
    
     /**
-     * @see org.apache.james.smtpserver.CommandsHandler#getCommands()
+     * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
      */
-    public Map getCommands() {
-        Map commands = new HashMap();
+    public List getHandlers() {
+        List commands = new LinkedList();
         
         // Insert the basecommands in the Map
-        commands.put("AUTH", AUTHCMDHANDLER);
-        commands.put("DATA", DATACMDHANDLER);
-        commands.put("EHLO", EHLOCMDHANDLER);
-        commands.put("EXPN", EXPNCMDHANDLER);
-        commands.put("HELO", HELOCMDHANDLER);
-        commands.put("HELP", HELPCMDHANDLER);
-        commands.put("MAIL", MAILCMDHANDLER);
-        commands.put("NOOP", NOOPCMDHANDLER);
-        commands.put("QUIT", QUITCMDHANDLER);
-        commands.put("RCPT", RCPTCMDHANDLER);
-        commands.put("RSET", RSETCMDHANDLER);
-        commands.put("VRFY", VRFYCMDHANDLER);
+        commands.add(WELCOMEMESSAGEHANDLER);
+        commands.add(COMMANDDISPATCHER);
+        commands.add(AUTHCMDHANDLER);
+        commands.add(DATACMDHANDLER);
+        commands.add(EHLOCMDHANDLER);
+        commands.add(EXPNCMDHANDLER);
+        commands.add(HELOCMDHANDLER);
+        commands.add(HELPCMDHANDLER);
+        commands.add(MAILCMDHANDLER);
+        commands.add(NOOPCMDHANDLER);
+        commands.add(QUITCMDHANDLER);
+        commands.add(RCPTCMDHANDLER);
+        commands.add(RSETCMDHANDLER);
+        commands.add(VRFYCMDHANDLER);
+        commands.add(MAILSIZEHOOK);
+        commands.add(USERSREPOSITORYAUTHHANDLER);
+        commands.add(AUTHREQUIREDTORELAY);
+        commands.add(SENDERAUTHIDENTITYVERIFICATION);
+        commands.add(POSTMASTERABUSEHOOK);
+        commands.add(DATALINEMESSAGEHOOKHANDLER);
         
         return commands;
     }

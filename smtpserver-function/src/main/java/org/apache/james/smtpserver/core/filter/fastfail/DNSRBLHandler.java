@@ -21,30 +21,32 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.ConnectHandler;
-import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.junkscore.JunkScore;
-import org.apache.mailet.MailAddress;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
+
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.ConnectHandler;
+import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.mailet.MailAddress;
 
 /**
   * Connect handler for DNSRBL processing
   */
 public class DNSRBLHandler
-    extends AbstractJunkHandler
-    implements ConnectHandler, CommandHandler, Configurable, Serviceable {
+    extends AbstractLogEnabled
+    implements ConnectHandler, RcptHook, Configurable, Serviceable {
     /**
      * The lists of rbl servers to be checked to limit spam
      */
@@ -112,15 +114,13 @@ public class DNSRBLHandler
            getDetail = configuration.getValueAsBoolean();
         }
         
-        super.configure(handlerConfiguration);
-
     }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager serviceMan) throws ServiceException {
-        setDNSServer((DNSService) serviceMan.lookup(DNSService.ROLE));
+        setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
     }
     
     /**
@@ -151,12 +151,12 @@ public class DNSRBLHandler
     }
     
     /**
-     * Set the DNSService
+     * Set the DNSServer
      * 
-     * @param dnsServer The DNSService
+     * @param mockedDnsServer The DNSServer
      */
-    public void setDNSServer(DNSService dnsServer) {
-        this.dnsServer = dnsServer;
+    public void setDNSService(DNSService mockedDnsServer) {
+        this.dnsServer = mockedDnsServer;
     }
 
     /**
@@ -245,58 +245,24 @@ public class DNSRBLHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
+     * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    public Collection getImplCommands() {
-        Collection commands = new ArrayList();
-        commands.add("RCPT");
-        return commands;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
-     */
-    public void onCommand(SMTPSession session) {
-        doProcessing(session);       
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#check(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected boolean check(SMTPSession session) {
-        String blocklisted = (String) session.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
-        MailAddress recipientAddress = (MailAddress) session.getState().get(
-                SMTPSession.CURRENT_RECIPIENT);
-
-        return (blocklisted != null && // was found in the RBL
-                !(session.isAuthRequired() && session.getUser() != null) && // Not (SMTP AUTH is enabled and not authenticated)
-                !(recipientAddress.getUser().equalsIgnoreCase("postmaster") || recipientAddress.getUser().equalsIgnoreCase("abuse")));
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkScore(org.apache.james.smtpserver.SMTPSession)
-     */
-    protected JunkScore getJunkScore(SMTPSession session) {
-        return (JunkScore) session.getConnectionState().get(JunkScore.JUNK_SCORE_SESSION);
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
-     */
-    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
-        JunkHandlerData data = new JunkHandlerData();
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         
-        data.setJunkScoreLogString("Ipaddress " + session.getRemoteIPAddress() + " listed on RBL. Add junkScore: " + getScore());
-        data.setRejectLogString("ipaddress " + session.getRemoteIPAddress() + " listed on RBL. Reject email");
+        if (!session.isRelayingAllowed()) {
+            String blocklisted = (String) session.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME);
     
-        if (blocklistedDetail != null) {
-            data.setRejectResponseString("530 "+ DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
-        } else {
-            data.setRejectResponseString("530 "+ DSNStatus.getStatus(DSNStatus.PERMANENT,
+            if (blocklisted != null) { // was found in the RBL
+                if (blocklistedDetail == null) {
+                    return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
                             DSNStatus.SECURITY_AUTH)  + " Rejected: unauthenticated e-mail from " + session.getRemoteIPAddress() 
                             + " is restricted.  Contact the postmaster for details.");
+                } else {
+                    return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SECURITY_AUTH) + " " + blocklistedDetail);
+                }
+               
+            }
         }
-        data.setScoreName("DNSRBLCheck");
-        return data;
+        return new HookResult(HookReturnCode.DECLINED);
     }
 }

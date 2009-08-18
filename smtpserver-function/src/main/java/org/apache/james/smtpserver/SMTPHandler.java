@@ -21,25 +21,17 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.Constants;
-import org.apache.james.socket.CRLFTerminatedReader;
-import org.apache.james.socket.ProtocolHandler;
-import org.apache.james.socket.ProtocolHandlerHelper;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.mailet.Mail;
-import org.apache.mailet.base.RFC822DateFormat;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
+
+import org.apache.james.socket.ProtocolHandler;
+import org.apache.james.socket.ProtocolHandlerHelper;
+import org.apache.james.util.CRLFDelimitedByteBuffer;
+import org.apache.mailet.base.RFC822DateFormat;
 
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
@@ -49,119 +41,59 @@ import java.util.Random;
  */
 public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
-    private ProtocolHandlerHelper helper;
+	private ProtocolHandlerHelper helper;
 
-    /**
-     * The constants to indicate the current processing mode of the session
-     */
-    private final static byte COMMAND_MODE = 1;
-    private final static byte RESPONSE_MODE = 2;
-    private final static byte MESSAGE_RECEIVED_MODE = 3;
-    private final static byte MESSAGE_ABORT_MODE = 4;
+	private boolean sessionEnded = false;
 
-    /**
-     * SMTP Server identification string used in SMTP headers
-     */
-    private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
-                                                 + Constants.SOFTWARE_VERSION;
+	/**
+	 * Static Random instance used to generate SMTP ids
+	 */
+	private final static Random random = new Random();
 
-    /**
-     * Static Random instance used to generate SMTP ids
-     */
-    private final static Random random = new Random();
+	/**
+	 * Static RFC822DateFormat used to generate date headers
+	 */
+	private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
-    /**
-     * Static RFC822DateFormat used to generate date headers
-     */
-    private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
+	/**
+	 * The name of the currently parsed command
+	 */
+	String curCommandName = null;
 
-    /**
-     * The name of the currently parsed command
-     */
-    String curCommandName =  null;
-
-    /**
-     * The value of the currently parsed command
-     */
-    String curCommandArgument =  null;
-
-    /**
-     * The SMTPHandlerChain object set by SMTPServer
-     */
-    SMTPHandlerChain handlerChain = null;
-
-
-    /**
-     * The mode of the current session
-     */
-    private byte mode;
-
-    /**
-     * The MailImpl object set by the DATA command
-     */
-    private Mail mail = null;
-
-    /**
-     * The session termination status
-     */
-    private boolean sessionEnded = false;
-
-    /**
-     * The user name of the authenticated user associated with this SMTP transaction.
-     */
-    private String authenticatedUser;
-
-    /**
-     * whether or not authorization is required for this connection
-     */
-    private boolean authRequired;
-
-    /**
-     * whether or not this connection can relay without authentication
-     */
-    private boolean relayingAllowed;
-
-    /**
-     * Whether the remote Server must send HELO/EHLO 
-     */
-    private boolean heloEhloEnforcement;
-    
-
-    /**
-     * The SMTPGreeting
-     */
-    private String smtpGreeting = null;
-    
-    /**
-     * The id associated with this particular SMTP interaction.
-     */
-    private String smtpID;
-
-    /**
-     * The per-service configuration data that applies to all handlers
-     */
-    private SMTPHandlerConfigurationData theConfigData;
-
-    /**
-     * The hash map that holds variables for the SMTP message transfer in progress.
-     *
-     * This hash map should only be used to store variable set in a particular
-     * set of sequential MAIL-RCPT-DATA commands, as described in RFC 2821.  Per
-     * connection values should be stored as member variables in this class.
-     */
-    private HashMap state = new HashMap();
-
+	/**
+	 * The value of the currently parsed command
+	 */
+	String curCommandArgument = null;
+	
     /**
      * The hash map holds states which should be used in the whole connection
      */
     private HashMap connectionState = new HashMap();
     
     /**
-     * The per-handler response buffer used to marshal responses.
+     * If not null every line is sent to this command handler instead
+     * of the default "command parsing -> dipatching" procedure.
      */
-    private StringBuffer responseBuffer = new StringBuffer(256);
-    
-    private boolean stopHandlerProcessing = false;
+    private LinkedList lineHandlers;
+
+    /**
+     * Connect Handlers
+     */
+    private LinkedList connectHandlers;
+
+	private SMTPHandlerConfigurationData theConfigData;
+
+	private boolean relayingAllowed;
+
+	private boolean authSupported;
+
+	private SMTPHandlerChain handlerChain;
+
+	private String authenticatedUser;
+
+	private String smtpID;
+
+	
 
     /**
      * Set the configuration data for the handler
@@ -176,36 +108,19 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         }
     }
     
-    /**
-     * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ProtocolHandler#handleProtocol()
      */
     public void handleProtocol() throws IOException {
         smtpID = random.nextInt(1024) + "";
         relayingAllowed = theConfigData.isRelayingAllowed(helper.getRemoteIP());
-        authRequired = theConfigData.isAuthRequired(helper.getRemoteIP());
-        heloEhloEnforcement = theConfigData.useHeloEhloEnforcement();
-        sessionEnded = false;
-        smtpGreeting = theConfigData.getSMTPGreeting();
-        resetState();
-        resetConnectionState();
+        authSupported = theConfigData.isAuthRequired(helper.getRemoteIP());
 
-        // if no greeting was configured use a default
-        if (smtpGreeting == null) {
-            // Initially greet the connector
-            // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-
-            responseBuffer.append("220 ")
-                          .append(theConfigData.getHelloName())
-                          .append(" SMTP Server (")
-                          .append(SOFTWARE_TYPE)
-                          .append(") ready ")
-                          .append(rfc822DateFormat.format(new Date()));
-        } else {
-            responseBuffer.append("220 ")
-                          .append(smtpGreeting);
-        }
-        String responseString = clearResponseBuffer();
-        helper.writeLoggedFlushedResponse(responseString);
+        // Both called in resetHandler, we don't need to call them again here.
+        // sessionEnded = false;
+        // resetState();
+        // resetConnectionState();
 
         //the core in-protocol handling logic
         //run all the connection handlers, if it fast fails, end the session
@@ -233,7 +148,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         //message will not spooled.
 
         //Session started - RUN all connect handlers
-        List connectHandlers = handlerChain.getConnectHandlers();
         if(connectHandlers != null) {
             int count = connectHandlers.size();
             for(int i = 0; i < count; i++) {
@@ -244,95 +158,80 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
             }
         }
 
+        CRLFDelimitedByteBuffer bytebufferHandler = new CRLFDelimitedByteBuffer(helper.getInputStream());
         helper.getWatchdog().start();
         while(!sessionEnded) {
-          //Reset the current command values
-          curCommandName = null;
-          curCommandArgument = null;
-          mode = COMMAND_MODE;
-
           //parse the command
-          String cmdString =  readCommandLine();
-          if (cmdString == null) {
+          byte[] line =  null;
+          try {
+              line = bytebufferHandler.read();
+          } catch (CRLFDelimitedByteBuffer.TerminationException e) {
+              writeSMTPResponse(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, "Syntax error at character position " + e.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1."));
+          } catch (CRLFDelimitedByteBuffer.LineLengthExceededException e) {
+              writeSMTPResponse(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
+          }
+          if (line == null) {
               break;
           }
-          int spaceIndex = cmdString.indexOf(" ");
-          if (spaceIndex > 0) {
-              curCommandName = cmdString.substring(0, spaceIndex);
-              curCommandArgument = cmdString.substring(spaceIndex + 1);
+
+          if (lineHandlers.size() > 0) {
+              ((LineHandler) lineHandlers.getLast()).onLine(this, line);
           } else {
-              curCommandName = cmdString;
+              sessionEnded = true;
           }
-          curCommandName = curCommandName.toUpperCase(Locale.US);
-
-          //fetch the command handlers registered to the command
-          List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
-          if(commandHandlers == null) {
-              //end the session
-              break;
-          } else {
-              int count = commandHandlers.size();
-              for(int i = 0; i < count; i++) {
-                  setStopHandlerProcessing(false);
-                  ((CommandHandler)commandHandlers.get(i)).onCommand(this);
-                  
-                  helper.getWatchdog().reset();
-                  
-                  //if the response is received, stop processing of command handlers
-                  if(mode != COMMAND_MODE || getStopHandlerProcessing()) {
-                      break;
-                  }
-              }
-
-          }
-
-          //handle messages
-          if(mode == MESSAGE_RECEIVED_MODE) {
-              try {
-                  helper.getAvalonLogger().debug("executing message handlers");
-                  List messageHandlers = handlerChain.getMessageHandlers();
-                  int count = messageHandlers.size();
-                  for(int i =0; i < count; i++) {
-                      ((MessageHandler)messageHandlers.get(i)).onMessage(this);
-                      //if the response is received, stop processing of command handlers
-                      if(mode == MESSAGE_ABORT_MODE) {
-                          break;
-                      }
-                  }
-              } finally {
-                  //do the clean up
-                  if(mail != null) {
-                      ContainerUtil.dispose(mail);
-              
-                      // remember the ehlo mode
-                      Object currentHeloMode = state.get(CURRENT_HELO_MODE);
-              
-                      mail = null;
-                      resetState();
-
-                      // start again with the old helo mode
-                      if (currentHeloMode != null) {
-                          state.put(CURRENT_HELO_MODE,currentHeloMode);
-                      }
-                  }
-              }
-          }
+          helper.getWatchdog().reset();
+          
         }
         helper.getWatchdog().stop();
         helper.getAvalonLogger().debug("Closing socket.");
     }
 
     /**
+     * @see org.apache.james.smtpserver.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.SMTPResponse)
+     */
+    public void writeSMTPResponse(SMTPResponse response) {
+        // Write a single-line or multiline response
+        if (response != null) {
+            if (response.getRawLine() != null) {
+                helper.writeLoggedFlushedResponse(response.getRawLine());
+            } else {
+                // Iterator i = esmtpextensions.iterator();
+                for (int k = 0; k < response.getLines().size(); k++) {
+                    StringBuffer respBuff = new StringBuffer(256);
+                    respBuff.append(response.getRetCode());
+                    if (k == response.getLines().size() - 1) {
+                        respBuff.append(" ");
+                        respBuff.append(response.getLines().get(k));
+                        helper.writeLoggedFlushedResponse(respBuff.toString());
+                    } else {
+                        respBuff.append("-");
+                        respBuff.append(response.getLines().get(k));
+                        helper.writeLoggedResponse(respBuff.toString());
+                    }
+                }
+            }
+            
+            if (response.isEndSession()) {
+                sessionEnded = true;
+            }
+        }
+    }
+    
+    /**
      * Resets the handler data to a basic state.
      */
     public void resetHandler() {
-        resetState();
+        // not needed anymore because state is inside the connection state
+        // resetState();
         resetConnectionState();
 
-        clearResponseBuffer();
+        // empty any previous line handler and add self (command dispatcher)
+        // as the default.
+        lineHandlers = handlerChain.getHandlers(LineHandler.class);
 
         authenticatedUser = null;
         smtpID = null;
+        sessionEnded = false;
     }
 
    /**
@@ -342,47 +241,10 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      */
     public void setHandlerChain(SMTPHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
+        connectHandlers = handlerChain.getHandlers(ConnectHandler.class);
+        lineHandlers = handlerChain.getHandlers(LineHandler.class);
     }
 
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#writeResponse(String)
-     */
-    public void writeResponse(String respString) {
-        helper.writeLoggedFlushedResponse(respString);
-        //TODO Explain this well
-        if(mode == COMMAND_MODE) {
-            mode = RESPONSE_MODE;
-        }
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getCommandName()
-     */
-    public String getCommandName() {
-        return curCommandName;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getCommandArgument()
-     */
-    public String getCommandArgument() {
-        return curCommandArgument;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getMail()
-     */
-    public Mail getMail() {
-        return mail;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setMail(Mail)
-     */
-    public void setMail(Mail mail) {
-        this.mail = mail;
-        this.mode = MESSAGE_RECEIVED_MODE;
-    }
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
@@ -399,35 +261,36 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#endSession()
-     */
-    public void endSession() {
-        sessionEnded = true;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#isSessionEnded()
-     */
-    public boolean isSessionEnded() {
-        return sessionEnded;
-    }
-
-    /**
      * @see org.apache.james.smtpserver.SMTPSession#resetState()
      */
     public void resetState() {
-        ArrayList recipients = (ArrayList)state.get(RCPT_LIST);
-        if (recipients != null) {
-            recipients.clear();
+        // remember the ehlo mode between resets
+        Object currentHeloMode = getState().get(CURRENT_HELO_MODE);
+
+        getState().clear();
+
+        // start again with the old helo mode
+        if (currentHeloMode != null) {
+            getState().put(CURRENT_HELO_MODE,currentHeloMode);
         }
-        state.clear();
     }
 
     /**
+     * The hash map that holds variables for the SMTP message transfer in progress.
+     *
+     * This hash map should only be used to store variable set in a particular
+     * set of sequential MAIL-RCPT-DATA commands, as described in RFC 2821.  Per
+     * connection values should be stored as member variables in this class.
+     * 
      * @see org.apache.james.smtpserver.SMTPSession#getState()
      */
     public Map getState() {
-        return state;
+        Object res = getConnectionState().get(SMTPSession.SESSION_STATE_MAP);
+        if (res == null || !(res instanceof Map)) {
+            res = new HashMap();
+            getConnectionState().put(SMTPSession.SESSION_STATE_MAP, res);
+        }
+        return (Map) res;
     }
 
     /**
@@ -451,18 +314,12 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#isAuthRequired()
+     * @see org.apache.james.smtpserver.SMTPSession#isAuthSupported()
      */
-    public boolean isAuthRequired() {
-        return authRequired;
+    public boolean isAuthSupported() {
+        return authSupported;
     }
 
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#useHeloEhloEnforcement()
-     */
-    public boolean useHeloEhloEnforcement() {
-        return heloEhloEnforcement;
-    }
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getUser()
      */
@@ -478,65 +335,10 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getResponseBuffer()
-     */
-    public StringBuffer getResponseBuffer() {
-        return responseBuffer;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#clearResponseBuffer()
-     */
-    public String clearResponseBuffer() {
-        String responseString = responseBuffer.toString();
-        responseBuffer.delete(0,responseBuffer.length());
-        return responseString;
-    }
-
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#readCommandLine()
-     */
-    public final String readCommandLine() throws IOException {
-        for (;;) try {
-            String commandLine = helper.getInputReader().readLine();
-            if (commandLine != null) {
-                commandLine = commandLine.trim();
-            }
-            return commandLine;
-        } catch (CRLFTerminatedReader.TerminationException te) {
-            helper.writeLoggedFlushedResponse("501 Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1.");
-        } catch (CRLFTerminatedReader.LineLengthExceededException llee) {
-            helper.writeLoggedFlushedResponse("500 Line length exceeded. See RFC 2821 #4.5.3.1.");
-        }
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getWatchdog()
-     */
-    public Watchdog getWatchdog() {
-        return helper.getWatchdog();
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getInputStream()
-     */
-    public InputStream getInputStream() {
-        return helper.getInputStream();
-    }
-
-    /**
      * @see org.apache.james.smtpserver.SMTPSession#getSessionID()
      */
     public String getSessionID() {
         return smtpID;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#abortMessage()
-     */
-    public void abortMessage() {
-        mode = MESSAGE_ABORT_MODE;
     }
     
     /**
@@ -546,41 +348,60 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         int count = 0;
 
         // check if the key exists
-        if (state.get(SMTPSession.RCPT_LIST) != null) {
-            count = ((Collection) state.get(SMTPSession.RCPT_LIST)).size();
+        if (getState().get(SMTPSession.RCPT_LIST) != null) {
+            count = ((Collection) getState().get(SMTPSession.RCPT_LIST)).size();
         }
 
         return count;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setStopHandlerProcessing(boolean)
-     */
-    public void setStopHandlerProcessing(boolean stopHandlerProcessing) {
-        this.stopHandlerProcessing = stopHandlerProcessing;
-    }
-    
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getStopHandlerProcessing()
-     */
-    public boolean getStopHandlerProcessing() {
-        return stopHandlerProcessing;
     }
     
     public void resetConnectionState() {
         connectionState.clear();
     }
     
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
+     */
     public Map getConnectionState() {
         return connectionState;
     }
 
-    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
-        this.helper = phh;
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#popLineHandler()
+     */
+    public void popLineHandler() {
+        if (lineHandlers != null) {
+            lineHandlers.removeLast();
+        }
     }
 
-    public void errorHandler(RuntimeException e) {
-        helper.defaultErrorHandler(e);
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#pushLineHandler(org.apache.james.smtpserver.LineHandler)
+     */
+    public void pushLineHandler(LineHandler lineHandler) {
+        if (lineHandlers == null) {
+            lineHandlers = new LinkedList();
+        }
+        lineHandlers.addLast(lineHandler);
     }
+    
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#sleep(long)
+     */
+    public void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            // ignore
+        }
+    }
+
+	public void errorHandler(RuntimeException e) {
+		helper.defaultErrorHandler(e);
+	}
+
+	public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+		helper = phh;
+	}
 
 }

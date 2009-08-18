@@ -19,38 +19,31 @@
 
 
 
-package org.apache.james.smtpserver.core.filter;
+package org.apache.james.smtpserver.core;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.james.smtpserver.HandlersPackage;
 
-import org.apache.james.smtpserver.CommandsHandler;
-
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * This class represent the base filter command handlers which are shipped with james.
+ * This class represent the base message hooks which are shipped with james.
  */
-public class CoreFilterCmdHandlerLoader implements CommandsHandler {
+public class CoreMessageHookLoader implements HandlersPackage {
 
-    private final Object DATABASEFILTERCMDHANDLER = DataFilterCmdHandler.class.getName();
-    private final Object EHLOBASEFILTERCMDHANDLER = EhloFilterCmdHandler.class.getName();
-    private final Object HELOBASEFILTERCMDHANDLER = HeloFilterCmdHandler.class.getName();
-    private final Object MAILBASEFILTERCMDHANDLER = MailFilterCmdHandler.class.getName();
-    private final Object RCPTBASEFILTERCMDHANDLER = RcptFilterCmdHandler.class.getName();
-   
+    private final Object ADDDEFAULTATTRIBUTESHANDLER = AddDefaultAttributesMessageHook.class.getName();
+    private final Object SENDMAILHANDLER = SendMailHandler.class.getName();
+    
     /**
-     * @see org.apache.james.smtpserver.CommandsHandler#getCommands()
+     * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
      */
-    public Map getCommands() {
-        Map commands = new HashMap();
+    public List getHandlers() {
+        List commands = new LinkedList();
         
-        // Insert the basecommands in the Map
-        commands.put("DATA", DATABASEFILTERCMDHANDLER);
-        commands.put("EHLO", EHLOBASEFILTERCMDHANDLER);
-        commands.put("HELO", HELOBASEFILTERCMDHANDLER);
-        commands.put("MAIL", MAILBASEFILTERCMDHANDLER);
-        commands.put("RCPT", RCPTBASEFILTERCMDHANDLER);
-        
+        // Add the default messageHooks
+        commands.add(ADDDEFAULTATTRIBUTESHANDLER);
+        commands.add(SENDMAILHANDLER);
+
         return commands;
     }
 }

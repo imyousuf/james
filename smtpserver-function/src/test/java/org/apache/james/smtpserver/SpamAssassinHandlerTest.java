@@ -31,9 +31,11 @@ import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.filter.fastfail.SpamAssassinHandler;
+import org.apache.james.smtpserver.hook.HookResult;
+import org.apache.james.smtpserver.hook.HookReturnCode;
+import org.apache.james.test.mock.MockMimeMessage;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.mailet.base.test.FakeMimeMessage;
-import org.apache.mailet.base.test.FakeMail;
+import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.util.MockSpamd;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
@@ -42,16 +44,12 @@ import org.apache.mailet.Mail;
 public class SpamAssassinHandlerTest extends TestCase {
     private SMTPSession mockedSMTPSession;
 
-    private String response = null;
-    
+    private Mail mockedMail;
+ 
     public final static String SPAMD_HOST = "localhost";
 
-    public void setUp() {
-        // reset reponse
-        response = null;
-    }
-
     private SMTPSession setupMockedSMTPSession(final Mail mail) {
+        mockedMail = mail;
         mockedSMTPSession = new AbstractSMTPSession() {
 
             private HashMap state = new HashMap();
@@ -61,13 +59,6 @@ public class SpamAssassinHandlerTest extends TestCase {
             private String host = "localhost";
 
             private boolean relayingAllowed;
-
-            public void abortMessage() {
-            }
-
-            public Mail getMail() {
-                return mail;
-            }
 
             public String getRemoteHost() {
                 return host;
@@ -89,29 +80,21 @@ public class SpamAssassinHandlerTest extends TestCase {
             public void setRelayingAllowed(boolean relayingAllowed) {
                 this.relayingAllowed = relayingAllowed;
             }
-
-            public void writeResponse(String respString) {
-                response = respString;
-            }
         };
 
         return mockedSMTPSession;
 
     }
 
-    private String getResponse() {
-        return response;
-    }
-
     private Mail setupMockedMail(MimeMessage message) {
-        FakeMail mail = new FakeMail();
+        MockMail mail = new MockMail();
         mail.setMessage(message);
         return mail;
     }
 
     public MimeMessage setupMockedMimeMessage(String text)
             throws MessagingException {
-        MimeMessage message = new MimeMessage(new FakeMimeMessage());
+        MimeMessage message = new MimeMessage(new MockMimeMessage());
         message.setText(text);
         message.saveChanges();
 
@@ -132,12 +115,12 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);
-        handler.onMessage(session);
+        HookResult response = handler.onMessage(session, mockedMail);
 
-        assertNull("Email was not rejected", getResponse());
-        assertEquals("email was not spam", session.getMail().getAttribute(
+        assertEquals("Email was not rejected", response.getResult(), HookReturnCode.DECLINED);
+        assertEquals("email was not spam", mockedMail.getAttribute(
                 SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "NO");
-        assertNotNull("spam hits", session.getMail().getAttribute(
+        assertNotNull("spam hits", mockedMail.getAttribute(
                 SpamAssassinInvoker.STATUS_MAIL_ATTRIBUTE_NAME));
 
     }
@@ -155,12 +138,12 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(2000.0);
-        handler.onMessage(session);
+        HookResult response = handler.onMessage(session, mockedMail);
 
-        assertNull("Email was not rejected", getResponse());
-        assertEquals("email was spam", session.getMail().getAttribute(
+        assertEquals("Email was not rejected", response.getResult(), HookReturnCode.DECLINED);
+        assertEquals("email was spam", mockedMail.getAttribute(
                 SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
-        assertNotNull("spam hits", session.getMail().getAttribute(
+        assertNotNull("spam hits", mockedMail.getAttribute(
                 SpamAssassinInvoker.STATUS_MAIL_ATTRIBUTE_NAME));
     }
 
@@ -177,12 +160,12 @@ public class SpamAssassinHandlerTest extends TestCase {
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);
-        handler.onMessage(session);
+        HookResult response = handler.onMessage(session, mockedMail);
 
-        assertNotNull("Email was rejected", getResponse());
-        assertEquals("email was spam", session.getMail().getAttribute(
+        assertEquals("Email was rejected", response.getResult(), HookReturnCode.DENY);
+        assertEquals("email was spam", mockedMail.getAttribute(
                 SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
-        assertNotNull("spam hits", session.getMail().getAttribute(
+        assertNotNull("spam hits", mockedMail.getAttribute(
                 SpamAssassinInvoker.STATUS_MAIL_ATTRIBUTE_NAME));
     }
 

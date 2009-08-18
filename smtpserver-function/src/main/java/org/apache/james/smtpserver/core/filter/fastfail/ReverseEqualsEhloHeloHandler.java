@@ -19,7 +19,6 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPSession;
 
 
@@ -29,66 +28,20 @@ import java.net.UnknownHostException;
 public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
 
     /**
-     * Method which get called on HELO/EHLO
-     * 
-     * @param session The SMTPSession
-     * @param argument The argument
+     * @see org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler#isBadHelo(org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
-    protected void checkEhloHelo(SMTPSession session, String argument) {
-        /**
-         * don't check if the ip address is allowed to relay. Only check if it
-         * is set in the config. ed.
-         */
-        if (!session.isRelayingAllowed() || checkAuthNetworks) {
-            boolean badHelo = false;
-            try {
-                // get reverse entry
-                String reverse = dnsServer.getHostName(dnsServer.getByName(
-                        session.getRemoteIPAddress()));
-                if (!argument.equals(reverse)) {
-                    badHelo = true;
-                }
-            } catch (UnknownHostException e) {
-                badHelo = true;
+    protected boolean isBadHelo(SMTPSession session, String argument) {
+        try {
+            // get reverse entry
+            String reverse = dnsService.getHostName(dnsService.getByName(
+                    session.getRemoteIPAddress()));
+            if (!argument.equals(reverse)) {
+                return true;
             }
-
-            // bad EHLO/HELO
-            if (badHelo)
-                session.getState().put(BAD_EHLO_HELO, "true");
+        } catch (UnknownHostException e) {
+            return true;
         }
+        return false;
     }
     
-    /**
-     * @see JunkHandlerData#getJunkScoreLogString()
-     */
-    protected String getJunkScoreLogString(SMTPSession session) {
-        return "Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
-                    + session.getRemoteIPAddress() + ". Add junkScore: " + getScore();
-    }
-
-    /**
-     * @see JunkHandlerData#getRejectLogString()
-     */
-    protected String getRejectLogString(SMTPSession session) {
-        return getResponseString(session);
-    }
-
-    /**
-     * @see JunkHandlerData#getRejectResponseString()
-     */
-    protected String getResponseString(SMTPSession session) {
-        String responseString = "501 "
-            + DSNStatus.getStatus(DSNStatus.PERMANENT,
-                    DSNStatus.DELIVERY_INVALID_ARG)
-            + " Provided EHLO/HELO " + session.getState().get(SMTPSession.CURRENT_HELO_NAME) + " not equal reverse of "
-                    + session.getRemoteIPAddress();
-        return responseString;
-    }
-
-    /**
-     * @see JunkHandlerData#getScoreName()
-     */
-    protected String getScoreName() {
-        return "ReverseEqualsEhloHeloCheck";
-    }
 }

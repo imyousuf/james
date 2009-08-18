@@ -35,13 +35,13 @@ import java.util.Collection;
     /**
      * Handle the command
     **/
-    void onCommand(SMTPSession session);
+    SMTPResponse onCommand(SMTPSession session, String command, String parameters);
 
     /**
      * Return a Collection of implemented commands
      * 
      * @return Collection which contains implemented commands
      */
-    Collection getImplCommands();
+    Collection<String> getImplCommands();
     
 }

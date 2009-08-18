@@ -24,7 +24,6 @@ import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.core.SetMimeHeaderHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
@@ -60,15 +59,11 @@ public class SetMimeHeaderHandlerTest extends TestCase {
     }
 
     private void setupMockedMimeMessage() throws MessagingException {
-        mockedMimeMessage = MailUtil.createMimeMessage(headerName, headerValue);
+        mockedMimeMessage = Util.createMimeMessage(headerName, headerValue);
     }
 
     private void setupMockedSMTPSession() {
         mockedSMTPSession = new AbstractSMTPSession() {
-
-            public Mail getMail() {
-                return mockedMail;
-            }
 
             public int getRcptCount() {
                 return 0;
@@ -83,7 +78,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
         setHeaderValue(HEADER_VALUE);
 
         setupMockedMimeMessage();
-        mockedMail = MailUtil.createMockMail2Recipients(mockedMimeMessage);
+        mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
 
         SetMimeHeaderHandler header = new SetMimeHeaderHandler();
 
@@ -91,9 +86,9 @@ public class SetMimeHeaderHandlerTest extends TestCase {
 
         header.setHeaderName(HEADER_NAME);
         header.setHeaderValue(HEADER_VALUE);
-        header.onMessage(mockedSMTPSession);
+        header.onMessage(mockedSMTPSession, mockedMail);
 
-        assertEquals(HEADER_VALUE, mockedSMTPSession.getMail().getMessage()
+        assertEquals(HEADER_VALUE, mockedMail.getMessage()
                 .getHeader(HEADER_NAME)[0]);
     }
 
@@ -103,7 +98,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
         setHeaderValue(headerValue);
 
         setupMockedMimeMessage();
-        mockedMail = MailUtil.createMockMail2Recipients(mockedMimeMessage);
+        mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
 
         SetMimeHeaderHandler header = new SetMimeHeaderHandler();
 
@@ -111,9 +106,9 @@ public class SetMimeHeaderHandlerTest extends TestCase {
 
         header.setHeaderName(HEADER_NAME);
         header.setHeaderValue(HEADER_VALUE);
-        header.onMessage(mockedSMTPSession);
+        header.onMessage(mockedSMTPSession, mockedMail);
 
-        assertEquals(HEADER_VALUE, mockedSMTPSession.getMail().getMessage()
+        assertEquals(HEADER_VALUE, mockedMail.getMessage()
                 .getHeader(HEADER_NAME)[0]);
     }
 

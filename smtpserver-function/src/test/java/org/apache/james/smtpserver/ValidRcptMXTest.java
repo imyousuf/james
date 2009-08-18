@@ -32,15 +32,13 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptMX;
-import org.apache.james.smtpserver.junkscore.JunkScore;
-import org.apache.james.smtpserver.junkscore.JunkScoreImpl;
+import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;
 
 public class ValidRcptMXTest extends TestCase {
-    private String response = null;
 
     private final static String INVALID_HOST = "invalid.host.de";
 
@@ -48,32 +46,16 @@ public class ValidRcptMXTest extends TestCase {
 
     private final static String LOOPBACK = "127.0.0.1";
 
-    protected void setUp() throws Exception {
-        response = null;
-
-        super.setUp();
-    }
-
     private SMTPSession setupMockedSMTPSession(final MailAddress rcpt) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
-            boolean stopProcessing = false;
-
+            
             public Map getState() {
-                state.put(SMTPSession.CURRENT_RECIPIENT, rcpt);
                 return state;
-            }
-
-            public void writeResponse(String resp) {
-                response = resp;
             }
             
             public String getRemoteIPAddress() {
                 return "127.0.0.1";
-            }
-            
-            public void setStopHandlerProcessing(boolean stopProcessing) {
-                this.stopProcessing = stopProcessing;
             }
 
         };
@@ -81,7 +63,7 @@ public class ValidRcptMXTest extends TestCase {
     }
 
     private DNSService setupMockedDNSServer() {
-        DNSService dns = new AbstractDNSServer() {
+    	DNSService dns = new AbstractDNSServer() {
 
             public Collection findMXRecords(String hostname) {
                 Collection mx = new ArrayList();
@@ -111,37 +93,17 @@ public class ValidRcptMXTest extends TestCase {
         bNetworks.add("127.0.0.1");
         
         DNSService dns = setupMockedDNSServer();
+        MailAddress mailAddress = new MailAddress("test@" + INVALID_HOST);
+        SMTPSession session = setupMockedSMTPSession(mailAddress);
         ValidRcptMX handler = new ValidRcptMX();
 
         ContainerUtil.enableLogging(handler, new MockLogger());
 
-        handler.setDNSServer(dns);
+        handler.setDNSService(dns);
         handler.setBannedNetworks(bNetworks, dns);
-        handler.onCommand(setupMockedSMTPSession(new MailAddress("test@" + INVALID_HOST)));
+        int rCode = handler.doRcpt(session, null, mailAddress).getResult();
 
-        assertNotNull("Reject", response);
+        assertEquals("Reject", rCode, HookReturnCode.DENY);
     }
     
-
-    public void testAddJunkScoreLoopbackMX() throws ParseException {
-        Collection bNetworks = new ArrayList();
-        bNetworks.add("127.0.0.1");
-        
-        SMTPSession session = setupMockedSMTPSession(new MailAddress("test@" + INVALID_HOST));
-        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
-        
-        DNSService dns = setupMockedDNSServer();
-        ValidRcptMX handler = new ValidRcptMX();
-        handler.setScore(20);
-        handler.setAction("junkScore");
-
-        ContainerUtil.enableLogging(handler, new MockLogger());
-
-        handler.setDNSServer(dns);
-        handler.setBannedNetworks(bNetworks, dns);
-        handler.onCommand(session);
-
-        assertNull("Not Reject", response);
-        assertEquals("JunkScore added",((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("ValidRcptMXCheck"),20.0, 0d);
-    }
 }
