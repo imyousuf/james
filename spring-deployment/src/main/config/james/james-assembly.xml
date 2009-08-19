@@ -64,13 +64,9 @@
   </block>
 
   <block name="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" >
-    <provide name="James" role="org.apache.mailet.MailetContext"/>
-    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>
 
   <block name="mailetpackages" class="org.apache.james.transport.JamesMailetLoader" >
-    <provide name="James" role="org.apache.mailet.MailetContext"/>
-    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
   </block>
 
   <block name="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
