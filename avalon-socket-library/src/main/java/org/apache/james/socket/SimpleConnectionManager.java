@@ -19,12 +19,11 @@
 
 
 
-package org.apache.james.util.connection;
+package org.apache.james.socket;
 import java.net.ServerSocket;
 import java.util.HashMap;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
-import org.apache.james.socket.JamesConnectionManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;

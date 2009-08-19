@@ -21,7 +21,6 @@
 package org.apache.james.socket;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.james.util.watchdog.Watchdog;
 
 import java.io.InputStream;
 import java.io.OutputStream;

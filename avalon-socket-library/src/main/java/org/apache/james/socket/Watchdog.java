@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.util.watchdog;
+package org.apache.james.socket;
 
 /**
  * This interface represents an abstract watchdog process that serves to

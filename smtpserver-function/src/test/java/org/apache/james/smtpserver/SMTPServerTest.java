@@ -39,7 +39,7 @@ import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.codec.Base64;
-import org.apache.james.util.connection.SimpleConnectionManager;
+import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;

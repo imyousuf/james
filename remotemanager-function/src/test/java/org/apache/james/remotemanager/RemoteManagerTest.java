@@ -38,6 +38,7 @@ import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.DomainListManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.JamesConnectionManager;
+import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
@@ -49,7 +50,6 @@ import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.connection.SimpleConnectionManager;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

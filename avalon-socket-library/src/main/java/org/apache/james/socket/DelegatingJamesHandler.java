@@ -38,8 +38,6 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogTarget;
 
 /**
  * Common Handler code
@@ -397,7 +395,7 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
         implements WatchdogTarget {
 
         /**
-         * @see org.apache.james.util.watchdog.WatchdogTarget#execute()
+         * @see org.apache.james.socket.WatchdogTarget#execute()
          */
         public void execute() {
             DelegatingJamesHandler.this.idleClose();

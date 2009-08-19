@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.util.watchdog;
+package org.apache.james.socket;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
@@ -56,7 +56,7 @@ public class ThreadPerWatchdogFactory
     }
 
     /**
-     * @see org.apache.james.util.watchdog.WatchdogFactory#getWatchdog(WatchdogTarget)
+     * @see org.apache.james.socket.WatchdogFactory#getWatchdog(WatchdogTarget)
      */
     public Watchdog getWatchdog(WatchdogTarget theTarget)
             throws Exception {

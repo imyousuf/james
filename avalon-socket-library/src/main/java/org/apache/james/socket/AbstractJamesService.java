@@ -44,9 +44,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.util.watchdog.ThreadPerWatchdogFactory;
-import org.apache.james.util.watchdog.Watchdog;
-import org.apache.james.util.watchdog.WatchdogFactory;
 
 import java.net.BindException;
 import java.net.InetAddress;
@@ -803,7 +800,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     
     protected abstract ProtocolHandler newProtocolHandlerInstance();
 
-		/**
+   /**
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
      */
     public Class getCreatedClass() {

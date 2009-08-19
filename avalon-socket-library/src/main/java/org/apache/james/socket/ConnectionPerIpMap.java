@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.util.connection;
+package org.apache.james.socket;
 
 import java.util.HashMap;
 
