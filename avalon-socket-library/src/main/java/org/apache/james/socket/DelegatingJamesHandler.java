@@ -490,9 +490,6 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
         remoteIP = null;
     }
 
-    /**
-     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
-     */
     protected void errorHandler(RuntimeException e) {
        protocolHandler.errorHandler(e);
     }
