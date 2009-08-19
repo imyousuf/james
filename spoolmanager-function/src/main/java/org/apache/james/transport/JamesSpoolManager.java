@@ -21,8 +21,13 @@
 
 package org.apache.james.transport;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -31,16 +36,9 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.services.SpoolRepository;
 import org.apache.james.services.SpoolManager;
+import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Manages the mail spool.  This class is responsible for retrieving
@@ -99,7 +97,7 @@ public class JamesSpoolManager
     /**
      * Spool threads
      */
-    private Collection spoolThreads;
+    private Collection<Thread> spoolThreads;
 
     /**
      * The mail processor 
@@ -169,7 +167,7 @@ public class JamesSpoolManager
 
         active = true;
         numActive = 0;
-        spoolThreads = new java.util.ArrayList(numThreads);
+        spoolThreads = new java.util.ArrayList<Thread>(numThreads);
         for ( int i = 0 ; i < numThreads ; i++ ) {
             Thread reader = new Thread(this, "Spool Thread #" + i);
             spoolThreads.add(reader);
@@ -277,8 +275,8 @@ public class JamesSpoolManager
     public void dispose() {
         getLogger().info("JamesSpoolManager dispose...");
         active = false; // shutdown the threads
-        for (Iterator it = spoolThreads.iterator(); it.hasNext(); ) {
-            ((Thread) it.next()).interrupt(); // interrupt any waiting accept() calls.
+        for (Thread thread: spoolThreads) {
+            thread.interrupt(); // interrupt any waiting accept() calls.
         }
 
         long stop = System.currentTimeMillis() + 60000;
