@@ -30,7 +30,7 @@ import org.apache.mailet.Matcher;
  * Loads Matchers for use inside James.
  *
  */
-public class JamesMatcherLoader extends Loader implements MatcherLoader {
+public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader {
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -63,8 +63,8 @@ public class JamesMatcherLoader extends Loader implements MatcherLoader {
                     //do this so we loop through all the packages
                 }
             }
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128)
+            StringBuilder exceptionBuffer =
+                new StringBuilder(128)
                     .append("Requested matcher not found: ")
                     .append(matchName)
                     .append(".  looked in ")
@@ -73,8 +73,8 @@ public class JamesMatcherLoader extends Loader implements MatcherLoader {
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128).append("Could not load matcher (").append(matchName).append(
+            StringBuilder exceptionBuffer =
+                new StringBuilder(128).append("Could not load matcher (").append(matchName).append(
                     ")");
             throw new MailetException(exceptionBuffer.toString(), e);
         }

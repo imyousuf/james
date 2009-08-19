@@ -34,7 +34,7 @@ import org.apache.mailet.MailetException;
  * Loads Mailets for use inside James.
  *
  */
-public class JamesMailetLoader extends Loader implements MailetLoader {
+public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
     
     private ServiceLocator serviceLocator;
      
@@ -85,8 +85,8 @@ public class JamesMailetLoader extends Loader implements MailetLoader {
                     //do this so we loop through all the packages
                 }
             }
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128)
+            StringBuilder exceptionBuffer =
+                new StringBuilder(128)
                     .append("Requested mailet not found: ")
                     .append(mailetName)
                     .append(".  looked in ")
@@ -95,8 +95,8 @@ public class JamesMailetLoader extends Loader implements MailetLoader {
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128).append("Could not load mailet (").append(mailetName).append(
+            StringBuilder exceptionBuffer =
+                new StringBuilder(128).append("Could not load mailet (").append(mailetName).append(
                     ")");
             throw new MailetException(exceptionBuffer.toString(), e);
         }
