@@ -31,6 +31,7 @@ import org.apache.mailet.Matcher;
  */
 public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader {
     private static final String DISPLAY_NAME = "matcher";
+    private final String MATCHER_PACKAGE = "matcherpackage";
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)

@@ -37,6 +37,7 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
     
     private static final String DISPLAY_NAME = "mailet";
     private ServiceLocator serviceLocator;
+    private final String MAILET_PACKAGE = "mailetpackage";
      
     /**
      * Gets the service locator.
