@@ -23,7 +23,7 @@ package org.apache.james.pop3server;
 
 
 import org.apache.james.services.MailRepository;
-import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.socket.Watchdog;
 
 import java.io.IOException;
 import java.io.OutputStream;

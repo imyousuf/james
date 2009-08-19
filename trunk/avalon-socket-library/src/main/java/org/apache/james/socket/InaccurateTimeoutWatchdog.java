@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.util.watchdog;
+package org.apache.james.socket;
 
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.framework.activity.Disposable;

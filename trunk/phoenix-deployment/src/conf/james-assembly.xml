@@ -330,7 +330,7 @@
 
   <!-- The Connection Manager block -->
   <block name="connections"
-         class="org.apache.james.util.connection.SimpleConnectionManager" >
+         class="org.apache.james.socket.SimpleConnectionManager" >
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
     <proxy disable='true'/>

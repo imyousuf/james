@@ -18,19 +18,13 @@
  ****************************************************************/
 
 
-package org.apache.james.util.watchdog;
+package org.apache.james.socket;
 
 /**
- * This interface represents a factory for producing Watchdogs.
+ * This interface represents an action to be triggered by a watchdog process.
  *
  */
-public interface WatchdogFactory {
+public interface WatchdogTarget {
 
-    /**
-     * Gets a Watchdog
-     *
-     * @param theTarget the WatchdogTarget to be triggered upon expiration
-     */
-    Watchdog getWatchdog(WatchdogTarget theTarget) throws Exception;
-
+    void execute();
 }

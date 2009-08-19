@@ -28,7 +28,7 @@ import org.apache.james.services.MailRepository;
 import org.apache.james.socket.CRLFTerminatedReader;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
-import org.apache.james.util.watchdog.Watchdog;
+import org.apache.james.socket.Watchdog;
 import org.apache.mailet.Mail;
 
 import java.io.IOException;

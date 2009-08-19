@@ -30,7 +30,7 @@ import java.util.Random;
 
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
-import org.apache.james.util.CRLFDelimitedByteBuffer;
+import org.apache.james.socket.CRLFDelimitedByteBuffer;
 import org.apache.mailet.base.RFC822DateFormat;
 
 /**

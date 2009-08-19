@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.util.watchdog;
+package org.apache.james.socket;
 
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
@@ -77,7 +77,7 @@ public class SchedulerWatchdogFactory implements WatchdogFactory {
     }
 
     /**
-     * @see org.apache.james.util.watchdog.WatchdogFactory#getWatchdog(WatchdogTarget)
+     * @see org.apache.james.socket.WatchdogFactory#getWatchdog(WatchdogTarget)
      */
     public Watchdog getWatchdog(WatchdogTarget theTarget) {
         return new SchedulerWatchdog(theTarget);

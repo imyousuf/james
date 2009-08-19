@@ -21,8 +21,8 @@
 
 package org.apache.james.pop3server;
 
+import org.apache.james.socket.BytesWrittenResetOutputStream;
 import org.apache.james.util.stream.ExtraDotOutputStream;
-import org.apache.james.util.watchdog.BytesWrittenResetOutputStream;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
