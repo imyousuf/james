@@ -19,25 +19,24 @@
 
 
 package org.apache.james.transport;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Vector;
 
+import javax.annotation.Resource;
 
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.DefaultServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.kernel.ServiceLocator;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
 
 /**
  * Common services for loaders.
  */
-public abstract class AbstractLoader extends AbstractLogEnabled implements Serviceable, Configurable, Initializable {
+public abstract class AbstractLoader extends AbstractLogEnabled implements Configurable {
 
     /**
      * The list of packages that may contain Mailets or matchers
@@ -45,28 +44,72 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
     protected Vector<String> packages;
 
     /**
-     * System service manager
-     */
-    private ServiceManager serviceManager;
-
-    /**
      * Mailet context
      */
     protected MailetContext mailetContext;
 
+
+    private ServiceLocator serviceLocator;
+
+    /**
+     * Gets the service locator.
+     * @return the serviceLocator, not null after initialisation
+     */
+    public final ServiceLocator getServiceLocator() {
+        return serviceLocator;
+    }
+
+    /**
+     * Sets the service locator.
+     * @param serviceLocator the serviceLocator to set
+     */
+    @Resource(name="org.apache.james.ServiceLocator")
+    public final void setServiceLocator(ServiceLocator serviceLocator) {
+        this.serviceLocator = serviceLocator;
+    }
+
+    
     /**
      * Set the MailetContext
      * 
      * @param mailetContext the MailetContext
      */
+ // Pheonix used to play games with service names
+ // TODO: Support type based injection
+    @Resource(name="org.apache.james.James") 
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }
     
+    private void injectResources(Object base) throws IllegalArgumentException, IllegalAccessException, 
+                                                        InvocationTargetException {
+        if (serviceLocator == null) {
+           getLogger().warn("Service locator not set. Cannot load services.");
+        } else {
+            Method[] methods = base.getClass().getMethods();
+            for (Method method : methods) {
+                Resource resourceAnnotation = method.getAnnotation(Resource.class);
+                if (resourceAnnotation != null) {
+                    final String name = resourceAnnotation.name();
+                    final Object resource = serviceLocator.get(name);
+                    if (resource == null) {
+                        if (getLogger().isWarnEnabled()) {
+                            getLogger().warn("Unknown service: "  + name);
+                        }
+                   } else {
+                        Object[] args = {resource};
+                        method.invoke(base, args);
+                    }
+                }
+            }
+        }
+    }
 
     protected Object load(String className) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException {
-        return Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+            IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException {
+        final Object newInstance = Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+        injectResources(newInstance);
+        return newInstance;
     }
 
     protected void getPackages(Configuration conf, String packageType)
@@ -82,20 +125,6 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
             }
             packages.addElement(packageName);
         }
-    }
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager sm) throws ServiceException {
-        serviceManager = new DefaultServiceManager(sm);
-    }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        setMailetContext((MailetContext) serviceManager.lookup(MailetContext.class.getName()));
     }
         
     /**

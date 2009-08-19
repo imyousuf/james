@@ -55,11 +55,13 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
                 final String className = packageName + matchName;
                 try {
                     final Matcher matcher = (Matcher) load(className);
+                    
                     final MatcherConfigImpl configImpl = new MatcherConfigImpl();
                     configImpl.setMatcherName(matchName);
                     configImpl.setCondition(condition);
                     configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger().getChildLogger(matchName)));
                     matcher.init(configImpl);
+                    
                     return matcher;
                 } catch (ClassNotFoundException cnfe) {
                     //do this so we loop through all the packages
