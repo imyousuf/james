@@ -24,13 +24,14 @@ import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
 /**
  * Loads Matchers for use inside James.
  *
  */
 public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader {
+    private static final String DISPLAY_NAME = "matcher";
+
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -38,9 +39,9 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
            getPackages(conf,MATCHER_PACKAGE);
     }
 
-    /* (non-Javadoc)
-         * @see org.apache.james.transport.MatcherLoader#getMatcher(java.lang.String)
-         */
+    /**
+     * @see org.apache.james.transport.MatcherLoader#getMatcher(java.lang.String)
+    */
     public Matcher getMatcher(String matchName) throws MessagingException {
         try {
             String condition = (String) null;
@@ -49,11 +50,11 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
                 condition = matchName.substring(i + 1);
                 matchName = matchName.substring(0, i);
             }
-            for (i = 0; i < packages.size(); i++) {
-                String className = (String) packages.elementAt(i) + matchName;
+            for (final String packageName: packages) {
+                final String className = packageName + matchName;
                 try {
-                    Matcher matcher = (Matcher) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
-                    MatcherConfigImpl configImpl = new MatcherConfigImpl();
+                    final Matcher matcher = (Matcher) load(className);
+                    final MatcherConfigImpl configImpl = new MatcherConfigImpl();
                     configImpl.setMatcherName(matchName);
                     configImpl.setCondition(condition);
                     configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger().getChildLogger(matchName)));
@@ -63,20 +64,19 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
                     //do this so we loop through all the packages
                 }
             }
-            StringBuilder exceptionBuffer =
-                new StringBuilder(128)
-                    .append("Requested matcher not found: ")
-                    .append(matchName)
-                    .append(".  looked in ")
-                    .append(packages.toString());
-            throw new ClassNotFoundException(exceptionBuffer.toString());
+            throw classNotFound(matchName);
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
-            StringBuilder exceptionBuffer =
-                new StringBuilder(128).append("Could not load matcher (").append(matchName).append(
-                    ")");
-            throw new MailetException(exceptionBuffer.toString(), e);
+            throw loadFailed(matchName, e);
         }
+    }
+
+    /**
+     * @see AbstractLoader#getDisplayName()
+     */
+    @Override
+    protected String getDisplayName() {
+        return DISPLAY_NAME;
     }
 }
