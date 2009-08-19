@@ -47,7 +47,7 @@ import javax.mail.internet.MimeMessage;
  *
  * $Id$
  */
-public abstract class Loader extends AbstractLogEnabled implements Serviceable, Configurable, Initializable {
+public abstract class AbstractLoader extends AbstractLogEnabled implements Serviceable, Configurable, Initializable {
 
     protected String baseDirectory = null;
     protected final String MAILET_PACKAGE = "mailetpackage";
