@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.kernel.ServiceLocator;
+import org.apache.james.api.kernel.LoaderService;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
@@ -34,7 +34,7 @@ import org.springframework.core.Ordered;
 /**
  * calls initialize() for all avalon components
  */
-public class InitializationPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered, ServiceLocator {
+public class InitializationPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered, LoaderService {
 
     protected Class getLifecycleInterface() {
         return Initializable.class;
@@ -42,13 +42,34 @@ public class InitializationPropagator extends AbstractPropagator implements Bean
 
     protected void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition) {
         // TODO: share reflection code
+        Method[] methods = injectResources(bean);
+        try {
+            ContainerUtil.initialize(bean);;
+            postConstruct(bean, methods);
+        } catch (Exception e) {
+            throw new RuntimeException("could not initialize component of type " + bean.getClass(), e);
+        }
+    }
+
+    private void postConstruct(Object bean, Method[] methods)
+            throws IllegalAccessException, InvocationTargetException {
+        for (Method method : methods) {
+            PostConstruct postConstructAnnotation = method.getAnnotation(PostConstruct.class);
+            if (postConstructAnnotation != null) {
+                Object[] args = {};
+                method.invoke(bean, args);
+            }
+        }
+    }
+
+    private Method[] injectResources(Object bean) {
         Method[] methods = bean.getClass().getMethods();
         for (Method method : methods) {
             Resource resourceAnnotation = method.getAnnotation(Resource.class);
             if (resourceAnnotation != null) {
                 final String name = resourceAnnotation.name();
                 final Object service;
-                if ("org.apache.james.ServiceLocator".equals(name)) {
+                if ("org.apache.james.LoaderService".equals(name)) {
                     service = this;
                 } else {
                     service = get(name);
@@ -69,18 +90,7 @@ public class InitializationPropagator extends AbstractPropagator implements Bean
                 }
             }
         }
-        try {
-            ContainerUtil.initialize(bean);;
-            for (Method method : methods) {
-                PostConstruct postConstructAnnotation = method.getAnnotation(PostConstruct.class);
-                if (postConstructAnnotation != null) {
-                    Object[] args = {};
-                    method.invoke(bean, args);
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("could not initialize component of type " + bean.getClass(), e);
-        }
+        return methods;
     }
 
     public int getOrder() {
@@ -90,5 +100,19 @@ public class InitializationPropagator extends AbstractPropagator implements Bean
     public Object get(String name) {
         return getBeanFactory().getBean(name);
     }
-
+    
+    public <T> T load(Class<T> type) {
+        try {
+            // TODO: Use Guice to load type
+            final T newInstance = type.newInstance();
+            injectResources(newInstance);
+            return newInstance;
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } 
+    }
 }

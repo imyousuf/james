@@ -17,18 +17,20 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.api.kernel;
+package org.apache.james.transport;
 
-/**
- * Locates services.
- */
-public interface ServiceLocator {
-    
-    /**
-     * Gets a service by name.
-     * @param name not null
-     * @return the service, 
-     * or null when the service cannot be located
-     */
-    public Object get(String name);
+import org.apache.james.api.kernel.LoaderService;
+
+public class FakeLoaderService implements LoaderService {
+
+    public <T> T load(Class<T> type) {
+        try {
+            return type.newInstance();
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

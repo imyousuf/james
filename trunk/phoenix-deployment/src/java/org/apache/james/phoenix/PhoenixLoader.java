@@ -32,21 +32,21 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.phoenix.ApplicationEvent;
 import org.apache.avalon.phoenix.ApplicationListener;
 import org.apache.avalon.phoenix.BlockEvent;
-import org.apache.james.api.kernel.ServiceLocator;
+import org.apache.james.api.kernel.LoaderService;
 
-public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEnabled {
+public class PhoenixLoader implements LoaderService, ApplicationListener, LogEnabled {
 
     private Logger logger;
     
-    private final Map<String, Object> resourcesByName;
+    private final Map<String, Object> servicesByName;
 
     public PhoenixLoader() {
-        resourcesByName = new HashMap<String, Object>();
-        resourcesByName.put("org.apache.james.ServiceLocator", this);
+        servicesByName = new HashMap<String, Object>();
+        servicesByName.put("org.apache.james.LoaderService", this);
     }
     
     public Object get(String name) {
-        Object service = resourcesByName.get(name);
+        Object service = servicesByName.get(name);
         return service;
     }
 
@@ -61,16 +61,54 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
      * before initilisation any.
      */
     public void applicationStarted() {
-        for (Object resource : resourcesByName.values()) {
-            Method[] methods = resource.getClass().getMethods();
-            for (Method method : methods) {
-                Resource resourceAnnotation = method.getAnnotation(Resource.class);
-                if (resourceAnnotation != null) {
-                    final String name = resourceAnnotation.name();
+        for (Object resource : servicesByName.values()) {
+            injectResources(resource);
+        }
+        
+        try {
+            for (Object resource : servicesByName.values()) {
+                postConstruct(resource);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Initialisation failed", e);
+        }
+    }
+
+    private void postConstruct(Object resource) throws IllegalAccessException,
+            InvocationTargetException {
+        Method[] methods = resource.getClass().getMethods();
+        for (Method method : methods) {
+            PostConstruct postConstructAnnotation = method.getAnnotation(PostConstruct.class);
+            if (postConstructAnnotation != null) {
+                Object[] args = {};
+                method.invoke(resource, args);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Calling PostConstruct on " + resource);
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void injectResources(Object resource) {
+        final Method[] methods = resource.getClass().getMethods();
+        for (Method method : methods) {
+            final Resource resourceAnnotation = method.getAnnotation(Resource.class);
+            if (resourceAnnotation != null) {
+                final String name = resourceAnnotation.name();
+                if (name == null) {
+                    @SuppressWarnings("unused")
+                    final Class type = resourceAnnotation.type();
+                    // TODO: use Guice 
+                } else {
+                    // Name indicates a service
                     final Object service = get(name);
                     if (service == null) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unknown service: "  + name);
+                        }
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(servicesByName.toString());
                         }
                    } else {
                         try {
@@ -89,24 +127,6 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
                     }
                 }
             }
-        }
-        
-        try {
-            for (Object resource : resourcesByName.values()) {
-                Method[] methods = resource.getClass().getMethods();
-                for (Method method : methods) {
-                    PostConstruct postConstructAnnotation = method.getAnnotation(PostConstruct.class);
-                    if (postConstructAnnotation != null) {
-                        Object[] args = {};
-                        method.invoke(resource, args);
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Calling PostConstruct on " + resource);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Initialisation failed", e);
         }
     }
 
@@ -128,7 +148,9 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
     public void blockAdded(BlockEvent event) {
         final Object resource = event.getObject();
         final String name = event.getName();
-        resourcesByName.put(name, resource);
+        servicesByName.put(name, resource);
+        // TODO: Add to dynamic Guice module 
+        // TODO: This should allow access to Pheonix loaded services
     }
 
     /**
@@ -137,10 +159,28 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
      */
     public void blockRemoved(BlockEvent event) {
         final String name = event.getName();
-        resourcesByName.remove(name);
+        servicesByName.remove(name);
     }
 
     public void enableLogging(Logger logger) {
         this.logger = logger;
+    }
+
+    public <T> T load(Class<T> type) {
+        try {
+            // TODO: Use Guice to load type
+            final T base = type.newInstance();
+            injectResources(base);
+            return base;
+        } catch (InstantiationException e) {
+            logger.warn("Cannot instantiate type", e);
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            logger.warn("Cannot instantiate type", e);
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Cannot instantiate type", e);
+            throw new RuntimeException(e);
+        }
     }
 }

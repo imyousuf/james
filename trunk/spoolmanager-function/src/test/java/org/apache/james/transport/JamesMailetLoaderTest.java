@@ -67,6 +67,7 @@ public class JamesMailetLoaderTest extends TestCase {
         m_conf.init();
         m_jamesMailetLoader.enableLogging(new MockLogger());
         m_jamesMailetLoader.configure(m_conf);
+        m_jamesMailetLoader.setLoaderService(new FakeLoaderService());
     }
 
     private void assetIsNullMailet(Mailet mailet) {

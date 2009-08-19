@@ -19,8 +19,6 @@
 
 
 package org.apache.james.transport;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Vector;
 
 import javax.annotation.Resource;
@@ -29,7 +27,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.james.api.kernel.ServiceLocator;
+import org.apache.james.api.kernel.LoaderService;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
 
@@ -48,27 +46,26 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Confi
      */
     protected MailetContext mailetContext;
 
-
-    private ServiceLocator serviceLocator;
-
-    /**
-     * Gets the service locator.
-     * @return the serviceLocator, not null after initialisation
-     */
-    public final ServiceLocator getServiceLocator() {
-        return serviceLocator;
-    }
-
-    /**
-     * Sets the service locator.
-     * @param serviceLocator the serviceLocator to set
-     */
-    @Resource(name="org.apache.james.ServiceLocator")
-    public final void setServiceLocator(ServiceLocator serviceLocator) {
-        this.serviceLocator = serviceLocator;
-    }
+    private LoaderService loaderService;
 
     
+    /**
+     * Gets the loader service used by this instance.
+     * @return the loaderService 
+     */
+    public final LoaderService getLoaderService() {
+        return loaderService;
+    }
+
+    /**
+     * Sets the loader service used by this instance.
+     * @param loaderService the loaderService to set, not null
+     */
+    @Resource(name="org.apache.james.LoaderService")
+    public final void setLoaderService(LoaderService loaderService) {
+        this.loaderService = loaderService;
+    }
+
     /**
      * Set the MailetContext
      * 
@@ -76,39 +73,13 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Confi
      */
  // Pheonix used to play games with service names
  // TODO: Support type based injection
-    @Resource(name="org.apache.james.James") 
+    @Resource(name="James") 
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }
-    
-    private void injectResources(Object base) throws IllegalArgumentException, IllegalAccessException, 
-                                                        InvocationTargetException {
-        if (serviceLocator == null) {
-           getLogger().warn("Service locator not set. Cannot load services.");
-        } else {
-            Method[] methods = base.getClass().getMethods();
-            for (Method method : methods) {
-                Resource resourceAnnotation = method.getAnnotation(Resource.class);
-                if (resourceAnnotation != null) {
-                    final String name = resourceAnnotation.name();
-                    final Object resource = serviceLocator.get(name);
-                    if (resource == null) {
-                        if (getLogger().isWarnEnabled()) {
-                            getLogger().warn("Unknown service: "  + name);
-                        }
-                   } else {
-                        Object[] args = {resource};
-                        method.invoke(base, args);
-                    }
-                }
-            }
-        }
-    }
 
-    protected Object load(String className) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException {
-        final Object newInstance = Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
-        injectResources(newInstance);
+    protected Object load(String className) throws ClassNotFoundException {
+        final Object newInstance = loaderService.load(Thread.currentThread().getContextClassLoader().loadClass(className));
         return newInstance;
     }
 
