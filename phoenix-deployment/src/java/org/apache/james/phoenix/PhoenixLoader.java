@@ -38,15 +38,16 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
 
     private Logger logger;
     
-    private final Map<String, Object> resources;
+    private final Map<String, Object> resourcesByName;
 
     public PhoenixLoader() {
-        resources = new HashMap<String, Object>();
-        resources.put("org.apache.james.ServiceLocator", this);
+        resourcesByName = new HashMap<String, Object>();
+        resourcesByName.put("org.apache.james.ServiceLocator", this);
     }
     
     public Object get(String name) {
-        return resources.get(name);
+        Object service = resourcesByName.get(name);
+        return service;
     }
 
     public void applicationFailure(Exception exception) {
@@ -60,14 +61,14 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
      * before initilisation any.
      */
     public void applicationStarted() {
-        for (Object resource : resources.values()) {
+        for (Object resource : resourcesByName.values()) {
             Method[] methods = resource.getClass().getMethods();
             for (Method method : methods) {
                 Resource resourceAnnotation = method.getAnnotation(Resource.class);
                 if (resourceAnnotation != null) {
                     final String name = resourceAnnotation.name();
                     final Object service = get(name);
-                    if (resource == null) {
+                    if (service == null) {
                         if (logger.isWarnEnabled()) {
                             logger.warn("Unknown service: "  + name);
                         }
@@ -75,6 +76,9 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
                         try {
                             Object[] args = {service};
                             method.invoke(resource, args);
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Set service " + service + " on " + resource);
+                            }
                         } catch (IllegalAccessException e) {
                             throw new RuntimeException("Injection failed", e);
                         } catch (IllegalArgumentException e) {
@@ -88,13 +92,16 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
         }
         
         try {
-            for (Object object : resources.values()) {
-                Method[] methods = object.getClass().getMethods();
+            for (Object resource : resourcesByName.values()) {
+                Method[] methods = resource.getClass().getMethods();
                 for (Method method : methods) {
                     PostConstruct postConstructAnnotation = method.getAnnotation(PostConstruct.class);
                     if (postConstructAnnotation != null) {
                         Object[] args = {};
-                        method.invoke(object, args);
+                        method.invoke(resource, args);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Calling PostConstruct on " + resource);
+                        }
                     }
                 }
             }
@@ -121,7 +128,7 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
     public void blockAdded(BlockEvent event) {
         final Object resource = event.getObject();
         final String name = event.getName();
-        resources.put(name, resource);
+        resourcesByName.put(name, resource);
     }
 
     /**
@@ -130,7 +137,7 @@ public class PhoenixLoader implements ServiceLocator, ApplicationListener, LogEn
      */
     public void blockRemoved(BlockEvent event) {
         final String name = event.getName();
-        resources.remove(name);
+        resourcesByName.remove(name);
     }
 
     public void enableLogging(Logger logger) {
