@@ -29,13 +29,13 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.james.api.kernel.ServiceLocator;
 import org.apache.mailet.Mailet;
-import org.apache.mailet.MailetException;
 /**
  * Loads Mailets for use inside James.
  *
  */
 public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
     
+    private static final String DISPLAY_NAME = "mailet";
     private ServiceLocator serviceLocator;
      
     /**
@@ -65,14 +65,13 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
     /**
      * @see org.apache.james.transport.MailetLoader#getMailet(java.lang.String, org.apache.avalon.framework.configuration.Configuration)
      */
-    public Mailet getMailet(String mailetName, Configuration configuration)
-        throws MessagingException {
+    public Mailet getMailet(final String mailetName, final Configuration configuration) throws MessagingException {
         try {
-            for (int i = 0; i < packages.size(); i++) {
-                String className = (String) packages.elementAt(i) + mailetName;
+            for (final String packageName:packages) {
+                final String className = packageName + mailetName;
                 try {
-                    Mailet mailet = (Mailet) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
-                    MailetConfigImpl configImpl = new MailetConfigImpl();
+                    final Mailet mailet = (Mailet) load(className);
+                    final MailetConfigImpl configImpl = new MailetConfigImpl();
                     configImpl.setMailetName(mailetName);
                     configImpl.setConfiguration(configuration);
                     configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger().getChildLogger(mailetName))); 
@@ -85,20 +84,11 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
                     //do this so we loop through all the packages
                 }
             }
-            StringBuilder exceptionBuffer =
-                new StringBuilder(128)
-                    .append("Requested mailet not found: ")
-                    .append(mailetName)
-                    .append(".  looked in ")
-                    .append(packages.toString());
-            throw new ClassNotFoundException(exceptionBuffer.toString());
+            throw classNotFound(mailetName);
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
-            StringBuilder exceptionBuffer =
-                new StringBuilder(128).append("Could not load mailet (").append(mailetName).append(
-                    ")");
-            throw new MailetException(exceptionBuffer.toString(), e);
+            throw loadFailed(mailetName, e);
         }
     }
 
@@ -124,5 +114,13 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
                 }
             }
         }
+    }
+
+    /**
+     * @see AbstractLoader#getDisplayName()
+     */
+    @Override
+    protected String getDisplayName() {
+        return DISPLAY_NAME;
     }
 }

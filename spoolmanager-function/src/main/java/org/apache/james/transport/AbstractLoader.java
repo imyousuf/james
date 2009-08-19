@@ -39,13 +39,13 @@ import org.apache.james.services.FileSystem;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
+import org.apache.mailet.MailetException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 /**
- *
- * $Id$
+ * Common services for loaders.
  */
 public abstract class AbstractLoader extends AbstractLogEnabled implements Serviceable, Configurable, Initializable {
 
@@ -55,7 +55,7 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
     /**
      * The list of packages that may contain Mailets or matchers
      */
-    protected Vector packages;
+    protected Vector<String> packages;
 
     /**
      * System service manager
@@ -75,10 +75,16 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }
+    
+
+    protected Object load(String className) throws InstantiationException,
+            IllegalAccessException, ClassNotFoundException {
+        return Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+    }
 
     protected void getPackages(Configuration conf, String packageType)
         throws ConfigurationException {
-        packages = new Vector();
+        packages = new Vector<String>();
         packages.addElement("");
         final Configuration[] pkgConfs = conf.getChildren(packageType);
         for (int i = 0; i < pkgConfs.length; i++) {
@@ -116,9 +122,50 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */
     public abstract void configure(Configuration arg0) throws ConfigurationException;
+    
+    /**
+     * Gets a human readable description of the loader.
+     * Used for messages.
+     * @return not null
+     */
+    protected abstract String getDisplayName();
 
     /**
-     * Wrapper fot a MailetContext that simply override the used logger.
+     * Constructs an appropriate exception with an appropriate message
+     * @param name not null
+     * @return not null
+     */
+    protected ClassNotFoundException classNotFound(String name) throws ClassNotFoundException {
+        final StringBuilder builder =
+            new StringBuilder(128)
+                .append("Requested ")
+                .append(getDisplayName())
+                .append(" not found: ")
+                .append(name)
+                .append(".  Package searched: ");
+        for (final String packageName:packages) {
+            builder.append(packageName);
+            builder.append(" ");
+        }
+        return new ClassNotFoundException(builder.toString());
+    }
+
+    /**
+     * Constructs an appropriate exception with an appropriate message.
+     * @param name not null
+     * @param e not null
+     * @return not null
+     */
+    protected MailetException loadFailed(String name, Exception e) {
+        final StringBuilder builder =
+            new StringBuilder(128).append("Could not load ").append(getDisplayName())
+                .append(" (").append(name).append(")");
+        final MailetException mailetException = new MailetException(builder.toString(), e);
+        return mailetException;
+    }
+
+    /**
+     * Wrapper for a MailetContext that simply override the used logger.
      */
     protected final static class MailetContextWrapper implements MailetContext {
         
@@ -163,6 +210,7 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
         /**
          * @see org.apache.mailet.MailetContext#getAttributeNames()
          */
+        @SuppressWarnings("unchecked")
         public Iterator getAttributeNames() {
             return mailetContext.getAttributeNames();
         }
@@ -170,6 +218,7 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
         /**
          * @see org.apache.mailet.MailetContext#getMailServers(java.lang.String)
          */
+        @SuppressWarnings("unchecked")
         public Collection getMailServers(String host) {
             return mailetContext.getMailServers(host);
         }
@@ -198,6 +247,7 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
         /**
          * @see org.apache.mailet.MailetContext#getSMTPHostAddresses(java.lang.String)
          */
+        @SuppressWarnings("unchecked")
         public Iterator getSMTPHostAddresses(String domainName) {
             return mailetContext.getSMTPHostAddresses(domainName);
         }
@@ -226,6 +276,7 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
         /**
          * @see org.apache.mailet.MailetContext#isLocalUser(java.lang.String)
          */
+        @SuppressWarnings("deprecation")
         public boolean isLocalUser(String userAccount) {
             return mailetContext.isLocalUser(userAccount);
         }
@@ -261,6 +312,7 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
         /**
          * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress, java.util.Collection, javax.mail.internet.MimeMessage)
          */
+        @SuppressWarnings("unchecked")
         public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
             mailetContext.sendMail(sender, recipients, msg);
         }
@@ -268,6 +320,7 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
         /**
          * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress, java.util.Collection, javax.mail.internet.MimeMessage, java.lang.String)
          */
+        @SuppressWarnings("unchecked")
         public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state) throws MessagingException {
             mailetContext.sendMail(sender, recipients, msg, state);
         }
@@ -289,6 +342,7 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Servi
         /**
          * @see org.apache.mailet.MailetContext#storeMail(MailAddress, MailAddress, MimeMessage)
          */
+        @SuppressWarnings("deprecation")
         public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
             mailetContext.storeMail(sender, recipient, msg);
         }
