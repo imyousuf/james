@@ -63,7 +63,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
      * @throws WiringException 
      */
     private void wireExtensibleHandlers() throws WiringException {
-        for (Iterator h = handlers.iterator(); h.hasNext(); ) {
+        for (Iterator<?> h = handlers.iterator(); h.hasNext(); ) {
             Object handler = h.next();
             if (handler instanceof ExtensibleHandler) {
                 List markerInterfaces = ((ExtensibleHandler) handler).getMarkerInterfaces();
@@ -243,16 +243,17 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     
     /**
      * Returns a list of handler of the requested type.
+     * @param <T>
      * 
      * @param type the type of handler we're interested in
      * @return a List of handlers
      */
-    public LinkedList getHandlers(Class type) {
-        LinkedList result = new LinkedList();
-        for (Iterator i = handlers.iterator(); i.hasNext(); ) {
+    public <T> LinkedList<T> getHandlers(Class<T> type) {
+        LinkedList<T> result = new LinkedList<T>();
+        for (Iterator<?> i = handlers.iterator(); i.hasNext(); ) {
             Object handler = i.next();
             if (type.isInstance(handler)) {
-                result.add(handler);
+                result.add((T)handler);
             }
         }
         return result;

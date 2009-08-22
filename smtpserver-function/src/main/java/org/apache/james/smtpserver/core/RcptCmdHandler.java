@@ -39,7 +39,7 @@ import org.apache.mailet.MailAddress;
 public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> implements
         CommandHandler {
 
-    public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
+    public static final String CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
 
     /**
      * Handler method called upon receipt of a RCPT command. Reads recipient.

@@ -35,6 +35,6 @@ public interface HandlersPackage {
      * 
      * @return Map
      */
-    List getHandlers();
+    List<String> getHandlers();
 
 }
