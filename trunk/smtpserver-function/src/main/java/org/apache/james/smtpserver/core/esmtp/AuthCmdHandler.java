@@ -400,8 +400,8 @@ public class AuthCmdHandler
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
+    public Collection<String> getImplCommands() {
+        Collection<String> implCommands = new ArrayList<String>();
         implCommands.add("AUTH");
         
         return implCommands;
@@ -410,9 +410,9 @@ public class AuthCmdHandler
     /**
      * @see org.apache.james.smtpserver.core.esmtp.EhloExtension#getImplementedEsmtpFeatures(org.apache.james.smtpserver.SMTPSession)
      */
-    public List getImplementedEsmtpFeatures(SMTPSession session) {
+    public List<String> getImplementedEsmtpFeatures(SMTPSession session) {
         if (session.isAuthSupported()) {
-            List resp = new LinkedList();
+            List<String> resp = new LinkedList<String>();
             resp.add("AUTH LOGIN PLAIN");
             resp.add("AUTH=LOGIN PLAIN");
             return resp;

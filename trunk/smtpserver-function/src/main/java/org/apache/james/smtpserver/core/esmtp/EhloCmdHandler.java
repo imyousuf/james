@@ -35,7 +35,7 @@ import org.apache.james.smtpserver.hook.HookResult;
 /**
  * Handles EHLO command
  */
-public class EhloCmdHandler extends AbstractHookableCmdHandler implements
+public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> implements
         CommandHandler {
 
     /**
@@ -160,15 +160,15 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler implements
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHookInterface()
      */
-    protected Class getHookInterface() {
+    protected Class<HeloHook> getHookInterface() {
         return HeloHook.class;
     }
 
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object, org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
-    protected HookResult callHook(Object rawHook, SMTPSession session, String parameters) {
-        return ((HeloHook) rawHook).doHelo(session, parameters);
+    protected HookResult callHook(HeloHook rawHook, SMTPSession session, String parameters) {
+        return rawHook.doHelo(session, parameters);
     }
 
 }

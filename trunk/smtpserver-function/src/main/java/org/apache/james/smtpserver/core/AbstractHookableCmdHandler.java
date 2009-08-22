@@ -36,11 +36,11 @@ import org.apache.james.smtpserver.hook.HookReturnCode;
  * Abstract class which Handle hooks.
  * 
  */
-public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
+public abstract class AbstractHookableCmdHandler<Hook> extends AbstractLogEnabled
         implements CommandHandler, ExtensibleHandler {
 
 
-    private List hooks;
+    private List<Hook> hooks;
     private List rHooks;
 
     /**
@@ -80,11 +80,11 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
      */
     private SMTPResponse processHooks(SMTPSession session, String command,
             String parameters) {
-        List hooks = getHooks();
+        List<Hook> hooks = getHooks();
         if (hooks != null) {
             int count = hooks.size();
             for (int i = 0; i < count; i++) {
-                Object rawHook = hooks.get(i);
+                Hook rawHook = hooks.get(i);
                 getLogger().debug("executing hook " + rawHook.getClass().getName());
                 HookResult hRes = callHook(rawHook, session, parameters);
                 if (rHooks != null) {
@@ -106,12 +106,12 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
     /**
      * Must be implemented by hookable cmd handlers to make the effective call to an hook.
      * 
-     * @param rawHook the hook (to be casted)
+     * @param rawHook the hook
      * @param session the session
      * @param parameters the parameters
      * @return the HookResult, will be calculated using HookResultToSMTPResponse.
      */
-    protected abstract HookResult callHook(Object rawHook, SMTPSession session, String parameters);
+    protected abstract HookResult callHook(Hook rawHook, SMTPSession session, String parameters);
 
     /**
      * Convert the HookResult to SMTPResponse using default values. Should be override for using own values
@@ -182,8 +182,8 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
     /**
      * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
      */
-    public List getMarkerInterfaces() {
-        List classes = new ArrayList(2);
+    public List<Class<?>> getMarkerInterfaces() {
+        List<Class<?>> classes = new ArrayList<Class<?>>(2);
         classes.add(getHookInterface());
         classes.add(HookResultHook.class);
         return classes;
@@ -194,7 +194,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
      * 
      * @return interface
      */
-    protected abstract Class getHookInterface();
+    protected abstract Class<Hook> getHookInterface();
 
     /**
      * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class,
@@ -214,7 +214,7 @@ public abstract class AbstractHookableCmdHandler extends AbstractLogEnabled
      * 
      * @return
      */
-    protected List getHooks() {
+    protected List<Hook> getHooks() {
         return hooks;
     }
 

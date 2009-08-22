@@ -32,7 +32,7 @@ import org.apache.james.smtpserver.hook.QuitHook;
 /**
  * Handles QUIT command
  */
-public class QuitCmdHandler extends AbstractHookableCmdHandler {
+public class QuitCmdHandler extends AbstractHookableCmdHandler<QuitHook> {
 
     /**
      * The name of the command handled by the command handler
@@ -72,8 +72,8 @@ public class QuitCmdHandler extends AbstractHookableCmdHandler {
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
+    public Collection<String> getImplCommands() {
+        Collection<String> implCommands = new ArrayList<String>();
         implCommands.add(COMMAND_NAME);
 
         return implCommands;
@@ -100,15 +100,15 @@ public class QuitCmdHandler extends AbstractHookableCmdHandler {
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHookInterface()
      */
-    protected Class getHookInterface() {
+    protected Class<QuitHook> getHookInterface() {
         return QuitHook.class;
     }
 
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object, org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
-    protected HookResult callHook(Object rawHook, SMTPSession session, String parameters) {
-        return ((QuitHook) rawHook).doQuit(session);
+    protected HookResult callHook(QuitHook rawHook, SMTPSession session, String parameters) {
+        return rawHook.doQuit(session);
     }
 
 }

@@ -28,6 +28,6 @@ import java.util.List;
  */
 public interface EhloExtension {
      
-    List getImplementedEsmtpFeatures(SMTPSession session);
+    List<String> getImplementedEsmtpFeatures(SMTPSession session);
     
 }

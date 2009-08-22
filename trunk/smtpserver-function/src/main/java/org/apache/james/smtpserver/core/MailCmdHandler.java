@@ -41,7 +41,7 @@ import org.apache.mailet.MailAddress;
 /**
  * Handles MAIL command
  */
-public class MailCmdHandler extends AbstractHookableCmdHandler implements
+public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> implements
         CommandHandler {
 
     /**
@@ -90,8 +90,8 @@ public class MailCmdHandler extends AbstractHookableCmdHandler implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
+    public Collection<String> getImplCommands() {
+        Collection<String> implCommands = new ArrayList<String>();
         implCommands.add("MAIL");
 
         return implCommands;
@@ -252,7 +252,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler implements
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHookInterface()
      */
-    protected Class getHookInterface() {
+    protected Class<MailHook> getHookInterface() {
         return MailHook.class;
     }
 
@@ -260,8 +260,8 @@ public class MailCmdHandler extends AbstractHookableCmdHandler implements
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object, org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
-    protected HookResult callHook(Object rawHook, SMTPSession session, String parameters) {
-        return ((MailHook) rawHook).doMail(session,(MailAddress) session.getState().get(SMTPSession.SENDER));
+    protected HookResult callHook(MailHook rawHook, SMTPSession session, String parameters) {
+        return rawHook.doMail(session,(MailAddress) session.getState().get(SMTPSession.SENDER));
     }
 
     
