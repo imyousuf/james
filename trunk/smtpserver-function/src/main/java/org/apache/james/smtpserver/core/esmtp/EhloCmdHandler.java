@@ -43,7 +43,7 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
      */
     private final static String COMMAND_NAME = "EHLO";
 
-    private List ehloExtensions;
+    private List<EhloExtension> ehloExtensions;
 
     /**
      * Handler method called upon receipt of a EHLO command. Responds with a
@@ -80,8 +80,8 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
+    public Collection<String> getImplCommands() {
+        Collection<String> implCommands = new ArrayList<String>();
         implCommands.add(COMMAND_NAME);
 
         return implCommands;
@@ -90,8 +90,8 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
     /**
      * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
      */
-    public List getMarkerInterfaces() {
-        List classes = super.getMarkerInterfaces();
+    public List<Class<?>> getMarkerInterfaces() {
+        List<Class<?>> classes = super.getMarkerInterfaces();
         classes.add(EhloExtension.class);
         return classes;
     }
@@ -117,11 +117,11 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
         if (ehloExtensions != null) {
             int count = ehloExtensions.size();
             for (int i = 0; i < count; i++) {
-                List lines = ((EhloExtension) ehloExtensions.get(i))
+                List<String> lines = ((EhloExtension) ehloExtensions.get(i))
                         .getImplementedEsmtpFeatures(session);
                 if (lines != null) {
                     for (int j = 0; j < lines.size(); j++) {
-                        resp.appendLine((String) lines.get(j));
+                        resp.appendLine(lines.get(j));
                     }
                 }
             }

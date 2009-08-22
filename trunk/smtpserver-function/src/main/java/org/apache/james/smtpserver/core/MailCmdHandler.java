@@ -47,7 +47,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
     /**
      * A map of parameterHooks
      */
-    private Map paramHooks;
+    private Map<String, MailParametersHook> paramHooks;
 
     
     
@@ -176,7 +176,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
                     // Handle the SIZE extension keyword
 
                     if (paramHooks.containsKey(mailOptionName)) {
-                        MailParametersHook hook = (MailParametersHook) paramHooks.get(mailOptionName);
+                        MailParametersHook hook = paramHooks.get(mailOptionName);
                         SMTPResponse res = calcDefaultSMTPResponse(hook.doMailParameter(session, mailOptionName, mailOptionValue));
                         if (res != null) {
                             return res;
@@ -268,8 +268,8 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getMarkerInterfaces()
      */
-    public List getMarkerInterfaces() {
-        List l = super.getMarkerInterfaces();
+    public List<Class<?>> getMarkerInterfaces() {
+        List<Class<?>> l = super.getMarkerInterfaces();
         l.add(MailParametersHook.class);
         return l;
     }
@@ -279,9 +279,9 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
      */
     public void wireExtensions(Class interfaceName, List extension) {
         if (MailParametersHook.class.equals(interfaceName)) {
-            this.paramHooks = new HashMap();
-            for (Iterator i = extension.iterator(); i.hasNext(); ) {
-                MailParametersHook hook = (MailParametersHook) i.next();
+            this.paramHooks = new HashMap<String, MailParametersHook>();
+            for (Iterator<MailParametersHook> i = extension.iterator(); i.hasNext(); ) {
+                MailParametersHook hook =  i.next();
                 String[] params = hook.getMailParamNames();
                 for (int k = 0; k < params.length; k++) {
                     paramHooks.put(params[k], hook);

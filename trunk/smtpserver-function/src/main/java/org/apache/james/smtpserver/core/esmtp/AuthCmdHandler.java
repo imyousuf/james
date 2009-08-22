@@ -90,7 +90,7 @@ public class AuthCmdHandler
     /**
      * The AuthHooks
      */
-    private List hooks;
+    private List<AuthHook> hooks;
     
     private List rHooks;
     
@@ -292,15 +292,15 @@ public class AuthCmdHandler
 
         SMTPResponse res = null;
         
-        List hooks = getHooks();
+        List<AuthHook> hooks = getHooks();
         
         if (hooks != null) {
             int count = hooks.size();
             for (int i = 0; i < count; i++) {
-                Object rawHook = hooks.get(i);
+                AuthHook rawHook = hooks.get(i);
                 getLogger().debug("executing  hook " + rawHook);
                 
-                HookResult hRes = ((AuthHook) rawHook).doAuth(session, user, pass);
+                HookResult hRes = rawHook.doAuth(session, user, pass);
                 
                 if (rHooks != null) {
                     for (int i2 = 0; i2 < rHooks.size(); i2++) {
@@ -452,7 +452,7 @@ public class AuthCmdHandler
      * 
      * @return
      */
-    protected List getHooks() {
+    protected List<AuthHook> getHooks() {
         return hooks;
     }
 

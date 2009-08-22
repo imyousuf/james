@@ -281,10 +281,10 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     public Map<String,Object> getState() {
         Object res = getConnectionState().get(SMTPSession.SESSION_STATE_MAP);
         if (res == null || !(res instanceof Map)) {
-            res = new HashMap();
+            res = new HashMap<String,Object>();
             getConnectionState().put(SMTPSession.SESSION_STATE_MAP, res);
         }
-        return (Map) res;
+        return (Map<String,Object>) res;
     }
 
     /**

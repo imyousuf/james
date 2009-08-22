@@ -46,7 +46,7 @@ import java.util.Properties;
   */
 public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable, Initializable {
 
-    private List handlers = new LinkedList();
+    private List<Object> handlers = new LinkedList<Object>();
 
     private ServiceManager serviceManager;
     
@@ -91,7 +91,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             Properties cmds = new Properties();
             cmds.setProperty("Default CoreCmdHandlerLoader", CoreCmdHandlerLoader.class
                     .getName());
-            Enumeration e = cmds.keys();
+            Enumeration<Object> e = cmds.keys();
             while (e.hasMoreElements()) {
                 String cmdName = (String) e.nextElement();
                 String className = cmds.getProperty(cmdName);
@@ -140,7 +140,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 //        commandDispatcherLineHandler.enableLogging(getLogger());
 //        handlers.add(commandDispatcherLineHandler);
         
-        Iterator h = handlers.iterator();
+        Iterator<Object> h = handlers.iterator();
     
         while(h.hasNext()) {
             Object next = h.next();
@@ -175,10 +175,10 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             // if it is a commands handler add it to the map with key as command
             // name
             if (handler instanceof HandlersPackage) {
-                List c = ((HandlersPackage) handler).getHandlers();
+                List<String> c = ((HandlersPackage) handler).getHandlers();
 
-                for (Iterator i = c.iterator(); i.hasNext(); ) {
-                    String cName = i.next().toString();
+                for (Iterator<String> i = c.iterator(); i.hasNext(); ) {
+                    String cName = i.next();
 
                     DefaultConfiguration cmdConf = new DefaultConfiguration(
                             "handler");
