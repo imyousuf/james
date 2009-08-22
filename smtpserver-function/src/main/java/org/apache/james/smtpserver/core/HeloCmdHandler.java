@@ -33,7 +33,7 @@ import org.apache.james.smtpserver.hook.HookResult;
 /**
  * Handles HELO command
  */
-public class HeloCmdHandler extends AbstractHookableCmdHandler implements
+public class HeloCmdHandler extends AbstractHookableCmdHandler<HeloHook> implements
         CommandHandler {
 
     /**
@@ -44,8 +44,8 @@ public class HeloCmdHandler extends AbstractHookableCmdHandler implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
+    public Collection<String> getImplCommands() {
+        Collection<String> implCommands = new ArrayList<String>();
         implCommands.add(COMMAND_NAME);
 
         return implCommands;
@@ -90,7 +90,7 @@ public class HeloCmdHandler extends AbstractHookableCmdHandler implements
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHookInterface()
      */
-    protected Class getHookInterface() {
+    protected Class<HeloHook> getHookInterface() {
         return HeloHook.class;
     }
 
@@ -98,8 +98,8 @@ public class HeloCmdHandler extends AbstractHookableCmdHandler implements
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object, org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
-    protected HookResult callHook(Object rawHook, SMTPSession session, String parameters) {
-        return ((HeloHook) rawHook).doHelo(session, parameters);
+    protected HookResult callHook(HeloHook rawHook, SMTPSession session, String parameters) {
+        return rawHook.doHelo(session, parameters);
     }
 
 

@@ -28,7 +28,7 @@ import java.util.List;
 public class SMTPResponse {
 
     private String retCode = null;
-    private List lines = null;
+    private List<String> lines = null;
     private String rawLine = null;
     private boolean endSession = false;
     
@@ -89,7 +89,7 @@ public class SMTPResponse {
      */
     public void appendLine(String line) {
         if (lines == null) {
-            lines = new LinkedList();
+            lines = new LinkedList<String>();
         }
         lines.add(line);
     }
@@ -124,7 +124,7 @@ public class SMTPResponse {
      * 
      * @return all responseLines
      */
-    public List getLines() {
+    public List<String> getLines() {
         return lines;
     }
 

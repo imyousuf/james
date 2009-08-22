@@ -36,7 +36,7 @@ import org.apache.mailet.MailAddress;
 /**
  * Handles RCPT command
  */
-public class RcptCmdHandler extends AbstractHookableCmdHandler implements
+public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> implements
         CommandHandler {
 
     public static final Object CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
@@ -229,8 +229,8 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler implements
     /**
      * @see org.apache.james.smtpserver.CommandHandler#getImplCommands()
      */
-    public Collection getImplCommands() {
-        Collection implCommands = new ArrayList();
+    public Collection<String> getImplCommands() {
+        Collection<String> implCommands = new ArrayList<String>();
         implCommands.add("RCPT");
 
         return implCommands;
@@ -239,7 +239,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler implements
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#getHookInterface()
      */
-    protected Class getHookInterface() {
+    protected Class<RcptHook> getHookInterface() {
         return RcptHook.class;
     }
 
@@ -247,9 +247,9 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler implements
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#callHook(java.lang.Object,
      *      org.apache.james.smtpserver.SMTPSession, java.lang.String)
      */
-    protected HookResult callHook(Object rawHook, SMTPSession session,
+    protected HookResult callHook(RcptHook rawHook, SMTPSession session,
             String parameters) {
-        return ((RcptHook) rawHook).doRcpt(session,
+        return rawHook.doRcpt(session,
                 (MailAddress) session.getState().get(SMTPSession.SENDER),
                 (MailAddress) session.getState().get(CURRENT_RECIPIENT));
     }

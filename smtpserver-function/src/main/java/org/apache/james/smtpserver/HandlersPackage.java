@@ -35,6 +35,6 @@ public interface HandlersPackage {
      * 
      * @return Map
      */
-    List<CommandHandler> getHandlers();
+    List getHandlers();
 
 }

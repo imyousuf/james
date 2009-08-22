@@ -48,8 +48,8 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
     /**
      * @see org.apache.james.smtpserver.core.esmtp.EhloExtension#getImplementedEsmtpFeatures(org.apache.james.smtpserver.SMTPSession)
      */
-    public List getImplementedEsmtpFeatures(SMTPSession session) {
-        LinkedList resp = new LinkedList();
+    public List<String> getImplementedEsmtpFeatures(SMTPSession session) {
+        LinkedList<String> resp = new LinkedList<String>();
         // Extension defined in RFC 1870
         long maxMessageSize = session.getConfigurationData()
                 .getMaxMessageSize();
