@@ -31,7 +31,6 @@ import java.util.Random;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
 import org.apache.james.socket.CRLFDelimitedByteBuffer;
-import org.apache.mailet.base.RFC822DateFormat;
 
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
@@ -51,11 +50,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 	private final static Random random = new Random();
 
 	/**
-	 * Static RFC822DateFormat used to generate date headers
-	 */
-	private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
-
-	/**
 	 * The name of the currently parsed command
 	 */
 	String curCommandName = null;
@@ -68,18 +62,18 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     /**
      * The hash map holds states which should be used in the whole connection
      */
-    private HashMap connectionState = new HashMap();
+    private HashMap<String, Object> connectionState = new HashMap<String, Object>();
     
     /**
      * If not null every line is sent to this command handler instead
      * of the default "command parsing -> dipatching" procedure.
      */
-    private LinkedList lineHandlers;
+    private LinkedList<LineHandler> lineHandlers;
 
     /**
      * Connect Handlers
      */
-    private LinkedList connectHandlers;
+    private LinkedList<ConnectHandler> connectHandlers;
 
 	private SMTPHandlerConfigurationData theConfigData;
 
@@ -284,7 +278,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      * 
      * @see org.apache.james.smtpserver.SMTPSession#getState()
      */
-    public Map getState() {
+    public Map<String,Object> getState() {
         Object res = getConnectionState().get(SMTPSession.SESSION_STATE_MAP);
         if (res == null || !(res instanceof Map)) {
             res = new HashMap();
@@ -362,7 +356,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
      */
-    public Map getConnectionState() {
+    public Map<String,Object> getConnectionState() {
         return connectionState;
     }
 
@@ -380,7 +374,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      */
     public void pushLineHandler(LineHandler lineHandler) {
         if (lineHandlers == null) {
-            lineHandlers = new LinkedList();
+            lineHandlers = new LinkedList<LineHandler>();
         }
         lineHandlers.addLast(lineHandler);
     }

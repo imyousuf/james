@@ -31,14 +31,14 @@ import java.util.List;
  */
 public class CoreMessageHookLoader implements HandlersPackage {
 
-    private final Object ADDDEFAULTATTRIBUTESHANDLER = AddDefaultAttributesMessageHook.class.getName();
-    private final Object SENDMAILHANDLER = SendMailHandler.class.getName();
+    private final String ADDDEFAULTATTRIBUTESHANDLER = AddDefaultAttributesMessageHook.class.getName();
+    private final String SENDMAILHANDLER = SendMailHandler.class.getName();
     
     /**
      * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
      */
-    public List getHandlers() {
-        List commands = new LinkedList();
+    public List<String> getHandlers() {
+        List<String> commands = new LinkedList<String>();
         
         // Add the default messageHooks
         commands.add(ADDDEFAULTATTRIBUTESHANDLER);

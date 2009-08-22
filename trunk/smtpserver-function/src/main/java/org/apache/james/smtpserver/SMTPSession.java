@@ -54,7 +54,7 @@ public interface SMTPSession {
      *
      * @return map of the current SMTPSession state per mail
      */
-    Map getState();
+    Map<String, Object> getState();
 
     /**
      * Resets message-specific, but not authenticated user, state.
@@ -123,7 +123,7 @@ public interface SMTPSession {
      *
      * @return map of the current SMTPSession state per connection
      */
-    Map getConnectionState();
+    Map<String,Object> getConnectionState();
 
     /**
      * Put a new line handler in the chain
