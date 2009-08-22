@@ -31,7 +31,7 @@ public interface ExtensibleHandler {
      * Return a List of interfaces of plugins that will
      * extend this.
      */
-    List getMarkerInterfaces();
+    List<Class<?>> getMarkerInterfaces();
     
     /**
      * Method called during initialization after all the handlers have been declared
