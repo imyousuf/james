@@ -67,7 +67,7 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
                 
                 List recipientCollection = (List) session.getState().get(SMTPSession.RCPT_LIST);
                 MailImpl mail =
-                    new MailImpl(session.getConfigurationData().getMailServer().getId(),
+                    new MailImpl(session.getMailServer().getId(),
                                  (MailAddress) session.getState().get(SMTPSession.SENDER),
                                  recipientCollection);
                 MimeMessageCopyOnWriteProxy mimeMessageCopyOnWriteProxy = null;

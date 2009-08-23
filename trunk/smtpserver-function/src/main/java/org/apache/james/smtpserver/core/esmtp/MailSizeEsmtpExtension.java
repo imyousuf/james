@@ -51,8 +51,7 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
     public List<String> getImplementedEsmtpFeatures(SMTPSession session) {
         LinkedList<String> resp = new LinkedList<String>();
         // Extension defined in RFC 1870
-        long maxMessageSize = session.getConfigurationData()
-                .getMaxMessageSize();
+        long maxMessageSize = session.getMaxMessageSize();
         if (maxMessageSize > 0) {
             resp.add("SIZE " + maxMessageSize);
         }
@@ -93,8 +92,7 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
                     size).append(".");
             getLogger().debug(debugBuffer.toString());
         }
-        long maxMessageSize = session.getConfigurationData()
-                .getMaxMessageSize();
+        long maxMessageSize = session.getMaxMessageSize();
         if ((maxMessageSize > 0) && (size > maxMessageSize)) {
             // Let the client know that the size limit has been hit.
             StringBuffer errorBuffer = new StringBuffer(256).append(
@@ -140,7 +138,7 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
                     newSize = new Long(currentSize.intValue()+line.length);
                 }
                 
-                if (session.getConfigurationData().getMaxMessageSize() > 0 && newSize.intValue() > session.getConfigurationData().getMaxMessageSize()) {
+                if (session.getMaxMessageSize() > 0 && newSize.intValue() > session.getMaxMessageSize()) {
                     // Add an item to the state to suppress
                     // logging of extra lines of data
                     // that are sent after the size limit has
@@ -174,8 +172,7 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
                     .append(" (").append(session.getRemoteIPAddress())
                     .append(") exceeding system maximum message size of ")
                     .append(
-                            session.getConfigurationData()
-                                    .getMaxMessageSize());
+                            session.getMaxMessageSize());
             getLogger().error(errorBuffer.toString());
             // TODO ???
             // session.pushLineHandler(new DataCmdHandler.DataConsumerLineHandler());

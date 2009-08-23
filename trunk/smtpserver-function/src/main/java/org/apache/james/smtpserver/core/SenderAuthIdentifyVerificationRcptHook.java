@@ -48,7 +48,7 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractLogEnabled
 
             if ((senderAddress == null)
                     || (!authUser.equals(senderAddress.getLocalPart()))
-                    || (!session.getConfigurationData().getMailServer()
+                    || (!session.getMailServer()
                             .isLocalServer(senderAddress.getDomain()))) {
                 return new HookResult(HookReturnCode.DENY, 
                         SMTPRetCode.BAD_SEQUENCE,

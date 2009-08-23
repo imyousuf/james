@@ -22,6 +22,9 @@ package org.apache.james.smtpserver;
 
 import java.util.Map;
 
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.services.MailServer;
+
 /**
  * Abstract class to simplify the mocks
  */
@@ -146,6 +149,34 @@ public class AbstractSMTPSession implements SMTPSession {
      */
     public void sleep(long ms) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
+    }
+
+    public String getHelloName() {
+        return getConfigurationData().getHelloName();
+    }
+
+    public MailServer getMailServer() {
+        return getConfigurationData().getMailServer();
+    }
+
+    public long getMaxMessageSize() {
+        return getConfigurationData().getMaxMessageSize();
+    }
+
+    public String getSMTPGreeting() {
+        return getConfigurationData().getSMTPGreeting();
+    }
+
+    public UsersRepository getUsersRepository() {
+        return getConfigurationData().getUsersRepository();
+    }
+
+    public boolean useAddressBracketsEnforcement() {
+        return getConfigurationData().useAddressBracketsEnforcement();
+    }
+
+    public boolean useHeloEhloEnforcement() {
+        return getConfigurationData().useAddressBracketsEnforcement();
     }
 
 }

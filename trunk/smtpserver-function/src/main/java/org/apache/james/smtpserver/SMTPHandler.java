@@ -28,9 +28,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
 import org.apache.james.socket.CRLFDelimitedByteBuffer;
+import org.apache.james.services.MailServer;
 
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
@@ -397,5 +399,32 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 	public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
 		helper = phh;
 	}
+	
+    public String getHelloName() {
+        return getConfigurationData().getHelloName();
+    }
 
+    public MailServer getMailServer() {
+        return getConfigurationData().getMailServer();
+    }
+
+    public long getMaxMessageSize() {
+        return getConfigurationData().getMaxMessageSize();
+    }
+
+    public String getSMTPGreeting() {
+        return getConfigurationData().getSMTPGreeting();
+    }
+
+    public UsersRepository getUsersRepository() {
+        return getConfigurationData().getUsersRepository();
+    }
+
+    public boolean useAddressBracketsEnforcement() {
+        return getConfigurationData().useAddressBracketsEnforcement();
+    }
+
+    public boolean useHeloEhloEnforcement() {
+        return getConfigurationData().useAddressBracketsEnforcement();
+    }
 }

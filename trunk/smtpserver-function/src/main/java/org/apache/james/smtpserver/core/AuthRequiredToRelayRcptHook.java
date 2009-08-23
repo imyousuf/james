@@ -41,7 +41,7 @@ public class AuthRequiredToRelayRcptHook extends AbstractLogEnabled implements
             MailAddress rcpt) {
         if (!session.isRelayingAllowed()) {
             String toDomain = rcpt.getDomain();
-            if (!session.getConfigurationData().getMailServer().isLocalServer(toDomain)) {
+            if (!session.getMailServer().isLocalServer(toDomain)) {
                 if (session.isAuthSupported()) {
                     return new HookResult(HookReturnCode.DENY,
                             SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(

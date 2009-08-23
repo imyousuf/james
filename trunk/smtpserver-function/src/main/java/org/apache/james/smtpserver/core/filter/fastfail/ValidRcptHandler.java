@@ -171,7 +171,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
         if (!session.isRelayingAllowed()) {
             boolean invalidUser = true;
 
-            if (session.getConfigurationData().getUsersRepository().contains(rcpt.getLocalPart()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getDomain().toLowerCase())) {
+            if (session.getUsersRepository().contains(rcpt.getLocalPart()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getDomain().toLowerCase())) {
                 invalidUser = false;
             }
 

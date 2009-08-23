@@ -21,6 +21,9 @@ package org.apache.james.smtpserver;
 
 import java.util.Map;
 
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.services.MailServer;
+
 /**
  * All the handlers access this interface to communicate with
  * SMTPHandler object
@@ -63,12 +66,57 @@ public interface SMTPSession {
     void resetState();
 
     /**
-     * Returns SMTPHandler service wide configuration
+     * Returns the MailServer interface for this service.
      *
-     * @return SMTPHandlerConfigurationData
+     * @return the MailServer interface for this service
+     * @deprecated this service should be injection
      */
-    SMTPHandlerConfigurationData getConfigurationData();
+    MailServer getMailServer();
+    
+    /**
+     * Returns the UsersRepository for this service.
+     *
+     * @return the local users repository
+     * @deprecated this service should be injection
+     */
+    UsersRepository getUsersRepository();
 
+    /**
+     * Returns the service wide hello name
+     *
+     * @return the hello name
+     */
+    String getHelloName();
+    
+    /**
+     * Returns whether the remote server needs to send a HELO/EHLO
+     * of its senders.
+     *
+     * @return whether SMTP authentication is on
+     */
+    boolean useHeloEhloEnforcement();
+    
+    /**
+     * Return the SMTPGreeting which should used.
+     * 
+     * @return the SMTPGreeting
+     */
+    String getSMTPGreeting();
+    
+    /**
+     * Returns the service wide maximum message size in bytes.
+     *
+     * @return the maximum message size
+     */
+    long getMaxMessageSize();
+    
+    /**
+     * Return wheter the mailserver will accept addresses without brackets enclosed.
+     * 
+     * @return true or false
+     */
+    boolean useAddressBracketsEnforcement();
+    
     /**
      * Returns whether Relaying is allowed or not
      *

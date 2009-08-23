@@ -131,7 +131,7 @@ public class DataCmdHandler
 //        }
 
         try {
-            MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(session.getConfigurationData().getMailServer().getId());
+            MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(session.getMailServer().getId());
             OutputStream out = mmiss.getWritableOutputStream();
 
             // Prepend output headers with out Received
@@ -226,7 +226,7 @@ public class DataCmdHandler
         headerLineBuffer.delete(0, headerLineBuffer.length());
 
         headerLineBuffer.append("          by ")
-                        .append(session.getConfigurationData().getHelloName())
+                        .append(session.getHelloName())
                         .append(" (")
                         .append(SOFTWARE_TYPE)
                         .append(") with ");
