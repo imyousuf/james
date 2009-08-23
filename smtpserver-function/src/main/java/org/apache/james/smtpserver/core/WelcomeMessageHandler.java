@@ -49,7 +49,7 @@ public class WelcomeMessageHandler implements ConnectHandler {
      * @see org.apache.james.smtpserver.ConnectHandler#onConnect(SMTPSession)
      */
     public void onConnect(SMTPSession session) {
-        String smtpGreeting = session.getConfigurationData().getSMTPGreeting();
+        String smtpGreeting = session.getSMTPGreeting();
 
         SMTPResponse welcomeResponse;
         // if no greeting was configured use a default
@@ -58,7 +58,7 @@ public class WelcomeMessageHandler implements ConnectHandler {
             // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
             welcomeResponse = new SMTPResponse(SMTPRetCode.SERVICE_READY,
                           new StringBuffer(256)
-                          .append(session.getConfigurationData().getHelloName())
+                          .append(session.getHelloName())
                           .append(" SMTP Server (")
                           .append(SOFTWARE_TYPE)
                           .append(") ready ")

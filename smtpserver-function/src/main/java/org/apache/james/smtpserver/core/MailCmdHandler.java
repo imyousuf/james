@@ -135,7 +135,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
                     + " Sender already specified");
         } else if (!session.getConnectionState().containsKey(
                 SMTPSession.CURRENT_HELO_MODE)
-                && session.getConfigurationData().useHeloEhloEnforcement()) {
+                && session.useHeloEhloEnforcement()) {
             return new SMTPResponse(SMTPRetCode.BAD_SEQUENCE, DSNStatus
                     .getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_OTHER)
                     + " Need HELO or EHLO before MAIL");
@@ -195,7 +195,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
                     }
                 }
             }
-            if (session.getConfigurationData().useAddressBracketsEnforcement()
+            if (session.useAddressBracketsEnforcement()
                     && (!sender.startsWith("<") || !sender.endsWith(">"))) {
                 if (getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer = new StringBuffer(128).append(
@@ -210,7 +210,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
             }
             MailAddress senderAddress = null;
 
-            if (session.getConfigurationData().useAddressBracketsEnforcement()
+            if (session.useAddressBracketsEnforcement()
                     || (sender.startsWith("<") && sender.endsWith(">"))) {
                 // Remove < and >
                 sender = sender.substring(1, sender.length() - 1);
@@ -223,7 +223,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
                 if (sender.indexOf("@") < 0) {
                     sender = sender
                             + "@"
-                            + session.getConfigurationData().getMailServer()
+                            + session.getMailServer()
                                     .getDefaultDomain();
                 }
 

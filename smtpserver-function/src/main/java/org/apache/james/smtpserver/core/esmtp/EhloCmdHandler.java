@@ -62,8 +62,7 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
         session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE,
                 COMMAND_NAME);
 
-        resp.appendLine(new StringBuffer(session.getConfigurationData()
-                .getHelloName()).append(" Hello ").append(argument)
+        resp.appendLine(new StringBuffer(session.getHelloName()).append(" Hello ").append(argument)
                 .append(" (").append(session.getRemoteHost()).append(" [")
                 .append(session.getRemoteIPAddress()).append("])"));
 
