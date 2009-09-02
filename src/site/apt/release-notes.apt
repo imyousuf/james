@@ -37,7 +37,7 @@ Release Notes - Apache JAMES Server
  applications surprisingly easily. 
 
 
-*Version 3.2.2
+*Version 2.3.2
 
  Is a compatible, point release
 
@@ -50,7 +50,7 @@ Release Notes - Apache JAMES Server
   versions included will be replaced by this library in a future minor release. Users
   should upgrade to the library versions.
  
-**Since 3.2.1
+**Since 2.3.1
         
 ***Bug Fixes
 
@@ -93,9 +93,9 @@ Release Notes - Apache JAMES Server
  
  * [{{{https://issues.apache.org/jira/browse/JAMES-907}JAMES-907}}] -         Run RAT
  
-* Version 3.2.1
+* Version 2.2.1
 
-**Since 3.2.0
+**Since 2.2.0
     
 *** Sub-tasks Completed
 
