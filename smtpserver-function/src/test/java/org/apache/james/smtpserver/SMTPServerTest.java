@@ -191,7 +191,7 @@ public class SMTPServerTest extends TestCase {
     private void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
         ContainerUtil.configure(m_smtpServer, testConfiguration);
-        ContainerUtil.initialize(m_smtpServer);
+        m_smtpServer.initialize();
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
     }
 

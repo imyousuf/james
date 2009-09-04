@@ -89,7 +89,7 @@ public class POP3ServerTest extends TestCase {
             throws Exception {
         testConfiguration.init();
         ContainerUtil.configure(m_pop3Server, testConfiguration);
-        ContainerUtil.initialize(m_pop3Server);
+        m_pop3Server.initialize();
     }
 
     private MockServiceManager setUpServiceManager() throws ServiceException {

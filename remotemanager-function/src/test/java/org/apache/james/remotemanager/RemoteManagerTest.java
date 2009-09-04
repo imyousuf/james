@@ -99,7 +99,7 @@ public class RemoteManagerTest extends TestCase {
         testConfiguration.init();
         try {
             ContainerUtil.configure(m_remoteManager, testConfiguration);
-            ContainerUtil.initialize(m_remoteManager);
+            m_remoteManager.initialize();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
