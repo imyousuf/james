@@ -21,6 +21,8 @@
 
 package org.apache.james.smtpserver;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
@@ -29,6 +31,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractJamesService;
@@ -53,7 +56,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      * The handler chain - SMTPhandlers can lookup handlerchain to obtain
      * Command handlers , Message handlers and connection handlers
      */
-    SMTPHandlerChain handlerChain = new SMTPHandlerChain();
+    private SMTPHandlerChain handlerChain = new SMTPHandlerChain();
 
     /**
      * The mailet context - we access it here to set the hello name for the Mailet API
@@ -75,6 +78,8 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      * The DNSServer to use for queries
      */
     private DNSService dnsServer;
+    /** Loads instances */
+    private LoaderService loader;
     
     /**
      * Whether authentication is required to use
@@ -123,6 +128,24 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private ServiceManager serviceManager;
 
     private boolean addressBracketsEnforcement = true;
+
+    
+    /**
+     * Gets the current instance loader.
+     * @return the loader
+     */
+    public final LoaderService getLoader() {
+        return loader;
+    }
+
+    /**
+     * Sets the loader to be used for instances.
+     * @param loader the loader to set, not null
+     */
+    @Resource(name="org.apache.james.LoaderService")
+    public final void setLoader(LoaderService loader) {
+        this.loader = loader;
+    }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
@@ -219,7 +242,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
 
             //set the logger
             ContainerUtil.enableLogging(handlerChain,getLogger());
-           
+            
             try {
                 ContainerUtil.service(handlerChain,serviceManager);
             } catch (ServiceException e) {
@@ -237,7 +260,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
         }
     }
-    
+
     @Override
     protected void doInit() throws Exception {
         ContainerUtil.initialize(handlerChain);
