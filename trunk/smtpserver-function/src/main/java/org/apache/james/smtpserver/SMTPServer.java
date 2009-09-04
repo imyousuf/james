@@ -73,17 +73,17 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      * The internal mail server service.
      */
     private MailServer mailServer;
-    
+
     /**
      * The DNSServer to use for queries
      */
     private DNSService dnsServer;
     /** Loads instances */
     private LoaderService loader;
-    
+
     /** Cached configuration data for handler */
     private Configuration handlerConfiguration;
-    
+
     /**
      * Whether authentication is required to use
      * this SMTP server.
@@ -97,12 +97,12 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      * Whether the server needs helo to be send first
      */
     private boolean heloEhloEnforcement = false;
-    
+
     /**
      * SMTPGreeting to use 
      */
     private String smtpGreeting = null;
-    
+
     /**
      * This is a Network Matcher that should be configured to contain
      * authorized networks that bypass SMTP AUTH requirements.
@@ -126,13 +126,13 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      * The configuration data to be passed to the handler
      */
     private SMTPHandlerConfigurationData theConfigData
-        = new SMTPHandlerConfigurationDataImpl();
+    = new SMTPHandlerConfigurationDataImpl();
 
     private ServiceManager serviceManager;
 
     private boolean addressBracketsEnforcement = true;
 
-    
+
     /**
      * Gets the current instance loader.
      * @return the loader
@@ -168,11 +168,11 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     public void configure(final Configuration configuration) throws ConfigurationException {
         super.configure(configuration);
         String hello = (String) mailetcontext.getAttribute(Constants.HELLO_NAME);
-        
+
         if (isEnabled()) {
             // TODO Remove this in next not backwards compatible release!
             if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
-            
+
             handlerConfiguration = configuration.getChild("handler");
             String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
@@ -233,14 +233,14 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
-            
+
             heloEhloEnforcement = handlerConfiguration.getChild("heloEhloEnforcement").getValueAsBoolean(true);
-            
+
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
-            
+
             // get the smtpGreeting
             smtpGreeting = handlerConfiguration.getChild("smtpGreeting").getValue(null);
-            
+
             addressBracketsEnforcement = handlerConfiguration.getChild("addressBracketsEnforcement").getValueAsBoolean(true);
 
         } else {
@@ -252,7 +252,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     private void prepareHandlerChain() throws ConfigurationException {
         //set the logger
         ContainerUtil.enableLogging(handlerChain,getLogger());
-        
+
         try {
             ContainerUtil.service(handlerChain,serviceManager);
         } catch (ServiceException e) {
@@ -261,7 +261,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             }
             throw new ConfigurationException("Failed to service handlerChain");
         }
-        
+
         //read from the XML configuration and create and configure each of the handlers
         ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
     }
@@ -275,9 +275,9 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     /**
      * @see org.apache.james.core.AbstractJamesService#getDefaultPort()
      */
-     protected int getDefaultPort() {
+    protected int getDefaultPort() {
         return 25;
-     }
+    }
 
     /**
      * @see org.apache.james.core.AbstractJamesService#getServiceType()
@@ -285,7 +285,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     public String getServiceType() {
         return "SMTP Service";
     }
-    
+
     /**
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
      */
@@ -300,7 +300,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      * A class to provide SMTP handler configuration to the handlers
      */
     private class SMTPHandlerConfigurationDataImpl
-        implements SMTPHandlerConfigurationData {
+    implements SMTPHandlerConfigurationData {
 
         /**
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getHelloName()
@@ -352,15 +352,15 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         public UsersRepository getUsersRepository() {
             return SMTPServer.this.users;
         }
-        
+
         /**
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#useHeloEhloEnforcement()
          */
         public boolean useHeloEhloEnforcement() {
             return SMTPServer.this.heloEhloEnforcement;
         }
-        
-        
+
+
         /**
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getSMTPGreeting()
          */
@@ -371,30 +371,30 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         /**
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#useAddressBracketsEnforcement()
          */
-    public boolean useAddressBracketsEnforcement() {
-        // TODO Auto-generated method stub
-        return SMTPServer.this.addressBracketsEnforcement;
-    }
+        public boolean useAddressBracketsEnforcement() {
+            // TODO Auto-generated method stub
+            return SMTPServer.this.addressBracketsEnforcement;
+        }
 
-		public boolean isAuthRequired(String remoteIP) {
-			 if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
-	            boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
-	            if (authorizedNetworks != null) {
-	                authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
-	            }
-	            return authRequired;
-		}
+        public boolean isAuthRequired(String remoteIP) {
+            if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
+            boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
+            if (authorizedNetworks != null) {
+                authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+            }
+            return authRequired;
+        }
 
-		public boolean isAuthRequired() {
-			// TODO Auto-generated method stub
-			return false;
-		}
+        public boolean isAuthRequired() {
+            // TODO Auto-generated method stub
+            return false;
+        }
 
-		public boolean isVerifyIdentity() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-        
+        public boolean isVerifyIdentity() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
         //TODO: IF we create here an interface to get DNSServer
         //      we should access it from the SMTPHandlers
 
@@ -407,8 +407,8 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         return theConfigData;
     }
 
-	@Override
-	 public ProtocolHandler newProtocolHandlerInstance() {
+    @Override
+    public ProtocolHandler newProtocolHandlerInstance() {
         SMTPHandler theHandler = new SMTPHandler();
         //pass the handler chain to every SMTPhandler
         theHandler.setHandlerChain(handlerChain);
