@@ -397,9 +397,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
 
     @Override
     public ProtocolHandler newProtocolHandlerInstance() {
-        SMTPHandler theHandler = new SMTPHandler();
-        //pass the handler chain to every SMTPhandler
-        theHandler.setHandlerChain(handlerChain);
+        final SMTPHandler theHandler = new SMTPHandler(handlerChain);
         return theHandler;
     }
 
