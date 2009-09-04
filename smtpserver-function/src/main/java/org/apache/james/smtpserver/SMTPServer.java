@@ -205,7 +205,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
 
             if (authorizedAddresses != null) {
                 java.util.StringTokenizer st = new java.util.StringTokenizer(authorizedAddresses, ", ", false);
-                java.util.Collection networks = new java.util.ArrayList();
+                java.util.Collection<String> networks = new java.util.ArrayList<String>();
                 while (st.hasMoreTokens()) {
                     String addr = st.nextToken();
                     networks.add(addr);
