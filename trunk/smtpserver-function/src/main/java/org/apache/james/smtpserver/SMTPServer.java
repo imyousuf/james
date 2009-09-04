@@ -238,11 +238,8 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         }
     }
     
-    /**
-     * @see org.apache.james.core.AbstractJamesService#initialize()
-     */
-    public void initialize() throws Exception {
-        super.initialize();
+    @Override
+    protected void doInit() throws Exception {
         ContainerUtil.initialize(handlerChain);
     }
 

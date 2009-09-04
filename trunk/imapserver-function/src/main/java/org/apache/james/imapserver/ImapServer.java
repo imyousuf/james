@@ -72,13 +72,10 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
         super.dispose();
     }
 
-
-
     @Override
-    public void initialize() throws Exception {
+    protected void doInit() throws Exception {
         getLogger().debug("Initialising...");
         factory.initialize();
-        super.initialize();
     }
 
 

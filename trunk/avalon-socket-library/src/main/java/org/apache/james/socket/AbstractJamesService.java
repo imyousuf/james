@@ -21,6 +21,16 @@
 
 package org.apache.james.socket;
 
+import java.net.BindException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
+import java.security.Provider;
+import java.security.Security;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
@@ -33,7 +43,6 @@ import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -45,21 +54,13 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.api.dnsservice.DNSService;
 
-import java.net.BindException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.UnknownHostException;
-import java.security.Provider;
-import java.security.Security;
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * Server which creates connection handlers. All new James service must
  * inherit from this abstract implementation.
  *
  */
 public abstract class AbstractJamesService extends AbstractHandlerFactory
-    implements Serviceable, Configurable, Disposable, Initializable, ConnectionHandlerFactory, ObjectFactory {
+    implements Serviceable, Configurable, Disposable, ConnectionHandlerFactory, ObjectFactory {
 
     /**
      * The default value for the connection timeout.
@@ -446,7 +447,8 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
-    public void initialize() throws Exception {
+    @PostConstruct
+    public final void initialize() throws Exception {
         if (!isEnabled()) {
             getLogger().info(getServiceType() + " Disabled");
             System.out.println(getServiceType() + " Disabled");
@@ -472,6 +474,17 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
         theWatchdogFactory = getWatchdogFactory();
 
+        // Allow subclasses to perform initialisation
+        doInit();
+    }
+    
+    /**
+     * Hook for subclasses to perform an required initialisation.
+     * Called after the super class has completed it's initialisation.
+     * @throws Exception
+     */
+    protected void doInit() throws Exception {
+        
     }
 
     private void initializeThreadPool(ThreadManager threadManager) {
