@@ -40,7 +40,7 @@ public class TarpitHandlerTest extends TestCase {
             
             public void sleep(long ms) {
                 // use the real code 
-                (new SMTPHandler()).sleep(ms);
+                (new SMTPHandler(new SMTPHandlerChain())).sleep(ms);
             }
 
         };

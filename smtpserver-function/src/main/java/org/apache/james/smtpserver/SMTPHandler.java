@@ -75,7 +75,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     /**
      * Connect Handlers
      */
-    private LinkedList<ConnectHandler> connectHandlers;
+    private final LinkedList<ConnectHandler> connectHandlers;
 
 	private SMTPHandlerConfigurationData theConfigData;
 
@@ -83,14 +83,18 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
 	private boolean authSupported;
 
-	private SMTPHandlerChain handlerChain;
+	private final SMTPHandlerChain handlerChain;
 
 	private String authenticatedUser;
 
 	private String smtpID;
 
+	public SMTPHandler(SMTPHandlerChain handlerChain) {
+        this.handlerChain = handlerChain;
+        connectHandlers = handlerChain.getHandlers(ConnectHandler.class);
+        lineHandlers = handlerChain.getHandlers(LineHandler.class);
+	}
 	
-
     /**
      * Set the configuration data for the handler
      *
@@ -229,18 +233,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         smtpID = null;
         sessionEnded = false;
     }
-
-   /**
-     * Sets the SMTPHandlerChain
-     *
-     * @param handlerChain SMTPHandler object
-     */
-    public void setHandlerChain(SMTPHandlerChain handlerChain) {
-        this.handlerChain = handlerChain;
-        connectHandlers = handlerChain.getHandlers(ConnectHandler.class);
-        lineHandlers = handlerChain.getHandlers(LineHandler.class);
-    }
-
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
