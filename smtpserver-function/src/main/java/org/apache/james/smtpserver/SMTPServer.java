@@ -299,8 +299,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     /**
      * A class to provide SMTP handler configuration to the handlers
      */
-    private class SMTPHandlerConfigurationDataImpl
-    implements SMTPHandlerConfigurationData {
+    private class SMTPHandlerConfigurationDataImpl implements SMTPHandlerConfigurationData {
 
         /**
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getHelloName()
@@ -372,7 +371,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
          * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#useAddressBracketsEnforcement()
          */
         public boolean useAddressBracketsEnforcement() {
-            // TODO Auto-generated method stub
             return SMTPServer.this.addressBracketsEnforcement;
         }
 
@@ -384,17 +382,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             }
             return authRequired;
         }
-
-        public boolean isAuthRequired() {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
-        public boolean isVerifyIdentity() {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
+        
         //TODO: IF we create here an interface to get DNSServer
         //      we should access it from the SMTPHandlers
 

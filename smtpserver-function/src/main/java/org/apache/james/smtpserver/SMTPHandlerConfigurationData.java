@@ -68,21 +68,6 @@ public interface SMTPHandlerConfigurationData {
      * @return whether SMTP authentication is on
      */
     boolean isAuthRequired(String remoteIP);
-
-    /**
-     * Returns whether SMTP auth is active for this server.
-     *
-     * @return whether SMTP authentication is on
-     */
-    boolean isAuthRequired();
-
-    /**
-     * Returns whether the service validates the identity
-     * of its senders.
-     *
-     * @return whether SMTP authentication is on
-     */
-    boolean isVerifyIdentity();
     
     /**
      * Returns whether the remote server needs to send a HELO/EHLO
