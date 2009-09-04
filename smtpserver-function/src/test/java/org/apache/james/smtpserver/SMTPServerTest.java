@@ -145,7 +145,7 @@ public class SMTPServerTest extends TestCase {
     }
 
 
-    private int m_smtpListenerPort = Util.getNonPrivilegedPort();
+    private final int m_smtpListenerPort;
     private MockMailServer m_mailServer;
     private SMTPTestConfiguration m_testConfiguration;
     private SMTPServer m_smtpServer;
@@ -155,6 +155,7 @@ public class SMTPServerTest extends TestCase {
 
     public SMTPServerTest() {
         super("SMTPServerTest");
+        m_smtpListenerPort = Util.getNonPrivilegedPort();
     }
 
     public void verifyLastMail(String sender, String recipient, MimeMessage msg) throws IOException, MessagingException {

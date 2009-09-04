@@ -456,6 +456,8 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         }
         getLogger().debug(getServiceType() + " init...");
 
+        prepareInit();
+        
         // keeping these looked up services locally, because they are only needed beyond initialization
         ThreadManager threadManager = (ThreadManager) componentManager.lookup(ThreadManager.ROLE);
         SocketManager socketManager = (SocketManager) componentManager.lookup(SocketManager.ROLE);
@@ -476,6 +478,17 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
         // Allow subclasses to perform initialisation
         doInit();
+    }
+    
+    
+    /**
+     * Hook for subclasses to perform an required initialisation
+     * before the superclass has been initialised.
+     * Called before the super class has completed it's initialisation.
+     * @throws Exception
+     */
+    protected void prepareInit() throws Exception {
+        
     }
     
     /**

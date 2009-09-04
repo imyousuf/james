@@ -81,6 +81,9 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     /** Loads instances */
     private LoaderService loader;
     
+    /** Cached configuration data for handler */
+    private Configuration handlerConfiguration;
+    
     /**
      * Whether authentication is required to use
      * this SMTP server.
@@ -170,7 +173,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             // TODO Remove this in next not backwards compatible release!
             if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
             
-            Configuration handlerConfiguration = configuration.getChild("handler");
+            handlerConfiguration = configuration.getChild("handler");
             String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
             else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
@@ -240,29 +243,32 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
             
             addressBracketsEnforcement = handlerConfiguration.getChild("addressBracketsEnforcement").getValueAsBoolean(true);
 
-            //set the logger
-            ContainerUtil.enableLogging(handlerChain,getLogger());
-            
-            try {
-                ContainerUtil.service(handlerChain,serviceManager);
-            } catch (ServiceException e) {
-                if (getLogger().isErrorEnabled()) {
-                    getLogger().error("Failed to service handlerChain",e);
-                }
-                throw new ConfigurationException("Failed to service handlerChain");
-            }
-            
-            //read from the XML configuration and create and configure each of the handlers
-            ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
-
         } else {
             // TODO Remove this in next not backwards compatible release!
             if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
         }
     }
 
+    private void prepareHandlerChain() throws ConfigurationException {
+        //set the logger
+        ContainerUtil.enableLogging(handlerChain,getLogger());
+        
+        try {
+            ContainerUtil.service(handlerChain,serviceManager);
+        } catch (ServiceException e) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("Failed to service handlerChain",e);
+            }
+            throw new ConfigurationException("Failed to service handlerChain");
+        }
+        
+        //read from the XML configuration and create and configure each of the handlers
+        ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
+    }
+
     @Override
-    protected void doInit() throws Exception {
+    protected void prepareInit() throws Exception {
+        prepareHandlerChain();
         ContainerUtil.initialize(handlerChain);
     }
 
