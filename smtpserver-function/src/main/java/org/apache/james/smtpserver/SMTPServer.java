@@ -289,6 +289,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     /**
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
      */
+    @SuppressWarnings("unchecked")
     public Class getCreatedClass() {
         return SMTPHandler.class;
     }
