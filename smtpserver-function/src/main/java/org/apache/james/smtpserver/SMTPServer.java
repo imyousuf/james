@@ -55,8 +55,9 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     /**
      * The handler chain - SMTPhandlers can lookup handlerchain to obtain
      * Command handlers , Message handlers and connection handlers
+     * Constructed during initialisation to allow dependency injection.
      */
-    private SMTPHandlerChain handlerChain = new SMTPHandlerChain();
+    private SMTPHandlerChain handlerChain;
 
     /**
      * The mailet context - we access it here to set the hello name for the Mailet API
@@ -250,6 +251,8 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     }
 
     private void prepareHandlerChain() throws ConfigurationException {
+        handlerChain = loader.load(SMTPHandlerChain.class);
+        
         //set the logger
         ContainerUtil.enableLogging(handlerChain,getLogger());
 
