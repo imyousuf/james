@@ -45,6 +45,9 @@ import org.apache.james.smtpserver.core.CoreMessageHookLoader;
   */
 public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable {
 
+    /** Configuration for this chain */
+    private Configuration configuration;
+    
     private List<Object> handlers = new LinkedList<Object>();
 
     private ServiceManager serviceManager;
@@ -99,10 +102,13 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                         cmdName, className));
             }
         }
+        this.configuration = configuration;
+    }
+
+    private void loadHandlers() throws Exception {
         if (configuration != null) {
             Configuration[] children = configuration.getChildren("handler");
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
 
             // load the configured handlers
             if (children != null) {
@@ -139,6 +145,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 //        SMTPCommandDispatcherLineHandler commandDispatcherLineHandler = new SMTPCommandDispatcherLineHandler();
 //        commandDispatcherLineHandler.enableLogging(getLogger());
 //        handlers.add(commandDispatcherLineHandler);
+        
+        loadHandlers();
         
         Iterator<Object> h = handlers.iterator();
     
