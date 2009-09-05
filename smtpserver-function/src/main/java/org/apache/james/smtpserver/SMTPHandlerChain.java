@@ -27,6 +27,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -36,6 +38,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.core.CoreMessageHookLoader;
 
@@ -51,6 +54,26 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     private List<Object> handlers = new LinkedList<Object>();
 
     private ServiceManager serviceManager;
+    
+    /** Loads instances */
+    private LoaderService loader;
+    
+    /**
+     * Gets the current instance loader.
+     * @return the loader
+     */
+    public final LoaderService getLoader() {
+        return loader;
+    }
+
+    /**
+     * Sets the loader to be used for instances.
+     * @param loader the loader to set, not null
+     */
+    @Resource(name="org.apache.james.LoaderService")
+    public final void setLoader(LoaderService loader) {
+        this.loader = loader;
+    }
     
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
@@ -169,7 +192,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     private void loadClass(ClassLoader classLoader, String className,
             Configuration config) throws ConfigurationException {
         try {
-            Object handler = classLoader.loadClass(className).newInstance();
+            final Class<?> handlerClass = classLoader.loadClass(className);
+            Object handler = loader.load(handlerClass);
 
             // enable logging
             ContainerUtil.enableLogging(handler, getLogger());
@@ -205,20 +229,6 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
             handlers.add(handler);
             
         } catch (ClassNotFoundException ex) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("Failed to add Commandhandler: " + className,
-                        ex);
-            }
-            throw new ConfigurationException("Failed to add Commandhandler: "
-                    + className, ex);
-        } catch (IllegalAccessException ex) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("Failed to add Commandhandler: " + className,
-                        ex);
-            }
-            throw new ConfigurationException("Failed to add Commandhandler: "
-                    + className, ex);
-        } catch (InstantiationException ex) {
             if (getLogger().isErrorEnabled()) {
                 getLogger().error("Failed to add Commandhandler: " + className,
                         ex);

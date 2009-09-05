@@ -19,13 +19,64 @@
 
 package org.apache.james.smtpserver;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.apache.james.api.kernel.LoaderService;
 
 public class FakeLoader implements LoaderService {
 
+    private final Map<String, Object> servicesByName;
+    
+    public FakeLoader() {
+        servicesByName = new HashMap<String, Object>();
+        servicesByName.put("org.apache.james.LoaderService", this);
+    }
+    
+    
+    public Object get(String name) {
+        Object service = servicesByName.get(name);
+        return service;
+    }
+    
+    private void injectResources(Object resource) {
+        final Method[] methods = resource.getClass().getMethods();
+        for (Method method : methods) {
+            final Resource resourceAnnotation = method.getAnnotation(Resource.class);
+            if (resourceAnnotation != null) {
+                final String name = resourceAnnotation.name();
+                if (name == null) {
+                    // Unsupported
+                } else {
+                    // Name indicates a service
+                    final Object service = get(name);
+                    if (service == null) {
+                   } else {
+                        try {
+                            Object[] args = {service};
+                            method.invoke(resource, args);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException("Injection failed", e);
+                        } catch (IllegalArgumentException e) {
+                            throw new RuntimeException("Injection failed", e);
+                        } catch (InvocationTargetException e) {
+                            throw new RuntimeException("Injection failed", e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public <T> T load(Class<T> type) {
         try {
-            return type.newInstance();
+            final T newInstance = type.newInstance();
+            injectResources(newInstance);
+            return newInstance;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
