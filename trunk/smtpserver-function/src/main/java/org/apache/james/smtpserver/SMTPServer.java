@@ -62,7 +62,7 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     /**
      * The mailet context - we access it here to set the hello name for the Mailet API
      */
-    MailetContext mailetcontext;
+    private MailetContext mailetcontext;
 
     /**
      * The user repository for this server - used to authenticate
