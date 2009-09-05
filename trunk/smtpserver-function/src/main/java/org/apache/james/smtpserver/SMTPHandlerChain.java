@@ -44,7 +44,7 @@ import java.util.Properties;
   * The SMTPHandlerChain is per service object providing access
   * ConnectHandlers, Commandhandlers and message handlers
   */
-public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable, Initializable {
+public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable {
 
     private List<Object> handlers = new LinkedList<Object>();
 
@@ -133,7 +133,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     }
     
     /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     * Initializes chain.
      */
     public void initialize() throws Exception {
 //        SMTPCommandDispatcherLineHandler commandDispatcherLineHandler = new SMTPCommandDispatcherLineHandler();
