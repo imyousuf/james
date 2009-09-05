@@ -190,59 +190,42 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
      * @throws ConfigurationException Get thrown on error
      */
     private void loadClass(ClassLoader classLoader, String className,
-            Configuration config) throws ConfigurationException {
-        try {
-            final Class<?> handlerClass = classLoader.loadClass(className);
-            Object handler = loader.load(handlerClass);
+            Configuration config) throws Exception {
+        final Class<?> handlerClass = classLoader.loadClass(className);
+        Object handler = loader.load(handlerClass);
 
-            // enable logging
-            ContainerUtil.enableLogging(handler, getLogger());
+        // enable logging
+        ContainerUtil.enableLogging(handler, getLogger());
 
-            // servicing the handler
-            ContainerUtil.service(handler, serviceManager);
+        // servicing the handler
+        ContainerUtil.service(handler, serviceManager);
 
-            // configure the handler
-            ContainerUtil.configure(handler, config);
+        // configure the handler
+        ContainerUtil.configure(handler, config);
 
-            // if it is a commands handler add it to the map with key as command
-            // name
-            if (handler instanceof HandlersPackage) {
-                List<String> c = ((HandlersPackage) handler).getHandlers();
+        // if it is a commands handler add it to the map with key as command
+        // name
+        if (handler instanceof HandlersPackage) {
+            List<String> c = ((HandlersPackage) handler).getHandlers();
 
-                for (Iterator<String> i = c.iterator(); i.hasNext(); ) {
-                    String cName = i.next();
+            for (Iterator<String> i = c.iterator(); i.hasNext(); ) {
+                String cName = i.next();
 
-                    DefaultConfiguration cmdConf = new DefaultConfiguration(
-                            "handler");
-                    cmdConf.setAttribute("class", cName);
+                DefaultConfiguration cmdConf = new DefaultConfiguration(
+                        "handler");
+                cmdConf.setAttribute("class", cName);
 
-                    loadClass(classLoader, cName, cmdConf);
-                }
-
+                loadClass(classLoader, cName, cmdConf);
             }
 
-            if (getLogger().isInfoEnabled()) {
-                getLogger().info("Added Handler: " + className);
-            }
-            
-            // fill the big handler table
-            handlers.add(handler);
-            
-        } catch (ClassNotFoundException ex) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("Failed to add Commandhandler: " + className,
-                        ex);
-            }
-            throw new ConfigurationException("Failed to add Commandhandler: "
-                    + className, ex);
-        } catch (ServiceException e) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error(
-                        "Failed to service Commandhandler: " + className, e);
-            }
-            throw new ConfigurationException("Failed to add Commandhandler: "
-                    + className, e);
         }
+
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info("Added Handler: " + className);
+        }
+
+        // fill the big handler table
+        handlers.add(handler);
     }
 
     /**
