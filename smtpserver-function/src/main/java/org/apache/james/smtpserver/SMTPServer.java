@@ -250,29 +250,22 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         }
     }
 
-    private void prepareHandlerChain() throws ConfigurationException {
+    private void prepareHandlerChain() throws Exception {
         handlerChain = loader.load(SMTPHandlerChain.class);
         
         //set the logger
         ContainerUtil.enableLogging(handlerChain,getLogger());
 
-        try {
-            ContainerUtil.service(handlerChain,serviceManager);
-        } catch (ServiceException e) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("Failed to service handlerChain",e);
-            }
-            throw new ConfigurationException("Failed to service handlerChain");
-        }
+        ContainerUtil.service(handlerChain,serviceManager);
 
         //read from the XML configuration and create and configure each of the handlers
         ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
+        handlerChain.initialize();
     }
 
     @Override
     protected void prepareInit() throws Exception {
         prepareHandlerChain();
-        ContainerUtil.initialize(handlerChain);
     }
 
     /**
