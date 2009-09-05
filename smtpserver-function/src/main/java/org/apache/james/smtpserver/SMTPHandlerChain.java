@@ -21,7 +21,12 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.activity.Initializable;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -33,12 +38,6 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.core.CoreMessageHookLoader;
-
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
 
 /**
   * The SMTPHandlerChain is per service object providing access
@@ -66,11 +65,12 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         for (Iterator<?> h = handlers.iterator(); h.hasNext(); ) {
             Object handler = h.next();
             if (handler instanceof ExtensibleHandler) {
-                List markerInterfaces = ((ExtensibleHandler) handler).getMarkerInterfaces();
+                final ExtensibleHandler extensibleHandler = (ExtensibleHandler) handler;
+                final List<Class<?>> markerInterfaces = extensibleHandler.getMarkerInterfaces();
                 for (int i= 0;i < markerInterfaces.size(); i++) {
-                    Class markerInterface = (Class) markerInterfaces.get(i);
-                    List extensions = getHandlers(markerInterface);
-                    ((ExtensibleHandler) handler).wireExtensions(markerInterface,extensions);
+                    final Class<?> markerInterface = markerInterfaces.get(i);
+                    final List<?> extensions = getHandlers(markerInterface);
+                    extensibleHandler.wireExtensions(markerInterface,extensions);
                 }
             }
         }
@@ -248,6 +248,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
      * @param type the type of handler we're interested in
      * @return a List of handlers
      */
+    @SuppressWarnings("unchecked")
     public <T> LinkedList<T> getHandlers(Class<T> type) {
         LinkedList<T> result = new LinkedList<T>();
         for (Iterator<?> i = handlers.iterator(); i.hasNext(); ) {
