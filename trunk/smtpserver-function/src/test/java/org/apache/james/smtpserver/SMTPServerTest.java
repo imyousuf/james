@@ -181,6 +181,7 @@ public class SMTPServerTest extends TestCase {
         ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
         m_serviceManager = setUpServiceManager();
         ContainerUtil.service(m_smtpServer, m_serviceManager);
+        m_smtpServer.setLoader(new FakeLoader());
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
