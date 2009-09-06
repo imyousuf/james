@@ -33,6 +33,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.activity.Initializable;
@@ -61,7 +63,7 @@ import org.apache.mailet.MailAddress;
  * GreylistHandler which can be used to activate Greylisting
  */
 public class GreylistHandler extends AbstractLogEnabled implements
-    RcptHook, Configurable, Serviceable, Initializable {
+    RcptHook, Configurable, Initializable {
 
     private DataSourceSelector datasources = null;
 
@@ -108,10 +110,75 @@ public class GreylistHandler extends AbstractLogEnabled implements
      */
     private String repositoryPath;
 
-    private DNSService dnsServer;
+    private DNSService dnsService;
 
     private NetMatcher wNetworks;
 
+    
+    
+    /**
+     * Gets the file system service.
+     * @return the fileSystem
+     */
+    public final FileSystem getFileSystem() {
+        return fileSystem;
+    }
+    
+    /**
+     * Sets the filesystem service
+     * 
+     * @param system The filesystem service
+     */
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
+    }
+    
+    /**
+     * @return the datasources
+     */
+    public final DataSourceSelector getDatasources() {
+        return datasources;
+    }
+
+    /**
+     * Set the datasources.
+     * 
+     * @param datasources
+     *            The datasources
+     */
+    @Resource(name="database-connections")
+    public void setDataSources(DataSourceSelector datasources) {
+        this.datasources = datasources;
+    }
+    
+    /**
+     * Gets the DNS service.
+     * @return the dnsService
+     */
+    public final DNSService getDNSService() {
+        return dnsService;
+    }
+
+    /**
+     * Sets the DNS service.
+     * @param dnsService the dnsService to set
+     */
+    @Resource(name="dnsserver")
+    public final void setDNSService(DNSService dnsService) {
+        this.dnsService = dnsService;
+    }
+
+    /**
+     * Set the sqlFileUrl to use for getting the sqlRessource.xml file
+     * 
+     * @param sqlFileUrl
+     *            The fileUrl
+     */
+    public void setSqlFileUrl(String sqlFileUrl) {
+        this.sqlFileUrl = sqlFileUrl;
+    } 
+    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -168,7 +235,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
             Collection nets = whitelistedNetworks(whitelistedNetworks.getValue());
 
             if (nets != null) {
-                wNetworks = new NetMatcher(nets,dnsServer);
+                wNetworks = new NetMatcher(nets,dnsService);
                 getLogger().info("Whitelisted addresses: " + wNetworks.toString());
             }
         }
@@ -184,36 +251,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
         // create table if not exist
         createTable(datasource.getConnection(), "greyListTableName", "createGreyListTable");
     }
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-        setDataSources((DataSourceSelector) serviceMan.lookup(DataSourceSelector.ROLE));
-        setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
-        setFileSystem((FileSystem) serviceMan.lookup(FileSystem.ROLE));
-    }
-
-    /**
-     * Set the DNSServer
-     * 
-     * @param dnsServer
-     *            The DNSServer
-     */
-    public void setDNSService(DNSService dnsServer) {
-        this.dnsServer = dnsServer;
-    }
-
-    /**
-     * Set the sqlFileUrl to use for getting the sqlRessource.xml file
-     * 
-     * @param sqlFileUrl
-     *            The fileUrl
-     */
-    public void setSqlFileUrl(String sqlFileUrl) {
-        this.sqlFileUrl = sqlFileUrl;
-    }
-
+    
     /**
      * Set the repositoryPath to use
      * 
@@ -223,26 +261,6 @@ public class GreylistHandler extends AbstractLogEnabled implements
     public void setRepositoryPath(String repositoryPath) {
         this.repositoryPath = repositoryPath;
     }
-
-    /**
-     * Set the datasources
-     * 
-     * @param datasources
-     *            The datasources
-     */
-    public void setDataSources(DataSourceSelector datasources) {
-        this.datasources = datasources;
-    }
-
-    /**
-     * Sets the filesystem service
-     * 
-     * @param system The filesystem service
-     */
-    private void setFileSystem(FileSystem system) {
-        this.fileSystem = system;
-    }
-
 
     /**
      * Set the datasource
