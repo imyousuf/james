@@ -22,8 +22,6 @@ package org.apache.james.smtpserver;
 
 import java.util.Map;
 
-import org.apache.james.services.MailServer;
-
 /**
  * Abstract class to simplify the mocks
  */
@@ -152,10 +150,6 @@ public class AbstractSMTPSession implements SMTPSession {
 
     public String getHelloName() {
         return getConfigurationData().getHelloName();
-    }
-
-    public MailServer getMailServer() {
-        return getConfigurationData().getMailServer();
     }
 
     public long getMaxMessageSize() {

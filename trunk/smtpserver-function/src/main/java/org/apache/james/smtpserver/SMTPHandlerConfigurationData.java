@@ -21,8 +21,6 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.services.MailServer;
 
 /**
  * Provides a number of server-wide constant values to the
@@ -84,20 +82,6 @@ public interface SMTPHandlerConfigurationData {
      * @return the SMTPGreeting
      */
     String getSMTPGreeting();
-
-    /**
-     * Returns the MailServer interface for this service.
-     *
-     * @return the MailServer interface for this service
-     */
-    MailServer getMailServer();
-
-    /**
-     * Returns the UsersRepository for this service.
-     *
-     * @return the local users repository
-     */
-    UsersRepository getUsersRepository();
     
     /**
      * Return wheter the mailserver will accept addresses without brackets enclosed.

@@ -32,7 +32,6 @@ import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractJamesService;
 import org.apache.james.socket.ProtocolHandler;
@@ -63,12 +62,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
      * The mailet context - we access it here to set the hello name for the Mailet API
      */
     private MailetContext mailetcontext;
-
-    /**
-     * The user repository for this server - used to authenticate
-     * users.
-     */
-    private UsersRepository users;
 
     /**
      * The internal mail server service.
@@ -159,7 +152,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
         serviceManager = manager;
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
-        users = (UsersRepository) manager.lookup(UsersRepository.ROLE);
         dnsServer = (DNSService) manager.lookup(DNSService.ROLE); 
     }
 
@@ -331,21 +323,6 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
                 relayingAllowed = SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
             return relayingAllowed;
-        }
-
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getMailServer()
-         */
-        public MailServer getMailServer() {
-            return SMTPServer.this.mailServer;
-        }
-
-        /**
-         * @see org.apache.james.smtpserver.SMTPHandlerConfigurationData#getUsersRepository()
-         */
-        public UsersRepository getUsersRepository() {
-            return SMTPServer.this.users;
         }
 
         /**
