@@ -18,8 +18,11 @@
  ****************************************************************/
 package org.apache.james.smtpserver.core;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -33,6 +36,25 @@ import org.apache.mailet.MailAddress;
 public class AuthRequiredToRelayRcptHook extends AbstractLogEnabled implements
         RcptHook {
 
+    private MailServer mailServer;
+    
+    /**
+     * Gets the mail server.
+     * @return the mailServer
+     */
+    public final MailServer getMailServer() {
+        return mailServer;
+    }
+
+    /**
+     * Sets the mail server.
+     * @param mailServer the mailServer to set
+     */
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
     /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession,
      *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
@@ -41,7 +63,7 @@ public class AuthRequiredToRelayRcptHook extends AbstractLogEnabled implements
             MailAddress rcpt) {
         if (!session.isRelayingAllowed()) {
             String toDomain = rcpt.getDomain();
-            if (!session.getMailServer().isLocalServer(toDomain)) {
+            if (!mailServer.isLocalServer(toDomain)) {
                 if (session.isAuthSupported()) {
                     return new HookResult(HookReturnCode.DENY,
                             SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(

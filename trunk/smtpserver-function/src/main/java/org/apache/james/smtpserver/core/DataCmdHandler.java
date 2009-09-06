@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
@@ -34,6 +35,7 @@ import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
@@ -94,6 +96,25 @@ public class DataCmdHandler
     // Keys used to store/lookup data in the internal state hash map
 
     private LineHandler lineHandler;
+
+    private MailServer mailServer;
+    
+    /**
+     * Gets the mail server.
+     * @return the mailServer
+     */
+    public final MailServer getMailServer() {
+        return mailServer;
+    }
+
+    /**
+     * Sets the mail server.
+     * @param mailServer the mailServer to set
+     */
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
     
     /**
      * process DATA command
@@ -131,7 +152,7 @@ public class DataCmdHandler
 //        }
 
         try {
-            MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(session.getMailServer().getId());
+            MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(mailServer.getId());
             OutputStream out = mmiss.getWritableOutputStream();
 
             // Prepend output headers with out Received

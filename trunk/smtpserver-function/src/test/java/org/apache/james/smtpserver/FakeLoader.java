@@ -26,9 +26,10 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.api.kernel.LoaderService;
 
-public class FakeLoader implements LoaderService {
+public class FakeLoader implements LoaderService, org.apache.avalon.framework.service.ServiceManager{
 
     private final Map<String, Object> servicesByName;
     
@@ -82,4 +83,19 @@ public class FakeLoader implements LoaderService {
         }
     }
 
+
+    public boolean hasService(String name) {
+        return servicesByName.containsKey(name);
+    }
+
+    public Object lookup(String name) throws ServiceException {
+        return servicesByName.get(name);
+    }
+
+    public void release(Object service) {
+    }
+
+    public void put(String role, Object service) {
+        servicesByName.put(role, service);
+    }
 }

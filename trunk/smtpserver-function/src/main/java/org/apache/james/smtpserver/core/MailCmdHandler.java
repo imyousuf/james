@@ -28,7 +28,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.annotation.Resource;
+
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
@@ -49,8 +52,25 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
      */
     private Map<String, MailParametersHook> paramHooks;
 
-    
-    
+    private MailServer mailServer;
+        
+    /**
+     * Gets the mail server.
+     * @return the mailServer
+     */
+    public final MailServer getMailServer() {
+        return mailServer;
+    }
+
+    /**
+     * Sets the mail server.
+     * @param mailServer the mailServer to set
+     */
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+
     @Override
 	public SMTPResponse onCommand(SMTPSession session, String command,
 			String parameters) {
@@ -223,8 +243,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
                 if (sender.indexOf("@") < 0) {
                     sender = sender
                             + "@"
-                            + session.getMailServer()
-                                    .getDefaultDomain();
+                            + mailServer.getDefaultDomain();
                 }
 
                 try {
