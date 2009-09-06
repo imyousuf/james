@@ -19,37 +19,6 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.cornerstone.services.sockets.SocketManager;
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.cornerstone.services.threads.ThreadManager;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.Constants;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.MailServer;
-import org.apache.james.socket.JamesConnectionManager;
-import org.apache.james.socket.SimpleConnectionManager;
-import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.james.test.mock.avalon.MockSocketManager;
-import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.test.mock.avalon.MockThreadManager;
-import org.apache.james.test.mock.james.InMemorySpoolRepository;
-import org.apache.james.test.mock.james.MockMailServer;
-import org.apache.mailet.base.test.FakeMailContext;
-import org.apache.mailet.base.test.FakeMailetConfig;
-import org.apache.james.test.util.Util;
-import org.apache.james.transport.mailets.RemoteDelivery;
-import org.apache.james.userrepository.MockUsersRepository;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetContext;
-
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,7 +31,37 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+
 import junit.framework.TestCase;
+
+import org.apache.avalon.cornerstone.services.sockets.SocketManager;
+import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.cornerstone.services.threads.ThreadManager;
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.Constants;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.core.MailImpl;
+import org.apache.james.services.MailServer;
+import org.apache.james.socket.JamesConnectionManager;
+import org.apache.james.socket.SimpleConnectionManager;
+import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.james.test.mock.avalon.MockSocketManager;
+import org.apache.james.test.mock.avalon.MockStore;
+import org.apache.james.test.mock.avalon.MockThreadManager;
+import org.apache.james.test.mock.james.InMemorySpoolRepository;
+import org.apache.james.test.mock.james.MockMailServer;
+import org.apache.james.test.util.Util;
+import org.apache.james.transport.mailets.RemoteDelivery;
+import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetContext;
+import org.apache.mailet.base.test.FakeMailContext;
+import org.apache.mailet.base.test.FakeMailetConfig;
 
 /**
  * Tests the org.apache.james.smtpserver.SMTPServer unit 
@@ -179,7 +178,7 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
         m_serviceManager = setUpServiceManager();
         ContainerUtil.service(m_smtpServer, m_serviceManager);
-        m_smtpServer.setLoader(new FakeLoader());
+        m_smtpServer.setLoader(m_serviceManager);
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
@@ -195,14 +194,16 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
     }
 
-    private MockServiceManager setUpServiceManager() throws Exception {
-        m_serviceManager = new MockServiceManager();
+    private FakeLoader setUpServiceManager() throws Exception {
+        m_serviceManager = new FakeLoader();
         SimpleConnectionManager connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
         m_serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         m_serviceManager.put(MailetContext.class.getName(), new FakeMailContext());
         m_mailServer = new MockMailServer(new MockUsersRepository());
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
+        // Phoenix loader does not understand aliases
+        m_serviceManager.put("James", m_mailServer);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
         m_serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_smtpListenerPort));
         m_serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
@@ -215,7 +216,7 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
     // RemoteDelivery tests.
     
     InMemorySpoolRepository outgoingSpool;
-    private MockServiceManager m_serviceManager;
+    private FakeLoader m_serviceManager;
     private AlterableDNSServer m_dnsServer;
     
     private Properties getStandardParameters() {

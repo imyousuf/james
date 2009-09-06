@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.container.ContainerUtil;
@@ -34,6 +35,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPResponse;
@@ -52,6 +54,25 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
     
     private List rHooks;
     
+    private MailServer mailServer;
+    
+    /**
+     * Gets the mail server.
+     * @return the mailServer
+     */
+    public final MailServer getMailServer() {
+        return mailServer;
+    }
+
+    /**
+     * Sets the mail server.
+     * @param mailServer the mailServer to set
+     */
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
     /**
      * @see org.apache.james.smtpserver.core.DataLineFilter#onLine(org.apache.james.smtpserver.SMTPSession, byte[], org.apache.james.smtpserver.LineHandler)
      */
@@ -67,7 +88,7 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
                 
                 List recipientCollection = (List) session.getState().get(SMTPSession.RCPT_LIST);
                 MailImpl mail =
-                    new MailImpl(session.getMailServer().getId(),
+                    new MailImpl(mailServer.getId(),
                                  (MailAddress) session.getState().get(SMTPSession.SENDER),
                                  recipientCollection);
                 MimeMessageCopyOnWriteProxy mimeMessageCopyOnWriteProxy = null;

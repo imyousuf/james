@@ -22,7 +22,6 @@ package org.apache.james.smtpserver;
 import java.util.Map;
 
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.services.MailServer;
 
 /**
  * All the handlers access this interface to communicate with
@@ -64,14 +63,6 @@ public interface SMTPSession {
      *
      */
     void resetState();
-
-    /**
-     * Returns the MailServer interface for this service.
-     *
-     * @return the MailServer interface for this service
-     * @deprecated this service should be injection
-     */
-    MailServer getMailServer();
     
     /**
      * Returns the UsersRepository for this service.

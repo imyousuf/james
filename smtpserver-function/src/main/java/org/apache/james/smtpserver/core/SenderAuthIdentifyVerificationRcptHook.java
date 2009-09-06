@@ -20,8 +20,11 @@ package org.apache.james.smtpserver.core;
 
 import java.util.Locale;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -35,6 +38,25 @@ import org.apache.mailet.MailAddress;
 public class SenderAuthIdentifyVerificationRcptHook extends AbstractLogEnabled
         implements RcptHook {
 
+    private MailServer mailServer;
+    
+    /**
+     * Gets the mail server.
+     * @return the mailServer
+     */
+    public final MailServer getMailServer() {
+        return mailServer;
+    }
+
+    /**
+     * Sets the mail server.
+     * @param mailServer the mailServer to set
+     */
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
     /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession,
      *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
@@ -48,7 +70,7 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractLogEnabled
 
             if ((senderAddress == null)
                     || (!authUser.equals(senderAddress.getLocalPart()))
-                    || (!session.getMailServer()
+                    || (!mailServer
                             .isLocalServer(senderAddress.getDomain()))) {
                 return new HookResult(HookReturnCode.DENY, 
                         SMTPRetCode.BAD_SEQUENCE,
