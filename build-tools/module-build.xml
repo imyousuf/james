@@ -92,6 +92,17 @@ Main User Targets
         <CompileTests/>   
         <RunTests/>   
     </target>
+	
+	<target 
+	    name='javadocs'
+		description='Javadocs project and jars results'
+	    if='release'>
+        <CreateJavaDocs/>
+        <CreateJar 
+            name='${name.module}-javadoc'   
+            bin='${build.javadocs}'
+            lib='${dir.stage.james}'/> 
+	</target>
     
     <target 
         name='dist'
@@ -106,11 +117,7 @@ Main User Targets
             name='${name.module}-test'   
             bin='${dir.build.test}'
             lib='${dir.stage.james}'/>      
-        <CreateJavaDocs/>
-        <CreateJar 
-            name='${name.module}-javadoc'   
-            bin='${build.javadocs}'
-            lib='${dir.stage.james}'/>     
+    	<antcall target='javadocs'/>
     </target>   
     
     <target 
