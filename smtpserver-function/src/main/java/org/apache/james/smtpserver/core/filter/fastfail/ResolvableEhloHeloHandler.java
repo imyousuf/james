@@ -21,13 +21,12 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 
 import java.net.UnknownHostException;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPRetCode;
@@ -42,7 +41,7 @@ import org.apache.mailet.MailAddress;
 /**
  * This CommandHandler can be used to reject not resolvable EHLO/HELO
  */
-public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Configurable, Serviceable, RcptHook, HeloHook {
+public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Configurable, RcptHook, HeloHook {
 
     public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
 
@@ -50,6 +49,23 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
 
     protected DNSService dnsService = null;
 
+    /**
+     * Gets the DNS service.
+     * @return the dnsService
+     */
+    public final DNSService getDNSService() {
+        return dnsService;
+    }
+
+    /**
+     * Sets the DNS service.
+     * @param dnsService the dnsService to set
+     */
+    @Resource(name="dnsserver")
+    public final void setDNSService(DNSService dnsService) {
+        this.dnsService = dnsService;
+    }
+    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -61,14 +77,7 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
             setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
     }
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-        setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
-    }
-
+    
     /**
      * Set to true if AuthNetworks should be included in the EHLO/HELO check
      * 
@@ -77,16 +86,6 @@ public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Con
      */
     public void setCheckAuthNetworks(boolean checkAuthNetworks) {
         this.checkAuthNetworks = checkAuthNetworks;
-    }
-
-    /**
-     * Set the DNSServer
-     * 
-     * @param dnsService
-     *            The DNSServer
-     */
-    public void setDNSService(DNSService dnsService) {
-        this.dnsService = dnsService;
     }
 
     /**

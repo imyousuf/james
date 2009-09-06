@@ -24,12 +24,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.dnsservice.util.NetMatcher;
@@ -45,15 +44,31 @@ import org.apache.mailet.MailAddress;
  * This class can be used to reject email with bogus MX which is send from a authorized user or an authorized
  * network.
  */
-public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
-    Serviceable {
+public class ValidRcptMX extends AbstractLogEnabled implements RcptHook {
 
-    private DNSService dnsServer = null;
+    private DNSService dnsService = null;
 
     private static final String LOCALHOST = "localhost";
 
     private NetMatcher bNetwork = null;
 
+    /**
+     * Gets the DNS service.
+     * @return the dnsService
+     */
+    public final DNSService getDNSService() {
+        return dnsService;
+    }
+
+    /**
+     * Sets the DNS service.
+     * @param dnsService the dnsService to set
+     */
+    @Resource(name="dnsserver")
+    public final void setDNSService(DNSService dnsService) {
+        this.dnsService = dnsService;
+    }
+    
     /**
      * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#configure(org.apache.avalon.framework.configuration.Configuration)
      */
@@ -73,7 +88,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
                 }
             }
 
-            setBannedNetworks(bannedNetworks, dnsServer);
+            setBannedNetworks(bannedNetworks, dnsService);
 
             getLogger().info("Invalid MX Networks: " + bNetwork.toString());
 
@@ -100,23 +115,6 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
     }
 
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        setDNSService((DNSService) arg0.lookup(DNSService.ROLE));
-    }
-
-    /**
-     * Set the DNSServer
-     * 
-     * @param dnsServer
-     *                The dnsServer
-     */
-    public void setDNSService(DNSService dnsServer) {
-        this.dnsServer = dnsServer;
-    }
-
-    /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
@@ -128,7 +126,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
  
             Iterator mx = null;
             try {
-                mx = dnsServer.findMXRecords(domain).iterator();
+                mx = dnsService.findMXRecords(domain).iterator();
             } catch (TemporaryResolutionException e1) {
                 return new HookResult(HookReturnCode.DENYSOFT);
             }
@@ -138,7 +136,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook,
                     String mxRec = mx.next().toString();
 
                      try {
-                        String ip = dnsServer.getByName(mxRec).getHostAddress();
+                        String ip = dnsService.getByName(mxRec).getHostAddress();
 
                         // Check for invalid MX
                         if (bNetwork.matchInetNetwork(ip)) {

@@ -20,13 +20,12 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 
 import java.util.Collection;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.dsn.DSNStatus;
@@ -43,11 +42,27 @@ import org.apache.mailet.MailAddress;
  */
 public class ValidSenderDomainHandler
     extends AbstractLogEnabled
-    implements MailHook, Configurable, Serviceable {
+    implements MailHook, Configurable {
     
     private boolean checkAuthNetworks = false;
-    private DNSService dnsServer = null;
+    private DNSService dnsService = null;
 
+    /**
+     * Gets the DNS service.
+     * @return the dnsService
+     */
+    public final DNSService getDNSService() {
+        return dnsService;
+    }
+
+    /**
+     * Sets the DNS service.
+     * @param dnsService the dnsService to set
+     */
+    @Resource(name="dnsserver")
+    public final void setDNSService(DNSService dnsService) {
+        this.dnsService = dnsService;
+    }
     
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -59,23 +74,7 @@ public class ValidSenderDomainHandler
             setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
         }
     }
-    
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-        setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
-    }
-    
-    /**
-     * Set the DnsServer
-     * 
-     * @param dnsServer The DnsServer
-     */
-    public void setDNSService(DNSService dnsServer) {
-        this.dnsServer = dnsServer;
-    }
-    
+        
     /**
      * Enable checking of authorized networks
      * 
@@ -101,7 +100,7 @@ public class ValidSenderDomainHandler
             
         // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
         try {
-            records = dnsServer.findMXRecords(senderAddress.getDomain());
+            records = dnsService.findMXRecords(senderAddress.getDomain());
         } catch (TemporaryResolutionException e) {
             // TODO: Should we reject temporary ?
         }

@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -38,9 +39,6 @@ import javax.mail.internet.MimePart;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPSession;
@@ -52,10 +50,9 @@ import org.apache.mailet.Mail;
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
  */
-public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
-    Serviceable {
+public class URIRBLHandler extends AbstractLogEnabled implements MessageHook {
 
-    private DNSService dnsServer;
+    private DNSService dnsService;
 
     private Collection uriRbl;
 
@@ -68,12 +65,22 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
     private final static String URBLSERVER = "URBL_SERVER";
 
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
+     * Gets the DNS service.
+     * @return the dnsService
      */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-    	setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
+    public final DNSService getDNSService() {
+        return dnsService;
     }
 
+    /**
+     * Sets the DNS service.
+     * @param dnsService the dnsService to set
+     */
+    @Resource(name="dnsserver")
+    public final void setDNSService(DNSService dnsService) {
+        this.dnsService = dnsService;
+    }
+    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
@@ -138,16 +145,6 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
     }
 
     /**
-     * Set the DNSServer
-     * 
-     * @param service
-     *            The DNSServer
-     */
-    public void setDNSService(DNSService service) {
-        this.dnsServer = service;
-    }
-
-    /**
      * Set for try to get a TXT record for the blocked record. 
      * 
      * @param getDetail Set to ture for enable
@@ -167,7 +164,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
 
             // we should try to retrieve details
             if (getDetail) {
-                Collection txt = dnsServer.findTXTRecords(target+ "." + uRblServer);
+                Collection txt = dnsService.findTXTRecords(target+ "." + uRblServer);
 
                 // Check if we found a txt record
                 if (!txt.isEmpty()) {
@@ -260,7 +257,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook,
                             getLogger().debug("Lookup " + address);
                         }
                         
-                        dnsServer.getByName(address);
+                        dnsService.getByName(address);
             
                         // store server name for later use
                         session.getState().put(URBLSERVER, uRblServer);
