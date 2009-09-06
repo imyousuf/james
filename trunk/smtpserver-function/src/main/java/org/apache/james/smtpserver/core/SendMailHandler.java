@@ -23,12 +23,10 @@ package org.apache.james.smtpserver.core;
 
 import java.util.Collection;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.SMTPSession;
@@ -41,19 +39,27 @@ import org.apache.mailet.Mail;
 /**
   * Adds the header to the message
   */
-public class SendMailHandler
-    extends AbstractLogEnabled
-    implements MessageHook, Serviceable {
+public class SendMailHandler extends AbstractLogEnabled implements MessageHook {
 
     private MailServer mailServer;
-
+        
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     * Gets the mail server.
+     * @return the mailServer
      */
-    public void service(ServiceManager serviceManager) throws ServiceException {
-        mailServer = (MailServer) serviceManager.lookup(MailServer.ROLE);
+    public final MailServer getMailServer() {
+        return mailServer;
     }
 
+    /**
+     * Sets the mail server.
+     * @param mailServer the mailServer to set
+     */
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
     /**
      * Adds header to the message
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)

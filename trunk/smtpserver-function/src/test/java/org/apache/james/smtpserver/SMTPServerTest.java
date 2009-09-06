@@ -212,6 +212,7 @@ public class SMTPServerTest extends TestCase {
         m_serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
         m_dnsServer = new AlterableDNSServer();
         m_serviceManager.put(DNSService.ROLE, m_dnsServer);
+        m_serviceManager.put("dnsserver", m_dnsServer);
         m_serviceManager.put(Store.ROLE, new MockStore());
         return m_serviceManager;
     }

@@ -25,13 +25,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.ConnectHandler;
@@ -46,14 +45,14 @@ import org.apache.mailet.MailAddress;
   */
 public class DNSRBLHandler
     extends AbstractLogEnabled
-    implements ConnectHandler, RcptHook, Configurable, Serviceable {
+    implements ConnectHandler, RcptHook, Configurable {
     /**
      * The lists of rbl servers to be checked to limit spam
      */
     private String[] whitelist;
     private String[] blacklist;
     
-    private DNSService dnsServer = null;
+    private DNSService dnsService = null;
     
     private boolean getDetail = false;
     
@@ -62,6 +61,23 @@ public class DNSRBLHandler
     public static final String RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME = "org.apache.james.smtpserver.rbl.blocklisted";
     
     public static final String RBL_DETAIL_MAIL_ATTRIBUTE_NAME = "org.apache.james.smtpserver.rbl.detail";
+
+    /**
+     * Gets the DNS service.
+     * @return the dnsService
+     */
+    public final DNSService getDNSService() {
+        return dnsService;
+    }
+
+    /**
+     * Sets the DNS service.
+     * @param dnsService the dnsService to set
+     */
+    @Resource(name="dnsserver")
+    public final void setDNSService(DNSService dnsService) {
+        this.dnsService = dnsService;
+    }
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
@@ -115,13 +131,6 @@ public class DNSRBLHandler
         }
         
     }
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager serviceMan) throws ServiceException {
-        setDNSService((DNSService) serviceMan.lookup(DNSService.ROLE));
-    }
     
     /**
      * check if the remote Ip address is block listed
@@ -148,15 +157,6 @@ public class DNSRBLHandler
      */
     public void setBlacklist(String[] blacklist) {
         this.blacklist = blacklist;
-    }
-    
-    /**
-     * Set the DNSServer
-     * 
-     * @param mockedDnsServer The DNSServer
-     */
-    public void setDNSService(DNSService mockedDnsServer) {
-        this.dnsServer = mockedDnsServer;
     }
 
     /**
@@ -198,7 +198,7 @@ public class DNSRBLHandler
             if (whitelist != null) {
                 String[] rblList = whitelist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
-                    dnsServer.getByName(reversedOctets + rblList[i]);
+                    dnsService.getByName(reversedOctets + rblList[i]);
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
                     }
@@ -214,14 +214,14 @@ public class DNSRBLHandler
             if (blacklist != null) {
                 String[] rblList = blacklist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
-                    dnsServer.getByName(reversedOctets + rblList[i]);
+                    dnsService.getByName(reversedOctets + rblList[i]);
                     if (getLogger().isInfoEnabled()) {
                         getLogger().info("Connection from " + ipAddress + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
                     }
                     
                     // we should try to retrieve details
                     if (getDetail) {
-                        Collection txt = dnsServer.findTXTRecords(reversedOctets + rblList[i]);
+                        Collection txt = dnsService.findTXTRecords(reversedOctets + rblList[i]);
                         
                         // Check if we found a txt record
                         if (!txt.isEmpty()) {
