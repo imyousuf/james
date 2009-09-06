@@ -21,8 +21,6 @@ package org.apache.james.smtpserver;
 
 import java.util.Map;
 
-import org.apache.james.api.user.UsersRepository;
-
 /**
  * All the handlers access this interface to communicate with
  * SMTPHandler object
@@ -63,14 +61,6 @@ public interface SMTPSession {
      *
      */
     void resetState();
-    
-    /**
-     * Returns the UsersRepository for this service.
-     *
-     * @return the local users repository
-     * @deprecated this service should be injection
-     */
-    UsersRepository getUsersRepository();
 
     /**
      * Returns the service wide hello name

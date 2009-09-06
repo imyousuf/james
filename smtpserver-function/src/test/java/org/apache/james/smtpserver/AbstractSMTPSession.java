@@ -22,7 +22,6 @@ package org.apache.james.smtpserver;
 
 import java.util.Map;
 
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 
 /**
@@ -165,10 +164,6 @@ public class AbstractSMTPSession implements SMTPSession {
 
     public String getSMTPGreeting() {
         return getConfigurationData().getSMTPGreeting();
-    }
-
-    public UsersRepository getUsersRepository() {
-        return getConfigurationData().getUsersRepository();
     }
 
     public boolean useAddressBracketsEnforcement() {

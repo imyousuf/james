@@ -18,6 +18,9 @@
  ****************************************************************/
 package org.apache.james.smtpserver.core;
 
+import javax.annotation.Resource;
+
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.AuthHook;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -27,11 +30,32 @@ import org.apache.james.smtpserver.hook.HookReturnCode;
  * This Auth hook can be used to authenticate against the james user repository
  */
 public class UsersRepositoryAuthHook implements AuthHook {
+    
+    private UsersRepository users;
+    
+    /**
+     * Gets the users repository.
+     * @return the users
+     */
+    public final UsersRepository getUsers() {
+        return users;
+    }
+
+    /**
+     * Sets the users repository.
+     * @param users the users to set
+     */
+    @Resource(name="localusersrepository")
+    public final void setUsers(UsersRepository users) {
+        this.users = users;
+    }
+
+
     /**
      * @see org.apache.james.smtpserver.hook.AuthHook#doAuth(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String)
      */
     public HookResult doAuth(SMTPSession session, String username, String password) {
-        if (session.getUsersRepository().test(username, password)) {
+        if (users.test(username, password)) {
             session.setUser(username);
             session.setRelayingAllowed(true);
             return new HookResult(HookReturnCode.OK, "Authentication Successful");

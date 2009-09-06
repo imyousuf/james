@@ -27,6 +27,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -34,6 +36,7 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
@@ -54,6 +57,25 @@ import org.apache.oro.text.regex.Perl5Matcher;
  * Handler which reject invalid recipients
  */
 public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Configurable, Serviceable {
+    
+    private UsersRepository users;
+    
+    /**
+     * Gets the users repository.
+     * @return the users
+     */
+    public final UsersRepository getUsers() {
+        return users;
+    }
+
+    /**
+     * Sets the users repository.
+     * @param users the users to set
+     */
+    @Resource(name="localusersrepository")
+    public final void setUsers(UsersRepository users) {
+        this.users = users;
+    }
     
     private Collection recipients = new ArrayList();
     private Collection domains = new ArrayList();
@@ -171,7 +193,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
         if (!session.isRelayingAllowed()) {
             boolean invalidUser = true;
 
-            if (session.getUsersRepository().contains(rcpt.getLocalPart()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getDomain().toLowerCase())) {
+            if (users.contains(rcpt.getLocalPart()) == true || recipients.contains(rcpt.toString().toLowerCase()) || domains.contains(rcpt.getDomain().toLowerCase())) {
                 invalidUser = false;
             }
 
