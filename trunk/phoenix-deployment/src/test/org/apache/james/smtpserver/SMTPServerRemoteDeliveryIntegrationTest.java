@@ -204,6 +204,7 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
         // Phoenix loader does not understand aliases
         m_serviceManager.put("James", m_mailServer);
+        m_serviceManager.put("localusersrepository", m_usersRepository);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
         m_serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_smtpListenerPort));
         m_serviceManager.put(ThreadManager.ROLE, new MockThreadManager());

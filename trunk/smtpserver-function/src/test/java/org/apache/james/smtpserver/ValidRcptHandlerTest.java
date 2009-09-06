@@ -50,16 +50,23 @@ public class ValidRcptHandlerTest extends TestCase {
     private final static String USER2 = "user2";
     private MockServiceManager serviceMan;
     
+    UsersRepository users;
+    ValidRcptHandler handler;
+    
+    @Override
+    protected void setUp() throws Exception {
+        users = new MockUsersRepository();
+        users.addUser(VALID_USER,"xxx");
+        handler = new ValidRcptHandler();
+        handler.setUsers(users);
+    }
+
     private SMTPSession setupMockedSMTPSession(final SMTPHandlerConfigurationData conf, final MailAddress rcpt, final boolean relayingAllowed) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
 
             public boolean isRelayingAllowed() {
                 return relayingAllowed;
-            }
-        
-            public SMTPHandlerConfigurationData getConfigurationData() {
-                return conf;
             }
         
             public Map getState() {
@@ -94,7 +101,7 @@ public class ValidRcptHandlerTest extends TestCase {
     
     private SMTPHandlerConfigurationData setupMockedSMTPConfiguration() {
         SMTPHandlerConfigurationData conf = new SMTPHandlerConfigurationData() {
-            UsersRepository user = new MockUsersRepository();
+            
         
             public String getHelloName() {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
@@ -117,8 +124,8 @@ public class ValidRcptHandlerTest extends TestCase {
             }
 
             public UsersRepository getUsersRepository() {
-                user.addUser(VALID_USER,"xxx");
-                return user;
+                
+                return users;
             }
 
             public boolean isRelayingAllowed(String remoteIP) {
@@ -136,22 +143,12 @@ public class ValidRcptHandlerTest extends TestCase {
 			public boolean isAuthRequired(String remoteIP) {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
 			}
-
-			public boolean isAuthRequired() {
-				return false;
-			}
-
-			public boolean isVerifyIdentity() {
-				return false;
-			}
-        
         };
     
         return conf;
     }
     
     public void testRejectInvalidUser() throws Exception {
-        ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         MailAddress mailAddress = new MailAddress(INVALID_USER + "@localhost");
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
@@ -163,7 +160,6 @@ public class ValidRcptHandlerTest extends TestCase {
     }
     
     public void testNotRejectInvalidUserRelay() throws Exception {
-        ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         MailAddress mailAddress = new MailAddress(INVALID_USER + "@localhost");
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,true);
@@ -175,7 +171,6 @@ public class ValidRcptHandlerTest extends TestCase {
     }
     
     public void testNotRejectValidUser() throws Exception {
-        ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         MailAddress mailAddress = new MailAddress(VALID_USER + "@localhost");
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
@@ -188,7 +183,6 @@ public class ValidRcptHandlerTest extends TestCase {
     
     public void testNotRejectValidUserRecipient() throws Exception {
         String recipient = "recip@domain";
-        ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         MailAddress mailAddress = new MailAddress(recipient);
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
@@ -205,7 +199,6 @@ public class ValidRcptHandlerTest extends TestCase {
         String domain = "domain";
         String recipient = "recip@" + domain;
 
-        ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         MailAddress mailAddress = new MailAddress(recipient);
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
@@ -222,7 +215,6 @@ public class ValidRcptHandlerTest extends TestCase {
         String domain = "domain";
         String recipient = "recip@" + domain;
 
-        ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         MailAddress mailAddress = new MailAddress(recipient);
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
@@ -237,7 +229,6 @@ public class ValidRcptHandlerTest extends TestCase {
     
     public void testInvalidRegex() throws Exception{
         boolean exception = false;
-        ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         ContainerUtil.enableLogging(handler,new MockLogger());
     
@@ -254,7 +245,6 @@ public class ValidRcptHandlerTest extends TestCase {
         MailAddress mailAddress = new MailAddress(USER1 + "@localhost");
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
     
-        ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         ContainerUtil.enableLogging(handler,new MockLogger());
 
@@ -267,7 +257,6 @@ public class ValidRcptHandlerTest extends TestCase {
         MailAddress mailAddress = new MailAddress(USER2 + "@localhost");
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
 
-        ValidRcptHandler handler = new ValidRcptHandler();
         ContainerUtil.service(handler, setUpServiceManager());
         ContainerUtil.enableLogging(handler,new MockLogger());
 
