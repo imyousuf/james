@@ -24,7 +24,6 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -33,8 +32,7 @@ import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.mailet.MailAddress;
 
-public class MaxRcptHandler extends AbstractLogEnabled implements
-        RcptHook, Configurable {
+public class MaxRcptHandler implements RcptHook, Configurable {
 
     private int maxRcpt = 0;
 
@@ -68,7 +66,7 @@ public class MaxRcptHandler extends AbstractLogEnabled implements
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         if ((session.getRcptCount() + 1) > maxRcpt) {
-            getLogger().info("Maximum recipients of " + maxRcpt + " reached");
+            session.getLogger().info("Maximum recipients of " + maxRcpt + " reached");
             
             return new HookResult(HookReturnCode.DENY, SMTPRetCode.SYSTEM_STORAGE_ERROR, DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
                     + " Requested action not taken: max recipients reached");

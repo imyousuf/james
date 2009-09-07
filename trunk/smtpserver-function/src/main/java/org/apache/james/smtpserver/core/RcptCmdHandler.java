@@ -141,12 +141,12 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
         }
         if (session.useAddressBracketsEnforcement()
                 && (!recipient.startsWith("<") || !recipient.endsWith(">"))) {
-            if (getLogger().isErrorEnabled()) {
+            if (session.getLogger().isErrorEnabled()) {
                 StringBuffer errorBuffer = new StringBuffer(192).append(
                         "Error parsing recipient address: ").append(
                         "Address did not start and end with < >").append(
                         getContext(session, null, recipient));
-                getLogger().error(errorBuffer.toString());
+                session.getLogger().error(errorBuffer.toString());
             }
             return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,
                     DSNStatus.getStatus(DSNStatus.PERMANENT,
@@ -170,12 +170,12 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
         try {
             recipientAddress = new MailAddress(recipient);
         } catch (Exception pe) {
-            if (getLogger().isErrorEnabled()) {
+            if (session.getLogger().isErrorEnabled()) {
                 StringBuffer errorBuffer = new StringBuffer(192).append(
                         "Error parsing recipient address: ").append(
                         getContext(session, recipientAddress, recipient))
                         .append(pe.getMessage());
-                getLogger().error(errorBuffer.toString());
+                session.getLogger().error(errorBuffer.toString());
             }
             /*
              * from RFC2822; 553 Requested action not taken: mailbox name
@@ -202,7 +202,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
                     rcptOptionValue = rcptOption.substring(equalIndex + 1);
                 }
                 // Unexpected option attached to the RCPT command
-                if (getLogger().isDebugEnabled()) {
+                if (session.getLogger().isDebugEnabled()) {
                     StringBuffer debugBuffer = new StringBuffer(128)
                             .append(
                                     "RCPT command had unrecognized/unexpected option ")
@@ -210,7 +210,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
                             .append(rcptOptionValue).append(
                                     getContext(session, recipientAddress,
                                             recipient));
-                    getLogger().debug(debugBuffer.toString());
+                    session.getLogger().debug(debugBuffer.toString());
                 }
 
                 return new SMTPResponse(

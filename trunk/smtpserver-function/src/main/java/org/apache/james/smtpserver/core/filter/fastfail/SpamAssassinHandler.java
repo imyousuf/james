@@ -28,7 +28,6 @@ import javax.mail.internet.MimeMessage;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -53,8 +52,7 @@ import org.apache.mailet.Mail;
  * &lt;spamdRejectionHits&gt;15.0&lt;/spamdRejectionHits&gt;
  * &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt; &lt;/handler&gt;
  */
-public class SpamAssassinHandler extends AbstractLogEnabled implements
-        MessageHook, Configurable {
+public class SpamAssassinHandler implements MessageHook, Configurable {
 
     /**
      * The port spamd is listen on
@@ -183,7 +181,7 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
                                 .append(session.getRemoteIPAddress()).append(") This message reach the spam hits treshold. Required rejection hits: ")
                                 .append(spamdRejectionHits).append(" hits: ")
                                 .append(hits);
-                        getLogger().info(buffer.toString());
+                        session.getLogger().info(buffer.toString());
 
                         // Message reject .. abort it!
                         return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
@@ -194,7 +192,7 @@ public class SpamAssassinHandler extends AbstractLogEnabled implements
                 }
             }
         } catch (MessagingException e) {
-            getLogger().error(e.getMessage());
+            session.getLogger().error(e.getMessage());
         }
         return new HookResult(HookReturnCode.DECLINED);
     }

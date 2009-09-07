@@ -26,7 +26,6 @@ import java.util.Collection;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.SMTPSession;
@@ -39,7 +38,7 @@ import org.apache.mailet.Mail;
 /**
   * Adds the header to the message
   */
-public class SendMailHandler extends AbstractLogEnabled implements MessageHook {
+public class SendMailHandler implements MessageHook {
 
     private MailServer mailServer;
         
@@ -65,7 +64,7 @@ public class SendMailHandler extends AbstractLogEnabled implements MessageHook {
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
     public HookResult onMessage(SMTPSession session, Mail mail) {
-        getLogger().debug("sending mail");
+        session.getLogger().debug("sending mail");
 
         try {
             mailServer.sendMail(mail);
@@ -74,7 +73,7 @@ public class SendMailHandler extends AbstractLogEnabled implements MessageHook {
             if (theRecipients != null) {
                 recipientString = theRecipients.toString();
             }
-            if (getLogger().isInfoEnabled()) {
+            if (session.getLogger().isInfoEnabled()) {
                 StringBuffer infoBuffer =
                      new StringBuffer(256)
                          .append("Successfully spooled mail ")
@@ -85,10 +84,10 @@ public class SendMailHandler extends AbstractLogEnabled implements MessageHook {
                          .append(session.getRemoteIPAddress())
                          .append(" for ")
                          .append(recipientString);
-                getLogger().info(infoBuffer.toString());
+                session.getLogger().info(infoBuffer.toString());
             }
         } catch (MessagingException me) {
-            getLogger().error("Unknown error occurred while processing DATA.", me);
+            session.getLogger().error("Unknown error occurred while processing DATA.", me);
             return new HookResult(HookReturnCode.DENYSOFT,DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.");
         }
         return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");

@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.smtpserver.core;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
@@ -28,8 +27,7 @@ import org.apache.mailet.MailAddress;
 /**
  * This hook will stop the hook chain if relaying is allowed
  */
-public class AcceptRecipientIfRelayingIsAllowed extends AbstractLogEnabled implements
-        RcptHook {
+public class AcceptRecipientIfRelayingIsAllowed implements RcptHook {
 
     /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession,

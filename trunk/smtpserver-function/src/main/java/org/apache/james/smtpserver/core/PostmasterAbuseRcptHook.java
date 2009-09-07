@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.smtpserver.core;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
@@ -28,14 +27,14 @@ import org.apache.mailet.MailAddress;
 /**
  * Handler which whitelist "postmaster" and "abuse" recipients.
  */
-public class PostmasterAbuseRcptHook extends AbstractLogEnabled implements RcptHook {
+public class PostmasterAbuseRcptHook implements RcptHook {
     
     /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         if (rcpt.getLocalPart().equalsIgnoreCase("postmaster") || rcpt.getLocalPart().equalsIgnoreCase("abuse")) {
-            getLogger().debug("Sender allowed");
+            session.getLogger().debug("Sender allowed");
             return new HookResult(HookReturnCode.OK);
         } else {
             return new HookResult(HookReturnCode.DECLINED);

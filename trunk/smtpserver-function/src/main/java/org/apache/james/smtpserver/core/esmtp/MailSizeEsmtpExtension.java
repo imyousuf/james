@@ -6,7 +6,6 @@ package org.apache.james.smtpserver.core.esmtp;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPRetCode;
@@ -21,8 +20,7 @@ import org.apache.mailet.Mail;
 /**
  * Handle the ESMTP SIZE extension.
  */
-public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
-        MailParametersHook, EhloExtension, DataLineFilter, MessageHook {
+public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension, DataLineFilter, MessageHook {
 
     private final static String MESG_SIZE = "MESG_SIZE"; // The size of the
     private final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
@@ -77,7 +75,7 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
         try {
             size = Integer.parseInt(mailOptionValue);
         } catch (NumberFormatException pe) {
-            getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
+            session.getLogger().error("Rejected syntactically incorrect value for SIZE parameter.");
             
             // This is a malformed option value. We return an error
             return new HookResult(HookReturnCode.DENY, 
@@ -86,11 +84,11 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
                             DSNStatus.DELIVERY_INVALID_ARG)
                             + " Syntactically incorrect value for SIZE parameter");
         }
-        if (getLogger().isDebugEnabled()) {
+        if (session.getLogger().isDebugEnabled()) {
             StringBuffer debugBuffer = new StringBuffer(128).append(
                     "MAIL command option SIZE received with value ").append(
                     size).append(".");
-            getLogger().debug(debugBuffer.toString());
+            session.getLogger().debug(debugBuffer.toString());
         }
         long maxMessageSize = session.getMaxMessageSize();
         if ((maxMessageSize > 0) && (size > maxMessageSize)) {
@@ -103,7 +101,7 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
                     .append(size).append(
                             " exceeding system maximum message size of ")
                     .append(maxMessageSize).append("based on SIZE option.");
-            getLogger().error(errorBuffer.toString());
+            session.getLogger().error(errorBuffer.toString());
 
             return new HookResult(HookReturnCode.DENY, SMTPRetCode.QUOTA_EXCEEDED, DSNStatus
                     .getStatus(DSNStatus.PERMANENT,
@@ -173,7 +171,7 @@ public class MailSizeEsmtpExtension extends AbstractLogEnabled implements
                     .append(") exceeding system maximum message size of ")
                     .append(
                             session.getMaxMessageSize());
-            getLogger().error(errorBuffer.toString());
+            session.getLogger().error(errorBuffer.toString());
             // TODO ???
             // session.pushLineHandler(new DataCmdHandler.DataConsumerLineHandler());
             return response;
