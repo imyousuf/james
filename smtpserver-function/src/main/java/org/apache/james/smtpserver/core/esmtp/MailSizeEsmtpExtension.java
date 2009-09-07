@@ -85,7 +85,7 @@ public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension
                             + " Syntactically incorrect value for SIZE parameter");
         }
         if (session.getLogger().isDebugEnabled()) {
-            StringBuffer debugBuffer = new StringBuffer(128).append(
+            StringBuilder debugBuffer = new StringBuilder(128).append(
                     "MAIL command option SIZE received with value ").append(
                     size).append(".");
             session.getLogger().debug(debugBuffer.toString());
@@ -93,7 +93,7 @@ public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension
         long maxMessageSize = session.getMaxMessageSize();
         if ((maxMessageSize > 0) && (size > maxMessageSize)) {
             // Let the client know that the size limit has been hit.
-            StringBuffer errorBuffer = new StringBuffer(256).append(
+            StringBuilder errorBuffer = new StringBuilder(256).append(
                     "Rejected message from ").append(
                     tempSender != null ? tempSender : null).append(
                     " from host ").append(session.getRemoteHost()).append(" (")
@@ -163,7 +163,7 @@ public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension
             HookResult response = new HookResult(HookReturnCode.DENY, SMTPRetCode.QUOTA_EXCEEDED,DSNStatus.getStatus(DSNStatus.PERMANENT,
                     DSNStatus.SYSTEM_MSG_TOO_BIG) + " Maximum message size exceeded");
   
-            StringBuffer errorBuffer = new StringBuffer(256).append(
+            StringBuilder errorBuffer = new StringBuilder(256).append(
                     "Rejected message from ").append(
                     session.getState().get(SMTPSession.SENDER).toString())
                     .append(" from host ").append(session.getRemoteHost())

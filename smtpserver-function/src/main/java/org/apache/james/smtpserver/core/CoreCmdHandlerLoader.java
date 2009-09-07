@@ -61,7 +61,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     public List<String> getHandlers() {
         List<String> commands = new LinkedList<String>();
         
-        // Insert the basecommands in the Map
+        // Insert the base commands in the Map
         commands.add(WELCOMEMESSAGEHANDLER);
         commands.add(COMMANDDISPATCHER);
         commands.add(AUTHCMDHANDLER);

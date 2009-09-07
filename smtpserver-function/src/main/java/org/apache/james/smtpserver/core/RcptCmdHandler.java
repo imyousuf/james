@@ -73,12 +73,13 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
      * @param argument
      *            the argument passed in with the command by the SMTP client
      */
+    @SuppressWarnings("unchecked")
     protected SMTPResponse doCoreCmd(SMTPSession session, String command,
             String parameters) {
-        Collection rcptColl = (Collection) session.getState().get(
+        Collection<MailAddress> rcptColl = (Collection<MailAddress>) session.getState().get(
                 SMTPSession.RCPT_LIST);
         if (rcptColl == null) {
-            rcptColl = new ArrayList();
+            rcptColl = new ArrayList<MailAddress>();
         }
         MailAddress recipientAddress = (MailAddress) session.getState().get(
                 CURRENT_RECIPIENT);
@@ -142,7 +143,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
         if (session.useAddressBracketsEnforcement()
                 && (!recipient.startsWith("<") || !recipient.endsWith(">"))) {
             if (session.getLogger().isErrorEnabled()) {
-                StringBuffer errorBuffer = new StringBuffer(192).append(
+                StringBuilder errorBuffer = new StringBuilder(192).append(
                         "Error parsing recipient address: ").append(
                         "Address did not start and end with < >").append(
                         getContext(session, null, recipient));
@@ -171,7 +172,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
             recipientAddress = new MailAddress(recipient);
         } catch (Exception pe) {
             if (session.getLogger().isErrorEnabled()) {
-                StringBuffer errorBuffer = new StringBuffer(192).append(
+                StringBuilder errorBuffer = new StringBuilder(192).append(
                         "Error parsing recipient address: ").append(
                         getContext(session, recipientAddress, recipient))
                         .append(pe.getMessage());
@@ -203,7 +204,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
                 }
                 // Unexpected option attached to the RCPT command
                 if (session.getLogger().isDebugEnabled()) {
-                    StringBuffer debugBuffer = new StringBuffer(128)
+                    StringBuilder debugBuffer = new StringBuilder(128)
                             .append(
                                     "RCPT command had unrecognized/unexpected option ")
                             .append(rcptOptionName).append(" with value ")
@@ -228,7 +229,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
 
     private String getContext(SMTPSession session,
             MailAddress recipientAddress, String recipient) {
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
         if (null != recipientAddress) {
             sb
                     .append(" [to:"

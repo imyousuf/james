@@ -137,6 +137,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
      * @param session SMTP session object
      * @param argument the argument passed in with the command by the SMTP client
      */
+    @SuppressWarnings("unchecked")
     private SMTPResponse doDATA(SMTPSession session, String argument) {
 //        long maxMessageSize = session.getConfigurationData().getMaxMessageSize();
 //        if (maxMessageSize > 0) {
@@ -218,7 +219,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
      * @throws MessagingException
      */
     private MailHeaders createNewReceivedMailHeaders(SMTPSession session) throws MessagingException {
-        StringBuffer headerLineBuffer = new StringBuffer(512);
+        StringBuilder headerLineBuffer = new StringBuilder(512);
         MailHeaders newHeaders = new MailHeaders();
         
         String heloMode = (String) session.getConnectionState().get(SMTPSession.CURRENT_HELO_MODE);
@@ -251,7 +252,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
      
         // Check if EHLO was used 
         if ("EHLO".equals(heloMode)) {
-            // Not succesfull auth
+            // Not successful auth
             if (session.getUser() == null) {
                 headerLineBuffer.append("ESMTP");  
             } else {
