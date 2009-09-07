@@ -37,7 +37,7 @@ public class SpamTrapHandlerTest extends TestCase {
     private static final String RECIP1 = "recip@localhost";
     
     private SMTPSession setUpSMTPSession(final String ip) {
-        return new AbstractSMTPSession() {
+        return new BaseFakeSMTPSession() {
             public String getRemoteIPAddress() {
                 return ip;
             }

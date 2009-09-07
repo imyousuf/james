@@ -63,7 +63,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
     }
 
     private void setupMockedSMTPSession() {
-        mockedSMTPSession = new AbstractSMTPSession() {
+        mockedSMTPSession = new BaseFakeSMTPSession() {
 
             public int getRcptCount() {
                 return 0;

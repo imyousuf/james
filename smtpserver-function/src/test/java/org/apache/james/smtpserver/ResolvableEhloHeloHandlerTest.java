@@ -48,7 +48,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
     private SMTPSession setupMockSession(final String argument,
              final boolean relaying, final boolean authRequired, final String user, final MailAddress recipient) {
         
-        SMTPSession session = new AbstractSMTPSession() {
+        SMTPSession session = new BaseFakeSMTPSession() {
 
             HashMap connectionMap = new HashMap();
             HashMap map = new HashMap();

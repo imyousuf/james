@@ -133,7 +133,7 @@ public class SPFHandlerTest extends TestCase {
      * Setup mocked smtpsession
      */
     private void setupMockedSMTPSession(final String ip, final String helo) {
-        mockedSMTPSession = new AbstractSMTPSession() {
+        mockedSMTPSession = new BaseFakeSMTPSession() {
             HashMap state = new HashMap();
 
             HashMap connectionState = new HashMap();

@@ -32,7 +32,7 @@ public class TarpitHandlerTest extends TestCase {
     private SMTPSession session;
 
     private SMTPSession setupMockedSession(final int rcptCount) {
-        session = new AbstractSMTPSession() {
+        session = new BaseFakeSMTPSession() {
 
             public int getRcptCount() {
                 return rcptCount;

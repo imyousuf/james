@@ -62,7 +62,7 @@ public class ValidRcptHandlerTest extends TestCase {
     }
 
     private SMTPSession setupMockedSMTPSession(final SMTPConfiguration conf, final MailAddress rcpt, final boolean relayingAllowed) {
-        SMTPSession session = new AbstractSMTPSession() {
+        SMTPSession session = new BaseFakeSMTPSession() {
             HashMap state = new HashMap();
 
             public boolean isRelayingAllowed() {
