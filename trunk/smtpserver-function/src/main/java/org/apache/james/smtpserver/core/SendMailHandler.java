@@ -74,8 +74,8 @@ public class SendMailHandler implements MessageHook {
                 recipientString = theRecipients.toString();
             }
             if (session.getLogger().isInfoEnabled()) {
-                StringBuffer infoBuffer =
-                     new StringBuffer(256)
+                StringBuilder infoBuffer =
+                     new StringBuilder(256)
                          .append("Successfully spooled mail ")
                          .append(mail.getName())
                          .append(" from ")

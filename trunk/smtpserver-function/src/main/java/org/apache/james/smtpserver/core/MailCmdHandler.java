@@ -204,7 +204,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
                     } else {
                         // Unexpected option attached to the Mail command
                         if (session.getLogger().isDebugEnabled()) {
-                            StringBuffer debugBuffer = new StringBuffer(128)
+                            StringBuilder debugBuffer = new StringBuilder(128)
                                     .append(
                                             "MAIL command had unrecognized/unexpected option ")
                                     .append(mailOptionName).append(
@@ -218,7 +218,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
             if (session.useAddressBracketsEnforcement()
                     && (!sender.startsWith("<") || !sender.endsWith(">"))) {
                 if (session.getLogger().isErrorEnabled()) {
-                    StringBuffer errorBuffer = new StringBuffer(128).append(
+                    StringBuilder errorBuffer = new StringBuilder(128).append(
                             "Error parsing sender address: ").append(sender)
                             .append(": did not start and end with < >");
                     session.getLogger().error(errorBuffer.toString());
@@ -250,7 +250,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
                     senderAddress = new MailAddress(sender);
                 } catch (Exception pe) {
                     if (session.getLogger().isErrorEnabled()) {
-                        StringBuffer errorBuffer = new StringBuffer(256)
+                        StringBuilder errorBuffer = new StringBuilder(256)
                                 .append("Error parsing sender address: ")
                                 .append(sender).append(": ").append(
                                         pe.getMessage());

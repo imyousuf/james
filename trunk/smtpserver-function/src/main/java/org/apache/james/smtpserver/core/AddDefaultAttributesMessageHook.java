@@ -44,8 +44,9 @@ public class AddDefaultAttributesMessageHook implements MessageHook {
     public HookResult onMessage(SMTPSession session, Mail mail) {
         if (mail instanceof MailImpl) {
             
-            ((MailImpl) mail).setRemoteHost(session.getRemoteHost());
-            ((MailImpl) mail).setRemoteAddr(session.getRemoteIPAddress());
+            final MailImpl mailImpl = (MailImpl) mail;
+            mailImpl.setRemoteHost(session.getRemoteHost());
+            mailImpl.setRemoteAddr(session.getRemoteIPAddress());
             if (session.getUser() != null) {
                 mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, session.getUser());
             }

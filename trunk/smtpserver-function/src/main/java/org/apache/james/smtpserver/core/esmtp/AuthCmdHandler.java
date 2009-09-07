@@ -383,8 +383,8 @@ public class AuthCmdHandler
      */
     private SMTPResponse doUnknownAuth(SMTPSession session, String authType, String initialResponse) {
         if (session.getLogger().isErrorEnabled()) {
-            StringBuffer errorBuffer =
-                new StringBuffer(128)
+            StringBuilder errorBuffer =
+                new StringBuilder(128)
                     .append("AUTH method ")
                         .append(authType)
                         .append(" is an unrecognized authentication type");
@@ -422,8 +422,8 @@ public class AuthCmdHandler
     /**
      * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
      */
-    public List getMarkerInterfaces() {
-        List classes = new ArrayList(1);
+    public List<Class<?>> getMarkerInterfaces() {
+        List<Class<?>> classes = new ArrayList<Class<?>>(1);
         classes.add(AuthHook.class);
         return classes;
     }

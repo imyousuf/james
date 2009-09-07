@@ -119,7 +119,7 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
             } else {
                 // TODO: maybe we should handle the Header/Body recognition here
                 // and if needed let a filter to cache the headers to apply some
-                // transormation before writing them to output.
+                // transformation before writing them to output.
                 out.write(line);
             }
             out.flush();
@@ -197,8 +197,8 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
     /**
      * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
      */
-    public List getMarkerInterfaces() {
-        List classes = new LinkedList();
+    public List<Class<?>> getMarkerInterfaces() {
+        List<Class<?>> classes = new LinkedList<Class<?>>();
         classes.add(MessageHook.class);
         classes.add(HookResultHook.class);
         return classes;

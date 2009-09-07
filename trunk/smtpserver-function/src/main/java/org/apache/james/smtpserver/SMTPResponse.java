@@ -34,7 +34,7 @@ public class SMTPResponse {
     
 
     public SMTPResponse() {
-        //TODO: Should we remove this constructur to force the developers to specify all needed informations ? 
+        //TODO: Should we remove this constructor to force the developers to specify all needed informations ? 
     }
        
     /**

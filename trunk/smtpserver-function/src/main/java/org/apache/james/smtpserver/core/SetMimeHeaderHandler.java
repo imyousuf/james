@@ -72,7 +72,7 @@ public class SetMimeHeaderHandler implements MessageHook, Configurable {
     /**
      * Set the header value
      * 
-     * @param headerValue String wich represetn the header value
+     * @param headerValue String which represents the header value
      */
     public void setHeaderValue(String headerValue) {
         this.headerValue = headerValue;
