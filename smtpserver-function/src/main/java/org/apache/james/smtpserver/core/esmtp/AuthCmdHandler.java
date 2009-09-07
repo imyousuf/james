@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
@@ -55,7 +54,6 @@ import org.apache.james.util.codec.Base64;
  * system (simple pluggabilty against external authentication services).
  */
 public class AuthCmdHandler
-    extends AbstractLogEnabled
     implements CommandHandler, EhloExtension, ExtensibleHandler, MailParametersHook {
 
     private abstract class AbstractSMTPLineHandler implements LineHandler {
@@ -298,14 +296,14 @@ public class AuthCmdHandler
             int count = hooks.size();
             for (int i = 0; i < count; i++) {
                 AuthHook rawHook = hooks.get(i);
-                getLogger().debug("executing  hook " + rawHook);
+                session.getLogger().debug("executing  hook " + rawHook);
                 
                 HookResult hRes = rawHook.doAuth(session, user, pass);
                 
                 if (rHooks != null) {
                     for (int i2 = 0; i2 < rHooks.size(); i2++) {
                         Object rHook = rHooks.get(i2);
-                        getLogger().debug("executing  hook " + rHook);
+                        session.getLogger().debug("executing  hook " + rHook);
                     
                         hRes = ((HookResultHook) rHook).onHookResult(session, hRes, rHook);
                     }
@@ -315,11 +313,11 @@ public class AuthCmdHandler
                 
                 if (res != null) {
                     if (SMTPRetCode.AUTH_FAILED.equals(res.getRetCode())) {
-                        getLogger().error("AUTH method "+authType+" failed");
+                        session.getLogger().error("AUTH method "+authType+" failed");
                     } else if (SMTPRetCode.AUTH_OK.equals(res.getRetCode())) {
-                        if (getLogger().isDebugEnabled()) {
+                        if (session.getLogger().isDebugEnabled()) {
                             // TODO: Make this string a more useful debug message
-                            getLogger().debug("AUTH method "+authType+" succeeded");
+                            session.getLogger().debug("AUTH method "+authType+" succeeded");
                         }
                     }
                     return res;
@@ -329,7 +327,7 @@ public class AuthCmdHandler
 
         res = new SMTPResponse(SMTPRetCode.AUTH_FAILED, "Authentication Failed");
         // TODO: Make this string a more useful error message
-        getLogger().error("AUTH method "+authType+" failed");
+        session.getLogger().error("AUTH method "+authType+" failed");
         return res;
     }
 
@@ -384,13 +382,13 @@ public class AuthCmdHandler
      * @param initialResponse the initial response line passed in with the AUTH command
      */
     private SMTPResponse doUnknownAuth(SMTPSession session, String authType, String initialResponse) {
-        if (getLogger().isErrorEnabled()) {
+        if (session.getLogger().isErrorEnabled()) {
             StringBuffer errorBuffer =
                 new StringBuffer(128)
                     .append("AUTH method ")
                         .append(authType)
                         .append(" is an unrecognized authentication type");
-            getLogger().error(errorBuffer.toString());
+            session.getLogger().error(errorBuffer.toString());
         }
         return new SMTPResponse(SMTPRetCode.PARAMETER_NOT_IMPLEMENTED, "Unrecognized Authentication Type");
     }

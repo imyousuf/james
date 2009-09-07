@@ -22,7 +22,6 @@ import java.util.Locale;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.SMTPRetCode;
@@ -35,8 +34,7 @@ import org.apache.mailet.MailAddress;
 /**
  * Handler which check if the authenticated user is incorrect
  */
-public class SenderAuthIdentifyVerificationRcptHook extends AbstractLogEnabled
-        implements RcptHook {
+public class SenderAuthIdentifyVerificationRcptHook implements RcptHook {
 
     private MailServer mailServer;
     

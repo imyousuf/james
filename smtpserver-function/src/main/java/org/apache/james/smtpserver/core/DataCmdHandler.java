@@ -30,7 +30,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.Constants;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MimeMessageInputStreamSource;
@@ -50,9 +49,7 @@ import org.apache.mailet.base.RFC822DateFormat;
 /**
   * handles DATA command
  */
-public class DataCmdHandler
-    extends AbstractLogEnabled
-    implements CommandHandler, ExtensibleHandler {
+public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
 
     public final class DataConsumerLineHandler implements LineHandler {
         /**
@@ -166,10 +163,10 @@ public class DataCmdHandler
             session.getState().put(DATA_MIMEMESSAGE_OUTPUTSTREAM, out);
 
         } catch (IOException e) {
-            getLogger().warn("Error creating temporary outputstream for incoming data",e);
+            session.getLogger().warn("Error creating temporary outputstream for incoming data",e);
             return new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error preparing to receive DATA.");
         } catch (MessagingException e) {
-            getLogger().warn("Error creating mimemessagesource for incoming data",e);
+            session.getLogger().warn("Error creating mimemessagesource for incoming data",e);
             return new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error preparing to receive DATA.");
         }
         

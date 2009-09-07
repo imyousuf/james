@@ -24,7 +24,6 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 
 import java.util.Collection;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -37,7 +36,7 @@ import org.apache.mailet.MailAddress;
  * 
  * This handler can be used to just ignore duplicated recipients. 
  */
-public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements RcptHook {
+public class SupressDuplicateRcptHandler implements RcptHook {
 
     /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
@@ -53,7 +52,7 @@ public class SupressDuplicateRcptHandler extends AbstractLogEnabled implements R
                           .append(" Recipient <")
                           .append(rcpt.toString())
                           .append("> OK");
-            getLogger().debug("Duplicate recipient not add to recipient list: " + rcpt.toString());
+            session.getLogger().debug("Duplicate recipient not add to recipient list: " + rcpt.toString());
             return new HookResult(HookReturnCode.OK,SMTPRetCode.MAIL_OK, responseBuffer.toString());
         }
         return new HookResult(HookReturnCode.DECLINED);

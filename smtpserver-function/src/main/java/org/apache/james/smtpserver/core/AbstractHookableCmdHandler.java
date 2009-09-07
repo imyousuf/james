@@ -22,7 +22,6 @@ package org.apache.james.smtpserver.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.SMTPResponse;
@@ -36,8 +35,7 @@ import org.apache.james.smtpserver.hook.HookReturnCode;
  * Abstract class which Handle hooks.
  * 
  */
-public abstract class AbstractHookableCmdHandler<Hook> extends AbstractLogEnabled
-        implements CommandHandler, ExtensibleHandler {
+public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler, ExtensibleHandler {
 
 
     private List<Hook> hooks;
@@ -85,12 +83,12 @@ public abstract class AbstractHookableCmdHandler<Hook> extends AbstractLogEnable
             int count = hooks.size();
             for (int i = 0; i < count; i++) {
                 Hook rawHook = hooks.get(i);
-                getLogger().debug("executing hook " + rawHook.getClass().getName());
+                session.getLogger().debug("executing hook " + rawHook.getClass().getName());
                 HookResult hRes = callHook(rawHook, session, parameters);
                 if (rHooks != null) {
                     for (int i2 = 0; i2 < rHooks.size(); i2++) {
                         Object rHook = rHooks.get(i2);
-                        getLogger().debug("executing hook " + rHook);
+                        session.getLogger().debug("executing hook " + rHook);
                         hRes = ((HookResultHook) rHook).onHookResult(session, hRes, rawHook);
                     }
                 }

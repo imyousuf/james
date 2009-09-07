@@ -25,7 +25,6 @@ import javax.annotation.Resource;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.dsn.DSNStatus;
@@ -40,9 +39,7 @@ import org.apache.mailet.MailAddress;
  * Add MFDNSCheck feature to SMTPServer. This handler reject mail from domains which have not an an valid MX record.  
  * 
  */
-public class ValidSenderDomainHandler
-    extends AbstractLogEnabled
-    implements MailHook, Configurable {
+public class ValidSenderDomainHandler implements MailHook, Configurable {
     
     private boolean checkAuthNetworks = false;
     private DNSService dnsService = null;
@@ -91,7 +88,7 @@ public class ValidSenderDomainHandler
 
         // Not scan the message if relaying allowed
         if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            getLogger().info("YES");
+            session.getLogger().info("YES");
 
         	return false;
         }

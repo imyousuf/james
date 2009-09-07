@@ -26,7 +26,6 @@ import javax.annotation.Resource;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPRetCode;
@@ -41,7 +40,7 @@ import org.apache.mailet.MailAddress;
 /**
  * This CommandHandler can be used to reject not resolvable EHLO/HELO
  */
-public class ResolvableEhloHeloHandler extends AbstractLogEnabled implements Configurable, RcptHook, HeloHook {
+public class ResolvableEhloHeloHandler implements Configurable, RcptHook, HeloHook {
 
     public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
 

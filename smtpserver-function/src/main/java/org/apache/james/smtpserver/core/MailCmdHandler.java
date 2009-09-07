@@ -203,25 +203,25 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
                         }
                     } else {
                         // Unexpected option attached to the Mail command
-                        if (getLogger().isDebugEnabled()) {
+                        if (session.getLogger().isDebugEnabled()) {
                             StringBuffer debugBuffer = new StringBuffer(128)
                                     .append(
                                             "MAIL command had unrecognized/unexpected option ")
                                     .append(mailOptionName).append(
                                             " with value ").append(
                                             mailOptionValue);
-                            getLogger().debug(debugBuffer.toString());
+                            session.getLogger().debug(debugBuffer.toString());
                         }
                     }
                 }
             }
             if (session.useAddressBracketsEnforcement()
                     && (!sender.startsWith("<") || !sender.endsWith(">"))) {
-                if (getLogger().isErrorEnabled()) {
+                if (session.getLogger().isErrorEnabled()) {
                     StringBuffer errorBuffer = new StringBuffer(128).append(
                             "Error parsing sender address: ").append(sender)
                             .append(": did not start and end with < >");
-                    getLogger().error(errorBuffer.toString());
+                    session.getLogger().error(errorBuffer.toString());
                 }
                 return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,
                         DSNStatus.getStatus(DSNStatus.PERMANENT,
@@ -249,12 +249,12 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
                 try {
                     senderAddress = new MailAddress(sender);
                 } catch (Exception pe) {
-                    if (getLogger().isErrorEnabled()) {
+                    if (session.getLogger().isErrorEnabled()) {
                         StringBuffer errorBuffer = new StringBuffer(256)
                                 .append("Error parsing sender address: ")
                                 .append(sender).append(": ").append(
                                         pe.getMessage());
-                        getLogger().error(errorBuffer.toString());
+                        session.getLogger().error(errorBuffer.toString());
                     }
                     return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS,
                             DSNStatus.getStatus(DSNStatus.PERMANENT,
