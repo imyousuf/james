@@ -51,7 +51,7 @@ public class QuitCmdHandler extends AbstractHookableCmdHandler<QuitHook> {
     private SMTPResponse doQUIT(SMTPSession session, String argument) {
         SMTPResponse ret;
         if ((argument == null) || (argument.length() == 0)) {
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
             response.append(
                     DSNStatus.getStatus(DSNStatus.SUCCESS,
                             DSNStatus.UNDEFINED_STATUS)).append(" ").append(

@@ -59,7 +59,7 @@ public class HeloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
             String parameters) {
         session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE,
                 COMMAND_NAME);
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         response.append(session.getHelloName()).append(
                 " Hello ").append(parameters).append(" (").append(
                 session.getRemoteHost()).append(" [").append(

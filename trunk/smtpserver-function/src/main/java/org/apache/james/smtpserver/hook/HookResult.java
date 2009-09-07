@@ -36,10 +36,10 @@ public class HookResult {
      * @param smtpRetCode 
      * @param smtpDescription
      */
-    public HookResult(int result, String smtpRetCode, String smtpDescription) {
+    public HookResult(int result, String smtpRetCode, CharSequence smtpDescription) {
         this.result = result;
         this.smtpRetCode = smtpRetCode;
-        this.smtpDescription = smtpDescription;
+        this.smtpDescription = (smtpDescription == null) ? null : smtpDescription.toString();
     }
     
     /**
