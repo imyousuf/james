@@ -31,7 +31,7 @@ public class AbstractSMTPSession implements SMTPSession {
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getConfigurationData()
      */
-    public SMTPHandlerConfigurationData getConfigurationData() {
+    public SMTPConfiguration getConfigurationData() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 

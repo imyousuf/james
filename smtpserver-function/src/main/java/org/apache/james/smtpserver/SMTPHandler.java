@@ -75,7 +75,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      */
     private final LinkedList<ConnectHandler> connectHandlers;
 
-	private SMTPHandlerConfigurationData theConfigData;
+	private SMTPConfiguration theConfigData;
 
 	private boolean relayingAllowed;
 
@@ -99,8 +99,8 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      * @param theData the per-service configuration data for this handler
      */
     public void setConfigurationData(Object theData) {
-        if (theData instanceof SMTPHandlerConfigurationData) {
-            theConfigData = (SMTPHandlerConfigurationData) theData;
+        if (theData instanceof SMTPConfiguration) {
+            theConfigData = (SMTPConfiguration) theData;
         } else {
             throw new IllegalArgumentException("Configuration object does not implement SMTPHandlerConfigurationData");
         }
@@ -282,7 +282,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getConfigurationData()
      */
-    public SMTPHandlerConfigurationData getConfigurationData() {
+    public SMTPConfiguration getConfigurationData() {
         return theConfigData;
     }
     /**
