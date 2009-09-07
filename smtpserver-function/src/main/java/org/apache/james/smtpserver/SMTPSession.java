@@ -21,6 +21,8 @@ package org.apache.james.smtpserver;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+
 /**
  * All the handlers access this interface to communicate with
  * SMTPHandler object
@@ -176,5 +178,11 @@ public interface SMTPSession {
      * @param ms the time to sleep in milliseconds
      */
     void sleep(long ms);
+    
+    /**
+     * Gets the context sensitive log for this session.
+     * @return log, not null
+     */
+    Log getLogger();
 }
 
