@@ -35,8 +35,6 @@ import org.apache.james.socket.ProtocolHandlerHelper;
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
- *
- * @version CVS $Revision$ $Date$
  */
 public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
@@ -106,12 +104,11 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         }
     }
     
-    /*
-     * (non-Javadoc)
+    /**
      * @see org.apache.james.socket.ProtocolHandler#handleProtocol()
      */
     public void handleProtocol() throws IOException {
-        smtpID = random.nextInt(1024) + "";
+        smtpID = Integer.toString(random.nextInt(1024));
         relayingAllowed = theConfigData.isRelayingAllowed(helper.getRemoteIP());
         authSupported = theConfigData.isAuthRequired(helper.getRemoteIP());
 
@@ -270,6 +267,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      * 
      * @see org.apache.james.smtpserver.SMTPSession#getState()
      */
+    @SuppressWarnings("unchecked")
     public Map<String,Object> getState() {
         Object res = getConnectionState().get(SMTPSession.SESSION_STATE_MAP);
         if (res == null || !(res instanceof Map)) {
@@ -330,6 +328,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getRcptCount()
      */
+    @SuppressWarnings("unchecked")
     public int getRcptCount() {
         int count = 0;
 
