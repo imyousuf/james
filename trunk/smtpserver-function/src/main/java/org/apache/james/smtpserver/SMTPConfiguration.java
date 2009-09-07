@@ -27,7 +27,7 @@ package org.apache.james.smtpserver;
  * SMTPHandlers
  *
  */
-public interface SMTPHandlerConfigurationData {
+public interface SMTPConfiguration {
 
     /**
      * Returns the service wide hello name

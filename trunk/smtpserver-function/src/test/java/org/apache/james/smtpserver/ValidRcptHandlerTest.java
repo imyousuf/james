@@ -61,7 +61,7 @@ public class ValidRcptHandlerTest extends TestCase {
         handler.setUsers(users);
     }
 
-    private SMTPSession setupMockedSMTPSession(final SMTPHandlerConfigurationData conf, final MailAddress rcpt, final boolean relayingAllowed) {
+    private SMTPSession setupMockedSMTPSession(final SMTPConfiguration conf, final MailAddress rcpt, final boolean relayingAllowed) {
         SMTPSession session = new AbstractSMTPSession() {
             HashMap state = new HashMap();
 
@@ -99,8 +99,8 @@ public class ValidRcptHandlerTest extends TestCase {
         return table;
     }
     
-    private SMTPHandlerConfigurationData setupMockedSMTPConfiguration() {
-        SMTPHandlerConfigurationData conf = new SMTPHandlerConfigurationData() {
+    private SMTPConfiguration setupMockedSMTPConfiguration() {
+        SMTPConfiguration conf = new SMTPConfiguration() {
             
         
             public String getHelloName() {
