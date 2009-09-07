@@ -32,7 +32,7 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
     private SMTPSession mockedSession;
 
     private void setupMockedSMTPSession() {
-        mockedSession = new AbstractSMTPSession() {
+        mockedSession = new BaseFakeSMTPSession() {
             private boolean relayingAllowed = false;
 
             public String getRemoteIPAddress() {

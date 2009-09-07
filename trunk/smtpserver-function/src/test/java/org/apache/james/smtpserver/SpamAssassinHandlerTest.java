@@ -50,7 +50,7 @@ public class SpamAssassinHandlerTest extends TestCase {
 
     private SMTPSession setupMockedSMTPSession(final Mail mail) {
         mockedMail = mail;
-        mockedSMTPSession = new AbstractSMTPSession() {
+        mockedSMTPSession = new BaseFakeSMTPSession() {
 
             private HashMap state = new HashMap();
 

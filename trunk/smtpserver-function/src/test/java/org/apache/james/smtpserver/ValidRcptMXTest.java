@@ -47,7 +47,7 @@ public class ValidRcptMXTest extends TestCase {
     private final static String LOOPBACK = "127.0.0.1";
 
     private SMTPSession setupMockedSMTPSession(final MailAddress rcpt) {
-        SMTPSession session = new AbstractSMTPSession() {
+        SMTPSession session = new BaseFakeSMTPSession() {
             HashMap state = new HashMap();
             
             public Map getState() {

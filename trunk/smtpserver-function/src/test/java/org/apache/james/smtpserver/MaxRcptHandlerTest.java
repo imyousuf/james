@@ -41,7 +41,7 @@ import org.apache.mailet.MailAddress;
 public class MaxRcptHandlerTest extends TestCase{
     
     private SMTPSession setupMockedSession(final int rcptCount) {
-        SMTPSession session = new AbstractSMTPSession() {
+        SMTPSession session = new BaseFakeSMTPSession() {
             HashMap state = new HashMap();
 
             public Map getState() {

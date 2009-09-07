@@ -22,11 +22,15 @@ package org.apache.james.smtpserver;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Abstract class to simplify the mocks
  */
-public class AbstractSMTPSession implements SMTPSession {
+public class BaseFakeSMTPSession implements SMTPSession {
 
+    private static final Log log = LogFactory.getLog(BaseFakeSMTPSession.class);
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getConfigurationData()
@@ -38,7 +42,7 @@ public class AbstractSMTPSession implements SMTPSession {
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
      */
-    public Map getConnectionState() {
+    public Map<String, Object> getConnectionState() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
@@ -73,7 +77,7 @@ public class AbstractSMTPSession implements SMTPSession {
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getState()
      */
-    public Map getState() {
+    public Map<String, Object> getState() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
@@ -168,4 +172,10 @@ public class AbstractSMTPSession implements SMTPSession {
         return getConfigurationData().useAddressBracketsEnforcement();
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getLogger()
+     */
+    public Log getLogger() {
+        return log;
+    }
 }

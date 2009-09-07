@@ -54,7 +54,7 @@ public class ValidSenderDomainHandlerTest extends TestCase {
     }
     
     private SMTPSession setupMockedSession(final MailAddress sender) {
-        SMTPSession session = new AbstractSMTPSession() {
+        SMTPSession session = new BaseFakeSMTPSession() {
             HashMap state = new HashMap();
 
             public Map getState() {
