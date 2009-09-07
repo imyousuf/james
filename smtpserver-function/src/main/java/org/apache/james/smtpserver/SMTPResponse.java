@@ -28,25 +28,13 @@ import java.util.List;
 public class SMTPResponse {
 
     private String retCode = null;
-    private List<String> lines = null;
+    private List<CharSequence> lines = null;
     private String rawLine = null;
     private boolean endSession = false;
     
 
     public SMTPResponse() {
         //TODO: Should we remove this constructor to force the developers to specify all needed informations ? 
-    }
-       
-    /**
-     * @see #SMTPResponse(String, StringBuffer)
-     */
-    public SMTPResponse(String code, String description) {
-        if (code == null) throw new IllegalArgumentException("SMTPResponse code can not be null");
-        if (description == null) new IllegalArgumentException("SMTPResponse description can not be null");
-    
-        this.setRetCode(code);
-        this.appendLine(description);
-        this.rawLine = code + " " + description;
     }
     
     /**
@@ -56,13 +44,13 @@ public class SMTPResponse {
      * @param code the returnCode
      * @param description the description 
      */
-    public SMTPResponse(String code, StringBuffer description) {
+    public SMTPResponse(String code, CharSequence description) {
         if (code == null) throw new IllegalArgumentException("SMTPResponse code can not be null");
         if (description == null) new IllegalArgumentException("SMTPResponse description can not be null");
     
         this.setRetCode(code);
         this.appendLine(description);
-        this.rawLine = code + " " + description.toString();
+        this.rawLine = code + " " + description;
     }
     
     /**
@@ -75,7 +63,7 @@ public class SMTPResponse {
         String args[] = rawLine.split(" ");
         if (args != null && args.length > 1) {
             this.setRetCode(args[0]);
-            this.appendLine(new StringBuffer(rawLine.substring(args[0].length()+1)));
+            this.appendLine(new StringBuilder(rawLine.substring(args[0].length()+1)));
         } else {
             throw new IllegalArgumentException("Invalid SMTPResponse format. Format should be [SMTPCode SMTPReply]");
         }
@@ -87,18 +75,11 @@ public class SMTPResponse {
      * 
      * @param line the responseLine to append
      */
-    public void appendLine(String line) {
+    public void appendLine(CharSequence line) {
         if (lines == null) {
-            lines = new LinkedList<String>();
+            lines = new LinkedList<CharSequence>();
         }
         lines.add(line);
-    }
-    
-    /**
-     * @see #appendLine(String)
-     */
-    public void appendLine(StringBuffer line) {
-        appendLine(line.toString());
     }
     
     /**
@@ -124,7 +105,7 @@ public class SMTPResponse {
      * 
      * @return all responseLines
      */
-    public List<String> getLines() {
+    public List<CharSequence> getLines() {
         return lines;
     }
 

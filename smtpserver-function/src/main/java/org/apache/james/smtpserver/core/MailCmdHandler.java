@@ -94,7 +94,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
      *            the argument passed in with the command by the SMTP client
      */
     private SMTPResponse doMAIL(SMTPSession session, String argument) {
-        StringBuffer responseBuffer = new StringBuffer();
+        StringBuilder responseBuffer = new StringBuilder();
         MailAddress sender = (MailAddress) session.getState().get(
                 SMTPSession.SENDER);
         responseBuffer.append(

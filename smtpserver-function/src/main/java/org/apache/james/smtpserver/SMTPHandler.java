@@ -198,15 +198,16 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
             } else {
                 // Iterator i = esmtpextensions.iterator();
                 for (int k = 0; k < response.getLines().size(); k++) {
-                    StringBuffer respBuff = new StringBuffer(256);
+                    StringBuilder respBuff = new StringBuilder(256);
                     respBuff.append(response.getRetCode());
+                    final CharSequence line = response.getLines().get(k);
                     if (k == response.getLines().size() - 1) {
                         respBuff.append(" ");
-                        respBuff.append(response.getLines().get(k));
+                        respBuff.append(line);
                         helper.writeLoggedFlushedResponse(respBuff.toString());
                     } else {
                         respBuff.append("-");
-                        respBuff.append(response.getLines().get(k));
+                        respBuff.append(line);
                         helper.writeLoggedResponse(respBuff.toString());
                     }
                 }

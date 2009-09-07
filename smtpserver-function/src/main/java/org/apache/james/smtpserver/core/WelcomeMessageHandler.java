@@ -57,7 +57,7 @@ public class WelcomeMessageHandler implements ConnectHandler {
             // Initially greet the connector
             // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
             welcomeResponse = new SMTPResponse(SMTPRetCode.SERVICE_READY,
-                          new StringBuffer(256)
+                          new StringBuilder(256)
                           .append(session.getHelloName())
                           .append(" SMTP Server (")
                           .append(SOFTWARE_TYPE)

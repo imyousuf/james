@@ -85,7 +85,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
                 CURRENT_RECIPIENT);
         rcptColl.add(recipientAddress);
         session.getState().put(SMTPSession.RCPT_LIST, rcptColl);
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         response
                 .append(
                         DSNStatus.getStatus(DSNStatus.SUCCESS,

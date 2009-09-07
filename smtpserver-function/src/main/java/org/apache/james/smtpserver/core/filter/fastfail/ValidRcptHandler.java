@@ -209,7 +209,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
                     String responseString = e.getMessage();
                     getLogger().info("Rejected message. Reject Message: " + responseString);
                     SMTPResponse resp = new SMTPResponse(responseString);
-                    return new HookResult(HookReturnCode.DENY,resp.getRetCode(),(String) resp.getLines().get(0));
+                    return new HookResult(HookReturnCode.DENY,resp.getRetCode(),resp.getLines().get(0));
                 }
             }
             
