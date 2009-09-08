@@ -25,10 +25,10 @@ import java.util.Iterator;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
@@ -72,30 +72,14 @@ public class SpamAssassinHandler implements MessageHook, Configurable {
     private boolean checkAuthNetworks = false;
 
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration spamdHostConf = arg0.getChild("spamdHost", false);
-        if (spamdHostConf != null) {
-            setSpamdHost(spamdHostConf.getValue("localhost"));
-        }
-
-        Configuration spamdPortConf = arg0.getChild("spamdPort", false);
-        if (spamdPortConf != null) {
-            setSpamdPort(spamdPortConf.getValueAsInteger(783));
-        }
-
-        Configuration spamdRejectionHitsConf = arg0.getChild(
-                "spamdRejectionHits", false);
-        if (spamdRejectionHitsConf != null) {
-            setSpamdRejectionHits(spamdRejectionHitsConf.getValueAsDouble(0.0));
-        }
-
-        Configuration configRelay = arg0.getChild("checkAuthNetworks", false);
-        if (configRelay != null) {
-            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
-        }
-
+    public void configure(Configuration config) throws ConfigurationException {
+        setSpamdHost(config.getString("spamdHost","localhost"));
+        setSpamdPort(config.getInt("spamdPort",783));
+        setSpamdRejectionHits(config.getDouble("spamdRejectionHits", 0.0));
+        setCheckAuthNetworks(config.getBoolean("checkAuthNetworks". false));
     }
 
     /**
