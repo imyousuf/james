@@ -21,10 +21,11 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -41,14 +42,8 @@ public class MaxRcptHandler implements RcptHook, Configurable {
      */
     public void configure(Configuration handlerConfiguration)
             throws ConfigurationException {
-        Configuration configuration = handlerConfiguration.getChild("maxRcpt",
-                false);
-        if (configuration != null) {
-            setMaxRcpt(configuration.getValueAsInteger(0));
-        } else {
-            throw new ConfigurationException(
-                    "Please set the maxRcpt configuration value");
-        }
+        int maxRcpt = handlerConfiguration.getInt("maxRcpt", 0);
+        setMaxRcpt(maxRcpt);
     }
 
     /**

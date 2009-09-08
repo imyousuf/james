@@ -50,6 +50,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
     /** Configuration for this chain */
     private Configuration configuration;
+    private org.apache.commons.configuration.Configuration commonsConf;
     
     private List<Object> handlers = new LinkedList<Object>();
 
@@ -125,7 +126,13 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
                         cmdName, className));
             }
         }
+        try {
+			commonsConf = new JamesConfiguration(configuration);
+		} catch (org.apache.commons.configuration.ConfigurationException e) {
+			throw new ConfigurationException("Unable to wrap configuration",e);
+		}
         this.configuration = configuration;
+        
     }
 
     private void loadHandlers() throws Exception {
@@ -201,7 +208,10 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         ContainerUtil.service(handler, serviceManager);
 
         // configure the handler
-        ContainerUtil.configure(handler, config);
+        //ContainerUtil.configure(handler, config);
+        if (handler instanceof org.apache.james.smtpserver.Configurable) {
+        	((org.apache.james.smtpserver.Configurable) handler).configure(commonsConf);
+        }
 
         // if it is a commands handler add it to the map with key as command
         // name

@@ -22,15 +22,16 @@
 package org.apache.james.smtpserver.core.filter.fastfail;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.jspf.core.exceptions.SPFErrorConstants;
 import org.apache.james.jspf.executor.SPFResult;
 import org.apache.james.jspf.impl.DefaultSPF;
 import org.apache.james.jspf.impl.SPF;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -54,7 +55,7 @@ import org.apache.mailet.MailAddress;
  * &lt;/handler&gt;
  */
 public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook,
-        MessageHook,Initializable {
+        MessageHook,Initializable, Configurable {
 
     public static final String SPF_BLOCKLISTED = "SPF_BLOCKLISTED";
 
@@ -80,29 +81,15 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
     private SPF spf;
 
 
-    
+
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration handlerConfiguration)
             throws ConfigurationException {
-        Configuration configuration = handlerConfiguration.getChild(
-                "blockSoftFail", false);
-        if (configuration != null) {
-            setBlockSoftFail(configuration.getValueAsBoolean(false));
-        }
-        
-        Configuration configPermError = handlerConfiguration.getChild(
-                "blockPermError", false);
-        if (configuration != null) {
-            setBlockPermError(configPermError.getValueAsBoolean(true));
-        }
-        Configuration configRelay = handlerConfiguration.getChild(
-                "checkAuthNetworks", false);
-        if (configRelay != null) {
-            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
-        }
-
+        setBlockSoftFail(handlerConfiguration.getBoolean( "blockSoftFail", false));
+        setBlockPermError(handlerConfiguration.getBoolean("blockPermError", true));
+        setCheckAuthNetworks(handlerConfiguration.getBoolean("checkAuthNetworks",false));
     }
     
 
