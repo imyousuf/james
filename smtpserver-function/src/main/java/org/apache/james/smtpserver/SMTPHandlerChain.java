@@ -208,7 +208,10 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         ContainerUtil.service(handler, serviceManager);
 
         // configure the handler
-        //ContainerUtil.configure(handler, config);
+        
+        // will get removed after removing of avalon for config is complete
+        ContainerUtil.configure(handler, config);
+        
         if (handler instanceof org.apache.james.smtpserver.Configurable) {
         	((org.apache.james.smtpserver.Configurable) handler).configure(commonsConf);
         }
