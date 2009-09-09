@@ -22,12 +22,12 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -61,15 +61,12 @@ public class ValidSenderDomainHandler implements MailHook, Configurable {
         this.dnsService = dnsService;
     }
     
+    
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-        
-        Configuration configRelay = handlerConfiguration.getChild("checkAuthNetworks",false);
-        if(configRelay != null) {
-            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
-        }
+    	setCheckAuthNetworks(handlerConfiguration.getBoolean("checkAuthNetworks",false));
     }
         
     /**

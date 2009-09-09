@@ -23,16 +23,18 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -44,7 +46,7 @@ import org.apache.mailet.MailAddress;
  * This class can be used to reject email with bogus MX which is send from a authorized user or an authorized
  * network.
  */
-public class ValidRcptMX extends AbstractLogEnabled implements RcptHook {
+public class ValidRcptMX extends AbstractLogEnabled implements RcptHook, Configurable {
 
     private DNSService dnsService = null;
 
@@ -70,22 +72,20 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook {
     }
     
     /**
-     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#configure(org.apache.avalon.framework.configuration.Configuration)
+     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
-    public void configure(Configuration arg0) throws ConfigurationException {
+    @SuppressWarnings("unchecked")
+	public void configure(Configuration config) throws ConfigurationException {
 
-        Configuration[] badMX = arg0.getChildren("invalidMXNetworks");
+        List<String> networks = config.getList("invalidMXNetworks");
 
-        if (badMX.length != 0) {
- 
-            Collection bannedNetworks = new ArrayList();
+        if (networks.isEmpty() == false) {
+        	
+            Collection<String> bannedNetworks = new ArrayList<String>();
 
-            for (int i = 0; i < badMX.length; i++) {
-                String network = badMX[i].getValue(null);
-
-                if (network != null) {
-                    bannedNetworks.add(network);
-                }
+            for (int i = 0; i < networks.size(); i++) {
+                String network = networks.get(i);
+                bannedNetworks.add(network.trim());
             }
 
             setBannedNetworks(bannedNetworks, dnsService);
@@ -105,7 +105,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook {
      * @param networks Collection of networks 
      * @param dnsServer The DNSServer
      */
-    public void setBannedNetworks(Collection networks, DNSService dnsServer) {
+    public void setBannedNetworks(Collection<String> networks, DNSService dnsServer) {
         bNetwork = new NetMatcher(networks, dnsServer) {
             protected void log(String s) {
                 getLogger().debug(s);

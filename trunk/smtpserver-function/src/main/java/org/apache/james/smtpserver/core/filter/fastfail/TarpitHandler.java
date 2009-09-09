@@ -21,9 +21,10 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
@@ -45,22 +46,14 @@ public class TarpitHandler implements RcptHook, Configurable {
      */
     public void configure(Configuration handlerConfiguration)
             throws ConfigurationException {
-
-        Configuration configTarpitRcptCount = handlerConfiguration.getChild(
-                "tarpitRcptCount", false);
-        if (configTarpitRcptCount != null) {
-            setTarpitRcptCount(configTarpitRcptCount.getValueAsInteger(0));
-        }
+        setTarpitRcptCount(handlerConfiguration.getInt("tarpitRcptCount", 0));
 
         if (tarpitRcptCount == 0)
             throw new ConfigurationException(
                     "Please set the tarpitRcptCount bigger values as 0");
 
-        Configuration configTarpitSleepTime = handlerConfiguration.getChild(
-                "tarpitSleepTime", false);
-        if (configTarpitSleepTime != null) {
-            setTarpitSleepTime(configTarpitSleepTime.getValueAsLong(5000));
-        }
+        setTarpitSleepTime(handlerConfiguration.getLong("tarpitSleepTime", 5000));
+
 
         if (tarpitSleepTime == 0)
             throw new ConfigurationException(

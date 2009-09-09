@@ -25,22 +25,21 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.StringTokenizer;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -77,9 +76,9 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
         this.users = users;
     }
     
-    private Collection recipients = new ArrayList();
-    private Collection domains = new ArrayList();
-    private Collection regex = new ArrayList();
+    private Collection<String> recipients = new ArrayList<String>();
+    private Collection<String> domains = new ArrayList<String>();
+    private Collection<Pattern> regex = new ArrayList<Pattern>();
     private boolean vut = true;
     private VirtualUserTable table;
     private String tableName = null;
@@ -98,35 +97,17 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration recipientsConfig = arg0.getChild("validRecipients");
-        if (recipientsConfig != null) {
-            setValidRecipients(recipientsConfig.getValue());
+    @SuppressWarnings("unchecked")
+	public void configure(Configuration config) throws ConfigurationException {
+        setValidRecipients(config.getList("validRecipients"));
+        setValidDomains(config.getList("validDomains"));
+        try {
+            setValidRegex(config.getList("validRegexPattern"));
+        } catch(MalformedPatternException mpe) {
+            throw new ConfigurationException("Malformed pattern: ", mpe);
         }
-        
-        Configuration domainConfig = arg0.getChild("validDomains");        
-        if (domainConfig != null) {
-            setValidDomains(domainConfig.getValue());
-        }
-        
-        Configuration regexConfig = arg0.getChild("validRegexPattern");        
-        if (regexConfig != null) {
-            try {
-                setValidRegex(regexConfig.getValue());
-            } catch(MalformedPatternException mpe) {
-                throw new ConfigurationException("Malformed pattern: ", mpe);
-            }
-        }
-        Configuration vutConfig = arg0.getChild("enableVirtualUserTable");
-        
-        if (vutConfig != null) {
-            vut = vutConfig.getValueAsBoolean(true);    
-        }
-        Configuration tableConfig = arg0.getChild("table");
-        
-        if (tableConfig != null) {
-            tableName = tableConfig.getValue(null);   
-        }
+        setVirtualUserTableSupport(config.getBoolean("enableVirtualUserTable",true));    
+    	setTableName(config.getString("table",null));   
     }
     
     /**
@@ -134,15 +115,14 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
      * 
      * @param recip The valid recipients. Commaseperated list
      */
-    public void setValidRecipients(String recip) {
-        StringTokenizer st = new StringTokenizer(recip, ", ", false);
-        
-        while (st.hasMoreTokens()) {
-            String recipient = st.nextToken().toLowerCase();
+    public void setValidRecipients(Collection<String> recips) {
+    	Iterator<String> recipsIt = recips.iterator();
+    	while (recipsIt.hasNext()) {
+            String recipient = recipsIt.next();
             
             getLogger().debug("Add recipient to valid recipients: " + recipient);
             recipients.add(recipient);
-        }
+    	}
     }
 
     /**
@@ -150,11 +130,11 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
      * 
      * @param dom The valid domains. Commaseperated list
      */
-    public void setValidDomains(String dom) {
-        StringTokenizer st = new StringTokenizer(dom, ", ", false);
-        
-        while (st.hasMoreTokens()) {
-            String domain = st.nextToken().toLowerCase();
+    public void setValidDomains(Collection<String> doms) {
+    	Iterator<String> domsIt = doms.iterator();
+    	
+        while (domsIt.hasNext()) {
+            String domain = domsIt.next().toLowerCase();
             getLogger().debug("Add domain to valid domains: " + domain);
             domains.add(domain);
         }  
@@ -165,13 +145,12 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
      * @param reg 
      * @throws MalformedPatternException
      */
-    public void setValidRegex(String reg) throws MalformedPatternException {
+    public void setValidRegex(Collection<String> regs) throws MalformedPatternException {
         Perl5Compiler compiler = new Perl5Compiler();
-        
-        StringTokenizer st = new StringTokenizer(reg, ", ", false);
-        
-        while (st.hasMoreTokens()) {
-            String patternString = st.nextToken().trim();
+                
+        Iterator<String> regsIt = regs.iterator();
+        while (regsIt.hasNext()) {
+            String patternString = regsIt.next();
 
             getLogger().debug("Add regex to valid regex: " + patternString);
             
@@ -185,6 +164,10 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
         this.vut = vut;
     }
 
+    public void setTableName(String tableName) {
+    	this.tableName = tableName;
+    }
+    
     /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
@@ -200,7 +183,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
             // check if an valid virtual mapping exists
             if (invalidUser == true  && vut == true) {
                 try {
-                    Collection targetString = table.getMappings(rcpt.getLocalPart(), rcpt.getDomain());
+                    Collection<String> targetString = table.getMappings(rcpt.getLocalPart(), rcpt.getDomain());
             
                     if (targetString != null && targetString.isEmpty() == false) {
                         invalidUser = false;
@@ -214,11 +197,11 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
             }
             
             if (invalidUser == true && !regex.isEmpty()) {
-                Iterator reg = regex.iterator();
+                Iterator<Pattern> reg = regex.iterator();
                 Perl5Matcher matcher  = new Perl5Matcher();
                 
                 while (reg.hasNext()) {
-                    if (matcher.matches(rcpt.toString(), (Pattern) reg.next())) {
+                    if (matcher.matches(rcpt.toString(), reg.next())) {
                         // regex match
                         invalidUser = false;
                         break;
