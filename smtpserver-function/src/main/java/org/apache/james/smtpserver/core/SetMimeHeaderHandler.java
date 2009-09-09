@@ -23,9 +23,9 @@ package org.apache.james.smtpserver.core;
 
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
@@ -44,20 +44,10 @@ public class SetMimeHeaderHandler implements MessageHook, Configurable {
     private String headerName;
     private String headerValue;
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
+
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-
-        Configuration configuration = handlerConfiguration.getChild("headername", false);
-        if(configuration != null) {
-            setHeaderName(configuration.getValue());
-        }
-
-        configuration = handlerConfiguration.getChild("headervalue", false);
-        if(configuration != null) {
-            setHeaderValue(configuration.getValue());
-        }
+       setHeaderName(handlerConfiguration.getString("headername"));
+       setHeaderValue(handlerConfiguration.getString("headervalue"));
     }
     
     /**
