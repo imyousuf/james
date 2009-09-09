@@ -20,9 +20,9 @@
 
 package org.apache.james.smtpserver.core;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.util.POP3BeforeSMTPHelper;
@@ -38,20 +38,14 @@ public class POP3BeforeSMTPHandler implements ConnectHandler, Configurable {
      */
     private long expireTime = POP3BeforeSMTPHelper.EXPIRE_TIME;
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration config = arg0.getChild("expireTime", false);
 
-        if (config != null) {
-            try {
-                setExpireTime(config.getValue(null));
-            } catch (NumberFormatException e) {
-                throw new ConfigurationException(
-                        "Please configure a valid expireTime: "
-                                + e.getMessage());
-            }
+    public void configure(Configuration config) throws ConfigurationException {
+        try {
+            setExpireTime(config.getString("expireTime",null));
+        } catch (NumberFormatException e) {
+            throw new ConfigurationException(
+                    "Please configure a valid expireTime: "
+                            + e.getMessage());
         }
     }
 
