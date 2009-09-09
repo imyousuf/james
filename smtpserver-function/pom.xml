@@ -105,7 +105,11 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jspf</artifactId>
     </dependency>
-    
+        <dependency>
+        <groupId>commons-jxpath</groupId>
+        <artifactId>commons-jxpath</artifactId>
+        <scope>runtime</scope>
+    </dependency> 
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>

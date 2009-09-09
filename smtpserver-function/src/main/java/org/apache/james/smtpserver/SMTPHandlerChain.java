@@ -50,7 +50,7 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
     /** Configuration for this chain */
     private Configuration configuration;
-    private org.apache.commons.configuration.Configuration commonsConf;
+    private JamesConfiguration commonsConf;
     
     private List<Object> handlers = new LinkedList<Object>();
 
@@ -213,7 +213,10 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         ContainerUtil.configure(handler, config);
         
         if (handler instanceof org.apache.james.smtpserver.Configurable) {
-        	((org.apache.james.smtpserver.Configurable) handler).configure(commonsConf);
+        	// Inject only the configuration part which is necessary for the handler
+        	// we use xquery to get this, maybe the query should get tweaked for better perfomance..
+        	org.apache.commons.configuration.Configuration handlerConf = commonsConf.configurationAt("//handler[@class='" +className+"']");
+        	((org.apache.james.smtpserver.Configurable) handler).configure(handlerConf);
         }
 
         // if it is a commands handler add it to the map with key as command
