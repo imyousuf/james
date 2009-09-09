@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import org.apache.avalon.framework.configuration.ConfigurationUtil;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 /**
  *
@@ -39,5 +40,8 @@ public class JamesConfiguration extends XMLConfiguration {
 	public JamesConfiguration(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
 		String config = ConfigurationUtil.toString(avalonConfig);
 		load(new ByteArrayInputStream(config.getBytes()));
+		
+		setExpressionEngine(new XPathExpressionEngine());
+
 	}
 }
