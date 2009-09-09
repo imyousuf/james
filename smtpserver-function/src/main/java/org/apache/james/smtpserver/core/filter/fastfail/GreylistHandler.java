@@ -31,24 +31,21 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.annotation.Resource;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.FileSystem;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -179,49 +176,43 @@ public class GreylistHandler extends AbstractLogEnabled implements
         this.sqlFileUrl = sqlFileUrl;
     } 
     
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-        Configuration configTemp = handlerConfiguration.getChild("tempBlockTime", false);
-        if (configTemp != null) {
-            try {
-                setTempBlockTime(configTemp.getValue());
 
-            } catch (NumberFormatException e) {
-               throw new ConfigurationException(e.getMessage());
-            }
-        }
-    
-        Configuration configAutoWhiteList = handlerConfiguration.getChild("autoWhiteListLifeTime", false);
-        if (configAutoWhiteList != null) {
-            try {
-                setAutoWhiteListLifeTime(configAutoWhiteList.getValue());
-            } catch (NumberFormatException e) {
-                throw new ConfigurationException(e.getMessage());
-            }
+    @SuppressWarnings("unchecked")
+	public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+        try {
+            setTempBlockTime(handlerConfiguration.getString("tempBlockTime"));
+        } catch (NumberFormatException e) {
+           throw new ConfigurationException(e.getMessage());
         }
        
-        Configuration configUnseen = handlerConfiguration.getChild("unseenLifeTime", false);
-        if (configUnseen != null) {
-            try {
-                setUnseenLifeTime(configUnseen.getValue());
-            } catch (NumberFormatException e) {
-                throw new ConfigurationException(e.getMessage());
-            }
+    
+      
+        try {
+            setAutoWhiteListLifeTime(handlerConfiguration.getString("autoWhiteListLifeTime"));
+        } catch (NumberFormatException e) {
+            throw new ConfigurationException(e.getMessage());
+        }
+       
+
+        try {
+            setUnseenLifeTime(handlerConfiguration.getString("unseenLifeTime"));
+        } catch (NumberFormatException e) {
+            throw new ConfigurationException(e.getMessage());
         }
 
-        Configuration configRepositoryPath = handlerConfiguration.getChild("repositoryPath", false);
+        String configRepositoryPath = handlerConfiguration.getString("repositoryPath", null);
         if (configRepositoryPath != null) {
-            setRepositoryPath(configRepositoryPath.getValue());
+            setRepositoryPath(configRepositoryPath);
         } else {
             throw new ConfigurationException("repositoryPath is not configured");
         }
 
         // Get the SQL file location
-        Configuration sFile = handlerConfiguration.getChild("sqlFile", false);
+        String sFile = handlerConfiguration.getString("sqlFile",null);
         if (sFile != null) {
-            setSqlFileUrl(sFile.getValue());
+            
+        	setSqlFileUrl(sFile);
+            
             if (!sqlFileUrl.startsWith("file://")) {
                 throw new ConfigurationException(
                     "Malformed sqlFile - Must be of the format \"file://<filename>\".");
@@ -230,9 +221,8 @@ public class GreylistHandler extends AbstractLogEnabled implements
             throw new ConfigurationException("sqlFile is not configured");
         }
 
-        Configuration whitelistedNetworks = handlerConfiguration.getChild("whitelistedNetworks", false);
-        if (whitelistedNetworks != null) {
-            Collection nets = whitelistedNetworks(whitelistedNetworks.getValue());
+        Collection<String> nets  = handlerConfiguration.getList("whitelistedNetworks");
+        if (nets != null) {
 
             if (nets != null) {
                 wNetworks = new NetMatcher(nets,dnsService);
@@ -319,11 +309,11 @@ public class GreylistHandler extends AbstractLogEnabled implements
             int count = 0;
             
             // get the timestamp when he triplet was last seen
-            Iterator data = getGreyListData(datasource.getConnection(), ipAddress, sender, recip);
+            Iterator<String> data = getGreyListData(datasource.getConnection(), ipAddress, sender, recip);
             
             if (data.hasNext()) {
-                createTimeStamp = Long.parseLong(data.next().toString());
-                count = Integer.parseInt(data.next().toString());
+                createTimeStamp = Long.parseLong(data.next());
+                count = Integer.parseInt(data.next());
             }
             
             getLogger().debug("Triplet " + ipAddress + " | " + sender + " | " + recip  +" -> TimeStamp: " + createTimeStamp);
@@ -387,9 +377,9 @@ public class GreylistHandler extends AbstractLogEnabled implements
      *            The data
      * @throws SQLException
      */
-    private Iterator getGreyListData(Connection conn, String ipAddress,
+    private Iterator<String> getGreyListData(Connection conn, String ipAddress,
         String sender, String recip) throws SQLException {
-        Collection data = new ArrayList(2);
+        Collection<String> data = new ArrayList<String>(2);
         PreparedStatement mappingStmt = null;
         try {
             mappingStmt = conn.prepareStatement(selectQuery);
@@ -644,24 +634,6 @@ public class GreylistHandler extends AbstractLogEnabled implements
             theJDBCUtil.closeJDBCStatement(createStatement);
         }
         return true;
-    }
-
-    /**
-     * Return a Collection which holds the values of the given string splitted
-     * on ","
-     * 
-     * @param networks
-     *            The commaseperated list of values
-     * @return wNetworks The Collection which holds the whitelistNetworks
-     */
-    private Collection whitelistedNetworks(String networks) {
-        Collection wNetworks = null;
-        StringTokenizer st = new StringTokenizer(networks, ", ", false);
-        wNetworks = new ArrayList();
-        
-        while (st.hasMoreTokens())
-            wNetworks.add(st.nextToken());
-        return wNetworks;
     }
 
     /**

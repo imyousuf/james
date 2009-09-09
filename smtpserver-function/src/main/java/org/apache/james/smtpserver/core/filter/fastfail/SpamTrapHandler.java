@@ -23,12 +23,14 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
@@ -42,9 +44,9 @@ import org.apache.mailet.MailAddress;
 public class SpamTrapHandler extends AbstractLogEnabled implements RcptHook,Configurable{
 
     // Map which hold blockedIps and blockTime in memory
-    private Map blockedIps = new HashMap();
+    private Map<String,Long> blockedIps = new HashMap<String,Long>();
     
-    private Collection spamTrapRecips = new ArrayList();
+    private Collection<String> spamTrapRecips = new ArrayList<String>();
     
     // Default blocktime 12 hours
     private long blockTime = 4320000; 
@@ -52,29 +54,21 @@ public class SpamTrapHandler extends AbstractLogEnabled implements RcptHook,Conf
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration[] rcptsConf = arg0.getChildren("spamTrapRecip");
+    @SuppressWarnings("unchecked")
+	public void configure(Configuration config) throws ConfigurationException {
+        List<String> rcpts= config.getList("spamTrapRecip");
     
-        if (rcptsConf.length > 0 ) {
-            for (int i= 0; i < rcptsConf.length; i++) {
-                String rcpt = rcptsConf[i].getValue().toLowerCase();
-                
-                getLogger().debug("Add spamTrapRecip " + rcpt);
-           
-                spamTrapRecips.add(rcpt);
-            }
+        if (rcpts.isEmpty() == false ) {
+            setSpamTrapRecipients(rcpts);
         } else {
             throw new ConfigurationException("Please configure a spamTrapRecip.");
         }
     
-        Configuration blockTimeConf = arg0.getChild("blockTime",false);
-    
-        if (blockTimeConf != null) {
-            blockTime = blockTimeConf.getValueAsLong(blockTime);
-        }
+        setBlockTime(config.getLong("blockTime",blockTime));
+        
     }
     
-    public void setSpamTrapRecipients(Collection spamTrapRecips) {
+    public void setSpamTrapRecipients(Collection<String> spamTrapRecips) {
         this.spamTrapRecips = spamTrapRecips;
     }
     
@@ -108,10 +102,10 @@ public class SpamTrapHandler extends AbstractLogEnabled implements RcptHook,Conf
      * @return true or false
      */
     private boolean isBlocked(String ip) {
-        Object rawTime = blockedIps.get(ip);
+        Long rawTime = blockedIps.get(ip);
     
         if (rawTime != null) {
-            long blockTime = ((Long) rawTime).longValue();
+            long blockTime = rawTime.longValue();
            
             if (blockTime > System.currentTimeMillis()) {
                 getLogger().debug("BlockList contain Ip " + ip);

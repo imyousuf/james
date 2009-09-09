@@ -183,12 +183,14 @@ public class ValidRcptHandlerTest extends TestCase {
     
     public void testNotRejectValidUserRecipient() throws Exception {
         String recipient = "recip@domain";
+        ArrayList<String> list = new ArrayList<String>();
+        list.add(recipient);
         ContainerUtil.service(handler, setUpServiceManager());
         MailAddress mailAddress = new MailAddress(recipient);
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.setValidRecipients(recipient);
+        handler.setValidRecipients(list);
 
         int rCode = handler.doRcpt(session, null, mailAddress).getResult();
         
@@ -198,13 +200,14 @@ public class ValidRcptHandlerTest extends TestCase {
     public void testNotRejectValidUserDomain() throws Exception {
         String domain = "domain";
         String recipient = "recip@" + domain;
-
+        ArrayList<String> list = new ArrayList<String>();
+        list.add(domain);
         ContainerUtil.service(handler, setUpServiceManager());
         MailAddress mailAddress = new MailAddress(recipient);
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.setValidDomains(domain);
+        handler.setValidDomains(list);
 
         int rCode = handler.doRcpt(session, null, mailAddress).getResult();
         
@@ -214,13 +217,14 @@ public class ValidRcptHandlerTest extends TestCase {
     public void testNotRejectValidUserRegex() throws Exception {
         String domain = "domain";
         String recipient = "recip@" + domain;
-
+        ArrayList<String> list = new ArrayList<String>();
+        list.add("reci.*");
         ContainerUtil.service(handler, setUpServiceManager());
         MailAddress mailAddress = new MailAddress(recipient);
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
         ContainerUtil.enableLogging(handler,new MockLogger());
     
-        handler.setValidRegex("reci.*");
+        handler.setValidRegex(list);
 
         int rCode = handler.doRcpt(session, null, mailAddress).getResult();
         
@@ -231,9 +235,11 @@ public class ValidRcptHandlerTest extends TestCase {
         boolean exception = false;
         ContainerUtil.service(handler, setUpServiceManager());
         ContainerUtil.enableLogging(handler,new MockLogger());
-    
+        
+        ArrayList<String> list = new ArrayList<String>();
+        list.add("(.*");
         try {
-            handler.setValidRegex("(.*");
+            handler.setValidRegex(list);
         } catch (MalformedPatternException e) {
             exception = true;
         }

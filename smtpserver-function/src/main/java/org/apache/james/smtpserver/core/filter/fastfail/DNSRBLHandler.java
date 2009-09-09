@@ -23,16 +23,17 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -79,57 +80,50 @@ public class DNSRBLHandler
         this.dnsService = dnsService;
     }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+    @SuppressWarnings("unchecked")
+	public void configure(Configuration handlerConfiguration) throws ConfigurationException {
         boolean validConfig = false;
 
-        Configuration rblserverConfiguration = handlerConfiguration.getChild("rblservers", false);
-        if ( rblserverConfiguration != null ) {
-            ArrayList rblserverCollection = new ArrayList();
-            Configuration[] children = rblserverConfiguration.getChildren("whitelist");
-            if ( children != null ) {
-                for ( int i = 0 ; i < children.length ; i++ ) {
-                    String rblServerName = children[i].getValue();
-                    rblserverCollection.add(rblServerName);
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("Adding RBL server to whitelist: " + rblServerName);
-                    }
-                }
-                if (rblserverCollection != null && rblserverCollection.size() > 0) {
-                    setWhitelist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
-                    rblserverCollection.clear();
-                    validConfig = true;
+        ArrayList<String> rblserverCollection = new ArrayList<String>();
+        List<String> whiteList = handlerConfiguration.getList("rblservers/whitelist");
+        if ( whiteList != null ) {
+            for ( int i = 0 ; i < whiteList.size() ; i++ ) {
+                String rblServerName = whiteList.get(i);
+                rblserverCollection.add(rblServerName);
+                if (getLogger().isInfoEnabled()) {
+                    getLogger().info("Adding RBL server to whitelist: " + rblServerName);
                 }
             }
-            children = rblserverConfiguration.getChildren("blacklist");
-            if ( children != null ) {
-                for ( int i = 0 ; i < children.length ; i++ ) {
-                    String rblServerName = children[i].getValue();
-                    rblserverCollection.add(rblServerName);
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("Adding RBL server to blacklist: " + rblServerName);
-                    }
-                }
-                if (rblserverCollection != null && rblserverCollection.size() > 0) {
-                    setBlacklist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
-                    rblserverCollection.clear();
-                    validConfig = true;
-                }
+            if (rblserverCollection != null && rblserverCollection.size() > 0) {
+                setWhitelist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
+                rblserverCollection.clear();
+                validConfig = true;
             }
         }
+        List<String> blackList = handlerConfiguration.getList("rblservers/blacklist");
+        if ( blackList != null ) {
+
+            for ( int i = 0 ; i < blackList.size() ; i++ ) {
+                String rblServerName = blackList.get(i);
+                rblserverCollection.add(rblServerName);
+                if (getLogger().isInfoEnabled()) {
+                    getLogger().info("Adding RBL server to blacklist: " + rblServerName);
+                }
+            }
+            if (rblserverCollection != null && rblserverCollection.size() > 0) {
+                setBlacklist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
+                rblserverCollection.clear();
+                validConfig = true;
+            }
+        }
+        
         
         // Throw an ConfiigurationException on invalid config
         if (validConfig == false){
             throw new ConfigurationException("Please configure whitelist or blacklist");
         }
-        
-        Configuration configuration = handlerConfiguration.getChild("getDetail",false);
-        if(configuration != null) {
-           getDetail = configuration.getValueAsBoolean();
-        }
-        
+
+        setGetDetail(handlerConfiguration.getBoolean("getDetail",false));
     }
     
     /**

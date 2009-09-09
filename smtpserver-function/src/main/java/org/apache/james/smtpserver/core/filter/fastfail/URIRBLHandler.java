@@ -36,11 +36,12 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
@@ -50,11 +51,11 @@ import org.apache.mailet.Mail;
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
  */
-public class URIRBLHandler extends AbstractLogEnabled implements MessageHook {
+public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Configurable {
 
     private DNSService dnsService;
 
-    private Collection uriRbl;
+    private Collection<String> uriRbl;
 
     private boolean getDetail = false;
 
@@ -81,47 +82,30 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook {
         this.dnsService = dnsService;
     }
     
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        boolean invalidConfig = false;
+
     
-        Configuration serverConfiguration = arg0.getChild("uriRblServers", false);
-        if ( serverConfiguration != null ) {
-            ArrayList serverCollection = new ArrayList();
-            Configuration[] children = serverConfiguration.getChildren("server");
-            if ( children != null ) {
-                for ( int i = 0 ; i < children.length ; i++ ) {
-                    String rblServerName = children[i].getValue();
-                    serverCollection.add(rblServerName);
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("Adding uriRBL server: " + rblServerName);
-                    }
-                }
-                if (serverCollection != null && serverCollection.size() > 0) {
-                    setUriRblServer(serverCollection);
-                } else {
-                    invalidConfig = true;
-                }
+    /**
+     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
+     */
+    public void configure(Configuration config) throws ConfigurationException {
+        String[] servers = config.getStringArray("server");
+        Collection<String> serverCollection = new ArrayList<String>();
+        for ( int i = 0 ; i < servers.length ; i++ ) {
+            String rblServerName = servers[i];
+            serverCollection.add(rblServerName);
+            if (getLogger().isInfoEnabled()) {
+                    getLogger().info("Adding uriRBL server: " + rblServerName);
             }
-        } else {
-            invalidConfig = true;
         }
-        
-        if (invalidConfig == true) {
+        if (serverCollection != null && serverCollection.size() > 0) {
+            setUriRblServer(serverCollection);
+        } else {
             throw new ConfigurationException("Please provide at least one server");
         }
-    
-        Configuration configuration = arg0.getChild("getDetail",false);
-        if(configuration != null) {
-           getDetail = configuration.getValueAsBoolean();
-        }
+            
+        setGetDetail(config.getBoolean("getDetail",false));
+        setCheckAuthNetworks(config.getBoolean("checkAuthNetworks", false));
         
-        Configuration configRelay = arg0.getChild("checkAuthNetworks", false);
-        if (configRelay != null) {
-            setCheckAuthNetworks(configRelay.getValueAsBoolean(false));
-        }
         
     }
    
@@ -130,7 +114,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook {
      * 
      * @param uriRbl The Collection holding the servers
      */
-    public void setUriRblServer(Collection uriRbl) {
+    public void setUriRblServer(Collection<String> uriRbl) {
         this.uriRbl = uriRbl;
     }
     
@@ -195,13 +179,13 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook {
      * @param part MimePart to scan
      * @return domains The HashSet that contains the domains which were extracted
      */
-    private HashSet scanMailForDomains(MimePart part) throws MessagingException, IOException {
-        HashSet domains = new HashSet();
+    private HashSet<String> scanMailForDomains(MimePart part) throws MessagingException, IOException {
+        HashSet<String> domains = new HashSet<String>();
         getLogger().debug("mime type is: \"" + part.getContentType() + "\"");
        
         if (part.isMimeType("text/plain") || part.isMimeType("text/html")) {
             getLogger().debug("scanning: \"" + part.getContent().toString() + "\"");
-            HashSet newDom = URIScanner.scanContentForDomains(domains, part.getContent().toString());
+            HashSet<String> newDom = URIScanner.scanContentForDomains(domains, part.getContent().toString());
            
             // Check if new domains are found and add the domains 
             if (newDom != null && newDom.size() > 0) {
@@ -215,7 +199,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook {
             for (int index = 0; index < count; index++) {
                 getLogger().debug("recursing index: " + index);
                 MimeBodyPart mimeBodyPart = (MimeBodyPart) multipart.getBodyPart(index);
-                HashSet newDomains = scanMailForDomains(mimeBodyPart);
+                HashSet<String> newDomains = scanMailForDomains(mimeBodyPart);
                 
                 // Check if new domains are found and add the domains 
                 if(newDomains != null && newDomains.size() > 0) {
@@ -240,12 +224,12 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook {
         try {
             message = mail.getMessage();
 
-            HashSet domains = scanMailForDomains(message);
+            HashSet<String> domains = scanMailForDomains(message);
 
-            Iterator fDomains = domains.iterator();
+            Iterator<String> fDomains = domains.iterator();
 
             while (fDomains.hasNext()) {
-                Iterator uRbl = uriRbl.iterator();
+                Iterator<String> uRbl = uriRbl.iterator();
                 String target = fDomains.next().toString();
                 
                 while (uRbl.hasNext()) {
@@ -277,43 +261,4 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook {
         }
         return false;
     }
-
-//    /**
-//     * @see org.apache.james.smtpserver.core.filter.fastfail.AbstractJunkHandler#getJunkHandlerData(org.apache.james.smtpserver.SMTPSession)
-//     */
-//    public JunkHandlerData getJunkHandlerData(SMTPSession session) {
-//        JunkHandlerData data = new JunkHandlerData();
-//    
-//        String uRblServer = (String) session.getState().get(URBLSERVER);
-//        String target = (String) session.getState().get(LISTED_DOMAIN);
-//        String detail = null;
-//
-//        // we should try to retrieve details
-//        if (getDetail) {
-//            Collection txt = dnsServer.findTXTRecords(target+ "." + uRblServer);
-//
-//            // Check if we found a txt record
-//            if (!txt.isEmpty()) {
-//                // Set the detail
-//                detail = txt.iterator().next().toString();
-//
-//            }
-//        }
-//
-//        if (detail != null) {
-//           
-//            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-//                + "Rejected: message contains domain " + target + " listed by " + uRblServer +" . Details: " 
-//                + detail));
-//        } else {
-//            data.setRejectResponseString(new SMTPResponse(SMTPRetCode.TRANSACTION_FAILED,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-//                + " Rejected: message contains domain " + target + " listed by " + uRblServer));
-//        }  
-//
-//        data.setJunkScoreLogString("Message sent by " + session.getRemoteIPAddress() + " restricted by " +  uRblServer + " because " + target + " is listed. Add junkScore: " + getScore());
-//        data.setRejectLogString("Rejected: message contains domain " + target + " listed by " + uRblServer);
-//        data.setScoreName("UriRBLCheck");
-//        return data;
-//    }
-//
 }
