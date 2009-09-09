@@ -88,7 +88,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Co
      * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration config) throws ConfigurationException {
-        String[] servers = config.getStringArray("server");
+        String[] servers = config.getStringArray("uriRblServers/server");
         Collection<String> serverCollection = new ArrayList<String>();
         for ( int i = 0 ; i < servers.length ; i++ ) {
             String rblServerName = servers[i];
