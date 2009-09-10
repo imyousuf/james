@@ -26,6 +26,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.FileInputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class MockFileSystem implements FileSystem {
     public File getBasedir() throws FileNotFoundException {
@@ -40,7 +43,12 @@ public class MockFileSystem implements FileSystem {
         try {
             if (fileURL.startsWith("file://")) {
                 if (fileURL.startsWith("file://conf/")) {
-                    return new File(MockFileSystem.class.getClassLoader().getResource("./"+fileURL.substring(12)).getFile());
+                	URL url = MockFileSystem.class.getClassLoader().getResource("./"+fileURL.substring(12));
+                    try {
+						return new File(new URI(url.toString()));
+					} catch (URISyntaxException e) {
+						throw new FileNotFoundException("Unable to load file");
+					}
                     // return new File("./src"+fileURL.substring(6));
                 } else {
                     throw new UnsupportedOperationException("getFile: "+fileURL);
