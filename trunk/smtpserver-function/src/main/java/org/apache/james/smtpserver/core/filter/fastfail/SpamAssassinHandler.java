@@ -79,7 +79,7 @@ public class SpamAssassinHandler implements MessageHook, Configurable {
         setSpamdHost(config.getString("spamdHost","localhost"));
         setSpamdPort(config.getInt("spamdPort",783));
         setSpamdRejectionHits(config.getDouble("spamdRejectionHits", 0.0));
-        setCheckAuthNetworks(config.getBoolean("checkAuthNetworks". false));
+        setCheckAuthNetworks(config.getBoolean("checkAuthNetworks", false));
     }
 
     /**
