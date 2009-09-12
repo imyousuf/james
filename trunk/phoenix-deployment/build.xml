@@ -83,6 +83,7 @@
 			<include name="${commons-collections.jar}" />
 			<include name="${commons-dbcp.jar}" />
 			<include name="${commons-pool.jar}" />
+			<include name="${commons-jxpath.jar}" />
 			<include name="${jakarta-oro.jar}" />
 			<include name="${excalibur-pool-api.jar}" />
 			<include name="${excalibur-pool-impl.jar}" />
