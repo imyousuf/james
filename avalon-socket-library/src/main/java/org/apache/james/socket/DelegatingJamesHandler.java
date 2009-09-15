@@ -158,8 +158,8 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
             
             out = new InternetPrintWriter(outs, true);
         } catch (RuntimeException e) {
-            StringBuffer exceptionBuffer = 
-                new StringBuffer(256)
+            StringBuilder exceptionBuffer = 
+                new StringBuilder(256)
                     .append("[" + toString() + "] Unexpected exception opening from ")
                     .append(remoteHost)
                     .append(" (")
@@ -170,8 +170,8 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
             getLogger().error(exceptionString, e);
             throw e;
         } catch (IOException e) {
-            StringBuffer exceptionBuffer = 
-                new StringBuffer(256)
+            StringBuilder exceptionBuffer = 
+                new StringBuilder(256)
                     .append("[" + toString() + "] Cannot open connection from ")
                     .append(remoteHost)
                     .append(" (")
@@ -184,8 +184,8 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
         }
         
         if (getLogger().isInfoEnabled()) {
-            StringBuffer infoBuffer =
-                new StringBuffer(128)
+            StringBuilder infoBuffer =
+                new StringBuilder(128)
                         .append("[" + toString() + "]Connection from ")
                         .append(remoteHost)
                         .append(" (")
@@ -259,7 +259,7 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
             // Indicates a problem at the underlying protocol level
             if (logger.isWarnEnabled()) {
                 String message =
-                    new StringBuffer(64)
+                    new StringBuilder(64)
                         .append("[" + toString() + "]Socket to ")
                         .append(remoteHost)
                         .append(" (")
@@ -271,8 +271,8 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
             }
         } catch ( InterruptedIOException iioe ) {
             if (logger.isErrorEnabled()) {
-                StringBuffer errorBuffer =
-                    new StringBuffer(64)
+                StringBuilder errorBuffer =
+                    new StringBuilder(64)
                         .append("[" + toString() + "] Socket to ")
                         .append(remoteHost)
                         .append(" (")
@@ -283,7 +283,7 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
         } catch ( IOException ioe ) {
             if (logger.isWarnEnabled()) {
                 String message =
-                    new StringBuffer(256)
+                    new StringBuilder(256)
                             .append("[" + toString() + "] Exception handling socket to ")
                             .append(remoteHost)
                             .append(" (")
