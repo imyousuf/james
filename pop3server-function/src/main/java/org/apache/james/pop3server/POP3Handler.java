@@ -223,12 +223,12 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
           }
           curCommandName = curCommandName.toUpperCase(Locale.US);
 
-          if (helper.getAvalonLogger().isDebugEnabled()) {
+          if (helper.getLogger().isDebugEnabled()) {
               // Don't display password in logger
               if (!curCommandName.equals("PASS")) {
-                  helper.getAvalonLogger().debug("Command received: " + cmdString);
+                  helper.getLogger().debug("Command received: " + cmdString);
               } else {
-                  helper.getAvalonLogger().debug("Command received: PASS <password omitted>");
+                  helper.getLogger().debug("Command received: PASS <password omitted>");
               }
           }
 
@@ -251,7 +251,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
           }
         }
         helper.getWatchdog().stop();
-        if (helper.getAvalonLogger().isInfoEnabled()) {
+        if (helper.getLogger().isInfoEnabled()) {
             StringBuffer logBuffer =
                 new StringBuffer(128)
                     .append("Connection for ")
@@ -261,7 +261,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
                     .append(" (")
                     .append(helper.getRemoteIP())
                     .append(") closed.");
-            helper.getAvalonLogger().info(logBuffer.toString());
+            helper.getLogger().info(logBuffer.toString());
         }
     }
     

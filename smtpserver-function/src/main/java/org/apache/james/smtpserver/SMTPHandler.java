@@ -179,7 +179,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
           
         }
         helper.getWatchdog().stop();
-        helper.getAvalonLogger().debug("Closing socket.");
+        helper.getLogger().debug("Closing socket.");
     }
 
     /**
