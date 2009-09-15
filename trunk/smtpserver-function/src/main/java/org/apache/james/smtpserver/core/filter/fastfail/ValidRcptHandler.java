@@ -190,7 +190,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
                     }
                 } catch (ErrorMappingException e) {
                     String responseString = e.getMessage();
-                    getLogger().info("Rejected message. Reject Message: " + responseString);
+                    session.getLogger().info("Rejected message. Reject Message: " + responseString);
                     SMTPResponse resp = new SMTPResponse(responseString);
                     return new HookResult(HookReturnCode.DENY,resp.getRetCode(),resp.getLines().get(0));
                 }
@@ -211,11 +211,11 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
         
             if (invalidUser == true) {
                 //user not exist
-                getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
+                session.getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
                 return new HookResult(HookReturnCode.DENY,SMTPRetCode.TRANSACTION_FAILED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString());
             }
         } else {
-            getLogger().debug("Sender allowed");
+            session.getLogger().debug("Sender allowed");
         }
         return new HookResult(HookReturnCode.DECLINED);
     }

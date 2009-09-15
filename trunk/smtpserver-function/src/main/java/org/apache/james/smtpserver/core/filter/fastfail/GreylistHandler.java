@@ -316,7 +316,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
                 count = Integer.parseInt(data.next());
             }
             
-            getLogger().debug("Triplet " + ipAddress + " | " + sender + " | " + recip  +" -> TimeStamp: " + createTimeStamp);
+            session.getLogger().debug("Triplet " + ipAddress + " | " + sender + " | " + recip  +" -> TimeStamp: " + createTimeStamp);
 
 
             // if the timestamp is bigger as 0 we have allready a triplet stored
@@ -328,14 +328,14 @@ public class GreylistHandler extends AbstractLogEnabled implements
                         + " Temporary rejected: Reconnect to fast. Please try again later");
                 } else {
                     
-                    getLogger().debug("Update triplet " + ipAddress + " | " + sender + " | " + recip + " -> timestamp: " + time);
+                    session.getLogger().debug("Update triplet " + ipAddress + " | " + sender + " | " + recip + " -> timestamp: " + time);
                     
                     // update the triplet..
                     updateTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
 
                 }
             } else {
-                getLogger().debug("New triplet " + ipAddress + " | " + sender + " | " + recip );
+                session.getLogger().debug("New triplet " + ipAddress + " | " + sender + " | " + recip );
            
                 // insert a new triplet
                 insertTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
@@ -349,7 +349,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
             if (Math.random() > 0.99) {
                 // cleanup old entries
             
-                getLogger().debug("Delete old entries");
+                session.getLogger().debug("Delete old entries");
             
                 cleanupAutoWhiteListGreyList(datasource.getConnection(),(time - autoWhiteListLifeTime));
                 cleanupGreyList(datasource.getConnection(), (time - unseenLifeTime));
@@ -357,7 +357,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
 
         } catch (SQLException e) {
             // just log the exception
-            getLogger().error("Error on SQLquery: " + e.getMessage());
+            session.getLogger().error("Error on SQLquery: " + e.getMessage());
         }
         return new HookResult(HookReturnCode.DECLINED);
     }
@@ -645,10 +645,10 @@ public class GreylistHandler extends AbstractLogEnabled implements
             if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
                 return doGreyListCheck(session, sender,rcpt);
             } else {
-                getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
+                session.getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
             }
         } else {
-            getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is allowed to send. Skip greylisting.");
+            session.getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is allowed to send. Skip greylisting.");
         }
         return new HookResult(HookReturnCode.DECLINED);
     }

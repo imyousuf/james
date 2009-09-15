@@ -177,7 +177,7 @@ public class DNSRBLHandler
          * This whould make no sense.
          */
         if (session.isRelayingAllowed()) {
-            getLogger().info("Ipaddress " + session.getRemoteIPAddress() + " is allowed to relay. Don't check it");
+            session.getLogger().info("Ipaddress " + session.getRemoteIPAddress() + " is allowed to relay. Don't check it");
             return;
         }
         
@@ -193,14 +193,14 @@ public class DNSRBLHandler
                 String[] rblList = whitelist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
                     dnsService.getByName(reversedOctets + rblList[i]);
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
+                    if (session.getLogger().isInfoEnabled()) {
+                        session.getLogger().info("Connection from " + ipAddress + " whitelisted by " + rblList[i]);
                     }
                     
                     return;
                 } catch (java.net.UnknownHostException uhe) {
-                    if (getLogger().isDebugEnabled()) {
-                        getLogger().debug("IpAddress " + session.getRemoteIPAddress() + " not listed on " + rblList[i]);
+                    if (session.getLogger().isDebugEnabled()) {
+                        session.getLogger().debug("IpAddress " + session.getRemoteIPAddress() + " not listed on " + rblList[i]);
                     }
                 }
             }
@@ -209,8 +209,8 @@ public class DNSRBLHandler
                 String[] rblList = blacklist;
                 for (int i = 0 ; i < rblList.length ; i++) try {
                     dnsService.getByName(reversedOctets + rblList[i]);
-                    if (getLogger().isInfoEnabled()) {
-                        getLogger().info("Connection from " + ipAddress + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
+                    if (session.getLogger().isInfoEnabled()) {
+                        session.getLogger().info("Connection from " + ipAddress + " restricted by " + rblList[i] + " to SMTP AUTH/postmaster/abuse.");
                     }
                     
                     // we should try to retrieve details
@@ -230,8 +230,8 @@ public class DNSRBLHandler
                     return;
                 } catch (java.net.UnknownHostException uhe) {
                     // if it is unknown, it isn't blocked
-                    if (getLogger().isDebugEnabled()) {
-                        getLogger().debug("unknown host exception thrown:" + rblList[i]);
+                    if (session.getLogger().isDebugEnabled()) {
+                        session.getLogger().debug("unknown host exception thrown:" + rblList[i]);
                     }
                 }
             }
