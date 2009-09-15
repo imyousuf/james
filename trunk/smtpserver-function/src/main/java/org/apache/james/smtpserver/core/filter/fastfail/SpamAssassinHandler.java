@@ -72,7 +72,6 @@ public class SpamAssassinHandler implements MessageHook, Configurable {
     private boolean checkAuthNetworks = false;
 
     /**
-     * (non-Javadoc)
      * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration config) throws ConfigurationException {

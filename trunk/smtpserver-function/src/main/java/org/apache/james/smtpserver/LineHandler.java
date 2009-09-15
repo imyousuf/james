@@ -25,8 +25,10 @@ package org.apache.james.smtpserver;
 public interface LineHandler {
      
     /**
-     * Handle the command
-    **/
+     * Handle the command.
+     * @param session not null
+     * @param line not null 
+     */
     void onLine(SMTPSession session, byte[] line);
     
 }

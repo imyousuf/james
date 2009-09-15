@@ -27,14 +27,10 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 /**
- *
+ * Bridges commons configuration to Avalon.
  */
 public class JamesConfiguration extends XMLConfiguration {
 
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6920719067623856243L;
 
 	public JamesConfiguration(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
@@ -42,6 +38,5 @@ public class JamesConfiguration extends XMLConfiguration {
 		load(new ByteArrayInputStream(config.getBytes()));
 		
 		setExpressionEngine(new XPathExpressionEngine());
-
 	}
 }

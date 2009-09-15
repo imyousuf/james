@@ -18,11 +18,12 @@
  ****************************************************************/
 package org.apache.james.smtpserver;
 
+/**
+ * Indicates an issue prevent the successful wiring of the components
+ * composing the SMTP processor.
+ */
 public class WiringException extends Exception {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 8824880646965171467L;
 
     /**

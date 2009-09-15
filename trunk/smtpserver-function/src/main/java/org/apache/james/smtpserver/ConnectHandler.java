@@ -29,9 +29,10 @@ package org.apache.james.smtpserver;
  * in the SMTPSession object
  */
 public interface ConnectHandler {
-    /*
-     * Handle connection
-    **/
+    /**
+     * Handle connection.
+     * @param session not null
+     */
     void onConnect(SMTPSession session);
 
 }
