@@ -42,7 +42,7 @@ import org.apache.james.util.InternetPrintWriter;
 /**
  * Common Handler code
  */
-public class DelegatingJamesHandler implements ProtocolHandlerHelper, ConnectionHandler, Poolable {
+public class DelegatingJamesHandler implements ProtocolHandlerHelper, ConnectionHandler, Poolable, WatchdogTarget {
  
     private static final int DEFAULT_OUTPUT_BUFFER_SIZE = 1024;
 
@@ -86,11 +86,6 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
      * The watchdog being used by this handler to deal with idle timeouts.
      */
     private Watchdog theWatchdog;
-
-    /**
-     * The watchdog target that idles out this handler.
-     */
-    private final WatchdogTarget theWatchdogTarget = new JamesWatchdogTarget();
     
     /**
      * The remote host name obtained by lookup on the socket.
@@ -320,16 +315,6 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
     }
 
     /**
-     * Gets the Watchdog Target that should be used by Watchdogs managing
-     * this connection.
-     *
-     * @return the WatchdogTarget
-     */
-    WatchdogTarget getWatchdogTarget() {
-        return theWatchdogTarget;
-    }
-
-    /**
      * Idle out this connection
      */
     void idleClose() {
@@ -392,30 +377,6 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
     public final void writeLoggedResponse(String responseString) {
         out.println(responseString);
         logResponseString(responseString);
-    }
-
-    /**
-     * A private inner class which serves as an adaptor
-     * between the WatchdogTarget interface and this
-     * handler class.
-     */
-    private class JamesWatchdogTarget
-        implements WatchdogTarget {
-
-        /**
-         * @see org.apache.james.socket.WatchdogTarget#execute()
-         */
-        public void execute() {
-            DelegatingJamesHandler.this.idleClose();
-        }
-
-        /**
-         * Used for context sensitive logging
-         */
-        @Override
-        public String toString() {
-            return DelegatingJamesHandler.this.toString();
-        }
     }
 
     /**
@@ -557,5 +518,13 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
      */
     public Log getLogger() {
         return log;
+    }
+
+    public boolean isDisconnected() {
+        return socket == null;
+    }
+
+    public void execute() {
+        idleClose();
     }
 }

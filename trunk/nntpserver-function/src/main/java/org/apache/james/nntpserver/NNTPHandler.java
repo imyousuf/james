@@ -301,7 +301,7 @@ public class NNTPHandler implements ProtocolHandler {
         // socket will be closed and null.  Do NOT
         // log the exception or attempt to send the
         // closing connection message
-        if (helper.getSocket() != null) {
+        if (!helper.isDisconnected()) {
             try {
                 doQUIT(null);
             } catch (Throwable t) {}

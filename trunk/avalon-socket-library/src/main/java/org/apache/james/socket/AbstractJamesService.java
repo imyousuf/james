@@ -706,7 +706,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
             getLogger().debug("Handler [" +  theHandler + "] obtained from pool.");
         }
 
-        Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler.getWatchdogTarget());
+        Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler);
 
         theHandler.setConfigurationData(getConfigurationData());
         theHandler.setStreamDumpDir(streamDumpDir);
