@@ -122,7 +122,6 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
     private final ProtocolHandler protocolHandler;
     
     private final Log log;
-    private final Logger logger;
     
     public DelegatingJamesHandler(final ProtocolHandler delegated, final DNSService dnsServer, final String name, 
             final Logger logger) {
@@ -135,7 +134,6 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
             this.name = name;
         }
         this.log = new HandlerLog(logger, "[" + name + "] ");
-        this.logger = logger;
     }
 
     /**
@@ -540,13 +538,6 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
         return remoteHost;
     }
     
-    /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getAvalonLogger()
-     */
-    public Logger getAvalonLogger() {
-        return logger;
-    }
-
     /**
      * @see org.apache.james.socket.ProtocolHandlerHelper#getWatchdog()
      */

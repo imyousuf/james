@@ -20,13 +20,12 @@
 
 package org.apache.james.socket;
 
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.commons.logging.Log;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import org.apache.commons.logging.Log;
 
 /**
  * This is the helper interface provided to ProtocolHandlers to let them
@@ -51,12 +50,6 @@ public interface ProtocolHandlerHelper {
      * @return the watchdog instance
      */
     public Watchdog getWatchdog();
-    
-    /**
-     * Provides logging facility to the handler.
-     * @return logger instance
-     */
-    public Logger getAvalonLogger();
 
     /**
      * getter for the remote hostname

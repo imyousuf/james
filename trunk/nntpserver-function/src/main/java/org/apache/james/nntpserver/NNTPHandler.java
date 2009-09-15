@@ -289,7 +289,7 @@ public class NNTPHandler implements ProtocolHandler {
         }
         helper.getWatchdog().stop();
 
-        helper.getAvalonLogger().info("Connection closed");
+        helper.getLogger().info("Connection closed");
     }
     
     /**
@@ -341,8 +341,8 @@ public class NNTPHandler implements ProtocolHandler {
         if (commandRaw == null) {
             return false;
         }
-        if (helper.getAvalonLogger().isDebugEnabled()) {
-            helper.getAvalonLogger().debug("Command received: " + commandRaw);
+        if (helper.getLogger().isDebugEnabled()) {
+            helper.getLogger().debug("Command received: " + commandRaw);
         }
 
         String command = commandRaw.trim();
@@ -357,7 +357,7 @@ public class NNTPHandler implements ProtocolHandler {
         boolean returnValue = true;
         if (!isAuthorized(command) ) {
             helper.writeLoggedFlushedResponse("480 User is not authenticated");
-            helper.getAvalonLogger().debug("Command not allowed.");
+            helper.getLogger().debug("Command not allowed.");
             return returnValue;
         }
         if ((command.equals(COMMAND_MODE)) && (argument != null)) {
@@ -428,14 +428,14 @@ public class NNTPHandler implements ProtocolHandler {
      * @param argument the argument passed in with the command
      */
     private void doUnknownCommand(String command, String argument) {
-        if (helper.getAvalonLogger().isDebugEnabled()) {
+        if (helper.getLogger().isDebugEnabled()) {
             StringBuffer logBuffer =
                 new StringBuffer(128)
                     .append("Received unknown command ")
                     .append(command)
                     .append(" with argument ")
                     .append(argument);
-            helper.getAvalonLogger().debug(logBuffer.toString());
+            helper.getLogger().debug(logBuffer.toString());
         }
         helper.writeLoggedFlushedResponse("500 Unknown command");
     }
@@ -525,12 +525,12 @@ public class NNTPHandler implements ProtocolHandler {
                 wildmat = argument.substring(0, spaceIndex);
                 argument = argument.substring(spaceIndex + 1);
             } else {
-                helper.getAvalonLogger().error("NEWNEWS had an invalid argument");
+                helper.getLogger().error("NEWNEWS had an invalid argument");
                 helper.writeLoggedFlushedResponse("501 Syntax error");
                 return;
             }
         } else {
-            helper.getAvalonLogger().error("NEWNEWS had a null argument");
+            helper.getLogger().error("NEWNEWS had a null argument");
             helper.writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
@@ -539,7 +539,7 @@ public class NNTPHandler implements ProtocolHandler {
         try {
             theDate = getDateFrom(argument);
         } catch (NNTPException nntpe) {
-            helper.getAvalonLogger().error("NEWNEWS had an invalid argument", nntpe);
+            helper.getLogger().error("NEWNEWS had an invalid argument", nntpe);
             helper.writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
@@ -579,7 +579,7 @@ public class NNTPHandler implements ProtocolHandler {
         try {
             theDate = getDateFrom(argument);
         } catch (NNTPException nntpe) {
-            helper.getAvalonLogger().error("NEWGROUPS had an invalid argument", nntpe);
+            helper.getLogger().error("NEWGROUPS had an invalid argument", nntpe);
             helper.writeLoggedFlushedResponse("501 Syntax error");
             return;
         }

@@ -170,13 +170,13 @@ public class RemoteManagerHandler implements ProtocolHandler {
                     .append(". HELP for a list of commands");
         helper.getOutputWriter().println( messageBuffer.toString() );
         helper.getOutputWriter().flush();
-        if (helper.getAvalonLogger().isInfoEnabled()) {
+        if (helper.getLogger().isInfoEnabled()) {
             StringBuffer infoBuffer =
                 new StringBuffer(128)
                         .append("Login for ")
                         .append(login)
                         .append(" successful");
-            helper.getAvalonLogger().info(infoBuffer.toString());
+            helper.getLogger().info(infoBuffer.toString());
         }
 
         try {
@@ -193,14 +193,14 @@ public class RemoteManagerHandler implements ProtocolHandler {
             //We can cleanly ignore this as it's probably a socket timeout
         } catch (Throwable thr) {
             System.out.println("Exception: " + thr.getMessage());
-            helper.getAvalonLogger().error("Encountered exception in handling the remote manager connection.", thr);
+            helper.getLogger().error("Encountered exception in handling the remote manager connection.", thr);
         }
         StringBuffer infoBuffer =
             new StringBuffer(64)
                     .append("Logout for ")
                     .append(login)
                     .append(".");
-        helper.getAvalonLogger().info(infoBuffer.toString());
+        helper.getLogger().info(infoBuffer.toString());
 
     }
 
@@ -210,7 +210,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
     public void errorHandler(RuntimeException e) {
         helper.getOutputWriter().println("Unexpected Error: "+e.getMessage());
         helper.getOutputWriter().flush();
-        if (helper.getAvalonLogger().isErrorEnabled()) {
+        if (helper.getLogger().isErrorEnabled()) {
             StringBuffer exceptionBuffer =
                 new StringBuffer(128)
                         .append("Exception during connection from ")
@@ -219,7 +219,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(helper.getRemoteIP())
                         .append("): ")
                         .append(e.getMessage());
-            helper.getAvalonLogger().error(exceptionBuffer.toString(),e);
+            helper.getLogger().error(exceptionBuffer.toString(),e);
         }
     }
 
@@ -354,10 +354,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(" added");
             String response = responseBuffer.toString();
             helper.getOutputWriter().println(response);
-            helper.getAvalonLogger().info(response);
+            helper.getLogger().info(response);
         } else {
             helper.getOutputWriter().println("Error adding user " + username);
-            helper.getAvalonLogger().error("Error adding user " + username);
+            helper.getLogger().error("Error adding user " + username);
         }
         helper.getOutputWriter().flush();
         return true;
@@ -400,10 +400,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(" reset");
             String response = responseBuffer.toString();
             helper.getOutputWriter().println(response);
-            helper.getAvalonLogger().info(response);
+            helper.getLogger().info(response);
         } else {
             helper.getOutputWriter().println("Error resetting password");
-            helper.getAvalonLogger().error("Error resetting password");
+            helper.getLogger().error("Error resetting password");
         }
         helper.getOutputWriter().flush();
         return true;
@@ -431,7 +431,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                                              .append(" deleted");
                 String response = responseBuffer.toString();
                 helper.getOutputWriter().println(response);
-                helper.getAvalonLogger().info(response);
+                helper.getLogger().info(response);
             } catch (Exception e) {
                 StringBuffer exceptionBuffer =
                                               new StringBuffer(128)
@@ -441,7 +441,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                                               .append(e.getMessage());
                 String exception = exceptionBuffer.toString();
                 helper.getOutputWriter().println(exception);
-                helper.getAvalonLogger().error(exception);
+                helper.getLogger().error(exception);
             }
         } else {
             StringBuffer responseBuffer =
@@ -643,10 +643,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(alias);
             String response = responseBuffer.toString();
             helper.getOutputWriter().println(response);
-            helper.getAvalonLogger().info(response);
+            helper.getLogger().info(response);
         } else {
             helper.getOutputWriter().println("Error setting alias");
-            helper.getAvalonLogger().error("Error setting alias");
+            helper.getLogger().error("Error setting alias");
         }
         helper.getOutputWriter().flush();
         return true;
@@ -704,10 +704,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(forwardAddr.toString());
             String response = responseBuffer.toString();
             helper.getOutputWriter().println(response);
-            helper.getAvalonLogger().info(response);
+            helper.getLogger().info(response);
         } else {
             helper.getOutputWriter().println("Error setting forwarding");
-            helper.getAvalonLogger().error("Error setting forwarding");
+            helper.getLogger().error("Error setting forwarding");
         }
         helper.getOutputWriter().flush();
         return true;
@@ -751,7 +751,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
         if ( alias == null || alias.equals("") ) {    //  defensive programming -- neither should occur
             String errmsg = "For user " + username + ", the system indicates that aliasing is set but no alias was found";
             helper.getOutputWriter().println(errmsg);
-            helper.getAvalonLogger().error(errmsg);
+            helper.getLogger().error(errmsg);
             return true;
         }
 
@@ -796,7 +796,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
         if ( fwdAddr == null ) {    //  defensive programming -- should not occur
             String errmsg = "For user " + username + ", the system indicates that forwarding is set but no forwarding destination was found";
             helper.getOutputWriter().println(errmsg);
-            helper.getAvalonLogger().error(errmsg);
+            helper.getLogger().error(errmsg);
             return true;
         }
 
@@ -829,7 +829,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(" unset");
             String response = responseBuffer.toString();
             helper.getOutputWriter().println(response);
-            helper.getAvalonLogger().info(response);
+            helper.getLogger().info(response);
         } else {
             helper.writeLoggedResponse("Aliasing not active for" + username);
         }
@@ -863,7 +863,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
             String response = responseBuffer.toString();
             helper.getOutputWriter().println(response);
             helper.getOutputWriter().flush();
-            helper.getAvalonLogger().info(response);
+            helper.getLogger().info(response);
         } else {
             helper.writeLoggedFlushedResponse("Forwarding not active for" + username);
         }
@@ -947,7 +947,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
         } catch (Exception e) {
             helper.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
             helper.getOutputWriter().flush();
-            helper.getAvalonLogger().error(
+            helper.getLogger().error(
                     "Error opening the spoolrepository " + e.getMessage());
         }
         return true;
@@ -1000,7 +1000,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                     .println("Error accessing the spoolrepository "
                             + e.getMessage());
             helper.getOutputWriter().flush();
-            helper.getAvalonLogger().error(
+            helper.getLogger().error(
                     "Error accessing the spoolrepository " + e.getMessage());
         }
         return true;
@@ -1061,7 +1061,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
         } catch (Exception e) {
             helper.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
             helper.getOutputWriter().flush();
-            helper.getAvalonLogger().error("Error opeing the spoolrepository " + e.getMessage());
+            helper.getLogger().error("Error opeing the spoolrepository " + e.getMessage());
         }
         return true;
     }
@@ -1130,7 +1130,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
         } catch (Exception e) {
             helper.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
             helper.getOutputWriter().flush();
-            helper.getAvalonLogger().error("Error opeing the spoolrepository " + e.getMessage());
+            helper.getLogger().error("Error opeing the spoolrepository " + e.getMessage());
         }
         return true;
     }
@@ -1210,7 +1210,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
             helper.getOutputWriter().flush();
         
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getAvalonLogger().error("Error on feeding BayesianAnalysis: " + e);
+            helper.getLogger().error("Error on feeding BayesianAnalysis: " + e);
             helper.getOutputWriter().println("Error on feeding BayesianAnalysis: " + e);
             helper.getOutputWriter().flush();
             return true;
@@ -1258,7 +1258,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
             helper.getOutputWriter().flush();
             
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getAvalonLogger().error("Error on feeding BayesianAnalysis: " + e);
+            helper.getLogger().error("Error on feeding BayesianAnalysis: " + e);
             helper.getOutputWriter().println("Error on feeding BayesianAnalysis: " + e);
             helper.getOutputWriter().flush();
             return true;
@@ -1288,7 +1288,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
             helper.getOutputWriter().flush();
 
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getAvalonLogger().error("Error on exporting BayesianAnalysis data: " + e);
+            helper.getLogger().error("Error on exporting BayesianAnalysis data: " + e);
             helper.getOutputWriter().println("Error on exporting BayesianAnalysis data: " + e);
             helper.getOutputWriter().flush();
             return true;
@@ -1317,7 +1317,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
             helper.getOutputWriter().flush();
 
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getAvalonLogger().error("Error on importing BayesianAnalysis data: " + e);
+            helper.getLogger().error("Error on importing BayesianAnalysis data: " + e);
             helper.getOutputWriter().println("Error on importing BayesianAnalysis data: " + e);
             helper.getOutputWriter().flush();
             return true;
@@ -1339,7 +1339,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
             helper.getOutputWriter().flush();
 
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getAvalonLogger().error("Error on reseting BayesianAnalysis data: " + e);
+            helper.getLogger().error("Error on reseting BayesianAnalysis data: " + e);
             helper.getOutputWriter().println("Error on reseting BayesianAnalysis data: " + e);
             helper.getOutputWriter().flush();
             return true;
@@ -1490,11 +1490,11 @@ public class RemoteManagerHandler implements ProtocolHandler {
             helper.getOutputWriter().println("Adding mapping successful: " + mappingAction(args,ADD_MAPPING_ACTION));
             helper.getOutputWriter().flush();
         } catch (VirtualUserTableManagementException e) {
-            helper.getAvalonLogger().error("Error on adding mapping: " + e);
+            helper.getLogger().error("Error on adding mapping: " + e);
             helper.getOutputWriter().println("Error on adding mapping: " + e);
             helper.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            helper.getAvalonLogger().error("Error on adding mapping: " + e);
+            helper.getLogger().error("Error on adding mapping: " + e);
             helper.getOutputWriter().println("Error on adding mapping: " + e);
             helper.getOutputWriter().flush();
         }
@@ -1516,11 +1516,11 @@ public class RemoteManagerHandler implements ProtocolHandler {
             helper.getOutputWriter().println("Removing mapping successful: " + mappingAction(args,REMOVE_MAPPING_ACTION));
             helper.getOutputWriter().flush();
         } catch (VirtualUserTableManagementException e) {
-            helper.getAvalonLogger().error("Error on  removing mapping: " + e);
+            helper.getLogger().error("Error on  removing mapping: " + e);
             helper.getOutputWriter().println("Error on removing mapping: " + e);
             helper.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            helper.getAvalonLogger().error("Error on removing mapping: " + e);
+            helper.getLogger().error("Error on removing mapping: " + e);
             helper.getOutputWriter().println("Error on removing mapping: " + e);
             helper.getOutputWriter().flush();
         }
@@ -1576,11 +1576,11 @@ public class RemoteManagerHandler implements ProtocolHandler {
                 helper.getOutputWriter().flush();
             }
         } catch (VirtualUserTableManagementException e) {
-            helper.getAvalonLogger().error("Error on listing mapping: " + e);
+            helper.getLogger().error("Error on listing mapping: " + e);
             helper.getOutputWriter().println("Error on listing mapping: " + e);
             helper.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            helper.getAvalonLogger().error("Error on listing mapping: " + e);
+            helper.getLogger().error("Error on listing mapping: " + e);
             helper.getOutputWriter().println("Error on listing mapping: " + e);
             helper.getOutputWriter().flush();
         }
@@ -1621,11 +1621,11 @@ public class RemoteManagerHandler implements ProtocolHandler {
                 helper.getOutputWriter().flush();
             }
         } catch (VirtualUserTableManagementException e) {
-            helper.getAvalonLogger().error("Error on listing all mapping: " + e);
+            helper.getLogger().error("Error on listing all mapping: " + e);
             helper.getOutputWriter().println("Error on listing all mapping: " + e);
             helper.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            helper.getAvalonLogger().error("Error on listing all mapping: " + e);
+            helper.getLogger().error("Error on listing all mapping: " + e);
             helper.getOutputWriter().println("Error on listing all mapping: " + e);
             helper.getOutputWriter().flush();
         }
@@ -1708,7 +1708,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                 helper.getOutputWriter().flush();
             }
         } catch (DomainListManagementException e) {
-            helper.getAvalonLogger().error("Error on adding domain: " + e);
+            helper.getLogger().error("Error on adding domain: " + e);
             helper.getOutputWriter().println("Error on adding domain: " + e);
             helper.getOutputWriter().flush();
         }
@@ -1731,7 +1731,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                 helper.getOutputWriter().flush();
             }
         } catch (DomainListManagementException e) {
-            helper.getAvalonLogger().error("Error on removing domain: " + e);
+            helper.getLogger().error("Error on removing domain: " + e);
             helper.getOutputWriter().println("Error on removing domain: " + e);
             helper.getOutputWriter().flush();
         }
