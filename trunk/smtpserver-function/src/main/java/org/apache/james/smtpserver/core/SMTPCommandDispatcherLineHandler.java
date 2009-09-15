@@ -42,7 +42,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled impleme
     /**
      * The list of available command handlers
      */
-    private HashMap commandHandlerMap = new HashMap();
+    private HashMap<String, List<CommandHandler>> commandHandlerMap = new HashMap<String, List<CommandHandler>>();
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
 
@@ -71,7 +71,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled impleme
             }
             curCommandName = curCommandName.toUpperCase(Locale.US);
 
-            List commandHandlers = getCommandHandlers(curCommandName);
+            List<CommandHandler> commandHandlers = getCommandHandlers(curCommandName, session);
             //fetch the command handlers registered to the command
             if(commandHandlers == null) {
                 //end the session
@@ -81,7 +81,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled impleme
             } else {
                 int count = commandHandlers.size();
                 for(int i = 0; i < count; i++) {
-                    SMTPResponse response = ((CommandHandler)commandHandlers.get(i)).onCommand(session, curCommandName, curCommandArgument);
+                    SMTPResponse response = commandHandlers.get(i).onCommand(session, curCommandName, curCommandArgument);
                     
                     session.writeSMTPResponse(response);
                     
@@ -116,7 +116,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled impleme
      * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
-        this.commandHandlerMap = new HashMap();
+        this.commandHandlerMap = new HashMap<String, List<CommandHandler>>();
 
         for (Iterator it = extension.iterator(); it.hasNext(); ) {
             CommandHandler handler = (CommandHandler) it.next();
@@ -165,15 +165,15 @@ public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled impleme
     
 
     /**
-     * Add it to map (key as command name, value is an array list of commandhandlers)
+     * Add it to map (key as command name, value is an array list of CommandHandlers)
      *
      * @param commandName the command name which will be key
-     * @param cmdHandler The commandhandler object
+     * @param cmdHandler The CommandHandler object
      */
     private void addToMap(String commandName, CommandHandler cmdHandler) {
-        ArrayList handlers = (ArrayList)commandHandlerMap.get(commandName);
+        List<CommandHandler> handlers = commandHandlerMap.get(commandName);
         if(handlers == null) {
-            handlers = new ArrayList();
+            handlers = new ArrayList<CommandHandler>();
             commandHandlerMap.put(commandName, handlers);
         }
         handlers.add(cmdHandler);
@@ -181,21 +181,22 @@ public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled impleme
 
 
     /**
-     * Returns all the configured commandhandlers for the specified command
+     * Returns all the configured CommandHandlers for the specified command
      *
      * @param command the command name which will be key
-     * @return List of commandhandlers
+     * @param session not null
+     * @return List of CommandHandlers
      */
-    List getCommandHandlers(String command) {
+    private List<CommandHandler> getCommandHandlers(String command, SMTPSession session) {
         if (command == null) {
             return null;
         }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Lookup command handler for command: " + command);
+        if (session.getLogger().isDebugEnabled()) {
+            session.getLogger().debug("Lookup command handler for command: " + command);
         }
-        List handlers =  (List)commandHandlerMap.get(command);
+        List<CommandHandler> handlers =  commandHandlerMap.get(command);
         if(handlers == null) {
-            handlers = (List)commandHandlerMap.get(UnknownCmdHandler.UNKNOWN_COMMAND);
+            handlers = commandHandlerMap.get(UnknownCmdHandler.UNKNOWN_COMMAND);
         }
 
         return handlers;

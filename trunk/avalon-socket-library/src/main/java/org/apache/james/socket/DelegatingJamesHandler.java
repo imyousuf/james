@@ -34,15 +34,15 @@ import java.net.SocketException;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.util.InternetPrintWriter;
 
 /**
  * Common Handler code
  */
-public class DelegatingJamesHandler extends AbstractLogEnabled implements ProtocolHandlerHelper, ConnectionHandler, Poolable {
+public class DelegatingJamesHandler implements ProtocolHandlerHelper, ConnectionHandler, Poolable {
  
     private static final int DEFAULT_OUTPUT_BUFFER_SIZE = 1024;
 
@@ -111,7 +111,7 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
      * Names the handler.
      * This name is used for contextual logging.
      */
-    private String name = DEFAULT_NAME;
+    private final String name;
     
 
     /**
@@ -121,10 +121,21 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
     
     private final ProtocolHandler protocolHandler;
     
-    public DelegatingJamesHandler(final ProtocolHandler delegated, final DNSService dnsServer) {
+    private final Log log;
+    private final Logger logger;
+    
+    public DelegatingJamesHandler(final ProtocolHandler delegated, final DNSService dnsServer, final String name, 
+            final Logger logger) {
         this.protocolHandler = delegated;
         this.dnsServer = dnsServer;
         this.protocolHandler.setProtocolHandlerHelper(this);
+        if (name == null) {
+            this.name = DEFAULT_NAME;
+        } else {
+            this.name = name;
+        }
+        this.log = new HandlerLog(logger, "[" + name + "] ");
+        this.logger = logger;
     }
 
     /**
@@ -160,38 +171,38 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
         } catch (RuntimeException e) {
             StringBuilder exceptionBuffer = 
                 new StringBuilder(256)
-                    .append("[" + toString() + "] Unexpected exception opening from ")
+                    .append("Unexpected exception opening from ")
                     .append(remoteHost)
                     .append(" (")
                     .append(remoteIP)
                     .append("): ")
                     .append(e.getMessage());
             String exceptionString = exceptionBuffer.toString();
-            getLogger().error(exceptionString, e);
+            log.error(exceptionString, e);
             throw e;
         } catch (IOException e) {
             StringBuilder exceptionBuffer = 
                 new StringBuilder(256)
-                    .append("[" + toString() + "] Cannot open connection from ")
+                    .append("Cannot open connection from ")
                     .append(remoteHost)
                     .append(" (")
                     .append(remoteIP)
                     .append("): ")
                     .append(e.getMessage());
             String exceptionString = exceptionBuffer.toString();
-            getLogger().error(exceptionString, e);
+            log.error(exceptionString, e);
             throw e;
         }
         
-        if (getLogger().isInfoEnabled()) {
+        if (log.isInfoEnabled()) {
             StringBuilder infoBuffer =
                 new StringBuilder(128)
-                        .append("[" + toString() + "]Connection from ")
+                        .append("Connection from ")
                         .append(remoteHost)
                         .append(" (")
                         .append(remoteIP)
                         .append(")");
-            getLogger().info(infoBuffer.toString());
+            log.info(infoBuffer.toString());
         }
     }
 
@@ -211,7 +222,7 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
                 inReader.close();
             }
         } catch (IOException ioe) {
-            getLogger().warn("[" + toString() + "] Unexpected exception occurred while closing reader: " + ioe);
+            log.warn("Unexpected exception occurred while closing reader: " + ioe);
         } finally {
             inReader = null;
         }
@@ -229,7 +240,7 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
                 socket.close();
             }
         } catch (IOException ioe) {
-            getLogger().warn("[" + toString() + "] Unexpected exception occurred while closing socket: " + ioe);
+            log.warn("[Unexpected exception occurred while closing socket: " + ioe);
         } finally {
             socket = null;
         }
@@ -248,50 +259,49 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
     public void handleConnection(Socket connection) throws IOException {
         initHandler(connection);
 
-        final Logger logger = getLogger();
         try {
             
             // Do something:
             handleProtocol();
             
-            logger.debug("[" + toString() + "] Closing socket");
+            log.debug("Closing socket");
         } catch (SocketException se) {
             // Indicates a problem at the underlying protocol level
-            if (logger.isWarnEnabled()) {
+            if (log.isWarnEnabled()) {
                 String message =
                     new StringBuilder(64)
-                        .append("[" + toString() + "]Socket to ")
+                        .append("Socket to ")
                         .append(remoteHost)
                         .append(" (")
                         .append(remoteIP)
                         .append("): ")
                         .append(se.getMessage()).toString();
-                logger.warn(message);
-                logger.debug(se.getMessage(), se);
+                log.warn(message);
+                log.debug(se.getMessage(), se);
             }
         } catch ( InterruptedIOException iioe ) {
-            if (logger.isErrorEnabled()) {
+            if (log.isErrorEnabled()) {
                 StringBuilder errorBuffer =
                     new StringBuilder(64)
-                        .append("[" + toString() + "] Socket to ")
+                        .append("Socket to ")
                         .append(remoteHost)
                         .append(" (")
                         .append(remoteIP)
                         .append(") timeout.");
-                logger.error( errorBuffer.toString(), iioe );
+                log.error( errorBuffer.toString(), iioe );
             }
         } catch ( IOException ioe ) {
-            if (logger.isWarnEnabled()) {
+            if (log.isWarnEnabled()) {
                 String message =
                     new StringBuilder(256)
-                            .append("[" + toString() + "] Exception handling socket to ")
+                            .append("Exception handling socket to ")
                             .append(remoteHost)
                             .append(" (")
                             .append(remoteIP)
                             .append(") : ")
                             .append(ioe.getMessage()).toString();
-                logger.warn(message);
-                logger.debug( ioe.getMessage(), ioe );
+                log.warn(message);
+                log.debug( ioe.getMessage(), ioe );
             }
         } catch (RuntimeException e) {
             errorHandler(e);
@@ -325,8 +335,8 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
      * Idle out this connection
      */
     void idleClose() {
-        if (getLogger() != null) {
-            getLogger().error("[" + toString() + "] Service Connection has idled out.");
+        if (log != null) {
+            log.error("Service Connection has idled out.");
         }
         try {
             if (socket != null) {
@@ -357,8 +367,8 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
      * @param responseString the response string sent to the client
      */
     private final void logResponseString(String responseString) {
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("[" + toString() + "] Sent: " + responseString);
+        if (log.isDebugEnabled()) {
+            log.debug("Sent: " + responseString);
         }
     }
 
@@ -438,20 +448,6 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
     }
 
     /**
-     * The name of this handler.
-     * Note that this name should be file-system safe.
-     * Used for context sensitive logging.
-     * @param name the name to set
-     */
-    public final void setName(final String name) {
-        if (name == null) {
-            this.name = DEFAULT_NAME;
-        } else {
-            this.name = name;
-        }
-    }
-
-    /**
      * Use for context sensitive logging.
      * @return the name of the handler
      */
@@ -496,8 +492,8 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
      * @see org.apache.james.socket.ProtocolHandlerHelper#defaultErrorHandler(java.lang.RuntimeException)
      */
     public void defaultErrorHandler(RuntimeException e) {
-        if (getLogger().isErrorEnabled()) {
-            getLogger().error( "[" + toString() + "] Unexpected runtime exception: "
+        if (log.isErrorEnabled()) {
+            log.error( "Unexpected runtime exception: "
                                + e.getMessage(), e );
         }
     }
@@ -548,7 +544,7 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
      * @see org.apache.james.socket.ProtocolHandlerHelper#getAvalonLogger()
      */
     public Logger getAvalonLogger() {
-        return getLogger();
+        return logger;
     }
 
     /**
@@ -563,5 +559,12 @@ public class DelegatingJamesHandler extends AbstractLogEnabled implements Protoc
      */
     public Socket getSocket() {
         return socket;
+    }
+
+    /**
+     * @see org.apache.james.socket.ProtocolHandlerHelper#getLogger()
+     */
+    public Log getLogger() {
+        return log;
     }
 }
