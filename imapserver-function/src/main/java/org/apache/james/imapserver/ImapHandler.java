@@ -23,18 +23,15 @@ import java.io.IOException;
 import java.net.Socket;
 
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.process.ImapSession;
-import org.apache.james.imap.main.ContextualLog;
+import org.apache.james.imap.encode.ImapResponseComposer;
+import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.apache.james.imap.main.OutputStreamImapResponseWriter;
-import org.apache.james.imap.encode.ImapResponseComposer;
-import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
-import org.apache.commons.logging.impl.AvalonLogger;
 
 /**
  * Handles IMAP connections.
@@ -114,7 +111,7 @@ public class ImapHandler implements ProtocolHandler
      */
     private void setUpSession() {
         final ImapSessionImpl session = new ImapSessionImpl();
-        session.setLog(new ContextualLog("[" + helper.getName() + "]", new AvalonLogger(getLogger())));
+        session.setLog(helper.getLogger());
         this.session = session;
     }
 
@@ -137,8 +134,8 @@ public class ImapHandler implements ProtocolHandler
         helper.defaultErrorHandler(e);
     }
     
-    public Logger getLogger() {
-        return helper.getAvalonLogger();
+    public Log getLogger() {
+        return helper.getLogger();
     }
 
     public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {

@@ -693,7 +693,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
         return enabled;
     }
     /**
-     * Overide this method to create actual instance of connection handler.
+     * Override this method to create actual instance of connection handler.
      *
      * @return the new ConnectionHandler
      * @exception Exception if an error occurs
@@ -793,7 +793,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
     /**
     * Returns the server socket type, plain or SSL 
     * 
-    * @return String The scoekt type, plain or SSL     
+    * @return String The socket type, plain or SSL     
     */  
     public String  getSocketType() {
         return serverSocketType;
@@ -819,8 +819,9 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
     public Object newInstance() throws Exception {
-        final DelegatingJamesHandler delegatingJamesHandler = new DelegatingJamesHandler(newProtocolHandlerInstance(), dnsServer);
-        delegatingJamesHandler.setName("Handler-" + handlerCount.getAndAdd(1));
+        final String name = "Handler-" + handlerCount.getAndAdd(1);
+        final DelegatingJamesHandler delegatingJamesHandler = 
+            new DelegatingJamesHandler(newProtocolHandlerInstance(), dnsServer, name, getLogger());
         return delegatingJamesHandler;
     }
     

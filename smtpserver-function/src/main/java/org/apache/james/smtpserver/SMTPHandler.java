@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.socket.CRLFDelimitedByteBuffer;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolHandlerHelper;
@@ -49,8 +47,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 	 * Static Random instance used to generate SMTP ids
 	 */
 	private final static Random random = new Random();
-
-	private Log log = LogFactory.getLog(this.getClass());
 	
 	/**
 	 * The name of the currently parsed command
@@ -113,7 +109,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      * @see org.apache.james.socket.ProtocolHandler#handleProtocol()
      */
     public void handleProtocol() throws IOException {
-        this.log = new AvalonLogger(helper.getAvalonLogger());
         smtpID = Integer.toString(random.nextInt(1024));
         relayingAllowed = theConfigData.isRelayingAllowed(helper.getRemoteIP());
         authSupported = theConfigData.isAuthRequired(helper.getRemoteIP());
@@ -417,6 +412,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     }
 
     public Log getLogger() {
-        return log;
+        return helper.getLogger();
     }
 }

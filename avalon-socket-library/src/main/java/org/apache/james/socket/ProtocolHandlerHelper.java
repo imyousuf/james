@@ -21,6 +21,7 @@
 package org.apache.james.socket;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.commons.logging.Log;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -104,11 +105,10 @@ public interface ProtocolHandlerHelper {
      * @return socket
      */
     public Socket getSocket();
-
+    
     /**
-     * The name of this handler.
-     * Used for context sensitive logging.
-     * @return the name, not null
+     * Gets a context sensitive logger.
+     * @return not null
      */
-    public String getName();
+    public Log getLogger();
 }
