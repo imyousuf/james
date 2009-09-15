@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.smtpserver.Configurable;
@@ -41,14 +39,14 @@ import org.apache.mailet.MailAddress;
  * This handler can be used for providing a spam trap. IPAddresses which send emails to the configured
  * recipients will get blacklisted for the configured time.
  */
-public class SpamTrapHandler extends AbstractLogEnabled implements RcptHook,Configurable{
+public class SpamTrapHandler implements RcptHook,Configurable{
 
-    // Map which hold blockedIps and blockTime in memory
+    /** Map which hold blockedIps and blockTime in memory */
     private Map<String,Long> blockedIps = new HashMap<String,Long>();
     
     private Collection<String> spamTrapRecips = new ArrayList<String>();
     
-    // Default blocktime 12 hours
+    /** Default blocktime 12 hours */
     private long blockTime = 4320000; 
     
     /**
@@ -80,13 +78,13 @@ public class SpamTrapHandler extends AbstractLogEnabled implements RcptHook,Conf
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        if (isBlocked(session.getRemoteIPAddress())) {
+        if (isBlocked(session.getRemoteIPAddress(), session)) {
             return new HookResult(HookReturnCode.DENY);
         } else {
          
             if (spamTrapRecips.contains(rcpt.toString().toLowerCase())){
         
-                addIp(session.getRemoteIPAddress());
+                addIp(session.getRemoteIPAddress(), session);
             
                 return new HookResult(HookReturnCode.DENY);
             }
@@ -99,19 +97,20 @@ public class SpamTrapHandler extends AbstractLogEnabled implements RcptHook,Conf
      * Check if ipAddress is in the blockList.
      * 
      * @param ip ipAddress to check
+     * @param session not null
      * @return true or false
      */
-    private boolean isBlocked(String ip) {
+    private boolean isBlocked(String ip, SMTPSession session) {
         Long rawTime = blockedIps.get(ip);
     
         if (rawTime != null) {
             long blockTime = rawTime.longValue();
            
             if (blockTime > System.currentTimeMillis()) {
-                getLogger().debug("BlockList contain Ip " + ip);
+                session.getLogger().debug("BlockList contain Ip " + ip);
                 return true;
             } else {
-                getLogger().debug("Remove ip " + ip + " from blockList");
+                session.getLogger().debug("Remove ip " + ip + " from blockList");
                
                 synchronized(blockedIps) {
                     blockedIps.remove(ip);
@@ -125,11 +124,12 @@ public class SpamTrapHandler extends AbstractLogEnabled implements RcptHook,Conf
      * Add ipaddress to blockList
      * 
      * @param ip IpAddress to add
+     * @param session not null
      */
-    private void addIp(String ip) {
+    private void addIp(String ip, SMTPSession session) {
         long bTime = System.currentTimeMillis() + blockTime;
         
-        getLogger().debug("Add ip " + ip + " for " + bTime + " to blockList");
+        session.getLogger().debug("Add ip " + ip + " for " + bTime + " to blockList");
     
         synchronized(blockedIps) {
             blockedIps.put(ip, new Long(bTime));

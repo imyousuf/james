@@ -156,11 +156,11 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
 
         // We have no Sender or HELO/EHLO yet return false
         if (sender == null || heloEhlo == null) {
-            getLogger().info("No Sender or HELO/EHLO present");
+            session.getLogger().info("No Sender or HELO/EHLO present");
         } else {
             // No checks for authorized cliends
             if (session.isRelayingAllowed() && checkAuthNetworks == false) {
-                getLogger().info(
+                session.getLogger().info(
                         "Ipaddress " + session.getRemoteIPAddress()
                                 + " is allowed to relay. Don't check it");
             } else {
@@ -178,7 +178,7 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
                 // Store the header
                 session.getState().put(SPF_HEADER, result.getHeaderText());
 
-                getLogger().info(
+                session.getLogger().info(
                         "Result for " + ip + " - " + sender + " - " + heloEhlo
                                 + " = " + spfResult);
 

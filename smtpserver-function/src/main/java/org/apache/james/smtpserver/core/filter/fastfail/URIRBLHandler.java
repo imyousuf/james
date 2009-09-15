@@ -177,14 +177,15 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Co
      * strings that are found are added to the supplied HashSet.
      *
      * @param part MimePart to scan
+     * @param session not null
      * @return domains The HashSet that contains the domains which were extracted
      */
-    private HashSet<String> scanMailForDomains(MimePart part) throws MessagingException, IOException {
+    private HashSet<String> scanMailForDomains(MimePart part, SMTPSession session) throws MessagingException, IOException {
         HashSet<String> domains = new HashSet<String>();
-        getLogger().debug("mime type is: \"" + part.getContentType() + "\"");
+        session.getLogger().debug("mime type is: \"" + part.getContentType() + "\"");
        
         if (part.isMimeType("text/plain") || part.isMimeType("text/html")) {
-            getLogger().debug("scanning: \"" + part.getContent().toString() + "\"");
+            session.getLogger().debug("scanning: \"" + part.getContent().toString() + "\"");
             HashSet<String> newDom = URIScanner.scanContentForDomains(domains, part.getContent().toString());
            
             // Check if new domains are found and add the domains 
@@ -194,12 +195,12 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Co
         } else if (part.isMimeType("multipart/*")) {
             MimeMultipart multipart = (MimeMultipart) part.getContent();
             int count = multipart.getCount();
-            getLogger().debug("multipart count is: " + count);
+            session.getLogger().debug("multipart count is: " + count);
           
             for (int index = 0; index < count; index++) {
-                getLogger().debug("recursing index: " + index);
+                session.getLogger().debug("recursing index: " + index);
                 MimeBodyPart mimeBodyPart = (MimeBodyPart) multipart.getBodyPart(index);
-                HashSet<String> newDomains = scanMailForDomains(mimeBodyPart);
+                HashSet<String> newDomains = scanMailForDomains(mimeBodyPart, session);
                 
                 // Check if new domains are found and add the domains 
                 if(newDomains != null && newDomains.size() > 0) {
@@ -224,7 +225,7 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Co
         try {
             message = mail.getMessage();
 
-            HashSet<String> domains = scanMailForDomains(message);
+            HashSet<String> domains = scanMailForDomains(message, session);
 
             Iterator<String> fDomains = domains.iterator();
 
@@ -237,8 +238,8 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Co
                         String uRblServer = uRbl.next().toString();
                         String address = target + "." + uRblServer;
                         
-                        if (getLogger().isDebugEnabled()) {
-                            getLogger().debug("Lookup " + address);
+                        if (session.getLogger().isDebugEnabled()) {
+                            session.getLogger().debug("Lookup " + address);
                         }
                         
                         dnsService.getByName(address);
@@ -255,9 +256,9 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Co
                 }
             }
         } catch (MessagingException e) {
-            getLogger().error(e.getMessage());
+            session.getLogger().error(e.getMessage());
         } catch (IOException e) {
-            getLogger().error(e.getMessage());
+            session.getLogger().error(e.getMessage());
         }
         return false;
     }

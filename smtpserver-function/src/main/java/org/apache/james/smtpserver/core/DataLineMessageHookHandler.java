@@ -103,7 +103,7 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
     
                 } catch (MessagingException e) {
                     // TODO probably return a temporary problem
-                    getLogger().info("Unexpected error handling DATA stream",e);
+                    session.getLogger().info("Unexpected error handling DATA stream",e);
                     session.writeSMTPResponse(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream."));
                 } finally {
                     ContainerUtil.dispose(mimeMessageCopyOnWriteProxy);
@@ -128,7 +128,7 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
             response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,
                             DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
             
-            getLogger().error(
+            session.getLogger().error(
                     "Unknown error occurred while processing DATA.", e);
             session.writeSMTPResponse(response);
             return;
@@ -145,13 +145,13 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
                 int count = messageHandlers.size();
                 for(int i =0; i < count; i++) {
                     Object rawHandler =  messageHandlers.get(i);
-                    getLogger().debug("executing message handler " + rawHandler);
+                    session.getLogger().debug("executing message handler " + rawHandler);
                     HookResult hRes = ((MessageHook)rawHandler).onMessage(session, (Mail) mail);
                     
                     if (rHooks != null) {
                         for (int i2 = 0; i2 < rHooks.size(); i2++) {
                             Object rHook = rHooks.get(i2);
-                            getLogger().debug("executing hook " + rHook);
+                            session.getLogger().debug("executing hook " + rHook);
                             hRes = ((HookResultHook) rHook).onHookResult(session, hRes, rawHandler);
                         }
                     }
