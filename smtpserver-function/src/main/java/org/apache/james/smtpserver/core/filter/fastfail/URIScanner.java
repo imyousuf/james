@@ -22,11 +22,11 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.regex.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class URIScanner {
 
@@ -184,11 +184,11 @@ public class URIScanner {
      * @param content a character sequence to be scanned for URIs
      * @return newDomains the domains which were extracted
      */
-    static public HashSet scanContentForDomains(HashSet domains, CharSequence content) {
-        HashSet newDomains = new HashSet();
-        HashSet hosts = scanContentForHosts(content);
-        for (Iterator i = hosts.iterator(); i.hasNext();) {
-            String domain = domainFromHost((String) i.next());
+    static public HashSet<String> scanContentForDomains(HashSet<String> domains, CharSequence content) {
+        HashSet<String> newDomains = new HashSet<String>();
+        HashSet<String> hosts = scanContentForHosts(content);
+        for (final String host:hosts) {
+            final String domain = domainFromHost(host);
     
             if (null != domain) {
                 if (false == domains.contains(domain)) {
@@ -206,8 +206,8 @@ public class URIScanner {
      * @param content a character sequence to be scanned for URIs
      * @return a HashSet containing host strings
      */
-    static protected HashSet scanContentForHosts(CharSequence content) {
-        HashSet set = new HashSet();
+    static protected HashSet<String> scanContentForHosts(CharSequence content) {
+        HashSet<String> set = new HashSet<String>();
         
         // look for URIs
         Matcher mat = uriPattern.matcher(content);

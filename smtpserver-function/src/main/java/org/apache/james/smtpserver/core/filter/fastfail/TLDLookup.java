@@ -45,10 +45,10 @@ public class TLDLookup {
     static private final String[] multiPartTLDs = initMultiPartTLDs();
     
     /** A set of all known two-part TLDs */
-    static private final HashSet twoPartTLDs = initTwoPartTLDs();
+    static private final HashSet<String> twoPartTLDs = initTwoPartTLDs();
     
     /** A set of all known three-part TLDs */
-    static private final HashSet threePartTLDs = initThreePartTLDs();
+    static private final HashSet<String> threePartTLDs = initThreePartTLDs();
 
     /** controls testing/debug output */
     static private boolean testing = false;
@@ -80,8 +80,8 @@ public class TLDLookup {
      *
      * @return a HashSet containing all known two-part TLDs
      */
-    static private HashSet initTwoPartTLDs() {
-        HashSet set = new HashSet(900);
+    static private HashSet<String> initTwoPartTLDs() {
+        HashSet<String> set = new HashSet<String>(900);
         for (int i=0; i<multiPartTLDs.length; i++) {
             try {
                 if (multiPartTLDs[i].matches("^"+tld2+"$")) {
@@ -101,8 +101,8 @@ public class TLDLookup {
      *
      * @return a HashSet containing all known three-part TLDs
      */
-    static private HashSet initThreePartTLDs() {
-        HashSet set = new HashSet();
+    static private HashSet<String> initThreePartTLDs() {
+        HashSet<String> set = new HashSet<String>();
         for (int i=0; i<multiPartTLDs.length; i++) {
             try {
                 if (multiPartTLDs[i].matches("^"+tld3+"$")) {
