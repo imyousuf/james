@@ -23,7 +23,6 @@ package org.apache.james.socket;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.Socket;
 
 import org.apache.commons.logging.Log;
 
@@ -94,10 +93,11 @@ public interface ProtocolHandlerHelper {
     public void defaultErrorHandler(RuntimeException e);
     
     /**
-     * Provides access to the socket
-     * @return socket
+     * Is the socket disconnected?
+     * @return true if the connection has disconnected,
+     * false otherwise
      */
-    public Socket getSocket();
+    public boolean isDisconnected();
     
     /**
      * Gets a context sensitive logger.
