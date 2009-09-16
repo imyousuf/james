@@ -55,7 +55,7 @@ public class LocalJamesUsersRepository extends LocalUsersRepository implements J
     /**
      * @see org.apache.james.api.vut.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
      */
-    public Collection getMappings(String user, String domain) throws ErrorMappingException {
+    public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
         return ((JamesUsersRepository) users).getMappings(user, domain);
     }
 

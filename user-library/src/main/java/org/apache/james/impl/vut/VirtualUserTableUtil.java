@@ -160,23 +160,23 @@ public class VirtualUserTableUtil {
      * @param rawMapping
      * @deprecated Use mappingToCollection(String rawMapping)
      */
-     public static Collection getMappings(String rawMapping) {
+     public static Collection<String> getMappings(String rawMapping) {
         return mappingToCollection(rawMapping);
     }
      
      /**
       * Convert a raw mapping String to a Collection
       * 
-      * @param rawMapping the mapping Strin
+      * @param rawMapping the mapping String
       * @return map a collection which holds all mappings
       */
-     public static ArrayList mappingToCollection(String rawMapping) {
-         ArrayList map = new ArrayList();
+     public static ArrayList<String> mappingToCollection(String rawMapping) {
+         ArrayList<String> map = new ArrayList<String>();
          StringTokenizer tokenizer = new StringTokenizer(rawMapping,
          VirtualUserTableUtil.getSeparator(rawMapping));
 
          while (tokenizer.hasMoreTokens()) {
-             String raw = tokenizer.nextToken().trim();
+             final String raw = tokenizer.nextToken().trim();
              map.add(raw);
          }
          return map;

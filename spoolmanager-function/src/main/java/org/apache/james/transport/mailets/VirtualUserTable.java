@@ -111,13 +111,13 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
      */
     public Collection processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
         try {
-            Collection mappings = vut.getMappings(recipient.getUser(), recipient.getHost());
+            Collection<String> mappings = vut.getMappings(recipient.getUser(), recipient.getHost());
             
             if (mappings != null) {
                 return handleMappings(mappings, sender, recipient, message);
             }
         } catch (ErrorMappingException e) {
-            StringBuffer errorBuffer = new StringBuffer(128)
+            StringBuilder errorBuffer = new StringBuilder(128)
                 .append("A problem as occoured trying to alias and forward user ")
                 .append(recipient)
                 .append(": ")

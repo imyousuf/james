@@ -153,9 +153,9 @@ public abstract class AbstractUsersRepository
      * @see org.apache.james.api.vut.VirtualUserTable#getMappings(java.lang.String,
      *      java.lang.String)
      */
-    public Collection getMappings(String username, String domain)
+    public Collection<String> getMappings(String username, String domain)
             throws ErrorMappingException {
-        Collection mappings = new ArrayList();
+        Collection<String> mappings = new ArrayList<String>();
         User user = getUserByName(username);
 
         if (user instanceof JamesUser) {

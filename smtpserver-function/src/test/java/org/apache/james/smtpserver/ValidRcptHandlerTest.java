@@ -86,7 +86,7 @@ public class ValidRcptHandlerTest extends TestCase {
     private VirtualUserTable setUpVirtualUserTable() {
         VirtualUserTable table = new VirtualUserTable() {
  
-            public Collection getMappings(String user, String domain) throws ErrorMappingException {
+            public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
                 Collection mappings = new ArrayList();
                 if (user.equals(USER1)) {
                     mappings.add("address@localhost");
