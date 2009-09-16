@@ -54,9 +54,6 @@ import org.apache.mailet.MailAddress;
  * 
  * TODO: -improve protocol
  *       -much more...
- *
- * @version $Revision$
- *
  */
 public class RemoteManagerHandler implements ProtocolHandler {
     
@@ -1793,7 +1790,4 @@ public class RemoteManagerHandler implements ProtocolHandler {
         
         return userList;
     }
-
-
-    public void setProtocolHandlerHelper(ProtocolContext phh) {}
 }

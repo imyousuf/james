@@ -1535,6 +1535,4 @@ public class NNTPHandler implements ProtocolHandler {
             return false;
         }
     }
-
-    public void setProtocolHandlerHelper(ProtocolContext phh) {}
 }

@@ -374,8 +374,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
 	public void fatalFailure(RuntimeException e, ProtocolContext context) {
 	}
-
-	public void setProtocolHandlerHelper(ProtocolContext phh) {}
 	
     public String getHelloName() {
         return getConfigurationData().getHelloName();
