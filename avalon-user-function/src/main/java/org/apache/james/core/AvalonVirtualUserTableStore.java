@@ -22,11 +22,8 @@
 package org.apache.james.core;
 
 import org.apache.avalon.framework.configuration.Configuration;
-
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
-
-import java.util.Iterator;
 
 /**
  * Provides a registry of VirtualUserTables
@@ -51,17 +48,6 @@ public class AvalonVirtualUserTableStore
             getLogger().warn("No virtualUserTable called: " + name);
         }
         return response;
-    }
-
-    /** 
-     * Yield an <code>Iterator</code> over the set of repository
-     * names managed internally by this store.
-     *
-     * @return an Iterator over the set of repository names
-     *         for this store
-     */
-    public Iterator getTableNames() {
-        return getObjectNames();
     }
 
     /**
