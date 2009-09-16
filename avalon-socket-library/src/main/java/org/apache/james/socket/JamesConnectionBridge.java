@@ -435,7 +435,7 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
      * @throws IOException get thrown if an IO error is detected
      */
     public void handleProtocol() throws IOException {
-        protocolHandler.handleProtocol();
+        protocolHandler.handleProtocol(this);
     }
 
    /**

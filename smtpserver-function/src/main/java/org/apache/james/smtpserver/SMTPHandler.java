@@ -94,12 +94,12 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 	}
     
     /**
-     * @see org.apache.james.socket.ProtocolHandler#handleProtocol()
+     * @see org.apache.james.socket.ProtocolHandler#handleProtocol(ProtocolContext)
      */
-    public void handleProtocol() throws IOException {
+    public void handleProtocol(ProtocolContext context) throws IOException {
         smtpID = Integer.toString(random.nextInt(1024));
-        relayingAllowed = theConfigData.isRelayingAllowed(helper.getRemoteIP());
-        authSupported = theConfigData.isAuthRequired(helper.getRemoteIP());
+        relayingAllowed = theConfigData.isRelayingAllowed(context.getRemoteIP());
+        authSupported = theConfigData.isAuthRequired(context.getRemoteIP());
 
         // Both called in resetHandler, we don't need to call them again here.
         // sessionEnded = false;
@@ -142,8 +142,8 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
             }
         }
 
-        CRLFDelimitedByteBuffer bytebufferHandler = new CRLFDelimitedByteBuffer(helper.getInputStream());
-        helper.getWatchdog().start();
+        CRLFDelimitedByteBuffer bytebufferHandler = new CRLFDelimitedByteBuffer(context.getInputStream());
+        context.getWatchdog().start();
         while(!sessionEnded) {
           //parse the command
           byte[] line =  null;
@@ -163,11 +163,11 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
           } else {
               sessionEnded = true;
           }
-          helper.getWatchdog().reset();
+          context.getWatchdog().reset();
           
         }
-        helper.getWatchdog().stop();
-        helper.getLogger().debug("Closing socket.");
+        context.getWatchdog().stop();
+        context.getLogger().debug("Closing socket.");
     }
 
     /**

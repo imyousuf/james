@@ -25,10 +25,11 @@ public interface ProtocolHandler {
 
     /**
      * Handle the protocol
+     * @param context not null
      * 
      * @throws IOException get thrown if an IO error is detected
      */
-    public abstract void handleProtocol() throws IOException;
+    public abstract void handleProtocol(ProtocolContext context) throws IOException;
 
     /**
      * Resets the handler data to a basic state.
