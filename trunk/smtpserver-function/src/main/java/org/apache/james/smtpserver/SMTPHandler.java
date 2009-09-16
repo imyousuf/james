@@ -74,7 +74,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      */
     private final LinkedList<ConnectHandler> connectHandlers;
 
-	private SMTPConfiguration theConfigData;
+	private final SMTPConfiguration theConfigData;
 
 	private boolean relayingAllowed;
 
@@ -86,24 +86,12 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
 	private String smtpID;
 
-	public SMTPHandler(SMTPHandlerChain handlerChain) {
+	public SMTPHandler(SMTPHandlerChain handlerChain, final SMTPConfiguration theConfigData) {
         this.handlerChain = handlerChain;
         connectHandlers = handlerChain.getHandlers(ConnectHandler.class);
         lineHandlers = handlerChain.getHandlers(LineHandler.class);
+        this.theConfigData = theConfigData;
 	}
-	
-    /**
-     * Set the configuration data for the handler
-     *
-     * @param theData the per-service configuration data for this handler
-     */
-    public void setConfigurationData(Object theData) {
-        if (theData instanceof SMTPConfiguration) {
-            theConfigData = (SMTPConfiguration) theData;
-        } else {
-            throw new IllegalArgumentException("Configuration object does not implement SMTPHandlerConfigurationData");
-        }
-    }
     
     /**
      * @see org.apache.james.socket.ProtocolHandler#handleProtocol()

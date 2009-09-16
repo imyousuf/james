@@ -233,7 +233,7 @@ public class NNTPHandler implements ProtocolHandler {
      * Per-service configuration data that applies to all handlers
      * associated with the service.
      */
-    private NNTPHandlerConfigurationData theConfigData;
+    private final NNTPHandlerConfigurationData theConfigData;
 
     /**
      * The user id associated with the NNTP dialogue
@@ -251,17 +251,10 @@ public class NNTPHandler implements ProtocolHandler {
      */
     boolean isAlreadyAuthenticated = false;
 
-    /**
-     * @see org.apache.james.socket.AbstractJamesHandler#setConfigurationData(Object)
-     */
-    public void setConfigurationData(Object theData) {
-        if (theData instanceof NNTPHandlerConfigurationData) {
-            theConfigData = (NNTPHandlerConfigurationData) theData;
-        } else {
-            throw new IllegalArgumentException("Configuration object does not implement NNTPHandlerConfigurationData");
-        }
+    public NNTPHandler(final NNTPHandlerConfigurationData theConfigData) {
+        this.theConfigData = theConfigData;
     }
-
+    
     /**
      * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
      */
@@ -320,9 +313,6 @@ public class NNTPHandler implements ProtocolHandler {
         user = null;
         password = null;
         isAlreadyAuthenticated = false;
-
-        // Clear the config data
-        theConfigData = null;
     }
 
     /**

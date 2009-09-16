@@ -53,11 +53,6 @@ public class ImapHandler implements ProtocolHandler
         this.requestHandler = requestHandler;
         this.hello = hello;
     }
-    
-    // TODO: this shouldn't be necessary
-    public void setConfigurationData( Object theData )
-    {
-    }
 
     /**
      * Resets the handler data to a basic state.

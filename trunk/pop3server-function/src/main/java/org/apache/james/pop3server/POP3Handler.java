@@ -85,7 +85,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     /**
      * The per-service configuration data that applies to all handlers
      */
-    private POP3HandlerConfigurationData theConfigData;
+    private final POP3HandlerConfigurationData theConfigData;
 
     /**
      * The mail server's copy of the user's inbox
@@ -127,7 +127,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     /**
      * The POP3HandlerChain object set by POP3Server
      */
-    POP3HandlerChain handlerChain = null;
+    final POP3HandlerChain handlerChain;
 
     /**
      * The session termination status
@@ -155,17 +155,9 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     private byte mode;
     
     
-    /**
-     * Set the configuration data for the handler.
-     *
-     * @param theData the configuration data
-     */
-    public void setConfigurationData(Object theData) {
-        if (theData instanceof POP3HandlerConfigurationData) {
-            theConfigData = (POP3HandlerConfigurationData) theData;
-        } else {
-            throw new IllegalArgumentException("Configuration object does not implement POP3HandlerConfigurationData");
-        }
+    public POP3Handler(final POP3HandlerConfigurationData theConfigData, final POP3HandlerChain handlerChain) {
+        this.theConfigData = theConfigData;
+        this.handlerChain = handlerChain;
     }
     
     /**
@@ -302,9 +294,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
             backupUserMailbox.clear();
             backupUserMailbox = null;
         }
-
-        // Clear config data
-        theConfigData = null;
     }
 
     /**
@@ -411,15 +400,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      */
     public Watchdog getWatchdog() {
         return helper.getWatchdog();
-    }
-
-    /**
-     * Sets the POP3HandlerChain
-     *
-     * @param handlerChain POP3Handler object
-     */
-    public void setHandlerChain(POP3HandlerChain handlerChain) {
-        this.handlerChain = handlerChain;
     }
 
     /**

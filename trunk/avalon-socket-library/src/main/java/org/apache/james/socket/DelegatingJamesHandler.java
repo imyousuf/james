@@ -416,16 +416,6 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
     }
     
     /**
-     * This method will be implemented checking for the correct class
-     * type.
-     * 
-     * @param theData Configuration Bean.
-     */
-    public void setConfigurationData(Object theData) {
-        protocolHandler.setConfigurationData(theData);
-    }
-    
-    /**
      * Handle the protocol
      * 
      * @throws IOException get thrown if an IO error is detected

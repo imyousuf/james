@@ -708,13 +708,10 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
 
         Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler);
 
-        theHandler.setConfigurationData(getConfigurationData());
         theHandler.setStreamDumpDir(streamDumpDir);
         theHandler.setWatchdog(theWatchdog);
         return theHandler;
     }
-
-    protected abstract Object getConfigurationData();
 
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory#releaseConnectionHandler(ConnectionHandler)

@@ -108,7 +108,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
     /**
      * The per-service configuration data that applies to all handlers
      */
-    private RemoteManagerHandlerConfigurationData theConfigData;
+    private final RemoteManagerHandlerConfigurationData theConfigData;
 
     /**
      * The current UsersRepository being managed/viewed/modified
@@ -125,23 +125,13 @@ public class RemoteManagerHandler implements ProtocolHandler {
     private final static String REMOVE_MAPPING_ACTION = "REMOVE_MAPPING";
 
     
-    /**
-     * Set the configuration data for the handler.
-     *
-     * @param theData the configuration data
-     */
-    public void setConfigurationData(Object theData) {
-        if (theData instanceof RemoteManagerHandlerConfigurationData) {
-            theConfigData = (RemoteManagerHandlerConfigurationData) theData;
-
-            // Reset the users repository to the default.
-            users = theConfigData.getUsersRepository();
-            
-            Command[] commands = theConfigData.getCommands();
-            commandRegistry = new CommandRegistry(commands);
-        } else {
-            throw new IllegalArgumentException("Configuration object does not implement RemoteManagerHandlerConfigurationData");
-        }
+    public RemoteManagerHandler(RemoteManagerHandlerConfigurationData theConfigData) {
+        this.theConfigData = theConfigData;
+        // Reset the users repository to the default.
+        users = theConfigData.getUsersRepository();
+        
+        Command[] commands = theConfigData.getCommands();
+        commandRegistry = new CommandRegistry(commands);
     }
 
     /**
@@ -229,9 +219,6 @@ public class RemoteManagerHandler implements ProtocolHandler {
     public void resetHandler() {
         // Reset user repository
         users = theConfigData.getUsersRepository();
-
-        // Clear config data
-        theConfigData = null;
     }
 
     /**

@@ -24,14 +24,6 @@ import java.io.IOException;
 public interface ProtocolHandler {
 
     /**
-     * This method will be implemented checking for the correct class
-     * type.
-     * 
-     * @param theData Configuration Bean.
-     */
-    public abstract void setConfigurationData(Object theData);
-
-    /**
      * Handle the protocol
      * 
      * @throws IOException get thrown if an IO error is detected
