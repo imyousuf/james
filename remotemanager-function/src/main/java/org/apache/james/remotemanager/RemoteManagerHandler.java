@@ -44,7 +44,7 @@ import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.socket.ProtocolHandler;
-import org.apache.james.socket.ProtocolHandlerHelper;
+import org.apache.james.socket.ProtocolContext;
 import org.apache.mailet.MailAddress;
 
 
@@ -60,7 +60,7 @@ import org.apache.mailet.MailAddress;
  */
 public class RemoteManagerHandler implements ProtocolHandler {
 
-    private ProtocolHandlerHelper helper;
+    private ProtocolContext helper;
     
     private static final Class[] WORKER_METHOD_PARAMETERSET = new Class[] {String.class};
 
@@ -1745,7 +1745,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
     }
 
 
-    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+    public void setProtocolHandlerHelper(ProtocolContext phh) {
         this.helper = phh;
     }
 }

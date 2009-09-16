@@ -33,7 +33,7 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.mailet.MailetContext;
 
@@ -48,7 +48,7 @@ import org.apache.mailet.MailetContext;
  * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
  * lifecycle methods, you MUST call super.<method> as well.
  */
-public class SMTPServer extends AbstractJamesService implements SMTPServerMBean {
+public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBean {
 
 
     /**
@@ -261,14 +261,14 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getDefaultPort()
+     * @see org.apache.james.core.AbstractProtocolServer#getDefaultPort()
      */
     protected int getDefaultPort() {
         return 25;
     }
 
     /**
-     * @see org.apache.james.core.AbstractJamesService#getServiceType()
+     * @see org.apache.james.core.AbstractProtocolServer#getServiceType()
      */
     public String getServiceType() {
         return "SMTP Service";

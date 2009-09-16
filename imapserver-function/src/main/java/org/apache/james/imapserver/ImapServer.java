@@ -39,7 +39,7 @@ import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.services.FileSystem;
-import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.ProtocolHandler;
 import org.apache.jsieve.mailet.Poster;
 
@@ -51,7 +51,7 @@ import org.apache.jsieve.mailet.Poster;
  *
  * <p>Also responsible for loading and parsing IMAP specific configuration.</p>
  */
-public class ImapServer extends AbstractJamesService implements ImapConstants, Poster
+public class ImapServer extends AbstractProtocolServer implements ImapConstants, Poster
 {
     private static final String softwaretype = "JAMES "+VERSION+" Server " + Constants.SOFTWARE_VERSION;
      
@@ -90,14 +90,14 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
     }
     
     /**
-     * @see AbstractJamesService#getDefaultPort()
+     * @see AbstractProtocolServer#getDefaultPort()
      */
     protected int getDefaultPort() {
         return 143;
     }
 
     /**
-     * @see AbstractJamesService#getServiceType()
+     * @see AbstractProtocolServer#getServiceType()
      */
     public String getServiceType() {
         return "IMAP Service";

@@ -27,7 +27,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.CRLFTerminatedReader;
 import org.apache.james.socket.ProtocolHandler;
-import org.apache.james.socket.ProtocolHandlerHelper;
+import org.apache.james.socket.ProtocolContext;
 import org.apache.james.socket.Watchdog;
 import org.apache.mailet.Mail;
 
@@ -45,7 +45,7 @@ import java.util.Locale;
  */
 public class POP3Handler implements POP3Session, ProtocolHandler {
 
-    private ProtocolHandlerHelper helper;
+    private ProtocolContext helper;
     
     private final static byte COMMAND_MODE = 1;
     private final static byte RESPONSE_MODE = 2;
@@ -492,9 +492,9 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandler#setProtocolHandlerHelper(org.apache.james.socket.ProtocolHandlerHelper)
+     * @see org.apache.james.socket.ProtocolHandler#setProtocolHandlerHelper(org.apache.james.socket.ProtocolContext)
      */
-    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+    public void setProtocolHandlerHelper(ProtocolContext phh) {
         this.helper = phh;
     }
 

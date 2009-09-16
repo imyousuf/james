@@ -31,7 +31,7 @@ import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.apache.james.imap.main.OutputStreamImapResponseWriter;
 import org.apache.james.socket.ProtocolHandler;
-import org.apache.james.socket.ProtocolHandlerHelper;
+import org.apache.james.socket.ProtocolContext;
 
 /**
  * Handles IMAP connections.
@@ -39,7 +39,7 @@ import org.apache.james.socket.ProtocolHandlerHelper;
 public class ImapHandler implements ProtocolHandler
 {
     
-    private ProtocolHandlerHelper helper;
+    private ProtocolContext helper;
 
     private static final byte[] EMERGENCY_SIGNOFF = {'*',' ', 'B', 'Y', 'E', ' ', 
         'S', 'e', 'r', 'v', 'e', 'r', ' ', 'f', 'a', 'u', 'l', 't', '\r', '\n'};
@@ -133,7 +133,7 @@ public class ImapHandler implements ProtocolHandler
         return helper.getLogger();
     }
 
-    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+    public void setProtocolHandlerHelper(ProtocolContext phh) {
         this.helper = phh;
     }
 
