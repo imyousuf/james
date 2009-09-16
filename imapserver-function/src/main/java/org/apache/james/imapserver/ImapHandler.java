@@ -120,9 +120,9 @@ public class ImapHandler implements ProtocolHandler
      *  
      * @param e the RuntimeException
      */
-    public void fatalFailure(RuntimeException e) {
+    public void fatalFailure(RuntimeException e, ProtocolContext context) {
         try {
-            helper.getOutputStream().write(EMERGENCY_SIGNOFF);
+            context.getOutputStream().write(EMERGENCY_SIGNOFF);
         } catch (Throwable t) {
             getLogger().debug("Write emergency signoff failed.", t);
         }

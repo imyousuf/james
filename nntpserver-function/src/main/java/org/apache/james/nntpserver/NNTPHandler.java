@@ -286,16 +286,16 @@ public class NNTPHandler implements ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#fatalFailure(java.lang.RuntimeException)
+     * @see org.apache.james.socket.AbstractJamesHandler#fatalFailure(java.lang.RuntimeException, ProtocolContext)
      */
-    public void fatalFailure(RuntimeException e) {
+    public void fatalFailure(final RuntimeException e, final ProtocolContext context) {
         // If the connection has been idled out, the
         // socket will be closed and null.  Do NOT
         // log the exception or attempt to send the
         // closing connection message
-        if (!helper.isDisconnected()) {
+        if (!context.isDisconnected()) {
             try {
-                doQUIT(null);
+                doQUIT(null, context);
             } catch (Throwable t) {}
         }
     }
@@ -378,7 +378,7 @@ public class NNTPHandler implements ProtocolHandler {
         } else if ( command.equals(COMMAND_IHAVE) ) {
             doIHAVE(argument);
         } else if ( command.equals(COMMAND_QUIT) ) {
-            doQUIT(argument);
+            doQUIT(argument, helper);
             returnValue = false;
         } else if ( command.equals(COMMAND_DATE) ) {
             doDATE(argument);
@@ -625,9 +625,10 @@ public class NNTPHandler implements ProtocolHandler {
      * Quits the transaction.
      *
      * @param argument the argument passed in with the QUIT command
+     * @param context not null
      */
-    private void doQUIT(String argument) {
-        helper.writeLoggedFlushedResponse("205 closing connection");
+    private void doQUIT(String argument, ProtocolContext context) {
+        context.writeLoggedFlushedResponse("205 closing connection");
     }
 
     /**
