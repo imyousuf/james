@@ -95,7 +95,7 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTableManag
         return removeRawMapping(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
     }
 
-    public Collection getMappings(String user, String domain) throws ErrorMappingException {
+    public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
     

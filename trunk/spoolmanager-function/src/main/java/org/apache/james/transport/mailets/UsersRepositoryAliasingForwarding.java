@@ -89,11 +89,11 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
         }
 
         if (usersRepository instanceof VirtualUserTable) {
-            Collection mappings;
+            Collection<String> mappings;
             try {
                 mappings = ((VirtualUserTable) usersRepository).getMappings(recipient.getUser(), recipient.getHost());
             } catch (ErrorMappingException e) {
-                StringBuffer errorBuffer = new StringBuffer(128)
+                StringBuilder errorBuffer = new StringBuilder(128)
                     .append("A problem as occoured trying to alias and forward user ")
                     .append(recipient)
                     .append(": ")
@@ -105,7 +105,7 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
                 return handleMappings(mappings, sender, recipient, message);
             }
         } else {
-            StringBuffer errorBuffer = new StringBuffer(128)
+            StringBuilder errorBuffer = new StringBuilder(128)
                 .append("Warning: the repository ")
                 .append(usersRepository.getClass().getName())
                 .append(" does not implement VirtualUserTable interface).");

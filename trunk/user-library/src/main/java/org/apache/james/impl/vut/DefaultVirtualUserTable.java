@@ -111,7 +111,7 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serv
     /**
      * @see org.apache.james.api.vut.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
      */
-    public Collection getMappings(String user, String domain) throws ErrorMappingException {
+    public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
         return vut.getMappings(user, domain);
     }
 

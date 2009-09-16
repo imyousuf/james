@@ -113,12 +113,12 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.api.vut.VirtualUserTable#getMappings(String, String)
      */
-    public Collection getMappings(String user,String domain) throws ErrorMappingException {
+    public Collection<String> getMappings(String user,String domain) throws ErrorMappingException {
         return getMappings(user,domain,mappingLimit);
     }
     
 
-    public Collection getMappings(String user,String domain,int mappingLimit) throws ErrorMappingException {
+    public Collection<String> getMappings(String user,String domain,int mappingLimit) throws ErrorMappingException {
 
         // We have to much mappings throw ErrorMappingException to avoid infinity loop
         if (mappingLimit == 0) throw new ErrorMappingException("554 Too many mappings to process");
@@ -127,15 +127,15 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         
         // Only non-null mappings are translated
         if (targetString != null) {
-            Collection mappings = new ArrayList();
+            Collection<String> mappings = new ArrayList<String>();
             if (targetString.startsWith(VirtualUserTable.ERROR_PREFIX)) {
                 throw new ErrorMappingException(targetString.substring(VirtualUserTable.ERROR_PREFIX.length()));
 
             } else {
-                Iterator map = VirtualUserTableUtil.mappingToCollection(targetString).iterator();
+                Iterator<String> map = VirtualUserTableUtil.mappingToCollection(targetString).iterator();
 
                 while (map.hasNext()) {
-                    String target = map.next().toString();
+                    String target = map.next();
 
                     if (target.startsWith(VirtualUserTable.REGEX_PREFIX)) {
                         try {
@@ -179,7 +179,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
                             return null;
                         }
                                         
-                        Collection childMappings = getMappings(userName, domainName, mappingLimit -1);
+                        Collection<String> childMappings = getMappings(userName, domainName, mappingLimit -1);
                     
                         if (childMappings == null) {
                              // add mapping
