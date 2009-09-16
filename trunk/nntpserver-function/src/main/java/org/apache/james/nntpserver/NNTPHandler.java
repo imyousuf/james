@@ -25,7 +25,7 @@ import org.apache.james.core.MailHeaders;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
 import org.apache.james.socket.ProtocolHandler;
-import org.apache.james.socket.ProtocolHandlerHelper;
+import org.apache.james.socket.ProtocolContext;
 import org.apache.james.util.stream.CharTerminatedInputStream;
 import org.apache.james.util.stream.DotStuffingInputStream;
 import org.apache.james.util.stream.ExtraDotOutputStream;
@@ -57,7 +57,7 @@ import java.util.StringTokenizer;
  */
 public class NNTPHandler implements ProtocolHandler {
 
-    private ProtocolHandlerHelper helper;
+    private ProtocolContext helper;
 
     /**
      * used to calculate DATE from - see 11.3
@@ -1509,7 +1509,7 @@ public class NNTPHandler implements ProtocolHandler {
         }
     }
 
-    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+    public void setProtocolHandlerHelper(ProtocolContext phh) {
         this.helper = phh;
     }
 

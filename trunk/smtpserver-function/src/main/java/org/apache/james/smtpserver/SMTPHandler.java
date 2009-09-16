@@ -31,7 +31,7 @@ import java.util.Random;
 import org.apache.commons.logging.Log;
 import org.apache.james.socket.CRLFDelimitedByteBuffer;
 import org.apache.james.socket.ProtocolHandler;
-import org.apache.james.socket.ProtocolHandlerHelper;
+import org.apache.james.socket.ProtocolContext;
 
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
@@ -39,7 +39,7 @@ import org.apache.james.socket.ProtocolHandlerHelper;
  */
 public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
-	private ProtocolHandlerHelper helper;
+	private ProtocolContext helper;
 
 	private boolean sessionEnded = false;
 
@@ -375,7 +375,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 		helper.defaultErrorHandler(e);
 	}
 
-	public void setProtocolHandlerHelper(ProtocolHandlerHelper phh) {
+	public void setProtocolHandlerHelper(ProtocolContext phh) {
 		helper = phh;
 	}
 	

@@ -28,14 +28,14 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.ProtocolHandler;
 
 /**
  * NNTP Server
  *
  */
-public class NNTPServer extends AbstractJamesService implements NNTPServerMBean {
+public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBean {
 
     /**
      * Whether authentication is required to access this NNTP server
@@ -118,21 +118,21 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
     }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#getDefaultPort()
+     * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()
      */
      protected int getDefaultPort() {
         return 119;
      }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#getServiceType()
+     * @see org.apache.james.socket.AbstractProtocolServer#getServiceType()
      */
     public String getServiceType() {
         return "NNTP Service";
     }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
+     * @see org.apache.james.socket.AbstractProtocolServer#newProtocolHandlerInstance()
      */
     public ProtocolHandler newProtocolHandlerInstance() {
         final NNTPHandler handler = new NNTPHandler(theConfigData);

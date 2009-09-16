@@ -36,7 +36,7 @@ import org.apache.james.management.DomainListManagementService;
 import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.ProtocolHandler;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ import java.util.HashMap;
  * @version 1.0.0, 24/04/1999
  */
 public class RemoteManager
-    extends AbstractJamesService implements RemoteManagerMBean {
+    extends AbstractProtocolServer implements RemoteManagerMBean {
 
     /**
      * A HashMap of (user id, passwords) for James administrators
@@ -274,21 +274,21 @@ public class RemoteManager
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesService#getDefaultPort()
+     * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()
      */
      protected int getDefaultPort() {
         return 4555;
      }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#getServiceType()
+     * @see org.apache.james.socket.AbstractProtocolServer#getServiceType()
      */
     public String getServiceType() {
         return "Remote Manager Service";
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
+     * @see org.apache.james.socket.AbstractProtocolServer#newProtocolHandlerInstance()
      */
     public ProtocolHandler newProtocolHandlerInstance() {
         return new RemoteManagerHandler(theConfigData);

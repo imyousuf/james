@@ -30,7 +30,7 @@ import org.apache.commons.logging.Log;
  * This is the helper interface provided to ProtocolHandlers to let them
  * communicate with the outside world.
  */
-public interface ProtocolHandlerHelper {
+public interface ProtocolContext {
 
     /**
      * Writes a response to the client and flush it.

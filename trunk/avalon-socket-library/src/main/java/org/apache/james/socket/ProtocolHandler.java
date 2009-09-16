@@ -40,7 +40,7 @@ public interface ProtocolHandler {
      * Injects the ProtocolHandlerHelper service
      * @param phh service
      */
-    public void setProtocolHandlerHelper(ProtocolHandlerHelper phh);
+    public void setProtocolHandlerHelper(ProtocolContext phh);
 
     /**
      * Provides errorHandling

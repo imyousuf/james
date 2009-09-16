@@ -59,7 +59,7 @@ import org.apache.james.api.dnsservice.DNSService;
  * inherit from this abstract implementation.
  *
  */
-public abstract class AbstractJamesService extends AbstractHandlerFactory
+public abstract class AbstractProtocolServer extends AbstractHandlerFactory
     implements Serviceable, Configurable, Disposable, ConnectionHandlerFactory, ObjectFactory {
 
     /**
@@ -700,7 +700,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      */
     protected ConnectionHandler newHandler()
             throws Exception {
-        DelegatingJamesHandler theHandler = (DelegatingJamesHandler)theHandlerPool.get();
+        JamesConnectionBridge theHandler = (JamesConnectionBridge)theHandlerPool.get();
         
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Handler [" +  theHandler + "] obtained from pool.");
@@ -817,8 +817,8 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      */
     public Object newInstance() throws Exception {
         final String name = "Handler-" + handlerCount.getAndAdd(1);
-        final DelegatingJamesHandler delegatingJamesHandler = 
-            new DelegatingJamesHandler(newProtocolHandlerInstance(), dnsServer, name, getLogger());
+        final JamesConnectionBridge delegatingJamesHandler = 
+            new JamesConnectionBridge(newProtocolHandlerInstance(), dnsServer, name, getLogger());
         return delegatingJamesHandler;
     }
     
@@ -828,7 +828,7 @@ public abstract class AbstractJamesService extends AbstractHandlerFactory
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
      */
     public Class getCreatedClass() {
-        return DelegatingJamesHandler.class;
+        return JamesConnectionBridge.class;
     }
 
 }

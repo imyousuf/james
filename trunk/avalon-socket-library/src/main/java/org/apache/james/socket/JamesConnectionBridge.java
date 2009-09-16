@@ -42,7 +42,7 @@ import org.apache.james.util.InternetPrintWriter;
 /**
  * Common Handler code
  */
-public class DelegatingJamesHandler implements ProtocolHandlerHelper, ConnectionHandler, Poolable, WatchdogTarget {
+public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler, Poolable, WatchdogTarget {
  
     private static final int DEFAULT_OUTPUT_BUFFER_SIZE = 1024;
 
@@ -118,7 +118,7 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
     
     private final Log log;
     
-    public DelegatingJamesHandler(final ProtocolHandler delegated, final DNSService dnsServer, final String name, 
+    public JamesConnectionBridge(final ProtocolHandler delegated, final DNSService dnsServer, final String name, 
             final Logger logger) {
         this.protocolHandler = delegated;
         this.dnsServer = dnsServer;
@@ -438,7 +438,7 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
     }
     
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#defaultErrorHandler(java.lang.RuntimeException)
+     * @see org.apache.james.socket.ProtocolContext#defaultErrorHandler(java.lang.RuntimeException)
      */
     public void defaultErrorHandler(RuntimeException e) {
         if (log.isErrorEnabled()) {
@@ -448,63 +448,63 @@ public class DelegatingJamesHandler implements ProtocolHandlerHelper, Connection
     }
     
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getRemoteIP()
+     * @see org.apache.james.socket.ProtocolContext#getRemoteIP()
      */
     public String getRemoteIP() {
         return remoteIP;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getInputReader()
+     * @see org.apache.james.socket.ProtocolContext#getInputReader()
      */
     public CRLFTerminatedReader getInputReader() {
         return inReader;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getInputStream()
+     * @see org.apache.james.socket.ProtocolContext#getInputStream()
      */
     public InputStream getInputStream() {
         return in;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getOutputStream()
+     * @see org.apache.james.socket.ProtocolContext#getOutputStream()
      */
     public OutputStream getOutputStream() {
         return outs;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getOutputWriter()
+     * @see org.apache.james.socket.ProtocolContext#getOutputWriter()
      */
     public PrintWriter getOutputWriter() {
         return out;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getRemoteHost()
+     * @see org.apache.james.socket.ProtocolContext#getRemoteHost()
      */
     public String getRemoteHost() {
         return remoteHost;
     }
     
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getWatchdog()
+     * @see org.apache.james.socket.ProtocolContext#getWatchdog()
      */
     public Watchdog getWatchdog() {
         return theWatchdog;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getSocket()
+     * @see org.apache.james.socket.ProtocolContext#getSocket()
      */
     public Socket getSocket() {
         return socket;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandlerHelper#getLogger()
+     * @see org.apache.james.socket.ProtocolContext#getLogger()
      */
     public Log getLogger() {
         return log;

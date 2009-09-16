@@ -28,7 +28,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.AbstractJamesService;
+import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.ProtocolHandler;
 
 /**
@@ -38,7 +38,7 @@ import org.apache.james.socket.ProtocolHandler;
  *
  * @version 1.0.0, 24/04/1999
  */
-public class POP3Server extends AbstractJamesService implements POP3ServerMBean {
+public class POP3Server extends AbstractProtocolServer implements POP3ServerMBean {
 
     /**
      * The handler chain - POP3handlers can lookup handlerchain to obtain
@@ -122,14 +122,14 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
     }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#getDefaultPort()
+     * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()
      */
      protected int getDefaultPort() {
         return 110;
      }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#getServiceType()
+     * @see org.apache.james.socket.AbstractProtocolServer#getServiceType()
      */
     public String getServiceType() {
         return "POP3 Service";
@@ -137,7 +137,7 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
 
 
     /**
-     * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
+     * @see org.apache.james.socket.AbstractProtocolServer#newProtocolHandlerInstance()
      */
     public ProtocolHandler newProtocolHandlerInstance() {
         //pass the handler chain to every POP3handler
