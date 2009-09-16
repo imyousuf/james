@@ -59,7 +59,7 @@ public interface POP3Session {
      *
      * @return responseBuffer
      */
-    StringBuffer getResponseBuffer();
+    StringBuilder getResponseBuffer();
 
     /**
      * Clears the response buffer, returning the String of characters in the buffer.

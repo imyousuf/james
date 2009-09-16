@@ -153,16 +153,16 @@ public class RemoteManagerHandler implements ProtocolHandler {
             password = helper.getInputReader().readLine().trim();
         } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
 
-        StringBuffer messageBuffer =
-            new StringBuffer(64)
+        StringBuilder messageBuffer =
+            new StringBuilder(64)
                     .append("Welcome ")
                     .append(login)
                     .append(". HELP for a list of commands");
         helper.getOutputWriter().println( messageBuffer.toString() );
         helper.getOutputWriter().flush();
         if (helper.getLogger().isInfoEnabled()) {
-            StringBuffer infoBuffer =
-                new StringBuffer(128)
+            StringBuilder infoBuffer =
+                new StringBuilder(128)
                         .append("Login for ")
                         .append(login)
                         .append(" successful");
@@ -185,8 +185,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
             System.out.println("Exception: " + thr.getMessage());
             helper.getLogger().error("Encountered exception in handling the remote manager connection.", thr);
         }
-        StringBuffer infoBuffer =
-            new StringBuffer(64)
+        StringBuilder infoBuffer =
+            new StringBuilder(64)
                     .append("Logout for ")
                     .append(login)
                     .append(".");
@@ -201,8 +201,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
         helper.getOutputWriter().println("Unexpected Error: "+e.getMessage());
         helper.getOutputWriter().flush();
         if (helper.getLogger().isErrorEnabled()) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128)
+            StringBuilder exceptionBuffer =
+                new StringBuilder(128)
                         .append("Exception during connection from ")
                         .append(helper.getRemoteHost())
                         .append(" (")
@@ -310,8 +310,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
 
         boolean success = false;
         if (users.contains(username)) {
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("User ")
                         .append(username)
                         .append(" already exists");
@@ -334,8 +334,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
             success = users.addUser(username, passwd);
         }
         if ( success ) {
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("User ")
                         .append(username)
                         .append(" added");
@@ -380,8 +380,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
         boolean success = user.setPassword(passwd);
         if (success) {
             users.updateUser(user);
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("Password for ")
                         .append(username)
                         .append(" reset");
@@ -411,8 +411,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
         if (users.contains(user)) {
             try {
                 users.removeUser(user);
-                StringBuffer responseBuffer =
-                                             new StringBuffer(64)
+                StringBuilder responseBuffer =
+                                             new StringBuilder(64)
                                              .append("User ")
                                              .append(user)
                                              .append(" deleted");
@@ -420,8 +420,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
                 helper.getOutputWriter().println(response);
                 helper.getLogger().info(response);
             } catch (Exception e) {
-                StringBuffer exceptionBuffer =
-                                              new StringBuffer(128)
+                StringBuilder exceptionBuffer =
+                                              new StringBuilder(128)
                                               .append("Error deleting user ")
                                               .append(user)
                                               .append(" : ")
@@ -431,8 +431,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
                 helper.getLogger().error(exception);
             }
         } else {
-            StringBuffer responseBuffer =
-                                         new StringBuffer(64)
+            StringBuilder responseBuffer =
+                                         new StringBuilder(64)
                                          .append("User ")
                                          .append(user)
                                          .append(" doesn't exist");
@@ -509,16 +509,16 @@ public class RemoteManagerHandler implements ProtocolHandler {
             return true;
         }
         if (users.contains(user)) {
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("User ")
                         .append(user)
                         .append(" exists");
             String response = responseBuffer.toString();
             helper.writeLoggedResponse(response);
         } else {
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("User ")
                         .append(user)
                         .append(" does not exist");
@@ -622,8 +622,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
         if (success) {
             user.setAliasing(true);
             users.updateUser(user);
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("Alias for ")
                         .append(username)
                         .append(" set to:")
@@ -683,8 +683,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
         if (success) {
             user.setForwarding(true);
             users.updateUser(user);
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("Forwarding destination for ")
                         .append(username)
                         .append(" set to:")
@@ -809,8 +809,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
         } else if (user.getAliasing()){
             user.setAliasing(false);
             users.updateUser(user);
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("Alias for ")
                         .append(username)
                         .append(" unset");
@@ -842,8 +842,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
         } else if (user.getForwarding()){
             user.setForwarding(false);
             users.updateUser(user);
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("Forward for ")
                         .append(username)
                         .append(" unset");
@@ -874,8 +874,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
             helper.writeLoggedFlushedResponse("No such repository: " + repositoryName);
         } else {
             users = repos;
-            StringBuffer responseBuffer =
-                new StringBuffer(64)
+            StringBuilder responseBuffer =
+                new StringBuilder(64)
                         .append("Changed to repository '")
                         .append(repositoryName)
                         .append("'.");
