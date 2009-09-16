@@ -140,17 +140,15 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
      * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
      */
     public ProtocolHandler newProtocolHandlerInstance() {
-        POP3Handler protocolHandler = new POP3Handler();
         //pass the handler chain to every POP3handler
-        protocolHandler.setHandlerChain(handlerChain);
+        POP3Handler protocolHandler = new POP3Handler(theConfigData, handlerChain);
         return protocolHandler;
     }
 
     /**
      * A class to provide POP3 handler configuration to the handlers
      */
-    private class POP3HandlerConfigurationDataImpl
-        implements POP3HandlerConfigurationData {
+    private class POP3HandlerConfigurationDataImpl implements POP3HandlerConfigurationData {
 
         /**
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getHelloName()
@@ -183,12 +181,5 @@ public class POP3Server extends AbstractJamesService implements POP3ServerMBean 
         public UsersRepository getUsersRepository() {
             return POP3Server.this.users;
         }
-    }
-
-    /**
-     * @see org.apache.james.socket.AbstractJamesService#getConfigurationData()
-     */
-    protected Object getConfigurationData() {
-        return theConfigData;
     }
 }

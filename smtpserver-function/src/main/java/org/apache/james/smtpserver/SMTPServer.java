@@ -361,16 +361,9 @@ public class SMTPServer extends AbstractJamesService implements SMTPServerMBean 
 
     }
 
-    /**
-     * @see org.apache.james.core.AbstractJamesService#getConfigurationData()
-     */
-    protected Object getConfigurationData() {
-        return theConfigData;
-    }
-
     @Override
     public ProtocolHandler newProtocolHandlerInstance() {
-        final SMTPHandler theHandler = new SMTPHandler(handlerChain);
+        final SMTPHandler theHandler = new SMTPHandler(handlerChain, theConfigData);
         return theHandler;
     }
 

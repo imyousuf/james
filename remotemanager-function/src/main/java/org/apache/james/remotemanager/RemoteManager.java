@@ -291,7 +291,7 @@ public class RemoteManager
      * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
      */
     public ProtocolHandler newProtocolHandlerInstance() {
-        return new RemoteManagerHandler();
+        return new RemoteManagerHandler(theConfigData);
     }
 
     /**
@@ -392,12 +392,5 @@ public class RemoteManager
         public Command[] getCommands() {
             return RemoteManager.this.commands;
         }
-    }
-
-    /**
-     * @see org.apache.james.socket.AbstractJamesService#getConfigurationData()
-     */
-    protected Object getConfigurationData() {
-        return theConfigData;
     }
 }

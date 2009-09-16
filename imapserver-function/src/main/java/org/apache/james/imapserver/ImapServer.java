@@ -114,11 +114,6 @@ public class ImapServer extends AbstractJamesService implements ImapConstants, P
         getLogger().debug("Create handler instance");
         return imapHandler;
     }
-
-    // TODO: 
-    protected Object getConfigurationData() {
-        return null;
-    }
     
     public void post(String url, MimeMessage mail)throws MessagingException {
         final int endOfScheme = url.indexOf(':');

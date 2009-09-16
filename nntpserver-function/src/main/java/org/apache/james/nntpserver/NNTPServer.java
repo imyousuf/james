@@ -135,7 +135,8 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
      * @see org.apache.james.socket.AbstractJamesService#newProtocolHandlerInstance()
      */
     public ProtocolHandler newProtocolHandlerInstance() {
-        return new NNTPHandler();
+        final NNTPHandler handler = new NNTPHandler(theConfigData);
+        return handler;
     }
 
     /**
@@ -176,12 +177,5 @@ public class NNTPServer extends AbstractJamesService implements NNTPServerMBean 
             return NNTPServer.this.nntpRepository;
         }
 
-    }
-
-    /**
-     * @see org.apache.james.socket.AbstractJamesService#getConfigurationData()
-     */
-    protected Object getConfigurationData() {
-        return theConfigData;
     }
 }
