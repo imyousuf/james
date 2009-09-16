@@ -380,13 +380,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     }
 
     /**
-     * @see org.apache.james.pop3server.POP3Session#getResponseBuffer()
-     */
-    public StringBuilder getResponseBuffer() {
-        return responseBuffer;
-    }
-
-    /**
      * @see org.apache.james.pop3server.POP3Session#clearResponseBuffer()
      */
     public String clearResponseBuffer() {
