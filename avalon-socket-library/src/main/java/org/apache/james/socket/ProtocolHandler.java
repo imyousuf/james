@@ -43,9 +43,10 @@ public interface ProtocolHandler {
     public void setProtocolHandlerHelper(ProtocolContext phh);
 
     /**
-     * Provides errorHandling
+     * Called when a fatal failure occurs during processing.
+     * Provides a last ditch chance to send a message to the client.
      * @param e exception
      */
-    public abstract void errorHandler(RuntimeException e);
+    public abstract void fatalFailure(RuntimeException e);
 
 }

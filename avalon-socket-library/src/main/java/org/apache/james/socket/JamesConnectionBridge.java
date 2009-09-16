@@ -297,7 +297,21 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
                 log.debug( ioe.getMessage(), ioe );
             }
         } catch (RuntimeException e) {
-            errorHandler(e);
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e );
+            }
+            if (log.isInfoEnabled()) {
+                StringBuilder exceptionBuffer =
+                    new StringBuilder(128)
+                            .append("Fatal exception during connection from ")
+                            .append(getRemoteHost())
+                            .append(" (")
+                            .append(getRemoteIP())
+                            .append("): ")
+                            .append(e.getMessage());
+                log.info(exceptionBuffer.toString(), e);
+            }
+            protocolHandler.fatalFailure(e);
         } finally {
             //Clear all the session state variables
             cleanHandler();
@@ -433,20 +447,6 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
         remoteIP = null;
     }
 
-    protected void errorHandler(RuntimeException e) {
-       protocolHandler.errorHandler(e);
-    }
-    
-    /**
-     * @see org.apache.james.socket.ProtocolContext#defaultErrorHandler(java.lang.RuntimeException)
-     */
-    public void defaultErrorHandler(RuntimeException e) {
-        if (log.isErrorEnabled()) {
-            log.error( "Unexpected runtime exception: "
-                               + e.getMessage(), e );
-        }
-    }
-    
     /**
      * @see org.apache.james.socket.ProtocolContext#getRemoteIP()
      */
