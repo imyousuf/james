@@ -59,12 +59,11 @@ import org.apache.mailet.MailAddress;
  *
  */
 public class RemoteManagerHandler implements ProtocolHandler {
-
-    private ProtocolContext helper;
     
-    private static final Class[] WORKER_METHOD_PARAMETERSET = new Class[] {String.class};
+    @SuppressWarnings("unchecked")
+    private static final Class[] WORKER_METHOD_PARAMETERSET = new Class[] {String.class, ProtocolContext.class};
 
-    private static final List COMMANDLIST = Arrays.asList(new String[] { 
+    private static final List<String> COMMANDLIST = Arrays.asList(new String[] { 
         "MEMSTAT",
         "ADDUSER",
         "SETPASSWORD",
@@ -173,7 +172,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
             context.getOutputWriter().print(theConfigData.getPrompt());
             context.getOutputWriter().flush();
             context.getWatchdog().start();
-            while (parseCommand(context.getInputReader().readLine())) {
+            while (parseCommand(context.getInputReader().readLine(), context)) {
                 context.getWatchdog().reset();
                 context.getOutputWriter().print(theConfigData.getPrompt());
                 context.getOutputWriter().flush();
@@ -216,10 +215,11 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * commands, false otherwise.</p>
      *
      * @param rawCommand the raw command string passed in over the socket
+     * @param context not null
      *
      * @return whether additional commands are expected.
      */
-    private boolean parseCommand( String rawCommand ) {
+    private boolean parseCommand( String rawCommand, ProtocolContext context ) {
         if (rawCommand == null) {
             return false;
         }
@@ -233,22 +233,22 @@ public class RemoteManagerHandler implements ProtocolHandler {
         command = command.toUpperCase(Locale.US);
         
         if (!COMMANDLIST.contains(command)) {
-            final boolean result = commandRegistry.execute(command, argument, helper.getOutputWriter());
-            helper.getOutputWriter().flush();
+            final boolean result = commandRegistry.execute(command, argument, context.getOutputWriter());
+            context.getOutputWriter().flush();
             return result;
         }
         
         try {
             Method method = getClass().getDeclaredMethod("do"+command, WORKER_METHOD_PARAMETERSET);
-            Boolean returnFlag = (Boolean)method.invoke(this, new Object[] {argument});
+            Boolean returnFlag = (Boolean)method.invoke(this, new Object[] {argument, context});
             return returnFlag.booleanValue();
         } catch (SecurityException e) {
-            helper.writeLoggedFlushedResponse("could not determine executioner of command " + command);
+            context.writeLoggedFlushedResponse("could not determine executioner of command " + command);
         } catch (NoSuchMethodException e) {
-            return doUnknownCommand(rawCommand);
+            return doUnknownCommand(rawCommand, context);
         } catch (Exception e) {
             e.printStackTrace();
-            helper.writeLoggedFlushedResponse("could not execute command " + command);
+            context.writeLoggedFlushedResponse("could not execute command " + command);
         }
         return false;
    }
@@ -258,19 +258,21 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doMEMSTAT(String argument) {
-        helper.writeLoggedFlushedResponse("Current memory statistics:");
-        helper.writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
-        helper.writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
-        helper.writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
+    @SuppressWarnings("unused")
+    private boolean doMEMSTAT(String argument, ProtocolContext context) {
+        context.writeLoggedFlushedResponse("Current memory statistics:");
+        context.writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
+        context.writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
+        context.writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
 
         if ("-gc".equalsIgnoreCase(argument)) {
             System.gc();
-            helper.writeLoggedFlushedResponse("And after System.gc():");
-            helper.writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
-            helper.writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
-            helper.writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
+            context.writeLoggedFlushedResponse("And after System.gc():");
+            context.writeLoggedFlushedResponse("\tFree Memory: " + Runtime.getRuntime().freeMemory());
+            context.writeLoggedFlushedResponse("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
+            context.writeLoggedFlushedResponse("\tMax Memory: " + Runtime.getRuntime().maxMemory());
         }
 
         return true;
@@ -281,19 +283,21 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doADDUSER(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doADDUSER(String argument, ProtocolContext context) {
         int breakIndex = -1;
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            helper.writeLoggedFlushedResponse("Usage: adduser [username] [password]");
+            context.writeLoggedFlushedResponse("Usage: adduser [username] [password]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String passwd = argument.substring(breakIndex + 1);
         if (username.equals("") || passwd.equals("")) {
-            helper.writeLoggedFlushedResponse("Usage: adduser [username] [password]");
+            context.writeLoggedFlushedResponse("Usage: adduser [username] [password]");
             return true;
         }
 
@@ -305,18 +309,18 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(username)
                         .append(" already exists");
             String response = responseBuffer.toString();
-            helper.writeLoggedResponse(response);
+            context.writeLoggedResponse(response);
         } else {
             if((username.indexOf("@") < 0) == false) {
                 if(theConfigData.getMailServer().supportVirtualHosting() == false) {
-                    helper.getOutputWriter().println("Virtualhosting not supported");
-                    helper.getOutputWriter().flush();
+                    context.getOutputWriter().println("Virtualhosting not supported");
+                    context.getOutputWriter().flush();
                     return true;
                 }
                 String domain = username.split("@")[1];
                 if (theConfigData.getDomainListManagement().containsDomain(domain) == false) {
-                    helper.getOutputWriter().println("Domain not exists: " + domain);
-                    helper.getOutputWriter().flush();
+                    context.getOutputWriter().println("Domain not exists: " + domain);
+                    context.getOutputWriter().flush();
                     return true;
                 }
             }
@@ -329,13 +333,13 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(username)
                         .append(" added");
             String response = responseBuffer.toString();
-            helper.getOutputWriter().println(response);
-            helper.getLogger().info(response);
+            context.getOutputWriter().println(response);
+            context.getLogger().info(response);
         } else {
-            helper.getOutputWriter().println("Error adding user " + username);
-            helper.getLogger().error("Error adding user " + username);
+            context.getOutputWriter().println("Error adding user " + username);
+            context.getLogger().error("Error adding user " + username);
         }
-        helper.getOutputWriter().flush();
+        context.getOutputWriter().flush();
         return true;
     }
 
@@ -344,26 +348,28 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doSETPASSWORD(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doSETPASSWORD(String argument, ProtocolContext context) {
 
         int breakIndex = -1;
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            helper.writeLoggedFlushedResponse("Usage: setpassword [username] [password]");
+            context.writeLoggedFlushedResponse("Usage: setpassword [username] [password]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String passwd = argument.substring(breakIndex + 1);
 
         if (username.equals("") || passwd.equals("")) {
-            helper.writeLoggedFlushedResponse("Usage: adduser [username] [password]");
+            context.writeLoggedFlushedResponse("Usage: adduser [username] [password]");
             return true;
         }
         User user = users.getUserByName(username);
         if (user == null) {
-            helper.writeLoggedFlushedResponse("No such user " + username);
+            context.writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
         boolean success = user.setPassword(passwd);
@@ -375,13 +381,13 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(username)
                         .append(" reset");
             String response = responseBuffer.toString();
-            helper.getOutputWriter().println(response);
-            helper.getLogger().info(response);
+            context.getOutputWriter().println(response);
+            context.getLogger().info(response);
         } else {
-            helper.getOutputWriter().println("Error resetting password");
-            helper.getLogger().error("Error resetting password");
+            context.getOutputWriter().println("Error resetting password");
+            context.getLogger().error("Error resetting password");
         }
-        helper.getOutputWriter().flush();
+        context.getOutputWriter().flush();
         return true;
     }
 
@@ -390,11 +396,13 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doDELUSER(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doDELUSER(String argument, ProtocolContext context) {
         String user = argument;
         if ((user == null) || (user.equals(""))) {
-            helper.writeLoggedFlushedResponse("Usage: deluser [username]");
+            context.writeLoggedFlushedResponse("Usage: deluser [username]");
             return true;
         }
         if (users.contains(user)) {
@@ -406,8 +414,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
                                              .append(user)
                                              .append(" deleted");
                 String response = responseBuffer.toString();
-                helper.getOutputWriter().println(response);
-                helper.getLogger().info(response);
+                context.getOutputWriter().println(response);
+                context.getLogger().info(response);
             } catch (Exception e) {
                 StringBuilder exceptionBuffer =
                                               new StringBuilder(128)
@@ -416,8 +424,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
                                               .append(" : ")
                                               .append(e.getMessage());
                 String exception = exceptionBuffer.toString();
-                helper.getOutputWriter().println(exception);
-                helper.getLogger().error(exception);
+                context.getOutputWriter().println(exception);
+                context.getLogger().error(exception);
             }
         } else {
             StringBuilder responseBuffer =
@@ -426,9 +434,9 @@ public class RemoteManagerHandler implements ProtocolHandler {
                                          .append(user)
                                          .append(" doesn't exist");
             String response = responseBuffer.toString();
-            helper.getOutputWriter().println(response);
+            context.getOutputWriter().println(response);
         }
-        helper.getOutputWriter().flush();
+        context.getOutputWriter().flush();
         return true;
     }
 
@@ -437,28 +445,30 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doLISTUSERS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doLISTUSERS(String argument, ProtocolContext context) {
         if (argument == null) {
-            helper.writeLoggedResponse("Existing accounts " + users.countUsers());
+            context.writeLoggedResponse("Existing accounts " + users.countUsers());
             for (Iterator it = users.list(); it.hasNext();) {
-               helper.writeLoggedResponse("user: " + (String) it.next());
+               context.writeLoggedResponse("user: " + (String) it.next());
             }
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().flush();
             return true;
         } else {
             if(theConfigData.getMailServer().supportVirtualHosting() == false) {
-                helper.getOutputWriter().println("Virtualhosting not supported");
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().println("Virtualhosting not supported");
+                context.getOutputWriter().flush();
                 return true;
             }
         
             ArrayList userList = getDomainUserList(argument);
-            helper.writeLoggedResponse("Existing accounts from domain " + argument + " " + userList.size());
+            context.writeLoggedResponse("Existing accounts from domain " + argument + " " + userList.size());
             for (int i = 0; i <userList.size(); i++) {
-                helper.writeLoggedResponse("user: " + userList.get(i));
+                context.writeLoggedResponse("user: " + userList.get(i));
             }
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().flush();
             return true;
         }
     }
@@ -468,19 +478,21 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doCOUNTUSERS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doCOUNTUSERS(String argument, ProtocolContext context) {
         if (argument == null) {
-            helper.writeLoggedFlushedResponse("Existing accounts " + users.countUsers());
+            context.writeLoggedFlushedResponse("Existing accounts " + users.countUsers());
             return true;
         } else {
             if(theConfigData.getMailServer().supportVirtualHosting() == false) {
-                helper.getOutputWriter().println("Virtualhosting not supported");
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().println("Virtualhosting not supported");
+                context.getOutputWriter().flush();
                 return true;
            }
             
-           helper.writeLoggedFlushedResponse("Existing accounts for domain " + argument + " " + getDomainUserList(argument).size());
+           context.writeLoggedFlushedResponse("Existing accounts for domain " + argument + " " + getDomainUserList(argument).size());
            return true;
         }
     }
@@ -490,11 +502,13 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doVERIFY(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doVERIFY(String argument, ProtocolContext context) {
         String user = argument;
         if (user == null || user.equals("")) {
-            helper.writeLoggedFlushedResponse("Usage: verify [username]");
+            context.writeLoggedFlushedResponse("Usage: verify [username]");
             return true;
         }
         if (users.contains(user)) {
@@ -504,7 +518,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(user)
                         .append(" exists");
             String response = responseBuffer.toString();
-            helper.writeLoggedResponse(response);
+            context.writeLoggedResponse(response);
         } else {
             StringBuilder responseBuffer =
                 new StringBuilder(64)
@@ -512,9 +526,9 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(user)
                         .append(" does not exist");
             String response = responseBuffer.toString();
-            helper.writeLoggedResponse(response);
+            context.writeLoggedResponse(response);
         }
-        helper.getOutputWriter().flush();
+        context.getOutputWriter().flush();
         return true;
     }
 
@@ -523,48 +537,50 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doHELP(String argument) {
-        helper.getOutputWriter().println("Currently implemented commands:");
-        helper.getOutputWriter().println("help                                                                    display this help");
-        helper.getOutputWriter().println("listusers                                                               display existing accounts");
-        helper.getOutputWriter().println("countusers                                                              display the number of existing accounts");
-        helper.getOutputWriter().println("adduser [username] [password]                                           add a new user");
-        helper.getOutputWriter().println("verify [username]                                                       verify if specified user exist");
-        helper.getOutputWriter().println("deluser [username]                                                      delete existing user");
-        helper.getOutputWriter().println("setpassword [username] [password]                                       sets a user's password");
-        helper.getOutputWriter().println("setalias [user] [alias]                                                 locally forwards all email for 'user' to 'alias'");
-        helper.getOutputWriter().println("showalias [username]                                                    shows a user's current email alias");
-        helper.getOutputWriter().println("unsetalias [user]                                                       unsets an alias for 'user'");
-        helper.getOutputWriter().println("setforwarding [username] [emailaddress]                                 forwards a user's email to another email address");
-        helper.getOutputWriter().println("showforwarding [username]                                               shows a user's current email forwarding");
-        helper.getOutputWriter().println("unsetforwarding [username]                                              removes a forward");
-        helper.getOutputWriter().println("user [repositoryname]                                                   change to another user repository");
-        helper.getOutputWriter().println("addmapping ([table=virtualusertablename]) [user@domain] [mapping]       add mapping for the given emailaddress");
-        helper.getOutputWriter().println("removemapping ([table=virtualusertablename]) [user@domain] [mapping]    remove mapping for the given emailaddress");
-        helper.getOutputWriter().println("listmapping ([table=virtualusertablename]) [user@domain]                list all mappings for the given emailaddress");
-        helper.getOutputWriter().println("listallmappings ([table=virtualusertablename])                          list all mappings");
-        helper.getOutputWriter().println("adddomain [domainname]                                                  add domain to local domains");
-        helper.getOutputWriter().println("removedomain [domainname]                                               remove domain from local domains");
-        helper.getOutputWriter().println("listdomains                                                             list local domains");
-        helper.getOutputWriter().println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
-        helper.getOutputWriter().println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
-        helper.getOutputWriter().println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assigned to the given key. If no key is given all mails get deleted");
-        helper.getOutputWriter().println("movemails [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue])");
-        helper.getOutputWriter().println("    [srcstate=sourcestate] [dststate=destinationstate]                  move mails from the source repository to the destination repository.");
-        helper.getOutputWriter().println("listprocessors [processorname]                                          list names of all processors");
-        helper.getOutputWriter().println("listmailets [processorname]                                             list names of all mailets for specified processor");
-        helper.getOutputWriter().println("listmatchers [processorname]                                            list names of all mailets for specified processor");
-        helper.getOutputWriter().println("showmailetinfo [processorname] [#index]                                 shows configuration for mailet of specified processor at given index");
-        helper.getOutputWriter().println("showmatcherinfo [processorname] [#index]                                shows configuration for matcher of specified processor at given index");
-        helper.getOutputWriter().println("addham dir/mbox [directory/mbox]                                        feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
-        helper.getOutputWriter().println("addspam dir/mbox [directory/mbox]                                       feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
-        helper.getOutputWriter().println("exportbayesiandata [file]                                               export the BayesianAnalysis data to a xml file");
-        helper.getOutputWriter().println("resetbayesiandata                                                       reset trained BayesianAnalysis data");
-        helper.getOutputWriter().println("memstat ([-gc])                                                         shows memory usage. When called with -gc the garbage collector get called");
-        helper.getOutputWriter().println("shutdown                                                                kills the current JVM (convenient when James is run as a daemon)");
-        helper.getOutputWriter().println("quit                                                                    close connection");
-        helper.getOutputWriter().flush();
+    @SuppressWarnings("unused")
+    private boolean doHELP(String argument, ProtocolContext context) {
+        context.getOutputWriter().println("Currently implemented commands:");
+        context.getOutputWriter().println("help                                                                    display this help");
+        context.getOutputWriter().println("listusers                                                               display existing accounts");
+        context.getOutputWriter().println("countusers                                                              display the number of existing accounts");
+        context.getOutputWriter().println("adduser [username] [password]                                           add a new user");
+        context.getOutputWriter().println("verify [username]                                                       verify if specified user exist");
+        context.getOutputWriter().println("deluser [username]                                                      delete existing user");
+        context.getOutputWriter().println("setpassword [username] [password]                                       sets a user's password");
+        context.getOutputWriter().println("setalias [user] [alias]                                                 locally forwards all email for 'user' to 'alias'");
+        context.getOutputWriter().println("showalias [username]                                                    shows a user's current email alias");
+        context.getOutputWriter().println("unsetalias [user]                                                       unsets an alias for 'user'");
+        context.getOutputWriter().println("setforwarding [username] [emailaddress]                                 forwards a user's email to another email address");
+        context.getOutputWriter().println("showforwarding [username]                                               shows a user's current email forwarding");
+        context.getOutputWriter().println("unsetforwarding [username]                                              removes a forward");
+        context.getOutputWriter().println("user [repositoryname]                                                   change to another user repository");
+        context.getOutputWriter().println("addmapping ([table=virtualusertablename]) [user@domain] [mapping]       add mapping for the given emailaddress");
+        context.getOutputWriter().println("removemapping ([table=virtualusertablename]) [user@domain] [mapping]    remove mapping for the given emailaddress");
+        context.getOutputWriter().println("listmapping ([table=virtualusertablename]) [user@domain]                list all mappings for the given emailaddress");
+        context.getOutputWriter().println("listallmappings ([table=virtualusertablename])                          list all mappings");
+        context.getOutputWriter().println("adddomain [domainname]                                                  add domain to local domains");
+        context.getOutputWriter().println("removedomain [domainname]                                               remove domain from local domains");
+        context.getOutputWriter().println("listdomains                                                             list local domains");
+        context.getOutputWriter().println("listspool [spoolrepositoryname] ([header=name] [regex=value])           list all mails which reside in the spool and have an error state");
+        context.getOutputWriter().println("flushspool [spoolrepositoryname] ([key] | [header=name] [regex=value])  try to resend the mail assing to the given key. If no key is given all mails get resend");
+        context.getOutputWriter().println("deletespool [spoolrepositoryname] ([key] | [header=name] [regex=value]) delete the mail assigned to the given key. If no key is given all mails get deleted");
+        context.getOutputWriter().println("movemails [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue])");
+        context.getOutputWriter().println("    [srcstate=sourcestate] [dststate=destinationstate]                  move mails from the source repository to the destination repository.");
+        context.getOutputWriter().println("listprocessors [processorname]                                          list names of all processors");
+        context.getOutputWriter().println("listmailets [processorname]                                             list names of all mailets for specified processor");
+        context.getOutputWriter().println("listmatchers [processorname]                                            list names of all mailets for specified processor");
+        context.getOutputWriter().println("showmailetinfo [processorname] [#index]                                 shows configuration for mailet of specified processor at given index");
+        context.getOutputWriter().println("showmatcherinfo [processorname] [#index]                                shows configuration for matcher of specified processor at given index");
+        context.getOutputWriter().println("addham dir/mbox [directory/mbox]                                        feed the BayesianAnalysisFeeder with the content of the directory or mbox file as HAM");
+        context.getOutputWriter().println("addspam dir/mbox [directory/mbox]                                       feed the BayesianAnalysisFeeder with the content of the directory or mbox file as SPAM");
+        context.getOutputWriter().println("exportbayesiandata [file]                                               export the BayesianAnalysis data to a xml file");
+        context.getOutputWriter().println("resetbayesiandata                                                       reset trained BayesianAnalysis data");
+        context.getOutputWriter().println("memstat ([-gc])                                                         shows memory usage. When called with -gc the garbage collector get called");
+        context.getOutputWriter().println("shutdown                                                                kills the current JVM (convenient when James is run as a daemon)");
+        context.getOutputWriter().println("quit                                                                    close connection");
+        context.getOutputWriter().flush();
         return true;
 
     }
@@ -574,36 +590,38 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doSETALIAS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doSETALIAS(String argument, ProtocolContext context) {
         int breakIndex = -1;
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            helper.writeLoggedFlushedResponse("Usage: setalias [username] [emailaddress]");
+            context.writeLoggedFlushedResponse("Usage: setalias [username] [emailaddress]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String alias = argument.substring(breakIndex + 1);
         if (username.equals("") || alias.equals("")) {
-            helper.writeLoggedFlushedResponse("Usage: setalias [username] [alias]");
+            context.writeLoggedFlushedResponse("Usage: setalias [username] [alias]");
             return true;
         }
 
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
-            helper.writeLoggedFlushedResponse("No such user " + username);
+            context.writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
         if (! (baseuser instanceof JamesUser ) ) {
-            helper.writeLoggedFlushedResponse("Can't set alias for this user type.");
+            context.writeLoggedFlushedResponse("Can't set alias for this user type.");
             return true;
         }
 
         JamesUser user = (JamesUser) baseuser;
         JamesUser aliasUser = (JamesUser) users.getUserByName(alias);
         if (aliasUser == null) {
-            helper.writeLoggedFlushedResponse("Alias unknown to server - create that user first.");
+            context.writeLoggedFlushedResponse("Alias unknown to server - create that user first.");
             return true;
         }
 
@@ -618,13 +636,13 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(" set to:")
                         .append(alias);
             String response = responseBuffer.toString();
-            helper.getOutputWriter().println(response);
-            helper.getLogger().info(response);
+            context.getOutputWriter().println(response);
+            context.getLogger().info(response);
         } else {
-            helper.getOutputWriter().println("Error setting alias");
-            helper.getLogger().error("Error setting alias");
+            context.getOutputWriter().println("Error setting alias");
+            context.getLogger().error("Error setting alias");
         }
-        helper.getOutputWriter().flush();
+        context.getOutputWriter().flush();
         return true;
     }
 
@@ -633,28 +651,30 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doSETFORWARDING(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doSETFORWARDING(String argument, ProtocolContext context) {
         int breakIndex = -1;
         if ((argument == null) ||
             (argument.equals("")) ||
             ((breakIndex = argument.indexOf(" ")) < 0)) {
-            helper.writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
+            context.writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
             return true;
         }
         String username = argument.substring(0,breakIndex);
         String forward = argument.substring(breakIndex + 1);
         if (username.equals("") || forward.equals("")) {
-           helper.writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
+           context.writeLoggedFlushedResponse("Usage: setforwarding [username] [emailaddress]");
            return true;
         }
         // Verify user exists
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
-            helper.writeLoggedFlushedResponse("No such user " + username);
+            context.writeLoggedFlushedResponse("No such user " + username);
             return true;
         } else if (! (baseuser instanceof JamesUser ) ) {
-            helper.writeLoggedFlushedResponse("Can't set forwarding for this user type.");
+            context.writeLoggedFlushedResponse("Can't set forwarding for this user type.");
             return true;
         }
         JamesUser user = (JamesUser)baseuser;
@@ -663,8 +683,8 @@ public class RemoteManagerHandler implements ProtocolHandler {
         try {
              forwardAddr = new MailAddress(forward);
         } catch(ParseException pe) {
-            helper.writeLoggedResponse("Parse exception with that email address: " + pe.getMessage());
-            helper.writeLoggedFlushedResponse("Forwarding address not added for " + username);
+            context.writeLoggedResponse("Parse exception with that email address: " + pe.getMessage());
+            context.writeLoggedFlushedResponse("Forwarding address not added for " + username);
             return true;
         }
 
@@ -679,13 +699,13 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(" set to:")
                         .append(forwardAddr.toString());
             String response = responseBuffer.toString();
-            helper.getOutputWriter().println(response);
-            helper.getLogger().info(response);
+            context.getOutputWriter().println(response);
+            context.getLogger().info(response);
         } else {
-            helper.getOutputWriter().println("Error setting forwarding");
-            helper.getLogger().error("Error setting forwarding");
+            context.getOutputWriter().println("Error setting forwarding");
+            context.getLogger().error("Error setting forwarding");
         }
-        helper.getOutputWriter().flush();
+        context.getOutputWriter().flush();
         return true;
     }
 
@@ -694,31 +714,33 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param username the user name
+     * @param context not null
      */
-    private boolean doSHOWALIAS(String username) {
+    @SuppressWarnings("unused")
+    private boolean doSHOWALIAS(String username, ProtocolContext context) {
         if ( username == null || username.equals("") ) {
-            helper.writeLoggedFlushedResponse("Usage: showalias [username]");
+            context.writeLoggedFlushedResponse("Usage: showalias [username]");
             return true;
         }
 
 
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
-            helper.writeLoggedFlushedResponse("No such user " + username);
+            context.writeLoggedFlushedResponse("No such user " + username);
             return true;
         } else if (! (baseuser instanceof JamesUser ) ) {
-            helper.writeLoggedFlushedResponse("Can't show aliases for this user type.");
+            context.writeLoggedFlushedResponse("Can't show aliases for this user type.");
             return true;
         }
 
         JamesUser user = (JamesUser)baseuser;
         if ( user == null ) {
-            helper.writeLoggedFlushedResponse("No such user " + username);
+            context.writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
 
         if ( !user.getAliasing() ) {
-            helper.writeLoggedFlushedResponse("User " + username + " does not currently have an alias");
+            context.writeLoggedFlushedResponse("User " + username + " does not currently have an alias");
             return true;
         }
 
@@ -726,12 +748,12 @@ public class RemoteManagerHandler implements ProtocolHandler {
 
         if ( alias == null || alias.equals("") ) {    //  defensive programming -- neither should occur
             String errmsg = "For user " + username + ", the system indicates that aliasing is set but no alias was found";
-            helper.getOutputWriter().println(errmsg);
-            helper.getLogger().error(errmsg);
+            context.getOutputWriter().println(errmsg);
+            context.getLogger().error(errmsg);
             return true;
         }
 
-        helper.writeLoggedFlushedResponse("Current alias for " + username + " is: " + alias);
+        context.writeLoggedFlushedResponse("Current alias for " + username + " is: " + alias);
         return true;
     }
 
@@ -740,30 +762,32 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param username the user name
+     * @param context not null
      */
-    private boolean doSHOWFORWARDING(String username) {
+    @SuppressWarnings("unused")
+    private boolean doSHOWFORWARDING(String username, ProtocolContext context) {
         if ( username == null || username.equals("") ) {
-            helper.writeLoggedFlushedResponse("Usage: showforwarding [username]");
+            context.writeLoggedFlushedResponse("Usage: showforwarding [username]");
             return true;
         }
 
         // Verify user exists
         User baseuser = users.getUserByName(username);
         if (baseuser == null) {
-            helper.writeLoggedFlushedResponse("No such user " + username);
+            context.writeLoggedFlushedResponse("No such user " + username);
             return true;
         } else if (! (baseuser instanceof JamesUser ) ) {
-            helper.writeLoggedFlushedResponse("Can't set forwarding for this user type.");
+            context.writeLoggedFlushedResponse("Can't set forwarding for this user type.");
             return true;
         }
         JamesUser user = (JamesUser)baseuser;
         if ( user == null ) {
-            helper.writeLoggedFlushedResponse("No such user " + username);
+            context.writeLoggedFlushedResponse("No such user " + username);
             return true;
         }
 
         if ( !user.getForwarding() ) {
-            helper.writeLoggedFlushedResponse("User " + username + " is not currently being forwarded");
+            context.writeLoggedFlushedResponse("User " + username + " is not currently being forwarded");
             return true;
         }
 
@@ -771,12 +795,12 @@ public class RemoteManagerHandler implements ProtocolHandler {
 
         if ( fwdAddr == null ) {    //  defensive programming -- should not occur
             String errmsg = "For user " + username + ", the system indicates that forwarding is set but no forwarding destination was found";
-            helper.getOutputWriter().println(errmsg);
-            helper.getLogger().error(errmsg);
+            context.getOutputWriter().println(errmsg);
+            context.getLogger().error(errmsg);
             return true;
         }
 
-        helper.writeLoggedFlushedResponse("Current forwarding destination for " + username + " is: " + fwdAddr);
+        context.writeLoggedFlushedResponse("Current forwarding destination for " + username + " is: " + fwdAddr);
         return true;
     }
 
@@ -785,16 +809,18 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doUNSETALIAS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doUNSETALIAS(String argument, ProtocolContext context) {
         if ((argument == null) || (argument.equals(""))) {
-            helper.writeLoggedFlushedResponse("Usage: unsetalias [username]");
+            context.writeLoggedFlushedResponse("Usage: unsetalias [username]");
             return true;
         }
         String username = argument;
         JamesUser user = (JamesUser) users.getUserByName(username);
         if (user == null) {
-            helper.writeLoggedResponse("No such user " + username);
+            context.writeLoggedResponse("No such user " + username);
         } else if (user.getAliasing()){
             user.setAliasing(false);
             users.updateUser(user);
@@ -804,12 +830,12 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(username)
                         .append(" unset");
             String response = responseBuffer.toString();
-            helper.getOutputWriter().println(response);
-            helper.getLogger().info(response);
+            context.getOutputWriter().println(response);
+            context.getLogger().info(response);
         } else {
-            helper.writeLoggedResponse("Aliasing not active for" + username);
+            context.writeLoggedResponse("Aliasing not active for" + username);
         }
-        helper.getOutputWriter().flush();
+        context.getOutputWriter().flush();
         return true;
     }
 
@@ -818,16 +844,18 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doUNSETFORWARDING(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doUNSETFORWARDING(String argument, ProtocolContext context) {
         if ((argument == null) || (argument.equals(""))) {
-            helper.writeLoggedFlushedResponse("Usage: unsetforwarding [username]");
+            context.writeLoggedFlushedResponse("Usage: unsetforwarding [username]");
             return true;
         }
         String username = argument;
         JamesUser user = (JamesUser) users.getUserByName(username);
         if (user == null) {
-            helper.writeLoggedFlushedResponse("No such user " + username);
+            context.writeLoggedFlushedResponse("No such user " + username);
         } else if (user.getForwarding()){
             user.setForwarding(false);
             users.updateUser(user);
@@ -837,11 +865,11 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append(username)
                         .append(" unset");
             String response = responseBuffer.toString();
-            helper.getOutputWriter().println(response);
-            helper.getOutputWriter().flush();
-            helper.getLogger().info(response);
+            context.getOutputWriter().println(response);
+            context.getOutputWriter().flush();
+            context.getLogger().info(response);
         } else {
-            helper.writeLoggedFlushedResponse("Forwarding not active for" + username);
+            context.writeLoggedFlushedResponse("Forwarding not active for" + username);
         }
         return true;
     }
@@ -851,16 +879,18 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doUSER(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doUSER(String argument, ProtocolContext context) {
         if (argument == null || argument.equals("")) {
-            helper.writeLoggedFlushedResponse("Usage: user [repositoryName]");
+            context.writeLoggedFlushedResponse("Usage: user [repositoryName]");
             return true;
         }
         String repositoryName = argument.toLowerCase(Locale.US);
         UsersRepository repos = theConfigData.getUserStore().getRepository(repositoryName);
         if ( repos == null ) {
-            helper.writeLoggedFlushedResponse("No such repository: " + repositoryName);
+            context.writeLoggedFlushedResponse("No such repository: " + repositoryName);
         } else {
             users = repos;
             StringBuilder responseBuffer =
@@ -868,7 +898,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                         .append("Changed to repository '")
                         .append(repositoryName)
                         .append("'.");
-            helper.writeLoggedFlushedResponse(responseBuffer.toString());
+            context.writeLoggedFlushedResponse(responseBuffer.toString());
         }
         return true;
     }
@@ -879,10 +909,12 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * 
      * @param argument
      *            the argument passed in with the command
+     * @param context not null
      */
-    private boolean doLISTSPOOL(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doLISTSPOOL(String argument, ProtocolContext context) {
 
-    int count = 0;
+        int count = 0;
         String[] args = null;
         String headername = null;
         String regex = null;
@@ -891,7 +923,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
 
         // check if the command was called correct
         if ((argument == null) || (argument.trim().equals("")) || args.length < 1 || args.length > 3 || (args.length > 1 && !args[1].startsWith(HEADER_IDENTIFIER)) || (args.length > 2 && !args[2].startsWith(REGEX_IDENTIFIER))) {
-            helper.writeLoggedFlushedResponse("Usage: LISTSPOOL [spoolrepositoryname] ([header=headername] [regex=regexValue])");
+            context.writeLoggedFlushedResponse("Usage: LISTSPOOL [spoolrepositoryname] ([header=headername] [regex=regexValue])");
             return true;
         }
 
@@ -912,18 +944,18 @@ public class RemoteManagerHandler implements ProtocolHandler {
             }
             
             count = spoolItems.size();
-            if (count > 0) helper.getOutputWriter().println("Messages in spool:");
+            if (count > 0) context.getOutputWriter().println("Messages in spool:");
             for (Iterator iterator = spoolItems.iterator(); iterator.hasNext();) {
                 String item = (String) iterator.next();
-                helper.getOutputWriter().println(item);
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().println(item);
+                context.getOutputWriter().flush();
             }
-            helper.getOutputWriter().println("Number of spooled mails: " + count);
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Number of spooled mails: " + count);
+            context.getOutputWriter().flush();
         } catch (Exception e) {
-            helper.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
-            helper.getOutputWriter().flush();
-            helper.getLogger().error(
+            context.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
+            context.getOutputWriter().flush();
+            context.getLogger().error(
                     "Error opening the spoolrepository " + e.getMessage());
         }
         return true;
@@ -934,8 +966,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * Returns whether further commands should be read off the wire.
      *
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private boolean doFLUSHSPOOL(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doFLUSHSPOOL(String argument, ProtocolContext context) {
         int count = 0;
         String[] args = null;
 
@@ -946,7 +980,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
         if ((argument == null || argument.trim().equals(""))
                 || (args.length < 1 || args.length > 3 || (!args[1].startsWith(KEY_IDENTIFIER) && (args.length > 1  
                 && !args[1].startsWith(HEADER_IDENTIFIER))) || (args.length == 3 && !args[2].startsWith(REGEX_IDENTIFIER)))) {
-            helper.writeLoggedFlushedResponse("Usage: FLUSHSPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue] )");
+            context.writeLoggedFlushedResponse("Usage: FLUSHSPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue] )");
             return true;
         }
 
@@ -968,15 +1002,15 @@ public class RemoteManagerHandler implements ProtocolHandler {
             } else {
                 count = theConfigData.getSpoolManagement().resendSpoolItems(url, key, null, new SpoolFilter(SpoolFilter.ERROR_STATE,header,regex));
             }
-            helper.getOutputWriter().println("Number of flushed mails: " + count);
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Number of flushed mails: " + count);
+            context.getOutputWriter().flush();
 
         } catch (Exception e) {
-            helper.getOutputWriter()
+            context.getOutputWriter()
                     .println("Error accessing the spoolrepository "
                             + e.getMessage());
-            helper.getOutputWriter().flush();
-            helper.getLogger().error(
+            context.getOutputWriter().flush();
+            context.getLogger().error(
                     "Error accessing the spoolrepository " + e.getMessage());
         }
         return true;
@@ -988,8 +1022,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * 
      * @param argument
      *            the argument passed in with the command
+     * @param context not null
      */
-    private boolean doDELETESPOOL(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doDELETESPOOL(String argument, ProtocolContext context) {
         String[] args = null;
 
         if (argument != null)
@@ -999,7 +1035,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
         if ((argument == null || argument.trim().equals(""))
                 || (args.length < 1 || args.length > 3 || (args.length > 1 && (!args[1].startsWith(KEY_IDENTIFIER) 
                 && !args[1].startsWith(HEADER_IDENTIFIER))) || (args.length == 3 && !args[2].startsWith(REGEX_IDENTIFIER)))) {
-            helper.writeLoggedFlushedResponse("Usage: DELETESPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue])");
+            context.writeLoggedFlushedResponse("Usage: DELETESPOOL [spoolrepositoryname] ([key=mKey] | [header=headername] [regex=regexValue])");
             return true;
         }
 
@@ -1027,17 +1063,17 @@ public class RemoteManagerHandler implements ProtocolHandler {
             
             for (Iterator iterator = lockingFailures.iterator(); iterator.hasNext();) {
                 String lockFailureKey = (String) iterator.next();
-                helper.getOutputWriter().println("Error locking the mail with key:  " + lockFailureKey);
+                context.getOutputWriter().println("Error locking the mail with key:  " + lockFailureKey);
             }
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().flush();
 
-            helper.getOutputWriter().println("Number of deleted mails: " + count);
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Number of deleted mails: " + count);
+            context.getOutputWriter().flush();
 
         } catch (Exception e) {
-            helper.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
-            helper.getOutputWriter().flush();
-            helper.getLogger().error("Error opeing the spoolrepository " + e.getMessage());
+            context.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
+            context.getOutputWriter().flush();
+            context.getLogger().error("Error opeing the spoolrepository " + e.getMessage());
         }
         return true;
     }
@@ -1049,8 +1085,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * 
      * @param argument
      *            the argument passed in with the command
+     * @param context not null
      */
-    private boolean doMOVEMAILS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doMOVEMAILS(String argument, ProtocolContext context) {
         String[] args = null;
 
         if (argument != null)
@@ -1059,7 +1097,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
         // check if the command was called correct
         if ((argument == null || argument.trim().equals(""))
                 || (args.length < 2 || args.length > 6)) {
-            helper.writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
+            context.writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
             return true;
         }
 
@@ -1081,32 +1119,32 @@ public class RemoteManagerHandler implements ProtocolHandler {
             } else if (args[i].startsWith("dststate=")) {
                 header = args[i].substring("dststate=".length());
             } else {
-                helper.writeLoggedResponse("Unexpected parameter "+args[i]);
-                helper.writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
+                context.writeLoggedResponse("Unexpected parameter "+args[i]);
+                context.writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
                 return true;
             }
         }
         
         if ((header != null && regex == null) || (header == null && regex != null)) {
             if (regex == null) {
-                helper.writeLoggedResponse("Bad parameters: used header without regex");
+                context.writeLoggedResponse("Bad parameters: used header without regex");
             } else {
-                helper.writeLoggedResponse("Bad parameters: used regex without header");
+                context.writeLoggedResponse("Bad parameters: used regex without header");
             }
-            helper.writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
+            context.writeLoggedFlushedResponse("Usage: MOVEMAILS [srcSpoolrepositoryname] [dstSpoolrepositoryname] ([header=headername] [regex=regexValue]) [srcstate=sourcestate] [dststate=destinationstate]");
             return true;
         }
 
         try {
             int count = theConfigData.getSpoolManagement().moveSpoolItems(srcUrl, dstUrl, dstState, new SpoolFilter(srcState,header,regex));
             
-            helper.getOutputWriter().println("Number of moved mails: " + count);
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Number of moved mails: " + count);
+            context.getOutputWriter().flush();
 
         } catch (Exception e) {
-            helper.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
-            helper.getOutputWriter().flush();
-            helper.getLogger().error("Error opeing the spoolrepository " + e.getMessage());
+            context.getOutputWriter().println("Error opening the spoolrepository " + e.getMessage());
+            context.getOutputWriter().flush();
+            context.getLogger().error("Error opeing the spoolrepository " + e.getMessage());
         }
         return true;
     }
@@ -1117,9 +1155,11 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * 
      * @param argument
      *            the argument passed in with the command
+     * @param context not null
      */
-    private boolean doQUIT(String argument) {
-        helper.writeLoggedFlushedResponse("Bye");
+    @SuppressWarnings("unused")
+    private boolean doQUIT(String argument, ProtocolContext context) {
+        context.writeLoggedFlushedResponse("Bye");
         return false;
     }
 
@@ -1129,9 +1169,11 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * 
      * @param argument
      *            the argument passed in with the command
+     * @param context not null
      */
-    private boolean doSHUTDOWN(String argument) {
-        helper.writeLoggedFlushedResponse("Shutting down, bye bye");
+    @SuppressWarnings("unused")
+    private boolean doSHUTDOWN(String argument, ProtocolContext context) {
+        context.writeLoggedFlushedResponse("Shutting down, bye bye");
         System.exit(0);
         return false;
     }
@@ -1142,9 +1184,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * 
      * @param argument
      *            the unknown command
+     * @param context not null
      */
-    private boolean doUnknownCommand(String argument) {
-        helper.writeLoggedFlushedResponse("Unknown command " + argument);
+    private boolean doUnknownCommand(String argument, ProtocolContext context) {
+        context.writeLoggedFlushedResponse("Unknown command " + argument);
         return true;
     }
     
@@ -1154,8 +1197,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * 
      * @param argument
      *            the argument passed in with the command
+     * @param context not null
      */
-    private boolean doADDHAM(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doADDHAM(String argument, ProtocolContext context) {
         String [] args = null;
         int count = 0;
         
@@ -1165,33 +1210,33 @@ public class RemoteManagerHandler implements ProtocolHandler {
         
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || (args != null && args.length != 2)) {
-            helper.writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
+            context.writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
             return true;
         }
 
         try {
             
             // stop watchdog cause feeding can take some time
-            helper.getWatchdog().stop();  
+            context.getWatchdog().stop();  
             
             if (args[0].equalsIgnoreCase("DIR")) {
                 count = theConfigData.getBayesianAnalyzerManagement().addHamFromDir(args[1]);
             } else if (args[0].equalsIgnoreCase("MBOX")) {
                 count = theConfigData.getBayesianAnalyzerManagement().addHamFromMbox(args[1]);
             } else {
-                helper.writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
+                context.writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
                 return true;
             }
-            helper.getOutputWriter().println("Feed the BayesianAnalysis with " + count + " HAM");
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Feed the BayesianAnalysis with " + count + " HAM");
+            context.getOutputWriter().flush();
         
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getLogger().error("Error on feeding BayesianAnalysis: " + e);
-            helper.getOutputWriter().println("Error on feeding BayesianAnalysis: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on feeding BayesianAnalysis: " + e);
+            context.getOutputWriter().println("Error on feeding BayesianAnalysis: " + e);
+            context.getOutputWriter().flush();
             return true;
         } finally {
-            helper.getWatchdog().start();
+            context.getWatchdog().start();
         }
     
         return true;
@@ -1203,8 +1248,10 @@ public class RemoteManagerHandler implements ProtocolHandler {
      * 
      * @param argument
      *            the argument passed in with the command
+     * @param context not null
      */
-    private boolean doADDSPAM(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doADDSPAM(String argument, ProtocolContext context) {
         String [] args = null;
         int count = 0;
         
@@ -1213,33 +1260,33 @@ public class RemoteManagerHandler implements ProtocolHandler {
         }
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || (args != null && args.length != 2)) {
-            helper.writeLoggedFlushedResponse("Usage: ADDSPAM DIR/MBOX [dir/mbox]");
+            context.writeLoggedFlushedResponse("Usage: ADDSPAM DIR/MBOX [dir/mbox]");
             return true;
         }
 
         try {
             
             // stop watchdog cause feeding can take some time
-            helper.getWatchdog().stop();
+            context.getWatchdog().stop();
             
             if (args[0].equalsIgnoreCase("DIR")) {
                 count = theConfigData.getBayesianAnalyzerManagement().addSpamFromDir(args[1]);
             } else if (args[0].equalsIgnoreCase("MBOX")) {
                 count = theConfigData.getBayesianAnalyzerManagement().addSpamFromMbox(args[1]);
             } else {
-                helper.writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
+                context.writeLoggedFlushedResponse("Usage: ADDHAM DIR/MBOX [dir/mbox]");
                 return true;
             }
-            helper.getOutputWriter().println("Feed the BayesianAnalysis with " + count + " SPAM");
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Feed the BayesianAnalysis with " + count + " SPAM");
+            context.getOutputWriter().flush();
             
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getLogger().error("Error on feeding BayesianAnalysis: " + e);
-            helper.getOutputWriter().println("Error on feeding BayesianAnalysis: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on feeding BayesianAnalysis: " + e);
+            context.getOutputWriter().println("Error on feeding BayesianAnalysis: " + e);
+            context.getOutputWriter().flush();
             return true;
         } finally {
-            helper.getWatchdog().start();
+            context.getWatchdog().start();
         }
     
         return true;
@@ -1247,90 +1294,94 @@ public class RemoteManagerHandler implements ProtocolHandler {
     
    
     
-    private boolean doEXPORTBAYESIANDATA(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doEXPORTBAYESIANDATA(String argument, ProtocolContext context) {
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
-            helper.writeLoggedFlushedResponse("Usage: EXPORTBAYESIANALYZERDATA [dir]");
+            context.writeLoggedFlushedResponse("Usage: EXPORTBAYESIANALYZERDATA [dir]");
             return true;
         }
 
         try {
             
             // stop watchdog cause feeding can take some time
-            helper.getWatchdog().stop();
+            context.getWatchdog().stop();
             
             theConfigData.getBayesianAnalyzerManagement().exportData(argument);
-            helper.getOutputWriter().println("Exported the BayesianAnalysis data");
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Exported the BayesianAnalysis data");
+            context.getOutputWriter().flush();
 
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getLogger().error("Error on exporting BayesianAnalysis data: " + e);
-            helper.getOutputWriter().println("Error on exporting BayesianAnalysis data: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on exporting BayesianAnalysis data: " + e);
+            context.getOutputWriter().println("Error on exporting BayesianAnalysis data: " + e);
+            context.getOutputWriter().flush();
             return true;
         } finally {
-            helper.getWatchdog().start();
+            context.getWatchdog().start();
         }
     
         // check if any exception was thrown
         return true;
     }
     
-    private boolean doIMPORTBAYESIANDATA(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doIMPORTBAYESIANDATA(String argument, ProtocolContext context) {
         // check if the command was called correct
         if (argument == null || argument.trim().equals("")) {
-            helper.writeLoggedFlushedResponse("Usage: IMPORTBAYESIANALYZERDATA [dir]");
+            context.writeLoggedFlushedResponse("Usage: IMPORTBAYESIANALYZERDATA [dir]");
             return true;
         }
 
         try {
             
             // stop watchdog cause feeding can take some time
-            helper.getWatchdog().stop();
+            context.getWatchdog().stop();
             
             theConfigData.getBayesianAnalyzerManagement().importData(argument);
-            helper.getOutputWriter().println("Imported the BayesianAnalysis data");
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Imported the BayesianAnalysis data");
+            context.getOutputWriter().flush();
 
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getLogger().error("Error on importing BayesianAnalysis data: " + e);
-            helper.getOutputWriter().println("Error on importing BayesianAnalysis data: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on importing BayesianAnalysis data: " + e);
+            context.getOutputWriter().println("Error on importing BayesianAnalysis data: " + e);
+            context.getOutputWriter().flush();
             return true;
         } finally {
-            helper.getWatchdog().start();
+            context.getWatchdog().start();
         }
     
         return true;
     }
     
-    private boolean doRESETBAYESIANDATA(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doRESETBAYESIANDATA(String argument, ProtocolContext context) {
 
         try {           
             // stop watchdog cause feeding can take some time
-            helper.getWatchdog().stop();
+            context.getWatchdog().stop();
             
             theConfigData.getBayesianAnalyzerManagement().resetData();
-            helper.getOutputWriter().println("Reseted the BayesianAnalysis data");
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Reseted the BayesianAnalysis data");
+            context.getOutputWriter().flush();
 
         } catch (BayesianAnalyzerManagementException e) {
-            helper.getLogger().error("Error on reseting BayesianAnalysis data: " + e);
-            helper.getOutputWriter().println("Error on reseting BayesianAnalysis data: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on reseting BayesianAnalysis data: " + e);
+            context.getOutputWriter().println("Error on reseting BayesianAnalysis data: " + e);
+            context.getOutputWriter().flush();
             return true;
         } finally {
-            helper.getWatchdog().start();
+            context.getWatchdog().start();
         }
     
         return true;
     }
 
-    private boolean doLISTPROCESSORS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doLISTPROCESSORS(String argument, ProtocolContext context) {
         String[] processorNames = theConfigData.getProcessorManagement().getProcessorNames();
-        helper.writeLoggedResponse("Existing processors: " + processorNames.length);
+        context.writeLoggedResponse("Existing processors: " + processorNames.length);
         for (int i = 0; i < processorNames.length; i++) {
-            helper.writeLoggedResponse("\t" + processorNames[i]);
+            context.writeLoggedResponse("\t" + processorNames[i]);
          }
         return true;
     }
@@ -1341,46 +1392,48 @@ public class RemoteManagerHandler implements ProtocolHandler {
         return processorList.contains(name);
     }
     
-    private boolean doLISTMAILETS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doLISTMAILETS(String argument, ProtocolContext context) {
         ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
         if (argument == null || !processorExists(argument)) {
-            helper.writeLoggedFlushedResponse("Usage: LISTMAILETS [processor]");
-            helper.writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
+            context.writeLoggedFlushedResponse("Usage: LISTMAILETS [processor]");
+            context.writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
             return true;
         }
         String[] mailetNames = processorManagement.getMailetNames(argument);
-        helper.writeLoggedResponse("Existing mailets in processor: " + mailetNames.length);
+        context.writeLoggedResponse("Existing mailets in processor: " + mailetNames.length);
         for (int i = 0; i < mailetNames.length; i++) {
-            helper.writeLoggedResponse((i+1) + ". " + mailetNames[i]);
+            context.writeLoggedResponse((i+1) + ". " + mailetNames[i]);
          }
         return true;
     }
 
-    private boolean doLISTMATCHERS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doLISTMATCHERS(String argument, ProtocolContext context) {
         ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
         if (argument == null || !processorExists(argument)) {
-            helper.writeLoggedFlushedResponse("Usage: LISTMATCHERS [processor]");
-            helper.writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
+            context.writeLoggedFlushedResponse("Usage: LISTMATCHERS [processor]");
+            context.writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
             return true;
         }
         String[] matcherNames = processorManagement.getMatcherNames(argument);
-        helper.writeLoggedResponse("Existing matchers in processor: " + matcherNames.length);
+        context.writeLoggedResponse("Existing matchers in processor: " + matcherNames.length);
         for (int i = 0; i < matcherNames.length; i++) {
-            helper.writeLoggedResponse((i+1) + ". " + matcherNames[i]);
+            context.writeLoggedResponse((i+1) + ". " + matcherNames[i]);
          }
         return true;
     }
 
-    private Object[] extractMailetInfoParameters(String argument, String commandHelp) {
+    private Object[] extractMailetInfoParameters(String argument, String commandHelp, ProtocolContext context) {
         String[] argList = argument.split(" ");
         boolean argListOK = argument != null && argList != null && argList.length == 2;
         if (!argListOK) {
-            helper.writeLoggedFlushedResponse("Usage: SHOW" + commandHelp + "INFO [processor] [#index]");
+            context.writeLoggedFlushedResponse("Usage: SHOW" + commandHelp + "INFO [processor] [#index]");
             return null;
         }
         String processorName = argList[0];
         if (!processorExists(processorName)) {
-            helper.writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
+            context.writeLoggedFlushedResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS");
             return null;
         }
         int index = -1;
@@ -1390,16 +1443,17 @@ public class RemoteManagerHandler implements ProtocolHandler {
             // fall thru with -1
         }
         if (index < 0) {
-            helper.writeLoggedFlushedResponse("The index parameter must be a positive number");
+            context.writeLoggedFlushedResponse("The index parameter must be a positive number");
             return null;
         }
         
         return new Object[] {processorName, new Integer(index)};
     }
 
-    private boolean doSHOWMAILETINFO(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doSHOWMAILETINFO(String argument, ProtocolContext context) {
         ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
-        Object[] parameters = extractMailetInfoParameters(argument, "MAILET");
+        Object[] parameters = extractMailetInfoParameters(argument, "MAILET", context);
         if (parameters == null) return true;
         
         // extract parsed parameters
@@ -1413,20 +1467,21 @@ public class RemoteManagerHandler implements ProtocolHandler {
             // fall thru with NULL
         }
         if (mailetParameters == null) {
-            helper.writeLoggedFlushedResponse("The index is not referring to an existing mailet");
+            context.writeLoggedFlushedResponse("The index is not referring to an existing mailet");
             return true;
         }
-        helper.writeLoggedResponse("Mailet parameters: " + mailetParameters.length);
+        context.writeLoggedResponse("Mailet parameters: " + mailetParameters.length);
         for (int i = 0; i < mailetParameters.length; i++) {
             String parameter = (String) mailetParameters[i];
-            helper.writeLoggedResponse("\t" + parameter);
+            context.writeLoggedResponse("\t" + parameter);
          }
         return true;
     }
 
-    private boolean doSHOWMATCHERINFO(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doSHOWMATCHERINFO(String argument, ProtocolContext context) {
         ProcessorManagementService processorManagement = theConfigData.getProcessorManagement();
-        Object[] parameters = extractMailetInfoParameters(argument, "MATCHER");
+        Object[] parameters = extractMailetInfoParameters(argument, "MATCHER", context);
         if (parameters == null) return true;
         
         // extract parsed parameters
@@ -1440,18 +1495,19 @@ public class RemoteManagerHandler implements ProtocolHandler {
             // fall thru with NULL
         }
         if (matcherParameters == null) {
-            helper.writeLoggedFlushedResponse("The index is not referring to an existing matcher");
+            context.writeLoggedFlushedResponse("The index is not referring to an existing matcher");
             return true;
         }
-        helper.writeLoggedResponse("Matcher parameters: " + matcherParameters.length);
+        context.writeLoggedResponse("Matcher parameters: " + matcherParameters.length);
         for (int i = 0; i < matcherParameters.length; i++) {
             String parameter = (String) matcherParameters[i];
-            helper.writeLoggedResponse("\t" + parameter);
+            context.writeLoggedResponse("\t" + parameter);
          }
         return true;
     }
     
-    private boolean doADDMAPPING(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doADDMAPPING(String argument, ProtocolContext context) {
         String[] args = null;
         
         if (argument != null)
@@ -1459,25 +1515,25 @@ public class RemoteManagerHandler implements ProtocolHandler {
 
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || args.length < 2 || args.length > 3) {
-            helper.writeLoggedFlushedResponse("Usage: ADDMAPPING [table=table] user@domain mapping");
+            context.writeLoggedFlushedResponse("Usage: ADDMAPPING [table=table] user@domain mapping");
             return true;
         }
         try {
-            helper.getOutputWriter().println("Adding mapping successful: " + mappingAction(args,ADD_MAPPING_ACTION));
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Adding mapping successful: " + mappingAction(args,ADD_MAPPING_ACTION));
+            context.getOutputWriter().flush();
         } catch (VirtualUserTableManagementException e) {
-            helper.getLogger().error("Error on adding mapping: " + e);
-            helper.getOutputWriter().println("Error on adding mapping: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on adding mapping: " + e);
+            context.getOutputWriter().println("Error on adding mapping: " + e);
+            context.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            helper.getLogger().error("Error on adding mapping: " + e);
-            helper.getOutputWriter().println("Error on adding mapping: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on adding mapping: " + e);
+            context.getOutputWriter().println("Error on adding mapping: " + e);
+            context.getOutputWriter().flush();
         }
         return true;
     }
     
-    private boolean doREMOVEMAPPING(String argument) {
+    private boolean doREMOVEMAPPING(String argument, ProtocolContext context) {
         String[] args = null;
         
         if (argument != null)
@@ -1485,25 +1541,26 @@ public class RemoteManagerHandler implements ProtocolHandler {
 
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || args.length < 2 || args.length > 3) {
-            helper.writeLoggedFlushedResponse("Usage: REMOVEMAPPING [table=table] user@domain mapping");
+            context.writeLoggedFlushedResponse("Usage: REMOVEMAPPING [table=table] user@domain mapping");
             return true;
         }
         try {
-            helper.getOutputWriter().println("Removing mapping successful: " + mappingAction(args,REMOVE_MAPPING_ACTION));
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("Removing mapping successful: " + mappingAction(args,REMOVE_MAPPING_ACTION));
+            context.getOutputWriter().flush();
         } catch (VirtualUserTableManagementException e) {
-            helper.getLogger().error("Error on  removing mapping: " + e);
-            helper.getOutputWriter().println("Error on removing mapping: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on  removing mapping: " + e);
+            context.getOutputWriter().println("Error on removing mapping: " + e);
+            context.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            helper.getLogger().error("Error on removing mapping: " + e);
-            helper.getOutputWriter().println("Error on removing mapping: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on removing mapping: " + e);
+            context.getOutputWriter().println("Error on removing mapping: " + e);
+            context.getOutputWriter().flush();
         }
         return true;
     }
 
-    private boolean doLISTMAPPING(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doLISTMAPPING(String argument, ProtocolContext context) {
         String[] args = null;
         String table = null;
         String user = null;
@@ -1514,7 +1571,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
 
         // check if the command was called correct
         if (argument == null || argument.trim().equals("") || args.length < 1 || args.length > 2) {
-            helper.writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
+            context.writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
             return true;
         }
 
@@ -1524,7 +1581,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                 user = getMappingValue(args[1].split("@")[0]);
                 domain = getMappingValue(args[1].split("@")[1]);
             } else {
-            helper.writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
+            context.writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
                 return true;
             }
         } else {
@@ -1532,7 +1589,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
                 user = getMappingValue(args[0].split("@")[0]);
                 domain = getMappingValue(args[0].split("@")[1]);
             } else {
-            helper.writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
+            context.writeLoggedFlushedResponse("Usage: LISTMAPPING [table=table] user@domain");
                 return true;
             }
         }
@@ -1540,30 +1597,31 @@ public class RemoteManagerHandler implements ProtocolHandler {
         try {
             Collection mappings = theConfigData.getVirtualUserTableManagement().getUserDomainMappings(table, user, domain);
             if (mappings == null) {
-                helper.getOutputWriter().println("No mappings found");
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().println("No mappings found");
+                context.getOutputWriter().flush();
             } else {
-                helper.getOutputWriter().println("Mappings:");
+                context.getOutputWriter().println("Mappings:");
                 
                 Iterator m = mappings.iterator();
                 while(m.hasNext()) {
-                    helper.getOutputWriter().println(m.next());
+                    context.getOutputWriter().println(m.next());
                 }
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().flush();
             }
         } catch (VirtualUserTableManagementException e) {
-            helper.getLogger().error("Error on listing mapping: " + e);
-            helper.getOutputWriter().println("Error on listing mapping: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on listing mapping: " + e);
+            context.getOutputWriter().println("Error on listing mapping: " + e);
+            context.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            helper.getLogger().error("Error on listing mapping: " + e);
-            helper.getOutputWriter().println("Error on listing mapping: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on listing mapping: " + e);
+            context.getOutputWriter().println("Error on listing mapping: " + e);
+            context.getOutputWriter().flush();
         }
         return true;
     }
     
-    private boolean doLISTALLMAPPINGS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doLISTALLMAPPINGS(String argument, ProtocolContext context) {
         String[] args = null;
         String table = null;
 
@@ -1572,7 +1630,7 @@ public class RemoteManagerHandler implements ProtocolHandler {
 
         // check if the command was called correct
         if (args != null && args.length > 1) {
-            helper.writeLoggedFlushedResponse("Usage: LISTALLMAPPINGS [table=table]");
+            context.writeLoggedFlushedResponse("Usage: LISTALLMAPPINGS [table=table]");
             return true;
         }
 
@@ -1584,26 +1642,26 @@ public class RemoteManagerHandler implements ProtocolHandler {
         try {
             Map mappings = theConfigData.getVirtualUserTableManagement().getAllMappings(table);
             if (mappings == null) {
-                helper.getOutputWriter().println("No mappings found");
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().println("No mappings found");
+                context.getOutputWriter().flush();
             } else {
-                helper.getOutputWriter().println("Mappings:");
+                context.getOutputWriter().println("Mappings:");
                 
                 Iterator m = mappings.keySet().iterator();
                 while(m.hasNext()) {
                     String key = m.next().toString();
-                    helper.getOutputWriter().println(key + "  -> " + mappings.get(key));
+                    context.getOutputWriter().println(key + "  -> " + mappings.get(key));
                 }
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().flush();
             }
         } catch (VirtualUserTableManagementException e) {
-            helper.getLogger().error("Error on listing all mapping: " + e);
-            helper.getOutputWriter().println("Error on listing all mapping: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on listing all mapping: " + e);
+            context.getOutputWriter().println("Error on listing all mapping: " + e);
+            context.getOutputWriter().flush();
         } catch (IllegalArgumentException e) {
-            helper.getLogger().error("Error on listing all mapping: " + e);
-            helper.getOutputWriter().println("Error on listing all mapping: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on listing all mapping: " + e);
+            context.getOutputWriter().println("Error on listing all mapping: " + e);
+            context.getOutputWriter().flush();
         }
         return true;
     }
@@ -1650,66 +1708,69 @@ public class RemoteManagerHandler implements ProtocolHandler {
         }   
     }
     
-    private boolean doLISTDOMAINS(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doLISTDOMAINS(String argument, ProtocolContext context) {
         Collection domains = theConfigData.getDomainListManagement().getDomains();
         if (domains == null) {
-            helper.getOutputWriter().println("No domains found");
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println("No domains found");
+            context.getOutputWriter().flush();
         } else {
-            helper.getOutputWriter().println("Domains:");
+            context.getOutputWriter().println("Domains:");
                 
             Iterator d = domains.iterator();
             while(d.hasNext()) {
-                helper.getOutputWriter().println(d.next());
+                context.getOutputWriter().println(d.next());
             }
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().flush();
         }   
         return true;
     }
 
-    private boolean doADDDOMAIN(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doADDDOMAIN(String argument, ProtocolContext context) {
 
         // check if the command was called correct
         if (argument == null) {
-            helper.writeLoggedFlushedResponse("Usage: ADDDOMAIN domain");
+            context.writeLoggedFlushedResponse("Usage: ADDDOMAIN domain");
             return true;
         }
         
         try {
             if(theConfigData.getDomainListManagement().addDomain(argument)) {
-                helper.getOutputWriter().println("Adding domain " + argument + " successful");
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().println("Adding domain " + argument + " successful");
+                context.getOutputWriter().flush();
             } else {
-                helper.getOutputWriter().println("Adding domain " + argument + " fail");
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().println("Adding domain " + argument + " fail");
+                context.getOutputWriter().flush();
             }
         } catch (DomainListManagementException e) {
-            helper.getLogger().error("Error on adding domain: " + e);
-            helper.getOutputWriter().println("Error on adding domain: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on adding domain: " + e);
+            context.getOutputWriter().println("Error on adding domain: " + e);
+            context.getOutputWriter().flush();
         }
         return true;
     }
     
-    private boolean doREMOVEDOMAIN(String argument) {
+    @SuppressWarnings("unused")
+    private boolean doREMOVEDOMAIN(String argument, ProtocolContext context) {
         // check if the command was called correct
         if (argument == null) {
-            helper.writeLoggedFlushedResponse("Usage: REMOVEDOMAIN domain");
+            context.writeLoggedFlushedResponse("Usage: REMOVEDOMAIN domain");
             return true;
         }
         
         try {
             if(theConfigData.getDomainListManagement().removeDomain(argument)) {
-                helper.getOutputWriter().println("Removing domain " + argument + " successful");
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().println("Removing domain " + argument + " successful");
+                context.getOutputWriter().flush();
             } else {
-                helper.getOutputWriter().println("Removing domain " + argument + " fail");
-                helper.getOutputWriter().flush();
+                context.getOutputWriter().println("Removing domain " + argument + " fail");
+                context.getOutputWriter().flush();
             }
         } catch (DomainListManagementException e) {
-            helper.getLogger().error("Error on removing domain: " + e);
-            helper.getOutputWriter().println("Error on removing domain: " + e);
-            helper.getOutputWriter().flush();
+            context.getLogger().error("Error on removing domain: " + e);
+            context.getOutputWriter().println("Error on removing domain: " + e);
+            context.getOutputWriter().flush();
         }
         return true;
     }
@@ -1734,7 +1795,5 @@ public class RemoteManagerHandler implements ProtocolHandler {
     }
 
 
-    public void setProtocolHandlerHelper(ProtocolContext phh) {
-        this.helper = phh;
-    }
+    public void setProtocolHandlerHelper(ProtocolContext phh) {}
 }
