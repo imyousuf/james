@@ -21,14 +21,12 @@
 
 package org.apache.james.api.vut;
 
-import java.util.Iterator;
 
 /**
- * Interface for Phoenix blocks to access a store of VirtualUserTable. A VirtualUserTableStore
+ * Contains VirtualUserTable. A VirtualUserTableStore
  * contains one or more VirtualUserTables. Multiple VirtualUserTables may or may
  * not have overlapping membership. 
  *
- * @version 1.0.0, 24/04/1999
  */
 public interface VirtualUserTableStore 
 {
@@ -46,13 +44,4 @@ public interface VirtualUserTableStore
      * @return the VirtualUserTable corresponding to the name parameter
      */
     VirtualUserTable getTable( String name );
-
-    /** 
-     * Yield an <code>Iterator</code> over the set of repository
-     * names managed internally by this store.
-     *
-     * @return an Iterator over the set of repository names
-     *         for this store
-     */
-    Iterator getTableNames();
 }
