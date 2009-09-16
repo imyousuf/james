@@ -39,7 +39,7 @@ import org.apache.james.socket.ProtocolContext;
  */
 public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
-	private ProtocolContext helper;
+	private ProtocolContext context;
 
 	private boolean sessionEnded = false;
 
@@ -97,6 +97,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      * @see org.apache.james.socket.ProtocolHandler#handleProtocol(ProtocolContext)
      */
     public void handleProtocol(ProtocolContext context) throws IOException {
+        this.context = context;
         smtpID = Integer.toString(random.nextInt(1024));
         relayingAllowed = theConfigData.isRelayingAllowed(context.getRemoteIP());
         authSupported = theConfigData.isAuthRequired(context.getRemoteIP());
@@ -177,7 +178,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         // Write a single-line or multiline response
         if (response != null) {
             if (response.getRawLine() != null) {
-                helper.writeLoggedFlushedResponse(response.getRawLine());
+                context.writeLoggedFlushedResponse(response.getRawLine());
             } else {
                 // Iterator i = esmtpextensions.iterator();
                 for (int k = 0; k < response.getLines().size(); k++) {
@@ -187,11 +188,11 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
                     if (k == response.getLines().size() - 1) {
                         respBuff.append(" ");
                         respBuff.append(line);
-                        helper.writeLoggedFlushedResponse(respBuff.toString());
+                        context.writeLoggedFlushedResponse(respBuff.toString());
                     } else {
                         respBuff.append("-");
                         respBuff.append(line);
-                        helper.writeLoggedResponse(respBuff.toString());
+                        context.writeLoggedResponse(respBuff.toString());
                     }
                 }
             }
@@ -223,14 +224,14 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
      */
     public String getRemoteHost() {
-        return helper.getRemoteHost();
+        return context.getRemoteHost();
     }
 
     /**
      * @see org.apache.james.smtpserver.SMTPSession#getRemoteIPAddress()
      */
     public String getRemoteIPAddress() {
-        return helper.getRemoteIP();
+        return context.getRemoteIP();
     }
 
     /**
@@ -374,9 +375,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 	public void fatalFailure(RuntimeException e, ProtocolContext context) {
 	}
 
-	public void setProtocolHandlerHelper(ProtocolContext phh) {
-		helper = phh;
-	}
+	public void setProtocolHandlerHelper(ProtocolContext phh) {}
 	
     public String getHelloName() {
         return getConfigurationData().getHelloName();
@@ -399,6 +398,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     }
 
     public Log getLogger() {
-        return helper.getLogger();
+        return context.getLogger();
     }
 }
