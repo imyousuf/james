@@ -286,10 +286,9 @@ public class NNTPHandler implements ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     * @see org.apache.james.socket.AbstractJamesHandler#fatalFailure(java.lang.RuntimeException)
      */
-    public void errorHandler(RuntimeException e) {
-        helper.defaultErrorHandler(e);
+    public void fatalFailure(RuntimeException e) {
         // If the connection has been idled out, the
         // socket will be closed and null.  Do NOT
         // log the exception or attempt to send the

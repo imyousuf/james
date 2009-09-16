@@ -87,12 +87,6 @@ public interface ProtocolContext {
     public PrintWriter getOutputWriter();
     
     /**
-     * Provides basic errorhandling cleanup.
-     * @param e the runtimeexception
-     */
-    public void defaultErrorHandler(RuntimeException e);
-    
-    /**
      * Is the socket disconnected?
      * @return true if the connection has disconnected,
      * false otherwise

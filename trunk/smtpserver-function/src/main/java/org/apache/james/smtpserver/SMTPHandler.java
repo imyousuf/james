@@ -371,8 +371,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         }
     }
 
-	public void errorHandler(RuntimeException e) {
-		helper.defaultErrorHandler(e);
+	public void fatalFailure(RuntimeException e) {
 	}
 
 	public void setProtocolHandlerHelper(ProtocolContext phh) {

@@ -195,22 +195,11 @@ public class RemoteManagerHandler implements ProtocolHandler {
     }
 
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#errorHandler(java.lang.RuntimeException)
+     * @see org.apache.james.socket.AbstractJamesHandler#fatalFailure(java.lang.RuntimeException)
      */
-    public void errorHandler(RuntimeException e) {
+    public void fatalFailure(RuntimeException e) {
         helper.getOutputWriter().println("Unexpected Error: "+e.getMessage());
         helper.getOutputWriter().flush();
-        if (helper.getLogger().isErrorEnabled()) {
-            StringBuilder exceptionBuffer =
-                new StringBuilder(128)
-                        .append("Exception during connection from ")
-                        .append(helper.getRemoteHost())
-                        .append(" (")
-                        .append(helper.getRemoteIP())
-                        .append("): ")
-                        .append(e.getMessage());
-            helper.getLogger().error(exceptionBuffer.toString(),e);
-        }
     }
 
     /**
