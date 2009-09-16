@@ -258,12 +258,12 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#fatalFailure(java.lang.RuntimeException)
+     * @see org.apache.james.socket.AbstractJamesHandler#fatalFailure(java.lang.RuntimeException, ProtocolContext)
      */
-    public void fatalFailure(RuntimeException e) {
+    public void fatalFailure(RuntimeException e, ProtocolContext context) {
         try {
-            helper.getOutputWriter().println(ERR_RESPONSE + " Error closing connection.");
-            helper.getOutputWriter().flush();
+            context.getOutputWriter().println(ERR_RESPONSE + " Error closing connection.");
+            context.getOutputWriter().flush();
         } catch (Throwable t) {
             
         }

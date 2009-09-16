@@ -46,7 +46,8 @@ public interface ProtocolHandler {
      * Called when a fatal failure occurs during processing.
      * Provides a last ditch chance to send a message to the client.
      * @param e exception
+     * @param context not null
      */
-    public abstract void fatalFailure(RuntimeException e);
+    public abstract void fatalFailure(RuntimeException e, ProtocolContext context);
 
 }

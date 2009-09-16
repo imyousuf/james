@@ -311,7 +311,7 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
                             .append(e.getMessage());
                 log.info(exceptionBuffer.toString(), e);
             }
-            protocolHandler.fatalFailure(e);
+            protocolHandler.fatalFailure(e, this);
         } finally {
             //Clear all the session state variables
             cleanHandler();
