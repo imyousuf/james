@@ -45,7 +45,7 @@ import java.util.Locale;
  */
 public class POP3Handler implements POP3Session, ProtocolHandler {
 
-    private ProtocolContext helper;
+    private ProtocolContext context;
     
     private final static byte COMMAND_MODE = 1;
     private final static byte RESPONSE_MODE = 2;
@@ -164,6 +164,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol(ProtocolContext)
      */
     public void handleProtocol(ProtocolContext context) throws IOException {
+        this.context = context;
         handlerState = AUTHENTICATION_READY;
         authenticatedUser = "unknown";
 
@@ -303,13 +304,13 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      */
     public final String readCommandLine() throws IOException {
         for (;;) try {
-            String commandLine = helper.getInputReader().readLine();
+            String commandLine = context.getInputReader().readLine();
             if (commandLine != null) {
                 commandLine = commandLine.trim();
             }
             return commandLine;
         } catch (CRLFTerminatedReader.TerminationException te) {
-            helper.writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
+            context.writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
         }
     }
 
@@ -326,14 +327,14 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      * @see org.apache.james.pop3server.POP3Session#getRemoteHost()
      */
     public String getRemoteHost() {
-        return helper.getRemoteHost();
+        return context.getRemoteHost();
     }
 
     /**
      * @see org.apache.james.pop3server.POP3Session#getRemoteIPAddress()
      */
     public String getRemoteIPAddress() {
-        return helper.getRemoteIP();
+        return context.getRemoteIP();
     }
 
     /**
@@ -391,14 +392,14 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      * @see org.apache.james.pop3server.POP3Session#getWatchdog()
      */
     public Watchdog getWatchdog() {
-        return helper.getWatchdog();
+        return context.getWatchdog();
     }
 
     /**
      * @see org.apache.james.pop3server.POP3Session#writeResponse(java.lang.String)
      */
     public void writeResponse(String respString) {
-        helper.writeLoggedFlushedResponse(respString);
+        context.writeLoggedFlushedResponse(respString);
         //TODO Explain this well
         if(mode == COMMAND_MODE) {
             mode = RESPONSE_MODE;
@@ -487,14 +488,12 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      * @see org.apache.james.pop3server.POP3Session#getOutputStream()
      */
     public OutputStream getOutputStream() {
-        return helper.getOutputStream();
+        return context.getOutputStream();
     }
 
     /**
      * @see org.apache.james.socket.ProtocolHandler#setProtocolHandlerHelper(org.apache.james.socket.ProtocolContext)
      */
     public void setProtocolHandlerHelper(ProtocolContext phh) {
-        this.helper = phh;
     }
-
 }
