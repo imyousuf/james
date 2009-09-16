@@ -137,20 +137,20 @@ public class RemoteManagerHandler implements ProtocolHandler {
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
-    public void handleProtocol() throws IOException {
-        helper.writeLoggedResponse("JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION );
-        helper.writeLoggedResponse("Please enter your login and password");
+    public void handleProtocol(ProtocolContext context) throws IOException {
+        context.writeLoggedResponse("JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION );
+        context.writeLoggedResponse("Please enter your login and password");
         String login = null;
         String password = null;
         do {
             if (login != null) {
                 final String message = "Login failed for " + login;
-                helper.writeLoggedFlushedResponse(message);
+                context.writeLoggedFlushedResponse(message);
             }
-            helper.writeLoggedFlushedResponse("Login id:");
-            login = helper.getInputReader().readLine().trim();
-            helper.writeLoggedFlushedResponse("Password:");
-            password = helper.getInputReader().readLine().trim();
+            context.writeLoggedFlushedResponse("Login id:");
+            login = context.getInputReader().readLine().trim();
+            context.writeLoggedFlushedResponse("Password:");
+            password = context.getInputReader().readLine().trim();
         } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
 
         StringBuilder messageBuffer =
@@ -158,39 +158,39 @@ public class RemoteManagerHandler implements ProtocolHandler {
                     .append("Welcome ")
                     .append(login)
                     .append(". HELP for a list of commands");
-        helper.getOutputWriter().println( messageBuffer.toString() );
-        helper.getOutputWriter().flush();
-        if (helper.getLogger().isInfoEnabled()) {
+        context.getOutputWriter().println( messageBuffer.toString() );
+        context.getOutputWriter().flush();
+        if (context.getLogger().isInfoEnabled()) {
             StringBuilder infoBuffer =
                 new StringBuilder(128)
                         .append("Login for ")
                         .append(login)
                         .append(" successful");
-            helper.getLogger().info(infoBuffer.toString());
+            context.getLogger().info(infoBuffer.toString());
         }
 
         try {
-            helper.getOutputWriter().print(theConfigData.getPrompt());
-            helper.getOutputWriter().flush();
-            helper.getWatchdog().start();
-            while (parseCommand(helper.getInputReader().readLine())) {
-                helper.getWatchdog().reset();
-                helper.getOutputWriter().print(theConfigData.getPrompt());
-                helper.getOutputWriter().flush();
+            context.getOutputWriter().print(theConfigData.getPrompt());
+            context.getOutputWriter().flush();
+            context.getWatchdog().start();
+            while (parseCommand(context.getInputReader().readLine())) {
+                context.getWatchdog().reset();
+                context.getOutputWriter().print(theConfigData.getPrompt());
+                context.getOutputWriter().flush();
             }
-            helper.getWatchdog().stop();
+            context.getWatchdog().stop();
         } catch (IOException ioe) {
             //We can cleanly ignore this as it's probably a socket timeout
         } catch (Throwable thr) {
             System.out.println("Exception: " + thr.getMessage());
-            helper.getLogger().error("Encountered exception in handling the remote manager connection.", thr);
+            context.getLogger().error("Encountered exception in handling the remote manager connection.", thr);
         }
         StringBuilder infoBuffer =
             new StringBuilder(64)
                     .append("Logout for ")
                     .append(login)
                     .append(".");
-        helper.getLogger().info(infoBuffer.toString());
+        context.getLogger().info(infoBuffer.toString());
 
     }
 

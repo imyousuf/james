@@ -256,9 +256,9 @@ public class NNTPHandler implements ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
+     * @see org.apache.james.socket.ProtocolHandler#handleProtocol(ProtocolContext)
      */
-    public void handleProtocol() throws IOException {
+    public void handleProtocol(ProtocolContext context) throws IOException {
         // section 7.1
         if ( theConfigData.getNNTPRepository().isReadOnly() ) {
             StringBuilder respBuffer =
@@ -266,27 +266,27 @@ public class NNTPHandler implements ProtocolHandler {
                     .append("201 ")
                     .append(theConfigData.getHelloName())
                     .append(" NNTP Service Ready, posting prohibited");
-            helper.writeLoggedFlushedResponse(respBuffer.toString());
+            context.writeLoggedFlushedResponse(respBuffer.toString());
         } else {
             StringBuilder respBuffer =
                 new StringBuilder(128)
                         .append("200 ")
                         .append(theConfigData.getHelloName())
                         .append(" NNTP Service Ready, posting permitted");
-            helper.writeLoggedFlushedResponse(respBuffer.toString());
+            context.writeLoggedFlushedResponse(respBuffer.toString());
         }
 
-        helper.getWatchdog().start();
-        while (parseCommand(helper.getInputReader().readLine())) {
-            helper.getWatchdog().reset();
+        context.getWatchdog().start();
+        while (parseCommand(context.getInputReader().readLine())) {
+            context.getWatchdog().reset();
         }
-        helper.getWatchdog().stop();
+        context.getWatchdog().stop();
 
-        helper.getLogger().info("Connection closed");
+        context.getLogger().info("Connection closed");
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#fatalFailure(java.lang.RuntimeException, ProtocolContext)
+     * @see org.apache.james.socket.ProtocolHandler#fatalFailure(java.lang.RuntimeException, ProtocolContext)
      */
     public void fatalFailure(final RuntimeException e, final ProtocolContext context) {
         // If the connection has been idled out, the

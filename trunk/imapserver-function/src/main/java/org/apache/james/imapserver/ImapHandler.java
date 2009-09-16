@@ -20,9 +20,7 @@
 package org.apache.james.imapserver;
 
 import java.io.IOException;
-import java.net.Socket;
 
-import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.encode.ImapResponseComposer;
@@ -30,8 +28,8 @@ import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.apache.james.imap.main.OutputStreamImapResponseWriter;
-import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolContext;
+import org.apache.james.socket.ProtocolHandler;
 
 /**
  * Handles IMAP connections.
@@ -72,46 +70,47 @@ public class ImapHandler implements ProtocolHandler
     }
 
     /**
-     * @see ConnectionHandler#handleConnection(Socket)
+     * @see ProtocolHandler#handleProtocol(ProtocolContext)
      */
-    public void handleProtocol() throws IOException {
+    public void handleProtocol(final ProtocolContext context) throws IOException {
             getLogger().debug(
-                "Connection from " + helper.getRemoteHost() + " (" + helper.getRemoteIP()
+                "Connection from " + context.getRemoteHost() + " (" + context.getRemoteIP()
                         + ") opened.");
-            final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter( helper.getOutputStream() );
+            final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter( context.getOutputStream() );
             ImapResponseComposer response = new ImapResponseComposerImpl( writer);
 
             // Write welcome message
                  
             response.hello(hello);
 
-            setUpSession();
+            setUpSession(context);
             
-            helper.getWatchdog().start();
-            while ( handleRequest() ) {
-                helper.getWatchdog().reset();
+            context.getWatchdog().start();
+            while ( handleRequest(context) ) {
+                context.getWatchdog().reset();
             }
-            helper.getWatchdog().stop();
+            context.getWatchdog().stop();
             if (session != null) {
                 session.logout();
             }
             
             getLogger().info(
-                    "Connection from " + helper.getRemoteHost() + " (" + helper.getRemoteIP()
+                    "Connection from " + context.getRemoteHost() + " (" + context.getRemoteIP()
                             + ") closed.");
     }
 
     /**
      * Sets up a session.
+     * @param context not null
      */
-    private void setUpSession() {
+    private void setUpSession(ProtocolContext context) {
         final ImapSessionImpl session = new ImapSessionImpl();
-        session.setLog(helper.getLogger());
+        session.setLog(context.getLogger());
         this.session = session;
     }
 
-    private boolean handleRequest() {
-        final boolean result = requestHandler.handleRequest( helper.getInputStream(), helper.getOutputStream(), session );
+    private boolean handleRequest(ProtocolContext context) {
+        final boolean result = requestHandler.handleRequest( context.getInputStream(), context.getOutputStream(), session );
         return result;
     }
     

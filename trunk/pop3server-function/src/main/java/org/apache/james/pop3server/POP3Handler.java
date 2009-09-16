@@ -161,9 +161,9 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol()
+     * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol(ProtocolContext)
      */
-    public void handleProtocol() throws IOException {
+    public void handleProtocol(ProtocolContext context) throws IOException {
         handlerState = AUTHENTICATION_READY;
         authenticatedUser = "unknown";
 
@@ -179,7 +179,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
                     .append(POP3Handler.softwaretype)
                     .append(") ready ");
         String responseString = clearResponseBuffer();
-        helper.writeLoggedFlushedResponse(responseString);
+        context.writeLoggedFlushedResponse(responseString);
 
         //Session started - RUN all connect handlers
         List connectHandlers = handlerChain.getConnectHandlers();
@@ -194,7 +194,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         }
 
         
-        helper.getWatchdog().start();
+        context.getWatchdog().start();
         while(!sessionEnded) {
           //Reset the current command values
           curCommandName = null;
@@ -215,12 +215,12 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
           }
           curCommandName = curCommandName.toUpperCase(Locale.US);
 
-          if (helper.getLogger().isDebugEnabled()) {
+          if (context.getLogger().isDebugEnabled()) {
               // Don't display password in logger
               if (!curCommandName.equals("PASS")) {
-                  helper.getLogger().debug("Command received: " + cmdString);
+                  context.getLogger().debug("Command received: " + cmdString);
               } else {
-                  helper.getLogger().debug("Command received: PASS <password omitted>");
+                  context.getLogger().debug("Command received: PASS <password omitted>");
               }
           }
 
@@ -233,7 +233,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
               int count = commandHandlers.size();
               for(int i = 0; i < count; i++) {
                   ((CommandHandler)commandHandlers.get(i)).onCommand(this);
-                  helper.getWatchdog().reset();
+                  context.getWatchdog().reset();
                   //if the response is received, stop processing of command handlers
                   if(mode != COMMAND_MODE) {
                       break;
@@ -242,18 +242,18 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
 
           }
         }
-        helper.getWatchdog().stop();
-        if (helper.getLogger().isInfoEnabled()) {
+        context.getWatchdog().stop();
+        if (context.getLogger().isInfoEnabled()) {
             StringBuilder logBuffer =
                 new StringBuilder(128)
                     .append("Connection for ")
                     .append(getUser())
                     .append(" from ")
-                    .append(helper.getRemoteHost())
+                    .append(context.getRemoteHost())
                     .append(" (")
-                    .append(helper.getRemoteIP())
+                    .append(context.getRemoteIP())
                     .append(") closed.");
-            helper.getLogger().info(logBuffer.toString());
+            context.getLogger().info(logBuffer.toString());
         }
     }
     
