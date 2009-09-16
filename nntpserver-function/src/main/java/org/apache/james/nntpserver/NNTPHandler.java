@@ -57,8 +57,6 @@ import java.util.StringTokenizer;
  */
 public class NNTPHandler implements ProtocolHandler {
 
-    private ProtocolContext helper;
-
     /**
      * used to calculate DATE from - see 11.3
      */
@@ -277,7 +275,7 @@ public class NNTPHandler implements ProtocolHandler {
         }
 
         context.getWatchdog().start();
-        while (parseCommand(context.getInputReader().readLine())) {
+        while (parseCommand(context.getInputReader().readLine(), context)) {
             context.getWatchdog().reset();
         }
         context.getWatchdog().stop();
@@ -323,15 +321,16 @@ public class NNTPHandler implements ProtocolHandler {
      * be called.  It returns true if expecting additional commands, false otherwise.
      *
      * @param commandRaw the raw command string passed in over the socket
+     * @param context not null
      *
      * @return whether additional commands are expected.
      */
-    private boolean parseCommand(String commandRaw) {
+    private boolean parseCommand(String commandRaw, ProtocolContext context) {
         if (commandRaw == null) {
             return false;
         }
-        if (helper.getLogger().isDebugEnabled()) {
-            helper.getLogger().debug("Command received: " + commandRaw);
+        if (context.getLogger().isDebugEnabled()) {
+            context.getLogger().debug("Command received: " + commandRaw);
         }
 
         String command = commandRaw.trim();
@@ -345,67 +344,67 @@ public class NNTPHandler implements ProtocolHandler {
 
         boolean returnValue = true;
         if (!isAuthorized(command) ) {
-            helper.writeLoggedFlushedResponse("480 User is not authenticated");
-            helper.getLogger().debug("Command not allowed.");
+            context.writeLoggedFlushedResponse("480 User is not authenticated");
+            context.getLogger().debug("Command not allowed.");
             return returnValue;
         }
         if ((command.equals(COMMAND_MODE)) && (argument != null)) {
             if (argument.toUpperCase(Locale.US).equals(MODE_TYPE_READER)) {
-                doMODEREADER(argument);
+                doMODEREADER(argument, context);
             } else if (argument.toUpperCase(Locale.US).equals(MODE_TYPE_STREAM)) {
-                doMODESTREAM(argument);
+                doMODESTREAM(argument, context);
             } else {
-                helper.writeLoggedFlushedResponse("500 Command not understood");
+                context.writeLoggedFlushedResponse("500 Command not understood");
             }
         } else if ( command.equals(COMMAND_LIST)) {
-            doLIST(argument);
+            doLIST(argument, context);
         } else if ( command.equals(COMMAND_GROUP) ) {
-            doGROUP(argument);
+            doGROUP(argument, context);
         } else if ( command.equals(COMMAND_NEXT) ) {
-            doNEXT(argument);
+            doNEXT(argument, context);
         } else if ( command.equals(COMMAND_LAST) ) {
-            doLAST(argument);
+            doLAST(argument, context);
         } else if ( command.equals(COMMAND_ARTICLE) ) {
-            doARTICLE(argument);
+            doARTICLE(argument, context);
         } else if ( command.equals(COMMAND_HEAD) ) {
-            doHEAD(argument);
+            doHEAD(argument, context);
         } else if ( command.equals(COMMAND_BODY) ) {
-            doBODY(argument);
+            doBODY(argument, context);
         } else if ( command.equals(COMMAND_STAT) ) {
-            doSTAT(argument);
+            doSTAT(argument, context);
         } else if ( command.equals(COMMAND_POST) ) {
-            doPOST(argument);
+            doPOST(argument, context);
         } else if ( command.equals(COMMAND_IHAVE) ) {
-            doIHAVE(argument);
+            doIHAVE(argument, context);
         } else if ( command.equals(COMMAND_QUIT) ) {
-            doQUIT(argument, helper);
+            doQUIT(argument, context);
             returnValue = false;
         } else if ( command.equals(COMMAND_DATE) ) {
-            doDATE(argument);
+            doDATE(argument, context);
         } else if ( command.equals(COMMAND_HELP) ) {
-            doHELP(argument);
+            doHELP(argument, context);
         } else if ( command.equals(COMMAND_NEWGROUPS) ) {
-            doNEWGROUPS(argument);
+            doNEWGROUPS(argument, context);
         } else if ( command.equals(COMMAND_NEWNEWS) ) {
-            doNEWNEWS(argument);
+            doNEWNEWS(argument, context);
         } else if ( command.equals(COMMAND_LISTGROUP) ) {
-            doLISTGROUP(argument);
+            doLISTGROUP(argument, context);
         } else if ( command.equals(COMMAND_OVER) ) {
-            doOVER(argument);
+            doOVER(argument, context);
         } else if ( command.equals(COMMAND_XOVER) ) {
-            doXOVER(argument);
+            doXOVER(argument, context);
         } else if ( command.equals(COMMAND_HDR) ) {
-            doHDR(argument);
+            doHDR(argument, context);
         } else if ( command.equals(COMMAND_XHDR) ) {
-            doXHDR(argument);
+            doXHDR(argument, context);
         } else if ( command.equals(COMMAND_AUTHINFO) ) {
-            doAUTHINFO(argument);
+            doAUTHINFO(argument, context);
         } else if ( command.equals(COMMAND_SLAVE) ) {
-            doSLAVE(argument);
+            doSLAVE(argument, context);
         } else if ( command.equals(COMMAND_PAT) ) {
-            doPAT(argument);
+            doPAT(argument, context);
         } else {
-            doUnknownCommand(command, argument);
+            doUnknownCommand(command, argument, context);
         }
         return returnValue;
     }
@@ -415,18 +414,19 @@ public class NNTPHandler implements ProtocolHandler {
      *
      * @param command the command received from the client
      * @param argument the argument passed in with the command
+     * @param context not null
      */
-    private void doUnknownCommand(String command, String argument) {
-        if (helper.getLogger().isDebugEnabled()) {
+    private void doUnknownCommand(String command, String argument, ProtocolContext context) {
+        if (context.getLogger().isDebugEnabled()) {
             StringBuilder logBuffer =
                 new StringBuilder(128)
                     .append("Received unknown command ")
                     .append(command)
                     .append(" with argument ")
                     .append(argument);
-            helper.getLogger().debug(logBuffer.toString());
+            context.getLogger().debug(logBuffer.toString());
         }
-        helper.writeLoggedFlushedResponse("500 Unknown command");
+        context.writeLoggedFlushedResponse("500 Unknown command");
     }
 
     /**
@@ -435,8 +435,9 @@ public class NNTPHandler implements ProtocolHandler {
      * per article 3.1.3 of RFC 2980
      *
      * @param argument the argument passed in with the AUTHINFO command
+     * @param context not null
      */
-    private void doAUTHINFO(String argument) {
+    private void doAUTHINFO(String argument, ProtocolContext context) {
         String command = null;
         String value = null;
         if (argument != null) {
@@ -447,29 +448,29 @@ public class NNTPHandler implements ProtocolHandler {
             }
         }
         if (command == null) {
-            helper.writeLoggedFlushedResponse("501 Syntax error");
+            context.writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
         command = command.toUpperCase(Locale.US);
         if ( command.equals(AUTHINFO_PARAM_USER) ) {
             // Reject re-authentication
             if ( isAlreadyAuthenticated ) {
-                helper.writeLoggedFlushedResponse("482 Already authenticated - rejecting new credentials");
+                context.writeLoggedFlushedResponse("482 Already authenticated - rejecting new credentials");
             }
             // Reject doubly sent user
             if (user != null) {
                 user = null;
                 password = null;
                 isAlreadyAuthenticated = false;
-                helper.writeLoggedFlushedResponse("482 User already specified - rejecting new user");
+                context.writeLoggedFlushedResponse("482 User already specified - rejecting new user");
                 return;
             }
             user = value;
-            helper.writeLoggedFlushedResponse("381 More authentication information required");
+            context.writeLoggedFlushedResponse("381 More authentication information required");
         } else if ( command.equals(AUTHINFO_PARAM_PASS) ) {
             // Reject password sent before user
             if (user == null) {
-                helper.writeLoggedFlushedResponse("482 User not yet specified.  Rejecting user.");
+                context.writeLoggedFlushedResponse("482 User not yet specified.  Rejecting user.");
                 return;
             }
             // Reject doubly sent password
@@ -477,21 +478,21 @@ public class NNTPHandler implements ProtocolHandler {
                 user = null;
                 password = null;
                 isAlreadyAuthenticated = false;
-                helper.writeLoggedFlushedResponse("482 Password already specified - rejecting new password");
+                context.writeLoggedFlushedResponse("482 Password already specified - rejecting new password");
                 return;
             }
             password = value;
             isAlreadyAuthenticated = isAuthenticated();
             if ( isAlreadyAuthenticated ) {
-                helper.writeLoggedFlushedResponse("281 Authentication accepted");
+                context.writeLoggedFlushedResponse("281 Authentication accepted");
             } else {
-                helper.writeLoggedFlushedResponse("482 Authentication rejected");
+                context.writeLoggedFlushedResponse("482 Authentication rejected");
                 // Clear bad authentication
                 user = null;
                 password = null;
             }
         } else {
-            helper.writeLoggedFlushedResponse("501 Syntax error");
+            context.writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
     }
@@ -502,8 +503,9 @@ public class NNTPHandler implements ProtocolHandler {
      *
      * @param argument the argument passed in with the NEWNEWS command.
      *                 Should be a wildmat followed by a date.
+     * @param context not null
      */
-    private void doNEWNEWS(String argument) {
+    private void doNEWNEWS(String argument, ProtocolContext context) {
         // see section 11.4
 
         String wildmat = "*";
@@ -514,13 +516,13 @@ public class NNTPHandler implements ProtocolHandler {
                 wildmat = argument.substring(0, spaceIndex);
                 argument = argument.substring(spaceIndex + 1);
             } else {
-                helper.getLogger().error("NEWNEWS had an invalid argument");
-                helper.writeLoggedFlushedResponse("501 Syntax error");
+                context.getLogger().error("NEWNEWS had an invalid argument");
+                context.writeLoggedFlushedResponse("501 Syntax error");
                 return;
             }
         } else {
-            helper.getLogger().error("NEWNEWS had a null argument");
-            helper.writeLoggedFlushedResponse("501 Syntax error");
+            context.getLogger().error("NEWNEWS had a null argument");
+            context.writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
 
@@ -528,12 +530,12 @@ public class NNTPHandler implements ProtocolHandler {
         try {
             theDate = getDateFrom(argument);
         } catch (NNTPException nntpe) {
-            helper.getLogger().error("NEWNEWS had an invalid argument", nntpe);
-            helper.writeLoggedFlushedResponse("501 Syntax error");
+            context.getLogger().error("NEWNEWS had an invalid argument", nntpe);
+            context.writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
 
-        helper.writeLoggedFlushedResponse("230 list of new articles by message-id follows");
+        context.writeLoggedFlushedResponse("230 list of new articles by message-id follows");
         Iterator groupIter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
         while ( groupIter.hasNext() ) {
             Iterator articleIter = ((NNTPGroup)(groupIter.next())).getArticlesSince(theDate);
@@ -541,10 +543,10 @@ public class NNTPHandler implements ProtocolHandler {
                 StringBuilder iterBuffer =
                     new StringBuilder(64)
                         .append(((NNTPArticle)articleIter.next()).getUniqueID());
-                helper.writeLoggedResponse(iterBuffer.toString());
+                context.writeLoggedResponse(iterBuffer.toString());
             }
         }
-        helper.writeLoggedFlushedResponse(".");
+        context.writeLoggedFlushedResponse(".");
     }
 
     /**
@@ -553,8 +555,9 @@ public class NNTPHandler implements ProtocolHandler {
      *
      * @param argument the argument passed in with the NEWGROUPS command.
      *                 Should be a date.
+     * @param context not null
      */
-    private void doNEWGROUPS(String argument) {
+    private void doNEWGROUPS(String argument, ProtocolContext context) {
         // see section 11.3
         // both draft-ietf-nntpext-base-15.txt and rfc977 have only group names 
         // in response lines, but INN sends 
@@ -568,12 +571,12 @@ public class NNTPHandler implements ProtocolHandler {
         try {
             theDate = getDateFrom(argument);
         } catch (NNTPException nntpe) {
-            helper.getLogger().error("NEWGROUPS had an invalid argument", nntpe);
-            helper.writeLoggedFlushedResponse("501 Syntax error");
+            context.getLogger().error("NEWGROUPS had an invalid argument", nntpe);
+            context.writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
         Iterator iter = theConfigData.getNNTPRepository().getGroupsSince(theDate);
-        helper.writeLoggedFlushedResponse("231 list of new newsgroups follows");
+        context.writeLoggedFlushedResponse("231 list of new newsgroups follows");
         while ( iter.hasNext() ) {
             NNTPGroup currentGroup = (NNTPGroup)iter.next();
             StringBuilder iterBuffer =
@@ -585,19 +588,20 @@ public class NNTPHandler implements ProtocolHandler {
                     .append(currentGroup.getFirstArticleNumber())
                     .append(" ")
                     .append((currentGroup.isPostAllowed()?"y":"n"));
-            helper.writeLoggedResponse(iterBuffer.toString());
+            context.writeLoggedResponse(iterBuffer.toString());
         }
-        helper.writeLoggedFlushedResponse(".");
+        context.writeLoggedFlushedResponse(".");
     }
 
     /**
      * Lists the help text for the service.
      *
      * @param argument the argument passed in with the HELP command.
+     * @param context not null
      */
-    private void doHELP(String argument) {
-        helper.writeLoggedResponse("100 Help text follows");
-        helper.writeLoggedFlushedResponse(".");
+    private void doHELP(String argument, ProtocolContext context) {
+        context.writeLoggedResponse("100 Help text follows");
+        context.writeLoggedFlushedResponse(".");
     }
 
     /**
@@ -605,20 +609,22 @@ public class NNTPHandler implements ProtocolHandler {
      * to slave connections.
      *
      * @param argument the argument passed in with the SLAVE command.
+     * @param context not null
      */
-    private void doSLAVE(String argument) {
-        helper.writeLoggedFlushedResponse("202 slave status noted");
+    private void doSLAVE(String argument, ProtocolContext context) {
+        context.writeLoggedFlushedResponse("202 slave status noted");
     }
 
     /**
      * Returns the current date according to the news server.
      *
      * @param argument the argument passed in with the DATE command
+     * @param context not null
      */
-    private void doDATE(String argument) {
+    private void doDATE(String argument, ProtocolContext context) {
         Date dt = new Date(System.currentTimeMillis()-UTC_OFFSET);
         String dtStr = DF_RFC2980.format(new Date(dt.getTime() - UTC_OFFSET));
-        helper.writeLoggedFlushedResponse("111 " + dtStr);
+        context.writeLoggedFlushedResponse("111 " + dtStr);
     }
 
     /**
@@ -635,8 +641,9 @@ public class NNTPHandler implements ProtocolHandler {
      * Handles the LIST command and its assorted extensions.
      *
      * @param argument the argument passed in with the LIST command.
+     * @param context not null
      */
-    private void doLIST(String argument) {
+    private void doLIST(String argument, ProtocolContext context) {
         // see section 9.4.1
         String wildmat = "*";
         boolean isListNewsgroups = false;
@@ -657,40 +664,40 @@ public class NNTPHandler implements ProtocolHandler {
             } else if (extension.equals("NEWSGROUPS") ) {
                 isListNewsgroups = true;
             } else if (extension.equals("EXTENSIONS") ) {
-                doLISTEXTENSIONS();
+                doLISTEXTENSIONS(context);
                 return;
             } else if (extension.equals("OVERVIEW.FMT") ) {
-                doLISTOVERVIEWFMT();
+                doLISTOVERVIEWFMT(context);
                 return;
             } else if (extension.equals("ACTIVE.TIMES") ) {
                 // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
-                helper.writeLoggedFlushedResponse("503 program error, function not performed");
+                context.writeLoggedFlushedResponse("503 program error, function not performed");
                 return;
             } else if (extension.equals("DISTRIBUTIONS") ) {
                 // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
-                helper.writeLoggedFlushedResponse("503 program error, function not performed");
+                context.writeLoggedFlushedResponse("503 program error, function not performed");
                 return;
             } else if (extension.equals("DISTRIB.PATS") ) {
                 // not supported - 9.4.2.1, 9.4.3.1, 9.4.4.1
-                helper.writeLoggedFlushedResponse("503 program error, function not performed");
+                context.writeLoggedFlushedResponse("503 program error, function not performed");
                 return;
             } else {
-                helper.writeLoggedFlushedResponse("501 Syntax error");
+                context.writeLoggedFlushedResponse("501 Syntax error");
                 return;
             }
         }
 
         Iterator iter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
-        helper.writeLoggedFlushedResponse("215 list of newsgroups follows");
+        context.writeLoggedFlushedResponse("215 list of newsgroups follows");
         while ( iter.hasNext() ) {
             NNTPGroup theGroup = (NNTPGroup)iter.next();
             if (isListNewsgroups) {
-                helper.writeLoggedResponse(theGroup.getListNewsgroupsFormat());
+                context.writeLoggedResponse(theGroup.getListNewsgroupsFormat());
             } else {
-                helper.writeLoggedResponse(theGroup.getListFormat());
+                context.writeLoggedResponse(theGroup.getListFormat());
             }
         }
-        helper.writeLoggedFlushedResponse(".");
+        context.writeLoggedFlushedResponse(".");
     }
 
     /**
@@ -698,25 +705,26 @@ public class NNTPHandler implements ProtocolHandler {
      * message-ID.
      *
      * @param id the message id
+     * @param context not null
      */
-    private void doIHAVE(String id) {
+    private void doIHAVE(String id, ProtocolContext context) {
         // see section 9.3.2.1
         if (!isMessageId(id)) {
-            helper.writeLoggedFlushedResponse("501 command syntax error");
+            context.writeLoggedFlushedResponse("501 command syntax error");
             return;
         }
         NNTPArticle article = theConfigData.getNNTPRepository().getArticleFromID(id);
         if ( article != null ) {
-            helper.writeLoggedFlushedResponse("435 article not wanted - do not send it");
+            context.writeLoggedFlushedResponse("435 article not wanted - do not send it");
         } else {
-            helper.writeLoggedFlushedResponse("335 send article to be transferred. End with <CR-LF>.<CR-LF>");
+            context.writeLoggedFlushedResponse("335 send article to be transferred. End with <CR-LF>.<CR-LF>");
             try {
-                createArticle();
+                createArticle(context);
             } catch (RuntimeException e) {
-                helper.writeLoggedFlushedResponse("436 transfer failed - try again later");
+                context.writeLoggedFlushedResponse("436 transfer failed - try again later");
                 throw e;
             }
-            helper.writeLoggedFlushedResponse("235 article received ok");
+            context.writeLoggedFlushedResponse("235 article received ok");
         }
     }
 
@@ -724,15 +732,16 @@ public class NNTPHandler implements ProtocolHandler {
      * Posts an article to the news server.
      *
      * @param argument the argument passed in with the POST command
+     * @param context not null
      */
-    private void doPOST(String argument) {
+    private void doPOST(String argument, ProtocolContext context) {
         // see section 9.3.1.1
         if ( argument != null ) {
-            helper.writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
+            context.writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
         }
-        helper.writeLoggedFlushedResponse("340 send article to be posted. End with <CR-LF>.<CR-LF>");
-        createArticle();
-        helper.writeLoggedFlushedResponse("240 article received ok");
+        context.writeLoggedFlushedResponse("340 send article to be posted. End with <CR-LF>.<CR-LF>");
+        createArticle(context);
+        context.writeLoggedFlushedResponse("240 article received ok");
     }
 
     /**
@@ -743,31 +752,32 @@ public class NNTPHandler implements ProtocolHandler {
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
+     * @param context not null
      */
-    private void doSTAT(String param) {
+    private void doSTAT(String param, ProtocolContext context) {
         // section 9.2.4
         NNTPArticle article = null;
         if (isMessageId(param)) {
             article = theConfigData.getNNTPRepository().getArticleFromID(param);
             if ( article == null ) {
-                helper.writeLoggedFlushedResponse("430 no such article");
+                context.writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
                 StringBuilder respBuffer =
                     new StringBuilder(64)
                             .append("223 0 ")
                             .append(param);
-                helper.writeLoggedFlushedResponse(respBuffer.toString());
+                context.writeLoggedFlushedResponse(respBuffer.toString());
             }
         } else {
             int newArticleNumber = currentArticleNumber;
             if ( group == null ) {
-                helper.writeLoggedFlushedResponse("412 no newsgroup selected");
+                context.writeLoggedFlushedResponse("412 no newsgroup selected");
                 return;
             } else {
                 if ( param == null ) {
                     if ( currentArticleNumber < 0 ) {
-                        helper.writeLoggedFlushedResponse("420 no current article selected");
+                        context.writeLoggedFlushedResponse("420 no current article selected");
                         return;
                     } else {
                         article = group.getArticle(currentArticleNumber);
@@ -778,7 +788,7 @@ public class NNTPHandler implements ProtocolHandler {
                     article = group.getArticle(newArticleNumber);
                 }
                 if ( article == null ) {
-                    helper.writeLoggedFlushedResponse("423 no such article number in this group");
+                    context.writeLoggedFlushedResponse("423 no such article number in this group");
                     return;
                 } else {
                     currentArticleNumber = newArticleNumber;
@@ -792,7 +802,7 @@ public class NNTPHandler implements ProtocolHandler {
                                 .append(article.getArticleNumber())
                                 .append(" ")
                                 .append(articleID);
-                    helper.writeLoggedFlushedResponse(respBuffer.toString());
+                    context.writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
         }
@@ -806,31 +816,32 @@ public class NNTPHandler implements ProtocolHandler {
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
+     * @param context not null
      */
-    private void doBODY(String param) {
+    private void doBODY(String param, ProtocolContext context) {
         // section 9.2.3
         NNTPArticle article = null;
         if (isMessageId(param)) {
             article = theConfigData.getNNTPRepository().getArticleFromID(param);
             if ( article == null ) {
-                helper.writeLoggedFlushedResponse("430 no such article");
+                context.writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
                 StringBuilder respBuffer =
                     new StringBuilder(64)
                             .append("222 0 ")
                             .append(param);
-                helper.writeLoggedFlushedResponse(respBuffer.toString());
+                context.writeLoggedFlushedResponse(respBuffer.toString());
             }
         } else {
             int newArticleNumber = currentArticleNumber;
             if ( group == null ) {
-                helper.writeLoggedFlushedResponse("412 no newsgroup selected");
+                context.writeLoggedFlushedResponse("412 no newsgroup selected");
                 return;
             } else {
                 if ( param == null ) {
                     if ( currentArticleNumber < 0 ) {
-                        helper.writeLoggedFlushedResponse("420 no current article selected");
+                        context.writeLoggedFlushedResponse("420 no current article selected");
                         return;
                     } else {
                         article = group.getArticle(currentArticleNumber);
@@ -841,7 +852,7 @@ public class NNTPHandler implements ProtocolHandler {
                     article = group.getArticle(newArticleNumber);
                 }
                 if ( article == null ) {
-                    helper.writeLoggedFlushedResponse("423 no such article number in this group");
+                    context.writeLoggedFlushedResponse("423 no such article number in this group");
                     return;
                 } else {
                     currentArticleNumber = newArticleNumber;
@@ -855,14 +866,14 @@ public class NNTPHandler implements ProtocolHandler {
                                 .append(article.getArticleNumber())
                                 .append(" ")
                                 .append(articleID);
-                    helper.writeLoggedFlushedResponse(respBuffer.toString());
+                    context.writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
         }
         if (article != null) {
-            helper.getOutputWriter().flush();
-            article.writeBody(new ExtraDotOutputStream(helper.getOutputStream()));
-            helper.writeLoggedFlushedResponse("\r\n.");
+            context.getOutputWriter().flush();
+            article.writeBody(new ExtraDotOutputStream(context.getOutputStream()));
+            context.writeLoggedFlushedResponse("\r\n.");
         }
     }
 
@@ -874,31 +885,32 @@ public class NNTPHandler implements ProtocolHandler {
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
+     * @param context not null
      */
-    private void doHEAD(String param) {
+    private void doHEAD(String param, ProtocolContext context) {
         // section 9.2.2
         NNTPArticle article = null;
         if (isMessageId(param)) {
             article = theConfigData.getNNTPRepository().getArticleFromID(param);
             if ( article == null ) {
-                helper.writeLoggedFlushedResponse("430 no such article");
+                context.writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
                 StringBuilder respBuffer =
                     new StringBuilder(64)
                             .append("221 0 ")
                             .append(param);
-                helper.writeLoggedFlushedResponse(respBuffer.toString());
+                context.writeLoggedFlushedResponse(respBuffer.toString());
             }
         } else {
             int newArticleNumber = currentArticleNumber;
             if ( group == null ) {
-                helper.writeLoggedFlushedResponse("412 no newsgroup selected");
+                context.writeLoggedFlushedResponse("412 no newsgroup selected");
                 return;
             } else {
                 if ( param == null ) {
                     if ( currentArticleNumber < 0 ) {
-                        helper.writeLoggedFlushedResponse("420 no current article selected");
+                        context.writeLoggedFlushedResponse("420 no current article selected");
                         return;
                     } else {
                         article = group.getArticle(currentArticleNumber);
@@ -909,7 +921,7 @@ public class NNTPHandler implements ProtocolHandler {
                     article = group.getArticle(newArticleNumber);
                 }
                 if ( article == null ) {
-                    helper.writeLoggedFlushedResponse("423 no such article number in this group");
+                    context.writeLoggedFlushedResponse("423 no such article number in this group");
                     return;
                 } else {
                     currentArticleNumber = newArticleNumber;
@@ -923,14 +935,14 @@ public class NNTPHandler implements ProtocolHandler {
                                 .append(article.getArticleNumber())
                                 .append(" ")
                                 .append(articleID);
-                    helper.writeLoggedFlushedResponse(respBuffer.toString());
+                    context.writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
         }
         if (article != null) {
-            helper.getOutputWriter().flush();
-            article.writeHead(new ExtraDotOutputStream(helper.getOutputStream()));
-            helper.writeLoggedFlushedResponse(".");
+            context.getOutputWriter().flush();
+            article.writeHead(new ExtraDotOutputStream(context.getOutputStream()));
+            context.writeLoggedFlushedResponse(".");
         }
     }
 
@@ -942,31 +954,32 @@ public class NNTPHandler implements ProtocolHandler {
      *        which should be an article number or message id.
      *        If no parameter is provided, the current selected
      *        article is used.
+     * @param context not null
      */
-    private void doARTICLE(String param) {
+    private void doARTICLE(String param, ProtocolContext context) {
         // section 9.2.1
         NNTPArticle article = null;
         if (isMessageId(param)) {
             article = theConfigData.getNNTPRepository().getArticleFromID(param);
             if ( article == null ) {
-                helper.writeLoggedFlushedResponse("430 no such article");
+                context.writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
                 StringBuilder respBuffer =
                     new StringBuilder(64)
                             .append("220 0 ")
                             .append(param);
-                helper.writeLoggedResponse(respBuffer.toString());
+                context.writeLoggedResponse(respBuffer.toString());
             }
         } else {
             int newArticleNumber = currentArticleNumber;
             if ( group == null ) {
-                helper.writeLoggedFlushedResponse("412 no newsgroup selected");
+                context.writeLoggedFlushedResponse("412 no newsgroup selected");
                 return;
             } else {
                 if ( param == null ) {
                     if ( currentArticleNumber < 0 ) {
-                        helper.writeLoggedFlushedResponse("420 no current article selected");
+                        context.writeLoggedFlushedResponse("420 no current article selected");
                         return;
                     } else {
                         article = group.getArticle(currentArticleNumber);
@@ -977,7 +990,7 @@ public class NNTPHandler implements ProtocolHandler {
                     article = group.getArticle(newArticleNumber);
                 }
                 if ( article == null ) {
-                    helper.writeLoggedFlushedResponse("423 no such article number in this group");
+                    context.writeLoggedFlushedResponse("423 no such article number in this group");
                     return;
                 } else {
                     currentArticleNumber = newArticleNumber;
@@ -991,15 +1004,15 @@ public class NNTPHandler implements ProtocolHandler {
                                 .append(article.getArticleNumber())
                                 .append(" ")
                                 .append(articleID);
-                    helper.writeLoggedFlushedResponse(respBuffer.toString());
+                    context.writeLoggedFlushedResponse(respBuffer.toString());
                 }
             }
         }
         if (article != null) {
-            helper.getOutputWriter().flush();
-            article.writeArticle(new ExtraDotOutputStream(helper.getOutputStream()));
+            context.getOutputWriter().flush();
+            article.writeArticle(new ExtraDotOutputStream(context.getOutputStream()));
             // see jira JAMES-311 for an explanation of the "\r\n"
-            helper.writeLoggedFlushedResponse("\r\n.");
+            context.writeLoggedFlushedResponse("\r\n.");
         }
     }
 
@@ -1007,17 +1020,18 @@ public class NNTPHandler implements ProtocolHandler {
      * Advances the current article pointer to the next article in the group.
      *
      * @param argument the argument passed in with the NEXT command
+     * @param context not null
      */
-    private void doNEXT(String argument) {
+    private void doNEXT(String argument, ProtocolContext context) {
         // section 9.1.1.3.1
         if ( argument != null ) {
-            helper.writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
+            context.writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
         } else if ( group == null ) {
-            helper.writeLoggedFlushedResponse("412 no newsgroup selected");
+            context.writeLoggedFlushedResponse("412 no newsgroup selected");
         } else if ( currentArticleNumber < 0 ) {
-            helper.writeLoggedFlushedResponse("420 no current article has been selected");
+            context.writeLoggedFlushedResponse("420 no current article has been selected");
         } else if ( currentArticleNumber >= group.getLastArticleNumber() ) {
-            helper.writeLoggedFlushedResponse("421 no next article in this group");
+            context.writeLoggedFlushedResponse("421 no next article in this group");
         } else {
             currentArticleNumber++;
             NNTPArticle article = group.getArticle(currentArticleNumber);
@@ -1027,7 +1041,7 @@ public class NNTPHandler implements ProtocolHandler {
                         .append(article.getArticleNumber())
                         .append(" ")
                         .append(article.getUniqueID());
-            helper.writeLoggedFlushedResponse(respBuffer.toString());
+            context.writeLoggedFlushedResponse(respBuffer.toString());
         }
     }
 
@@ -1036,17 +1050,18 @@ public class NNTPHandler implements ProtocolHandler {
      * previous to the currently selected article in the selected group.
      *
      * @param argument the argument passed in with the LAST command
+     * @param context not null
      */
-    private void doLAST(String argument) {
+    private void doLAST(String argument, ProtocolContext context) {
         // section 9.1.1.2.1
         if ( argument != null ) {
-            helper.writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
+            context.writeLoggedFlushedResponse("501 Syntax error - unexpected parameter");
         } else if ( group == null ) {
-            helper.writeLoggedFlushedResponse("412 no newsgroup selected");
+            context.writeLoggedFlushedResponse("412 no newsgroup selected");
         } else if ( currentArticleNumber < 0 ) {
-            helper.writeLoggedFlushedResponse("420 no current article has been selected");
+            context.writeLoggedFlushedResponse("420 no current article has been selected");
         } else if ( currentArticleNumber <= group.getFirstArticleNumber() ) {
-            helper.writeLoggedFlushedResponse("422 no previous article in this group");
+            context.writeLoggedFlushedResponse("422 no previous article in this group");
         } else {
             currentArticleNumber--;
             NNTPArticle article = group.getArticle(currentArticleNumber);
@@ -1056,7 +1071,7 @@ public class NNTPHandler implements ProtocolHandler {
                         .append(article.getArticleNumber())
                         .append(" ")
                         .append(article.getUniqueID());
-            helper.writeLoggedFlushedResponse(respBuffer.toString());
+            context.writeLoggedFlushedResponse(respBuffer.toString());
         }
     }
 
@@ -1064,16 +1079,17 @@ public class NNTPHandler implements ProtocolHandler {
      * Selects a group to be the current newsgroup.
      *
      * @param groupName the name of the group being selected.
+     * @param context not null
      */
-    private void doGROUP(String groupName) {
+    private void doGROUP(String groupName, ProtocolContext context) {
         if (groupName == null) {
-            helper.writeLoggedFlushedResponse("501 Syntax error - missing required parameter");
+            context.writeLoggedFlushedResponse("501 Syntax error - missing required parameter");
             return;
         }
         NNTPGroup newGroup = theConfigData.getNNTPRepository().getGroup(groupName);
         // section 9.1.1.1
         if ( newGroup == null ) {
-            helper.writeLoggedFlushedResponse("411 no such newsgroup");
+            context.writeLoggedFlushedResponse("411 no such newsgroup");
         } else {
             group = newGroup;
             // if the number of articles in group == 0
@@ -1104,33 +1120,35 @@ public class NNTPHandler implements ProtocolHandler {
                         .append(" ")
                         .append(group.getName())
                         .append(" group selected");
-            helper.writeLoggedFlushedResponse(respBuffer.toString());
+            context.writeLoggedFlushedResponse(respBuffer.toString());
         }
     }
 
     /**
      * Lists the extensions supported by this news server.
+     * @param context not null
      */
-    private void doLISTEXTENSIONS() {
+    private void doLISTEXTENSIONS(ProtocolContext context) {
         // 8.1.1
-        helper.writeLoggedResponse("202 Extensions supported:");
-        helper.writeLoggedResponse("LISTGROUP");
-        helper.writeLoggedResponse("AUTHINFO");
-        helper.writeLoggedResponse("OVER");
-        helper.writeLoggedResponse("XOVER");
-        helper.writeLoggedResponse("HDR");
-        helper.writeLoggedResponse("XHDR");
-        helper.writeLoggedFlushedResponse(".");
+        context.writeLoggedResponse("202 Extensions supported:");
+        context.writeLoggedResponse("LISTGROUP");
+        context.writeLoggedResponse("AUTHINFO");
+        context.writeLoggedResponse("OVER");
+        context.writeLoggedResponse("XOVER");
+        context.writeLoggedResponse("HDR");
+        context.writeLoggedResponse("XHDR");
+        context.writeLoggedFlushedResponse(".");
     }
 
     /**
      * Informs the server that the client is a newsreader.
      *
      * @param argument the argument passed in with the MODE READER command
+     * @param context not null
      */
-    private void doMODEREADER(String argument) {
+    private void doMODEREADER(String argument, ProtocolContext context) {
         // 7.2
-        helper.writeLoggedFlushedResponse(theConfigData.getNNTPRepository().isReadOnly()
+        context.writeLoggedFlushedResponse(theConfigData.getNNTPRepository().isReadOnly()
                        ? "201 Posting Not Permitted" : "200 Posting Permitted");
     }
 
@@ -1138,10 +1156,11 @@ public class NNTPHandler implements ProtocolHandler {
      * Informs the server that the client is a news server.
      *
      * @param argument the argument passed in with the MODE STREAM command
+     * @param context not null
      */
-    private void doMODESTREAM(String argument) {
+    private void doMODESTREAM(String argument, ProtocolContext context) {
         // 7.2
-        helper.writeLoggedFlushedResponse("500 Command not understood");
+        context.writeLoggedFlushedResponse("500 Command not understood");
     }
 
     /**
@@ -1149,19 +1168,20 @@ public class NNTPHandler implements ProtocolHandler {
      * or in the already selected group if the groupName is null.
      *
      * @param groupName the name of the group to list
+     * @param context not null
      */
-    private void doLISTGROUP(String groupName) {
+    private void doLISTGROUP(String groupName, ProtocolContext context) {
         // 9.5.1.1.1
         if (groupName==null) {
             if ( group == null) {
-                helper.writeLoggedFlushedResponse("412 no news group currently selected");
+                context.writeLoggedFlushedResponse("412 no news group currently selected");
                 return;
             }
         }
         else {
             group = theConfigData.getNNTPRepository().getGroup(groupName);
             if ( group == null ) {
-                helper.writeLoggedFlushedResponse("411 no such newsgroup");
+                context.writeLoggedFlushedResponse("411 no such newsgroup");
                 return;
             }
         }
@@ -1177,38 +1197,40 @@ public class NNTPHandler implements ProtocolHandler {
                 currentArticleNumber = -1;
             }
 
-            helper.writeLoggedFlushedResponse("211 list of article numbers follow");
+            context.writeLoggedFlushedResponse("211 list of article numbers follow");
 
             Iterator iter = group.getArticles();
             while (iter.hasNext()) {
                 NNTPArticle article = (NNTPArticle)iter.next();
-                helper.writeLoggedResponse(article.getArticleNumber() + "");
+                context.writeLoggedResponse(article.getArticleNumber() + "");
             }
-            helper.writeLoggedFlushedResponse(".");
+            context.writeLoggedFlushedResponse(".");
         }
     }
 
     /**
      * Handles the LIST OVERVIEW.FMT command.  Not supported.
+     * @param context not null
      */
-    private void doLISTOVERVIEWFMT() {
+    private void doLISTOVERVIEWFMT(ProtocolContext context) {
         // 9.5.3.1.1
-        helper.writeLoggedFlushedResponse("215 Information follows");
+        context.writeLoggedFlushedResponse("215 Information follows");
         String[] overviewHeaders = theConfigData.getNNTPRepository().getOverviewFormat();
         for (int i = 0;  i < overviewHeaders.length; i++) {
-            helper.writeLoggedResponse(overviewHeaders[i]);
+            context.writeLoggedResponse(overviewHeaders[i]);
         }
-        helper.writeLoggedFlushedResponse(".");
+        context.writeLoggedFlushedResponse(".");
     }
 
     /**
      * Handles the PAT command.  Not supported.
      *
      * @param argument the argument passed in with the PAT command
+     * @param context not null
      */
-    private void doPAT(String argument) {
+    private void doPAT(String argument, ProtocolContext context) {
         // 9.5.3.1.1 in draft-12
-        helper.writeLoggedFlushedResponse("500 Command not recognized");
+        context.writeLoggedFlushedResponse("500 Command not recognized");
     }
 
     /**
@@ -1216,9 +1238,10 @@ public class NNTPHandler implements ProtocolHandler {
      * with an optional range modifier.
      *
      * @param argument the argument passed in with the XHDR command.
+     * @param context not null
      */
-    private void doXHDR(String argument) {
-        doHDR(argument);
+    private void doXHDR(String argument, ProtocolContext context) {
+        doHDR(argument, context);
     }
 
     /**
@@ -1226,11 +1249,12 @@ public class NNTPHandler implements ProtocolHandler {
      * with an optional range modifier.
      *
      * @param argument the argument passed in with the HDR command.
+     * @param context not null
      */
-    private void doHDR(String argument) {
+    private void doHDR(String argument, ProtocolContext context) {
         // 9.5.3
         if (argument == null) {
-            helper.writeLoggedFlushedResponse("501 Syntax error - missing required parameter");
+            context.writeLoggedFlushedResponse("501 Syntax error - missing required parameter");
             return;
         }
         String hdr = argument;
@@ -1241,20 +1265,20 @@ public class NNTPHandler implements ProtocolHandler {
             hdr = hdr.substring(0, spaceIndex);
         }
         if (group == null ) {
-            helper.writeLoggedFlushedResponse("412 No news group currently selected.");
+            context.writeLoggedFlushedResponse("412 No news group currently selected.");
             return;
         }
         if ((range == null) && (currentArticleNumber < 0)) {
-            helper.writeLoggedFlushedResponse("420 No current article selected");
+            context.writeLoggedFlushedResponse("420 No current article selected");
             return;
         }
         NNTPArticle[] article = getRange(range);
         if ( article == null ) {
-            helper.writeLoggedFlushedResponse("412 no newsgroup selected");
+            context.writeLoggedFlushedResponse("412 no newsgroup selected");
         } else if ( article.length == 0 ) {
-            helper.writeLoggedFlushedResponse("430 no such article");
+            context.writeLoggedFlushedResponse("430 no such article");
         } else {
-            helper.writeLoggedFlushedResponse("221 Header follows");
+            context.writeLoggedFlushedResponse("221 Header follows");
             for ( int i = 0 ; i < article.length ; i++ ) {
                 String val = article[i].getHeader(hdr);
                 if ( val == null ) {
@@ -1265,9 +1289,9 @@ public class NNTPHandler implements ProtocolHandler {
                             .append(article[i].getArticleNumber())
                             .append(" ")
                             .append(val);
-                helper.writeLoggedResponse(hdrBuffer.toString());
+                context.writeLoggedResponse(hdrBuffer.toString());
             }
-            helper.writeLoggedFlushedResponse(".");
+            context.writeLoggedFlushedResponse(".");
         }
     }
 
@@ -1276,9 +1300,10 @@ public class NNTPHandler implements ProtocolHandler {
      * current article, or a range of articles.
      *
      * @param range the optional article range.
+     * @param context not null
      */
-    private void doXOVER(String range) {
-        doOVER(range);
+    private void doXOVER(String range, ProtocolContext context) {
+        doOVER(range, context);
     }
 
     /**
@@ -1286,41 +1311,43 @@ public class NNTPHandler implements ProtocolHandler {
      * current article, or a range of articles.
      *
      * @param range the optional article range.
+     * @param context not null
      */
-    private void doOVER(String range) {
+    private void doOVER(String range, ProtocolContext context) {
         // 9.5.2.2.1
         if ( group == null ) {
-            helper.writeLoggedFlushedResponse("412 No newsgroup selected");
+            context.writeLoggedFlushedResponse("412 No newsgroup selected");
             return;
         }
         if ((range == null) && (currentArticleNumber < 0)) {
-            helper.writeLoggedFlushedResponse("420 No current article selected");
+            context.writeLoggedFlushedResponse("420 No current article selected");
             return;
         }
         NNTPArticle[] article = getRange(range);
         if ( article.length == 0 ) {
-            helper.writeLoggedFlushedResponse("420 No article(s) selected");
+            context.writeLoggedFlushedResponse("420 No article(s) selected");
         } else {
-            helper.writeLoggedResponse("224 Overview information follows");
+            context.writeLoggedResponse("224 Overview information follows");
             for ( int i = 0 ; i < article.length ; i++ ) {
-                article[i].writeOverview(helper.getOutputStream());
+                article[i].writeOverview(context.getOutputStream());
                 if (i % 100 == 0) {
                     // Reset the watchdog every hundred headers or so
                     // to ensure the connection doesn't timeout for slow
                     // clients
-                    helper.getWatchdog().reset();
+                    context.getWatchdog().reset();
                 }
             }
-            helper.writeLoggedFlushedResponse(".");
+            context.writeLoggedFlushedResponse(".");
         }
     }
 
     /**
      * Handles the transaction for getting the article data.
+     * @param context not null
      */
-    private void createArticle() {
+    private void createArticle(ProtocolContext context) {
         try {
-            InputStream msgIn = new CharTerminatedInputStream(helper.getInputStream(), NNTPTerminator);
+            InputStream msgIn = new CharTerminatedInputStream(context.getInputStream(), NNTPTerminator);
             // Removes the dot stuffing
             msgIn = new DotStuffingInputStream(msgIn);
             MailHeaders headers = new MailHeaders(msgIn);
@@ -1509,8 +1536,5 @@ public class NNTPHandler implements ProtocolHandler {
         }
     }
 
-    public void setProtocolHandlerHelper(ProtocolContext phh) {
-        this.helper = phh;
-    }
-
+    public void setProtocolHandlerHelper(ProtocolContext phh) {}
 }
