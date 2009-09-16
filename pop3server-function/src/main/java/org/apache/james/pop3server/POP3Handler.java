@@ -490,10 +490,4 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     public OutputStream getOutputStream() {
         return context.getOutputStream();
     }
-
-    /**
-     * @see org.apache.james.socket.ProtocolHandler#setProtocolHandlerHelper(org.apache.james.socket.ProtocolContext)
-     */
-    public void setProtocolHandlerHelper(ProtocolContext phh) {
-    }
 }

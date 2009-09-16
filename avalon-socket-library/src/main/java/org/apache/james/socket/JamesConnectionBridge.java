@@ -122,7 +122,6 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
             final Logger logger) {
         this.protocolHandler = delegated;
         this.dnsServer = dnsServer;
-        this.protocolHandler.setProtocolHandlerHelper(this);
         if (name == null) {
             this.name = DEFAULT_NAME;
         } else {

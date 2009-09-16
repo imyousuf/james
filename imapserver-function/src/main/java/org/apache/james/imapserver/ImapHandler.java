@@ -21,7 +21,6 @@ package org.apache.james.imapserver;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.encode.ImapResponseComposer;
 import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
@@ -36,8 +35,6 @@ import org.apache.james.socket.ProtocolHandler;
  */
 public class ImapHandler implements ProtocolHandler
 {
-    
-    private ProtocolContext helper;
 
     private static final byte[] EMERGENCY_SIGNOFF = {'*',' ', 'B', 'Y', 'E', ' ', 
         'S', 'e', 'r', 'v', 'e', 'r', ' ', 'f', 'a', 'u', 'l', 't', '\r', '\n'};
@@ -56,15 +53,9 @@ public class ImapHandler implements ProtocolHandler
      * Resets the handler data to a basic state.
      */
     public void resetHandler() {
-        
         // Clear user data
-        try {
-            if (session != null) {
-                session.logout();
-            }
-        } catch (Exception e) {
-            getLogger().warn("Failed to close mailbox: " + e.getMessage());
-            getLogger().debug(e.getMessage(), e);
+        if (session != null) {
+            session.logout();
         }
         session = null;
     }
@@ -73,7 +64,7 @@ public class ImapHandler implements ProtocolHandler
      * @see ProtocolHandler#handleProtocol(ProtocolContext)
      */
     public void handleProtocol(final ProtocolContext context) throws IOException {
-            getLogger().debug(
+            context.getLogger().debug(
                 "Connection from " + context.getRemoteHost() + " (" + context.getRemoteIP()
                         + ") opened.");
             final OutputStreamImapResponseWriter writer = new OutputStreamImapResponseWriter( context.getOutputStream() );
@@ -94,7 +85,7 @@ public class ImapHandler implements ProtocolHandler
                 session.logout();
             }
             
-            getLogger().info(
+            context.getLogger().info(
                     "Connection from " + context.getRemoteHost() + " (" + context.getRemoteIP()
                             + ") closed.");
     }
@@ -123,17 +114,8 @@ public class ImapHandler implements ProtocolHandler
         try {
             context.getOutputStream().write(EMERGENCY_SIGNOFF);
         } catch (Throwable t) {
-            getLogger().debug("Write emergency signoff failed.", t);
+            context.getLogger().debug("Write emergency signoff failed.", t);
         }
     }
-    
-    public Log getLogger() {
-        return helper.getLogger();
-    }
-
-    public void setProtocolHandlerHelper(ProtocolContext phh) {
-        this.helper = phh;
-    }
-
 }
 

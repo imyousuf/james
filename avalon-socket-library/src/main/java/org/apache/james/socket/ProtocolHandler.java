@@ -21,6 +21,9 @@ package org.apache.james.socket;
 
 import java.io.IOException;
 
+/**
+ * Handles protocol interactions.
+ */
 public interface ProtocolHandler {
 
     /**
@@ -35,13 +38,6 @@ public interface ProtocolHandler {
      * Resets the handler data to a basic state.
      */
     public abstract void resetHandler();
-    
-    
-    /**
-     * Injects the ProtocolHandlerHelper service
-     * @param phh service
-     */
-    public void setProtocolHandlerHelper(ProtocolContext phh);
 
     /**
      * Called when a fatal failure occurs during processing.
