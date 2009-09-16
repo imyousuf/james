@@ -111,7 +111,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     /**
      * The per-handler response buffer used to marshal responses.
      */
-    private StringBuffer responseBuffer = new StringBuffer(256);
+    private StringBuilder responseBuffer = new StringBuilder(256);
 
 
     /**
@@ -244,8 +244,8 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         }
         helper.getWatchdog().stop();
         if (helper.getLogger().isInfoEnabled()) {
-            StringBuffer logBuffer =
-                new StringBuffer(128)
+            StringBuilder logBuffer =
+                new StringBuilder(128)
                     .append("Connection for ")
                     .append(getUser())
                     .append(" from ")
@@ -382,7 +382,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     /**
      * @see org.apache.james.pop3server.POP3Session#getResponseBuffer()
      */
-    public StringBuffer getResponseBuffer() {
+    public StringBuilder getResponseBuffer() {
         return responseBuffer;
     }
 

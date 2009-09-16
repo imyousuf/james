@@ -261,15 +261,15 @@ public class NNTPHandler implements ProtocolHandler {
     public void handleProtocol() throws IOException {
         // section 7.1
         if ( theConfigData.getNNTPRepository().isReadOnly() ) {
-            StringBuffer respBuffer =
-                new StringBuffer(128)
+            StringBuilder respBuffer =
+                new StringBuilder(128)
                     .append("201 ")
                     .append(theConfigData.getHelloName())
                     .append(" NNTP Service Ready, posting prohibited");
             helper.writeLoggedFlushedResponse(respBuffer.toString());
         } else {
-            StringBuffer respBuffer =
-                new StringBuffer(128)
+            StringBuilder respBuffer =
+                new StringBuilder(128)
                         .append("200 ")
                         .append(theConfigData.getHelloName())
                         .append(" NNTP Service Ready, posting permitted");
@@ -419,8 +419,8 @@ public class NNTPHandler implements ProtocolHandler {
      */
     private void doUnknownCommand(String command, String argument) {
         if (helper.getLogger().isDebugEnabled()) {
-            StringBuffer logBuffer =
-                new StringBuffer(128)
+            StringBuilder logBuffer =
+                new StringBuilder(128)
                     .append("Received unknown command ")
                     .append(command)
                     .append(" with argument ")
@@ -539,8 +539,8 @@ public class NNTPHandler implements ProtocolHandler {
         while ( groupIter.hasNext() ) {
             Iterator articleIter = ((NNTPGroup)(groupIter.next())).getArticlesSince(theDate);
             while (articleIter.hasNext()) {
-                StringBuffer iterBuffer =
-                    new StringBuffer(64)
+                StringBuilder iterBuffer =
+                    new StringBuilder(64)
                         .append(((NNTPArticle)articleIter.next()).getUniqueID());
                 helper.writeLoggedResponse(iterBuffer.toString());
             }
@@ -577,8 +577,8 @@ public class NNTPHandler implements ProtocolHandler {
         helper.writeLoggedFlushedResponse("231 list of new newsgroups follows");
         while ( iter.hasNext() ) {
             NNTPGroup currentGroup = (NNTPGroup)iter.next();
-            StringBuffer iterBuffer =
-                new StringBuffer(128)
+            StringBuilder iterBuffer =
+                new StringBuilder(128)
                     .append(currentGroup.getName())
                     .append(" ")
                     .append(currentGroup.getLastArticleNumber())
@@ -753,8 +753,8 @@ public class NNTPHandler implements ProtocolHandler {
                 helper.writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
-                StringBuffer respBuffer =
-                    new StringBuffer(64)
+                StringBuilder respBuffer =
+                    new StringBuilder(64)
                             .append("223 0 ")
                             .append(param);
                 helper.writeLoggedFlushedResponse(respBuffer.toString());
@@ -786,8 +786,8 @@ public class NNTPHandler implements ProtocolHandler {
                     if (articleID == null) {
                         articleID = "<0>";
                     }
-                    StringBuffer respBuffer =
-                        new StringBuffer(128)
+                    StringBuilder respBuffer =
+                        new StringBuilder(128)
                                 .append("223 ")
                                 .append(article.getArticleNumber())
                                 .append(" ")
@@ -816,8 +816,8 @@ public class NNTPHandler implements ProtocolHandler {
                 helper.writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
-                StringBuffer respBuffer =
-                    new StringBuffer(64)
+                StringBuilder respBuffer =
+                    new StringBuilder(64)
                             .append("222 0 ")
                             .append(param);
                 helper.writeLoggedFlushedResponse(respBuffer.toString());
@@ -849,8 +849,8 @@ public class NNTPHandler implements ProtocolHandler {
                     if (articleID == null) {
                         articleID = "<0>";
                     }
-                    StringBuffer respBuffer =
-                        new StringBuffer(128)
+                    StringBuilder respBuffer =
+                        new StringBuilder(128)
                                 .append("222 ")
                                 .append(article.getArticleNumber())
                                 .append(" ")
@@ -884,8 +884,8 @@ public class NNTPHandler implements ProtocolHandler {
                 helper.writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
-                StringBuffer respBuffer =
-                    new StringBuffer(64)
+                StringBuilder respBuffer =
+                    new StringBuilder(64)
                             .append("221 0 ")
                             .append(param);
                 helper.writeLoggedFlushedResponse(respBuffer.toString());
@@ -917,8 +917,8 @@ public class NNTPHandler implements ProtocolHandler {
                     if (articleID == null) {
                         articleID = "<0>";
                     }
-                    StringBuffer respBuffer =
-                        new StringBuffer(128)
+                    StringBuilder respBuffer =
+                        new StringBuilder(128)
                                 .append("221 ")
                                 .append(article.getArticleNumber())
                                 .append(" ")
@@ -952,8 +952,8 @@ public class NNTPHandler implements ProtocolHandler {
                 helper.writeLoggedFlushedResponse("430 no such article");
                 return;
             } else {
-                StringBuffer respBuffer =
-                    new StringBuffer(64)
+                StringBuilder respBuffer =
+                    new StringBuilder(64)
                             .append("220 0 ")
                             .append(param);
                 helper.writeLoggedResponse(respBuffer.toString());
@@ -985,8 +985,8 @@ public class NNTPHandler implements ProtocolHandler {
                     if (articleID == null) {
                         articleID = "<0>";
                     }
-                    StringBuffer respBuffer =
-                        new StringBuffer(128)
+                    StringBuilder respBuffer =
+                        new StringBuilder(128)
                                 .append("220 ")
                                 .append(article.getArticleNumber())
                                 .append(" ")
@@ -1021,8 +1021,8 @@ public class NNTPHandler implements ProtocolHandler {
         } else {
             currentArticleNumber++;
             NNTPArticle article = group.getArticle(currentArticleNumber);
-            StringBuffer respBuffer =
-                new StringBuffer(64)
+            StringBuilder respBuffer =
+                new StringBuilder(64)
                         .append("223 ")
                         .append(article.getArticleNumber())
                         .append(" ")
@@ -1050,8 +1050,8 @@ public class NNTPHandler implements ProtocolHandler {
         } else {
             currentArticleNumber--;
             NNTPArticle article = group.getArticle(currentArticleNumber);
-            StringBuffer respBuffer =
-                new StringBuffer(64)
+            StringBuilder respBuffer =
+                new StringBuilder(64)
                         .append("223 ")
                         .append(article.getArticleNumber())
                         .append(" ")
@@ -1093,8 +1093,8 @@ public class NNTPHandler implements ProtocolHandler {
             } else {
                 currentArticleNumber = -1;
             }
-            StringBuffer respBuffer =
-                new StringBuffer(128)
+            StringBuilder respBuffer =
+                new StringBuilder(128)
                         .append("211 ")
                         .append(articleCount)
                         .append(" ")
@@ -1260,8 +1260,8 @@ public class NNTPHandler implements ProtocolHandler {
                 if ( val == null ) {
                     val = "";
                 }
-                StringBuffer hdrBuffer =
-                    new StringBuffer(128)
+                StringBuilder hdrBuffer =
+                    new StringBuilder(128)
                             .append(article[i].getArticleNumber())
                             .append(" ")
                             .append(val);
@@ -1386,19 +1386,19 @@ public class NNTPHandler implements ProtocolHandler {
         String time = tok.nextToken();
         boolean utc = ( tok.hasMoreTokens() );
         try {
-            StringBuffer dateStringBuffer =
-                new StringBuffer(64)
+            StringBuilder dateStringBuilder =
+                new StringBuilder(64)
                     .append(date)
                     .append(" ")
                     .append(time);
-            Date dt = DF_RFC977.parse(dateStringBuffer.toString());
+            Date dt = DF_RFC977.parse(dateStringBuilder.toString());
             if ( utc ) {
                 dt = new Date(dt.getTime()+UTC_OFFSET);
             }
             return dt;
         } catch ( ParseException pe ) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128)
+            StringBuilder exceptionBuffer =
+                new StringBuilder(128)
                     .append("Date extraction failed: ")
                     .append(date)
                     .append(",")
