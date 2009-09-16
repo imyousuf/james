@@ -138,7 +138,7 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
      * @param connection The Socket which belongs to the connection 
      * @throws IOException get thrown if an IO error is detected
      */
-    protected void initHandler( Socket connection ) throws IOException {
+    private void initHandler( Socket connection ) throws IOException {
         this.socket = connection;
         remoteIP = socket.getInetAddress().getHostAddress();
         remoteHost = dnsServer.getHostName(socket.getInetAddress());
@@ -255,7 +255,7 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
         try {
             
             // Do something:
-            handleProtocol();
+            protocolHandler.handleProtocol(this);
             
             log.debug("Closing socket");
         } catch (SocketException se) {
@@ -331,7 +331,7 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     /**
      * Idle out this connection
      */
-    void idleClose() {
+    private void idleClose() {
         if (log != null) {
             log.error("Service Connection has idled out.");
         }
@@ -428,20 +428,11 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     public String toString() {
         return name;
     }
-    
-    /**
-     * Handle the protocol
-     * 
-     * @throws IOException get thrown if an IO error is detected
-     */
-    public void handleProtocol() throws IOException {
-        protocolHandler.handleProtocol(this);
-    }
 
    /**
     * Resets the handler data to a basic state.
     */
-    public void resetHandler() {
+    private void resetHandler() {
         protocolHandler.resetHandler();
         remoteHost = null;
         remoteIP = null;
@@ -494,13 +485,6 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
      */
     public Watchdog getWatchdog() {
         return theWatchdog;
-    }
-
-    /**
-     * @see org.apache.james.socket.ProtocolContext#getSocket()
-     */
-    public Socket getSocket() {
-        return socket;
     }
 
     /**
