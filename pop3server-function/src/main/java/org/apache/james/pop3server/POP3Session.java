@@ -52,15 +52,6 @@ public interface POP3Session {
      */
     String readCommandLine() throws IOException;
 
-
-    /**
-     * Returns ResponseBuffer, this optimizes the unecessary creation of resources
-     * by each handler object
-     *
-     * @return responseBuffer
-     */
-    StringBuilder getResponseBuffer();
-
     /**
      * Clears the response buffer, returning the String of characters in the buffer.
      *
