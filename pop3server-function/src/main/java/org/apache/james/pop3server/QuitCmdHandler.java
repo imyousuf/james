@@ -21,16 +21,15 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import java.util.List;
+
 import org.apache.commons.collections.ListUtils;
 import org.apache.mailet.Mail;
-
-import java.util.List;
 
 /**
   * Handles QUIT command
   */
-public class QuitCmdHandler extends AbstractLogEnabled implements CommandHandler {
+public class QuitCmdHandler implements CommandHandler {
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -66,7 +65,7 @@ public class QuitCmdHandler extends AbstractLogEnabled implements CommandHandler
         } catch (Exception ex) {
             responseString = POP3Handler.ERR_RESPONSE + " Some deleted messages were not removed";
             session.writeResponse(responseString);
-            getLogger().error("Some deleted messages were not removed: " + ex.getMessage());
+            session.getLogger().error("Some deleted messages were not removed: " + ex.getMessage());
         }
         session.endSession();
     }

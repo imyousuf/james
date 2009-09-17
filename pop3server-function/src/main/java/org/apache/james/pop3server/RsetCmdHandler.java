@@ -21,21 +21,19 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.mailet.Mail;
-
-import javax.mail.MessagingException;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.mail.MessagingException;
+
+import org.apache.mailet.Mail;
 
 
 /**
   * Handles RSET command
   */
-public class RsetCmdHandler extends AbstractLogEnabled implements CommandHandler {
+public class RsetCmdHandler implements CommandHandler {
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -53,7 +51,7 @@ public class RsetCmdHandler extends AbstractLogEnabled implements CommandHandler
     private void doRSET(POP3Session session,String argument) {
         String responseString = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
-            stat(session, getLogger());
+            stat(session);
             responseString = POP3Handler.OK_RESPONSE;
         } else {
             responseString = POP3Handler.ERR_RESPONSE;
@@ -72,7 +70,7 @@ public class RsetCmdHandler extends AbstractLogEnabled implements CommandHandler
      *
      */
     @SuppressWarnings("unchecked")
-    public static void stat(POP3Session session, Logger logger) {
+    public static void stat(POP3Session session) {
         ArrayList<Mail> userMailbox = new ArrayList<Mail>();
         userMailbox.add(POP3Handler.DELETED);
         try {
@@ -88,7 +86,7 @@ public class RsetCmdHandler extends AbstractLogEnabled implements CommandHandler
             }
         } catch(MessagingException e) {
             // In the event of an exception being thrown there may or may not be anything in userMailbox
-            logger.error("Unable to STAT mail box ", e);
+            session.getLogger().error("Unable to STAT mail box ", e);
         }
         finally {
             session.setUserMailbox(userMailbox);

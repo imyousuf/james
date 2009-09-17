@@ -22,6 +22,7 @@
 package org.apache.james.pop3server;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.logging.Log;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
@@ -494,5 +495,9 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      */
     public OutputStream getOutputStream() {
         return context.getOutputStream();
+    }
+
+    public Log getLogger() {
+        return context.getLogger();
     }
 }

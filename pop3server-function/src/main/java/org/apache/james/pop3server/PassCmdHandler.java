@@ -21,14 +21,13 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 
 /**
   * Handles PASS command
   */
-public class PassCmdHandler extends AbstractLogEnabled implements CommandHandler {
+public class PassCmdHandler implements CommandHandler {
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -54,7 +53,7 @@ public class PassCmdHandler extends AbstractLogEnabled implements CommandHandler
                         throw new IllegalStateException("MailServer returned a null inbox for "+session.getUser());
                     }
                     session.setUserInbox(inbox);
-                    RsetCmdHandler.stat(session, getLogger());
+                    RsetCmdHandler.stat(session);
                     
                     // Store the ipAddress to use it later for pop before smtp 
                     POP3BeforeSMTPHelper.addIPAddress(session.getRemoteIPAddress());
@@ -68,7 +67,7 @@ public class PassCmdHandler extends AbstractLogEnabled implements CommandHandler
                     session.setHandlerState(POP3Handler.TRANSACTION);
                     session.writeResponse(responseString);
                 } catch (RuntimeException e) {
-                    getLogger().error("Unexpected error accessing mailbox for "+session.getUser(),e);
+                    session.getLogger().error("Unexpected error accessing mailbox for "+session.getUser(),e);
                     responseString = POP3Handler.ERR_RESPONSE + " Unexpected error accessing mailbox";
                     session.setHandlerState(POP3Handler.AUTHENTICATION_READY);
                     session.writeResponse(responseString);
