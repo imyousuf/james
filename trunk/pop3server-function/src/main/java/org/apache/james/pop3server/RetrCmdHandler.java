@@ -61,7 +61,7 @@ public class RetrCmdHandler implements CommandHandler {
                 return;
             }
             try {
-                Mail mc = (Mail) session.getUserMailbox().get(num);
+                Mail mc = session.getUserMailbox().get(num);
                 if (mc != POP3Handler.DELETED) {
                     responseString = POP3Handler.OK_RESPONSE + " Message follows";
                     session.writeResponse(responseString);
@@ -79,8 +79,8 @@ public class RetrCmdHandler implements CommandHandler {
                         session.writeResponse(".");
                     }
                 } else {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
+                    StringBuilder responseBuffer =
+                        new StringBuilder(64)
                                 .append(POP3Handler.ERR_RESPONSE)
                                 .append(" Message (")
                                 .append(num)
@@ -95,8 +95,8 @@ public class RetrCmdHandler implements CommandHandler {
                 responseString = POP3Handler.ERR_RESPONSE + " Error while retrieving message.";
                 session.writeResponse(responseString);
             } catch (IndexOutOfBoundsException iob) {
-                StringBuffer responseBuffer =
-                    new StringBuffer(64)
+                StringBuilder responseBuffer =
+                    new StringBuilder(64)
                             .append(POP3Handler.ERR_RESPONSE)
                             .append(" Message (")
                             .append(num)

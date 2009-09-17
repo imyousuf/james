@@ -23,8 +23,6 @@ package org.apache.james.pop3server;
 
 import org.apache.mailet.Mail;
 
-import java.util.Iterator;
-
 /**
   * Handles UIDL command
   */
@@ -49,16 +47,16 @@ public class UidlCmdHandler implements CommandHandler {
                 String responseString = POP3Handler.OK_RESPONSE + " unique-id listing follows";
                 session.writeResponse(responseString);
                 int count = 0;
-                for (Iterator i = session.getUserMailbox().iterator(); i.hasNext(); count++) {
-                    Mail mc = (Mail) i.next();
+                for (Mail mc:session.getUserMailbox()) {
                     if (mc != POP3Handler.DELETED) {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
+                        StringBuilder responseBuffer =
+                            new StringBuilder(64)
                                     .append(count)
                                     .append(" ")
                                     .append(mc.getName());
                         session.writeResponse(responseBuffer.toString());
                     }
+                    count++;
                 }
                 session.writeResponse(".");
             } else {
@@ -67,8 +65,8 @@ public class UidlCmdHandler implements CommandHandler {
                     num = Integer.parseInt(argument);
                     Mail mc = (Mail) session.getUserMailbox().get(num);
                     if (mc != POP3Handler.DELETED) {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
+                        StringBuilder responseBuffer =
+                            new StringBuilder(64)
                                     .append(POP3Handler.OK_RESPONSE)
                                     .append(" ")
                                     .append(num)
@@ -76,8 +74,8 @@ public class UidlCmdHandler implements CommandHandler {
                                     .append(mc.getName());
                         session.writeResponse(responseBuffer.toString());
                     } else {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
+                        StringBuilder responseBuffer =
+                            new StringBuilder(64)
                                     .append(POP3Handler.ERR_RESPONSE)
                                     .append(" Message (")
                                     .append(num)
@@ -85,16 +83,16 @@ public class UidlCmdHandler implements CommandHandler {
                         session.writeResponse(responseBuffer.toString());
                     }
                 } catch (IndexOutOfBoundsException npe) {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
+                    StringBuilder responseBuffer =
+                        new StringBuilder(64)
                                 .append(POP3Handler.ERR_RESPONSE)
                                 .append(" Message (")
                                 .append(num)
                                 .append(") does not exist.");
                     session.writeResponse(responseBuffer.toString());
                 } catch (NumberFormatException nfe) {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
+                    StringBuilder responseBuffer =
+                        new StringBuilder(64)
                                 .append(POP3Handler.ERR_RESPONSE)
                                 .append(" ")
                                 .append(argument)

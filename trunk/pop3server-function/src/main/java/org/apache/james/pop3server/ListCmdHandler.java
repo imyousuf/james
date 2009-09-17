@@ -21,11 +21,9 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.mailet.Mail;
-
 import javax.mail.MessagingException;
 
-import java.util.Iterator;
+import org.apache.mailet.Mail;
 
 /**
   * Handles LIST command
@@ -53,15 +51,14 @@ public class ListCmdHandler implements CommandHandler {
                 long size = 0;
                 int count = 0;
                 try {
-                    for (Iterator i = session.getUserMailbox().iterator(); i.hasNext(); ) {
-                        Mail mc = (Mail) i.next();
+                    for (Mail mc:session.getUserMailbox()) {
                         if (mc != POP3Handler.DELETED) {
                             size += mc.getMessageSize();
                             count++;
                         }
                     }
-                    StringBuffer responseBuffer =
-                        new StringBuffer(32)
+                    StringBuilder responseBuffer =
+                        new StringBuilder(32)
                                 .append(POP3Handler.OK_RESPONSE)
                                 .append(" ")
                                 .append(count)
@@ -69,17 +66,16 @@ public class ListCmdHandler implements CommandHandler {
                                 .append(size);
                     session.writeResponse(responseBuffer.toString());
                     count = 0;
-                    for (Iterator i = session.getUserMailbox().iterator(); i.hasNext(); count++) {
-                        Mail mc = (Mail) i.next();
-
+                    for (Mail mc:session.getUserMailbox()) {
                         if (mc != POP3Handler.DELETED) {
                             responseBuffer =
-                                new StringBuffer(16)
+                                new StringBuilder(16)
                                         .append(count)
                                         .append(" ")
                                         .append(mc.getMessageSize());
                             session.writeResponse(responseBuffer.toString());
                         }
+                        count++;
                     }
                     session.writeResponse(".");
                 } catch (MessagingException me) {
@@ -89,10 +85,10 @@ public class ListCmdHandler implements CommandHandler {
                 int num = 0;
                 try {
                     num = Integer.parseInt(argument);
-                    Mail mc = (Mail) session.getUserMailbox().get(num);
+                    Mail mc = session.getUserMailbox().get(num);
                     if (mc != POP3Handler.DELETED) {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
+                        StringBuilder responseBuffer =
+                            new StringBuilder(64)
                                     .append(POP3Handler.OK_RESPONSE)
                                     .append(" ")
                                     .append(num)
@@ -100,8 +96,8 @@ public class ListCmdHandler implements CommandHandler {
                                     .append(mc.getMessageSize());
                         session.writeResponse(responseBuffer.toString());
                     } else {
-                        StringBuffer responseBuffer =
-                            new StringBuffer(64)
+                        StringBuilder responseBuffer =
+                            new StringBuilder(64)
                                     .append(POP3Handler.ERR_RESPONSE)
                                     .append(" Message (")
                                     .append(num)
@@ -109,16 +105,16 @@ public class ListCmdHandler implements CommandHandler {
                         session.writeResponse(responseBuffer.toString());
                     }
                 } catch (IndexOutOfBoundsException npe) {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
+                    StringBuilder responseBuffer =
+                        new StringBuilder(64)
                                 .append(POP3Handler.ERR_RESPONSE)
                                 .append(" Message (")
                                 .append(num)
                                 .append(") does not exist.");
                     session.writeResponse(responseBuffer.toString());
                 } catch (NumberFormatException nfe) {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
+                    StringBuilder responseBuffer =
+                        new StringBuilder(64)
                                 .append(POP3Handler.ERR_RESPONSE)
                                 .append(" ")
                                 .append(argument)

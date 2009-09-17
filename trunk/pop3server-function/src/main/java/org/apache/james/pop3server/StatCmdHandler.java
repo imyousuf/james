@@ -21,11 +21,9 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.mailet.Mail;
-
 import javax.mail.MessagingException;
 
-import java.util.Iterator;
+import org.apache.mailet.Mail;
 
 /**
   * Handles STAT command
@@ -52,15 +50,14 @@ public class StatCmdHandler implements CommandHandler {
             long size = 0;
             int count = 0;
             try {
-                for (Iterator i = session.getUserMailbox().iterator(); i.hasNext(); ) {
-                    Mail mc = (Mail) i.next();
+                for (Mail mc: session.getUserMailbox()) {
                     if (mc != POP3Handler.DELETED) {
                         size += mc.getMessageSize();
                         count++;
                     }
                 }
-                StringBuffer responseBuffer =
-                    new StringBuffer(32)
+                StringBuilder responseBuffer =
+                    new StringBuilder(32)
                             .append(POP3Handler.OK_RESPONSE)
                             .append(" ")
                             .append(count)
