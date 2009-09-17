@@ -104,9 +104,12 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      */
     private List<Mail> userMailbox = new ArrayList<Mail>();
 
-    private List backupUserMailbox;         // A snapshot list representing the set of
-                                                 // emails in the user's inbox at the beginning
-                                                 // of the transaction
+    /**
+     * A snapshot list representing the set of
+     * emails in the user's inbox at the beginning
+     * of the transaction
+     */
+    private List<Mail> backupUserMailbox;  
 
     /**
      * The per-handler response buffer used to marshal responses.
@@ -278,7 +281,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         authenticatedUser = null;
         userInbox = null;
         if (userMailbox != null) {
-            Iterator i = userMailbox.iterator();
+            Iterator<Mail> i = userMailbox.iterator();
             while (i.hasNext()) {
                 ContainerUtil.dispose(i.next());
             }
@@ -287,7 +290,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         }
 
         if (backupUserMailbox != null) {
-            Iterator i = backupUserMailbox.iterator();
+            Iterator<Mail> i = backupUserMailbox.iterator();
             while (i.hasNext()) {
                 ContainerUtil.dispose(i.next());
             }
@@ -472,7 +475,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     /**
      * @see org.apache.james.pop3server.POP3Session#getBackupUserMailbox()
      */
-    public List getBackupUserMailbox() {
+    public List<Mail> getBackupUserMailbox() {
         return backupUserMailbox;
     }
 
@@ -480,7 +483,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     /**
      * @see org.apache.james.pop3server.POP3Session#setUserMailbox(List)
      */
-    public void setBackupUserMailbox(List backupUserMailbox) {
+    public void setBackupUserMailbox(List<Mail> backupUserMailbox) {
         this.backupUserMailbox = backupUserMailbox;
     }
 

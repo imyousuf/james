@@ -23,6 +23,7 @@ package org.apache.james.pop3server;
 
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.collections.ListUtils;
+import org.apache.mailet.Mail;
 
 import java.util.List;
 
@@ -44,6 +45,7 @@ public class QuitCmdHandler extends AbstractLogEnabled implements CommandHandler
      *
      * @param argument the first argument parsed by the parseCommand method
      */
+    @SuppressWarnings("unchecked")
     private void doQUIT(POP3Session session,String argument) {
         String responseString = null;
         if (session.getHandlerState() == POP3Handler.AUTHENTICATION_READY ||  session.getHandlerState() == POP3Handler.AUTHENTICATION_USERSET) {
@@ -52,7 +54,7 @@ public class QuitCmdHandler extends AbstractLogEnabled implements CommandHandler
             session.endSession();
             return;
         }
-        List toBeRemoved =  ListUtils.subtract(session.getBackupUserMailbox(), session.getUserMailbox());
+        List<Mail> toBeRemoved =  ListUtils.subtract(session.getBackupUserMailbox(), session.getUserMailbox());
         try {
             session.getUserInbox().remove(toBeRemoved);
             // for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {

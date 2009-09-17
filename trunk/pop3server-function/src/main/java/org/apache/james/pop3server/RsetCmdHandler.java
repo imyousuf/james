@@ -29,6 +29,7 @@ import javax.mail.MessagingException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -70,6 +71,7 @@ public class RsetCmdHandler extends AbstractLogEnabled implements CommandHandler
      * user inbox.
      *
      */
+    @SuppressWarnings("unchecked")
     public static void stat(POP3Session session, Logger logger) {
         ArrayList<Mail> userMailbox = new ArrayList<Mail>();
         userMailbox.add(POP3Handler.DELETED);
@@ -90,7 +92,7 @@ public class RsetCmdHandler extends AbstractLogEnabled implements CommandHandler
         }
         finally {
             session.setUserMailbox(userMailbox);
-            session.setBackupUserMailbox((ArrayList) userMailbox.clone());
+            session.setBackupUserMailbox((List<Mail>) userMailbox.clone());
         }
     }
 
