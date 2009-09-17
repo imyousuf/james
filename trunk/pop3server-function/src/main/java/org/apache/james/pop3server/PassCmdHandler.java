@@ -59,8 +59,8 @@ public class PassCmdHandler extends AbstractLogEnabled implements CommandHandler
                     // Store the ipAddress to use it later for pop before smtp 
                     POP3BeforeSMTPHelper.addIPAddress(session.getRemoteIPAddress());
                     
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
+                    StringBuilder responseBuffer =
+                        new StringBuilder(64)
                                 .append(POP3Handler.OK_RESPONSE)
                                 .append(" Welcome ")
                                 .append(session.getUser());
