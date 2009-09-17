@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.apache.james.api.vut.VirtualUserTable;
 
-public interface VirtualUserTableManagement extends VirtualUserTable{
+public interface VirtualUserTableManagement extends VirtualUserTable {
     
     /**
      * The component role used by components implementing this service

@@ -50,7 +50,7 @@ import org.apache.james.socket.LogEnabled;
   * The SMTPHandlerChain is per service object providing access
   * ConnectHandlers, Commandhandlers and message handlers
   */
-public class SMTPHandlerChain implements Configurable, Serviceable {
+public class SMTPHandlerChain implements Configurable {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineMessageHookHandler.class);
@@ -63,8 +63,6 @@ public class SMTPHandlerChain implements Configurable, Serviceable {
     private JamesConfiguration commonsConf;
     
     private List<Object> handlers = new LinkedList<Object>();
-
-    private ServiceManager serviceManager;
     
     /** Loads instances */
     private LoaderService loader;
@@ -95,13 +93,6 @@ public class SMTPHandlerChain implements Configurable, Serviceable {
         this.loader = loader;
     }
     
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        serviceManager = arg0;
-    }
-
     /**
      * ExtensibleHandler wiring
      * 
@@ -224,9 +215,6 @@ public class SMTPHandlerChain implements Configurable, Serviceable {
         if (handler instanceof LogEnabled) {
             ((LogEnabled) handler).setLog(log);
         }
-
-        // servicing the handler
-        ContainerUtil.service(handler, serviceManager);
 
         // configure the handler
         if (handler instanceof org.apache.james.smtpserver.Configurable) {
