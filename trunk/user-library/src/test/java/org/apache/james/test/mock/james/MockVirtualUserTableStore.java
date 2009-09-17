@@ -22,12 +22,13 @@
 package org.apache.james.test.mock.james;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 
 public class MockVirtualUserTableStore implements VirtualUserTableStore {
-    HashMap<String, VirtualUserTable> tableStore = new HashMap<String, VirtualUserTable>();
+    public Map<String, VirtualUserTable> tableStore = new HashMap<String, VirtualUserTable>();
     
     public VirtualUserTable getTable(String name) {
         return (VirtualUserTable) tableStore.get(name);

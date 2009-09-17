@@ -97,10 +97,9 @@ public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable, Ser
      */
     public void service(ServiceManager arg0) throws ServiceException {
         if (tableName == null || tableName.equals("")) {
-            table = (VirtualUserTable) arg0.lookup(VirtualUserTable.ROLE); 
-        } else {
-            table = ((VirtualUserTableStore) arg0.lookup(VirtualUserTableStore.ROLE)).getTable(tableName);
+            tableName =  VirtualUserTableStore.DEFAULT_TABLE;
         }
+        table = ((VirtualUserTableStore) arg0.lookup(VirtualUserTableStore.ROLE)).getTable(tableName);
     }
     
     /**
