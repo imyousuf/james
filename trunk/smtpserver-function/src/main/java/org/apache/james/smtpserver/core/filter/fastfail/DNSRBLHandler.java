@@ -28,9 +28,10 @@ import java.util.StringTokenizer;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.Configurable;
@@ -39,14 +40,20 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.james.socket.LogEnabled;
 import org.apache.mailet.MailAddress;
 
 /**
   * Connect handler for DNSRBL processing
   */
-public class DNSRBLHandler
-    extends AbstractLogEnabled
-    implements ConnectHandler, RcptHook, Configurable {
+public class DNSRBLHandler implements LogEnabled, ConnectHandler, RcptHook, Configurable {
+    
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(DNSRBLHandler.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log serviceLog = FALLBACK_LOG;
+    
     /**
      * The lists of rbl servers to be checked to limit spam
      */
@@ -63,6 +70,16 @@ public class DNSRBLHandler
     
     public static final String RBL_DETAIL_MAIL_ATTRIBUTE_NAME = "org.apache.james.smtpserver.rbl.detail";
 
+
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.serviceLog = log;
+    }
+    
     /**
      * Gets the DNS service.
      * @return the dnsService
@@ -90,8 +107,8 @@ public class DNSRBLHandler
             for ( int i = 0 ; i < whiteList.size() ; i++ ) {
                 String rblServerName = whiteList.get(i);
                 rblserverCollection.add(rblServerName);
-                if (getLogger().isInfoEnabled()) {
-                    getLogger().info("Adding RBL server to whitelist: " + rblServerName);
+                if (serviceLog.isInfoEnabled()) {
+                    serviceLog.info("Adding RBL server to whitelist: " + rblServerName);
                 }
             }
             if (rblserverCollection != null && rblserverCollection.size() > 0) {
@@ -106,8 +123,8 @@ public class DNSRBLHandler
             for ( int i = 0 ; i < blackList.size() ; i++ ) {
                 String rblServerName = blackList.get(i);
                 rblserverCollection.add(rblServerName);
-                if (getLogger().isInfoEnabled()) {
-                    getLogger().info("Adding RBL server to blacklist: " + rblServerName);
+                if (serviceLog.isInfoEnabled()) {
+                    serviceLog.info("Adding RBL server to blacklist: " + rblServerName);
                 }
             }
             if (rblserverCollection != null && rblserverCollection.size() > 0) {

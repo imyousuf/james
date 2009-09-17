@@ -28,12 +28,13 @@ import java.util.Iterator;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
@@ -46,6 +47,7 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.james.socket.LogEnabled;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
@@ -55,7 +57,14 @@ import org.apache.oro.text.regex.Perl5Matcher;
 /**
  * Handler which reject invalid recipients
  */
-public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Configurable, Serviceable {
+public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable, Serviceable {
+    
+
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(ValidRcptHandler.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log serviceLog = FALLBACK_LOG;
     
     private UsersRepository users;
     
@@ -120,7 +129,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
     	while (recipsIt.hasNext()) {
             String recipient = recipsIt.next();
             
-            getLogger().debug("Add recipient to valid recipients: " + recipient);
+            serviceLog.debug("Add recipient to valid recipients: " + recipient);
             recipients.add(recipient);
     	}
     }
@@ -135,7 +144,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
     	
         while (domsIt.hasNext()) {
             String domain = domsIt.next().toLowerCase();
-            getLogger().debug("Add domain to valid domains: " + domain);
+            serviceLog.debug("Add domain to valid domains: " + domain);
             domains.add(domain);
         }  
     }
@@ -152,7 +161,7 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
         while (regsIt.hasNext()) {
             String patternString = regsIt.next();
 
-            getLogger().debug("Add regex to valid regex: " + patternString);
+            serviceLog.debug("Add regex to valid regex: " + patternString);
             
             Pattern pattern = compiler.compile(patternString, Perl5Compiler.READ_ONLY_MASK);
             regex.add(pattern);
@@ -218,5 +227,14 @@ public class ValidRcptHandler extends AbstractLogEnabled implements RcptHook, Co
             session.getLogger().debug("Sender allowed");
         }
         return new HookResult(HookReturnCode.DECLINED);
+    }
+    
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.serviceLog = log;
     }
 }

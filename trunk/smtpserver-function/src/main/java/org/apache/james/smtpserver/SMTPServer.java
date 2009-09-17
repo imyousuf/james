@@ -28,6 +28,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
@@ -246,7 +247,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         handlerChain = loader.load(SMTPHandlerChain.class);
         
         //set the logger
-        ContainerUtil.enableLogging(handlerChain,getLogger());
+        handlerChain.setLog(new AvalonLogger(getLogger()));
 
         ContainerUtil.service(handlerChain,serviceManager);
 

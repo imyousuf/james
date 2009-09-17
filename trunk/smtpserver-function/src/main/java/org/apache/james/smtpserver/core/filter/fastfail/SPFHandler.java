@@ -22,9 +22,10 @@
 package org.apache.james.smtpserver.core.filter.fastfail;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.jspf.core.exceptions.SPFErrorConstants;
@@ -39,6 +40,7 @@ import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MailHook;
 import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.james.socket.LogEnabled;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -54,8 +56,13 @@ import org.apache.mailet.MailAddress;
  * &lt;checkAuthNetworks&gt;false&lt/checkAuthNetworks&gt; 
  * &lt;/handler&gt;
  */
-public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook,
-        MessageHook,Initializable, Configurable {
+public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook,Initializable, Configurable {
+    
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(SPFHandler.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log serviceLog = FALLBACK_LOG;
 
     public static final String SPF_BLOCKLISTED = "SPF_BLOCKLISTED";
 
@@ -81,6 +88,14 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
     private SPF spf;
 
 
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.serviceLog = log;
+    }
 
     /**
      * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
@@ -98,9 +113,9 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
      */
     public void initialize() throws Exception {
         if (dnsService == null) {
-            spf = new DefaultSPF(new SPFLogger(getLogger()));
+            spf = new DefaultSPF(new SPFLogger());
         } else {
-            spf = new SPF(dnsService, new SPFLogger(getLogger()));
+            spf = new SPF(dnsService, new SPFLogger());
         }
     }
 
@@ -226,10 +241,8 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
                     + "Temporarily rejected: Problem on SPF lookup");
             }
         }
-        return new HookResult(HookReturnCode.DECLINED);
-      
+        return new HookResult(HookReturnCode.DECLINED);      
     }
-
 
     /**
      * @see org.apache.james.smtpserver.hook.MailHook#doMail(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress)
@@ -240,132 +253,121 @@ public class SPFHandler extends AbstractLogEnabled implements MailHook, RcptHook
     }
     
     /**
-     * Inner class to provide a wrapper for loggin to avalon
+     * Adapts service log.
      */
-    class SPFLogger implements org.apache.james.jspf.core.Logger {
-
-        /**
-         * Avalon Logger
-         */
-        org.apache.avalon.framework.logger.Logger logger;
-
-        SPFLogger(org.apache.avalon.framework.logger.Logger logger) {
-            this.logger = logger;
-        }
-        
+    private final class SPFLogger implements org.apache.james.jspf.core.Logger {
         
         /**
          * @see org.apache.james.jspf.core.Logger#debug(String)
          */
-        public void debug(String arg0) {
-            logger.debug(arg0);
+        public void debug(String message) {
+            serviceLog.debug(message);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#debug(String, Throwable)
          */
-        public void debug(String arg0, Throwable arg1) {
-            logger.debug(arg0, arg1);
+        public void debug(String message, Throwable t) {
+            serviceLog.debug(message, t);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#error(String)
          */
-        public void error(String arg0) {
-            logger.error(arg0);
+        public void error(String message) {
+            serviceLog.error(message);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#error(String, Throwable)
          */
-        public void error(String arg0, Throwable arg1) {
-            logger.error(arg0, arg1);
+        public void error(String message, Throwable t) {
+            serviceLog.error(message, t);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#fatalError(String)
          */
-        public void fatalError(String arg0) {
-            logger.fatalError(arg0);
+        public void fatalError(String message) {
+            serviceLog.fatal(message);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#fatalError(String, Throwable)
          */
-        public void fatalError(String arg0, Throwable arg1) {
-            logger.fatalError(arg0, arg1);
+        public void fatalError(String message, Throwable t) {
+            serviceLog.fatal(message, t);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#info(String)
          */
-        public void info(String arg0) {
-            logger.info(arg0);
+        public void info(String message) {
+            serviceLog.info(message);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#info(String, Throwable)
          */
-        public void info(String arg0, Throwable arg1) {
-            logger.info(arg0, arg1);
+        public void info(String message, Throwable t) {
+            serviceLog.info(message, t);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#isDebugEnabled()
          */
         public boolean isDebugEnabled() {
-            return logger.isDebugEnabled();
+            return serviceLog.isDebugEnabled();
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#isErrorEnabled()
          */
         public boolean isErrorEnabled() {
-            return logger.isErrorEnabled();
+            return serviceLog.isErrorEnabled();
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#isFatalErrorEnabled()
          */
         public boolean isFatalErrorEnabled() {
-            return logger.isFatalErrorEnabled();
+            return serviceLog.isErrorEnabled();
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#isInfoEnabled()
          */
         public boolean isInfoEnabled() {
-            return logger.isInfoEnabled();
+            return serviceLog.isInfoEnabled();
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#isWarnEnabled()
          */
         public boolean isWarnEnabled() {
-            return logger.isWarnEnabled();
+            return serviceLog.isWarnEnabled();
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#warn(String)
          */
-        public void warn(String arg0) {
-            logger.warn(arg0);
+        public void warn(String message) {
+            serviceLog.warn(message);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#warn(String, Throwable)
          */
-        public void warn(String arg0, Throwable arg1) {
-            logger.warn(arg0, arg1);
+        public void warn(String message, Throwable t) {
+            serviceLog.warn(message, t);
         }
 
         /**
          * @see org.apache.james.jspf.core.Logger#getChildLogger(String)
          */
-        public org.apache.james.jspf.core.Logger getChildLogger(String arg0) {
-            return new SPFLogger(logger.getChildLogger(arg0));
+        public org.apache.james.jspf.core.Logger getChildLogger(String name) {
+            return this;
         }
-
     }
 
 }

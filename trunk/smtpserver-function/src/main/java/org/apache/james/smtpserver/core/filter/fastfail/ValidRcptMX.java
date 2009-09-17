@@ -27,9 +27,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.dnsservice.util.NetMatcher;
@@ -40,20 +41,37 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.james.socket.LogEnabled;
 import org.apache.mailet.MailAddress;
 
 /**
  * This class can be used to reject email with bogus MX which is send from a authorized user or an authorized
  * network.
  */
-public class ValidRcptMX extends AbstractLogEnabled implements RcptHook, Configurable {
+public class ValidRcptMX implements LogEnabled, RcptHook, Configurable {
 
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(ValidRcptMX.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log serviceLog = FALLBACK_LOG;
+    
     private DNSService dnsService = null;
 
     private static final String LOCALHOST = "localhost";
 
     private NetMatcher bNetwork = null;
 
+
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.serviceLog = log;
+    }
+    
     /**
      * Gets the DNS service.
      * @return the dnsService
@@ -90,7 +108,7 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook, Configu
 
             setBannedNetworks(bannedNetworks, dnsService);
 
-            getLogger().info("Invalid MX Networks: " + bNetwork.toString());
+            serviceLog.info("Invalid MX Networks: " + bNetwork.toString());
 
         } else {
             throw new ConfigurationException(
@@ -108,9 +126,8 @@ public class ValidRcptMX extends AbstractLogEnabled implements RcptHook, Configu
     public void setBannedNetworks(Collection<String> networks, DNSService dnsServer) {
         bNetwork = new NetMatcher(networks, dnsServer) {
             protected void log(String s) {
-                getLogger().debug(s);
+                serviceLog.debug(s);
             }
-
         };
     }
 

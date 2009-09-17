@@ -37,10 +37,11 @@ import javax.annotation.Resource;
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.dsn.DSNStatus;
@@ -51,6 +52,7 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.james.socket.LogEnabled;
 import org.apache.james.util.TimeConverter;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -59,8 +61,13 @@ import org.apache.mailet.MailAddress;
 /**
  * GreylistHandler which can be used to activate Greylisting
  */
-public class GreylistHandler extends AbstractLogEnabled implements
-    RcptHook, Configurable, Initializable {
+public class GreylistHandler implements LogEnabled, RcptHook, Configurable, Initializable {
+
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(GreylistHandler.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log serviceLog = FALLBACK_LOG;
 
     private DataSourceSelector datasources = null;
 
@@ -100,7 +107,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
     /**
      * Holds value of property sqlParameters.
      */
-    private Map sqlParameters = new HashMap();
+    private Map<String, String> sqlParameters = new HashMap<String, String>();
 
     /**
      * The repositoryPath
@@ -111,7 +118,15 @@ public class GreylistHandler extends AbstractLogEnabled implements
 
     private NetMatcher wNetworks;
 
-    
+
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.serviceLog = log;
+    }
     
     /**
      * Gets the file system service.
@@ -226,7 +241,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
 
             if (nets != null) {
                 wNetworks = new NetMatcher(nets,dnsService);
-                getLogger().info("Whitelisted addresses: " + wNetworks.toString());
+                serviceLog.info("Whitelisted addresses: " + wNetworks.toString());
             }
         }
     }
@@ -553,7 +568,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
      */
     private final JDBCUtil theJDBCUtil = new JDBCUtil() {
         protected void delegatedLog(String logString) {
-            getLogger().debug("JDBCVirtualUserTable: " + logString);
+            serviceLog.debug("JDBCVirtualUserTable: " + logString);
         }
     };
 
@@ -578,7 +593,7 @@ public class GreylistHandler extends AbstractLogEnabled implements
                 sqlFile = fileSystem.getFile(sqlFileUrl);
                 sqlFileUrl = null;
             } catch (Exception e) {
-                getLogger().fatalError(e.getMessage(), e);
+                serviceLog.fatal(e.getMessage(), e);
                 throw e;
             }
 
@@ -624,11 +639,11 @@ public class GreylistHandler extends AbstractLogEnabled implements
             createStatement = conn.prepareStatement(sqlQueries.getSqlString(createSqlStringName, true));
             createStatement.execute();
 
-            StringBuffer logBuffer = null;
-            logBuffer = new StringBuffer(64).append("Created table '").append(tableName)
+            StringBuilder logBuffer = null;
+            logBuffer = new StringBuilder(64).append("Created table '").append(tableName)
             .append("' using sqlResources string '")
             .append(createSqlStringName).append("'.");
-        getLogger().info(logBuffer.toString());
+            serviceLog.info(logBuffer.toString());
 
         } finally {
             theJDBCUtil.closeJDBCStatement(createStatement);

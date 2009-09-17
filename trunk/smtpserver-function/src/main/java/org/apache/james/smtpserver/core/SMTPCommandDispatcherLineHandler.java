@@ -28,7 +28,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
@@ -36,9 +37,16 @@ import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.WiringException;
+import org.apache.james.socket.LogEnabled;
 
-public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled implements LineHandler, ExtensibleHandler {
+public class SMTPCommandDispatcherLineHandler implements LogEnabled, LineHandler, ExtensibleHandler {
 
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(SMTPCommandDispatcherLineHandler.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log serviceLog = FALLBACK_LOG;
+    
     /**
      * The list of available command handlers
      */
@@ -124,8 +132,8 @@ public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled impleme
     
             for (Iterator i = implCmds.iterator(); i.hasNext(); ) {
                 String commandName = ((String) i.next()).trim().toUpperCase(Locale.US);
-                if (getLogger().isInfoEnabled()) {
-                    getLogger().info(
+                if (serviceLog.isInfoEnabled()) {
+                    serviceLog.info(
                             "Added Commandhandler: " + handler.getClass() + " for command "+commandName);
                 }
                 addToMap(commandName, (CommandHandler) handler);
@@ -135,16 +143,16 @@ public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled impleme
         addToMap(UnknownCmdHandler.UNKNOWN_COMMAND, unknownHandler);
 
         if (commandHandlerMap.size() < 2) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("No commandhandlers configured");
+            if (serviceLog.isErrorEnabled()) {
+                serviceLog.error("No commandhandlers configured");
             }
             throw new WiringException("No commandhandlers configured");
         } else {
             boolean found = true;
             for (int i = 0; i < mandatoryCommands.length; i++) {
                 if (!commandHandlerMap.containsKey(mandatoryCommands[i])) {
-                    if (getLogger().isErrorEnabled()) {
-                        getLogger().error(
+                    if (serviceLog.isErrorEnabled()) {
+                        serviceLog.error(
                                 "No commandhandlers configured for the command:"
                                         + mandatoryCommands[i]);
                     }
@@ -202,4 +210,12 @@ public class SMTPCommandDispatcherLineHandler extends AbstractLogEnabled impleme
         return handlers;
     }
 
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.serviceLog = log;
+    }
 }
