@@ -28,7 +28,7 @@ package org.apache.james.pop3server;
  * in the POP3Session object
  */
 public interface ConnectHandler {
-    /*
+    /**
      * Handle connection
     **/
     void onConnect(POP3Session session);
