@@ -182,7 +182,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
     /**
      * The DNSService
      */
-    private DNSService dnsServer = null;
+    private DNSService dnsService = null;
     
     /**
      * Counts the number of handler instances created.
@@ -199,6 +199,24 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
      */
     private String streamDumpDir = null;
 
+    
+    
+    /**
+     * Gets the DNS Service.
+     * @return the dnsServer
+     */
+    public final DNSService getDnsServer() {
+        return dnsService;
+    }
+
+    /**
+     * Sets the DNS service.
+     * @param dnsServer the dnsServer to set
+     */
+    public final void setDnsServer(DNSService dnsServer) {
+        this.dnsService = dnsServer;
+    }
+
     public void setConnectionManager(JamesConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
@@ -212,7 +230,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         JamesConnectionManager connectionManager =
             (JamesConnectionManager)componentManager.lookup(JamesConnectionManager.ROLE);
         setConnectionManager(connectionManager);
-        dnsServer = (DNSService) comp.lookup(DNSService.ROLE);
+        dnsService = (DNSService) comp.lookup(DNSService.ROLE);
     }
 
     /**
@@ -400,7 +418,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
     protected String getLocalHostName() {
         String hostName = null;
         try {
-            hostName = dnsServer.getHostName(dnsServer.getLocalHost());
+            hostName = dnsService.getHostName(dnsService.getLocalHost());
         } catch (UnknownHostException ue) {
             hostName = "localhost";
         }
@@ -411,7 +429,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         StringBuffer infoBuffer;
         String hostName = null;
         try {
-            hostName = dnsServer.getHostName(dnsServer.getLocalHost());
+            hostName = dnsService.getHostName(dnsService.getLocalHost());
         } catch (UnknownHostException ue) {
             hostName = "localhost";
         }
@@ -818,7 +836,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
     public Object newInstance() throws Exception {
         final String name = "Handler-" + handlerCount.getAndAdd(1);
         final JamesConnectionBridge delegatingJamesHandler = 
-            new JamesConnectionBridge(newProtocolHandlerInstance(), dnsServer, name, getLogger());
+            new JamesConnectionBridge(newProtocolHandlerInstance(), dnsService, name, getLogger());
         return delegatingJamesHandler;
     }
     
@@ -827,6 +845,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
    /**
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
      */
+    @SuppressWarnings("unchecked")
     public Class getCreatedClass() {
         return JamesConnectionBridge.class;
     }

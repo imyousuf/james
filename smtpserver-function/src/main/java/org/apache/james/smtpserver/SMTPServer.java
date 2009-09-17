@@ -29,7 +29,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.Constants;
-import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.MailServer;
@@ -68,10 +67,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
      */
     private MailServer mailServer;
 
-    /**
-     * The DNSServer to use for queries
-     */
-    private DNSService dnsServer;
     /** Loads instances */
     private LoaderService loader;
 
@@ -149,7 +144,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         super.service( manager );
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
-        dnsServer = (DNSService) manager.lookup(DNSService.ROLE); 
     }
 
     /**
@@ -200,7 +194,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
                     String addr = st.nextToken();
                     networks.add(addr);
                 }
-                authorizedNetworks = new NetMatcher(networks,dnsServer);
+                authorizedNetworks = new NetMatcher(networks, getDnsServer());
             }
 
             if (authorizedNetworks != null) {
