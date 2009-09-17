@@ -81,87 +81,18 @@ public class POP3HandlerChain implements Configurable, Serviceable {
     public void configure(Configuration configuration) throws  ConfigurationException {
         addToMap(UnknownCmdHandler.UNKNOWN_COMMAND, unknownHandler);
         if(configuration == null || configuration.getChildren("handler") == null || configuration.getChildren("handler").length == 0) {
-            configuration = new DefaultConfiguration("handlerchain");
-            Properties cmds = new Properties();
-            cmds.setProperty("USER",UserCmdHandler.class.getName());
-            cmds.setProperty("PASS",PassCmdHandler.class.getName());
-            cmds.setProperty("LIST",ListCmdHandler.class.getName());
-            cmds.setProperty("UIDL",UidlCmdHandler.class.getName());
-            cmds.setProperty("RSET",RsetCmdHandler.class.getName());
-            cmds.setProperty("DELE",DeleCmdHandler.class.getName());
-            cmds.setProperty("NOOP",NoopCmdHandler.class.getName());
-            cmds.setProperty("RETR",RetrCmdHandler.class.getName());
-            cmds.setProperty("TOP" ,TopCmdHandler.class.getName());
-            cmds.setProperty("STAT",StatCmdHandler.class.getName());
-            cmds.setProperty("QUIT",QuitCmdHandler.class.getName());
-            Enumeration e = cmds.keys();
-            while (e.hasMoreElements()) {
-                String cmdName = (String) e.nextElement();
-                String className = cmds.getProperty(cmdName);
-                DefaultConfiguration cmdConf = new DefaultConfiguration("handler");
-                cmdConf.setAttribute("command",cmdName);
-                cmdConf.setAttribute("class",className);
-                ((DefaultConfiguration) configuration).addChild(cmdConf);
-            }
+            configuration = createDefaultConfiguration();
         }
         if(configuration != null) {
             Configuration[] children = configuration.getChildren("handler");
             if ( children != null ) {
-                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                for ( int i = 0 ; i < children.length ; i++ ) {
-                    String className = children[i].getAttribute("class");
-                    if(className != null) {
-                        //load the handler
-                        try {
-                            Object handler = classLoader.loadClass(className).newInstance();
-
-                            //servicing the handler
-                            ContainerUtil.service(handler,serviceManager);
-
-                            //configure the handler
-                            ContainerUtil.configure(handler,children[i]);
-
-                            //if it is a connect handler add it to list of connect handlers
-                            if(handler instanceof ConnectHandler) {
-                                connectHandlers.add((ConnectHandler)handler);
-                                if (log.isInfoEnabled()) {
-                                    log.info("Added ConnectHandler: " + className);
-                                }
-                            }
-
-                            //if it is a command handler add it to the map with key as command name
-                            if(handler instanceof CommandHandler) {
-                                String commandName = children[i].getAttribute("command");
-                                commandName = commandName.toUpperCase(Locale.US);
-                                addToMap(commandName, (CommandHandler)handler);
-                                if (log.isInfoEnabled()) {
-                                    log.info("Added Commandhandler: " + className);
-                                }
-
-                            }
-
-                        } catch (ClassNotFoundException ex) {
-                           if (log.isErrorEnabled()) {
-                               log.error("Failed to add Commandhandler: " + className,ex);
-                           }
-                        } catch (IllegalAccessException ex) {
-                           if (log.isErrorEnabled()) {
-                               log.error("Failed to add Commandhandler: " + className,ex);
-                           }
-                        } catch (InstantiationException ex) {
-                           if (log.isErrorEnabled()) {
-                               log.error("Failed to add Commandhandler: " + className,ex);
-                           }
-                        } catch (ServiceException e) {
-                            if (log.isErrorEnabled()) {
-                                log.error("Failed to service Commandhandler: " + className,e);
-                            }
-                        }
-                    }
-                }
+                configureHandlers(children);
             }
         }
+        verifyCommandConfiguration();
+    }
 
+    private void verifyCommandConfiguration() throws ConfigurationException {
         //the size must be greater than 1 because we added UnknownCmdHandler to the map
         if(commandHandlerMap.size() < 2) {
             if (log.isErrorEnabled()) {
@@ -183,8 +114,90 @@ public class POP3HandlerChain implements Configurable, Serviceable {
             if(!found) {
                 throw new ConfigurationException("No commandhandlers configured for mandatory commands");
             }
-            
         }
+    }
+
+    private void configureHandlers(Configuration[] children)
+            throws ConfigurationException {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        for ( int i = 0 ; i < children.length ; i++ ) {
+            String className = children[i].getAttribute("class");
+            if(className != null) {
+                //load the handler
+                try {
+                    Object handler = classLoader.loadClass(className).newInstance();
+
+                    //servicing the handler
+                    ContainerUtil.service(handler,serviceManager);
+
+                    //configure the handler
+                    ContainerUtil.configure(handler,children[i]);
+
+                    //if it is a connect handler add it to list of connect handlers
+                    if(handler instanceof ConnectHandler) {
+                        connectHandlers.add((ConnectHandler)handler);
+                        if (log.isInfoEnabled()) {
+                            log.info("Added ConnectHandler: " + className);
+                        }
+                    }
+
+                    //if it is a command handler add it to the map with key as command name
+                    if(handler instanceof CommandHandler) {
+                        String commandName = children[i].getAttribute("command");
+                        commandName = commandName.toUpperCase(Locale.US);
+                        addToMap(commandName, (CommandHandler)handler);
+                        if (log.isInfoEnabled()) {
+                            log.info("Added Commandhandler: " + className);
+                        }
+                    }
+
+                } catch (ClassNotFoundException ex) {
+                   if (log.isErrorEnabled()) {
+                       log.error("Failed to add Commandhandler: " + className,ex);
+                   }
+                } catch (IllegalAccessException ex) {
+                   if (log.isErrorEnabled()) {
+                       log.error("Failed to add Commandhandler: " + className,ex);
+                   }
+                } catch (InstantiationException ex) {
+                   if (log.isErrorEnabled()) {
+                       log.error("Failed to add Commandhandler: " + className,ex);
+                   }
+                } catch (ServiceException e) {
+                    if (log.isErrorEnabled()) {
+                        log.error("Failed to service Commandhandler: " + className,e);
+                    }
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Configuration createDefaultConfiguration() {
+        Configuration configuration;
+        configuration = new DefaultConfiguration("handlerchain");
+        Properties cmds = new Properties();
+        cmds.setProperty("USER",UserCmdHandler.class.getName());
+        cmds.setProperty("PASS",PassCmdHandler.class.getName());
+        cmds.setProperty("LIST",ListCmdHandler.class.getName());
+        cmds.setProperty("UIDL",UidlCmdHandler.class.getName());
+        cmds.setProperty("RSET",RsetCmdHandler.class.getName());
+        cmds.setProperty("DELE",DeleCmdHandler.class.getName());
+        cmds.setProperty("NOOP",NoopCmdHandler.class.getName());
+        cmds.setProperty("RETR",RetrCmdHandler.class.getName());
+        cmds.setProperty("TOP" ,TopCmdHandler.class.getName());
+        cmds.setProperty("STAT",StatCmdHandler.class.getName());
+        cmds.setProperty("QUIT",QuitCmdHandler.class.getName());
+        Enumeration e = cmds.keys();
+        while (e.hasMoreElements()) {
+            String cmdName = (String) e.nextElement();
+            String className = cmds.getProperty(cmdName);
+            DefaultConfiguration cmdConf = new DefaultConfiguration("handler");
+            cmdConf.setAttribute("command",cmdName);
+            cmdConf.setAttribute("class",className);
+            ((DefaultConfiguration) configuration).addChild(cmdConf);
+        }
+        return configuration;
     }
 
     /**
