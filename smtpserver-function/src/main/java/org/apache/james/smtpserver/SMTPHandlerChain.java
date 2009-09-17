@@ -29,15 +29,10 @@ import java.util.Properties;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.kernel.LoaderService;
@@ -48,9 +43,9 @@ import org.apache.james.socket.LogEnabled;
 
 /**
   * The SMTPHandlerChain is per service object providing access
-  * ConnectHandlers, Commandhandlers and message handlers
+  * ConnectHandlers, Command handlers and message handlers
   */
-public class SMTPHandlerChain implements Configurable {
+public class SMTPHandlerChain {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineMessageHookHandler.class);

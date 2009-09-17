@@ -25,7 +25,6 @@ import javax.annotation.Resource;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.commons.logging.impl.AvalonLogger;
@@ -123,8 +122,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     private SMTPConfiguration theConfigData
     = new SMTPHandlerConfigurationDataImpl();
 
-    private ServiceManager serviceManager;
-
     private boolean addressBracketsEnforcement = true;
 
 
@@ -150,7 +147,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
      */
     public void service( final ServiceManager manager ) throws ServiceException {
         super.service( manager );
-        serviceManager = manager;
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
         dnsServer = (DNSService) manager.lookup(DNSService.ROLE); 
@@ -248,11 +244,9 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         
         //set the logger
         handlerChain.setLog(new AvalonLogger(getLogger()));
-
-        ContainerUtil.service(handlerChain,serviceManager);
-
+        
         //read from the XML configuration and create and configure each of the handlers
-        ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
+        handlerChain.configure(handlerConfiguration.getChild("handlerchain"));
         handlerChain.initialize();
     }
 
