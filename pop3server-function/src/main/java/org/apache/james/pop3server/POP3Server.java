@@ -26,6 +26,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
@@ -103,21 +104,25 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
-            //set the logger
-            ContainerUtil.enableLogging(handlerChain,getLogger());
-
-            try {
-                ContainerUtil.service(handlerChain,serviceManager);
-            } catch (ServiceException e) {
-                if (getLogger().isErrorEnabled()) {
-                    getLogger().error("Failed to service handlerChain",e);
-                }
-                throw new ConfigurationException("Failed to service handlerChain");
-            }
+            prepareHandlerChain();
             
             //read from the XML configuration and create and configure each of the handlers
             ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
 
+        }
+    }
+
+    private void prepareHandlerChain() throws ConfigurationException {
+        //set the logger
+        handlerChain.setLog(new AvalonLogger(getLogger()));
+
+        try {
+            ContainerUtil.service(handlerChain,serviceManager);
+        } catch (ServiceException e) {
+            if (getLogger().isErrorEnabled()) {
+                getLogger().error("Failed to service handlerChain",e);
+            }
+            throw new ConfigurationException("Failed to service handlerChain");
         }
     }
 
