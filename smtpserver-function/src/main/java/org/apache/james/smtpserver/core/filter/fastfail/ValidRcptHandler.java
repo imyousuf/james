@@ -28,9 +28,6 @@ import java.util.Iterator;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
@@ -57,7 +54,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
 /**
  * Handler which reject invalid recipients
  */
-public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable, Serviceable {
+public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable {
     
 
     /** This log is the fall back shared by all instances */
@@ -67,6 +64,16 @@ public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable, Ser
     private Log serviceLog = FALLBACK_LOG;
     
     private UsersRepository users;
+    
+    private VirtualUserTableStore tableStore;
+
+    private Collection<String> recipients = new ArrayList<String>();
+    private Collection<String> domains = new ArrayList<String>();
+    private Collection<Pattern> regex = new ArrayList<Pattern>();
+    private boolean vut = true;
+    private VirtualUserTable table;
+    private String tableName = null;
+
     
     /**
      * Gets the users repository.
@@ -83,23 +90,24 @@ public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable, Ser
     @Resource(name="localusersrepository")
     public final void setUsers(UsersRepository users) {
         this.users = users;
-    }
-    
-    private Collection<String> recipients = new ArrayList<String>();
-    private Collection<String> domains = new ArrayList<String>();
-    private Collection<Pattern> regex = new ArrayList<Pattern>();
-    private boolean vut = true;
-    private VirtualUserTable table;
-    private String tableName = null;
+    }    
     
     /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
+     * Gets the virtual user table store.
+     * @return the tableStore
      */
-    public void service(ServiceManager arg0) throws ServiceException {
-        if (tableName == null || tableName.equals("")) {
-            tableName =  VirtualUserTableStore.DEFAULT_TABLE;
-        }
-        table = ((VirtualUserTableStore) arg0.lookup(VirtualUserTableStore.ROLE)).getTable(tableName);
+    public final VirtualUserTableStore getTableStore() {
+        return tableStore;
+    }
+
+    /**
+     * Sets the virtual user table store.
+     * @param tableStore the tableStore to set
+     */
+    @Resource(name="virtualusertable-store")
+    public final void setTableStore(VirtualUserTableStore tableStore) {
+        this.tableStore = tableStore;
+        loadTable();
     }
     
     /**
@@ -136,7 +144,7 @@ public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable, Ser
     /**
      * Set the domains for which every rcpt will be accepted. 
      * 
-     * @param dom The valid domains. Commaseperated list
+     * @param dom The valid domains. Comma seperated list
      */
     public void setValidDomains(Collection<String> doms) {
     	Iterator<String> domsIt = doms.iterator();
@@ -174,6 +182,16 @@ public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable, Ser
 
     public void setTableName(String tableName) {
     	this.tableName = tableName;
+        loadTable();
+    }
+
+    private void loadTable() {
+        if (this.tableName == null || this.tableName.equals("")) {
+            this.tableName =  VirtualUserTableStore.DEFAULT_TABLE;
+        }
+        if (tableStore != null) {
+            table = tableStore.getTable(this.tableName);
+        }
     }
     
     /**
