@@ -189,7 +189,7 @@ public interface POP3Session {
      * 
      * @return list backup
      */
-    List getBackupUserMailbox();
+    List<Mail> getBackupUserMailbox();
 
 
     /**
@@ -197,7 +197,7 @@ public interface POP3Session {
      * 
      * @param backupUserMailbox the mailbox backup
      */
-    void setBackupUserMailbox(List backupUserMailbox);
+    void setBackupUserMailbox(List<Mail> backupUserMailbox);
 
     /**
      * Returns the raw output stream
