@@ -33,11 +33,13 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
+import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
@@ -79,15 +81,15 @@ public class ValidRcptHandlerTest extends TestCase {
     
     private MockServiceManager setUpServiceManager() throws Exception {
         serviceMan = new MockServiceManager();
-        serviceMan.put(VirtualUserTable.ROLE, setUpVirtualUserTable());
+        serviceMan.put(VirtualUserTableStore.ROLE, setUpVirtualUserTableStore());
         return serviceMan;
     }
     
-    private VirtualUserTable setUpVirtualUserTable() {
-        VirtualUserTable table = new VirtualUserTable() {
+    private VirtualUserTableStore setUpVirtualUserTableStore() {
+        final VirtualUserTable table = new VirtualUserTable() {
  
             public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
-                Collection mappings = new ArrayList();
+                Collection<String> mappings = new ArrayList<String>();
                 if (user.equals(USER1)) {
                     mappings.add("address@localhost");
                 } else if (user.equals(USER2)) {
@@ -96,7 +98,9 @@ public class ValidRcptHandlerTest extends TestCase {
                 return mappings;
             }
         };
-        return table;
+        final MockVirtualUserTableStore store = new MockVirtualUserTableStore();
+        store.tableStore.put(VirtualUserTableStore.DEFAULT_TABLE, table);
+        return store;
     }
     
     private SMTPConfiguration setupMockedSMTPConfiguration() {

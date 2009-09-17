@@ -31,10 +31,15 @@ package org.apache.james.api.vut;
 public interface VirtualUserTableStore 
 {
     /**
+     * Conventional name for the default table for virtual users.
+     */
+    String DEFAULT_TABLE = "default";
+    
+    /**
      * The component role used by components implementing this service
      */
     String ROLE = "org.apache.james.api.vut.VirtualUserTableStore";
-
+    
     /** 
      * Get the table, if any, whose name corresponds to
      * the argument parameter
