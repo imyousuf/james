@@ -22,6 +22,7 @@
 package org.apache.james.pop3server;
 
 
+import org.apache.commons.logging.Log;
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.Watchdog;
 import org.apache.mailet.Mail;
@@ -206,5 +207,10 @@ public interface POP3Session {
      */
     OutputStream getOutputStream();
 
+    /**
+     * Gets the context sensitive logger for this session.
+     * @return context sensitive log, not null
+     */
+    Log getLogger();
 }
 
