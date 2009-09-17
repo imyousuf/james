@@ -21,16 +21,6 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -38,12 +28,29 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
   * The POP3HandlerChain is per service object providing access
   * ConnectHandlers, Commandhandlers and message handlers
   */
-public class POP3HandlerChain extends AbstractLogEnabled implements Configurable, Serviceable {
+public class POP3HandlerChain implements Configurable, Serviceable {
 
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(POP3HandlerChain.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log log = FALLBACK_LOG;
+    
     private HashMap commandHandlerMap = new HashMap();
     private ArrayList messageHandlers = new ArrayList();
     private ArrayList connectHandlers = new ArrayList();
@@ -53,6 +60,15 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
 
     private final static String[] mandatoryCommands = { "USER" , "PASS", "LIST"};
 
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.log = log;
+    }
+    
     public void service(ServiceManager serviceManager) throws ServiceException {
         this.serviceManager = serviceManager;
     }
@@ -99,9 +115,6 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
                         try {
                             Object handler = classLoader.loadClass(className).newInstance();
 
-                            //enable logging
-                            ContainerUtil.enableLogging(handler, getLogger());
-
                             //servicing the handler
                             ContainerUtil.service(handler,serviceManager);
 
@@ -111,8 +124,8 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
                             //if it is a connect handler add it to list of connect handlers
                             if(handler instanceof ConnectHandler) {
                                 connectHandlers.add((ConnectHandler)handler);
-                                if (getLogger().isInfoEnabled()) {
-                                    getLogger().info("Added ConnectHandler: " + className);
+                                if (log.isInfoEnabled()) {
+                                    log.info("Added ConnectHandler: " + className);
                                 }
                             }
 
@@ -121,27 +134,27 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
                                 String commandName = children[i].getAttribute("command");
                                 commandName = commandName.toUpperCase(Locale.US);
                                 addToMap(commandName, (CommandHandler)handler);
-                                if (getLogger().isInfoEnabled()) {
-                                    getLogger().info("Added Commandhandler: " + className);
+                                if (log.isInfoEnabled()) {
+                                    log.info("Added Commandhandler: " + className);
                                 }
 
                             }
 
                         } catch (ClassNotFoundException ex) {
-                           if (getLogger().isErrorEnabled()) {
-                               getLogger().error("Failed to add Commandhandler: " + className,ex);
+                           if (log.isErrorEnabled()) {
+                               log.error("Failed to add Commandhandler: " + className,ex);
                            }
                         } catch (IllegalAccessException ex) {
-                           if (getLogger().isErrorEnabled()) {
-                               getLogger().error("Failed to add Commandhandler: " + className,ex);
+                           if (log.isErrorEnabled()) {
+                               log.error("Failed to add Commandhandler: " + className,ex);
                            }
                         } catch (InstantiationException ex) {
-                           if (getLogger().isErrorEnabled()) {
-                               getLogger().error("Failed to add Commandhandler: " + className,ex);
+                           if (log.isErrorEnabled()) {
+                               log.error("Failed to add Commandhandler: " + className,ex);
                            }
                         } catch (ServiceException e) {
-                            if (getLogger().isErrorEnabled()) {
-                                getLogger().error("Failed to service Commandhandler: " + className,e);
+                            if (log.isErrorEnabled()) {
+                                log.error("Failed to service Commandhandler: " + className,e);
                             }
                         }
                     }
@@ -151,16 +164,16 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
 
         //the size must be greater than 1 because we added UnknownCmdHandler to the map
         if(commandHandlerMap.size() < 2) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("No commandhandlers configured");
+            if (log.isErrorEnabled()) {
+                log.error("No commandhandlers configured");
             }
             throw new ConfigurationException("No commandhandlers configured");
         } else {
             boolean found = true;
             for (int i = 0; i < mandatoryCommands.length; i++) {
                 if(!commandHandlerMap.containsKey(mandatoryCommands[i])) {
-                    if (getLogger().isErrorEnabled()) {
-                        getLogger().error("No commandhandlers configured for the command:" + mandatoryCommands[i]);
+                    if (log.isErrorEnabled()) {
+                        log.error("No commandhandlers configured for the command:" + mandatoryCommands[i]);
                     }
                     found = false;
                     break;
@@ -199,8 +212,8 @@ public class POP3HandlerChain extends AbstractLogEnabled implements Configurable
         if (command == null) {
             return null;
         }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Lookup command handler for command: " + command);
+        if (log.isDebugEnabled()) {
+            log.debug("Lookup command handler for command: " + command);
         }
         List handlers =  (List)commandHandlerMap.get(command);
         if(handlers == null) {
