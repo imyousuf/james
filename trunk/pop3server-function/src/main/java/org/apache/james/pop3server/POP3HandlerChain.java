@@ -53,7 +53,6 @@ public class POP3HandlerChain implements Configurable, Serviceable {
     private Log log = FALLBACK_LOG;
     
     private Map<String, List<CommandHandler>> commandHandlerMap = new HashMap<String, List<CommandHandler>>();
-    private ArrayList messageHandlers = new ArrayList();
     private List<ConnectHandler> connectHandlers = new ArrayList<ConnectHandler>();
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
@@ -222,15 +221,6 @@ public class POP3HandlerChain implements Configurable, Serviceable {
         }
 
         return handlers;
-    }
-
-    /**
-     * Returns all the configured message handlers
-     *
-     * @return List of message handlers
-     */
-    List getMessageHandlers() {
-        return messageHandlers;
     }
 
     /**
