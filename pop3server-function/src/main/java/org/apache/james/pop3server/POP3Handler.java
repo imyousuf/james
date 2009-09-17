@@ -102,7 +102,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      * emails in the user's inbox at any given time
      * during the POP3 transaction.
      */
-    private List userMailbox = new ArrayList();
+    private List<Mail> userMailbox = new ArrayList<Mail>();
 
     private List backupUserMailbox;         // A snapshot list representing the set of
                                                  // emails in the user's inbox at the beginning
@@ -458,14 +458,14 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     /**
      * @see org.apache.james.pop3server.POP3Session#getUserMailbox()
      */
-    public List getUserMailbox() {
+    public List<Mail> getUserMailbox() {
         return userMailbox;
     }
 
     /**
-     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(java.util.List)
+     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(List)
      */
-    public void setUserMailbox(List userMailbox) {
+    public void setUserMailbox(List<Mail> userMailbox) {
         this.userMailbox = userMailbox;
     }
 

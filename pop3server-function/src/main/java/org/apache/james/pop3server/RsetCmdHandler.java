@@ -71,7 +71,7 @@ public class RsetCmdHandler extends AbstractLogEnabled implements CommandHandler
      *
      */
     public static void stat(POP3Session session, Logger logger) {
-        ArrayList userMailbox = new ArrayList();
+        ArrayList<Mail> userMailbox = new ArrayList<Mail>();
         userMailbox.add(POP3Handler.DELETED);
         try {
             for (Iterator it = session.getUserInbox().list(); it.hasNext(); ) {

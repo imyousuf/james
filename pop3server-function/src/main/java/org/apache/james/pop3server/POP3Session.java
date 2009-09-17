@@ -24,6 +24,7 @@ package org.apache.james.pop3server;
 
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.Watchdog;
+import org.apache.mailet.Mail;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -174,14 +175,14 @@ public interface POP3Session {
      * 
      * @return mailbox content
      */
-    List getUserMailbox();
+    List<Mail> getUserMailbox();
 
     /**
      * Sets a new mailbox content
      * 
      * @param userMailbox mailbox
      */
-    void setUserMailbox(List userMailbox);
+    void setUserMailbox(List<Mail> userMailbox);
     
     /**
      * Returns the backup mailbox

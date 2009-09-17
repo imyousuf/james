@@ -21,18 +21,18 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.james.socket.BytesWrittenResetOutputStream;
-import org.apache.james.util.stream.ExtraDotOutputStream;
-import org.apache.mailet.Mail;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Enumeration;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
+import org.apache.james.socket.BytesWrittenResetOutputStream;
+import org.apache.james.util.stream.ExtraDotOutputStream;
+import org.apache.mailet.Mail;
 
 /**
   * Handles TOP command
@@ -85,7 +85,7 @@ public class TopCmdHandler implements CommandHandler {
                 return;
             }
             try {
-                Mail mc = (Mail) session.getUserMailbox().get(num);
+                Mail mc = session.getUserMailbox().get(num);
                 if (mc != POP3Handler.DELETED) {
                     responseString = POP3Handler.OK_RESPONSE + " Message follows";
                     session.writeResponse(responseString);
@@ -107,8 +107,8 @@ public class TopCmdHandler implements CommandHandler {
                         session.writeResponse(".");
                     }
                 } else {
-                    StringBuffer responseBuffer =
-                        new StringBuffer(64)
+                    StringBuilder responseBuffer =
+                        new StringBuilder(64)
                                 .append(POP3Handler.ERR_RESPONSE)
                                 .append(" Message (")
                                 .append(num)
@@ -123,8 +123,8 @@ public class TopCmdHandler implements CommandHandler {
                 responseString = POP3Handler.ERR_RESPONSE + " Error while retrieving message.";
                 session.writeResponse(responseString);
             } catch (IndexOutOfBoundsException iob) {
-                StringBuffer exceptionBuffer =
-                    new StringBuffer(64)
+                StringBuilder exceptionBuffer =
+                    new StringBuilder(64)
                             .append(POP3Handler.ERR_RESPONSE)
                             .append(" Message (")
                             .append(num)
