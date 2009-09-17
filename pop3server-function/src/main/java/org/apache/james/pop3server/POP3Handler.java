@@ -50,37 +50,39 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     private final static byte COMMAND_MODE = 1;
     private final static byte RESPONSE_MODE = 2;
 
-    // POP3 Server identification string used in POP3 headers
+    /** POP3 Server identification string used in POP3 headers */
     private static final String softwaretype        = "JAMES POP3 Server "
                                                         + Constants.SOFTWARE_VERSION;
 
     // POP3 response prefixes
-    final static String OK_RESPONSE = "+OK";    // OK response.  Requested content
-                                                        // will follow
-
-    final static String ERR_RESPONSE = "-ERR";  // Error response.  Requested content
-                                                        // will not be provided.  This prefix
-                                                        // is followed by a more detailed
-                                                        // error message
+    /** OK response.  Requested content will follow */
+    final static String OK_RESPONSE = "+OK";
+    
+    /** 
+     * Error response.  
+     * Requested content will not be provided.  
+     * This prefix is followed by a more detailed error message.
+     */
+    final static String ERR_RESPONSE = "-ERR";  
 
     // Authentication states for the POP3 interaction
+    /** Waiting for user id */
+    final static int AUTHENTICATION_READY = 0;
+    /** User id provided, waiting for password */
+    final static int AUTHENTICATION_USERSET = 1;  
+    /**
+     * A valid user id/password combination has been provided.
+     * In this state the client can access the mailbox
+     * of the specified user.
+     */
+    final static int TRANSACTION = 2;              
 
-    final static int AUTHENTICATION_READY = 0;    // Waiting for user id
-
-    final static int AUTHENTICATION_USERSET = 1;  // User id provided, waiting for
-                                                          // password
-
-    final static int TRANSACTION = 2;             // A valid user id/password combination
-                                                          // has been provided.  In this state
-                                                          // the client can access the mailbox
-                                                          // of the specified user
-
-    static final Mail DELETED = new MailImpl();   // A placeholder for emails deleted
-                                                          // during the course of the POP3
-                                                          // transaction.  This Mail instance
-                                                          // is used to enable fast checks as
-                                                          // to whether an email has been
-                                                          // deleted from the inbox.
+    /**
+     * A placeholder for emails deleted during the course of the POP3 transaction.  
+     * This Mail instance is used to enable fast checks as to whether an email has been
+     * deleted from the inbox.
+     */
+    static final Mail DELETED = new MailImpl();    
 
     /**
      * The per-service configuration data that applies to all handlers

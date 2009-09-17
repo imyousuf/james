@@ -28,7 +28,7 @@ package org.apache.james.pop3server;
  * in the POP3Session object
  */
  public interface CommandHandler {
-    /*
+    /**
      * Handle the command
     **/
     void onCommand(POP3Session session);
