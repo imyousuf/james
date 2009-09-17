@@ -39,6 +39,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.socket.LogEnabled;
 
 /**
   * The POP3HandlerChain is per service object providing access
@@ -126,6 +127,10 @@ public class POP3HandlerChain implements Configurable, Serviceable {
                 //load the handler
                 try {
                     Object handler = classLoader.loadClass(className).newInstance();
+                    
+                    if (handler instanceof LogEnabled) {
+                        ((LogEnabled) handler).setLog(log);
+                    }
 
                     //servicing the handler
                     ContainerUtil.service(handler,serviceManager);
