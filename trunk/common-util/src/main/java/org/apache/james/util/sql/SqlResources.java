@@ -52,17 +52,17 @@ public class SqlResources
     /**
      * A map of statement types to SQL statements
      */
-    private Map m_sql = new HashMap();
+    private Map<String, String> m_sql = new HashMap<String, String>();
 
     /**
      * A map of engine specific options
      */
-    private Map m_dbOptions = new HashMap();
+    private Map<String, String> m_dbOptions = new HashMap<String, String>();
 
     /**
      * A set of all used String values
      */
-    static private Map stringTable = java.util.Collections.synchronizedMap(new HashMap());
+    static private Map<String, String> stringTable = java.util.Collections.synchronizedMap(new HashMap<String, String>());
 
     /**
      * A Perl5 regexp matching helper class
@@ -87,7 +87,7 @@ public class SqlResources
      *                   replaced where found in the input strings
      */
     public void init(File sqlFile, String sqlDefsSection,
-                     Connection conn, Map configParameters)
+                     Connection conn, Map<String, String> configParameters)
         throws Exception
     {
         // Parse the sqlFile as an XML document.
@@ -116,7 +116,7 @@ public class SqlResources
      *                   replaced where found in the input strings
      */
     public void init(InputStream input, String sqlDefsSection,
-                     Connection conn, Map configParameters)
+                     Connection conn, Map<String, String> configParameters)
         throws Exception
     {
         // Parse the InputStream as an XML document.
@@ -138,7 +138,7 @@ public class SqlResources
      * @throws SQLException
      */
 	protected void init(Document sqlDoc, String sqlDefsSection,
-			Connection conn, Map configParameters) throws SQLException {
+			Connection conn, Map<String, String> configParameters) throws SQLException {
 		// First process the database matcher, to determine the
         //  sql statements to use.
         Element dbMatcherElement = 
@@ -177,8 +177,8 @@ public class SqlResources
 
         }
         if ( !found ) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(64)
+            StringBuilder exceptionBuffer =
+                new StringBuilder(64)
                         .append("Error loading sql definition file. ")
                         .append("The element named \'")
                         .append(sqlDefsSection)
@@ -188,7 +188,7 @@ public class SqlResources
 
         // Get parameters defined within the file as defaults,
         // and use supplied parameters as overrides.
-        Map parameters = new HashMap();
+        Map<String,String> parameters = new HashMap<String, String>();
         // First read from the <params> element, if it exists.
         Element parametersElement = 
             (Element)(sectionElement.getElementsByTagName("parameters").item(0));
@@ -208,8 +208,8 @@ public class SqlResources
         // 2 maps - one for storing default statements,
         // the other for statements with a "db" attribute matching this 
         // connection.
-        Map defaultSqlStatements = new HashMap();
-        Map dbProductSqlStatements = new HashMap();
+        Map<String, String> defaultSqlStatements = new HashMap<String, String>();
+        Map<String, String> dbProductSqlStatements = new HashMap<String, String>();
 
         // Process each sql statement, replacing string parameters,
         // and adding to the appropriate map..
@@ -219,7 +219,7 @@ public class SqlResources
             // See if this needs to be processed (is default or product specific)
             Element sqlElement = (Element)(sqlDefs.item(i));
             String sqlDb = sqlElement.getAttribute("db");
-            Map sqlMap;
+            Map<String, String> sqlMap;
             if ( sqlDb.equals("")) {
                 // default
                 sqlMap = defaultSqlStatements;
@@ -242,8 +242,8 @@ public class SqlResources
             String sqlString = sqlElement.getFirstChild().getNodeValue();
 
             // Do parameter replacements for this sql string.
-            Iterator paramNames = parameters.keySet().iterator();
-            StringBuffer replaceBuffer = new StringBuffer(64);
+            Iterator<String> paramNames = parameters.keySet().iterator();
+            StringBuilder replaceBuffer = new StringBuilder(64);
             while ( paramNames.hasNext() ) {
                 String paramName = (String)paramNames.next();
                 String paramValue = (String)parameters.get(paramName);
@@ -253,7 +253,7 @@ public class SqlResources
             }
 
             // See if we already have registered a string of this value
-            String shared = (String) stringTable.get(sqlString);
+            String shared = stringTable.get(sqlString);
             // If not, register it -- we will use it next time
             if (shared == null) {
                 stringTable.put(sqlString, sqlString);
@@ -295,8 +295,8 @@ public class SqlResources
             // Get the values for this matcher element.
             Element dbMatcher = (Element)dbMatchers.item(i);
             String dbMatchName = dbMatcher.getAttribute("db");
-            StringBuffer dbProductPatternBuffer =
-                new StringBuffer(64)
+            StringBuilder dbProductPatternBuffer =
+                new StringBuilder(64)
                         .append("/")
                         .append(dbMatcher.getAttribute("databaseProductName"))
                         .append("/i");
@@ -319,7 +319,7 @@ public class SqlResources
      * @param dbOptionsMap the <CODE>Map</CODE> to populate
      *
      */
-    private void populateDbOptions(String dbProduct, Element dbOptionsElement, Map dbOptionsMap)
+    private void populateDbOptions(String dbProduct, Element dbOptionsElement, Map<String, String> dbOptionsMap)
     {
         NodeList dbOptions = 
             dbOptionsElement.getElementsByTagName("dbOption");
@@ -350,7 +350,7 @@ public class SqlResources
         int find_length = find.length();
         int replace_length = replace.length();
 
-        StringBuffer output = new StringBuffer(input);
+        StringBuilder output = new StringBuilder(input);
         int index = input.indexOf(find);
         int outputOffset = 0;
 
@@ -391,8 +391,8 @@ public class SqlResources
         String sql = getSqlString(name);
 
         if (sql == null && required) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(64)
+            StringBuilder exceptionBuffer =
+                new StringBuilder(64)
                         .append("Required SQL resource: '")
                         .append(name)
                         .append("' was not found.");
