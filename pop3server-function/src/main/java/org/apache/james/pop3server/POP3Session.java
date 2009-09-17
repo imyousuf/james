@@ -22,15 +22,14 @@
 package org.apache.james.pop3server;
 
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.Watchdog;
 import org.apache.mailet.Mail;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * All the handlers access this interface to communicate with
@@ -101,19 +100,6 @@ public interface POP3Session {
      * @return if the session is open or closed
      */
     boolean isSessionEnded();
-
-    /**
-     * Returns Map that consists of the state of the POP3Session
-     *
-     * @return map of the current POP3Session state
-     */
-    HashMap getState();
-
-    /**
-     * Resets message-specific, but not authenticated user, state.
-     *
-     */
-    void resetState();
 
     /**
      * Returns POP3Handler service wide configuration

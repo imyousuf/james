@@ -21,24 +21,23 @@
 
 package org.apache.james.pop3server;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.logging.Log;
 import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.CRLFTerminatedReader;
-import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolContext;
+import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.Watchdog;
 import org.apache.mailet.Mail;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * The handler class for POP3 connections.
@@ -142,15 +141,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
 
 
     /**
-     * The hash map that holds variables for the POP3 message transfer in progress.
-     *
-     * This hash map should only be used to store variable set in a particular
-     * set of sequential MAIL-RCPT-DATA commands, as described in RFC 2821.  Per
-     * connection values should be stored as member variables in this class.
-     */
-    private HashMap state = new HashMap();
-
-    /**
      * The user name of the authenticated user associated with this POP3 transaction.
      */
     private String authenticatedUser;
@@ -175,7 +165,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         authenticatedUser = "unknown";
 
         sessionEnded = false;
-        resetState();
 
         // Initially greet the connector
         // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
@@ -355,20 +344,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      */
     public boolean isSessionEnded() {
         return sessionEnded;
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#resetState()
-     */
-    public void resetState() {
-        state.clear();
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#getState()
-     */
-    public HashMap getState() {
-        return state;
     }
 
     /**
