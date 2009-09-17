@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.avalon.framework.configuration.Configurable;
@@ -51,9 +52,9 @@ public class POP3HandlerChain implements Configurable, Serviceable {
     /** Non context specific log should only be used when no context specific log is available */
     private Log log = FALLBACK_LOG;
     
-    private HashMap commandHandlerMap = new HashMap();
+    private Map<String, List<CommandHandler>> commandHandlerMap = new HashMap<String, List<CommandHandler>>();
     private ArrayList messageHandlers = new ArrayList();
-    private ArrayList connectHandlers = new ArrayList();
+    private List<ConnectHandler> connectHandlers = new ArrayList<ConnectHandler>();
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
     private ServiceManager serviceManager;
@@ -194,9 +195,9 @@ public class POP3HandlerChain implements Configurable, Serviceable {
      * @param cmdHandler The commandhandler object
      */
     private void addToMap(String commandName, CommandHandler cmdHandler) {
-        ArrayList handlers = (ArrayList)commandHandlerMap.get(commandName);
+        List<CommandHandler> handlers = commandHandlerMap.get(commandName);
         if(handlers == null) {
-            handlers = new ArrayList();
+            handlers = new ArrayList<CommandHandler>();
             commandHandlerMap.put(commandName, handlers);
         }
         handlers.add(cmdHandler);
@@ -208,16 +209,16 @@ public class POP3HandlerChain implements Configurable, Serviceable {
      * @param command the command name which will be key
      * @return List of commandhandlers
      */
-    List getCommandHandlers(String command) {
+    List<CommandHandler> getCommandHandlers(String command) {
         if (command == null) {
             return null;
         }
         if (log.isDebugEnabled()) {
             log.debug("Lookup command handler for command: " + command);
         }
-        List handlers =  (List)commandHandlerMap.get(command);
+        List<CommandHandler> handlers =  commandHandlerMap.get(command);
         if(handlers == null) {
-            handlers = (List)commandHandlerMap.get(UnknownCmdHandler.UNKNOWN_COMMAND);
+            handlers = commandHandlerMap.get(UnknownCmdHandler.UNKNOWN_COMMAND);
         }
 
         return handlers;
@@ -237,7 +238,7 @@ public class POP3HandlerChain implements Configurable, Serviceable {
      *
      * @return List of connect handlers
      */
-    List getConnectHandlers() {
+    List<ConnectHandler> getConnectHandlers() {
         return connectHandlers;
     }
 
