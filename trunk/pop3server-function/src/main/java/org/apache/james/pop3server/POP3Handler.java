@@ -189,11 +189,11 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         context.writeLoggedFlushedResponse(responseString);
 
         //Session started - RUN all connect handlers
-        List connectHandlers = handlerChain.getConnectHandlers();
+        List<ConnectHandler> connectHandlers = handlerChain.getConnectHandlers();
         if(connectHandlers != null) {
             int count = connectHandlers.size();
             for(int i = 0; i < count; i++) {
-                ((ConnectHandler)connectHandlers.get(i)).onConnect(this);
+                connectHandlers.get(i).onConnect(this);
                 if(sessionEnded) {
                     break;
                 }
@@ -232,14 +232,14 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
           }
 
           //fetch the command handlers registered to the command
-          List commandHandlers = handlerChain.getCommandHandlers(curCommandName);
+          List<CommandHandler> commandHandlers = handlerChain.getCommandHandlers(curCommandName);
           if(commandHandlers == null) {
               //end the session
               break;
           } else {
               int count = commandHandlers.size();
               for(int i = 0; i < count; i++) {
-                  ((CommandHandler)commandHandlers.get(i)).onCommand(this);
+                  commandHandlers.get(i).onCommand(this);
                   context.getWatchdog().reset();
                   //if the response is received, stop processing of command handlers
                   if(mode != COMMAND_MODE) {
