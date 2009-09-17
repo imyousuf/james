@@ -34,25 +34,25 @@ public class WiringException extends Exception {
     }
 
     /**
-     * @param arg0
-     * @param arg1
+     * @param message
+     * @param t
      */
-    public WiringException(String arg0, Throwable arg1) {
-        super(arg0, arg1);
+    public WiringException(String message, Throwable t) {
+        super(message, t);
     }
 
     /**
-     * @param arg0
+     * @param message
      */
-    public WiringException(String arg0) {
-        super(arg0);
+    public WiringException(String message) {
+        super(message);
     }
 
     /**
-     * @param arg0
+     * @param t
      */
-    public WiringException(Throwable arg0) {
-        super(arg0);
+    public WiringException(Throwable t) {
+        super(t);
     }
 
 }
