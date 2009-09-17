@@ -30,7 +30,8 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
@@ -45,11 +46,18 @@ import org.apache.james.smtpserver.WiringException;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.MessageHook;
+import org.apache.james.socket.LogEnabled;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
-public final class DataLineMessageHookHandler extends AbstractLogEnabled implements DataLineFilter, ExtensibleHandler {
+public final class DataLineMessageHookHandler implements DataLineFilter, ExtensibleHandler, LogEnabled {
 
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineMessageHookHandler.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log serviceLog = FALLBACK_LOG;
+    
     private List messageHandlers;
     
     private List rHooks;
@@ -183,8 +191,8 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
         if (MessageHook.class.equals(interfaceName)) {
             this.messageHandlers = extension;
             if (messageHandlers.size() == 0) {
-                if (getLogger().isErrorEnabled()) {
-                    getLogger().error(
+                if (serviceLog.isErrorEnabled()) {
+                    serviceLog.error(
                                     "No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
                 }
                 throw new WiringException("No messageHandler configured");
@@ -204,4 +212,12 @@ public final class DataLineMessageHookHandler extends AbstractLogEnabled impleme
         return classes;
     }
 
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.serviceLog = log;
+    }
 }

@@ -36,9 +36,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.Configurable;
@@ -46,13 +47,24 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MessageHook;
+import org.apache.james.socket.LogEnabled;
 import org.apache.mailet.Mail;
 
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
  */
-public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Configurable {
+public class URIRBLHandler implements LogEnabled, MessageHook, Configurable {
 
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(URIRBLHandler.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log serviceLog = FALLBACK_LOG;
+    
+    private final static String LISTED_DOMAIN ="LISTED_DOMAIN";
+    
+    private final static String URBLSERVER = "URBL_SERVER";
+    
     private DNSService dnsService;
 
     private Collection<String> uriRbl;
@@ -60,11 +72,16 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Co
     private boolean getDetail = false;
 
     private boolean checkAuthNetworks = false;
-    
-    private final static String LISTED_DOMAIN ="LISTED_DOMAIN";
-    
-    private final static String URBLSERVER = "URBL_SERVER";
 
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.serviceLog = log;
+    }
+    
     /**
      * Gets the DNS service.
      * @return the dnsService
@@ -93,8 +110,8 @@ public class URIRBLHandler extends AbstractLogEnabled implements MessageHook, Co
         for ( int i = 0 ; i < servers.length ; i++ ) {
             String rblServerName = servers[i];
             serverCollection.add(rblServerName);
-            if (getLogger().isInfoEnabled()) {
-                    getLogger().info("Adding uriRBL server: " + rblServerName);
+            if (serviceLog.isInfoEnabled()) {
+                serviceLog.info("Adding uriRBL server: " + rblServerName);
             }
         }
         if (serverCollection != null && serverCollection.size() > 0) {

@@ -38,16 +38,26 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.core.CoreMessageHookLoader;
+import org.apache.james.smtpserver.core.DataLineMessageHookHandler;
+import org.apache.james.socket.LogEnabled;
 
 /**
   * The SMTPHandlerChain is per service object providing access
   * ConnectHandlers, Commandhandlers and message handlers
   */
-public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable, Serviceable {
+public class SMTPHandlerChain implements Configurable, Serviceable {
 
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineMessageHookHandler.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log log = FALLBACK_LOG;
+    
     /** Configuration for this chain */
     private Configuration configuration;
     private JamesConfiguration commonsConf;
@@ -58,6 +68,15 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
     
     /** Loads instances */
     private LoaderService loader;
+    
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.log = log;
+    }
     
     /**
      * Gets the current instance loader.
@@ -202,7 +221,9 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
         Object handler = loader.load(handlerClass);
 
         // enable logging
-        ContainerUtil.enableLogging(handler, getLogger());
+        if (handler instanceof LogEnabled) {
+            ((LogEnabled) handler).setLog(log);
+        }
 
         // servicing the handler
         ContainerUtil.service(handler, serviceManager);
@@ -232,8 +253,8 @@ public class SMTPHandlerChain extends AbstractLogEnabled implements Configurable
 
         }
 
-        if (getLogger().isInfoEnabled()) {
-            getLogger().info("Added Handler: " + className);
+        if (log.isInfoEnabled()) {
+            log.info("Added Handler: " + className);
         }
 
         // fill the big handler table
