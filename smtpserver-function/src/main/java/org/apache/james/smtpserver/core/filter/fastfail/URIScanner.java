@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 
 public class URIScanner {
 
-    /* These regular expressions "inspired" by Spamassassin */
+    // These regular expressions "inspired" by Spamassassin
     static private final String reserved = ";/?:@&=+$,[]\\#|";
 
     static private final String reservedNoColon = ";/?@&=+$,[]\\#|";
@@ -69,7 +69,7 @@ public class URIScanner {
     static private final Pattern uriCleanup3 = Pattern
         .compile("^(?i)mailto:([^\\/]{2})(.*)$");
 
-    /* These regular expressions also "inspired" by Spamassassin */
+    // These regular expressions also "inspired" by Spamassassin
     static private final String esc = "\\\\";
 
     static private final String period = "\\.";
