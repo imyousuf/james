@@ -39,6 +39,7 @@ import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.core.CoreMessageHookLoader;
 import org.apache.james.smtpserver.core.DataLineMessageHookHandler;
+import org.apache.james.socket.JamesConfiguration;
 import org.apache.james.socket.LogEnabled;
 
 /**
