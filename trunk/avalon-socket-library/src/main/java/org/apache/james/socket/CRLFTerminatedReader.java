@@ -34,6 +34,7 @@ import java.io.IOException;
  */
 public class CRLFTerminatedReader extends Reader {
 
+    @SuppressWarnings("serial")
     public class TerminationException extends IOException {
         private int where;
         public TerminationException(int where) {
@@ -51,6 +52,7 @@ public class CRLFTerminatedReader extends Reader {
         }
     }
 
+    @SuppressWarnings("serial")
     public class LineLengthExceededException extends IOException {
         public LineLengthExceededException(String s) {
             super(s);
@@ -75,7 +77,7 @@ public class CRLFTerminatedReader extends Reader {
         this(in);
     }
 
-    private StringBuffer lineBuffer = new StringBuffer();
+    private StringBuilder lineBuffer = new StringBuilder();
     private final int
             EOF = -1,
             CR  = 13,
@@ -99,7 +101,7 @@ public class CRLFTerminatedReader extends Reader {
      */
     public String readLine() throws IOException{
 
-        //start with the StringBuffer empty
+        //start with the buffer empty
         lineBuffer.delete(0, lineBuffer.length());
 
         /* This boolean tells which state we are in,

@@ -68,9 +68,9 @@ public class SimpleConnectionManager
      * The map of connection name / server connections managed by this connection
      * manager.
      */
-    private final HashMap connectionMap = new HashMap();
+    private final HashMap<String, ServerConnection> connectionMap = new HashMap<String, ServerConnection>();
     /**
-     * The idle timeout for the individual sockets spawed from the server socket.
+     * The idle timeout for the individual sockets spawned from the server socket.
      */
     protected int timeout = 0;
     /**
@@ -102,21 +102,21 @@ public class SimpleConnectionManager
         maxOpenConn = configuration.getChild("max-connections").getValueAsInteger(DEFAULT_MAX_CONNECTIONS);
         maxOpenConnPerIP = configuration.getChild("max-connections-per-ip").getValueAsInteger(DEFAULT_MAX_CONNECTIONS_PER_IP);
         if (timeout < 0) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128).append("Specified socket timeout value of ").append(timeout).append(
+            StringBuilder exceptionBuffer =
+                new StringBuilder(128).append("Specified socket timeout value of ").append(timeout).append(
                     " is not a legal value.");
             throw new ConfigurationException(exceptionBuffer.toString());
         }
         if (maxOpenConn < 0) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128).append("Specified maximum number of open connections of ").append(
+            StringBuilder exceptionBuffer =
+                new StringBuilder(128).append("Specified maximum number of open connections of ").append(
                     maxOpenConn).append(
                     " is not a legal value.");
             throw new ConfigurationException(exceptionBuffer.toString());
         }
         if (maxOpenConnPerIP < 0) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(128).append("Specified maximum number of open connections per IP of ").append(
+            StringBuilder exceptionBuffer =
+                new StringBuilder(128).append("Specified maximum number of open connections per IP of ").append(
                     maxOpenConnPerIP).append(
                     " is not a legal value.");
             throw new ConfigurationException(exceptionBuffer.toString());

@@ -112,7 +112,7 @@ public class ServerConnection extends AbstractLogEnabled
     /**
      * A collection of client connection runners.
      */
-    private final ArrayList clientConnectionRunners = new ArrayList();
+    private final ArrayList<ClientConnectionRunner> clientConnectionRunners = new ArrayList<ClientConnectionRunner>();
     
 
     /**
@@ -203,9 +203,9 @@ public class ServerConnection extends AbstractLogEnabled
         getLogger().debug("Closed server connection - cleaning up clients - " + this.toString());
 
         synchronized (clientConnectionRunners) {
-            Iterator runnerIterator = clientConnectionRunners.iterator();
+            Iterator<ClientConnectionRunner> runnerIterator = clientConnectionRunners.iterator();
             while( runnerIterator.hasNext() ) {
-                ClientConnectionRunner runner = (ClientConnectionRunner)runnerIterator.next();
+                ClientConnectionRunner runner = runnerIterator.next();
                 runner.dispose();
                 runner = null;
             }
@@ -281,8 +281,8 @@ public class ServerConnection extends AbstractLogEnabled
         }
 
         if ((getLogger().isDebugEnabled()) && (serverConnectionThread != null)) {
-            StringBuffer debugBuffer =
-                new StringBuffer(128)
+            StringBuilder debugBuffer =
+                new StringBuilder(128)
                     .append(serverConnectionThread.getName())
                     .append(" is listening on ")
                     .append(serverSocket.toString());
@@ -322,10 +322,10 @@ public class ServerConnection extends AbstractLogEnabled
                         if (getLogger().isWarnEnabled()) {
                            getLogger().warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + clientConnectionRunners.size());
                            if (getLogger().isInfoEnabled()) {
-                               Iterator runnerIterator = clientConnectionRunners.iterator();
+                               Iterator<ClientConnectionRunner> runnerIterator = clientConnectionRunners.iterator();
                                getLogger().info("Connections: ");
                                while( runnerIterator.hasNext() ) {
-                                   getLogger().info("    " + ((ClientConnectionRunner)runnerIterator.next()).toString());
+                                   getLogger().info("    " + runnerIterator.next());
                                }
                            }
                         }
@@ -522,8 +522,8 @@ public class ServerConnection extends AbstractLogEnabled
             if (clientSocket == null) {
                 return "invalid socket";
             }
-            StringBuffer connectionBuffer
-                = new StringBuffer(256)
+            StringBuilder connectionBuffer
+                = new StringBuilder(256)
                     .append("connection on ")
                     .append(clientSocket.getLocalAddress().getHostAddress().toString())
                     .append(":")
@@ -552,6 +552,7 @@ public class ServerConnection extends AbstractLogEnabled
         /**
          * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
          */
+        @SuppressWarnings("unchecked")
         public Class getCreatedClass() {
             return ClientConnectionRunner.class;
         }

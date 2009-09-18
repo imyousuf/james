@@ -30,9 +30,9 @@ import java.util.HashMap;
 public class ConnectionPerIpMap {
     
     /**
-     * A HashMap of clientip and connections
+     * A HashMap of client ip and connections
      */
-    private final HashMap connectionPerIP = new HashMap();
+    private final HashMap<String, Integer> connectionPerIP = new HashMap<String, Integer>();
     
     /**
      * Raise the connectionCount for the given ipAdrress
