@@ -197,8 +197,6 @@ public class SPFHandlerTest extends TestCase {
         
         spf.setDNSService(mockedDnsService);
         
-        spf.initialize();
-
         assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("declined", HookReturnCode.DECLINED, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
@@ -212,8 +210,6 @@ public class SPFHandlerTest extends TestCase {
         ContainerUtil.enableLogging(spf, new MockLogger());
         
         spf.setDNSService(mockedDnsService);     
-        
-        spf.initialize();
 
         assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("fail", HookReturnCode.DENY, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
@@ -229,8 +225,6 @@ public class SPFHandlerTest extends TestCase {
         
         spf.setDNSService(mockedDnsService);
         
-        spf.initialize();
-        
         assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("softfail declined", HookReturnCode.DECLINED, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
@@ -245,8 +239,6 @@ public class SPFHandlerTest extends TestCase {
         ContainerUtil.enableLogging(spf, new MockLogger());
        
         spf.setDNSService(mockedDnsService);
-       
-        spf.initialize();
         
         spf.setBlockSoftFail(true);
 
@@ -264,8 +256,6 @@ public class SPFHandlerTest extends TestCase {
         ContainerUtil.enableLogging(spf, new MockLogger());
         
         spf.setDNSService(mockedDnsService);
-        
-        spf.initialize();
         
         spf.setBlockSoftFail(true);
 
@@ -285,9 +275,6 @@ public class SPFHandlerTest extends TestCase {
         
         spf.setDNSService(mockedDnsService);
 
-        spf.initialize();
-        
-
         assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("temperror denysoft", HookReturnCode.DENYSOFT, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
@@ -303,9 +290,6 @@ public class SPFHandlerTest extends TestCase {
 
         spf.setDNSService(mockedDnsService);
 
-        spf.initialize();
-        
-
         assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("declined", HookReturnCode.DECLINED, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
@@ -320,8 +304,6 @@ public class SPFHandlerTest extends TestCase {
         ContainerUtil.enableLogging(spf, new MockLogger());
         
         spf.setDNSService(mockedDnsService);
-        
-        spf.initialize();
         
         spf.setBlockPermError(false);
 
