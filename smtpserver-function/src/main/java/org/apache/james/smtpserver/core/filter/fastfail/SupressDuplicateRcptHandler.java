@@ -41,12 +41,13 @@ public class SupressDuplicateRcptHandler implements RcptHook {
     /**
      * @see org.apache.james.smtpserver.hook.RcptHook#doRcpt(org.apache.james.smtpserver.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
+    @SuppressWarnings("unchecked")
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         Collection rcptList = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
     
-        // Check if the recipient is allready in the rcpt list
+        // Check if the recipient is already in the rcpt list
         if(rcptList != null && rcptList.contains(rcpt)) {
-            StringBuffer responseBuffer = new StringBuffer();
+            StringBuilder responseBuffer = new StringBuilder();
         
             responseBuffer.append(DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_VALID))
                           .append(" Recipient <")
