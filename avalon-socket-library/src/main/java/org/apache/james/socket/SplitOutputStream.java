@@ -31,7 +31,7 @@ public class SplitOutputStream extends FilterOutputStream {
 
     private OutputStream debugOutputStream;
 
-    StringBuffer logString = new StringBuffer();
+    StringBuilder logString = new StringBuilder();
 
     private boolean DEEP_DEBUG = false;
 
@@ -54,7 +54,7 @@ public class SplitOutputStream extends FilterOutputStream {
         if (DEEP_DEBUG) {
             if (b == 10) {
                 getLog().debug(logString);
-                logString = new StringBuffer();
+                logString = new StringBuilder();
             } else if (b != 13) {
                 logString.append((char) b);
             }

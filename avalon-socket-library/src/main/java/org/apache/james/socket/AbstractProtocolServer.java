@@ -283,11 +283,11 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
             serverSocketType = confSocketType;
         }
 
-        StringBuffer infoBuffer;
+        StringBuilder infoBuffer;
         threadGroup = conf.getChild("threadGroup").getValue(null);
         if (threadGroup != null) {
             infoBuffer =
-                new StringBuffer(64)
+                new StringBuilder(64)
                         .append(getServiceType())
                         .append(" uses thread group: ")
                         .append(threadGroup);
@@ -302,7 +302,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
             if( null != bindAddress ) {
                 bindTo = InetAddress.getByName(bindAddress);
                 infoBuffer =
-                    new StringBuffer(64)
+                    new StringBuilder(64)
                             .append(getServiceType())
                             .append(" bound to: ")
                             .append(bindTo);
@@ -318,7 +318,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         timeout = handlerConfiguration.getChild(TIMEOUT_NAME).getValueAsInteger(DEFAULT_TIMEOUT);
 
         infoBuffer =
-            new StringBuffer(64)
+            new StringBuilder(64)
                     .append(getServiceType())
                     .append(" handler connection timeout is: ")
                     .append(timeout);
@@ -327,7 +327,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         backlog = conf.getChild(BACKLOG_NAME).getValueAsInteger(DEFAULT_BACKLOG);
 
         infoBuffer =
-                    new StringBuffer(64)
+                    new StringBuilder(64)
                     .append(getServiceType())
                     .append(" connection backlog is: ")
                     .append(backlog);
@@ -347,7 +347,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         } else {
             connectionLimit = new Integer(connectionManager.getMaximumNumberOfOpenConnections());
         }
-        infoBuffer = new StringBuffer(128)
+        infoBuffer = new StringBuilder(128)
             .append(getServiceType())
             .append(" will allow a maximum of ")
             .append(connectionLimit.intValue())
@@ -369,7 +369,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         } else {
             connPerIP = connectionManager.getMaximumNumberOfOpenConnectionsPerIP();
         }
-        infoBuffer = new StringBuffer(128)
+        infoBuffer = new StringBuilder(128)
             .append(getServiceType())
             .append(" will allow a maximum of ")
             .append(connPerIP)
@@ -426,7 +426,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
     }
     
     private void configureHelloName(Configuration handlerConfiguration) {
-        StringBuffer infoBuffer;
+        StringBuilder infoBuffer;
         String hostName = null;
         try {
             hostName = dnsService.getHostName(dnsService.getLocalHost());
@@ -435,7 +435,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         }
 
         infoBuffer =
-            new StringBuffer(64)
+            new StringBuilder(64)
                     .append(getServiceType())
                     .append(" is running on: ")
                     .append(hostName);
@@ -455,7 +455,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
             helloName = null;
         }
         infoBuffer =
-            new StringBuffer(64)
+            new StringBuilder(64)
                     .append(getServiceType())
                     .append(" handler hello name is: ")
                     .append(helloName);
@@ -542,7 +542,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
      
     private String getBindingErrorMessage(BindException e) {
         // general info about binding error
-        StringBuffer errorMessage = new StringBuffer();
+        StringBuilder errorMessage = new StringBuilder();
         errorMessage.append("FATAL ERROR when starting service '").append(getServiceType()).append("'! ");
         errorMessage.append("could not bind to ");
         errorMessage.append(bindTo == null ? "0.0.0.0" : bindTo.toString());
@@ -566,7 +566,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         ServerSocket serverSocket = factory.createServerSocket(port, backlog, bindTo);
 
         if (null == connectionName) {
-            final StringBuffer sb = new StringBuffer();
+            final StringBuilder sb = new StringBuilder();
             sb.append(serverSocketType);
             sb.append(':');
             sb.append(port);
@@ -610,8 +610,8 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
     }
 
     private void initializeHandlerPool() throws Exception {
-        StringBuffer logBuffer =
-                new StringBuffer(64)
+        StringBuilder logBuffer =
+                new StringBuilder(64)
                         .append(getServiceType())
                         .append(" started ")
                         .append(connectionName);
@@ -658,8 +658,8 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         m_disposed = true;
         if( getLogger().isDebugEnabled() )
         {
-            StringBuffer infoBuffer =
-               new StringBuffer(64).append(getServiceType()).append(
+            StringBuilder infoBuffer =
+               new StringBuilder(64).append(getServiceType()).append(
                    " dispose... ").append(connectionName);
             getLogger().debug(infoBuffer.toString());
         }
@@ -667,8 +667,8 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         try {
             connectionManager.disconnect(connectionName, true);
         } catch (final Exception e) {
-            StringBuffer warnBuffer =
-                new StringBuffer(64)
+            StringBuilder warnBuffer =
+                new StringBuilder(64)
                         .append("Error disconnecting ")
                         .append(getServiceType())
                         .append(": ");

@@ -36,7 +36,7 @@ public class CopyInputStream extends InputStream
 
     private Log log;
 
-    StringBuffer logString = new StringBuffer();
+    StringBuilder logString = new StringBuilder();
     
     private boolean DEEP_DEBUG = false;
 
@@ -52,7 +52,7 @@ public class CopyInputStream extends InputStream
         if (DEEP_DEBUG) {
             if (in == 10) {
                 getLog().debug(logString);
-                logString = new StringBuffer();
+                logString = new StringBuilder();
             } else if (in != 13) {
                 logString.append((char) in);
             }

@@ -23,9 +23,9 @@ package org.apache.james.socket;
 import java.io.IOException;
 import java.io.InputStream;
 
-/*
- * A simple, synchronized, queue of CRLF-delimited lines.
- *
+/**
+ * <p>A simple, synchronized, queue of CRLF-delimited lines.</p>
+ * <p>
  * NOTA BENE: as bytes arrive, they are buffered internally up to a
  * configured maximum.  The maximum is intended to reflect a line length
  * limiter, but there is a potential corner case that should be
@@ -40,12 +40,12 @@ import java.io.InputStream;
  * flooding attacks, this does not appear to be a particularly critical
  * corner case.  We simply need to make sure that the working buffer is
  * at least twice the size of the maximum desired line length.
- *
+ * </p><p>
  * After buffering the incoming data, it is scanned for CRLF.  As each
  * line is found, it is moved to an ArrayList of Line objects.  When all
  * data has been scanned, any remaining bytes are shifted within the
  * working buffer to prepare for the next packet.
- *
+ * </p><p>
  * The code enforces CRLF pairing (RFC 2821 #2.7.1).  The Line object,
  * which is for internal use only, can hold the bytes for each line or
  * record an exception (line termination or line length) associated
@@ -53,14 +53,16 @@ import java.io.InputStream;
  * are rethrown during the read operation, rather than during the write
  * operation, so that the order of responses perserves the order of
  * input.
- *
+ * </p><p>
  * This code does not handle dot stuffing.  Dot Stuffing, Message size
  * limiting, and buffering of the message in a file are all expected to
  * be performed by the I/O handler associated with the DATA accumulation
  * state.
+ * </p>
  */
 
 public class CRLFDelimitedByteBuffer {
+    @SuppressWarnings("serial")
     static public class TerminationException extends java.io.IOException {
         private int where;
         public TerminationException(int where) {
@@ -78,6 +80,7 @@ public class CRLFDelimitedByteBuffer {
         }
     }
 
+    @SuppressWarnings("serial")
     static public class LineLengthExceededException extends java.io.IOException {
         public LineLengthExceededException(String s) {
             super(s);
@@ -92,7 +95,7 @@ public class CRLFDelimitedByteBuffer {
 
     public CRLFDelimitedByteBuffer(InputStream input, int maxLineLength) {
         this.input = input; 
-        lines = new java.util.ArrayList();
+        lines = new java.util.ArrayList<Line>();
         workLine = new byte[maxLineLength];
     }
 
@@ -157,10 +160,12 @@ public class CRLFDelimitedByteBuffer {
         java.io.IOException e;
         byte[] bytes;
 
+        @SuppressWarnings("unused")
         public Line(byte[] data) {
             bytes = data;
         }
 
+        @SuppressWarnings("unused")
         public Line(String data) {
             bytes = data.getBytes();
         }
@@ -183,7 +188,7 @@ public class CRLFDelimitedByteBuffer {
         }
     }
 
-    private java.util.ArrayList lines;
+    private java.util.ArrayList<Line> lines;
 
     private byte[] workLine;
     private int writeindex = 0;
