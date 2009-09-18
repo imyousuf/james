@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver;
+package org.apache.james.socket;
 
 import java.io.ByteArrayInputStream;
 import org.apache.avalon.framework.configuration.ConfigurationUtil;
