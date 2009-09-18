@@ -21,7 +21,6 @@
 
 package org.apache.james.smtpserver.core.filter.fastfail;
 
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
@@ -56,7 +55,7 @@ import org.apache.mailet.MailAddress;
  * &lt;checkAuthNetworks&gt;false&lt/checkAuthNetworks&gt; 
  * &lt;/handler&gt;
  */
-public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook,Initializable, Configurable {
+public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook, Configurable {
     
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(SPFHandler.class);
@@ -81,11 +80,9 @@ public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook,I
     
     private boolean blockPermError = true;
 
-    private DNSService dnsService = null;
-
     private boolean checkAuthNetworks = false;
 
-    private SPF spf;
+    private SPF spf = new DefaultSPF(new SPFLogger());
 
 
     /**
@@ -107,17 +104,6 @@ public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook,I
         setCheckAuthNetworks(handlerConfiguration.getBoolean("checkAuthNetworks",false));
     }
     
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        if (dnsService == null) {
-            spf = new DefaultSPF(new SPFLogger());
-        } else {
-            spf = new SPF(dnsService, new SPFLogger());
-        }
-    }
 
     /**
      * block the email on a softfail
@@ -145,7 +131,7 @@ public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook,I
      * @param dnsService The DNSService
      */
     public void setDNSService(DNSService dnsService) {
-        this.dnsService = dnsService;
+        spf = new SPF(dnsService, new SPFLogger());
     }
 
     /**
