@@ -273,7 +273,7 @@ class ParsedConfiguration
     /**
      * The Set of MailAddresses for whom mail should be rejected
      */    
-    private Set fieldBlacklist; 
+    private Set<MailAddress> fieldBlacklist; 
 
     /**
      * The maximum message size limit
@@ -681,7 +681,7 @@ protected void setDNSServer(DNSService dnsServer)
      * Returns the blacklist.
      * @return Set
      */
-    public Set getBlacklist()
+    public Set<MailAddress> getBlacklist()
     {
         return fieldBlacklist;
     }
@@ -690,7 +690,7 @@ protected void setDNSServer(DNSService dnsServer)
      * Sets the blacklist.
      * @param blacklist The blacklist to set
      */
-    protected void setBlacklist(Set blacklist)
+    protected void setBlacklist(Set<MailAddress> blacklist)
     {
         fieldBlacklist = blacklist;
     }
@@ -703,7 +703,7 @@ protected void setDNSServer(DNSService dnsServer)
         throws ConfigurationException
     {
         StringTokenizer st = new StringTokenizer(blacklistValue, ", \t", false);
-        Set blacklist = new HashSet();
+        Set<MailAddress> blacklist = new HashSet<MailAddress>();
         String token = null;
         while (st.hasMoreTokens())
         {

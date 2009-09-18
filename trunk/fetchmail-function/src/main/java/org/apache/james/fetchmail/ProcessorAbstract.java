@@ -44,10 +44,7 @@ import org.apache.mailet.MailAddress;
  * 
  * <p><code>ProcessorAbstract</code> wraps an Account - see 
  * <code>org.apache.james.fetchmail.Account</code>
- * - providing contextual information about the environment for the processor.</p>
- * 
- * <p>Creation Date: 27-May-03</p>
- * 
+ * - providing contextual information about the environment for the processor.</p> 
  */
 abstract public class ProcessorAbstract
 {
@@ -104,7 +101,7 @@ abstract public class ProcessorAbstract
      * deferred as the recipient could not be found
      * @return List
      */
-    protected List getDeferredRecipientNotFoundMessageIDs()
+    protected List<String> getDeferredRecipientNotFoundMessageIDs()
     {
         return getAccount().getDeferredRecipientNotFoundMessageIDs();
     }    
@@ -507,7 +504,7 @@ abstract public class ProcessorAbstract
      * Returns the blacklist.
      * @return Set
      */
-    protected Set getBlacklist()
+    protected Set<MailAddress> getBlacklist()
     {
         return getConfiguration().getBlacklist();
     }

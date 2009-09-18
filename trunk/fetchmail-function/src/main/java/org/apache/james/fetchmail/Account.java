@@ -34,12 +34,12 @@ import org.apache.mailet.MailAddress;
  * <p>Class <code>Account</code> encapsulates the account details required to
  * fetch mail from a message store.</p>
  * 
- * <p>Instances are <code>Comparable</code> based on their sequence number.</p>
- * 
- * <p>Creation Date: 05-Jun-03</p>
+ * <p>Instances are <code>Comparable</code> based on their sequence number.</p> 
  */
-class Account implements Comparable
+class Account implements Comparable<Account>
 {
+    private static final int DEFAULT_INITIAL_SIZE_OF_DEFERRED_RECIPIENT_ARRAY = 16;
+
     /**
      * The user password for this account
      */
@@ -64,7 +64,7 @@ class Account implements Comparable
      * List of MessageIDs for which processing has been deferred
      * because the intended recipient could not be found.
      */
-    private List fieldDeferredRecipientNotFoundMessageIDs;    
+    private List<String> fieldDeferredRecipientNotFoundMessageIDs;    
     
     /**
      * The sequence number for this account
@@ -268,18 +268,18 @@ class Account implements Comparable
      * 
      * @see java.lang.Comparable#compareTo(Object)
      */
-    public int compareTo(Object o)
+    public int compareTo(Account account)
     {
-        return getSequenceNumber() - ((Account) o).getSequenceNumber();
+        return getSequenceNumber() - account.getSequenceNumber();
     }
 
     /**
      * Returns the deferredRecipientNotFoundMessageIDs. lazily initialised.
      * @return List
      */
-    public List getDeferredRecipientNotFoundMessageIDs()
+    public List<String> getDeferredRecipientNotFoundMessageIDs()
     {
-        List messageIDs = null;
+        List<String> messageIDs = null;
         if (null
             == (messageIDs = getDeferredRecipientNotFoundMessageIDsBasic()))
         {
@@ -293,7 +293,7 @@ class Account implements Comparable
      * Returns the deferredRecipientNotFoundMessageIDs.
      * @return List
      */
-    private List getDeferredRecipientNotFoundMessageIDsBasic()
+    private List<String> getDeferredRecipientNotFoundMessageIDsBasic()
     {
         return fieldDeferredRecipientNotFoundMessageIDs;
     }
@@ -302,9 +302,9 @@ class Account implements Comparable
      * Returns a new List of deferredRecipientNotFoundMessageIDs.
      * @return List
      */
-    protected List computeDeferredRecipientNotFoundMessageIDs()
+    protected List<String> computeDeferredRecipientNotFoundMessageIDs()
     {
-        return new ArrayList(16);
+        return new ArrayList<String>(DEFAULT_INITIAL_SIZE_OF_DEFERRED_RECIPIENT_ARRAY);
     }    
     
     /**
@@ -319,10 +319,9 @@ class Account implements Comparable
      * Sets the defferedRecipientNotFoundMessageIDs.
      * @param defferedRecipientNotFoundMessageIDs The defferedRecipientNotFoundMessageIDs to set
      */
-    protected void setDeferredRecipientNotFoundMessageIDs(List defferedRecipientNotFoundMessageIDs)
+    protected void setDeferredRecipientNotFoundMessageIDs(List<String> defferedRecipientNotFoundMessageIDs)
     {
-        fieldDeferredRecipientNotFoundMessageIDs =
-            defferedRecipientNotFoundMessageIDs;
+        fieldDeferredRecipientNotFoundMessageIDs = defferedRecipientNotFoundMessageIDs;
     }
 
     /**

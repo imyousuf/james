@@ -67,7 +67,7 @@ public class FetchScheduler
      */
     private volatile boolean enabled = false;
 
-    private ArrayList theFetchTaskNames = new ArrayList();
+    private ArrayList<String> theFetchTaskNames = new ArrayList<String>();
 
     public void setScheduler(TimeScheduler scheduler) {
         this.scheduler = scheduler;
@@ -140,10 +140,10 @@ public class FetchScheduler
         if (enabled)
         {
             getLogger().info("FetchMail dispose...");
-            Iterator nameIterator = theFetchTaskNames.iterator();
+            Iterator<String> nameIterator = theFetchTaskNames.iterator();
             while (nameIterator.hasNext())
             {
-                scheduler.removeTrigger((String) nameIterator.next());
+                scheduler.removeTrigger(nameIterator.next());
             }
             getLogger().info("FetchMail ...dispose end");
         }

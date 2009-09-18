@@ -28,8 +28,6 @@ import javax.mail.Store;
 /**
  * <p>Class <code>StoreProcessor</code> connects to a message store, gets the
  * target Folder and delegates its processing to <code>FolderProcessor</code>.</p>
- * 
- * <p>Creation Date: 27-May-03</p>
  */
 public class StoreProcessor extends ProcessorAbstract
 {
@@ -54,8 +52,8 @@ public class StoreProcessor extends ProcessorAbstract
         Store store = null;
         Folder folder = null;
 
-        StringBuffer logMessageBuffer =
-            new StringBuffer("Starting fetching mail from server '");
+        StringBuilder logMessageBuffer =
+            new StringBuilder("Starting fetching mail from server '");
         logMessageBuffer.append(getHost());
         logMessageBuffer.append("' for user '");
         logMessageBuffer.append(getUser());
@@ -106,7 +104,7 @@ public class StoreProcessor extends ProcessorAbstract
                     ex);
             }
             logMessageBuffer =
-                new StringBuffer("Finished fetching mail from server '");
+                new StringBuilder("Finished fetching mail from server '");
             logMessageBuffer.append(getHost());
             logMessageBuffer.append("' for user '");
             logMessageBuffer.append(getUser());
