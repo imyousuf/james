@@ -101,8 +101,8 @@ public class FolderProcessor extends ProcessorAbstract
                         // allowing subsequent messages to be processed.                    
                         catch (Exception ex)
                         {
-                            StringBuffer logMessageBuffer =
-                                new StringBuffer("Exception processing message ID: ");
+                            StringBuilder logMessageBuffer =
+                                new StringBuilder("Exception processing message ID: ");
                             logMessageBuffer.append(message.getMessageID());
                             getLogger().error(logMessageBuffer.toString(), ex);
                         }
@@ -127,7 +127,7 @@ public class FolderProcessor extends ProcessorAbstract
             {
                 // No-op
             }
-            StringBuffer logMessageBuffer = new StringBuffer("Processed ");
+            StringBuilder logMessageBuffer = new StringBuilder("Processed ");
             logMessageBuffer.append(messagesProcessed);
             logMessageBuffer.append(" messages of ");
             logMessageBuffer.append(messageCount);

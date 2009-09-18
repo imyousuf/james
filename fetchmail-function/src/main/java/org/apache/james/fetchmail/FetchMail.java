@@ -79,7 +79,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     /**
      * Key fields for DynamicAccounts.
      */
-    private class DynamicAccountKey
+    private final static class DynamicAccountKey
     {
         /**
          * The base user name without prfix or suffix
@@ -169,10 +169,8 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         }
 
     }
-    /**
-     * Creation Date: 06-Jun-03
-     */
-    private class ParsedDynamicAccountParameters
+
+    private final static class ParsedDynamicAccountParameters
     {
         private String fieldUserPrefix;
         private String fieldUserSuffix;
@@ -371,13 +369,13 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * A List of ParsedDynamicAccountParameters, one for every <alllocal> entry
      * in the configuration.
      */
-    private List fieldParsedDynamicAccountParameters;    
+    private List<ParsedDynamicAccountParameters> fieldParsedDynamicAccountParameters;    
     
     /**
      * The Static Accounts for this task.
      * These are setup when the task is configured.
      */
-    private List fieldStaticAccounts;
+    private List<Account> fieldStaticAccounts;
     
     /**
      * The JavaMail Session for this fetch task.
@@ -389,7 +387,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * The Dynamic Accounts for this task.
      * These are setup each time the fetchtask is run.
      */
-    private Map fieldDynamicAccounts;        
+    private Map<DynamicAccountKey, DynamicAccount> fieldDynamicAccounts;        
     
    /**
      * The MailServer service
@@ -510,39 +508,21 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             setFetching(true);
             getLogger().info("Fetcher starting fetches");
 
-            // if debugging, list the JavaMail property key/value pairs
-            // for this Session
-            if (getLogger().isDebugEnabled())
-            {
-                getLogger().debug("Session properties:");
-                Properties properties = getSession().getProperties();
-                Enumeration e = properties.keys();
-                while (e.hasMoreElements())
-                {
-                    String key = (String) e.nextElement();
-                    String val = (String) properties.get(key);
-                    if (val.length() > 40)
-                    {
-                        val = val.substring(0, 37) + "...";
-                    }
-                    getLogger().debug(key + "=" + val);
-
-                }
-            }
+            logJavaMailProperties();
 
             // Update the dynamic accounts,
             // merge with the static accounts and
             // sort the accounts so they are in the order
             // they were entered in config.xml
             updateDynamicAccounts();
-            ArrayList mergedAccounts =
-                new ArrayList(
+            ArrayList<Account> mergedAccounts =
+                new ArrayList<Account>(
                     getDynamicAccounts().size() + getStaticAccounts().size());
             mergedAccounts.addAll(getDynamicAccounts().values());
             mergedAccounts.addAll(getStaticAccounts());
             Collections.sort(mergedAccounts);
 
-            StringBuffer logMessage = new StringBuffer(64);
+            StringBuilder logMessage = new StringBuilder(64);
             logMessage.append("Processing ");
             logMessage.append(getStaticAccounts().size());
             logMessage.append(" static accounts and ");
@@ -551,12 +531,12 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             getLogger().info(logMessage.toString());
 
             // Fetch each account
-            Iterator accounts = mergedAccounts.iterator();
+            Iterator<Account> accounts = mergedAccounts.iterator();
             while (accounts.hasNext())
             {
                 try
                 {
-                    new StoreProcessor((Account) accounts.next()).process();
+                    new StoreProcessor(accounts.next()).process();
                 }
                 catch (MessagingException ex)
                 {
@@ -576,6 +556,29 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
 
             // Exit Fetching State
             setFetching(false);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void logJavaMailProperties() {
+        // if debugging, list the JavaMail property key/value pairs
+        // for this Session
+        if (getLogger().isDebugEnabled())
+        {
+            getLogger().debug("Session properties:");
+            Properties properties = getSession().getProperties();
+            Enumeration e = properties.keys();
+            while (e.hasMoreElements())
+            {
+                String key = (String) e.nextElement();
+                String val = (String) properties.get(key);
+                if (val.length() > 40)
+                {
+                    val = val.substring(0, 37) + "...";
+                }
+                getLogger().debug(key + "=" + val);
+
+            }
         }
     }
 
@@ -599,8 +602,8 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         }
         catch (ClassCastException cce)
         {
-            StringBuffer errorBuffer =
-                new StringBuffer(128).append("Component ").append(
+            StringBuilder errorBuffer =
+                new StringBuilder(128).append("Component ").append(
                     MailServer.ROLE).append(
                     "does not implement the required interface.");
             throw new ServiceException("", errorBuffer.toString());
@@ -705,7 +708,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Returns the accounts. Initializes if required.
      * @return List
      */
-    protected List getStaticAccounts()
+    protected List<Account> getStaticAccounts()
     {
         if (null == getStaticAccountsBasic())
         {
@@ -719,7 +722,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Returns the staticAccounts.
      * @return List
      */
-    private List getStaticAccountsBasic()
+    private List<Account> getStaticAccountsBasic()
     {
         return fieldStaticAccounts;
     }   
@@ -728,7 +731,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Sets the accounts.
      * @param accounts The accounts to set
      */
-    protected void setStaticAccounts(List accounts)
+    protected void setStaticAccounts(List<Account> accounts)
     {
         fieldStaticAccounts = accounts;
     }
@@ -760,46 +763,46 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     /**
      * Computes the staticAccounts.
      */
-    protected List computeStaticAccounts()
+    protected List<Account> computeStaticAccounts()
     {
-        return new ArrayList();
+        return new ArrayList<Account>();
     }
     
     /**
      * Computes the ParsedDynamicAccountParameters.
      */
-    protected List computeParsedDynamicAccountParameters()
+    protected List<ParsedDynamicAccountParameters> computeParsedDynamicAccountParameters()
     {
-        return new ArrayList();
+        return new ArrayList<ParsedDynamicAccountParameters>();
     }   
     
     /**
      * Computes the dynamicAccounts.
      */
-    protected Map computeDynamicAccounts() throws ConfigurationException
+    protected Map<DynamicAccountKey, DynamicAccount>  computeDynamicAccounts() throws ConfigurationException
     {
-        Map newAccounts =
-            new HashMap(
+        Map<DynamicAccountKey, DynamicAccount>  newAccounts =
+            new HashMap<DynamicAccountKey, DynamicAccount> (
                 getLocalUsers().countUsers()
                     * getParsedDynamicAccountParameters().size());
-        Map oldAccounts = getDynamicAccountsBasic();
+        Map<DynamicAccountKey, DynamicAccount>  oldAccounts = getDynamicAccountsBasic();
         if (null == oldAccounts)
-            oldAccounts = new HashMap(0);
+            oldAccounts = new HashMap<DynamicAccountKey, DynamicAccount> (0);
 
-        Iterator parameterIterator =
+        Iterator<ParsedDynamicAccountParameters> parameterIterator =
             getParsedDynamicAccountParameters().iterator();
 
         // Process each ParsedDynamicParameters
         while (parameterIterator.hasNext())
         {
-            Map accounts =
+            Map<DynamicAccountKey, DynamicAccount> accounts =
                 computeDynamicAccounts(
                     oldAccounts,
                     (ParsedDynamicAccountParameters) parameterIterator.next());
             // Remove accounts from oldAccounts.
             // This avoids an average 2*N increase in heapspace used as the 
             // newAccounts are created. 
-            Iterator oldAccountsIterator = oldAccounts.keySet().iterator();
+            Iterator<DynamicAccountKey> oldAccountsIterator = oldAccounts.keySet().iterator();
             while (oldAccountsIterator.hasNext())
             {
                 if (accounts.containsKey(oldAccountsIterator.next()))
@@ -815,7 +818,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Returns the dynamicAccounts. Initializes if required.
      * @return Map
      */
-    protected Map getDynamicAccounts() throws ConfigurationException
+    protected Map<DynamicAccountKey, DynamicAccount> getDynamicAccounts() throws ConfigurationException
     {
         if (null == getDynamicAccountsBasic())
         {
@@ -829,7 +832,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Returns the dynamicAccounts.
      * @return Map
      */
-    private Map getDynamicAccountsBasic()
+    private Map<DynamicAccountKey, DynamicAccount> getDynamicAccountsBasic()
     {
         return fieldDynamicAccounts;
     }   
@@ -838,7 +841,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Sets the dynamicAccounts.
      * @param dynamicAccounts The dynamicAccounts to set
      */
-    protected void setDynamicAccounts(Map dynamicAccounts)
+    protected void setDynamicAccounts(Map<DynamicAccountKey, DynamicAccount>  dynamicAccounts)
     {
         fieldDynamicAccounts = dynamicAccounts;
     }
@@ -852,19 +855,19 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * @return Map - The current Accounts
      * @throws ConfigurationException
      */
-    protected Map computeDynamicAccounts(
-        Map oldAccounts,
+    protected Map<DynamicAccountKey, DynamicAccount> computeDynamicAccounts(
+        Map<DynamicAccountKey, DynamicAccount> oldAccounts,
         ParsedDynamicAccountParameters parameters)
         throws ConfigurationException
     {
-        Map accounts = new HashMap(getLocalUsers().countUsers());
-        Iterator usersIterator = getLocalUsers().list();
+        Map<DynamicAccountKey, DynamicAccount> accounts = new HashMap<DynamicAccountKey, DynamicAccount>(getLocalUsers().countUsers());
+        Iterator<String> usersIterator = getLocalUsers().list();
         while (usersIterator.hasNext())
         {
-            String userName = (String) usersIterator.next();
+            String userName = usersIterator.next();
             DynamicAccountKey key =
                 new DynamicAccountKey(userName, parameters.getSequenceNumber());
-            Account account = (Account) oldAccounts.get(key);
+            DynamicAccount account = oldAccounts.get(key);
             if (null == account)
             {
                 // Create a new DynamicAccount
@@ -899,7 +902,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Returns the ParsedDynamicAccountParameters.
      * @return List
      */
-    protected List getParsedDynamicAccountParameters()
+    protected List<ParsedDynamicAccountParameters> getParsedDynamicAccountParameters()
     {
         if (null == getParsedDynamicAccountParametersBasic())
         {
@@ -913,7 +916,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Returns the ParsedDynamicAccountParameters.
      * @return List
      */
-    private List getParsedDynamicAccountParametersBasic()
+    private List<ParsedDynamicAccountParameters> getParsedDynamicAccountParametersBasic()
     {
         return fieldParsedDynamicAccountParameters;
     }   
@@ -922,7 +925,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Sets the ParsedDynamicAccountParameters.
      * @param parsedDynamicAccountParameters The ParsedDynamicAccountParameters to set
      */
-    protected void setParsedDynamicAccountParameters(List parsedDynamicAccountParameters)
+    protected void setParsedDynamicAccountParameters(List<ParsedDynamicAccountParameters> parsedDynamicAccountParameters)
     {
         fieldParsedDynamicAccountParameters = parsedDynamicAccountParameters;
     }
@@ -1000,8 +1003,8 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                     allProperties[i].getAttribute("value"));
                 if (getLogger().isDebugEnabled())
                 {
-                    StringBuffer messageBuffer =
-                        new StringBuffer("Set property name: ");
+                    StringBuilder messageBuffer =
+                        new StringBuilder("Set property name: ");
                     messageBuffer.append(allProperties[i].getAttribute("name"));
                     messageBuffer.append(" to: ");
                     messageBuffer.append(

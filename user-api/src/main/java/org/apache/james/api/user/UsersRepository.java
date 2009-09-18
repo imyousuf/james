@@ -170,6 +170,6 @@ public interface UsersRepository {
      *
      * @return Iterator over a collection of Strings, each being one user in the repository.
      */
-    Iterator list();
+    Iterator<String> list();
 
 }

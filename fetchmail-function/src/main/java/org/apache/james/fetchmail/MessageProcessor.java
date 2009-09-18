@@ -277,8 +277,8 @@ public class MessageProcessor extends ProcessorAbstract
         // Log delivery attempt
         if (getLogger().isDebugEnabled())
         {
-            StringBuffer logMessageBuffer =
-                new StringBuffer("Attempting delivery of message with id. ");
+            StringBuilder logMessageBuffer =
+                new StringBuilder("Attempting delivery of message with id. ");
             logMessageBuffer.append(getMessageIn().getMessageID());
             getLogger().debug(logMessageBuffer.toString());
         }
@@ -299,8 +299,8 @@ public class MessageProcessor extends ProcessorAbstract
                     getDeferredRecipientNotFoundMessageIDs().add(messageID);
                     if (getLogger().isDebugEnabled())
                     {
-                        StringBuffer messageBuffer =
-                            new StringBuffer("Deferred processing of message for which the intended recipient could not be found. Message ID: ");
+                        StringBuilder messageBuffer =
+                            new StringBuilder("Deferred processing of message for which the intended recipient could not be found. Message ID: ");
                         messageBuffer.append(messageID);
                         getLogger().debug(messageBuffer.toString());
                     }
@@ -311,8 +311,8 @@ public class MessageProcessor extends ProcessorAbstract
                     getDeferredRecipientNotFoundMessageIDs().remove(messageID);
                     if (getLogger().isDebugEnabled())
                     {
-                        StringBuffer messageBuffer =
-                            new StringBuffer("Processing deferred message for which the intended recipient could not be found. Message ID: ");
+                        StringBuilder messageBuffer =
+                            new StringBuilder("Processing deferred message for which the intended recipient could not be found. Message ID: ");
                         messageBuffer.append(messageID);
                         getLogger().debug(messageBuffer.toString());
                     }
@@ -325,8 +325,8 @@ public class MessageProcessor extends ProcessorAbstract
                 return;
             }
             intendedRecipient = getRecipient();
-            StringBuffer messageBuffer =
-                new StringBuffer("Intended recipient not found. Using configured recipient as new envelope recipient - ");
+            StringBuilder messageBuffer =
+                new StringBuilder("Intended recipient not found. Using configured recipient as new envelope recipient - ");
             messageBuffer.append(intendedRecipient);
             messageBuffer.append('.');
             logStatusInfo(messageBuffer.toString());
@@ -423,8 +423,8 @@ public class MessageProcessor extends ProcessorAbstract
         if (isMarkRemoteRecipientSeen())
             setMessageSeen();
 
-        StringBuffer messageBuffer =
-            new StringBuffer("Rejected mail intended for remote recipient: ");
+        StringBuilder messageBuffer =
+            new StringBuilder("Rejected mail intended for remote recipient: ");
         messageBuffer.append(recipient);
         messageBuffer.append('.');          
         logStatusInfo(messageBuffer.toString());
@@ -446,8 +446,8 @@ public class MessageProcessor extends ProcessorAbstract
         if (isMarkBlacklistedSeen())
             setMessageSeen();
 
-        StringBuffer messageBuffer =
-            new StringBuffer("Rejected mail intended for blacklisted recipient: ");
+        StringBuilder messageBuffer =
+            new StringBuilder("Rejected mail intended for blacklisted recipient: ");
         messageBuffer.append(recipient);
         messageBuffer.append('.');        
         logStatusInfo(messageBuffer.toString());
@@ -468,8 +468,8 @@ public class MessageProcessor extends ProcessorAbstract
         if (isMarkRecipientNotFoundSeen())
             setMessageSeen();
 
-        StringBuffer messageBuffer =
-            new StringBuffer("Rejected mail for which a sole intended recipient could not be found.");
+        StringBuilder messageBuffer =
+            new StringBuilder("Rejected mail for which a sole intended recipient could not be found.");
         messageBuffer.append(" Recipients: ");
         Address[] allRecipients = getMessageIn().getAllRecipients();
         for (int i = 0; i < allRecipients.length; i++)
@@ -497,8 +497,8 @@ public class MessageProcessor extends ProcessorAbstract
         if (isMarkUserUndefinedSeen())
             setMessageSeen();
 
-        StringBuffer messageBuffer =
-            new StringBuffer("Rejected mail intended for undefined user: ");
+        StringBuilder messageBuffer =
+            new StringBuilder("Rejected mail intended for undefined user: ");
         messageBuffer.append(recipient);
         messageBuffer.append('.');          
         logStatusInfo(messageBuffer.toString());
@@ -521,8 +521,8 @@ public class MessageProcessor extends ProcessorAbstract
         if (isMarkMaxMessageSizeExceededSeen())
             setMessageSeen();
 
-        StringBuffer messageBuffer =
-            new StringBuffer("Rejected mail exceeding message size limit. Message size: ");
+        StringBuilder messageBuffer =
+            new StringBuilder("Rejected mail exceeding message size limit. Message size: ");
         messageBuffer.append(messageSize/1024);
         messageBuffer.append("KB.");          
         logStatusInfo(messageBuffer.toString());
@@ -544,8 +544,8 @@ public class MessageProcessor extends ProcessorAbstract
         if (isMarkRemoteReceivedHeaderInvalidSeen())
             setMessageSeen();
 
-        StringBuffer messageBuffer =
-            new StringBuffer("Rejected mail with an invalid Received: header at index ");
+        StringBuilder messageBuffer =
+            new StringBuilder("Rejected mail with an invalid Received: header at index ");
         messageBuffer.append(getRemoteReceivedHeaderIndex());
         messageBuffer.append(".");          
         logStatusInfo(messageBuffer.toString());       
@@ -587,6 +587,7 @@ public class MessageProcessor extends ProcessorAbstract
      * @return MimeMessage
      * @throws MessagingException
      */
+    @SuppressWarnings("unchecked")
     protected MimeMessage createEmptyMessage()
         throws MessagingException
     {
@@ -619,7 +620,7 @@ public class MessageProcessor extends ProcessorAbstract
     protected Mail createMail(MimeMessage message, MailAddress recipient)
         throws MessagingException, UnknownHostException
     {
-        Collection recipients = new ArrayList(1);
+        Collection<MailAddress> recipients = new ArrayList<MailAddress>(1);
         recipients.add(recipient);
         MailImpl mail =
             new MailImpl(getServer().getId(), getSender(), recipients, message);
@@ -639,10 +640,16 @@ public class MessageProcessor extends ProcessorAbstract
             setDefaultRemoteAddress(false);            
         }
 
+        logMailCreation(mail);
+        return mail;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void logMailCreation(MailImpl mail) {
         if (getLogger().isDebugEnabled())
         {
-            StringBuffer messageBuffer =
-                new StringBuffer("Created mail with name: ");
+            StringBuilder messageBuffer =
+                new StringBuilder("Created mail with name: ");
             messageBuffer.append(mail.getName());
             messageBuffer.append(", sender: ");
             messageBuffer.append(mail.getSender());
@@ -660,7 +667,6 @@ public class MessageProcessor extends ProcessorAbstract
             messageBuffer.append('.');
             getLogger().debug(messageBuffer.toString());
         }
-        return mail;
     }
      
 
@@ -688,7 +694,7 @@ public class MessageProcessor extends ProcessorAbstract
         catch (Exception _) {
             from = getDefaultLocalPart();
             setDefaultSenderLocalPart(true);
-            StringBuffer buffer = new StringBuffer(32);
+            StringBuilder buffer = new StringBuilder(32);
             buffer.append("Sender localpart is absent. Using default value (");
             buffer.append(getDefaultLocalPart());
             buffer.append(')');            
@@ -698,13 +704,13 @@ public class MessageProcessor extends ProcessorAbstract
         // Check for domain part, add default if missing
         if (from.indexOf('@') < 0)
         {
-            StringBuffer fromBuffer = new StringBuffer(from);
+            StringBuilder fromBuffer = new StringBuilder(from);
             fromBuffer.append('@');
             fromBuffer.append(getDefaultDomainName());
             internetAddress = new InternetAddress(fromBuffer.toString());
             setDefaultSenderDomainPart(true);
             
-            StringBuffer buffer = new StringBuffer(32);
+            StringBuilder buffer = new StringBuilder(32);
             buffer.append("Sender domain is absent. Using default value (");
             buffer.append(getDefaultDomainName());
             buffer.append(')');            
@@ -747,7 +753,7 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected String computeRemoteDomain() throws MessagingException
     {
-        StringBuffer domainBuffer = new StringBuffer();
+        StringBuilder domainBuffer = new StringBuilder();
         String[] headers = null;
 
         if (getRemoteReceivedHeaderIndex() > -1)
@@ -843,8 +849,8 @@ public class MessageProcessor extends ProcessorAbstract
         logStatusWarn("Message could not be delivered due to an error parsing a mail address.");
         if (getLogger().isDebugEnabled())
         {
-            StringBuffer messageBuffer =
-                new StringBuffer("UNDELIVERABLE Message ID: ");
+            StringBuilder messageBuffer =
+                new StringBuilder("UNDELIVERABLE Message ID: ");
             messageBuffer.append(getMessageIn().getMessageID());
             getLogger().debug(messageBuffer.toString(), ex);
         }
@@ -868,8 +874,8 @@ public class MessageProcessor extends ProcessorAbstract
         logStatusWarn("Message could not be delivered due to an error determining the remote domain.");
         if (getLogger().isDebugEnabled())
         {
-            StringBuffer messageBuffer =
-                new StringBuffer("UNDELIVERABLE Message ID: ");
+            StringBuilder messageBuffer =
+                new StringBuilder("UNDELIVERABLE Message ID: ");
             messageBuffer.append(getMessageIn().getMessageID());
             getLogger().debug(messageBuffer.toString(), ex);
         }
@@ -880,6 +886,7 @@ public class MessageProcessor extends ProcessorAbstract
      * @param recipient
      * @return boolean
      */
+    @SuppressWarnings("deprecation")
     protected boolean isLocalRecipient(MailAddress recipient)
     {
         return isLocalServer(recipient) && getLocalUsers().contains(recipient.getUser());
@@ -890,6 +897,7 @@ public class MessageProcessor extends ProcessorAbstract
      * @param recipient
      * @return boolean
      */
+    @SuppressWarnings("deprecation")
     protected boolean isLocalServer(MailAddress recipient)
     {
         return getServer().isLocalServer(recipient.getHost());
@@ -911,6 +919,7 @@ public class MessageProcessor extends ProcessorAbstract
      * 
      * @return boolean
      */
+    @SuppressWarnings("unchecked")
     protected boolean isBouncing() throws MessagingException
     {
         Enumeration enumeration =
@@ -931,6 +940,7 @@ public class MessageProcessor extends ProcessorAbstract
      * @param mail
      * @throws MessagingException
      */
+    @SuppressWarnings("unchecked")
     protected void sendMail(Mail mail) throws MessagingException
     {
         // send the mail
@@ -944,8 +954,8 @@ public class MessageProcessor extends ProcessorAbstract
             setMessageSeen();
 
         // Log the status
-        StringBuffer messageBuffer =
-            new StringBuffer("Spooled message to recipients: ");
+        StringBuilder messageBuffer =
+            new StringBuilder("Spooled message to recipients: ");
         Iterator recipientIterator = mail.getRecipients().iterator();
         while (recipientIterator.hasNext())
         {
@@ -968,6 +978,7 @@ public class MessageProcessor extends ProcessorAbstract
      * @return String
      */
 
+    @SuppressWarnings("unchecked")
     protected String getEnvelopeRecipient(MimeMessage msg) throws MessagingException
     {
         String res = getCustomRecipientHeader();
@@ -1059,8 +1070,8 @@ public class MessageProcessor extends ProcessorAbstract
         // hard-coded recipient
         if (isIgnoreRecipientHeader())
         {
-            StringBuffer messageBuffer =
-                new StringBuffer("Ignoring recipient header. Using configured recipient as new envelope recipient: ");
+            StringBuilder messageBuffer =
+                new StringBuilder("Ignoring recipient header. Using configured recipient as new envelope recipient: ");
             messageBuffer.append(getRecipient());
             messageBuffer.append('.');            
             logStatusInfo(messageBuffer.toString());
@@ -1073,8 +1084,8 @@ public class MessageProcessor extends ProcessorAbstract
         if (targetRecipient != null)
         {
             MailAddress recipient = new MailAddress(targetRecipient);
-            StringBuffer messageBuffer =
-                new StringBuffer("Using original envelope recipient as new envelope recipient: ");
+            StringBuilder messageBuffer =
+                new StringBuilder("Using original envelope recipient as new envelope recipient: ");
             messageBuffer.append(recipient);
             messageBuffer.append('.');              
             logStatusInfo(messageBuffer.toString());
@@ -1090,8 +1101,8 @@ public class MessageProcessor extends ProcessorAbstract
         {
             MailAddress recipient =
                 new MailAddress((InternetAddress) allRecipients[0]);
-            StringBuffer messageBuffer =
-                new StringBuffer("Using sole recipient header address as new envelope recipient: ");
+            StringBuilder messageBuffer =
+                new StringBuilder("Using sole recipient header address as new envelope recipient: ");
             messageBuffer.append(recipient);
             messageBuffer.append('.');              
             logStatusInfo(messageBuffer.toString());
@@ -1166,15 +1177,15 @@ public class MessageProcessor extends ProcessorAbstract
     }    
 
     /**
-     * Answer a <code>StringBuffer</code> containing a message reflecting
+     * Answer a <code>StringBuilder</code> containing a message reflecting
      * the current status of the message being processed.
      * 
      * @param detailMsg
-     * @return StringBuffer
+     * @return StringBuilder
      */
-    protected StringBuffer getStatusReport(String detailMsg) throws MessagingException
+    protected StringBuilder getStatusReport(String detailMsg) throws MessagingException
     {
-        StringBuffer messageBuffer = new StringBuffer(detailMsg);
+        StringBuilder messageBuffer = new StringBuilder(detailMsg);
         if (detailMsg.length() > 0)
             messageBuffer.append(' ');
         messageBuffer.append("Message ID: ");
@@ -1349,8 +1360,8 @@ public class MessageProcessor extends ProcessorAbstract
     {
         if (isMaxMessageSizeExceeded().booleanValue())
         {
-            StringBuffer msgBuffer =
-                new StringBuffer("550 - Rejected - This message has been rejected as the message size of ");
+            StringBuilder msgBuffer =
+                new StringBuilder("550 - Rejected - This message has been rejected as the message size of ");
             msgBuffer.append(getMessageIn().getSize() * 1000 / 1024 / 1000f);
             msgBuffer.append("KB exceeds the maximum permitted size of ");
             msgBuffer.append(getMaxMessageSizeLimit() / 1024);
