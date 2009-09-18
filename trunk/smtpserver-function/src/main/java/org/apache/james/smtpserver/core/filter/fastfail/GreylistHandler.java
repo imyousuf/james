@@ -75,13 +75,13 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable, Init
 
     private FileSystem fileSystem = null;
 
-    // 1 hour
+    /** 1 hour */
     private long tempBlockTime = 3600000;
 
-    // 36 days
+    /** 36 days */
     private long autoWhiteListLifeTime = 3110400000L;
 
-    // 4 hours
+    /** 4 hours */
     private long unseenLifeTime = 14400000;
 
     private String selectQuery;
