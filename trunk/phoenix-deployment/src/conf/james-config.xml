@@ -940,7 +940,10 @@ Regards, Postmaster XXX.YYY
     <!-- Disabling blocks will stop them from listening, -->
     <!-- but does not free as many resources as removing them would -->
    <smtpserver enabled="true">
-      <!-- port 25 is the well-known/IANA registered port for SMTP -->
+      <!-- 
+            Port 25 is the well-known/IANA registered port for SMTP. 
+            Port 465 is the well-known/IANA registered port for SMTP over TLS.
+            -->
       <port>25</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
@@ -949,10 +952,14 @@ Regards, Postmaster XXX.YYY
       <!--
       <bind> </bind>
       -->
-      <!-- JAMES TLS uses JSSE. This means that for many Sun JVMs,
+      <!-- 
+           JAMES TLS uses JSSE. This means that for many Sun JVMs,
            the sunjce_provider.jar must be copied from $JAVA_HOME/lib/ext
            into $JAMES_HOME/lib. It may also be necessary to download and
-           install unlimited strength policies. -->
+           install unlimited strength policies. 
+           
+           The standard port for SMTP over TLS is 465.
+           -->
       <!--
       <useTLS>true</useTLS>
       -->
