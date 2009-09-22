@@ -834,7 +834,15 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
     public Object newInstance() throws Exception {
-        final String name = "Handler-" + handlerCount.getAndAdd(1);
+        final String serviceShortNameString;
+        final String serviceType = getServiceType();
+        final int firstSpace = serviceType.indexOf(' ');
+        if (firstSpace > 0) {
+            serviceShortNameString = serviceType.substring(0, firstSpace);
+        } else {
+            serviceShortNameString = serviceType;
+        }
+        final String name = serviceShortNameString + "Handler-" + handlerCount.getAndAdd(1);
         final JamesConnectionBridge delegatingJamesHandler = 
             new JamesConnectionBridge(newProtocolHandlerInstance(), dnsService, name, getLogger());
         return delegatingJamesHandler;
