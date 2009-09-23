@@ -27,7 +27,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -106,12 +105,12 @@ public class SMTPHandlerChain {
         }
     }
 
-	public void configure(JamesConfiguration commonsConf) {
+	public void configure(JamesConfiguration commonsConf) throws Exception {
 		this.commonsConf =  commonsConf;
-	}
-
-	public String getConfigurationKeyXQuery() {
-		return "smtphandlerchain";
+		
+        loadHandlers();
+        
+        wireExtensibleHandlers();
 	}
 	
     /**
@@ -154,26 +153,7 @@ public class SMTPHandlerChain {
             }
         }
     }
-    
-    /**
-     * Initializes chain.
-     */
-    public void initialize() throws Exception {
-//        SMTPCommandDispatcherLineHandler commandDispatcherLineHandler = new SMTPCommandDispatcherLineHandler();
-//        commandDispatcherLineHandler.enableLogging(getLogger());
-//        handlers.add(commandDispatcherLineHandler);
-        
-        loadHandlers();
-        
-        Iterator<Object> h = handlers.iterator();
-    
-        while(h.hasNext()) {
-            Object next = h.next();
-            ContainerUtil.initialize(next);
-        }
-        wireExtensibleHandlers();
 
-    }
 
     /**
      * Load and add the classes to the handler map
