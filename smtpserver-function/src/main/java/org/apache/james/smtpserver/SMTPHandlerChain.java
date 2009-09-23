@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.kernel.LoaderService;
@@ -37,7 +38,6 @@ import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.core.CoreMessageHookLoader;
 import org.apache.james.smtpserver.core.DataLineMessageHookHandler;
 import org.apache.james.socket.LogEnabled;
-import org.apache.james.socket.configuration.JamesConfiguration;
 
 /**
   * The SMTPHandlerChain is per service object providing access
@@ -52,7 +52,7 @@ public class SMTPHandlerChain {
     private Log log = FALLBACK_LOG;
     
     /** Configuration for this chain */
-    private JamesConfiguration commonsConf;
+    private HierarchicalConfiguration commonsConf;
     
     private List<Object> handlers = new LinkedList<Object>();
     
@@ -105,7 +105,7 @@ public class SMTPHandlerChain {
         }
     }
 
-	public void configure(JamesConfiguration commonsConf) throws Exception {
+	public void configure(HierarchicalConfiguration commonsConf) throws Exception {
 		this.commonsConf =  commonsConf;
 		
         loadHandlers();
