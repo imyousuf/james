@@ -252,12 +252,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private String bounceProcessor = null; 
 
     /**
-     * Matcher used in 'init' method to parse delayTimes specified in config
-     * file.
-     */
-    private Perl5Matcher delayTimeMatcher;
-
-    /**
      * Filter used by 'accept' to check if message is ready for retrying.
      */
     private MultipleDelayFilter delayFilter = new MultipleDelayFilter();
@@ -283,14 +277,16 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         ArrayList<Delay> delayTimesList = new ArrayList<Delay>();
         try {
             if (getInitParameter("delayTime") != null) {
-                delayTimeMatcher = new Perl5Matcher();
+
+                // parses delayTimes specified in config file.
+                final Perl5Matcher delayTimeMatcher = new Perl5Matcher();
                 String delayTimesParm = getInitParameter("delayTime");
 
                 // Split on commas
                 StringTokenizer st = new StringTokenizer (delayTimesParm,",");
                 while (st.hasMoreTokens()) {
                     String delayTime = st.nextToken();
-                    delayTimesList.add (new Delay(delayTime));
+                    delayTimesList.add (new Delay(delayTimeMatcher, delayTime));
                 }
             } else {
                 // Use default delayTime.
@@ -516,7 +512,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * This class is used to hold a delay time and its corresponding number of
      * retries.
      **/
-    private class Delay {
+    private final static class Delay {
         private int attempts = 1;
 
         private long delayTime = DEFAULT_DELAY_TIME;
@@ -535,7 +531,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
          * @param initString
          *            the string to initialize this Delay object from
          **/
-        public Delay(String initString) throws MessagingException {
+        public Delay(final Perl5Matcher delayTimeMatcher, String initString) throws MessagingException {
             // Default unit value to 'msec'.
             String unit = "msec";
 
