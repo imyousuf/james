@@ -28,11 +28,11 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MessageHook;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
 
@@ -52,7 +52,7 @@ import org.apache.mailet.Mail;
  * &lt;spamdRejectionHits&gt;15.0&lt;/spamdRejectionHits&gt;
  * &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt; &lt;/handler&gt;
  */
-public class SpamAssassinHandler implements MessageHook, Configurable {
+public class SpamAssassinHandler extends AbstractConfigurableHandler implements MessageHook {
 
     /**
      * The port spamd is listen on
@@ -72,7 +72,7 @@ public class SpamAssassinHandler implements MessageHook, Configurable {
     private boolean checkAuthNetworks = false;
 
     /**
-     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration config) throws ConfigurationException {
         setSpamdHost(config.getString("spamdHost","localhost"));

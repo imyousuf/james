@@ -25,18 +25,18 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MessageHook;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.mailet.Mail;
 
 
 /**
   * Adds the header to the message
   */
-public class SetMimeHeaderHandler implements MessageHook, Configurable {
+public class SetMimeHeaderHandler extends AbstractConfigurableHandler implements MessageHook {
 
     /**
      * The header name and value that needs to be added
@@ -45,6 +45,9 @@ public class SetMimeHeaderHandler implements MessageHook, Configurable {
     private String headerValue;
 
 
+    /**
+     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
+     */
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
        setHeaderName(handlerConfiguration.getString("headername"));
        setHeaderValue(handlerConfiguration.getString("headervalue"));

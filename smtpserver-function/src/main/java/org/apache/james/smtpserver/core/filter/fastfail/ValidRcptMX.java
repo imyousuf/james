@@ -35,20 +35,20 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.mailet.MailAddress;
 
 /**
  * This class can be used to reject email with bogus MX which is send from a authorized user or an authorized
  * network.
  */
-public class ValidRcptMX implements LogEnabled, RcptHook, Configurable {
+public class ValidRcptMX extends AbstractConfigurableHandler implements LogEnabled, RcptHook {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(ValidRcptMX.class);
@@ -90,7 +90,7 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable {
     }
     
     /**
-     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     @SuppressWarnings("unchecked")
 	public void configure(Configuration config) throws ConfigurationException {

@@ -18,25 +18,29 @@
  ****************************************************************/
 
 
-package org.apache.james.socket;
+package org.apache.james.socket.configuration;
 
-import java.io.ByteArrayInputStream;
-import org.apache.avalon.framework.configuration.ConfigurationUtil;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 /**
- * Bridges commons configuration to Avalon.
+ * Classes which needs to access the configuration should implement this
+ *
  */
-public class JamesConfiguration extends XMLConfiguration {
+public interface Configurable {
 
-	private static final long serialVersionUID = 6920719067623856243L;
-
-	public JamesConfiguration(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
-		String config = ConfigurationUtil.toString(avalonConfig);
-		load(new ByteArrayInputStream(config.getBytes()));
-		
-		setExpressionEngine(new XPathExpressionEngine());
-	}
+	/**
+	 * Configure
+	 * 
+	 * @param config
+	 * @throws ConfigurationException
+	 */
+	public void configure(Configuration config) throws ConfigurationException;
+	
+	/**
+	 * Return the Key XQuery  for the configuration sub note to use. If the full configuration should get inject just return null
+	 * 
+	 * @return configQuery
+	 */
+	public String getConfigurationKeyXQuery();
 }

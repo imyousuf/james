@@ -27,20 +27,20 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.mailet.MailAddress;
 
 
 /**
  * This CommandHandler can be used to reject not resolvable EHLO/HELO
  */
-public class ResolvableEhloHeloHandler implements Configurable, RcptHook, HeloHook {
+public class ResolvableEhloHeloHandler extends AbstractConfigurableHandler implements RcptHook, HeloHook {
 
     public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
 
@@ -68,7 +68,7 @@ public class ResolvableEhloHeloHandler implements Configurable, RcptHook, HeloHo
 
     /**
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration handlerConfiguration)
             throws ConfigurationException {

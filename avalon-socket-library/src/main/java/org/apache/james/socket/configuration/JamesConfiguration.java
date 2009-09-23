@@ -18,22 +18,25 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver;
+package org.apache.james.socket.configuration;
 
-import org.apache.commons.configuration.Configuration;
+import java.io.ByteArrayInputStream;
+import org.apache.avalon.framework.configuration.ConfigurationUtil;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 /**
- * Classes which needs to access the configuration should implement this
- *
+ * Bridges commons configuration to Avalon.
  */
-public interface Configurable {
+public class JamesConfiguration extends XMLConfiguration {
 
-	/**
-	 * Configure
-	 * 
-	 * @param config
-	 * @throws ConfigurationException
-	 */
-	public void configure(Configuration config) throws ConfigurationException;
+	private static final long serialVersionUID = 6920719067623856243L;
+
+	public JamesConfiguration(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
+		String config = ConfigurationUtil.toString(avalonConfig);
+		load(new ByteArrayInputStream(config.getBytes()));
+		
+		setExpressionEngine(new XPathExpressionEngine());
+	}
 }

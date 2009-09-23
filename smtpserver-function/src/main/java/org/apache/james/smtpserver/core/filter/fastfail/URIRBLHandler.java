@@ -42,18 +42,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.mailet.Mail;
 
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
  */
-public class URIRBLHandler implements LogEnabled, MessageHook, Configurable {
+public class URIRBLHandler extends AbstractConfigurableHandler implements LogEnabled, MessageHook {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(URIRBLHandler.class);
@@ -102,7 +102,7 @@ public class URIRBLHandler implements LogEnabled, MessageHook, Configurable {
 
     
     /**
-     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration config) throws ConfigurationException {
         String[] servers = config.getStringArray("uriRblServers/server");
