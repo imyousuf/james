@@ -52,7 +52,7 @@ import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.james.util.TimeConverter;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -61,7 +61,7 @@ import org.apache.mailet.MailAddress;
 /**
  * GreylistHandler which can be used to activate Greylisting
  */
-public class GreylistHandler extends AbstractConfigurableHandler implements LogEnabled, RcptHook, Initializable {
+public class GreylistHandler implements LogEnabled, RcptHook, Initializable, Configurable {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(GreylistHandler.class);

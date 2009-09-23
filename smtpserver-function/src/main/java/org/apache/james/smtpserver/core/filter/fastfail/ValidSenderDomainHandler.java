@@ -32,14 +32,14 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MailHook;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 
 /**
  * Add MFDNSCheck feature to SMTPServer. This handler reject mail from domains which have not an an valid MX record.  
  * 
  */
-public class ValidSenderDomainHandler extends AbstractConfigurableHandler implements MailHook {
+public class ValidSenderDomainHandler implements MailHook, Configurable {
     
     private boolean checkAuthNetworks = false;
     private DNSService dnsService = null;

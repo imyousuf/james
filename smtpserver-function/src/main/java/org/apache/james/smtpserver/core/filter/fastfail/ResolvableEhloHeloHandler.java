@@ -33,14 +33,14 @@ import org.apache.james.smtpserver.hook.HeloHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 
 
 /**
  * This CommandHandler can be used to reject not resolvable EHLO/HELO
  */
-public class ResolvableEhloHeloHandler extends AbstractConfigurableHandler implements RcptHook, HeloHook {
+public class ResolvableEhloHeloHandler implements RcptHook, HeloHook,Configurable {
 
     public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
 

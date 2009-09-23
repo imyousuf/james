@@ -37,10 +37,4 @@ public interface Configurable {
 	 */
 	public void configure(Configuration config) throws ConfigurationException;
 	
-	/**
-	 * Return the Key XQuery  for the configuration sub note to use. If the full configuration should get inject just return null
-	 * 
-	 * @return configQuery
-	 */
-	public String getConfigurationKeyXQuery();
 }

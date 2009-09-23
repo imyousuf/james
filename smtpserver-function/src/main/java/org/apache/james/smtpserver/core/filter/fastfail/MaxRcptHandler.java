@@ -30,10 +30,10 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 
-public class MaxRcptHandler extends AbstractConfigurableHandler implements RcptHook {
+public class MaxRcptHandler implements RcptHook, Configurable {
 
     private int maxRcpt = 0;
 
