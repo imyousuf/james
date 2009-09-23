@@ -34,19 +34,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.ConnectHandler;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.mailet.MailAddress;
 
 /**
   * Connect handler for DNSRBL processing
   */
-public class DNSRBLHandler implements LogEnabled, ConnectHandler, RcptHook, Configurable {
+public class DNSRBLHandler extends AbstractConfigurableHandler implements LogEnabled, ConnectHandler, RcptHook {
     
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DNSRBLHandler.class);

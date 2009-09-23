@@ -37,7 +37,6 @@ import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -45,6 +44,7 @@ import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
@@ -54,7 +54,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
 /**
  * Handler which reject invalid recipients
  */
-public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable {
+public class ValidRcptHandler extends AbstractConfigurableHandler implements LogEnabled, RcptHook {
     
 
     /** This log is the fall back shared by all instances */

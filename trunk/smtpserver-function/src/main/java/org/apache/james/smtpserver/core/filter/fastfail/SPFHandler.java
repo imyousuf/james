@@ -31,7 +31,6 @@ import org.apache.james.jspf.core.exceptions.SPFErrorConstants;
 import org.apache.james.jspf.executor.SPFResult;
 import org.apache.james.jspf.impl.DefaultSPF;
 import org.apache.james.jspf.impl.SPF;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
@@ -40,6 +39,7 @@ import org.apache.james.smtpserver.hook.MailHook;
 import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -55,7 +55,7 @@ import org.apache.mailet.MailAddress;
  * &lt;checkAuthNetworks&gt;false&lt/checkAuthNetworks&gt; 
  * &lt;/handler&gt;
  */
-public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook, Configurable {
+public class SPFHandler extends AbstractConfigurableHandler implements LogEnabled, MailHook, RcptHook, MessageHook {
     
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(SPFHandler.class);
@@ -95,7 +95,7 @@ public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook, 
     }
 
     /**
-     * @see org.apache.james.smtpserver.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration handlerConfiguration)
             throws ConfigurationException {

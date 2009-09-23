@@ -25,15 +25,15 @@ package org.apache.james.smtpserver.core.filter.fastfail;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.mailet.MailAddress;
 
-public class MaxRcptHandler implements RcptHook, Configurable {
+public class MaxRcptHandler extends AbstractConfigurableHandler implements RcptHook {
 
     private int maxRcpt = 0;
 

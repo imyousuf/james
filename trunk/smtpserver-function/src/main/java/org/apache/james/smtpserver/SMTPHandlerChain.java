@@ -39,8 +39,8 @@ import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.core.CoreMessageHookLoader;
 import org.apache.james.smtpserver.core.DataLineMessageHookHandler;
-import org.apache.james.socket.JamesConfiguration;
 import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.configuration.JamesConfiguration;
 
 /**
   * The SMTPHandlerChain is per service object providing access
@@ -213,11 +213,16 @@ public class SMTPHandlerChain {
         }
 
         // configure the handler
-        if (handler instanceof org.apache.james.smtpserver.Configurable) {
-        	// Inject only the configuration part which is necessary for the handler
-        	// we use xquery to get this, maybe the query should get tweaked for better perfomance..
-        	org.apache.commons.configuration.Configuration handlerConf = commonsConf.configurationAt("//handler[@class='" +className+"']");
-        	((org.apache.james.smtpserver.Configurable) handler).configure(handlerConf);
+        if (handler instanceof org.apache.james.socket.configuration.Configurable) {
+        	org.apache.james.socket.configuration.Configurable configurableHandler = (org.apache.james.socket.configuration.Configurable) handler;
+        	String query  = configurableHandler.getConfigurationKeyXQuery();
+        	org.apache.commons.configuration.Configuration handlerConf;
+        	if (query != null) {
+        		handlerConf = commonsConf.configurationAt(query);
+        	} else {
+        		handlerConf = commonsConf;
+        	}
+        	configurableHandler.configure(handlerConf);
         }
 
         // if it is a commands handler add it to the map with key as command

@@ -46,13 +46,13 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.FileSystem;
-import org.apache.james.smtpserver.Configurable;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.james.util.TimeConverter;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -61,7 +61,7 @@ import org.apache.mailet.MailAddress;
 /**
  * GreylistHandler which can be used to activate Greylisting
  */
-public class GreylistHandler implements LogEnabled, RcptHook, Configurable, Initializable {
+public class GreylistHandler extends AbstractConfigurableHandler implements LogEnabled, RcptHook, Initializable {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(GreylistHandler.class);
