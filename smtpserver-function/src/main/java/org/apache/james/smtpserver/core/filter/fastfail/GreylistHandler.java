@@ -36,7 +36,6 @@ import javax.annotation.Resource;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -61,7 +60,7 @@ import org.apache.mailet.MailAddress;
 /**
  * GreylistHandler which can be used to activate Greylisting
  */
-public class GreylistHandler implements LogEnabled, RcptHook, Initializable, Configurable {
+public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(GreylistHandler.class);
@@ -250,11 +249,7 @@ public class GreylistHandler implements LogEnabled, RcptHook, Initializable, Con
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        setDataSource(initDataSource(repositoryPath));
-        initSqlQueries(datasource.getConnection(), sqlFileUrl);
-        
-        // create table if not exist
-        createTable(datasource.getConnection(), "greyListTableName", "createGreyListTable");
+       
     }
     
     /**
@@ -265,6 +260,17 @@ public class GreylistHandler implements LogEnabled, RcptHook, Initializable, Con
      */
     public void setRepositoryPath(String repositoryPath) {
         this.repositoryPath = repositoryPath;
+        
+        try {
+			setDataSource(initDataSource(repositoryPath));
+			initSqlQueries(datasource.getConnection(), sqlFileUrl);
+		        
+		    // create table if not exist
+		    createTable(datasource.getConnection(), "greyListTableName", "createGreyListTable");
+		} catch (Exception e) {
+			throw new RuntimeException("Unable to init datasource",e);
+		}
+      
     }
 
     /**

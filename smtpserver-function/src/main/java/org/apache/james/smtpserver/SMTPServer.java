@@ -242,7 +242,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         
         //read from the XML configuration and create and configure each of the handlers
         handlerChain.configure(new JamesConfiguration(handlerConfiguration.getChild("handlerchain")));
-        handlerChain.initialize();
     }
 
     @Override
