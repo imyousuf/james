@@ -39,7 +39,7 @@ import org.apache.james.smtpserver.hook.MailHook;
 import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -55,7 +55,7 @@ import org.apache.mailet.MailAddress;
  * &lt;checkAuthNetworks&gt;false&lt/checkAuthNetworks&gt; 
  * &lt;/handler&gt;
  */
-public class SPFHandler extends AbstractConfigurableHandler implements LogEnabled, MailHook, RcptHook, MessageHook {
+public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook,Configurable {
     
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(SPFHandler.class);

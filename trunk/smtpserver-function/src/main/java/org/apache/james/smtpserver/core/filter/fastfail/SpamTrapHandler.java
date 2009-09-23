@@ -32,14 +32,14 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 
 /**
  * This handler can be used for providing a spam trap. IPAddresses which send emails to the configured
  * recipients will get blacklisted for the configured time.
  */
-public class SpamTrapHandler extends AbstractConfigurableHandler implements RcptHook {
+public class SpamTrapHandler implements RcptHook, Configurable {
 
     /** Map which hold blockedIps and blockTime in memory */
     private Map<String,Long> blockedIps = new HashMap<String,Long>();

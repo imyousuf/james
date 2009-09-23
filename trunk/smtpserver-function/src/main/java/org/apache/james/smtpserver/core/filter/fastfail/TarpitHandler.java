@@ -28,14 +28,14 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 
 /**
  * Add tarpit support to SMTPServer. See http://www.palomine.net/qmail/tarpit.html for more information
  *
  */
-public class TarpitHandler extends AbstractConfigurableHandler implements RcptHook {
+public class TarpitHandler implements RcptHook, Configurable {
 
     private int tarpitRcptCount = 0;
 

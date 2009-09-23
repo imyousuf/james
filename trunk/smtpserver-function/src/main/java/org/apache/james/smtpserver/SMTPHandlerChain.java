@@ -21,18 +21,16 @@
 
 package org.apache.james.smtpserver;
 
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.kernel.LoaderService;
@@ -55,7 +53,6 @@ public class SMTPHandlerChain {
     private Log log = FALLBACK_LOG;
     
     /** Configuration for this chain */
-    private Configuration configuration;
     private JamesConfiguration commonsConf;
     
     private List<Object> handlers = new LinkedList<Object>();
@@ -109,66 +106,50 @@ public class SMTPHandlerChain {
         }
     }
 
+	public void configure(JamesConfiguration commonsConf) {
+		this.commonsConf =  commonsConf;
+	}
+
+	public String getConfigurationKeyXQuery() {
+		return "smtphandlerchain";
+	}
+	
     /**
      * loads the various handlers from the configuration
      * 
      * @param configuration
      *            configuration under handlerchain node
      */
-    public void configure(Configuration configuration)
-            throws ConfigurationException {
-        if (configuration == null
-                || configuration.getChildren("handler") == null
-                || configuration.getChildren("handler").length == 0) {
-            configuration = new DefaultConfiguration("handlerchain");
-            Properties cmds = new Properties();
-            cmds.setProperty("Default CoreCmdHandlerLoader", CoreCmdHandlerLoader.class
-                    .getName());
-            Enumeration<Object> e = cmds.keys();
-            while (e.hasMoreElements()) {
-                String cmdName = (String) e.nextElement();
-                String className = cmds.getProperty(cmdName);
-                ((DefaultConfiguration) configuration).addChild(addHandler(
-                        cmdName, className));
-            }
-        }
-        try {
-			commonsConf = new JamesConfiguration(configuration);
-		} catch (org.apache.commons.configuration.ConfigurationException e) {
-			throw new ConfigurationException("Unable to wrap configuration",e);
-		}
-        this.configuration = configuration;
-        
-    }
-
-    private void loadHandlers() throws Exception {
-        if (configuration != null) {
-            Configuration[] children = configuration.getChildren("handler");
+    @SuppressWarnings("unchecked")
+	private void loadHandlers() throws Exception {
+        if (commonsConf != null) {
+            List<org.apache.commons.configuration.Configuration> children = commonsConf.configurationsAt("handler");
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
             // load the configured handlers
-            if (children != null) {
+            if (children != null && children.isEmpty() == false) {
 
                 // load the core handlers
                 loadClass(classLoader, CoreCmdHandlerLoader.class.getName(),
-                        addHandler(null, CoreCmdHandlerLoader.class.getName()));
+                        addHandler(CoreCmdHandlerLoader.class.getName()));
                 
-                for (int i = 0; i < children.length; i++) {
-                    String className = children[i].getAttribute("class");
-                    if (className != null) {
+                for (int i = 0; i < children.size(); i++) {
+                	org.apache.commons.configuration.Configuration hConf = children.get(i);
+                    String className = hConf.getString("@class");
 
+                    if (className != null) {
                         // ignore base handlers.
                         if (!className.equals(CoreCmdHandlerLoader.class
                                         .getName())) {
 
                             // load the handler
-                            loadClass(classLoader, className, children[i]);
+                            loadClass(classLoader, className, hConf);
                         }
                     }
                 }
                 // load core messageHandlers
                 loadClass(classLoader, CoreMessageHookLoader.class.getName(),
-                        addHandler(null, CoreMessageHookLoader.class.getName()));
+                        addHandler(CoreMessageHookLoader.class.getName()));
 
             }
         }
@@ -203,7 +184,7 @@ public class SMTPHandlerChain {
      * @throws ConfigurationException Get thrown on error
      */
     private void loadClass(ClassLoader classLoader, String className,
-            Configuration config) throws Exception {
+    		org.apache.commons.configuration.Configuration config) throws Exception {
         final Class<?> handlerClass = classLoader.loadClass(className);
         Object handler = loader.load(handlerClass);
 
@@ -215,14 +196,7 @@ public class SMTPHandlerChain {
         // configure the handler
         if (handler instanceof org.apache.james.socket.configuration.Configurable) {
         	org.apache.james.socket.configuration.Configurable configurableHandler = (org.apache.james.socket.configuration.Configurable) handler;
-        	String query  = configurableHandler.getConfigurationKeyXQuery();
-        	org.apache.commons.configuration.Configuration handlerConf;
-        	if (query != null) {
-        		handlerConf = commonsConf.configurationAt(query);
-        	} else {
-        		handlerConf = commonsConf;
-        	}
-        	configurableHandler.configure(handlerConf);
+        	configurableHandler.configure(config);
         }
 
         // if it is a commands handler add it to the map with key as command
@@ -233,9 +207,7 @@ public class SMTPHandlerChain {
             for (Iterator<String> i = c.iterator(); i.hasNext(); ) {
                 String cName = i.next();
 
-                DefaultConfiguration cmdConf = new DefaultConfiguration(
-                        "handler");
-                cmdConf.setAttribute("class", cName);
+                Configuration cmdConf = addHandler(cName);
 
                 loadClass(classLoader, cName, cmdConf);
             }
@@ -256,12 +228,12 @@ public class SMTPHandlerChain {
      * @param cmdName The command name
      * @param className The class name
      * @return DefaultConfiguration
+     * @throws ConfigurationException 
      */
-    private DefaultConfiguration addHandler(String cmdName, String className) {
-        DefaultConfiguration cmdConf = new DefaultConfiguration("handler");
-        cmdConf.setAttribute("command",cmdName);
-        cmdConf.setAttribute("class",className);
-        return cmdConf;
+    private Configuration addHandler(String className) throws ConfigurationException {
+    	Configuration hConf = new BaseConfiguration();
+    	hConf.addProperty("handler/@class", className);
+        return hConf;
     }
     
     /**

@@ -41,14 +41,14 @@ import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 
 /**
  * This class can be used to reject email with bogus MX which is send from a authorized user or an authorized
  * network.
  */
-public class ValidRcptMX extends AbstractConfigurableHandler implements LogEnabled, RcptHook {
+public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(ValidRcptMX.class);

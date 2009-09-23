@@ -40,13 +40,13 @@ import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 
 /**
   * Connect handler for DNSRBL processing
   */
-public class DNSRBLHandler extends AbstractConfigurableHandler implements LogEnabled, ConnectHandler, RcptHook {
+public class DNSRBLHandler implements LogEnabled, ConnectHandler, RcptHook, Configurable{
     
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DNSRBLHandler.class);

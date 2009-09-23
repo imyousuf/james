@@ -47,13 +47,13 @@ import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.socket.LogEnabled;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.Mail;
 
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
  */
-public class URIRBLHandler extends AbstractConfigurableHandler implements LogEnabled, MessageHook {
+public class URIRBLHandler implements LogEnabled, MessageHook, Configurable {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(URIRBLHandler.class);

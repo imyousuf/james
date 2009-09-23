@@ -165,7 +165,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         if (m_useRBL) {
             DefaultConfiguration handler = new DefaultConfiguration("handler");
             handler.setAttribute("class", DNSRBLHandler.class.getName());
-            handler.setAttribute("command", "RCPT");
 
             DefaultConfiguration blacklist = new DefaultConfiguration(
                     "blacklist");
@@ -180,49 +179,41 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         }
         if (m_heloResolv || m_ehloResolv) {
             DefaultConfiguration d = createHandler(
-                    ResolvableEhloHeloHandler.class.getName(), null);
-            d.setAttribute("command", "EHLO,HELO,RCPT");
+                    ResolvableEhloHeloHandler.class.getName());
             d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
                     m_checkAuthNetworks + ""));
             config.addChild(d);
         }
         if (m_reverseEqualsHelo || m_reverseEqualsEhlo) {
             DefaultConfiguration d = createHandler(
-                    ReverseEqualsEhloHeloHandler.class.getName(), null);
-            d.setAttribute("command", "EHLO,HELO,RCPT");
+                    ReverseEqualsEhloHeloHandler.class.getName());
             d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
                     m_checkAuthNetworks + ""));
             config.addChild(d);
         }
         if (m_senderDomainResolv) {
             DefaultConfiguration d = createHandler(
-                    ValidSenderDomainHandler.class.getName(), null);
-            d.setAttribute("command", "MAIL");
+                    ValidSenderDomainHandler.class.getName());
             d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
                     m_checkAuthNetworks + ""));
             config.addChild(d);
         }
         if (m_maxRcpt > 0) {
             DefaultConfiguration d = createHandler(MaxRcptHandler.class
-                    .getName(), null);
-            d.setAttribute("command", "RCPT");
+                    .getName());
             d.addChild(Util.getValuedConfiguration("maxRcpt", m_maxRcpt + ""));
             config.addChild(d);
         }
        
         
-        config.addChild(createHandler(CoreCmdHandlerLoader.class.getName(),
-                null));
+        config.addChild(createHandler(CoreCmdHandlerLoader.class.getName()));
         handlerConfig.addChild(config);
         addChild(handlerConfig);
     }
 
-    private DefaultConfiguration createHandler(String className,
-            String commandName) {
+    private DefaultConfiguration createHandler(String className) {
         DefaultConfiguration d = new DefaultConfiguration("handler");
-        if (commandName != null) {
-            d.setAttribute("command", commandName);
-        }
+       
         d.setAttribute("class", className);
         return d;
     }

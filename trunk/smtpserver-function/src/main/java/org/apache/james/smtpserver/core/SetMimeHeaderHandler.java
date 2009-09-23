@@ -29,14 +29,13 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MessageHook;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
 import org.apache.mailet.Mail;
 
 
 /**
   * Adds the header to the message
   */
-public class SetMimeHeaderHandler extends AbstractConfigurableHandler implements MessageHook {
+public class SetMimeHeaderHandler implements MessageHook {
 
     /**
      * The header name and value that needs to be added

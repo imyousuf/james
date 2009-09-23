@@ -44,7 +44,7 @@ import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.RcptHook;
 import org.apache.james.socket.LogEnabled;
-import org.apache.james.socket.configuration.AbstractConfigurableHandler;
+import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
@@ -54,7 +54,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
 /**
  * Handler which reject invalid recipients
  */
-public class ValidRcptHandler extends AbstractConfigurableHandler implements LogEnabled, RcptHook {
+public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable {
     
 
     /** This log is the fall back shared by all instances */

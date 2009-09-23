@@ -34,6 +34,7 @@ import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.ProtocolHandler;
+import org.apache.james.socket.configuration.JamesConfiguration;
 import org.apache.mailet.MailetContext;
 
 /**
@@ -240,7 +241,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         handlerChain.setLog(new AvalonLogger(getLogger()));
         
         //read from the XML configuration and create and configure each of the handlers
-        handlerChain.configure(handlerConfiguration.getChild("handlerchain"));
+        handlerChain.configure(new JamesConfiguration(handlerConfiguration.getChild("handlerchain")));
         handlerChain.initialize();
     }
 
