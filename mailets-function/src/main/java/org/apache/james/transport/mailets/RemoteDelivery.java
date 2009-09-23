@@ -222,7 +222,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private int workersThreadCount = 1;
     
     /** The server(s) to send all email to */
-    private Collection gatewayServer = null;
+    private Collection<String> gatewayServer = null;
     
     /** Auth for gateway server */
     private String authUser = null;
@@ -243,7 +243,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private boolean isBindUsed = false; 
 
     /** Collection that stores all worker threads.*/
-    private Collection workersThreads = new Vector();
+    private Collection<Thread> workersThreads = new Vector<Thread>();
     
     /** Flag used by 'run' method to end itself. */
     private volatile boolean destroyed = false;
@@ -280,7 +280,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
 
         // Create list of Delay Times.
-        ArrayList delayTimesList = new ArrayList();
+        ArrayList<Delay> delayTimesList = new ArrayList<Delay>();
         try {
             if (getInitParameter("delayTime") != null) {
                 delayTimeMatcher = new Perl5Matcher();
@@ -408,7 +408,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         String gatewayPort = getInitParameter("gatewayPort");
 
         if (gateway != null) {
-            gatewayServer = new ArrayList();
+            gatewayServer = new ArrayList<String>();
             StringTokenizer st = new StringTokenizer(gateway, ",") ;
             while (st.hasMoreTokens()) {
                 String server = st.nextToken().trim() ;
@@ -466,11 +466,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      *            list of 'Delay' objects
      * @return total no. of retry attempts
      */
-    private int calcTotalAttempts (ArrayList delayList) {
+    private int calcTotalAttempts (ArrayList<Delay> delayList) {
         int sum = 0;
-        Iterator i = delayList.iterator();
+        Iterator<Delay> i = delayList.iterator();
         while (i.hasNext()) {
-            Delay delay = (Delay)i.next();
+            Delay delay = i.next();
             sum += delay.getAttempts();
         }
         return sum;
@@ -487,12 +487,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param list the list to expand
      * @return the expanded list
      **/
-    private long[] expandDelays (ArrayList list) {
+    private long[] expandDelays (ArrayList<Delay> list) {
         long[] delays = new long [calcTotalAttempts(list)];
-        Iterator i = list.iterator();
+        Iterator<Delay> i = list.iterator();
         int idx = 0;
         while (i.hasNext()) {
-            Delay delay = (Delay)i.next();
+            Delay delay = i.next();
             for (int j=0; j<delay.getAttempts(); j++) {
                 delays[idx++]= delay.getDelayTime();
             }            
@@ -633,13 +633,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         if (gatewayServer == null) {
             // Must first organize the recipients into distinct servers (name made case insensitive)
-            Hashtable targets = new Hashtable();
+            Hashtable<String, Collection<MailAddress>> targets = new Hashtable<String, Collection<MailAddress>>();
             for (Iterator i = recipients.iterator(); i.hasNext();) {
                 MailAddress target = (MailAddress)i.next();
                 String targetServer = target.getHost().toLowerCase(Locale.US);
-                Collection temp = (Collection)targets.get(targetServer);
+                Collection<MailAddress> temp = targets.get(targetServer);
                 if (temp == null) {
-                    temp = new ArrayList();
+                    temp = new ArrayList<MailAddress>();
                     targets.put(targetServer, temp);
                 }
                 temp.add(target);
@@ -652,10 +652,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             String name = mail.getName();
             for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
                 String host = (String) i.next();
-                Collection rec = (Collection) targets.get(host);
+                Collection<MailAddress> rec = targets.get(host);
                 if (isDebug) {
-                    StringBuffer logMessageBuffer =
-                        new StringBuffer(128)
+                    StringBuilder logMessageBuffer =
+                        new StringBuilder(128)
                                 .append("Sending mail to ")
                                 .append(rec)
                                 .append(" on host ")
@@ -663,8 +663,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     log(logMessageBuffer.toString());
                 }
                 mail.setRecipients(rec);
-                StringBuffer nameBuffer =
-                    new StringBuffer(128)
+                StringBuilder nameBuffer =
+                    new StringBuilder(128)
                             .append(name)
                             .append("-to-")
                             .append(host);
@@ -675,8 +675,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } else {
             // Store the mail unaltered for processing by the gateway server(s)
             if (isDebug) {
-                StringBuffer logMessageBuffer =
-                    new StringBuffer(128)
+                StringBuilder logMessageBuffer =
+                    new StringBuilder(128)
                         .append("Sending mail to ")
                         .append(mail.getRecipients())
                         .append(" via ")
@@ -699,8 +699,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         destroyed = true;
 
         // Wake up all threads from waiting for an accept
-        for (Iterator i = workersThreads.iterator(); i.hasNext(); ) {
-            Thread t = (Thread)i.next();
+        for (Iterator<Thread> i = workersThreads.iterator(); i.hasNext(); ) {
+            Thread t = i.next();
             t.interrupt();
         }
         notifyAll();
@@ -877,7 +877,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             //Figure out which servers to try to send to.  This collection
             //  will hold all the possible target servers
-            Iterator targetServers = null;
+            Iterator<HostAddress> targetServers = null;
             if (gatewayServer == null) {
                 MailAddress rcpt = (MailAddress) recipients.iterator().next();
                 String host = rcpt.getHost();
@@ -887,8 +887,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     targetServers = dnsServer.getSMTPHostAddresses(host);
                 } catch (TemporaryResolutionException e) {
                     log("Temporary problem looking up mail server for host: " + host);
-                    StringBuffer exceptionBuffer =
-                        new StringBuffer(128)
+                    StringBuilder exceptionBuffer =
+                        new StringBuilder(128)
                         .append("Temporary problem looking up mail server for host: ")
                         .append(host)
                         .append(".  I cannot determine where to send this message.");
@@ -898,8 +898,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 }
                 if (!targetServers.hasNext()) {
                     log("No mail server found for: " + host);
-                    StringBuffer exceptionBuffer =
-                        new StringBuffer(128)
+                    StringBuilder exceptionBuffer =
+                        new StringBuilder(128)
                         .append("There are no DNS entries for the hostname ")
                         .append(host)
                         .append(".  I cannot determine where to send this message.");
@@ -925,9 +925,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             while ( targetServers.hasNext()) {
                 try {
-                    HostAddress outgoingMailServer = (HostAddress) targetServers.next();
-                    StringBuffer logMessageBuffer =
-                        new StringBuffer(256)
+                    HostAddress outgoingMailServer = targetServers.next();
+                    StringBuilder logMessageBuffer =
+                        new StringBuilder(256)
                         .append("Attempting delivery of ")
                         .append(mail.getName())
                         .append(" to host ")
@@ -1034,7 +1034,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         }
                     }
                     logMessageBuffer =
-                                      new StringBuffer(256)
+                                      new StringBuilder(256)
                                       .append("Mail (")
                                       .append(mail.getName())
                                       .append(") sent successfully to ")
@@ -1051,8 +1051,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     if (sfe.getValidSentAddresses() != null) {
                         Address[] validSent = sfe.getValidSentAddresses();
                         if (validSent.length > 0) {
-                            StringBuffer logMessageBuffer =
-                                new StringBuffer(256)
+                            StringBuilder logMessageBuffer =
+                                new StringBuilder(256)
                                 .append("Mail (")
                                 .append(mail.getName())
                                 .append(") sent successfully for ")
@@ -1083,8 +1083,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     }
                 } catch (MessagingException me) {
                     //MessagingException are horribly difficult to figure out what actually happened.
-                    StringBuffer exceptionBuffer =
-                        new StringBuffer(256)
+                    StringBuilder exceptionBuffer =
+                        new StringBuilder(256)
                         .append("Exception delivering message (")
                         .append(mail.getName())
                         .append(") - ")
@@ -1265,7 +1265,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 exception.getValidUnsentAddresses().length == 0) return null;
             
              Exception ex;
-             StringBuffer sb = new StringBuffer();
+             StringBuilder sb = new StringBuilder();
              boolean smtpExFound = false;
              sb.append("RemoteHost said:");
 
@@ -1423,8 +1423,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         
         String exceptionLog = exceptionToLogString(ex);
         
-        StringBuffer logBuffer =
-            new StringBuffer(64)
+        StringBuilder logBuffer =
+            new StringBuilder(64)
                 .append(" exception delivering mail (")
                 .append(mail.getName());
         
@@ -1453,7 +1453,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             
             if (retries < maxRetries) {
                 logBuffer =
-                    new StringBuffer(128)
+                    new StringBuilder(128)
                             .append("Storing message ")
                             .append(mail.getName())
                             .append(" into outgoing after ")
@@ -1466,7 +1466,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 return false;
             } else {
                 logBuffer =
-                    new StringBuffer(128)
+                    new StringBuilder(128)
                             .append("Bouncing message ")
                             .append(mail.getName())
                             .append(" after ")
@@ -1511,8 +1511,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch(Exception e){
             machine = "[address unknown]";
         }
-        StringBuffer bounceBuffer =
-            new StringBuffer(128)
+        StringBuilder bounceBuffer =
+            new StringBuilder(128)
                     .append("Hi. This is the James mail server at ")
                     .append(machine)
                     .append(".");
@@ -1582,10 +1582,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @param gatewayServers - Collection of host[:port] Strings
      * @return an Iterator over HostAddress instances, sorted by priority
      */
-    private Iterator getGatewaySMTPHostAddresses(final Collection gatewayServers) {
-        return new Iterator() {
-            private Iterator gateways = gatewayServers.iterator();
-            private Iterator addresses = null;
+    private Iterator<HostAddress> getGatewaySMTPHostAddresses(final Collection<String> gatewayServers) {
+        return new Iterator<HostAddress>() {
+            private Iterator<String> gateways = gatewayServers.iterator();
+            private Iterator<HostAddress> addresses = null;
 
             public boolean hasNext() {
                 /* Make sure that when next() is called, that we can
@@ -1610,7 +1610,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         final String nextGatewayPort = port;
                         try {
                             final InetAddress[] ips = dnsServer.getAllByName(nextGateway);
-                            addresses = new Iterator() {
+                            addresses = new Iterator<HostAddress>() {
                                 private InetAddress[] ipAddresses = ips;
                                 int i = 0;
 
@@ -1618,7 +1618,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                     return i < ipAddresses.length;
                                 }
 
-                                public Object next() {
+                                public HostAddress next() {
                                     return new org.apache.mailet.HostAddress(nextGateway, "smtp://" + (ipAddresses[i++]).getHostAddress() + ":" + nextGatewayPort);
                                 }
 
@@ -1641,7 +1641,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 return addresses != null && addresses.hasNext();
             }
 
-            public Object next() {
+            public HostAddress next() {
                 return (addresses != null) ? addresses.next() : null;
             }
 
