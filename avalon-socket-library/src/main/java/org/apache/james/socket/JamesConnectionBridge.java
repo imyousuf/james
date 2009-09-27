@@ -31,6 +31,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
@@ -118,6 +121,15 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     
     private final Log log;
     
+    private SSLSocketFactory factory;
+    private boolean secureEnabled = false;
+    
+    public JamesConnectionBridge(final ProtocolHandler delegated, final DNSService dnsServer, final String name, 
+            final Logger logger, final SSLSocketFactory factory) {
+    	this(delegated, dnsServer, name, logger);
+        this.factory = factory;
+    }
+    
     public JamesConnectionBridge(final ProtocolHandler delegated, final DNSService dnsServer, final String name, 
             final Logger logger) {
         this.protocolHandler = delegated;
@@ -146,20 +158,8 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
             synchronized (this) {
                 handlerThread = Thread.currentThread();
             }
-            in = new BufferedInputStream(socket.getInputStream(), DEFAULT_INPUT_BUFFER_SIZE);
-            outs = new BufferedOutputStream(socket.getOutputStream(), DEFAULT_OUTPUT_BUFFER_SIZE);
-            // enable tcp dump for debug
-            if (tcplogprefix != null) {
-                outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
-                in = new CopyInputStream(in, new FileOutputStream(tcplogprefix+"in"));
-            }
-            
-            // An ASCII encoding can be used because all transmissions other
-            // that those in the message body command are guaranteed
-            // to be ASCII
-            inReader = new CRLFTerminatedReader(in, "ASCII");
-            
-            out = new InternetPrintWriter(outs, true);
+
+            connectStreams(socket);
         } catch (RuntimeException e) {
             StringBuilder exceptionBuffer = 
                 new StringBuilder(256)
@@ -198,7 +198,34 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
         }
     }
 
-    /**
+
+	private SSLSocket secureSocket(Socket socket) throws IOException {
+		SSLSocket sslsock = (SSLSocket) factory.createSocket(socket, socket
+				.getInetAddress().getHostName(), socket.getPort(), true);
+		sslsock.setUseClientMode(false);
+
+		return sslsock;
+	}
+
+	
+    private void connectStreams(Socket socket) throws IOException {
+        in = new BufferedInputStream(socket.getInputStream(), DEFAULT_INPUT_BUFFER_SIZE);
+        outs = new BufferedOutputStream(socket.getOutputStream(), DEFAULT_OUTPUT_BUFFER_SIZE);
+        // enable tcp dump for debug
+        if (tcplogprefix != null) {
+            outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
+            in = new CopyInputStream(in, new FileOutputStream(tcplogprefix+"in"));
+        }
+        
+        // An ASCII encoding can be used because all transmissions other
+        // that those in the message body command are guaranteed
+        // to be ASCII
+        inReader = new CRLFTerminatedReader(in, "ASCII");
+        
+        out = new InternetPrintWriter(outs, true);
+	}
+
+	/**
      * The method clean up and close the allocated resources
      */
     private void cleanHandler() {
@@ -435,6 +462,7 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
         protocolHandler.resetHandler();
         remoteHost = null;
         remoteIP = null;
+        secureEnabled = false;
     }
 
     /**
@@ -500,4 +528,24 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     public void execute() {
         idleClose();
     }
+
+    /**
+     * @see org.apache.james.socket.ProtocolContext#isSecure()
+     */
+	public boolean isSecure() {
+		return secureEnabled;
+	}
+
+	/**
+	 * @see org.apache.james.socket.ProtocolContext#secure()
+	 */
+	public void secure() throws IOException {
+		if (factory == null) {
+			throw new UnsupportedOperationException("StartTLS not supported");
+		}
+		this.secureEnabled = true;
+		
+		socket = secureSocket(socket);
+		connectStreams(socket);
+	}
 }

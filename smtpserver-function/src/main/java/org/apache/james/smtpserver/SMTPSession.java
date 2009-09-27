@@ -19,6 +19,7 @@
 
 package org.apache.james.smtpserver;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -188,5 +189,12 @@ public interface SMTPSession {
      * @return log, not null
      */
     Log getLogger();
+    
+    boolean isStartTLSSupported();
+    
+    boolean isTLSStarted();
+
+    void secure() throws IOException;
+
 }
 

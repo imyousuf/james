@@ -20,6 +20,7 @@
 
 package org.apache.james.socket;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -98,4 +99,17 @@ public interface ProtocolContext {
      * @return not null
      */
     public Log getLogger();
+    
+    /**
+     * Secure the current socket using tls/ssl
+     * @throws IOException 
+     */
+    public void secure() throws IOException;
+    
+    /**
+     * Return if the current socket is using tls/ssl
+     * 
+     * @return isSecure
+     */
+    public boolean isSecure();
 }

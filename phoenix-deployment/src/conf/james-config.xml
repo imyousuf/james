@@ -963,12 +963,27 @@ Regards, Postmaster XXX.YYY
       <!--
       <useTLS>true</useTLS>
       -->
+      
       <!-- Use provider elements to specify additional JCE providers.
          The jars should be put into $JAMES_HOME/lib.
            For example, Uncomment this if you want to use 
            BouncyCastle JCE (http://www.bouncycastle.org)
       <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
 
+      <!-- Set enable to true to support STARTTLS.
+           To use this you need to copy sunjce_provider.jar to /path/james/lib directory.
+       -->
+      
+      <startTLS enable="false">
+      
+        <!-- To create a new keystore execute:
+        keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore
+         -->
+        <keystore>file://conf/keystore</keystore>
+        <secret></secret>
+        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+      </startTLS>
+      
       <handler>
          <!-- This is the name used by the server to identify itself in the SMTP -->
          <!-- protocol.  If autodetect is TRUE, the server will discover its -->
@@ -1648,5 +1663,4 @@ Regards, Postmaster XXX.YYY
          <min-spare-threads>20</min-spare-threads>
       </thread-group>
    </thread-manager>
-
 </config>

@@ -25,6 +25,7 @@ import org.apache.james.smtpserver.HandlersPackage;
 import org.apache.james.smtpserver.core.esmtp.AuthCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.EhloCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.MailSizeEsmtpExtension;
+import org.apache.james.smtpserver.core.esmtp.StartTlsCmdHandler;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final String AUTHREQUIREDTORELAY = AuthRequiredToRelayRcptHook.class.getName();
     private final String SENDERAUTHIDENTITYVERIFICATION = SenderAuthIdentifyVerificationRcptHook.class.getName();
     private final String DATALINEMESSAGEHOOKHANDLER = DataLineMessageHookHandler.class.getName();
-   
+    private final String STARTTLSHANDLER = StartTlsCmdHandler.class.getName();
     /**
      * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
      */
@@ -82,7 +83,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(SENDERAUTHIDENTITYVERIFICATION);
         commands.add(POSTMASTERABUSEHOOK);
         commands.add(DATALINEMESSAGEHOOKHANDLER);
-        
+        commands.add(STARTTLSHANDLER);
         return commands;
     }
 }

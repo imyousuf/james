@@ -89,5 +89,7 @@ public interface SMTPConfiguration {
      * @return true or false
      */
     boolean useAddressBracketsEnforcement();
+    
+    boolean isStartTLSSupported();
 
 }

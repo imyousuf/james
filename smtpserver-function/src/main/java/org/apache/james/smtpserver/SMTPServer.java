@@ -119,8 +119,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     = new SMTPHandlerConfigurationDataImpl();
 
     private boolean addressBracketsEnforcement = true;
-
-
+    
     /**
      * Gets the current instance loader.
      * @return the loader
@@ -227,7 +226,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
             smtpGreeting = handlerConfiguration.getChild("smtpGreeting").getValue(null);
 
             addressBracketsEnforcement = handlerConfiguration.getChild("addressBracketsEnforcement").getValueAsBoolean(true);
-
         } else {
             // TODO Remove this in next not backwards compatible release!
             if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
@@ -344,6 +342,10 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
             }
             return authRequired;
         }
+
+		public boolean isStartTLSSupported() {
+			return SMTPServer.this.useStartTLS();
+		}
         
         //TODO: IF we create here an interface to get DNSServer
         //      we should access it from the SMTPHandlers
@@ -355,5 +357,5 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         final SMTPHandler theHandler = new SMTPHandler(handlerChain, theConfigData);
         return theHandler;
     }
-
+    
 }
