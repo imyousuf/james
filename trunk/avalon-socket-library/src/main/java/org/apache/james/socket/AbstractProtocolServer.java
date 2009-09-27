@@ -25,11 +25,15 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
+import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.PostConstruct;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
@@ -53,6 +57,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.services.FileSystem;
 
 /**
  * Server which creates connection handlers. All new James service must
@@ -199,8 +204,14 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
      */
     private String streamDumpDir = null;
 
-    
-    
+    private FileSystem fSystem;
+	private SSLSocketFactory factory;
+
+	private String keystore;
+
+	private String secret;    
+     
+	private boolean useStartTLS;
     /**
      * Gets the DNS Service.
      * @return the dnsServer
@@ -221,6 +232,10 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         this.connectionManager = connectionManager;
     }
 
+    public void setFileSystem(FileSystem fSystem) {
+    	this.fSystem = fSystem;
+    }
+    
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
@@ -231,6 +246,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
             (JamesConnectionManager)componentManager.lookup(JamesConnectionManager.ROLE);
         setConnectionManager(connectionManager);
         dnsService = (DNSService) comp.lookup(DNSService.ROLE);
+        fSystem= (FileSystem) comp.lookup(FileSystem.ROLE);
     }
 
     /**
@@ -282,6 +298,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         } else {
             serverSocketType = confSocketType;
         }
+     
 
         StringBuilder infoBuffer;
         threadGroup = conf.getChild("threadGroup").getValue(null);
@@ -376,6 +393,20 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
             .append(" per IP connections for " +getServiceType());
         logger.info(infoBuffer.toString());
         
+       	Configuration tlsConfig = conf.getChild("startTLS");
+       	if (tlsConfig != null) {
+       		useStartTLS = tlsConfig.getAttributeAsBoolean("enable", false);
+           	System.err.println("config=" + useStartTLS);
+
+       		if (useStartTLS) {
+       			keystore = tlsConfig.getChild("keystore").getValue(null);
+       			if (keystore == null) {
+       				throw new ConfigurationException("keystore needs to get configured");
+       			}
+       			secret = tlsConfig.getChild("secret").getValue("");
+				loadJCEProviders(conf, getLogger());
+       		}
+       	}
     }
 
     private void loadJCEProviders(Configuration conf, final Logger logger) throws ConfigurationException {
@@ -479,7 +510,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         // keeping these looked up services locally, because they are only needed beyond initialization
         ThreadManager threadManager = (ThreadManager) componentManager.lookup(ThreadManager.ROLE);
         SocketManager socketManager = (SocketManager) componentManager.lookup(SocketManager.ROLE);
-        
+       
         initializeThreadPool(threadManager);
 
         initializeServerSocket(socketManager);
@@ -494,10 +525,48 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
 
         theWatchdogFactory = getWatchdogFactory();
 
+        if (useStartTLS) {
+        	initStartTLS();
+        }
         // Allow subclasses to perform initialisation
         doInit();
     }
     
+    private void initStartTLS() throws Exception {
+    	KeyStore ks = null;
+		KeyManagerFactory kmf = null;
+		SSLContext sslcontext = null;
+
+		// This loads the key material, and initialises the
+		// SSLSocketFactory
+		// This should be done once!!
+		// Note: in order to load SunJCE provider the jre/lib/ext should be
+		// added
+		// to the java.ext.dirs see the note in run.sh script
+		try {
+			// just to see SunJCE is loaded
+			Provider[] provs = Security.getProviders();
+			for (int i = 0; i < provs.length; i++)
+				getLogger().debug("Provider[" + i + "]=" + provs[i].getName());
+
+			char[] passphrase = secret.toCharArray();
+			ks = KeyStore.getInstance("JKS");
+			ks.load(fSystem.getResource(keystore), passphrase);
+			kmf = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
+			kmf.init(ks, passphrase);
+			sslcontext = SSLContext.getInstance("TLS", "SunJSSE");
+			sslcontext.init(kmf.getKeyManagers(), null, null);
+		} catch (Exception e) {
+			getLogger().error("Exception accessing keystore: " + e);
+			throw e;
+		}
+		factory = sslcontext.getSocketFactory();
+		// just to see the list of supported ciphers
+		String[] ss = factory.getSupportedCipherSuites();
+		getLogger().debug("list of supported ciphers");
+		for (int i = 0; i < ss.length; i++)
+			getLogger().debug(ss[i]);
+    }
     
     /**
      * Hook for subclasses to perform an required initialisation
@@ -843,9 +912,15 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
             serviceShortNameString = serviceType;
         }
         final String name = serviceShortNameString + "Handler-" + handlerCount.getAndAdd(1);
-        final JamesConnectionBridge delegatingJamesHandler = 
-            new JamesConnectionBridge(newProtocolHandlerInstance(), dnsService, name, getLogger());
+        final JamesConnectionBridge delegatingJamesHandler;
+        
+        if (useStartTLS) {
+        	delegatingJamesHandler = new JamesConnectionBridge(newProtocolHandlerInstance(), dnsService, name, getLogger(), factory);
+        } else {
+            delegatingJamesHandler = new JamesConnectionBridge(newProtocolHandlerInstance(), dnsService, name, getLogger());
+        }
         return delegatingJamesHandler;
+        
     }
     
     protected abstract ProtocolHandler newProtocolHandlerInstance();
@@ -858,5 +933,10 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         return JamesConnectionBridge.class;
     }
 
+
+    public boolean useStartTLS() {
+    	return useStartTLS;
+    }
+    
 }
 

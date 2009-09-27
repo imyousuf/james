@@ -29,6 +29,7 @@ import org.apache.james.smtpserver.core.filter.fastfail.MaxRcptHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.ReverseEqualsEhloHeloHandler;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidSenderDomainHandler;
+import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
 
 public class SMTPTestConfiguration extends DefaultConfiguration {
@@ -50,6 +51,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     private int m_maxRcpt = 0;
     private boolean m_useRBL = false;
     private boolean m_addressBracketsEnforcement = true;
+	private boolean m_startTLS = false;
 
     
     public SMTPTestConfiguration(int smtpListenerPort) {
@@ -140,7 +142,9 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         this.m_addressBracketsEnforcement = addressBracketsEnforcement;
     }
     
-
+    public void setStartTLS() {
+    	m_startTLS  = true;
+    }
     public void init() throws ConfigurationException {
 
         setAttribute("enabled", true);
@@ -157,6 +161,13 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         handlerConfig.addChild(Util.getValuedConfiguration("authRequired", m_authorizingMode));
         handlerConfig.addChild(Util.getValuedConfiguration("heloEhloEnforcement", m_heloEhloEnforcement+""));
         handlerConfig.addChild(Util.getValuedConfiguration("addressBracketsEnforcement", m_addressBracketsEnforcement+""));
+        
+        DefaultConfiguration tlsConfig = new DefaultConfiguration("startTLS");
+        tlsConfig.setAttribute("enable", m_startTLS);
+        tlsConfig.addChild(new AttrValConfiguration("keystore","file://conf/test_keystore"));
+        tlsConfig.addChild(Util.getValuedConfiguration("secret", "jamestest"));
+        addChild(tlsConfig);
+        
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
  
         DefaultConfiguration config = new DefaultConfiguration("handlerchain");

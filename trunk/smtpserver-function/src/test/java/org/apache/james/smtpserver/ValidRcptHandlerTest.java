@@ -34,11 +34,9 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
-import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.core.filter.fastfail.ValidRcptHandler;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.MailAddress;
@@ -50,7 +48,6 @@ public class ValidRcptHandlerTest extends TestCase {
     private final static String INVALID_USER = "invalid";
     private final static String USER1 = "user1";
     private final static String USER2 = "user2";
-    private MockServiceManager serviceMan;
     
     UsersRepository users;
     ValidRcptHandler handler;
@@ -106,10 +103,6 @@ public class ValidRcptHandlerTest extends TestCase {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
 
-            public MailServer getMailServer() {
-                throw new UnsupportedOperationException("Unimplemented Stub Method");
-            }
-
             public long getMaxMessageSize() {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
@@ -122,10 +115,6 @@ public class ValidRcptHandlerTest extends TestCase {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
 
-            public UsersRepository getUsersRepository() {
-                
-                return users;
-            }
 
             public boolean isRelayingAllowed(String remoteIP) {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
@@ -141,6 +130,10 @@ public class ValidRcptHandlerTest extends TestCase {
 
 			public boolean isAuthRequired(String remoteIP) {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
+			}
+
+			public boolean isStartTLSSupported() {
+				return false;
 			}
         };
     

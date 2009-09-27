@@ -398,4 +398,16 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     public Log getLogger() {
         return context.getLogger();
     }
+
+	public boolean isTLSStarted() {
+		return context.isSecure();
+	}
+
+	public void secure() throws IOException {
+		context.secure();
+	}
+
+	public boolean isStartTLSSupported() {
+		return getConfigurationData().isStartTLSSupported();
+	}
 }

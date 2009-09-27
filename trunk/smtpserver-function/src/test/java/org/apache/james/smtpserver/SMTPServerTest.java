@@ -46,6 +46,7 @@ import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
@@ -53,6 +54,7 @@ import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.avalon.MockThreadManager;
+import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
@@ -151,7 +153,6 @@ public class SMTPServerTest extends TestCase {
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private FakeLoader m_serviceManager;
     private AlterableDNSServer m_dnsServer;
-
     public SMTPServerTest() {
         super("SMTPServerTest");
         m_smtpListenerPort = Util.getNonPrivilegedPort();
@@ -214,6 +215,8 @@ public class SMTPServerTest extends TestCase {
         m_serviceManager.put(DNSService.ROLE, m_dnsServer);
         m_serviceManager.put("dnsserver", m_dnsServer);
         m_serviceManager.put(Store.ROLE, new MockStore());
+        m_serviceManager.put(FileSystem.ROLE, new MockFileSystem());
+    
         return m_serviceManager;
     }
 
@@ -250,6 +253,35 @@ public class SMTPServerTest extends TestCase {
         assertNotNull("mail received by mail server", m_mailServer.getLastMail());
     }
 
+    public void testStartTLSInEHLO() throws Exception {
+    	m_testConfiguration.setStartTLS();
+        finishSetUp(m_testConfiguration);
+        
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+
+        // no message there, yet
+        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+
+        smtpProtocol.sendCommand("EHLO "+InetAddress.getLocalHost());
+        String[] capabilityRes = smtpProtocol.getReplyStrings();
+        
+        List capabilitieslist = new ArrayList();
+        for (int i = 1; i < capabilityRes.length; i++) {
+            capabilitieslist.add(capabilityRes[i].substring(4));
+        }
+        
+        assertEquals("capabilities", 4, capabilitieslist.size());
+        assertTrue("capabilities present PIPELINING", capabilitieslist.contains("PIPELINING"));
+        assertTrue("capabilities present ENHANCEDSTATUSCODES", capabilitieslist.contains("ENHANCEDSTATUSCODES"));
+        assertTrue("capabilities present 8BITMIME", capabilitieslist.contains("8BITMIME"));
+        assertTrue("capabilities present STARTTLS", capabilitieslist.contains("STARTTLS"));
+    
+        smtpProtocol.quit();
+        smtpProtocol.disconnect();
+
+    }
+    
     /**
      * TODO: Understand why this fails!
      * 
