@@ -69,5 +69,8 @@
     <dependency>
       <service name="org.apache.james.management.DomainListManagementService" version="1.0"/>
     </dependency>
+    <dependency>
+      <service name="org.apache.james.services.FileSystem" version="1.0"/>
+    </dependency>
   </dependencies>
 </blockinfo>

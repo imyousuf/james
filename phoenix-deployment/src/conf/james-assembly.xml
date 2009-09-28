@@ -114,6 +114,7 @@
     <provide name="processormanagement" role="org.apache.james.management.ProcessorManagementService"/>
     <provide name="virtualusertablemanagement" role="org.apache.james.api.vut.management.VirtualUserTableManagementService"/>
     <provide name="domainlistmanagement" role="org.apache.james.management.DomainListManagementService"/>
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" /> 
     <proxy disable='true'/>
 </block>
 
@@ -135,6 +136,7 @@
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
     <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" /> 
     <proxy disable='true'/>
   </block>
 
@@ -171,6 +173,7 @@
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
     <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
     <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" /> 
     <proxy disable='true'/>
   </block>
 
