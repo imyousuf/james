@@ -396,15 +396,14 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
        	Configuration tlsConfig = conf.getChild("startTLS");
        	if (tlsConfig != null) {
        		useStartTLS = tlsConfig.getAttributeAsBoolean("enable", false);
-           	System.err.println("config=" + useStartTLS);
-
+       		
        		if (useStartTLS) {
        			keystore = tlsConfig.getChild("keystore").getValue(null);
        			if (keystore == null) {
        				throw new ConfigurationException("keystore needs to get configured");
        			}
        			secret = tlsConfig.getChild("secret").getValue("");
-				loadJCEProviders(conf, getLogger());
+				loadJCEProviders(tlsConfig, getLogger());
        		}
        	}
     }
@@ -503,9 +502,15 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
             System.out.println(getServiceType() + " Disabled");
             return;
         }
+        
         getLogger().debug(getServiceType() + " init...");
 
         prepareInit();
+        
+
+        if (useStartTLS) {
+        	initStartTLS();
+        }
         
         // keeping these looked up services locally, because they are only needed beyond initialization
         ThreadManager threadManager = (ThreadManager) componentManager.lookup(ThreadManager.ROLE);
@@ -525,9 +530,6 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
 
         theWatchdogFactory = getWatchdogFactory();
 
-        if (useStartTLS) {
-        	initStartTLS();
-        }
         // Allow subclasses to perform initialisation
         doInit();
     }
