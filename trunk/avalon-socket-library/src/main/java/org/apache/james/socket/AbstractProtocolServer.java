@@ -552,11 +552,11 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
 				getLogger().debug("Provider[" + i + "]=" + provs[i].getName());
 
 			char[] passphrase = secret.toCharArray();
-			ks = KeyStore.getInstance("JKS");
+			ks = KeyStore.getInstance("JKS","SUN");
 			ks.load(fSystem.getResource(keystore), passphrase);
 			kmf = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
 			kmf.init(ks, passphrase);
-			sslcontext = SSLContext.getInstance("TLS", "SunJSSE");
+			sslcontext = SSLContext.getInstance("SSL", "SunJSSE");
 			sslcontext.init(kmf.getKeyManagers(), null, null);
 		} catch (Exception e) {
 			getLogger().error("Exception accessing keystore: " + e);
