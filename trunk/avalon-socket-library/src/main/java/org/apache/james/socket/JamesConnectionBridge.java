@@ -203,7 +203,8 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
 		SSLSocket sslsock = (SSLSocket) factory.createSocket(socket, socket
 				.getInetAddress().getHostName(), socket.getPort(), true);
 		sslsock.setUseClientMode(false);
-
+		getLogger().debug("Finished negotiating SSL - algorithm is " +
+				 sslsock.getSession().getCipherSuite());
 		return sslsock;
 	}
 
@@ -543,9 +544,11 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
 		if (factory == null) {
 			throw new UnsupportedOperationException("StartTLS not supported");
 		}
-		this.secureEnabled = true;
 		
 		socket = secureSocket(socket);
+
 		connectStreams(socket);
+		this.secureEnabled = true;
+
 	}
 }

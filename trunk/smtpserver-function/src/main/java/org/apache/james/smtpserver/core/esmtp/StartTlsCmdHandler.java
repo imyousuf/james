@@ -67,16 +67,18 @@ public class StartTlsCmdHandler implements CommandHandler, EhloExtension {
 				} else {
 					response = new SMTPResponse("501 "+ DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG) + " Syntax error (no parameters allowed) with STARTTLS command");
 				}
-			}
-			try {
-				if (!session.isTLSStarted()) {
-					session.secure();
-					// force reset
-					session.resetState();
+				session.writeSMTPResponse(response);
+				try {
+					if (!session.isTLSStarted()) {
+						session.secure();
+						// force reset
+						session.resetState();
+					}
+				} catch (IOException e) {
+					return new SMTPResponse(SMTPRetCode.LOCAL_ERROR,"TLS not available due to temporary reason");
 				}
-			} catch (IOException e) {
-				response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,"Temporary error while trying to start TLS");
 			}
+			
 		} else {
 	        StringBuilder result = new StringBuilder();
 	        result.append(DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
@@ -85,7 +87,7 @@ public class StartTlsCmdHandler implements CommandHandler, EhloExtension {
 	                      .append(" unrecognized.");
 	        response =  new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, result);
 		}
-		return response;
+		return null;
 	}
 
 	/**
