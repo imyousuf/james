@@ -198,5 +198,12 @@ public interface POP3Session {
      * @return context sensitive log, not null
      */
     Log getLogger();
+
+    
+    boolean isStartTLSSupported();
+    
+    boolean isTLSStarted();
+
+    void secure() throws IOException;
 }
 
