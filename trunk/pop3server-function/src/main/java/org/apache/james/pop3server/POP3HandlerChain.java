@@ -184,6 +184,7 @@ public class POP3HandlerChain implements Configurable, Serviceable {
         Properties cmds = new Properties();
         cmds.setProperty("USER",UserCmdHandler.class.getName());
         cmds.setProperty("PASS",PassCmdHandler.class.getName());
+        cmds.setProperty("STLS", StlsCmdHandler.class.getName());
         cmds.setProperty("LIST",ListCmdHandler.class.getName());
         cmds.setProperty("UIDL",UidlCmdHandler.class.getName());
         cmds.setProperty("RSET",RsetCmdHandler.class.getName());

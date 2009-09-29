@@ -58,5 +58,7 @@ public interface POP3HandlerConfigurationData {
      * @return the local users repository
      */
     UsersRepository getUsersRepository();
+    
+    boolean isStartTLSSupported();
 
 }

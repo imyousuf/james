@@ -186,5 +186,12 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         public UsersRepository getUsersRepository() {
             return POP3Server.this.users;
         }
+
+        /**
+         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#isStartTLSSupported()
+         */
+		public boolean isStartTLSSupported() {
+			return POP3Server.this.useStartTLS();
+		}
     }
 }

@@ -475,4 +475,17 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     public Log getLogger() {
         return context.getLogger();
     }
+
+	public void secure() throws IOException {
+		context.secure();
+	}
+
+	public boolean isStartTLSSupported() {
+		return getConfigurationData().isStartTLSSupported();
+	}
+
+	public boolean isTLSStarted() {
+		return context.isSecure();
+	}
+	
 }
