@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.services.MailRepository;
+import org.apache.james.socket.TLSSupportedSession;
 import org.apache.james.socket.Watchdog;
 import org.apache.mailet.Mail;
 
@@ -36,7 +37,7 @@ import org.apache.mailet.Mail;
  * POP3Handler object
  */
 
-public interface POP3Session {
+public interface POP3Session extends TLSSupportedSession{
 
     /**
      * Writes response string to the client
@@ -198,12 +199,5 @@ public interface POP3Session {
      * @return context sensitive log, not null
      */
     Log getLogger();
-
-    
-    boolean isStartTLSSupported();
-    
-    boolean isTLSStarted();
-
-    void secure() throws IOException;
 }
 

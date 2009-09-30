@@ -19,17 +19,17 @@
 
 package org.apache.james.smtpserver;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.socket.TLSSupportedSession;
 
 /**
  * All the handlers access this interface to communicate with
  * SMTPHandler object
  */
 
-public interface SMTPSession {
+public interface SMTPSession extends TLSSupportedSession{
 
     // Keys used to store/lookup data in the internal state hash map
     /** Sender's email address */
@@ -189,12 +189,5 @@ public interface SMTPSession {
      * @return log, not null
      */
     Log getLogger();
-    
-    boolean isStartTLSSupported();
-    
-    boolean isTLSStarted();
-
-    void secure() throws IOException;
-
 }
 
