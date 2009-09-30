@@ -123,6 +123,8 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     
     private SSLSocketFactory factory;
     private boolean secureEnabled = false;
+    private SwitchableInputStream switchableIn;
+    private SwitchableOutputStream switchableOut;
     
     public JamesConnectionBridge(final ProtocolHandler delegated, final DNSService dnsServer, final String name, 
             final Logger logger, final SSLSocketFactory factory) {
@@ -199,32 +201,53 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     }
 
 
-	private SSLSocket secureSocket(Socket socket) throws IOException {
-		SSLSocket sslsock = (SSLSocket) factory.createSocket(socket, socket
-				.getInetAddress().getHostName(), socket.getPort(), true);
-		sslsock.setUseClientMode(false);
-		getLogger().debug("Finished negotiating SSL - algorithm is " +
-				 sslsock.getSession().getCipherSuite());
-		return sslsock;
-	}
-
+    /**
+     * Create a SSLSocket which wraps the given one
+     * 
+     * @param socket
+     * @return sslsocket
+     * @throws IOException
+     */
+    private SSLSocket secureSocket(Socket socket) throws IOException {
+        SSLSocket sslsock = (SSLSocket) factory.createSocket(socket, socket
+                .getInetAddress().getHostName(), socket.getPort(), true);
+        sslsock.setUseClientMode(false);
+        getLogger().debug("Finished negotiating SSL - algorithm is "
+                        + sslsock.getSession().getCipherSuite());
+        return sslsock;
+    }
 	
+    /**
+     * Connect all streams of the given socket
+     * 
+     * @param socket
+     * @throws IOException
+     */
     private void connectStreams(Socket socket) throws IOException {
-        in = new BufferedInputStream(socket.getInputStream(), DEFAULT_INPUT_BUFFER_SIZE);
-        outs = new BufferedOutputStream(socket.getOutputStream(), DEFAULT_OUTPUT_BUFFER_SIZE);
+
+        InputStream is = socket.getInputStream();
+        OutputStream out2 = socket.getOutputStream();
+        switchableIn = new SwitchableInputStream(is);
+        switchableOut = new SwitchableOutputStream(out2);
+        in = new BufferedInputStream(switchableIn, DEFAULT_INPUT_BUFFER_SIZE);
+        outs = new BufferedOutputStream(switchableOut,
+                DEFAULT_OUTPUT_BUFFER_SIZE);
+
         // enable tcp dump for debug
         if (tcplogprefix != null) {
-            outs = new SplitOutputStream(outs, new FileOutputStream(tcplogprefix+"out"));
-            in = new CopyInputStream(in, new FileOutputStream(tcplogprefix+"in"));
+            outs = new SplitOutputStream(outs, new FileOutputStream(
+                    tcplogprefix + "out"));
+            in = new CopyInputStream(in, new FileOutputStream(tcplogprefix
+                    + "in"));
         }
-        
+
         // An ASCII encoding can be used because all transmissions other
         // that those in the message body command are guaranteed
         // to be ASCII
         inReader = new CRLFTerminatedReader(in, "ASCII");
-        
+
         out = new InternetPrintWriter(outs, true);
-	}
+    }
 
 	/**
      * The method clean up and close the allocated resources
@@ -522,10 +545,16 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
         return log;
     }
 
+    /**
+     * @see org.apache.james.socket.ProtocolContext#isDisconnected()
+     */
     public boolean isDisconnected() {
         return socket == null;
     }
 
+    /**
+     * @see org.apache.james.socket.WatchdogTarget#execute()
+     */
     public void execute() {
         idleClose();
     }
@@ -533,22 +562,23 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     /**
      * @see org.apache.james.socket.ProtocolContext#isSecure()
      */
-	public boolean isSecure() {
-		return secureEnabled;
-	}
+    public boolean isSecure() {
+        return secureEnabled;
+    }
 
-	/**
-	 * @see org.apache.james.socket.ProtocolContext#secure()
-	 */
-	public void secure() throws IOException {
-		if (factory == null) {
-			throw new UnsupportedOperationException("StartTLS not supported");
-		}
-		
-		socket = secureSocket(socket);
+    /**
+     * @see org.apache.james.socket.ProtocolContext#secure()
+     */
+    public void secure() throws IOException {
+        if (factory == null) {
+            throw new UnsupportedOperationException("StartTLS not supported");
+        }
 
-		connectStreams(socket);
-		this.secureEnabled = true;
+        socket = secureSocket(socket);
 
-	}
+        switchableIn.setWrappedInputStream(socket.getInputStream());
+        switchableOut.setWrappedOutputStream(socket.getOutputStream());
+        this.secureEnabled = true;
+
+    }
 }
