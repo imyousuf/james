@@ -21,6 +21,9 @@
 
 package org.apache.james.pop3server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 
@@ -29,6 +32,7 @@ import org.apache.james.util.POP3BeforeSMTPHelper;
   */
 public class PassCmdHandler implements CommandHandler {
 
+	private final static String COMMAND_NAME ="PASS";
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
      */
@@ -82,6 +86,15 @@ public class PassCmdHandler implements CommandHandler {
             session.writeResponse(responseString);
         }
     }
+
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
 
 
 }

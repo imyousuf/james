@@ -22,13 +22,11 @@
 package org.apache.james.pop3server;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 
+import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -45,7 +43,7 @@ import org.apache.james.socket.LogEnabled;
   * The POP3HandlerChain is per service object providing access
   * ConnectHandlers, Commandhandlers and message handlers
   */
-public class POP3HandlerChain implements Configurable, Serviceable {
+public class POP3HandlerChain implements Configurable, Serviceable, Initializable {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(POP3HandlerChain.class);
@@ -55,7 +53,7 @@ public class POP3HandlerChain implements Configurable, Serviceable {
     
     private Map<String, List<CommandHandler>> commandHandlerMap = new HashMap<String, List<CommandHandler>>();
     private List<ConnectHandler> connectHandlers = new ArrayList<ConnectHandler>();
-
+    private List<CapaCapability> capaList = new ArrayList<CapaCapability>();
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
     private ServiceManager serviceManager;
 
@@ -80,7 +78,7 @@ public class POP3HandlerChain implements Configurable, Serviceable {
      * @param configuration configuration under handlerchain node
      */
     public void configure(Configuration configuration) throws  ConfigurationException {
-        addToMap(UnknownCmdHandler.UNKNOWN_COMMAND, unknownHandler);
+        addToMap(unknownHandler);
         if(configuration == null || configuration.getChildren("handler") == null || configuration.getChildren("handler").length == 0) {
             configuration = createDefaultConfiguration();
         }
@@ -148,12 +146,14 @@ public class POP3HandlerChain implements Configurable, Serviceable {
 
                     //if it is a command handler add it to the map with key as command name
                     if(handler instanceof CommandHandler) {
-                        String commandName = children[i].getAttribute("command");
-                        commandName = commandName.toUpperCase(Locale.US);
-                        addToMap(commandName, (CommandHandler)handler);
+                        addToMap((CommandHandler)handler);
                         if (log.isInfoEnabled()) {
                             log.info("Added Commandhandler: " + className);
                         }
+                    }
+                    
+                    if (handler instanceof CapaCapability) {
+                    	capaList.add((CapaCapability) handler);
                     }
 
                 } catch (ClassNotFoundException ex) {
@@ -181,25 +181,23 @@ public class POP3HandlerChain implements Configurable, Serviceable {
     private Configuration createDefaultConfiguration() {
         Configuration configuration;
         configuration = new DefaultConfiguration("handlerchain");
-        Properties cmds = new Properties();
-        cmds.setProperty("USER",UserCmdHandler.class.getName());
-        cmds.setProperty("PASS",PassCmdHandler.class.getName());
-        cmds.setProperty("STLS", StlsCmdHandler.class.getName());
-        cmds.setProperty("LIST",ListCmdHandler.class.getName());
-        cmds.setProperty("UIDL",UidlCmdHandler.class.getName());
-        cmds.setProperty("RSET",RsetCmdHandler.class.getName());
-        cmds.setProperty("DELE",DeleCmdHandler.class.getName());
-        cmds.setProperty("NOOP",NoopCmdHandler.class.getName());
-        cmds.setProperty("RETR",RetrCmdHandler.class.getName());
-        cmds.setProperty("TOP" ,TopCmdHandler.class.getName());
-        cmds.setProperty("STAT",StatCmdHandler.class.getName());
-        cmds.setProperty("QUIT",QuitCmdHandler.class.getName());
-        Enumeration e = cmds.keys();
-        while (e.hasMoreElements()) {
-            String cmdName = (String) e.nextElement();
-            String className = cmds.getProperty(cmdName);
+        List<String> defaultCommands = new ArrayList<String>();
+        defaultCommands.add(CapaCmdHandler.class.getName());
+        defaultCommands.add(UserCmdHandler.class.getName());
+        defaultCommands.add(PassCmdHandler.class.getName());
+        defaultCommands.add(StlsCmdHandler.class.getName());
+        defaultCommands.add(ListCmdHandler.class.getName());
+        defaultCommands.add(UidlCmdHandler.class.getName());
+        defaultCommands.add(RsetCmdHandler.class.getName());
+        defaultCommands.add(DeleCmdHandler.class.getName());
+        defaultCommands.add(NoopCmdHandler.class.getName());
+        defaultCommands.add(RetrCmdHandler.class.getName());
+        defaultCommands.add(TopCmdHandler.class.getName());
+        defaultCommands.add(StatCmdHandler.class.getName());
+        defaultCommands.add(QuitCmdHandler.class.getName());
+        for (int i = 0; i < defaultCommands.size(); i++) {
+            String className = defaultCommands.get(i);
             DefaultConfiguration cmdConf = new DefaultConfiguration("handler");
-            cmdConf.setAttribute("command",cmdName);
             cmdConf.setAttribute("class",className);
             ((DefaultConfiguration) configuration).addChild(cmdConf);
         }
@@ -212,13 +210,17 @@ public class POP3HandlerChain implements Configurable, Serviceable {
      * @param commandName the command name which will be key
      * @param cmdHandler The commandhandler object
      */
-    private void addToMap(String commandName, CommandHandler cmdHandler) {
-        List<CommandHandler> handlers = commandHandlerMap.get(commandName);
-        if(handlers == null) {
-            handlers = new ArrayList<CommandHandler>();
-            commandHandlerMap.put(commandName, handlers);
-        }
-        handlers.add(cmdHandler);
+    private void addToMap(CommandHandler cmdHandler) {
+    	List<String> cmds = cmdHandler.getCommands();
+    	for (int i = 0 ; i< cmds.size(); i++) {
+    		String commandName = cmds.get(i);
+    		List<CommandHandler> handlers = commandHandlerMap.get(commandName);
+    		if(handlers == null) {
+    			handlers = new ArrayList<CommandHandler>();
+    			commandHandlerMap.put(commandName, handlers);
+       	 	}
+    		handlers.add(cmdHandler);
+    	}
     }
 
     /**
@@ -250,5 +252,25 @@ public class POP3HandlerChain implements Configurable, Serviceable {
     List<ConnectHandler> getConnectHandlers() {
         return connectHandlers;
     }
+
+    /**
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
+     */
+	public void initialize() throws Exception {
+		// wire the capa stuff
+		List<CommandHandler> handlers = getCommandHandlers(CapaCmdHandler.COMMAND_NAME);
+		if (handlers != null) {
+			for (int i = 0; i < handlers.size(); i++) {
+				CommandHandler cHandler = handlers.get(i);
+			
+				// TODO: Maybe an interface ?
+				if (cHandler instanceof CapaCmdHandler) {
+					for (int a =0; a < capaList.size(); a++) {
+						((CapaCmdHandler) cHandler).wireHandler(capaList.get(a));
+					}
+				}
+			}
+		}
+	}
 
 }

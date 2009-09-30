@@ -21,12 +21,16 @@
 
 package org.apache.james.pop3server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.mailet.Mail;
 
 /**
   * Handles UIDL command
   */
-public class UidlCmdHandler implements CommandHandler {
+public class UidlCmdHandler implements CommandHandler, CapaCapability {
+	private final static String COMMAND_NAME = "UIDL";
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -104,6 +108,25 @@ public class UidlCmdHandler implements CommandHandler {
             session.writeResponse(POP3Handler.ERR_RESPONSE);
         }
     }
-
-
+    
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
+	
+	/**
+     * @see org.apache.james.pop3server.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+     */
+	public List<String> getImplementedCapabilities(POP3Session session) {
+		List<String> caps = new ArrayList<String>();
+		if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+			caps.add(COMMAND_NAME);
+			return caps;
+		}
+		return caps;
+	}
 }

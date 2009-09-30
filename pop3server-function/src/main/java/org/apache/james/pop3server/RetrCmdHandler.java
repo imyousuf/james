@@ -29,11 +29,15 @@ import javax.mail.MessagingException;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
   * Handles RETR command
   */
 public class RetrCmdHandler implements CommandHandler {
+
+	private final static String COMMAND_NAME = "RETR";
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -110,5 +114,12 @@ public class RetrCmdHandler implements CommandHandler {
         }
     }
 
-
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
 }
