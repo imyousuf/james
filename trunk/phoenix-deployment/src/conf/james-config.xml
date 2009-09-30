@@ -923,6 +923,19 @@ Regards, Postmaster XXX.YYY
            For example, Uncomment this if you want to use 
            BouncyCastle JCE (http://www.bouncycastle.org)
       <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
+      
+      <!-- Set enable to true to support STARTTLS.
+           To use this you need to copy sunjce_provider.jar to /path/james/lib directory.
+      -->
+      <startTLS enable="false">
+        <!-- To create a new keystore execute:
+        keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore
+         -->
+        <keystore>file://conf/keystore</keystore>
+        <secret>yoursecret</secret>
+        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+      </startTLS>
+      
       <handler>
          <!-- This is the name used by the server to identify itself in the POP3 -->
          <!-- protocol.  If autodetect is TRUE, the server will discover its -->
@@ -973,14 +986,13 @@ Regards, Postmaster XXX.YYY
       <!-- Set enable to true to support STARTTLS.
            To use this you need to copy sunjce_provider.jar to /path/james/lib directory.
        -->
-      
       <startTLS enable="false">
       
         <!-- To create a new keystore execute:
         keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore
          -->
         <keystore>file://conf/keystore</keystore>
-        <secret></secret>
+        <secret>yoursecret</secret>
         <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
       </startTLS>
       
