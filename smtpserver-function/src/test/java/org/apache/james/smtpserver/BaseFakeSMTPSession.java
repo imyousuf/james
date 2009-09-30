@@ -188,7 +188,7 @@ public class BaseFakeSMTPSession implements SMTPSession {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
 	}
 
-	public void secure() throws IOException {
+	public void startTLS() throws IOException {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
 
 	}
