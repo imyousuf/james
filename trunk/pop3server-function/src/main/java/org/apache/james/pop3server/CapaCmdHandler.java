@@ -23,7 +23,7 @@ package org.apache.james.pop3server;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CapaCmdHandler implements CommandHandler{
+public class CapaCmdHandler implements CommandHandler, CapaCapability{
 	public final static String COMMAND_NAME = "CAPA";
 	private List<CapaCapability> caps = new ArrayList<CapaCapability>();
     
@@ -41,15 +41,17 @@ public class CapaCmdHandler implements CommandHandler{
 	 */
 	public void onCommand(POP3Session session) {
 		session.writeResponse(POP3Handler.OK_RESPONSE+ " Capability list follows");	
+
 		
 		for (int i = 0; i < caps.size(); i++) {
-			List<String> cList = caps.get(i).getImplementedCapabilities(session);
+			List<String>  cList = caps.get(i).getImplementedCapabilities(session);
 			for (int a = 0; a < cList.size(); a++) {
 				session.writeResponse(cList.get(a));
 			}
 		}
 		session.writeResponse(".");
 	}
+
 	
 	/**
 	 * Wire the handler
@@ -58,6 +60,16 @@ public class CapaCmdHandler implements CommandHandler{
 	 */
 	public void wireHandler(CapaCapability capHandler) {
 		caps.add(capHandler);
+	}
+
+	/**
+	 * @see org.apache.james.pop3server.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+	 */
+	public List<String> getImplementedCapabilities(POP3Session session) {
+		List<String> cList = new ArrayList<String>();
+		// PIPELINING is supported anyway
+		cList.add("PIPELINING");
+		return cList;
 	}
 
 }
