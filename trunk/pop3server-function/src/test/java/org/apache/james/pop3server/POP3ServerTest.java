@@ -25,6 +25,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
+import org.apache.commons.net.pop3.POP3Reply;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
@@ -52,6 +53,8 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -82,6 +85,8 @@ public class POP3ServerTest extends TestCase {
         m_pop3Server = new POP3Server();
         ContainerUtil.enableLogging(m_pop3Server, new MockLogger());
         ContainerUtil.service(m_pop3Server, setUpServiceManager());
+        ContainerUtil.initialize(m_pop3Server);
+
         m_testConfiguration = new POP3TestConfiguration(m_pop3ListenerPort);
     }
 
@@ -465,6 +470,38 @@ public class POP3ServerTest extends TestCase {
         ContainerUtil.dispose(mockMailRepository);
     }
     
+    public void testCapa() throws Exception {
+    	 finishSetUp(m_testConfiguration);
+
+         m_pop3Protocol = new POP3Client();
+         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+
+         String pass = "password";
+         m_usersRepository.addUser("foo", pass);
+         InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
+         m_mailServer.setUserInbox("foo", mockMailRepository);
+
+         assertEquals(POP3Reply.OK, m_pop3Protocol.sendCommand("CAPA"));
+         
+         m_pop3Protocol.getAdditionalReply();
+         m_pop3Protocol.getReplyString();
+         List<String> replies = Arrays.asList(m_pop3Protocol.getReplyStrings());
+         
+         assertTrue("contains USER", replies.contains("USER"));
+         
+         m_pop3Protocol.login("foo", pass);
+         assertEquals(POP3Reply.OK, m_pop3Protocol.sendCommand("CAPA"));
+         
+         m_pop3Protocol.getAdditionalReply();
+         m_pop3Protocol.getReplyString();
+         replies = Arrays.asList(m_pop3Protocol.getReplyStrings());
+         assertTrue("contains USER", replies.contains("USER"));
+         assertTrue("contains UIDL", replies.contains("UIDL"));
+         assertTrue("contains TOP", replies.contains("TOP"));
+
+         ContainerUtil.dispose(mockMailRepository);
+
+    }
     
 
     /*

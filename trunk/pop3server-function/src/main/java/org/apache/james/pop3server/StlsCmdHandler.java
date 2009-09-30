@@ -21,8 +21,11 @@
 package org.apache.james.pop3server;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class StlsCmdHandler implements CommandHandler{
+public class StlsCmdHandler implements CommandHandler, CapaCapability {
+	private final static String COMMAND_NAME = "STLS";
 
 	/**
 	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session)
@@ -32,7 +35,7 @@ public class StlsCmdHandler implements CommandHandler{
 		if (session.isStartTLSSupported() && session.getHandlerState() == POP3Handler.TRANSACTION && session.isTLSStarted() == false) {
 			session.writeResponse(POP3Handler.OK_RESPONSE+ " Begin TLS negotiation");
 			try {
-				session.secure();
+				session.startTLS();
 			} catch (IOException e) {
 				session.getLogger().info("Error while trying to secure connection",e);
 				session.endSession();
@@ -42,4 +45,24 @@ public class StlsCmdHandler implements CommandHandler{
 		}
 	}
 
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
+	
+	/**
+     * @see org.apache.james.pop3server.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+     */
+	public List<String> getImplementedCapabilities(POP3Session session) {
+		List<String> caps = new ArrayList<String>();
+		if (session.isStartTLSSupported() && session.getHandlerState() == POP3Handler.AUTHENTICATION_READY) {
+			caps.add(COMMAND_NAME);
+			return caps;
+		}
+		return caps;
+	}
 }

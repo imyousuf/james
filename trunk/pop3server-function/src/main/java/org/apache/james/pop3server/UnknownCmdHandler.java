@@ -21,11 +21,15 @@
 
 package org.apache.james.pop3server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
   * Default command handler for handling unknown commands
   */
 public class UnknownCmdHandler implements CommandHandler {
+	private final static String COMMAND_NAME = "UNKNOWN";
 
     /**
      * The name of the command handled by the command handler
@@ -41,5 +45,14 @@ public class UnknownCmdHandler implements CommandHandler {
     public void onCommand(POP3Session session) {
         session.writeResponse(POP3Handler.ERR_RESPONSE);
     }
+
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
 
 }

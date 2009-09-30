@@ -108,9 +108,17 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
             
             //read from the XML configuration and create and configure each of the handlers
             ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
+            try {
+                ContainerUtil.initialize(handlerChain);
+
+            } catch (Exception e) {
+                getLogger().error("Failed to init handlerChain",e);
+                throw new ConfigurationException("Failed to init handlerChain");
+    		}
 
         }
     }
+    
 
     private void prepareHandlerChain() throws ConfigurationException {
         //set the logger
@@ -125,6 +133,7 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
             throw new ConfigurationException("Failed to service handlerChain");
         }
     }
+    
 
     /**
      * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()

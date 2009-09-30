@@ -21,6 +21,8 @@
 
 package org.apache.james.pop3server;
 
+import java.util.List;
+
 /**
  * Custom command handlers must implement this interface
  * The command handlers will be Server wide common to all the POP3Handlers,
@@ -33,4 +35,10 @@ package org.apache.james.pop3server;
     **/
     void onCommand(POP3Session session);
 
+    /**
+     * Return list of implemented commands
+     * 
+     * @return commands
+     */
+    List<String> getCommands();
 }

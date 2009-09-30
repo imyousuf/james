@@ -34,6 +34,7 @@ import org.apache.mailet.Mail;
   * Handles RSET command
   */
 public class RsetCmdHandler implements CommandHandler {
+	private final static String COMMAND_NAME = "RSET";
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -93,5 +94,13 @@ public class RsetCmdHandler implements CommandHandler {
             session.setBackupUserMailbox((List<Mail>) userMailbox.clone());
         }
     }
-
+    
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
 }

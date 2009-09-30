@@ -21,6 +21,9 @@
 
 package org.apache.james.pop3server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.mail.MessagingException;
 
 import org.apache.mailet.Mail;
@@ -128,5 +131,14 @@ public class ListCmdHandler implements CommandHandler {
             session.writeResponse(POP3Handler.ERR_RESPONSE);
         }
     }
+
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add("LIST");
+		return commands;
+	}
 
 }

@@ -21,6 +21,7 @@
 
 package org.apache.james.pop3server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections.ListUtils;
@@ -30,6 +31,7 @@ import org.apache.mailet.Mail;
   * Handles QUIT command
   */
 public class QuitCmdHandler implements CommandHandler {
+	private final static String COMMAND_NAME = "QUIT";
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -69,6 +71,14 @@ public class QuitCmdHandler implements CommandHandler {
         }
         session.endSession();
     }
-
+    
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
 
 }

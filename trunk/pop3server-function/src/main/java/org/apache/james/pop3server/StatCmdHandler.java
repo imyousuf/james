@@ -21,6 +21,9 @@
 
 package org.apache.james.pop3server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.mail.MessagingException;
 
 import org.apache.mailet.Mail;
@@ -29,6 +32,7 @@ import org.apache.mailet.Mail;
   * Handles STAT command
   */
 public class StatCmdHandler implements CommandHandler {
+	private final static String COMMAND_NAME = "STAT";
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -74,6 +78,12 @@ public class StatCmdHandler implements CommandHandler {
             session.writeResponse(responseString);
         }
     }
-
-
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
 }

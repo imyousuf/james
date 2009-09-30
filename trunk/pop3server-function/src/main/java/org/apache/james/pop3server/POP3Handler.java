@@ -472,18 +472,30 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         return context.getOutputStream();
     }
 
+    /**
+     * @see org.apache.james.pop3server.POP3Session#getLogger()
+     */
     public Log getLogger() {
         return context.getLogger();
     }
 
-	public void secure() throws IOException {
+    /**
+     * @see org.apache.james.socket.TLSSupportedSession#startTLS()
+     */
+	public void startTLS() throws IOException {
 		context.secure();
 	}
 
+	/**
+	 * @see org.apache.james.socket.TLSSupportedSession#isStartTLSSupported()
+	 */
 	public boolean isStartTLSSupported() {
 		return getConfigurationData().isStartTLSSupported();
 	}
 
+	/**
+	 * @see org.apache.james.socket.TLSSupportedSession#isTLSStarted()
+	 */
 	public boolean isTLSStarted() {
 		return context.isSecure();
 	}

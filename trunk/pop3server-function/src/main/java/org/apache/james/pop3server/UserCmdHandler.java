@@ -21,10 +21,15 @@
 
 package org.apache.james.pop3server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
   * Handles NOOP command
   */
-public class UserCmdHandler implements CommandHandler {
+public class UserCmdHandler implements CommandHandler, CapaCapability {
+
+	private final static String COMMAND_NAME = "USER";
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -51,5 +56,21 @@ public class UserCmdHandler implements CommandHandler {
         session.writeResponse(responseString);
     }
 
+    /**
+     * @see org.apache.james.pop3server.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+     */
+	public List<String> getImplementedCapabilities(POP3Session session) {
+		List<String> caps = new ArrayList<String>();
+		caps.add(COMMAND_NAME);
+		return caps;
+	}
 
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
 }

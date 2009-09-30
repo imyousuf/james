@@ -25,7 +25,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -37,7 +39,8 @@ import org.apache.mailet.Mail;
 /**
   * Handles TOP command
   */
-public class TopCmdHandler implements CommandHandler {
+public class TopCmdHandler implements CommandHandler, CapaCapability {
+	private final static String COMMAND_NAME = "TOP";
 
     /**
      * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
@@ -170,5 +173,25 @@ public class TopCmdHandler implements CommandHandler {
             throw new MessagingException("No message set for this MailImpl.");
         }
     }
+    
+    /**
+     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     */
+	public List<String> getCommands() {
+		List<String> commands = new ArrayList<String>();
+		commands.add(COMMAND_NAME);
+		return commands;
+	}
+   /**
+     * @see org.apache.james.pop3server.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+     */
+	public List<String> getImplementedCapabilities(POP3Session session) {
+		List<String> caps = new ArrayList<String>();
+		if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+			caps.add(COMMAND_NAME);
+			return caps;
+		}
+		return caps;
+	}
 
 }
