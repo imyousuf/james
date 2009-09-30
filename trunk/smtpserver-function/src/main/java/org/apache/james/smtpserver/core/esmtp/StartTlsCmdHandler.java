@@ -70,7 +70,7 @@ public class StartTlsCmdHandler implements CommandHandler, EhloExtension {
 				session.writeSMTPResponse(response);
 				try {
 					if (!session.isTLSStarted()) {
-						session.secure();
+						session.startTLS();
 						// force reset
 						session.resetState();
 					}

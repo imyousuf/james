@@ -372,41 +372,71 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         }
     }
 
+    /**
+     * @see org.apache.james.socket.ProtocolHandler#fatalFailure(java.lang.RuntimeException, org.apache.james.socket.ProtocolContext)
+     */
 	public void fatalFailure(RuntimeException e, ProtocolContext context) {
 	}
 	
+	/**
+	 * @see org.apache.james.smtpserver.SMTPSession#getHelloName()
+	 */
     public String getHelloName() {
         return getConfigurationData().getHelloName();
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getMaxMessageSize()
+     */
     public long getMaxMessageSize() {
         return getConfigurationData().getMaxMessageSize();
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getSMTPGreeting()
+     */
     public String getSMTPGreeting() {
         return getConfigurationData().getSMTPGreeting();
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#useAddressBracketsEnforcement()
+     */
     public boolean useAddressBracketsEnforcement() {
         return getConfigurationData().useAddressBracketsEnforcement();
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#useHeloEhloEnforcement()
+     */
     public boolean useHeloEhloEnforcement() {
         return getConfigurationData().useAddressBracketsEnforcement();
     }
 
+    /**
+     * @see org.apache.james.smtpserver.SMTPSession#getLogger()
+     */
     public Log getLogger() {
         return context.getLogger();
     }
 
+    /**
+     * @see org.apache.james.socket.TLSSupportedSession#isTLSStarted()
+     */
 	public boolean isTLSStarted() {
 		return context.isSecure();
 	}
 
-	public void secure() throws IOException {
+	/**
+	 * @see org.apache.james.socket.TLSSupportedSession#startTLS()
+	 */
+	public void startTLS() throws IOException {
 		context.secure();
 	}
 
+	/**
+	 * @see org.apache.james.socket.TLSSupportedSession#isStartTLSSupported()
+	 */
 	public boolean isStartTLSSupported() {
 		return getConfigurationData().isStartTLSSupported();
 	}
