@@ -488,7 +488,8 @@ public class POP3ServerTest extends TestCase {
          List<String> replies = Arrays.asList(m_pop3Protocol.getReplyStrings());
          
          assertTrue("contains USER", replies.contains("USER"));
-         
+         assertTrue("contains PIPELINING", replies.contains("PIPELINING"));
+
          m_pop3Protocol.login("foo", pass);
          assertEquals(POP3Reply.OK, m_pop3Protocol.sendCommand("CAPA"));
          
@@ -498,6 +499,7 @@ public class POP3ServerTest extends TestCase {
          assertTrue("contains USER", replies.contains("USER"));
          assertTrue("contains UIDL", replies.contains("UIDL"));
          assertTrue("contains TOP", replies.contains("TOP"));
+         assertTrue("contains PIPELINING", replies.contains("PIPELINING"));
 
          ContainerUtil.dispose(mockMailRepository);
 
