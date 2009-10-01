@@ -22,6 +22,7 @@
 package org.apache.james.pop3server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,30 +37,24 @@ import org.apache.mailet.Mail;
 public class RsetCmdHandler implements CommandHandler {
 	private final static String COMMAND_NAME = "RSET";
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
-     */
-    public void onCommand(POP3Session session) {
-        doRSET(session,session.getCommandArgument());
-    }
-
-    /**
+	/**
      * Handler method called upon receipt of a RSET command.
      * Calls stat() to reset the mailbox.
      *
-     * @param argument the first argument parsed by the parseCommand method
-     */
-    private void doRSET(POP3Session session,String argument) {
-        String responseString = null;
+  	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	 */
+    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+        POP3Response response = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
             stat(session);
-            responseString = POP3Handler.OK_RESPONSE;
+            response = new POP3Response(POP3Response.OK_RESPONSE);
         } else {
-            responseString = POP3Handler.ERR_RESPONSE;
+            response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
-        session.writeResponse(responseString);
+        return response;    
     }
 
+   
 
     /**
      * Implements a "stat".  If the handler is currently in
@@ -94,13 +89,14 @@ public class RsetCmdHandler implements CommandHandler {
             session.setBackupUserMailbox((List<Mail>) userMailbox.clone());
         }
     }
-    
+
     /**
-     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
      */
-	public List<String> getCommands() {
-		List<String> commands = new ArrayList<String>();
-		commands.add(COMMAND_NAME);
-		return commands;
-	}
+    public Collection<String> getImplCommands() {
+        List<String> commands = new ArrayList<String>();
+        commands.add(COMMAND_NAME);
+        return commands;
+    }
+    
 }

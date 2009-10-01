@@ -21,7 +21,7 @@
 
 package org.apache.james.smtpserver;
 
-import java.util.Collection;
+import org.apache.james.socket.CommonCommandHandler;
 
 
 /**
@@ -30,18 +30,11 @@ import java.util.Collection;
  * therefore the command handlers must store all the state information
  * in the SMTPSession object
  */
- public interface CommandHandler {
+ public interface CommandHandler extends CommonCommandHandler{
      
     /**
      * Handle the command
     **/
     SMTPResponse onCommand(SMTPSession session, String command, String parameters);
-
-    /**
-     * Return a Collection of implemented commands
-     * 
-     * @return Collection which contains implemented commands
-     */
-    Collection<String> getImplCommands();
-    
+ 
 }

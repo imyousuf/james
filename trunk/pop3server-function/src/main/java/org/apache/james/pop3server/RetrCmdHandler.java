@@ -30,6 +30,7 @@ import javax.mail.MessagingException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -39,36 +40,29 @@ public class RetrCmdHandler implements CommandHandler {
 
 	private final static String COMMAND_NAME = "RETR";
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
-     */
-    public void onCommand(POP3Session session) {
-        doRETR(session,session.getCommandArgument());
-    }
 
     /**
      * Handler method called upon receipt of a RETR command.
      * This command retrieves a particular mail message from the
      * mailbox.
      *
-     * @param argument the first argument parsed by the parseCommand method
-     */
-    private void doRETR(POP3Session session,String argument) {
-        String responseString = null;
+	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	 */
+    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+        POP3Response response = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
             int num = 0;
             try {
-                num = Integer.parseInt(argument.trim());
+                num = Integer.parseInt(parameters.trim());
             } catch (Exception e) {
-                responseString = POP3Handler.ERR_RESPONSE + " Usage: RETR [mail number]";
-                session.writeResponse(responseString);
-                return;
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Usage: RETR [mail number]");
+                return response;
             }
             try {
                 Mail mc = session.getUserMailbox().get(num);
                 if (mc != POP3Handler.DELETED) {
-                    responseString = POP3Handler.OK_RESPONSE + " Message follows";
-                    session.writeResponse(responseString);
+                    response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
+                    session.writePOP3Response(response);
                     try {
                         ExtraDotOutputStream edouts =
                                 new ExtraDotOutputStream(session.getOutputStream());
@@ -83,43 +77,37 @@ public class RetrCmdHandler implements CommandHandler {
                         session.writeResponse(".");
                     }
                 } else {
+                    
                     StringBuilder responseBuffer =
                         new StringBuilder(64)
-                                .append(POP3Handler.ERR_RESPONSE)
-                                .append(" Message (")
+                                .append("Message (")
                                 .append(num)
                                 .append(") already deleted.");
-                    responseString = responseBuffer.toString();
-                    session.writeResponse(responseString);
+                    response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
                 }
             } catch (IOException ioe) {
-                responseString = POP3Handler.ERR_RESPONSE + " Error while retrieving message.";
-                session.writeResponse(responseString);
+                response = new POP3Response(POP3Response.ERR_RESPONSE,"Error while retrieving message.");
             } catch (MessagingException me) {
-                responseString = POP3Handler.ERR_RESPONSE + " Error while retrieving message.";
-                session.writeResponse(responseString);
+                response = new POP3Response(POP3Response.ERR_RESPONSE,"Error while retrieving message.");
             } catch (IndexOutOfBoundsException iob) {
                 StringBuilder responseBuffer =
                     new StringBuilder(64)
-                            .append(POP3Handler.ERR_RESPONSE)
-                            .append(" Message (")
+                            .append("Message (")
                             .append(num)
                             .append(") does not exist.");
-                responseString = responseBuffer.toString();
-                session.writeResponse(responseString);
+                response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
             }
         } else {
-            responseString = POP3Handler.ERR_RESPONSE;
-            session.writeResponse(responseString);
+            response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
+        return response;
     }
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#getCommands()
-     */
-	public List<String> getCommands() {
-		List<String> commands = new ArrayList<String>();
-		commands.add(COMMAND_NAME);
-		return commands;
-	}
+
+    public Collection<String> getImplCommands() {
+        List<String> commands = new ArrayList<String>();
+        commands.add(COMMAND_NAME);
+        return commands;
+    }
+
 }

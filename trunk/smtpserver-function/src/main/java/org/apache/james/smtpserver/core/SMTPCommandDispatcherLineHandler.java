@@ -20,10 +20,7 @@
 package org.apache.james.smtpserver.core;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -31,15 +28,15 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.WiringException;
+import org.apache.james.socket.AbstractCommandDispatcher;
 import org.apache.james.socket.LogEnabled;
 
-public class SMTPCommandDispatcherLineHandler implements LogEnabled, LineHandler, ExtensibleHandler {
+
+public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<CommandHandler> implements LogEnabled, LineHandler {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(SMTPCommandDispatcherLineHandler.class);
@@ -47,10 +44,6 @@ public class SMTPCommandDispatcherLineHandler implements LogEnabled, LineHandler
     /** Non context specific log should only be used when no context specific log is available */
     private Log serviceLog = FALLBACK_LOG;
     
-    /**
-     * The list of available command handlers
-     */
-    private HashMap<String, List<CommandHandler>> commandHandlerMap = new HashMap<String, List<CommandHandler>>();
 
     private final CommandHandler unknownHandler = new UnknownCmdHandler();
 
@@ -111,8 +104,9 @@ public class SMTPCommandDispatcherLineHandler implements LogEnabled, LineHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
      */
+    @SuppressWarnings("unchecked")
     public List getMarkerInterfaces() {
         List res = new LinkedList();
         res.add(CommandHandler.class);
@@ -120,100 +114,36 @@ public class SMTPCommandDispatcherLineHandler implements LogEnabled, LineHandler
     }
 
     /**
-     * @throws WiringException 
-     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.socket.AbstractCommandDispatcher#getLog()
      */
-    public void wireExtensions(Class interfaceName, List extension) throws WiringException {
-        this.commandHandlerMap = new HashMap<String, List<CommandHandler>>();
-
-        for (Iterator it = extension.iterator(); it.hasNext(); ) {
-            CommandHandler handler = (CommandHandler) it.next();
-            Collection implCmds = handler.getImplCommands();
-    
-            for (Iterator i = implCmds.iterator(); i.hasNext(); ) {
-                String commandName = ((String) i.next()).trim().toUpperCase(Locale.US);
-                if (serviceLog.isInfoEnabled()) {
-                    serviceLog.info(
-                            "Added Commandhandler: " + handler.getClass() + " for command "+commandName);
-                }
-                addToMap(commandName, (CommandHandler) handler);
-            }
-        }
-
-        addToMap(UnknownCmdHandler.UNKNOWN_COMMAND, unknownHandler);
-
-        if (commandHandlerMap.size() < 2) {
-            if (serviceLog.isErrorEnabled()) {
-                serviceLog.error("No commandhandlers configured");
-            }
-            throw new WiringException("No commandhandlers configured");
-        } else {
-            boolean found = true;
-            for (int i = 0; i < mandatoryCommands.length; i++) {
-                if (!commandHandlerMap.containsKey(mandatoryCommands[i])) {
-                    if (serviceLog.isErrorEnabled()) {
-                        serviceLog.error(
-                                "No commandhandlers configured for the command:"
-                                        + mandatoryCommands[i]);
-                    }
-                    found = false;
-                    break;
-                }
-            }
-
-            if (!found) {
-                throw new WiringException(
-                        "No commandhandlers configured for mandatory commands");
-            }
-
-
-        }
-
-    }
-    
-
-    /**
-     * Add it to map (key as command name, value is an array list of CommandHandlers)
-     *
-     * @param commandName the command name which will be key
-     * @param cmdHandler The CommandHandler object
-     */
-    private void addToMap(String commandName, CommandHandler cmdHandler) {
-        List<CommandHandler> handlers = commandHandlerMap.get(commandName);
-        if(handlers == null) {
-            handlers = new ArrayList<CommandHandler>();
-            commandHandlerMap.put(commandName, handlers);
-        }
-        handlers.add(cmdHandler);
+    protected Log getLog() {
+        return serviceLog;
     }
 
 
     /**
-     * Returns all the configured CommandHandlers for the specified command
-     *
-     * @param command the command name which will be key
-     * @param session not null
-     * @return List of CommandHandlers
+     * @see org.apache.james.socket.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
      */
-    private List<CommandHandler> getCommandHandlers(String command, SMTPSession session) {
-        if (command == null) {
-            return null;
-        }
-        if (session.getLogger().isDebugEnabled()) {
-            session.getLogger().debug("Lookup command handler for command: " + command);
-        }
-        List<CommandHandler> handlers =  commandHandlerMap.get(command);
-        if(handlers == null) {
-            handlers = commandHandlerMap.get(UnknownCmdHandler.UNKNOWN_COMMAND);
-        }
-
-        return handlers;
+    protected String getUnknownCommandHandlerIdentifier() {
+        return UnknownCmdHandler.UNKNOWN_COMMAND;
     }
 
     /**
-     * Sets the service log.
-     * Where available, a context sensitive log should be used.
-     * @param Log not null
+     * @see org.apache.james.socket.AbstractCommandDispatcher#getMandatoryCommands()
+     */
+    protected List<String> getMandatoryCommands() {
+        return Arrays.asList(mandatoryCommands);
+    }
+
+    /**
+     * @see org.apache.james.socket.AbstractCommandDispatcher#getUnknownCommandHandler()
+     */
+    protected CommandHandler getUnknownCommandHandler() {
+        return unknownHandler;
+    }
+
+    /**
+     * @see org.apache.james.socket.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
     public void setLog(Log log) {
         this.serviceLog = log;

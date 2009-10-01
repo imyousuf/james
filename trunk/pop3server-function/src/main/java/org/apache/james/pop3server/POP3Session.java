@@ -22,11 +22,9 @@
 package org.apache.james.pop3server;
 
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.TLSSupportedSession;
 import org.apache.james.socket.Watchdog;
@@ -40,40 +38,12 @@ import org.apache.mailet.Mail;
 public interface POP3Session extends TLSSupportedSession{
 
     /**
-     * Writes response string to the client
-     *
-     * @param respString String that needs to send to the client
-     */
-    void writeResponse(String respString);
-
-    /**
-     * Reads a line of characters off the command line.
-     *
-     * @return the trimmed input line
-     * @throws IOException if an exception is generated reading in the input characters
-     */
-    String readCommandLine() throws IOException;
-
-    /**
      * Clears the response buffer, returning the String of characters in the buffer.
      *
      * @return the data in the response buffer
      */
     String clearResponseBuffer();
 
-    /**
-     * Returns currently process command name
-     *
-     * @return current command name
-     */
-    String getCommandName();
-
-    /**
-     * Returns currently process command argument
-     *
-     * @return current command argument
-     */
-    String getCommandArgument();
 
     /**
      * Returns host name of the client
@@ -88,12 +58,6 @@ public interface POP3Session extends TLSSupportedSession{
      * @return host ip address of the client
      */
     String getRemoteIPAddress();
-
-    /**
-     * this makes the session to close
-     *
-     */
-    void endSession();
 
     /**
      * Returns the session status
@@ -194,10 +158,10 @@ public interface POP3Session extends TLSSupportedSession{
      */
     OutputStream getOutputStream();
 
-    /**
-     * Gets the context sensitive logger for this session.
-     * @return context sensitive log, not null
-     */
-    Log getLogger();
+    void writePOP3Response(POP3Response response);
+
+
+    void writeResponse(String string);
+
 }
 

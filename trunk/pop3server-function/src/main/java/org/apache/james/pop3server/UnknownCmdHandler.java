@@ -22,6 +22,7 @@
 package org.apache.james.pop3server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -29,30 +30,30 @@ import java.util.List;
   * Default command handler for handling unknown commands
   */
 public class UnknownCmdHandler implements CommandHandler {
-	private final static String COMMAND_NAME = "UNKNOWN";
-
     /**
      * The name of the command handled by the command handler
      */
-    public static final String UNKNOWN_COMMAND = "UNKNOWN";
+    public static final String COMMAND_NAME = "UNKNOWN";
+
 
     /**
      * Handler method called upon receipt of an unrecognized command.
-     * Returns an error response and logs the command.
+     * Returns an error response and logs the command.    
      *
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
-    **/
-    public void onCommand(POP3Session session) {
-        session.writeResponse(POP3Handler.ERR_RESPONSE);
+     * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+     */
+    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+        return new POP3Response(POP3Response.ERR_RESPONSE);
     }
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#getCommands()
-     */
-	public List<String> getCommands() {
-		List<String> commands = new ArrayList<String>();
-		commands.add(COMMAND_NAME);
-		return commands;
-	}
+
+	/**
+	 * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
+	 */
+    public Collection<String> getImplCommands() {
+        List<String> commands = new ArrayList<String>();
+        commands.add(COMMAND_NAME);
+        return commands;
+    }
 
 }

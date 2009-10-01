@@ -21,16 +21,19 @@
 
 package org.apache.james.pop3server;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.ProtocolHandler;
+import org.apache.james.socket.configuration.JamesConfiguration;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
@@ -45,7 +48,7 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
      * The handler chain - POP3handlers can lookup handlerchain to obtain
      * Command handlers , Message handlers and connection handlers
      */
-    POP3HandlerChain handlerChain = new POP3HandlerChain();
+    private POP3HandlerChain handlerChain;
 
     /**
      * The internal mail server service
@@ -70,7 +73,10 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
     private POP3HandlerConfigurationData theConfigData
         = new POP3HandlerConfigurationDataImpl();
 
-    private ServiceManager serviceManager;
+
+    private LoaderService loader;
+
+    private Configuration handlerConfiguration;
 
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
@@ -79,14 +85,30 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
     public void setUsers(UsersRepository users) {
         this.users = users;
     }
+    /**
+     * Gets the current instance loader.
+     * @return the loader
+     */
+    public final LoaderService getLoader() {
+        return loader;
+    }
 
+    /**
+     * Sets the loader to be used for instances.
+     * @param loader the loader to set, not null
+     */
+    @Resource(name="org.apache.james.LoaderService")
+    public final void setLoader(LoaderService loader) {
+        this.loader = loader;
+    }
+
+    
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager) 
      */
     public void service( final ServiceManager componentManager )
         throws ServiceException {
         super.service(componentManager);
-        serviceManager = componentManager;
         MailServer mailServer = (MailServer)componentManager.lookup( MailServer.ROLE );
         setMailServer(mailServer);
         UsersRepository users = (UsersRepository)componentManager.lookup( UsersRepository.ROLE );
@@ -104,36 +126,26 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
-            prepareHandlerChain();
             
-            //read from the XML configuration and create and configure each of the handlers
-            ContainerUtil.configure(handlerChain,handlerConfiguration.getChild("handlerchain"));
-            try {
-                ContainerUtil.initialize(handlerChain);
-
-            } catch (Exception e) {
-                getLogger().error("Failed to init handlerChain",e);
-                throw new ConfigurationException("Failed to init handlerChain");
-    		}
-
+            this.handlerConfiguration = handlerConfiguration;
         }
     }
     
+    private void prepareHandlerChain() throws Exception {
 
-    private void prepareHandlerChain() throws ConfigurationException {
+        handlerChain = loader.load(POP3HandlerChain.class);
+        
         //set the logger
         handlerChain.setLog(new AvalonLogger(getLogger()));
-
-        try {
-            ContainerUtil.service(handlerChain,serviceManager);
-        } catch (ServiceException e) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("Failed to service handlerChain",e);
-            }
-            throw new ConfigurationException("Failed to service handlerChain");
-        }
+        
+        //read from the XML configuration and create and configure each of the handlers
+        handlerChain.configure(new JamesConfiguration(handlerConfiguration.getChild("handlerchain")));
     }
-    
+
+    @Override
+    protected void prepareInit() throws Exception {
+        prepareHandlerChain();
+    }
 
     /**
      * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()

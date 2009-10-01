@@ -18,38 +18,29 @@
  ****************************************************************/
 
 
-package org.apache.james.socket;
+package org.apache.james.pop3server;
 
-import java.io.IOException;
+import org.apache.james.Constants;
 
-import org.apache.commons.logging.Log;
-
-public interface TLSSupportedSession {
-    
-	/**
-	 * Return true if StartTLS is supported by the configuration
-	 * 
-	 * @return supported
-	 */
-    boolean isStartTLSSupported();
-    
-    /**
-     * Return true if the starttls was started
-     * 
-     * @return true
-     */
-    boolean isTLSStarted();
+public class WelcomeMessageHandler implements ConnectHandler{
+    /** POP3 Server identification string used in POP3 headers */
+    private static final String softwaretype        = "JAMES POP3 Server "
+                                                        + Constants.SOFTWARE_VERSION;
 
     /**
-     * Starttls
-     * 
-     * @throws IOException
+     * @see org.apache.james.pop3server.ConnectHandler#onConnect(org.apache.james.pop3server.POP3Session)
      */
-    void startTLS() throws IOException;
-    
-    /**
-     * Gets the context sensitive log for this session.
-     * @return log, not null
-     */
-    Log getLogger();
+    public void onConnect(POP3Session session) {
+        StringBuilder responseBuffer = new StringBuilder();
+
+        // Initially greet the connector
+        // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
+        responseBuffer.append(session.getConfigurationData().getHelloName())
+                    .append(" POP3 server (")
+                    .append(softwaretype)
+                    .append(") ready ");
+        POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
+        session.writePOP3Response(response);
+    }
+
 }

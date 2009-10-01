@@ -21,7 +21,8 @@
 
 package org.apache.james.pop3server;
 
-import java.util.List;
+
+import org.apache.james.socket.CommonCommandHandler;
 
 /**
  * Custom command handlers must implement this interface
@@ -29,16 +30,10 @@ import java.util.List;
  * therefore the command handlers must store all the state information
  * in the POP3Session object
  */
- public interface CommandHandler {
+ public interface CommandHandler extends CommonCommandHandler{
     /**
      * Handle the command
     **/
-    void onCommand(POP3Session session);
+    POP3Response onCommand(POP3Session session, String command, String parameters);
 
-    /**
-     * Return list of implemented commands
-     * 
-     * @return commands
-     */
-    List<String> getCommands();
 }

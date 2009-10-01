@@ -21,11 +21,11 @@
 
 package org.apache.james.smtpserver.core;
 
-import org.apache.james.smtpserver.HandlersPackage;
 import org.apache.james.smtpserver.core.esmtp.AuthCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.EhloCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.MailSizeEsmtpExtension;
 import org.apache.james.smtpserver.core.esmtp.StartTlsCmdHandler;
+import org.apache.james.socket.HandlersPackage;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -56,12 +56,9 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final String SENDERAUTHIDENTITYVERIFICATION = SenderAuthIdentifyVerificationRcptHook.class.getName();
     private final String DATALINEMESSAGEHOOKHANDLER = DataLineMessageHookHandler.class.getName();
     private final String STARTTLSHANDLER = StartTlsCmdHandler.class.getName();
-    /**
-     * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
-     */
-    public List<String> getHandlers() {
-        List<String> commands = new LinkedList<String>();
-        
+    private final List<String> commands = new LinkedList<String>();
+
+    public CoreCmdHandlerLoader() {
         // Insert the base commands in the Map
         commands.add(WELCOMEMESSAGEHANDLER);
         commands.add(COMMANDDISPATCHER);
@@ -83,7 +80,11 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(SENDERAUTHIDENTITYVERIFICATION);
         commands.add(POSTMASTERABUSEHOOK);
         commands.add(DATALINEMESSAGEHOOKHANDLER);
-        commands.add(STARTTLSHANDLER);
+        commands.add(STARTTLSHANDLER);    }
+    /**
+     * @see org.apache.james.socket.HandlersPackage#getHandlers()
+     */
+    public List<String> getHandlers() {
         return commands;
     }
 }

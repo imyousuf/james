@@ -21,6 +21,7 @@ package org.apache.james.pop3server;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -32,15 +33,17 @@ import java.util.List;
 public class StlsCmdHandler implements CommandHandler, CapaCapability {
     public final static String COMMAND_NAME = "STLS";
 
+
     /**
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session)
+     * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
      */
-    public void onCommand(POP3Session session) {
+    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+        POP3Response response;
         // check if starttls is supported, the state is the right one and it was
         // not started before
         if (session.isStartTLSSupported() && session.getHandlerState() == POP3Handler.AUTHENTICATION_READY
                 && session.isTLSStarted() == false) {
-            session.writeResponse(POP3Handler.OK_RESPONSE + " Begin TLS negotiation");
+            response = new POP3Response(POP3Response.OK_RESPONSE,"Begin TLS negotiation");
             try {
                 session.startTLS();
             } catch (IOException e) {
@@ -50,18 +53,13 @@ public class StlsCmdHandler implements CommandHandler, CapaCapability {
                 session.endSession();
             }
         } else {
-            session.writeResponse(POP3Handler.ERR_RESPONSE);
+            response = new POP3Response(POP3Response.ERR_RESPONSE);
+
         }
+        return response;
     }
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#getCommands()
-     */
-    public List<String> getCommands() {
-        List<String> commands = new ArrayList<String>();
-        commands.add(COMMAND_NAME);
-        return commands;
-    }
+
 
     /**
      * @see org.apache.james.pop3server.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
@@ -73,5 +71,16 @@ public class StlsCmdHandler implements CommandHandler, CapaCapability {
             return caps;
         }
         return caps;
+    }
+
+
+
+    /**
+     * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
+     */
+    public Collection<String> getImplCommands() {
+        List<String> commands = new ArrayList<String>();
+        commands.add(COMMAND_NAME);
+        return commands;
     }
 }

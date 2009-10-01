@@ -22,6 +22,7 @@
 package org.apache.james.pop3server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.mail.MessagingException;
@@ -33,12 +34,6 @@ import org.apache.mailet.Mail;
   */
 public class ListCmdHandler implements CommandHandler {
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
-     */
-    public void onCommand(POP3Session session) {
-        doLIST(session,session.getCommandArgument());
-    }
 
     /**
      * Handler method called upon receipt of a LIST command.
@@ -48,9 +43,12 @@ public class ListCmdHandler implements CommandHandler {
      *
      * @param argument the first argument parsed by the parseCommand method
      */
-    private void doLIST(POP3Session session,String argument) {
+
+    public POP3Response onCommand(POP3Session session, String command,
+            String parameters) {
+        POP3Response response = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
-            if (argument == null) {
+            if (parameters == null) {
                 long size = 0;
                 int count = 0;
                 try {
@@ -62,12 +60,10 @@ public class ListCmdHandler implements CommandHandler {
                     }
                     StringBuilder responseBuffer =
                         new StringBuilder(32)
-                                .append(POP3Handler.OK_RESPONSE)
-                                .append(" ")
                                 .append(count)
                                 .append(" ")
                                 .append(size);
-                    session.writeResponse(responseBuffer.toString());
+                    response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
                     count = 0;
                     for (Mail mc:session.getUserMailbox()) {
                         if (mc != POP3Handler.DELETED) {
@@ -76,69 +72,61 @@ public class ListCmdHandler implements CommandHandler {
                                         .append(count)
                                         .append(" ")
                                         .append(mc.getMessageSize());
-                            session.writeResponse(responseBuffer.toString());
+                            response.appendLine(responseBuffer.toString());
                         }
                         count++;
                     }
-                    session.writeResponse(".");
+                    response.appendLine(".");
                 } catch (MessagingException me) {
-                    session.writeResponse(POP3Handler.ERR_RESPONSE);
+                    response = new POP3Response(POP3Response.ERR_RESPONSE);
                 }
             } else {
                 int num = 0;
                 try {
-                    num = Integer.parseInt(argument);
+                    num = Integer.parseInt(parameters);
                     Mail mc = session.getUserMailbox().get(num);
                     if (mc != POP3Handler.DELETED) {
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
-                                    .append(POP3Handler.OK_RESPONSE)
-                                    .append(" ")
                                     .append(num)
                                     .append(" ")
                                     .append(mc.getMessageSize());
-                        session.writeResponse(responseBuffer.toString());
+                        response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
                     } else {
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
-                                    .append(POP3Handler.ERR_RESPONSE)
-                                    .append(" Message (")
+                                    .append("Message (")
                                     .append(num)
                                     .append(") already deleted.");
-                        session.writeResponse(responseBuffer.toString());
+                        response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                     }
                 } catch (IndexOutOfBoundsException npe) {
                     StringBuilder responseBuffer =
                         new StringBuilder(64)
-                                .append(POP3Handler.ERR_RESPONSE)
-                                .append(" Message (")
+                                .append("Message (")
                                 .append(num)
                                 .append(") does not exist.");
-                    session.writeResponse(responseBuffer.toString());
+                    response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                 } catch (NumberFormatException nfe) {
                     StringBuilder responseBuffer =
                         new StringBuilder(64)
-                                .append(POP3Handler.ERR_RESPONSE)
-                                .append(" ")
-                                .append(argument)
+                                .append(parameters)
                                 .append(" is not a valid number");
-                    session.writeResponse(responseBuffer.toString());
+                    response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                 } catch (MessagingException me) {
-                    session.writeResponse(POP3Handler.ERR_RESPONSE);
+                    response = new POP3Response(POP3Response.ERR_RESPONSE);
                 }
             }
         } else {
-            session.writeResponse(POP3Handler.ERR_RESPONSE);
+            response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
+        return response;
     }
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#getCommands()
-     */
-	public List<String> getCommands() {
-		List<String> commands = new ArrayList<String>();
-		commands.add("LIST");
-		return commands;
-	}
+    public Collection<String> getImplCommands() {
+        List<String> commands = new ArrayList<String>();
+        commands.add("LIST");
+        return commands;
+    }
 
 }

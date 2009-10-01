@@ -21,7 +21,7 @@
 
 package org.apache.james.smtpserver.core;
 
-import org.apache.james.smtpserver.HandlersPackage;
+import org.apache.james.socket.HandlersPackage;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class CoreMessageHookLoader implements HandlersPackage {
     private final String SENDMAILHANDLER = SendMailHandler.class.getName();
     
     /**
-     * @see org.apache.james.smtpserver.HandlersPackage#getHandlers()
+     * @see org.apache.james.socket.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {
         List<String> commands = new LinkedList<String>();

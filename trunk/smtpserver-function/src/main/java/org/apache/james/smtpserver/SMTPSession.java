@@ -21,7 +21,6 @@ package org.apache.james.smtpserver;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.socket.TLSSupportedSession;
 
 /**
@@ -184,10 +183,5 @@ public interface SMTPSession extends TLSSupportedSession{
      */
     void sleep(long ms);
     
-    /**
-     * Gets the context sensitive log for this session.
-     * @return log, not null
-     */
-    Log getLogger();
 }
 
