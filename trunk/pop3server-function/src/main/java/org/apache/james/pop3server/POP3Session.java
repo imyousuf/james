@@ -158,9 +158,19 @@ public interface POP3Session extends TLSSupportedSession{
      */
     OutputStream getOutputStream();
 
+    /**
+     * Write the response to the client
+     * 
+     * @param response
+     */
     void writePOP3Response(POP3Response response);
 
 
+    /**
+     * Write the response to the client
+     * 
+     * @param string
+     */
     void writeResponse(String string);
 
 }

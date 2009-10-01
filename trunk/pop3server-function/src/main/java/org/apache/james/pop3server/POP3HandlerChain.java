@@ -29,7 +29,7 @@ import org.apache.james.socket.LogEnabled;
 
 /**
   * The POP3HandlerChain is per service object providing access
-  * ConnectHandlers, Commandhandlers and message handlers
+  * ConnectHandlers and Commandhandlers
   */
 public class POP3HandlerChain extends AbstractHandlerChain implements LogEnabled{
 
