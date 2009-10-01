@@ -194,19 +194,6 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
             return POP3Server.this.lengthReset;
         }
 
-        /**
-         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getMailServer()
-         */
-        public MailServer getMailServer() {
-            return POP3Server.this.mailServer;
-        }
-
-        /**
-         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getUsersRepository()
-         */
-        public UsersRepository getUsersRepository() {
-            return POP3Server.this.users;
-        }
 
         /**
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#isStartTLSSupported()
