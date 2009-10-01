@@ -29,7 +29,6 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.kernel.LoaderService;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.ProtocolHandler;
@@ -55,10 +54,6 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
      */
     private MailServer mailServer;
 
-    /**
-     * The user repository for this server - used to authenticate users.
-     */
-    private UsersRepository users;
 
     /**
      * The number of bytes to read before resetting
@@ -82,9 +77,6 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         this.mailServer = mailServer;
     }
 
-    public void setUsers(UsersRepository users) {
-        this.users = users;
-    }
     /**
      * Gets the current instance loader.
      * @return the loader
@@ -111,8 +103,6 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         super.service(componentManager);
         MailServer mailServer = (MailServer)componentManager.lookup( MailServer.ROLE );
         setMailServer(mailServer);
-        UsersRepository users = (UsersRepository)componentManager.lookup( UsersRepository.ROLE );
-        setUsers(users);
     }
 
     /**

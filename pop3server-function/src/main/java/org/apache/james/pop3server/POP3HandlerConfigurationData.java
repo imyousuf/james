@@ -42,6 +42,11 @@ public interface POP3HandlerConfigurationData {
      */
     int getResetLength();
     
+    /**
+     * Return if starttls is supported by the POP3Server 
+     * 
+     * @return startTLSSupported
+     */
     boolean isStartTLSSupported();
 
 }

@@ -30,7 +30,7 @@ import org.apache.james.pop3server.POP3Session;
 import org.apache.james.socket.ExtensibleHandler;
 import org.apache.james.socket.WiringException;
 
-public class CapaCmdHandler implements CommandHandler, ExtensibleHandler{
+public class CapaCmdHandler implements CommandHandler, ExtensibleHandler, CapaCapability{
 	public final static String COMMAND_NAME = "CAPA";
 	private List<CapaCapability> caps;
 
@@ -78,5 +78,15 @@ public class CapaCmdHandler implements CommandHandler, ExtensibleHandler{
         commands.add(COMMAND_NAME);
         return commands;
     }
+
+
+    /**
+     * @see org.apache.james.pop3server.core.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+     */
+	public List<String> getImplementedCapabilities(POP3Session session) {
+		 List<String> cList = new ArrayList<String>();
+	     cList.add("PIPELINING");
+	     return cList;
+	}
 
 }

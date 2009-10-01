@@ -33,6 +33,11 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
 
+/**
+ * Abstract class which HandlerChains should extend
+ * 
+ *
+ */
 public abstract class AbstractHandlerChain {
     protected final List<Object> handlers = new LinkedList<Object>();
     
@@ -199,13 +204,30 @@ public abstract class AbstractHandlerChain {
             }
         }
     }
+    
+    /**
+     * Configure the chain
+     * 
+     * @param commonsConf
+     * @throws Exception
+     */
     public void configure(HierarchicalConfiguration commonsConf) throws Exception {
         this.commonsConf =  commonsConf;
         loadHandlers();    
         wireExtensibleHandlers();
     }
     
+    /**
+     * Return the Class which lists all core commands
+     * 
+     * @return class
+     */
     protected abstract Class<?> getCoreCmdHandlerLoader();
     
+    /**
+     * Return the Log to use
+     * 
+     * @return log
+     */
     protected abstract Log getLog();
 }
