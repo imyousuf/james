@@ -44,19 +44,22 @@ public class StlsCmdHandler implements CommandHandler, CapaCapability {
         if (session.isStartTLSSupported() && session.getHandlerState() == POP3Handler.AUTHENTICATION_READY
                 && session.isTLSStarted() == false) {
             response = new POP3Response(POP3Response.OK_RESPONSE,"Begin TLS negotiation");
+            session.writePOP3Response(response);
             try {
                 session.startTLS();
             } catch (IOException e) {
                 session.getLogger().info("Error while trying to secure connection", e);
 
                 // disconnect
-                session.endSession();
+                response = new POP3Response(POP3Response.ERR_RESPONSE);
+                response.setEndSession(true);
+                return response;
             }
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
-
+            return response;
         }
-        return response;
+        return null;
     }
 
 
