@@ -23,6 +23,7 @@ package org.apache.james.pop3server;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.socket.AbstractHandlerChain;
 import org.apache.james.socket.LogEnabled;
 

@@ -53,22 +53,22 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
 
     // Authentication states for the POP3 interaction
     /** Waiting for user id */
-    final static int AUTHENTICATION_READY = 0;
+    public final static int AUTHENTICATION_READY = 0;
     /** User id provided, waiting for password */
-    final static int AUTHENTICATION_USERSET = 1;  
+    public final static int AUTHENTICATION_USERSET = 1;  
     /**
      * A valid user id/password combination has been provided.
      * In this state the client can access the mailbox
      * of the specified user.
      */
-    final static int TRANSACTION = 2;              
+    public final static int TRANSACTION = 2;              
 
     /**
      * A placeholder for emails deleted during the course of the POP3 transaction.  
      * This Mail instance is used to enable fast checks as to whether an email has been
      * deleted from the inbox.
      */
-    static final Mail DELETED = new MailImpl();    
+    public final static Mail DELETED = new MailImpl();    
 
     /**
      * The per-service configuration data that applies to all handlers

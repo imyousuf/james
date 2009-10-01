@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +26,10 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.LineHandler;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.pop3server.POP3Session;
 import org.apache.james.socket.AbstractCommandDispatcher;
 import org.apache.james.socket.LogEnabled;
 

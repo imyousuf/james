@@ -19,27 +19,36 @@
 
 
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.pop3server.POP3Session;
+
 /**
   * Handles NOOP command
   */
-public class NoopCmdHandler implements CommandHandler {
-	private final static String COMMAND_NAME = "NOOP";
+public class UserCmdHandler implements CommandHandler, CapaCapability {
 
-    /**
-     * Handler method called upon receipt of a NOOP command.
-     * Like all good NOOPs, does nothing much.
+	private final static String COMMAND_NAME = "USER";
+
+
+	/**
+     * Handler method called upon receipt of a USER command.
+     * Reads in the user id.
      *
-	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+   	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
-        if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+        if (session.getHandlerState() == POP3Handler.AUTHENTICATION_READY && parameters != null) {
+            session.setUser(parameters);
+            session.setHandlerState(POP3Handler.AUTHENTICATION_USERSET);
             response = new POP3Response(POP3Response.OK_RESPONSE);
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
@@ -47,7 +56,16 @@ public class NoopCmdHandler implements CommandHandler {
         return response;   
     }
 
+   
 
+    /**
+     * @see org.apache.james.pop3server.core.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+     */
+	public List<String> getImplementedCapabilities(POP3Session session) {
+		List<String> caps = new ArrayList<String>();
+		caps.add(COMMAND_NAME);
+		return caps;
+	}
 
 	/**
 	 * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
@@ -57,6 +75,4 @@ public class NoopCmdHandler implements CommandHandler {
         commands.add(COMMAND_NAME);
         return commands;
     }
-
-
 }
