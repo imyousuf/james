@@ -22,6 +22,7 @@
 package org.apache.james.pop3server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.james.services.MailRepository;
@@ -33,23 +34,17 @@ import org.apache.james.util.POP3BeforeSMTPHelper;
 public class PassCmdHandler implements CommandHandler {
 
 	private final static String COMMAND_NAME ="PASS";
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
-     */
-    public void onCommand(POP3Session session) {
-        doPASS(session,session.getCommandArgument());
-    }
 
-    /**
+	/**
      * Handler method called upon receipt of a PASS command.
      * Reads in and validates the password.
      *
-     * @param argument the first argument parsed by the parseCommand method
-     */
-    private void doPASS(POP3Session session,String argument) {
-        String responseString = null;
-        if (session.getHandlerState() == POP3Handler.AUTHENTICATION_USERSET && argument != null) {
-            String passArg = argument;
+  	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	 */
+    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+        POP3Response response = null;
+        if (session.getHandlerState() == POP3Handler.AUTHENTICATION_USERSET && parameters != null) {
+            String passArg = parameters;
             if (session.getConfigurationData().getUsersRepository().test(session.getUser(), passArg)) {
                 try {
                     MailRepository inbox = session.getConfigurationData().getMailServer().getUserInbox(session.getUser());
@@ -64,37 +59,36 @@ public class PassCmdHandler implements CommandHandler {
                     
                     StringBuilder responseBuffer =
                         new StringBuilder(64)
-                                .append(POP3Handler.OK_RESPONSE)
-                                .append(" Welcome ")
+                                .append("Welcome ")
                                 .append(session.getUser());
-                    responseString = responseBuffer.toString();
+                    response = new POP3Response(POP3Response.OK_RESPONSE,responseBuffer.toString());
                     session.setHandlerState(POP3Handler.TRANSACTION);
-                    session.writeResponse(responseString);
                 } catch (RuntimeException e) {
                     session.getLogger().error("Unexpected error accessing mailbox for "+session.getUser(),e);
-                    responseString = POP3Handler.ERR_RESPONSE + " Unexpected error accessing mailbox";
+                    response = new POP3Response(POP3Response.ERR_RESPONSE,"Unexpected error accessing mailbox");
                     session.setHandlerState(POP3Handler.AUTHENTICATION_READY);
-                    session.writeResponse(responseString);
                 }
             } else {
-                responseString = POP3Handler.ERR_RESPONSE + " Authentication failed.";
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Authentication failed.");
+
                 session.setHandlerState(POP3Handler.AUTHENTICATION_READY);
-                session.writeResponse(responseString);
             }
         } else {
-            responseString = POP3Handler.ERR_RESPONSE;
-            session.writeResponse(responseString);
+            response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
+        return response;    
     }
 
+  
+
     /**
-     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
      */
-	public List<String> getCommands() {
-		List<String> commands = new ArrayList<String>();
-		commands.add(COMMAND_NAME);
-		return commands;
-	}
+    public Collection<String> getImplCommands() {
+        List<String> commands = new ArrayList<String>();
+        commands.add(COMMAND_NAME);
+        return commands;
+    }
 
 
 }

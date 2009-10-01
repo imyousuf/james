@@ -31,17 +31,17 @@ import java.util.StringTokenizer;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
-import org.apache.james.smtpserver.ExtensibleHandler;
 import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.smtpserver.WiringException;
 import org.apache.james.smtpserver.hook.AuthHook;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MailParametersHook;
+import org.apache.james.socket.ExtensibleHandler;
+import org.apache.james.socket.WiringException;
 import org.apache.james.util.codec.Base64;
 
 
@@ -420,7 +420,7 @@ public class AuthCmdHandler
     }
 
     /**
-     * @see org.apache.james.smtpserver.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> classes = new ArrayList<Class<?>>(1);
@@ -430,7 +430,7 @@ public class AuthCmdHandler
 
 
     /**
-     * @see org.apache.james.smtpserver.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.socket.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (AuthHook.class.equals(interfaceName)) {

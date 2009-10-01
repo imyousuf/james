@@ -25,12 +25,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.logging.Log;
-import org.apache.james.Constants;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.CRLFTerminatedReader;
@@ -50,20 +49,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     private final static byte COMMAND_MODE = 1;
     private final static byte RESPONSE_MODE = 2;
 
-    /** POP3 Server identification string used in POP3 headers */
-    private static final String softwaretype        = "JAMES POP3 Server "
-                                                        + Constants.SOFTWARE_VERSION;
-
-    // POP3 response prefixes
-    /** OK response.  Requested content will follow */
-    final static String OK_RESPONSE = "+OK";
-    
-    /** 
-     * Error response.  
-     * Requested content will not be provided.  
-     * This prefix is followed by a more detailed error message.
-     */
-    final static String ERR_RESPONSE = "-ERR";  
+   
 
     // Authentication states for the POP3 interaction
     /** Waiting for user id */
@@ -120,19 +106,9 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
 
 
     /**
-     * The name of the currently parsed command
-     */
-    String curCommandName =  null;
-
-    /**
-     * The value of the currently parsed command
-     */
-    String curCommandArgument =  null;
-
-    /**
      * The POP3HandlerChain object set by POP3Server
      */
-    final POP3HandlerChain handlerChain;
+    private final POP3HandlerChain handlerChain;
 
     /**
      * The session termination status
@@ -150,10 +126,22 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      */
     private byte mode;
     
+    /**
+     * If not null every line is sent to this command handler instead
+     * of the default "command parsing -> dipatching" procedure.
+     */
+    private LinkedList<LineHandler> lineHandlers;
+
+    /**
+     * Connect Handlers
+     */
+    private final LinkedList<ConnectHandler> connectHandlers;
     
     public POP3Handler(final POP3HandlerConfigurationData theConfigData, final POP3HandlerChain handlerChain) {
         this.theConfigData = theConfigData;
         this.handlerChain = handlerChain;
+        connectHandlers = handlerChain.getHandlers(ConnectHandler.class);
+        lineHandlers = handlerChain.getHandlers(LineHandler.class);
     }
     
     /**
@@ -166,19 +154,8 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
 
         sessionEnded = false;
 
-        // Initially greet the connector
-        // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-        responseBuffer.append(OK_RESPONSE)
-                    .append(" ")
-                    .append(theConfigData.getHelloName())
-                    .append(" POP3 server (")
-                    .append(POP3Handler.softwaretype)
-                    .append(") ready ");
-        String responseString = clearResponseBuffer();
-        context.writeLoggedFlushedResponse(responseString);
 
         //Session started - RUN all connect handlers
-        List<ConnectHandler> connectHandlers = handlerChain.getConnectHandlers();
         if(connectHandlers != null) {
             int count = connectHandlers.size();
             for(int i = 0; i < count; i++) {
@@ -189,54 +166,24 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
             }
         }
 
-        
         context.getWatchdog().start();
         while(!sessionEnded) {
-          //Reset the current command values
-          curCommandName = null;
-          curCommandArgument = null;
-          mode = COMMAND_MODE;
-
           //parse the command
-          String cmdString =  readCommandLine();
-          if (cmdString == null) {
+          String line =  null;
+         
+          line = readCommandLine();
+        
+          if (line == null) {
               break;
           }
-          int spaceIndex = cmdString.indexOf(" ");
-          if (spaceIndex > 0) {
-              curCommandName = cmdString.substring(0, spaceIndex);
-              curCommandArgument = cmdString.substring(spaceIndex + 1);
+
+          if (lineHandlers.size() > 0) {
+              ((LineHandler) lineHandlers.getLast()).onLine(this, line);
           } else {
-              curCommandName = cmdString;
+              sessionEnded = true;
           }
-          curCommandName = curCommandName.toUpperCase(Locale.US);
-
-          if (context.getLogger().isDebugEnabled()) {
-              // Don't display password in logger
-              if (!curCommandName.equals("PASS")) {
-                  context.getLogger().debug("Command received: " + cmdString);
-              } else {
-                  context.getLogger().debug("Command received: PASS <password omitted>");
-              }
-          }
-
-          //fetch the command handlers registered to the command
-          List<CommandHandler> commandHandlers = handlerChain.getCommandHandlers(curCommandName);
-          if(commandHandlers == null) {
-              //end the session
-              break;
-          } else {
-              int count = commandHandlers.size();
-              for(int i = 0; i < count; i++) {
-                  commandHandlers.get(i).onCommand(this);
-                  context.getWatchdog().reset();
-                  //if the response is received, stop processing of command handlers
-                  if(mode != COMMAND_MODE) {
-                      break;
-                  }
-              }
-
-          }
+          context.getWatchdog().reset();
+          
         }
         context.getWatchdog().stop();
         if (context.getLogger().isInfoEnabled()) {
@@ -251,6 +198,8 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
                     .append(") closed.");
             context.getLogger().info(logBuffer.toString());
         }
+       
+       
     }
     
     /**
@@ -258,7 +207,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      */
     public void fatalFailure(RuntimeException e, ProtocolContext context) {
         try {
-            context.getOutputWriter().println(ERR_RESPONSE + " Error closing connection.");
+            context.getOutputWriter().println(POP3Response.ERR_RESPONSE + " Error closing connection.");
             context.getOutputWriter().flush();
         } catch (Throwable t) {
             
@@ -289,6 +238,10 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
             backupUserMailbox.clear();
             backupUserMailbox = null;
         }
+        
+        // empty any previous line handler and add self (command dispatcher)
+        // as the default.
+        lineHandlers = handlerChain.getHandlers(LineHandler.class);
     }
 
     /**
@@ -385,20 +338,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         if(mode == COMMAND_MODE) {
             mode = RESPONSE_MODE;
         }
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#getCommandName()
-     */
-    public String getCommandName() {
-        return curCommandName;
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#getCommandArgument()
-     */
-    public String getCommandArgument() {
-        return curCommandArgument;
     }
 
     /**
@@ -499,5 +438,29 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
 	public boolean isTLSStarted() {
 		return context.isSecure();
 	}
+
+	/**
+	 * @see org.apache.james.pop3server.POP3Session#writePOP3Response(org.apache.james.pop3server.POP3Response)
+	 */
+    public void writePOP3Response(POP3Response response) {
+        // Write a single-line or multiline response
+        if (response != null) {
+            if (response.getRawLine() != null) {
+                context.writeLoggedFlushedResponse(response.getRawLine());
+            } 
+            
+            List<CharSequence> responseList = response.getLines();
+            if (responseList != null) {
+                for (int k = 0; k < responseList.size(); k++) {
+                    final CharSequence line = responseList.get(k);
+                    context.writeLoggedFlushedResponse(line.toString());
+                }
+            }
+           
+            if (response.isEndSession()) {
+                sessionEnded = true;
+            }
+        }
+    }
 	
 }

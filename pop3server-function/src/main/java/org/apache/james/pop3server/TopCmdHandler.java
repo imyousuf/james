@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -42,14 +43,8 @@ import org.apache.mailet.Mail;
 public class TopCmdHandler implements CommandHandler, CapaCapability {
 	private final static String COMMAND_NAME = "TOP";
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
-     */
-    public void onCommand(POP3Session session) {
-        doTOP(session,session.getCommandArgument());
-    }
 
-    /**
+	/**
      * Handler method called upon receipt of a TOP command.
      * This command retrieves the top N lines of a specified
      * message in the mailbox.
@@ -57,23 +52,22 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
      * The expected command format is
      *  TOP [mail message number] [number of lines to return]
      *
-     * @param arguments the first argument parsed by the parseCommand method
-     */
-    private void doTOP(POP3Session session,String arguments) {
-        String responseString = null;
+	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	 */
+    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+        POP3Response response = null;
         
-        if (arguments == null) {
-            responseString = POP3Handler.ERR_RESPONSE + " Usage: TOP [mail number] [Line number]";
-            session.writeResponse(responseString);
-            return;
+        if (parameters == null) {
+            response = new POP3Response(POP3Response.ERR_RESPONSE, "Usage: TOP [mail number] [Line number]");
+            return response;
         }
         
         String argument = "";
         String argument1 = "";
-        int pos = arguments.indexOf(" ");
+        int pos = parameters.indexOf(" ");
         if (pos > 0) {
-            argument = arguments.substring(0,pos);
-            argument1 = arguments.substring(pos+1);
+            argument = parameters.substring(0,pos);
+            argument1 = parameters.substring(pos+1);
         }
 
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
@@ -83,15 +77,14 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
                 num = Integer.parseInt(argument);
                 lines = Integer.parseInt(argument1);
             } catch (NumberFormatException nfe) {
-                responseString = POP3Handler.ERR_RESPONSE + " Usage: TOP [mail number] [Line number]";
-                session.writeResponse(responseString);
-                return;
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Usage: TOP [mail number] [Line number]");
+                return response;
             }
             try {
                 Mail mc = session.getUserMailbox().get(num);
                 if (mc != POP3Handler.DELETED) {
-                    responseString = POP3Handler.OK_RESPONSE + " Message follows";
-                    session.writeResponse(responseString);
+                    response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
+                    session.writePOP3Response(response);
                     try {
                         for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
                             session.writeResponse(e.nextElement().toString());
@@ -112,34 +105,27 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
                 } else {
                     StringBuilder responseBuffer =
                         new StringBuilder(64)
-                                .append(POP3Handler.ERR_RESPONSE)
-                                .append(" Message (")
+                                .append("Message (")
                                 .append(num)
                                 .append(") already deleted.");
-                    responseString = responseBuffer.toString();
-                    session.writeResponse(responseString);
+                    response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                 }
             } catch (IOException ioe) {
-                responseString = POP3Handler.ERR_RESPONSE + " Error while retrieving message.";
-                session.writeResponse(responseString);
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Error while retrieving message.");
             } catch (MessagingException me) {
-                responseString = POP3Handler.ERR_RESPONSE + " Error while retrieving message.";
-                session.writeResponse(responseString);
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Error while retrieving message.");
             } catch (IndexOutOfBoundsException iob) {
                 StringBuilder exceptionBuffer =
                     new StringBuilder(64)
-                            .append(POP3Handler.ERR_RESPONSE)
-                            .append(" Message (")
+                            .append("Message (")
                             .append(num)
                             .append(") does not exist.");
-                responseString = exceptionBuffer.toString();
-                session.writeResponse(responseString);
+                response = new POP3Response(POP3Response.ERR_RESPONSE, exceptionBuffer.toString());
             }
         } else {
-            responseString = POP3Handler.ERR_RESPONSE;
-            session.writeResponse(responseString);
+            response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
-    }
+        return response;    }
 
 
     /**
@@ -174,14 +160,7 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
         }
     }
     
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#getCommands()
-     */
-	public List<String> getCommands() {
-		List<String> commands = new ArrayList<String>();
-		commands.add(COMMAND_NAME);
-		return commands;
-	}
+
    /**
      * @see org.apache.james.pop3server.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
      */
@@ -193,5 +172,14 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
 		}
 		return caps;
 	}
+
+	/**
+	 * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
+	 */
+    public Collection<String> getImplCommands() {
+        List<String> commands = new ArrayList<String>();
+        commands.add(COMMAND_NAME);
+        return commands;
+    }
 
 }

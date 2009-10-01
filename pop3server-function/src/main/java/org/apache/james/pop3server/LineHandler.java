@@ -16,43 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver;
+
+package org.apache.james.pop3server;
 
 /**
- * Indicates an issue prevent the successful wiring of the components
- * composing the SMTP processor.
+ * Custom line handlers must implement this interface
  */
-public class WiringException extends Exception {
-
-    private static final long serialVersionUID = 8824880646965171467L;
-
+public interface LineHandler {
+     
     /**
-     * Empty constructor
+     * Handle the command.
+     * @param session not null
+     * @param line not null 
      */
-    public WiringException() {
-        super();
-    }
-
-    /**
-     * @param message
-     * @param t
-     */
-    public WiringException(String message, Throwable t) {
-        super(message, t);
-    }
-
-    /**
-     * @param message
-     */
-    public WiringException(String message) {
-        super(message);
-    }
-
-    /**
-     * @param t
-     */
-    public WiringException(Throwable t) {
-        super(t);
-    }
-
+    void onLine(POP3Session session, String line);
+    
 }

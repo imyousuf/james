@@ -22,6 +22,7 @@
 package org.apache.james.pop3server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.avalon.framework.container.ContainerUtil;
@@ -33,73 +34,63 @@ import org.apache.mailet.Mail;
 public class DeleCmdHandler implements CommandHandler {
 	private final static String COMMAND_NAME = "DELE";
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
-     */
-    public void onCommand(POP3Session session) {
-        doDELE(session,session.getCommandArgument());
-    }
-
-    /**
+	/**
      * Handler method called upon receipt of a DELE command.
      * This command deletes a particular mail message from the
-     * mailbox.
-     *
-     * @param argument the first argument parsed by the parseCommand method
-     */
-    private void doDELE(POP3Session session,String argument) {
-        String responseString = null;
+     * mailbox.	 
+     * 
+     * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	 */
+    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+        POP3Response response = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
             int num = 0;
             try {
-                num = Integer.parseInt(argument);
+                num = Integer.parseInt(parameters);
             } catch (Exception e) {
-                responseString = POP3Handler.ERR_RESPONSE + " Usage: DELE [mail number]";
-                session.writeResponse(responseString);
-                return;
+                response = new POP3Response(POP3Response.ERR_RESPONSE,"Usage: DELE [mail number]");
+                return response;
             }
             try {
                 Mail mc = session.getUserMailbox().get(num);
                 if (mc == POP3Handler.DELETED) {
                     StringBuilder responseBuffer =
                         new StringBuilder(64)
-                                .append(POP3Handler.ERR_RESPONSE)
-                                .append(" Message (")
+                                .append("Message (")
                                 .append(num)
                                 .append(") already deleted.");
-                    responseString = responseBuffer.toString();
-                    session.writeResponse(responseString);
+                    response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
                 } else {
                     session.getUserMailbox().set(num, POP3Handler.DELETED);
                     // we are replacing our reference with "DELETED", so we have
                     // to dispose the no-more-referenced mail object.
                     ContainerUtil.dispose(mc);
-                    session.writeResponse(POP3Handler.OK_RESPONSE + " Message deleted");
+                    response = new POP3Response(POP3Response.OK_RESPONSE,"Message deleted");
                 }
             } catch (IndexOutOfBoundsException iob) {
                 StringBuilder responseBuffer =
                     new StringBuilder(64)
-                            .append(POP3Handler.ERR_RESPONSE)
-                            .append(" Message (")
+                            .append("Message (")
                             .append(num)
                             .append(") does not exist.");
-                responseString = responseBuffer.toString();
-                session.writeResponse(responseString);
+                response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
             }
         } else {
-            responseString = POP3Handler.ERR_RESPONSE;
-            session.writeResponse(responseString);
+            response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
+        return response;   
     }
 
+
+
     /**
-     * @see org.apache.james.pop3server.CommandHandler#getCommands()
+     * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
      */
-	public List<String> getCommands() {
-		List<String> commands = new ArrayList<String>();
-		commands.add(COMMAND_NAME);
-		return commands;
-	}
+    public Collection<String> getImplCommands() {
+        List<String> commands = new ArrayList<String>();
+        commands.add(COMMAND_NAME);
+        return commands;
+    }
 
 
 }

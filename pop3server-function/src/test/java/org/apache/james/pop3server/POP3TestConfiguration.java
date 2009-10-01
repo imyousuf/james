@@ -37,8 +37,18 @@ public class POP3TestConfiguration extends DefaultConfiguration {
         DefaultConfiguration handlerConfig = new DefaultConfiguration("handler");
         handlerConfig.addChild(Util.getValuedConfiguration("helloName", "myMailServer"));
         handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout", "360000"));
+       
+        DefaultConfiguration config = new DefaultConfiguration("handlerchain");
 
+        config.addChild(createHandler(CoreCmdHandlerLoader.class.getName()));
+        handlerConfig.addChild(config);
         addChild(handlerConfig);
     }
 
+    private DefaultConfiguration createHandler(String className) {
+        DefaultConfiguration d = new DefaultConfiguration("handler");
+       
+        d.setAttribute("class", className);
+        return d;
+    }
 }

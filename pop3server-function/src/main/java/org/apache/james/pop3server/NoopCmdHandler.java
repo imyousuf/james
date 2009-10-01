@@ -22,6 +22,7 @@
 package org.apache.james.pop3server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -29,38 +30,33 @@ import java.util.List;
   */
 public class NoopCmdHandler implements CommandHandler {
 	private final static String COMMAND_NAME = "NOOP";
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(POP3Session)
-     */
-    public void onCommand(POP3Session session) {
-        doNOOP(session,session.getCommandArgument());
-    }
 
     /**
      * Handler method called upon receipt of a NOOP command.
      * Like all good NOOPs, does nothing much.
      *
-     * @param argument the first argument parsed by the parseCommand method
-     */
-    private void doNOOP(POP3Session session,String argument) {
-        String responseString = null;
+	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	 */
+    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+        POP3Response response = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
-            responseString = POP3Handler.OK_RESPONSE;
-            session.writeResponse(responseString);
+            response = new POP3Response(POP3Response.OK_RESPONSE);
         } else {
-            responseString = POP3Handler.ERR_RESPONSE;
-            session.writeResponse(responseString);
+            response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
+        return response;   
     }
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#getCommands()
-     */
-	public List<String> getCommands() {
-		List<String> commands = new ArrayList<String>();
-		commands.add(COMMAND_NAME);
-		return commands;
-	}
+
+
+	/**
+	 * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
+	 */
+    public Collection<String> getImplCommands() {
+        List<String> commands = new ArrayList<String>();
+        commands.add(COMMAND_NAME);
+        return commands;
+    }
 
 
 }
