@@ -19,13 +19,17 @@
 
 
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
 
 /**

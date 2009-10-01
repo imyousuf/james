@@ -18,29 +18,24 @@
  ****************************************************************/
 
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
-import org.apache.james.Constants;
+import java.util.List;
 
-public class WelcomeMessageHandler implements ConnectHandler{
-    /** POP3 Server identification string used in POP3 headers */
-    private static final String softwaretype        = "JAMES POP3 Server "
-                                                        + Constants.SOFTWARE_VERSION;
+import org.apache.james.pop3server.POP3Session;
 
-    /**
-     * @see org.apache.james.pop3server.ConnectHandler#onConnect(org.apache.james.pop3server.POP3Session)
-     */
-    public void onConnect(POP3Session session) {
-        StringBuilder responseBuffer = new StringBuilder();
+/**
+ * A handler which support the POP$ Extension Mechanism should implement this interface
+ * 
+ *
+ */
+public interface CapaCapability {
 
-        // Initially greet the connector
-        // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-        responseBuffer.append(session.getConfigurationData().getHelloName())
-                    .append(" POP3 server (")
-                    .append(softwaretype)
-                    .append(") ready ");
-        POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
-        session.writePOP3Response(response);
-    }
-
+	/**
+	 * Return a List of responses which should get returned when a client issue the CAPA command
+	 *
+	 * @param session
+	 * @return list
+	 */
+	public List<String> getImplementedCapabilities(POP3Session session);
 }

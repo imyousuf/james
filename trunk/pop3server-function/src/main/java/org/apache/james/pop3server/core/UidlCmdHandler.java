@@ -19,79 +19,61 @@
 
 
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.mail.MessagingException;
-
+import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
 
 /**
-  * Handles LIST command
+  * Handles UIDL command
   */
-public class ListCmdHandler implements CommandHandler {
+public class UidlCmdHandler implements CommandHandler, CapaCapability {
+	private final static String COMMAND_NAME = "UIDL";
 
-
-    /**
-     * Handler method called upon receipt of a LIST command.
-     * Returns the number of messages in the mailbox and its
-     * aggregate size, or optionally, the number and size of
-     * a single message.
+	/**
+     * Handler method called upon receipt of a UIDL command.
+     * Returns a listing of message ids to the client.
      *
-     * @param argument the first argument parsed by the parseCommand method
-     */
-
-    public POP3Response onCommand(POP3Session session, String command,
-            String parameters) {
+   	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	 */
+    public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
             if (parameters == null) {
-                long size = 0;
+                response = new POP3Response(POP3Response.OK_RESPONSE,"unique-id listing follows");
                 int count = 0;
-                try {
-                    for (Mail mc:session.getUserMailbox()) {
-                        if (mc != POP3Handler.DELETED) {
-                            size += mc.getMessageSize();
-                            count++;
-                        }
+                for (Mail mc:session.getUserMailbox()) {
+                    if (mc != POP3Handler.DELETED) {
+                        StringBuilder responseBuffer =
+                            new StringBuilder(64)
+                                    .append(count)
+                                    .append(" ")
+                                    .append(mc.getName());
+                        response.appendLine(responseBuffer.toString());
                     }
-                    StringBuilder responseBuffer =
-                        new StringBuilder(32)
-                                .append(count)
-                                .append(" ")
-                                .append(size);
-                    response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
-                    count = 0;
-                    for (Mail mc:session.getUserMailbox()) {
-                        if (mc != POP3Handler.DELETED) {
-                            responseBuffer =
-                                new StringBuilder(16)
-                                        .append(count)
-                                        .append(" ")
-                                        .append(mc.getMessageSize());
-                            response.appendLine(responseBuffer.toString());
-                        }
-                        count++;
-                    }
-                    response.appendLine(".");
-                } catch (MessagingException me) {
-                    response = new POP3Response(POP3Response.ERR_RESPONSE);
+                    count++;
                 }
+                response.appendLine(".");
             } else {
                 int num = 0;
                 try {
                     num = Integer.parseInt(parameters);
-                    Mail mc = session.getUserMailbox().get(num);
+                    Mail mc = (Mail) session.getUserMailbox().get(num);
                     if (mc != POP3Handler.DELETED) {
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
                                     .append(num)
                                     .append(" ")
-                                    .append(mc.getMessageSize());
+                                    .append(mc.getName());
                         response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
+
                     } else {
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
@@ -113,8 +95,6 @@ public class ListCmdHandler implements CommandHandler {
                                 .append(parameters)
                                 .append(" is not a valid number");
                     response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
-                } catch (MessagingException me) {
-                    response = new POP3Response(POP3Response.ERR_RESPONSE);
                 }
             }
         } else {
@@ -123,10 +103,27 @@ public class ListCmdHandler implements CommandHandler {
         return response;
     }
 
+    
+	
+	/**
+     * @see org.apache.james.pop3server.core.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+     */
+	public List<String> getImplementedCapabilities(POP3Session session) {
+		List<String> caps = new ArrayList<String>();
+		if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+			caps.add(COMMAND_NAME);
+			return caps;
+		}
+		return caps;
+	}
+
+	/**
+	 * (non-Javadoc)
+	 * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
+	 */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();
-        commands.add("LIST");
+        commands.add(COMMAND_NAME);
         return commands;
     }
-
 }

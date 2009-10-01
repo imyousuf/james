@@ -17,12 +17,17 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.pop3server.POP3Session;
 
 /**
  * Handler which offer STARTTLS implementation for POP3. STARTTLS is started
@@ -65,7 +70,7 @@ public class StlsCmdHandler implements CommandHandler, CapaCapability {
 
 
     /**
-     * @see org.apache.james.pop3server.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+     * @see org.apache.james.pop3server.core.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
      */
     public List<String> getImplementedCapabilities(POP3Session session) {
         List<String> caps = new ArrayList<String>();

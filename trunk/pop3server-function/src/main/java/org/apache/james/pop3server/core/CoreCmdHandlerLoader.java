@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
 import java.util.LinkedList;
 import java.util.List;

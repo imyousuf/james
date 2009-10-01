@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +33,10 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.pop3server.POP3Session;
 import org.apache.james.socket.BytesWrittenResetOutputStream;
 import org.apache.james.util.stream.ExtraDotOutputStream;
 import org.apache.mailet.Mail;
@@ -162,7 +166,7 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
     
 
    /**
-     * @see org.apache.james.pop3server.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
+     * @see org.apache.james.pop3server.core.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
      */
 	public List<String> getImplementedCapabilities(POP3Session session) {
 		List<String> caps = new ArrayList<String>();

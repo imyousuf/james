@@ -19,65 +19,49 @@
 
 
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.mail.MessagingException;
-
-import org.apache.mailet.Mail;
+import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.pop3server.POP3Session;
 
 /**
-  * Handles STAT command
+  * Handles NOOP command
   */
-public class StatCmdHandler implements CommandHandler {
-	private final static String COMMAND_NAME = "STAT";
+public class NoopCmdHandler implements CommandHandler {
+	private final static String COMMAND_NAME = "NOOP";
 
-	/**
-     * Handler method called upon receipt of a STAT command.
-     * Returns the number of messages in the mailbox and its
-     * aggregate size.
+    /**
+     * Handler method called upon receipt of a NOOP command.
+     * Like all good NOOPs, does nothing much.
      *
-  	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
-            long size = 0;
-            int count = 0;
-            try {
-                for (Mail mc: session.getUserMailbox()) {
-                    if (mc != POP3Handler.DELETED) {
-                        size += mc.getMessageSize();
-                        count++;
-                    }
-                }
-                StringBuilder responseBuffer =
-                    new StringBuilder(32)
-                            .append(count)
-                            .append(" ")
-                            .append(size);
-                response = new POP3Response(POP3Response.OK_RESPONSE,responseBuffer.toString());
-            } catch (MessagingException me) {
-                response = new POP3Response(POP3Response.ERR_RESPONSE);
-            }
+            response = new POP3Response(POP3Response.OK_RESPONSE);
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
-        return response;
+        return response;   
     }
 
 
 
-    /**
-     * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
-     */
+	/**
+	 * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
+	 */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();
         commands.add(COMMAND_NAME);
         return commands;
     }
+
 
 }

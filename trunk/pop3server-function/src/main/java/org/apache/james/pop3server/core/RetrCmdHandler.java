@@ -19,8 +19,12 @@
 
 
 
-package org.apache.james.pop3server;
+package org.apache.james.pop3server.core;
 
+import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.pop3server.POP3Session;
 import org.apache.james.socket.BytesWrittenResetOutputStream;
 import org.apache.james.util.stream.ExtraDotOutputStream;
 import org.apache.mailet.Mail;
