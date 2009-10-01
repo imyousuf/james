@@ -105,6 +105,9 @@ public class POP3ServerTest extends TestCase {
         ContainerUtil.service(connectionManager, serviceManager);
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         m_mailServer = new MockMailServer(m_usersRepository);
+        // Phoenix loader does not understand aliases
+        serviceManager.put("James", m_mailServer);
+        serviceManager.put("localusersrepository", m_usersRepository);
         serviceManager
                 .put(MailServer.ROLE, m_mailServer);
         serviceManager.put(UsersRepository.ROLE,

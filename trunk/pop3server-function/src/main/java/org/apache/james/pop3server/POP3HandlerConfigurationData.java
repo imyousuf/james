@@ -21,9 +21,6 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.services.MailServer;
-
 /**
  * Provides a number of server-wide constant values to the
  * POP3Handlers
@@ -44,20 +41,6 @@ public interface POP3HandlerConfigurationData {
      * @return the reset length
      */
     int getResetLength();
-
-    /**
-     * Returns the MailServer interface for this service.
-     *
-     * @return the MailServer interface for this service
-     */
-    MailServer getMailServer();
-
-    /**
-     * Returns the UsersRepository for this service.
-     *
-     * @return the local users repository
-     */
-    UsersRepository getUsersRepository();
     
     boolean isStartTLSSupported();
 

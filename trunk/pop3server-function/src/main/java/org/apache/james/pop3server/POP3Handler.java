@@ -250,7 +250,7 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      * @return the trimmed input line
      * @throws IOException if an exception is generated reading in the input characters
      */
-    public final String readCommandLine() throws IOException {
+    private String readCommandLine() throws IOException {
         for (;;) try {
             String commandLine = context.getInputReader().readLine();
             if (commandLine != null) {

@@ -20,6 +20,7 @@
 package org.apache.james.pop3server;
 
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.test.util.Util;
 
 public class POP3TestConfiguration extends DefaultConfiguration {
