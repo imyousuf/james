@@ -99,11 +99,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      */
     private List<Mail> backupUserMailbox;  
 
-    /**
-     * The per-handler response buffer used to marshal responses.
-     */
-    private StringBuilder responseBuffer = new StringBuilder(256);
-
 
     /**
      * The POP3HandlerChain object set by POP3Server
@@ -168,11 +163,17 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
 
         context.getWatchdog().start();
         while(!sessionEnded) {
-          //parse the command
-          String line =  null;
-         
-          line = readCommandLine();
-        
+            String line = null;
+            // parse the command
+            try {
+                line = context.getInputReader().readLine();
+                if (line != null) {
+                    line = line.trim();
+                }
+            } catch (CRLFTerminatedReader.TerminationException te) {
+                context.writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
+            }
+
           if (line == null) {
               break;
           }
@@ -244,23 +245,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         lineHandlers = handlerChain.getHandlers(LineHandler.class);
     }
 
-    /**
-     * Reads a line of characters off the command line.
-     *
-     * @return the trimmed input line
-     * @throws IOException if an exception is generated reading in the input characters
-     */
-    private String readCommandLine() throws IOException {
-        for (;;) try {
-            String commandLine = context.getInputReader().readLine();
-            if (commandLine != null) {
-                commandLine = commandLine.trim();
-            }
-            return commandLine;
-        } catch (CRLFTerminatedReader.TerminationException te) {
-            context.writeLoggedFlushedResponse("-ERR Syntax error at character position " + te.position() + ". CR and LF must be CRLF paired.  See RFC 1939 #3.");
-        }
-    }
 
     /**
      * This method parses POP3 commands read off the wire in handleConnection.
@@ -311,15 +295,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
      */
     public void setUser(String userID) {
         authenticatedUser = userID;
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#clearResponseBuffer()
-     */
-    public String clearResponseBuffer() {
-        String responseString = responseBuffer.toString();
-        responseBuffer.delete(0,responseBuffer.length());
-        return responseString;
     }
 
     /**

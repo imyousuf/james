@@ -38,14 +38,6 @@ import org.apache.mailet.Mail;
 public interface POP3Session extends TLSSupportedSession{
 
     /**
-     * Clears the response buffer, returning the String of characters in the buffer.
-     *
-     * @return the data in the response buffer
-     */
-    String clearResponseBuffer();
-
-
-    /**
      * Returns host name of the client
      *
      * @return hostname of the client
