@@ -30,11 +30,18 @@ import org.apache.james.pop3server.POP3Session;
 import org.apache.james.socket.ExtensibleHandler;
 import org.apache.james.socket.WiringException;
 
+/**
+ * This handler is used to handle CAPA commands
+ *
+ */
 public class CapaCmdHandler implements CommandHandler, ExtensibleHandler, CapaCapability{
 	public final static String COMMAND_NAME = "CAPA";
 	private List<CapaCapability> caps;
 
 
+	/**
+	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	 */
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
 	    POP3Response response = new POP3Response(POP3Response.OK_RESPONSE,"Capability list follows");
 		

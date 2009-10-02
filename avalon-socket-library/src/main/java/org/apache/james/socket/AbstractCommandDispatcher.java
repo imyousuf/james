@@ -146,6 +146,18 @@ public abstract class AbstractCommandDispatcher<CommandHandler extends CommonCom
      * @return mCommands
      */
     protected abstract List<String> getMandatoryCommands();
+    
+    /**
+     * Return the identifier to lookup the UnknownCmdHandler in the handler map
+     * 
+     * @return identifier
+     */
     protected abstract String getUnknownCommandHandlerIdentifier();
+    
+    /**
+     * Return the CommandHandler which should use to handle unknown commands
+     * 
+     * @return unknownCmdHandler
+     */
     protected abstract CommandHandler getUnknownCommandHandler();
 }
