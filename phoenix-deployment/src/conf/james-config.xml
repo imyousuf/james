@@ -946,6 +946,12 @@ Regards, Postmaster XXX.YYY
          <helloName autodetect="true">myMailServer</helloName>
          -->
          <connectiontimeout>120000</connectiontimeout>
+      
+         <handlerchain>
+             <!-- This loads the core CommandHandlers. Only remove this if you really -->
+             <!-- know what you are doing -->
+             <handler class="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
+         </handlerchain>
       </handler>
    </pop3server>
 
