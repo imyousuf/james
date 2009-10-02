@@ -24,8 +24,40 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 
+/**
+ * Session which supports TLS 
+ * 
+ *
+ */
 public interface TLSSupportedSession {
+    /**
+     * Returns the user name associated with this interaction.
+     *
+     * @return the user name
+     */
+    String getUser();
+
+    /**
+     * Sets the user name associated with this interaction.
+     *
+     * @param user the user name
+     */
+    void setUser(String user);
     
+
+    /**
+     * Returns host name of the client
+     *
+     * @return hostname of the client
+     */
+    String getRemoteHost();
+
+    /**
+     * Returns host ip address of the client
+     *
+     * @return host ip address of the client
+     */
+    String getRemoteIPAddress();
 	/**
 	 * Return true if StartTLS is supported by the configuration
 	 * 

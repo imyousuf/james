@@ -52,12 +52,17 @@ public class ListCmdHandler implements CommandHandler {
             String parameters) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+            Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
+
             if (parameters == null) {
+
                 long size = 0;
                 int count = 0;
+
                 try {
+
                     for (Mail mc:session.getUserMailbox()) {
-                        if (mc != POP3Handler.DELETED) {
+                        if (mc != dm) {
                             size += mc.getMessageSize();
                             count++;
                         }
@@ -70,7 +75,7 @@ public class ListCmdHandler implements CommandHandler {
                     response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
                     count = 0;
                     for (Mail mc:session.getUserMailbox()) {
-                        if (mc != POP3Handler.DELETED) {
+                        if (mc != dm) {
                             responseBuffer =
                                 new StringBuilder(16)
                                         .append(count)
@@ -89,7 +94,7 @@ public class ListCmdHandler implements CommandHandler {
                 try {
                     num = Integer.parseInt(parameters);
                     Mail mc = session.getUserMailbox().get(num);
-                    if (mc != POP3Handler.DELETED) {
+                    if (mc != dm) {
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
                                     .append(num)

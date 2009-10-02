@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Handler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
@@ -46,7 +45,7 @@ public class StlsCmdHandler implements CommandHandler, CapaCapability {
         POP3Response response;
         // check if starttls is supported, the state is the right one and it was
         // not started before
-        if (session.isStartTLSSupported() && session.getHandlerState() == POP3Handler.AUTHENTICATION_READY
+        if (session.isStartTLSSupported() && session.getHandlerState() == POP3Session.AUTHENTICATION_READY
                 && session.isTLSStarted() == false) {
             response = new POP3Response(POP3Response.OK_RESPONSE,"Begin TLS negotiation");
             session.writePOP3Response(response);
@@ -74,7 +73,7 @@ public class StlsCmdHandler implements CommandHandler, CapaCapability {
      */
     public List<String> getImplementedCapabilities(POP3Session session) {
         List<String> caps = new ArrayList<String>();
-        if (session.isStartTLSSupported() && session.getHandlerState() == POP3Handler.AUTHENTICATION_READY) {
+        if (session.isStartTLSSupported() && session.getHandlerState() == POP3Session.AUTHENTICATION_READY) {
             caps.add(COMMAND_NAME);
             return caps;
         }

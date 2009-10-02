@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Handler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
@@ -44,7 +43,7 @@ public class NoopCmdHandler implements CommandHandler {
 	 */
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
-        if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+        if (session.getHandlerState() == POP3Session.TRANSACTION) {
             response = new POP3Response(POP3Response.OK_RESPONSE);
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);

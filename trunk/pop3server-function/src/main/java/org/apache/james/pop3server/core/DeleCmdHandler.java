@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Handler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -47,7 +46,7 @@ public class DeleCmdHandler implements CommandHandler {
 	 */
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
-        if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+        if (session.getHandlerState() == POP3Session.TRANSACTION) {
             int num = 0;
             try {
                 num = Integer.parseInt(parameters);
@@ -57,7 +56,8 @@ public class DeleCmdHandler implements CommandHandler {
             }
             try {
                 Mail mc = session.getUserMailbox().get(num);
-                if (mc == POP3Handler.DELETED) {
+                Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
+                if (mc == dm) {
                     StringBuilder responseBuffer =
                         new StringBuilder(64)
                                 .append("Message (")
@@ -65,7 +65,7 @@ public class DeleCmdHandler implements CommandHandler {
                                 .append(") already deleted.");
                     response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
                 } else {
-                    session.getUserMailbox().set(num, POP3Handler.DELETED);
+                    session.getUserMailbox().set(num, dm);
                     // we are replacing our reference with "DELETED", so we have
                     // to dispose the no-more-referenced mail object.
                     ContainerUtil.dispose(mc);

@@ -46,11 +46,13 @@ public class UidlCmdHandler implements CommandHandler, CapaCapability {
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+            Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
+
             if (parameters == null) {
                 response = new POP3Response(POP3Response.OK_RESPONSE,"unique-id listing follows");
                 int count = 0;
                 for (Mail mc:session.getUserMailbox()) {
-                    if (mc != POP3Handler.DELETED) {
+                    if (mc != dm) {
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
                                     .append(count)
@@ -66,7 +68,7 @@ public class UidlCmdHandler implements CommandHandler, CapaCapability {
                 try {
                     num = Integer.parseInt(parameters);
                     Mail mc = (Mail) session.getUserMailbox().get(num);
-                    if (mc != POP3Handler.DELETED) {
+                    if (mc != dm) {
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
                                     .append(num)

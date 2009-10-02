@@ -28,16 +28,15 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
+import org.apache.james.socket.AbstractProtocolHandler;
 import org.apache.james.socket.CRLFDelimitedByteBuffer;
-import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.ProtocolContext;
 
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
  * interaction.
  */
-public class SMTPHandler implements ProtocolHandler, SMTPSession {
+public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession {
 
 	private ProtocolContext context;
 
@@ -82,8 +81,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
 
 	private final SMTPHandlerChain handlerChain;
 
-	private String authenticatedUser;
-
 	private String smtpID;
 
 	public SMTPHandler(SMTPHandlerChain handlerChain, final SMTPConfiguration theConfigData) {
@@ -93,10 +90,10 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         this.theConfigData = theConfigData;
 	}
     
-    /**
-     * @see org.apache.james.socket.ProtocolHandler#handleProtocol(ProtocolContext)
-     */
-    public void handleProtocol(ProtocolContext context) throws IOException {
+	/**
+	 * @see org.apache.james.socket.AbstractProtocolHandler#handleProtocolInternal(org.apache.james.socket.ProtocolContext)
+	 */
+    public void handleProtocolInternal(ProtocolContext context) throws IOException {
         this.context = context;
         smtpID = Integer.toString(random.nextInt(1024));
         relayingAllowed = theConfigData.isRelayingAllowed(context.getRemoteIP());
@@ -206,7 +203,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
     /**
      * Resets the handler data to a basic state.
      */
-    public void resetHandler() {
+    public void resetHandlerInternal() {
         // not needed anymore because state is inside the connection state
         // resetState();
         resetConnectionState();
@@ -215,23 +212,8 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         // as the default.
         lineHandlers = handlerChain.getHandlers(LineHandler.class);
 
-        authenticatedUser = null;
         smtpID = null;
         sessionEnded = false;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
-     */
-    public String getRemoteHost() {
-        return context.getRemoteHost();
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getRemoteIPAddress()
-     */
-    public String getRemoteIPAddress() {
-        return context.getRemoteIP();
     }
 
     /**
@@ -293,20 +275,6 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
      */
     public boolean isAuthSupported() {
         return authSupported;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getUser()
-     */
-    public String getUser() {
-        return authenticatedUser;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#setUser(String)
-     */
-    public void setUser(String userID) {
-        authenticatedUser = userID;
     }
 
     /**
@@ -372,12 +340,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         }
     }
 
-    /**
-     * @see org.apache.james.socket.ProtocolHandler#fatalFailure(java.lang.RuntimeException, org.apache.james.socket.ProtocolContext)
-     */
-	public void fatalFailure(RuntimeException e, ProtocolContext context) {
-	}
-	
+   
 	/**
 	 * @see org.apache.james.smtpserver.SMTPSession#getHelloName()
 	 */
@@ -413,27 +376,7 @@ public class SMTPHandler implements ProtocolHandler, SMTPSession {
         return getConfigurationData().useAddressBracketsEnforcement();
     }
 
-    /**
-     * @see org.apache.james.smtpserver.SMTPSession#getLogger()
-     */
-    public Log getLogger() {
-        return context.getLogger();
-    }
-
-    /**
-     * @see org.apache.james.socket.TLSSupportedSession#isTLSStarted()
-     */
-	public boolean isTLSStarted() {
-		return context.isSecure();
-	}
-
-	/**
-	 * @see org.apache.james.socket.TLSSupportedSession#startTLS()
-	 */
-	public void startTLS() throws IOException {
-		context.secure();
-	}
-
+ 
 	/**
 	 * @see org.apache.james.socket.TLSSupportedSession#isStartTLSSupported()
 	 */

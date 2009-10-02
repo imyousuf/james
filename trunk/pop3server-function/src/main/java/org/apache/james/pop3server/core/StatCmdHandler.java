@@ -28,7 +28,6 @@ import java.util.List;
 import javax.mail.MessagingException;
 
 import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Handler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -48,12 +47,14 @@ public class StatCmdHandler implements CommandHandler {
 	 */
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
-        if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+        if (session.getHandlerState() == POP3Session.TRANSACTION) {
             long size = 0;
             int count = 0;
             try {
+                Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
+
                 for (Mail mc: session.getUserMailbox()) {
-                    if (mc != POP3Handler.DELETED) {
+                    if (mc != dm) {
                         size += mc.getMessageSize();
                         count++;
                     }

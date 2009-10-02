@@ -24,6 +24,7 @@ package org.apache.james.pop3server;
 
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.TLSSupportedSession;
@@ -35,28 +36,26 @@ import org.apache.mailet.Mail;
  * POP3Handler object
  */
 
-public interface POP3Session extends TLSSupportedSession{
+public interface POP3Session extends TLSSupportedSession {
 
     /**
-     * Returns host name of the client
-     *
-     * @return hostname of the client
+     * A placeholder for emails deleted during the course of the POP3 transaction.  
+     * This Mail instance is used to enable fast checks as to whether an email has been
+     * deleted from the inbox.
      */
-    String getRemoteHost();
-
+    public final static String DELETED ="DELETED_MAIL";
+   
+    // Authentication states for the POP3 interaction
+    /** Waiting for user id */
+    public final static int AUTHENTICATION_READY = 0;
+    /** User id provided, waiting for password */
+    public final static int AUTHENTICATION_USERSET = 1;  
     /**
-     * Returns host ip address of the client
-     *
-     * @return host ip address of the client
+     * A valid user id/password combination has been provided.
+     * In this state the client can access the mailbox
+     * of the specified user.
      */
-    String getRemoteIPAddress();
-
-    /**
-     * Returns the session status
-     *
-     * @return if the session is open or closed
-     */
-    boolean isSessionEnded();
+    public final static int TRANSACTION = 2;              
 
     /**
      * Returns POP3Handler service wide configuration
@@ -64,20 +63,6 @@ public interface POP3Session extends TLSSupportedSession{
      * @return POP3HandlerConfigurationData
      */
     POP3HandlerConfigurationData getConfigurationData();
-
-    /**
-     * Returns the user name associated with this POP3 interaction.
-     *
-     * @return the user name
-     */
-    String getUser();
-
-    /**
-     * Sets the user name associated with this POP3 interaction.
-     *
-     * @param user the user name
-     */
-    void setUser(String user);
 
     /**
      * Returns Watchdog object used for handling timeout
@@ -157,13 +142,19 @@ public interface POP3Session extends TLSSupportedSession{
      */
     void writePOP3Response(POP3Response response);
 
-
     /**
      * Write the response to the client
      * 
      * @param string
      */
     void writeResponse(String string);
+    
+    /**
+     * Map which can be used to store temporary data during the session
+     * 
+     * @return sessionMap
+     */
+    public Map<Object,Object> getState();
 
 }
 
