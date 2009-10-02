@@ -352,7 +352,9 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
 
     }
 
-    @Override
+    /**
+     * @see org.apache.james.socket.AbstractProtocolServer#newProtocolHandlerInstance()
+     */
     public ProtocolHandler newProtocolHandlerInstance() {
         final SMTPHandler theHandler = new SMTPHandler(handlerChain, theConfigData);
         return theHandler;

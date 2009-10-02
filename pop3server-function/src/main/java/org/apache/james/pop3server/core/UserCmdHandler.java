@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Handler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
@@ -46,9 +45,9 @@ public class UserCmdHandler implements CommandHandler, CapaCapability {
 	 */
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
-        if (session.getHandlerState() == POP3Handler.AUTHENTICATION_READY && parameters != null) {
+        if (session.getHandlerState() == POP3Session.AUTHENTICATION_READY && parameters != null) {
             session.setUser(parameters);
-            session.setHandlerState(POP3Handler.AUTHENTICATION_USERSET);
+            session.setHandlerState(POP3Session.AUTHENTICATION_USERSET);
             response = new POP3Response(POP3Response.OK_RESPONSE);
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);

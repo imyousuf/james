@@ -24,17 +24,17 @@ package org.apache.james.pop3server;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.commons.logging.Log;
-import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
+import org.apache.james.socket.AbstractProtocolHandler;
 import org.apache.james.socket.CRLFTerminatedReader;
 import org.apache.james.socket.ProtocolContext;
-import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.Watchdog;
 import org.apache.mailet.Mail;
 
@@ -42,33 +42,14 @@ import org.apache.mailet.Mail;
  * The handler class for POP3 connections.
  *
  */
-public class POP3Handler implements POP3Session, ProtocolHandler {
+public class POP3Handler extends AbstractProtocolHandler implements POP3Session {
 
     private ProtocolContext context;
     
     private final static byte COMMAND_MODE = 1;
     private final static byte RESPONSE_MODE = 2;
-
+    private Map<Object,Object> stateMap = new HashMap<Object,Object>();
    
-
-    // Authentication states for the POP3 interaction
-    /** Waiting for user id */
-    public final static int AUTHENTICATION_READY = 0;
-    /** User id provided, waiting for password */
-    public final static int AUTHENTICATION_USERSET = 1;  
-    /**
-     * A valid user id/password combination has been provided.
-     * In this state the client can access the mailbox
-     * of the specified user.
-     */
-    public final static int TRANSACTION = 2;              
-
-    /**
-     * A placeholder for emails deleted during the course of the POP3 transaction.  
-     * This Mail instance is used to enable fast checks as to whether an email has been
-     * deleted from the inbox.
-     */
-    public final static Mail DELETED = new MailImpl();    
 
     /**
      * The per-service configuration data that applies to all handlers
@@ -112,11 +93,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
 
 
     /**
-     * The user name of the authenticated user associated with this POP3 transaction.
-     */
-    private String authenticatedUser;
-
-    /**
      * The mode of the current session
      */
     private byte mode;
@@ -139,14 +115,13 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         lineHandlers = handlerChain.getHandlers(LineHandler.class);
     }
     
+
     /**
-     * @see org.apache.james.socket.AbstractJamesHandler#handleProtocol(ProtocolContext)
+     * @see org.apache.james.socket.AbstractProtocolHandler#handleProtocolInternal(org.apache.james.socket.ProtocolContext)
      */
-    public void handleProtocol(ProtocolContext context) throws IOException {
+    public void handleProtocolInternal(ProtocolContext context) throws IOException {
         this.context = context;
         handlerState = AUTHENTICATION_READY;
-        authenticatedUser = "unknown";
-
         sessionEnded = false;
 
 
@@ -218,9 +193,9 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
     /**
      * Resets the handler data to a basic state.
      */
-    public void resetHandler() {
-        // Clear user data
-        authenticatedUser = null;
+    public void resetHandlerInternal() {
+
+        stateMap.clear();
         userInbox = null;
         if (userMailbox != null) {
             Iterator<Mail> i = userMailbox.iterator();
@@ -243,58 +218,6 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         // empty any previous line handler and add self (command dispatcher)
         // as the default.
         lineHandlers = handlerChain.getHandlers(LineHandler.class);
-    }
-
-
-    /**
-     * This method parses POP3 commands read off the wire in handleConnection.
-     * Actual processing of the command (possibly including additional back and
-     * forth communication with the client) is delegated to one of a number of
-     * command specific handler methods.  The primary purpose of this method is
-     * to parse the raw command string to determine exactly which handler should
-     * be called.  It returns true if expecting additional commands, false otherwise.
-     */
-    
-    /**
-     * @see org.apache.james.pop3server.POP3Session#getRemoteHost()
-     */
-    public String getRemoteHost() {
-        return context.getRemoteHost();
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#getRemoteIPAddress()
-     */
-    public String getRemoteIPAddress() {
-        return context.getRemoteIP();
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#endSession()
-     */
-    public void endSession() {
-        sessionEnded = true;
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#isSessionEnded()
-     */
-    public boolean isSessionEnded() {
-        return sessionEnded;
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#getUser()
-     */
-    public String getUser() {
-        return authenticatedUser;
-    }
-
-    /**
-     * @see org.apache.james.pop3server.POP3Session#setUser(java.lang.String)
-     */
-    public void setUser(String userID) {
-        authenticatedUser = userID;
     }
 
     /**
@@ -386,32 +309,12 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
         return context.getOutputStream();
     }
 
-    /**
-     * @see org.apache.james.pop3server.POP3Session#getLogger()
-     */
-    public Log getLogger() {
-        return context.getLogger();
-    }
-
-    /**
-     * @see org.apache.james.socket.TLSSupportedSession#startTLS()
-     */
-	public void startTLS() throws IOException {
-		context.secure();
-	}
 
 	/**
 	 * @see org.apache.james.socket.TLSSupportedSession#isStartTLSSupported()
 	 */
 	public boolean isStartTLSSupported() {
 		return getConfigurationData().isStartTLSSupported();
-	}
-
-	/**
-	 * @see org.apache.james.socket.TLSSupportedSession#isTLSStarted()
-	 */
-	public boolean isTLSStarted() {
-		return context.isSecure();
 	}
 
 	/**
@@ -436,6 +339,12 @@ public class POP3Handler implements POP3Session, ProtocolHandler {
                 sessionEnded = true;
             }
         }
+    }
+
+
+    @Override
+    public Map<Object, Object> getState() {
+        return stateMap;
     }
 	
 }

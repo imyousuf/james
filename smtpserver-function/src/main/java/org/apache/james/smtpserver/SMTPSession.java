@@ -41,19 +41,6 @@ public interface SMTPSession extends TLSSupportedSession{
     /** the Session state */
     public final static String SESSION_STATE_MAP = "SESSION_STATE_MAP";
 
-    /**
-     * Returns host name of the client
-     *
-     * @return hostname of the client
-     */
-    String getRemoteHost();
-
-    /**
-     * Returns host ip address of the client
-     *
-     * @return host ip address of the client
-     */
-    String getRemoteIPAddress();
 
     /**
      * Returns Map that consists of the state of the SMTPSession per mail
@@ -124,20 +111,7 @@ public interface SMTPSession extends TLSSupportedSession{
      * @return authentication required or not
      */
     boolean isAuthSupported();
-
-    /**
-     * Returns the user name associated with this SMTP interaction.
-     *
-     * @return the user name
-     */
-    String getUser();
-
-    /**
-     * Sets the user name associated with this SMTP interaction.
-     *
-     * @param user the user name
-     */
-    void setUser(String user);
+;
 
     /**
      * Returns the SMTP session id

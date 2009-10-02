@@ -58,6 +58,7 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
      *
 	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
+    @SuppressWarnings("unchecked")
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
         
@@ -86,7 +87,9 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
             }
             try {
                 Mail mc = session.getUserMailbox().get(num);
-                if (mc != POP3Handler.DELETED) {
+                Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
+
+                if (mc != dm) {
                     response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
                     session.writePOP3Response(response);
                     try {

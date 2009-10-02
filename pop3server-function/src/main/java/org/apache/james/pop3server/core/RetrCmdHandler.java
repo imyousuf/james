@@ -22,7 +22,6 @@
 package org.apache.james.pop3server.core;
 
 import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Handler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.socket.BytesWrittenResetOutputStream;
@@ -54,7 +53,7 @@ public class RetrCmdHandler implements CommandHandler {
 	 */
     public POP3Response onCommand(POP3Session session, String command, String parameters) {
         POP3Response response = null;
-        if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+        if (session.getHandlerState() == POP3Session.TRANSACTION) {
             int num = 0;
             try {
                 num = Integer.parseInt(parameters.trim());
@@ -64,7 +63,9 @@ public class RetrCmdHandler implements CommandHandler {
             }
             try {
                 Mail mc = session.getUserMailbox().get(num);
-                if (mc != POP3Handler.DELETED) {
+                Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
+
+                if (mc != dm) {
                     response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
                     session.writePOP3Response(response);
                     try {
