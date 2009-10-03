@@ -65,7 +65,7 @@ public interface NNTPRepository {
      *
      * @return an iterator containing the groups retrieved
      */
-    Iterator getMatchedGroups(String wildmat);
+    Iterator<NNTPGroup> getMatchedGroups(String wildmat);
 
     /**
      * Gets all groups added since the specified date
@@ -74,7 +74,7 @@ public interface NNTPRepository {
      *
      * @return an iterator containing the groups retrieved
      */
-    Iterator getGroupsSince(Date dt);
+    Iterator<NNTPGroup> getGroupsSince(Date dt);
 
     /**
      * Gets all articles posted since the specified date
@@ -83,7 +83,7 @@ public interface NNTPRepository {
      *
      * @return an iterator containing the articles retrieved
      */
-    Iterator getArticlesSince(Date dt);
+    Iterator<NNTPArticle> getArticlesSince(Date dt);
 
     /**
      * Returns whether this repository is read only.

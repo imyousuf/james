@@ -176,7 +176,7 @@ public class ArticleIDRepository {
                 fin.close();
             }
         }
-        Enumeration enumeration = prop.keys();
+        Enumeration<?> enumeration = prop.keys();
         NNTPArticle article = null;
         while ( article == null && enumeration.hasMoreElements() ) {
             String groupName = (String)enumeration.nextElement();

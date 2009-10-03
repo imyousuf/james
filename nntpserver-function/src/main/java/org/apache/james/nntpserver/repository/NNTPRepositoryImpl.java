@@ -87,7 +87,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     /**
      * A map to allow lookup of valid newsgroup names
      */
-    private HashMap groupNameMap = null;
+    private HashMap<String,String> groupNameMap = null;
 
     /**
      * Restrict use to newsgroups specified in config only
@@ -132,7 +132,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      *
      * TODO: This needs to be addressed so it scales better
      */
-    private HashMap repositoryGroups = new HashMap();
+    private HashMap<String,NNTPGroup> repositoryGroups = new HashMap<String,NNTPGroup>();
 
     /**
      * The service manager
@@ -176,7 +176,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         }
         Configuration newsgroupConfiguration = configuration.getChild("newsgroups");
         definedGroupsOnly = newsgroupConfiguration.getAttributeAsBoolean("only", false);
-        groupNameMap = new HashMap();
+        groupNameMap = new HashMap<String,String>();
         if ( newsgroupConfiguration != null ) {
             Configuration[] children = newsgroupConfiguration.getChildren("newsgroup");
             if ( children != null ) {
@@ -231,10 +231,10 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
             throw new ConfigurationException(errorBuffer.toString());
         }
 
-        Set groups = groupNameMap.keySet();
-        Iterator groupIterator = groups.iterator();
+        Set<String> groups = groupNameMap.keySet();
+        Iterator<String> groupIterator = groups.iterator();
         while( groupIterator.hasNext() ) {
-            String groupName = (String)groupIterator.next();
+            String groupName = groupIterator.next();
             File groupFile = new File(rootPath,groupName);
             if ( groupFile.exists() == false ) {
                 groupFile.mkdirs();
@@ -362,7 +362,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     /**
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getMatchedGroups(String)
      */
-    public Iterator getMatchedGroups(String wildmat) {
+    public Iterator<NNTPGroup> getMatchedGroups(String wildmat) {
         File[] f = rootPath.listFiles(new AndFileFilter(new GroupFilter(), new AndFileFilter
             (new DirectoryFileFilter(),new GlobFilenameFilter(wildmat))));
         return getGroups(f);
@@ -376,8 +376,8 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
      *
      * @return an iterator of news groups
      */
-    private Iterator getGroups(File[] f) {
-        List list = new ArrayList();
+    private Iterator<NNTPGroup> getGroups(File[] f) {
+        List<NNTPGroup> list = new ArrayList<NNTPGroup>();
         for ( int i = 0 ; i < f.length ; i++ ) {
             if (f[i] != null) {
                 list.add(getGroup(f[i].getName()));
@@ -389,7 +389,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     /**
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getGroupsSince(Date)
      */
-    public Iterator getGroupsSince(Date dt) {
+    public Iterator<NNTPGroup> getGroupsSince(Date dt) {
         File[] f = rootPath.listFiles(new AndFileFilter(new GroupFilter(), new AndFileFilter
             (new DirectoryFileFilter(),new DateSinceFileFilter(dt.getTime()))));
         return getGroups(f);
@@ -402,16 +402,16 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
     /**
      * @see org.apache.james.nntpserver.repository.NNTPRepository#getArticlesSince(Date)
      */
-    public Iterator getArticlesSince(final Date dt) {
-        final Iterator giter = getGroupsSince(dt);
-        return new Iterator() {
+    public Iterator<NNTPArticle> getArticlesSince(final Date dt) {
+        final Iterator<NNTPGroup> giter = getGroupsSince(dt);
+        return new Iterator<NNTPArticle>() {
 
-                private Iterator iter = null;
+                private Iterator<NNTPArticle> iter = null;
 
                 public boolean hasNext() {
                     if ( iter == null ) {
                         if ( giter.hasNext() ) {
-                            NNTPGroup group = (NNTPGroup)giter.next();
+                            NNTPGroup group = giter.next();
                             iter = group.getArticlesSince(dt);
                         }
                         else {
@@ -426,7 +426,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
                     }
                 }
 
-                public Object next() {
+                public NNTPArticle next() {
                     return iter.next();
                 }
 

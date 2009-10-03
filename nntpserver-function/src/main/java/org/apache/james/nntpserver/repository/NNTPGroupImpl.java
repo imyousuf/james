@@ -162,11 +162,11 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     /**
      * @see org.apache.james.nntpserver.repository.NNTPGroup#getArticlesSince(Date)
      */
-    public Iterator getArticlesSince(Date dt) {
+    public Iterator<NNTPArticle> getArticlesSince(Date dt) {
         File[] f = root.listFiles(new AndFileFilter
             (new DateSinceFileFilter(dt.getTime()),
              new InvertedFileFilter(new ExtensionFileFilter(".id"))));
-        List list = new ArrayList();
+        List<NNTPArticle> list = new ArrayList<NNTPArticle>();
         for ( int i = 0 ; i < f.length ; i++ ) {
             list.add(new NNTPArticleImpl(this, f[i]));
         }
@@ -176,9 +176,9 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
     /**
      * @see org.apache.james.nntpserver.repository.NNTPGroup#getArticles()
      */
-    public Iterator getArticles() {
+    public Iterator<NNTPArticle> getArticles() {
         File[] f = root.listFiles();
-        List list = new ArrayList();
+        List<NNTPArticle> list = new ArrayList<NNTPArticle>();
         for ( int i = 0 ; i < f.length ; i++ )
             list.add(new NNTPArticleImpl(this, f[i]));
         return list.iterator();

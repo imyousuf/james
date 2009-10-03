@@ -92,14 +92,14 @@ public interface NNTPGroup {
      *
      * @return the article iterator
      */
-    Iterator getArticlesSince(Date dt);
+    Iterator<NNTPArticle> getArticlesSince(Date dt);
 
     /**
      * Retrieves an iterator of all articles in this newsgroup
      *
      * @return the article iterator
      */
-    Iterator getArticles();
+    Iterator<NNTPArticle> getArticles();
 
     /**
      * Retrieves the group information in a format consistent with
