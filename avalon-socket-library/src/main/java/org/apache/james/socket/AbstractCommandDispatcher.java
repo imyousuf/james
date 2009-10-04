@@ -62,7 +62,7 @@ public abstract class AbstractCommandDispatcher<CommandHandler extends CommonCom
      * @param session not null
      * @return List of CommandHandlers
      */
-    protected List<CommandHandler> getCommandHandlers(String command, TLSSupportedSession session) {
+    protected List<CommandHandler> getCommandHandlers(String command, LogEnabledSession session) {
         if (command == null) {
             return null;
         }

@@ -19,30 +19,33 @@
 
 package org.apache.james.remotemanager;
 
-import java.io.PrintWriter;
+import java.util.Map;
 
-/**
- * Commands JAMES through the remote management console.
- */
-public interface Command {
+import org.apache.james.socket.LogEnabledSession;
+import org.apache.james.socket.Watchdog;
+
+public interface RemoteManagerSession extends LogEnabledSession{
+
+    public final static String CURRENT_USERREPOSITORY= "CURRENT_USERREPOSITORY";
+    public final static String HEADER_IDENTIFIER = "header=";
+    public final static String REGEX_IDENTIFIER = "regex=";
+    public final static String KEY_IDENTIFIER = "key=";
+    
 
     /**
-     * Gets the name of this command.
-     * @return command name, not null
+     * Return state map which should get used to store temporary data 
+     * 
+     * @return stateMap
      */
-    public String getName();
+    public Map<Object,Object> getState();
     
     /**
-     * Outputs useful information for the user of this command.
-     * @return user help, not null
+     * Write response to client
+     * 
+     * @param response
      */
-    public String help();
-
-    /**
-     * Executes this command.
-     * @param args raw arguments, not null
-     * @param out <code>PrintWriter</code> for user feedback
-     * @return true additional commands are expected, false otherwise. Note 
-     */
-    public boolean execute(String args, final PrintWriter out);
+    public void writeRemoteManagerResponse(RemoteManagerResponse response);
+	
+    
+    public Watchdog getWatchdog();
 }

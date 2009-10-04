@@ -17,64 +17,35 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.remotemanager;
 
-package org.apache.james.socket;
+public class CommandHelp {
 
-import java.io.IOException;
-
-/**
- * Session which supports TLS 
- * 
- *
- */
-public interface TLSSupportedSession extends LogEnabledSession{
-    /**
-     * Returns the user name associated with this interaction.
-     *
-     * @return the user name
-     */
-    String getUser();
-
-    /**
-     * Sets the user name associated with this interaction.
-     *
-     * @param user the user name
-     */
-    void setUser(String user);
+    private String syntax;
+    private String desc;
     
-
-    /**
-     * Returns host name of the client
-     *
-     * @return hostname of the client
-     */
-    String getRemoteHost();
-
-    /**
-     * Returns host ip address of the client
-     *
-     * @return host ip address of the client
-     */
-    String getRemoteIPAddress();
-	/**
-	 * Return true if StartTLS is supported by the configuration
-	 * 
-	 * @return supported
-	 */
-    boolean isStartTLSSupported();
+    public CommandHelp(String syntax) {
+        setSyntax(syntax);
+    }
     
-    /**
-     * Return true if the starttls was started
-     * 
-     * @return true
-     */
-    boolean isTLSStarted();
-
-    /**
-     * Starttls
-     * 
-     * @throws IOException
-     */
-    void startTLS() throws IOException;
+    public CommandHelp(String syntax, String desc) {
+        this(syntax);
+        setDescription(desc);
+    }
     
+    public void setSyntax(String syntax) {
+        this.syntax = syntax;
+    }
+    
+    public String getSyntax() {
+        return syntax;
+    }
+    
+    public String getDescription() {
+        return desc;
+    }
+    
+    public void setDescription(String desc) {
+        this.desc = desc;
+    }
 }

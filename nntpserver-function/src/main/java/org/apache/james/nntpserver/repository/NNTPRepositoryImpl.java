@@ -211,7 +211,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         }
 
         articleIDRepo = new ArticleIDRepository(articleIDPath, articleIDDomainSuffix);
-        spool = (NNTPSpooler)createSpooler();
+        spool = createSpooler();
         spool.setRepository(this);
         spool.setArticleIDRepository(articleIDRepo);
         if (getLogger().isDebugEnabled()) {
@@ -283,7 +283,7 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
         File groupFile = new File(rootPath,groupName);
         NNTPGroup groupToReturn = null;
         synchronized(this) {
-            groupToReturn = (NNTPGroup)repositoryGroups.get(groupName);
+            groupToReturn = repositoryGroups.get(groupName);
             if ((groupToReturn == null) && groupFile.exists() && groupFile.isDirectory() ) {
                 try {
                     groupToReturn = new NNTPGroupImpl(groupFile);
@@ -446,9 +446,10 @@ public class NNTPRepositoryImpl extends AbstractLogEnabled
 
     /**
      * Setter for the FileSystem dependency
+     * 
      * @param system filesystem service
      */
-    private void setFileSystem(FileSystem system) {
+    public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
 
