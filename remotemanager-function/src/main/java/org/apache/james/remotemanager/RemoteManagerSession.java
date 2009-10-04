@@ -47,5 +47,10 @@ public interface RemoteManagerSession extends LogEnabledSession{
     public void writeRemoteManagerResponse(RemoteManagerResponse response);
 	
     
+    /**
+     * Return the Watchdog
+     * 
+     * @return watchdog
+     */
     public Watchdog getWatchdog();
 }

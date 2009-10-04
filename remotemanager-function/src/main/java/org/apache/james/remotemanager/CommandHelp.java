@@ -19,6 +19,10 @@
 
 package org.apache.james.remotemanager;
 
+/**
+ * Provide help for a command
+ *
+ */
 public class CommandHelp {
 
     private String syntax;
@@ -33,18 +37,38 @@ public class CommandHelp {
         setDescription(desc);
     }
     
+    /**
+     * Set the syntax
+     * 
+     * @param syntax
+     */
     public void setSyntax(String syntax) {
         this.syntax = syntax;
     }
     
+    /**
+     * Return the syntax which should get used to call the command
+     * 
+     * @return syntax
+     */
     public String getSyntax() {
         return syntax;
     }
     
+    /**
+     * Return the description for this command
+     * 
+     * @return
+     */
     public String getDescription() {
         return desc;
     }
     
+    /**
+     * Set the description
+     * 
+     * @param desc
+     */
     public void setDescription(String desc) {
         this.desc = desc;
     }
