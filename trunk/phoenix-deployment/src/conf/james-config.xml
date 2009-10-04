@@ -896,6 +896,11 @@ Regards, Postmaster XXX.YYY
          <!-- 
          <prompt>james&gt;</prompt>
          -->
+         <handlerchain>
+             <!-- This loads the core CommandHandlers. Only remove this if you really -->
+             <!-- know what you are doing -->
+             <handler class="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
+         </handlerchain>
       </handler>
    </remotemanager>
       

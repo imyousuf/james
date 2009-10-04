@@ -21,17 +21,7 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
-import org.apache.james.api.vut.management.VirtualUserTableManagementService;
-import org.apache.james.management.BayesianAnalyzerManagementService;
-import org.apache.james.management.DomainListManagementService;
-import org.apache.james.management.ProcessorManagementService;
-import org.apache.james.management.SpoolManagementService;
-import org.apache.james.services.MailServer;
-
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Provides a number of server-wide constant values to the
@@ -48,41 +38,13 @@ public interface RemoteManagerHandlerConfigurationData {
     String getHelloName();
 
     /**
-     * Returns the MailServer interface for this service.
-     *
-     * @return the MailServer interface for this service
-     */
-    MailServer getMailServer();
-
-    /**
-     * Returns the UsersRepository for this service.
-     *
-     * @return the local users repository
-     */
-    UsersRepository getUsersRepository();
-
-    /**
-     * Returns the UsersStore for this service.
-     *
-     * @return the local users store
-     */
-    UsersStore getUserStore();
-
-    /**
-     * Returns the SpoolManagement for this service.
-     *
-     * @return the spool manager
-     */
-    SpoolManagementService getSpoolManagement();
-
-    /**
      * Returns the Administrative Account Data
      *
      * TODO: Change the return type to make this immutable.
      *
      * @return the admin account data
      */
-    HashMap getAdministrativeAccountData();
+    Map<String,String> getAdministrativeAccountData();
 
     /**
      * Returns the prompt to be displayed when waiting for input. e.g. "james> ".
@@ -91,44 +53,4 @@ public interface RemoteManagerHandlerConfigurationData {
      */
     String getPrompt();
 
-    /**
-     * Returns the Store
-     * 
-     * @return the Store
-     */
-    Store getStore();
-
-    /**
-     * Returns the BayesianAnalyzerManagementService
-     * 
-     * @return the BayesianAnalyzerManagementService
-     */
-    BayesianAnalyzerManagementService getBayesianAnalyzerManagement();
-
-    /**
-     * Returns the ProcessorManagementService
-     * 
-     * @return the ProcessorManagementService
-     */
-    ProcessorManagementService getProcessorManagement();
-    
-    /**
-     * Return the VirtualUserTableManagementService
-     * 
-     * @return the VirtualUserTableManagementService
-     */
-    VirtualUserTableManagementService getVirtualUserTableManagement();
-    
-    /**
-     * Return the DomainListManagementService
-     * 
-     * @return the DomainListManagementService
-     */
-    DomainListManagementService getDomainListManagement();
-    
-    /**
-     * Gets avaliable commands.
-     * @return <code>Command</code>'s, not null possibly empty
-    */
-    Command[] getCommands();
 }

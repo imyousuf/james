@@ -17,64 +17,45 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.remotemanager;
 
-package org.apache.james.socket;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.james.pop3server.POP3HandlerChain;
+import org.apache.james.remotemanager.core.CoreCmdLoaderService;
+import org.apache.james.socket.AbstractHandlerChain;
+import org.apache.james.socket.LogEnabled;
 
-import java.io.IOException;
+public class RemoteManagerHandlerChain extends AbstractHandlerChain implements LogEnabled{
 
-/**
- * Session which supports TLS 
- * 
- *
- */
-public interface TLSSupportedSession extends LogEnabledSession{
-    /**
-     * Returns the user name associated with this interaction.
-     *
-     * @return the user name
-     */
-    String getUser();
 
-    /**
-     * Sets the user name associated with this interaction.
-     *
-     * @param user the user name
-     */
-    void setUser(String user);
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(POP3HandlerChain.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log log  = FALLBACK_LOG;
     
 
     /**
-     * Returns host name of the client
-     *
-     * @return hostname of the client
+     * @see org.apache.james.socket.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
-    String getRemoteHost();
+    public void setLog(Log log) {
+        this.log = log;
+    } 
 
     /**
-     * Returns host ip address of the client
-     *
-     * @return host ip address of the client
+     * (non-Javadoc)
+     * @see org.apache.james.socket.AbstractHandlerChain#getCoreCmdHandlerLoader()
      */
-    String getRemoteIPAddress();
-	/**
-	 * Return true if StartTLS is supported by the configuration
-	 * 
-	 * @return supported
-	 */
-    boolean isStartTLSSupported();
-    
-    /**
-     * Return true if the starttls was started
-     * 
-     * @return true
-     */
-    boolean isTLSStarted();
+    protected Class<?> getCoreCmdHandlerLoader() {
+        return CoreCmdLoaderService.class;
+    }
 
     /**
-     * Starttls
-     * 
-     * @throws IOException
+     * @see org.apache.james.socket.AbstractHandlerChain#getLog()
      */
-    void startTLS() throws IOException;
-    
+    protected Log getLog() {
+        return log;
+    }
+
 }

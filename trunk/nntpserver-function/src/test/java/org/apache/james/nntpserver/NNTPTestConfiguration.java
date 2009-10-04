@@ -17,64 +17,37 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.nntpserver;
 
-package org.apache.james.socket;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.james.test.util.Util;
 
-import java.io.IOException;
+public class NNTPTestConfiguration extends DefaultConfiguration {
 
-/**
- * Session which supports TLS 
- * 
- *
- */
-public interface TLSSupportedSession extends LogEnabledSession{
-    /**
-     * Returns the user name associated with this interaction.
-     *
-     * @return the user name
-     */
-    String getUser();
+	private int m_nntpListenerPort;
+	private boolean m_authRequired = false;
 
-    /**
-     * Sets the user name associated with this interaction.
-     *
-     * @param user the user name
-     */
-    void setUser(String user);
-    
+	public NNTPTestConfiguration(int m_nntpListenerPort) {
+		super("nntpserver");
+		this.m_nntpListenerPort = m_nntpListenerPort;
+	}
 
-    /**
-     * Returns host name of the client
-     *
-     * @return hostname of the client
-     */
-    String getRemoteHost();
+	public void setUseAuthRequired() {
+		m_authRequired = true;
+	}
 
-    /**
-     * Returns host ip address of the client
-     *
-     * @return host ip address of the client
-     */
-    String getRemoteIPAddress();
-	/**
-	 * Return true if StartTLS is supported by the configuration
-	 * 
-	 * @return supported
-	 */
-    boolean isStartTLSSupported();
-    
-    /**
-     * Return true if the starttls was started
-     * 
-     * @return true
-     */
-    boolean isTLSStarted();
+	public void init() {
+		setAttribute("enabled", true);
+		addChild(Util.getValuedConfiguration("port", "" + m_nntpListenerPort));
+		DefaultConfiguration handlerConfig = new DefaultConfiguration("handler");
+		handlerConfig.addChild(Util.getValuedConfiguration("helloName",
+				"myMailServer"));
+		handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout",
+				"360000"));
+		handlerConfig.addChild(Util.getValuedConfiguration("authRequired",
+				m_authRequired + ""));
 
-    /**
-     * Starttls
-     * 
-     * @throws IOException
-     */
-    void startTLS() throws IOException;
-    
+		addChild(handlerConfig);
+	}
+
 }

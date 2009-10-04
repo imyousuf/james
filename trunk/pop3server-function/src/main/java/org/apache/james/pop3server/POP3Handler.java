@@ -341,8 +341,9 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
         }
     }
 
-
-    @Override
+    /**
+     * @see org.apache.james.pop3server.POP3Session#getState()
+     */
     public Map<Object, Object> getState() {
         return stateMap;
     }

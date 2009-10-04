@@ -22,6 +22,7 @@
 package org.apache.james.remotemanager;
 
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.test.util.Util;
 
 public class RemoteManagerTestConfiguration extends DefaultConfiguration {
@@ -92,21 +93,19 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
 
         adminAccounts.addChild(account);
         handlerConfig.addChild(adminAccounts);
-        
-        // handlerConfig.addChild(Util.getValuedConfiguration("prompt", ">"));
+        DefaultConfiguration config = new DefaultConfiguration("handlerchain");
 
-        handlerConfig.addChild(createRemoteManagerHandlerChainConfiguration());
+        config.addChild(createHandler(CoreCmdHandlerLoader.class.getName()));
+        handlerConfig.addChild(config);
         addChild(handlerConfig);
-        
-        DefaultConfiguration commandConfiguration = new DefaultConfiguration("command");
-        commandConfiguration.addChild(Util.getValuedConfiguration("class-name", commandClassName));
-        
-        addChild(commandConfiguration);
     }
 
-    public static DefaultConfiguration createRemoteManagerHandlerChainConfiguration() {
-        DefaultConfiguration handlerChainConfig = new DefaultConfiguration("test");
-        return handlerChainConfig;
+    private DefaultConfiguration createHandler(String className) {
+        DefaultConfiguration d = new DefaultConfiguration("handler");
+       
+        d.setAttribute("class", className);
+        return d;
+    
     }
 
 
