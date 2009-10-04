@@ -21,8 +21,7 @@ package org.apache.james.remotemanager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.pop3server.POP3HandlerChain;
-import org.apache.james.remotemanager.core.CoreCmdLoaderService;
+import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
 import org.apache.james.socket.AbstractHandlerChain;
 import org.apache.james.socket.LogEnabled;
 
@@ -30,7 +29,7 @@ public class RemoteManagerHandlerChain extends AbstractHandlerChain implements L
 
 
     /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(POP3HandlerChain.class);
+    private static final Log FALLBACK_LOG = LogFactory.getLog(RemoteManagerHandlerChain.class);
     
     /** Non context specific log should only be used when no context specific log is available */
     private Log log  = FALLBACK_LOG;
@@ -48,7 +47,7 @@ public class RemoteManagerHandlerChain extends AbstractHandlerChain implements L
      * @see org.apache.james.socket.AbstractHandlerChain#getCoreCmdHandlerLoader()
      */
     protected Class<?> getCoreCmdHandlerLoader() {
-        return CoreCmdLoaderService.class;
+        return CoreCmdHandlerLoader.class;
     }
 
     /**

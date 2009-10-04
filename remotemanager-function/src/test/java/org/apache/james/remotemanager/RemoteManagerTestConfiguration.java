@@ -22,7 +22,7 @@
 package org.apache.james.remotemanager;
 
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
+import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
 import org.apache.james.test.util.Util;
 
 public class RemoteManagerTestConfiguration extends DefaultConfiguration {
@@ -31,26 +31,12 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
     private Integer m_connectionLimit = null;
     private String m_loginName = "testLogin";
     private String m_loginPassword = "testPassword";
-    private String commandClassName = EchoCommand.class.getName();
     
     public RemoteManagerTestConfiguration(int smtpListenerPort) {
         super("smptserver");
 
         m_remoteManagerListenerPort = smtpListenerPort;
     }
-
-    
-    
-    public String getCommandClassName() {
-        return commandClassName;
-    }
-
-
-
-    public void setCommandClassName(String commandClassName) {
-        this.commandClassName = commandClassName;
-    }
-
 
 
     public void setConnectionLimit(int iConnectionLimit) {
