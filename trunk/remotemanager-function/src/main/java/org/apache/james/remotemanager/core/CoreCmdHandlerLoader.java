@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.james.socket.HandlersPackage;
 
-public class CoreCmdLoaderService implements HandlersPackage{
+public class CoreCmdHandlerLoader implements HandlersPackage{
     private final List<String> commands = new LinkedList<String>();
     private final static String ADDDOMAINCMDHANDLER = AddDomainCmdHandler.class.getName();
     private final static String ADDHAMCMDHANDLER = AddHamCmdHandler.class.getName();
@@ -69,7 +69,7 @@ public class CoreCmdLoaderService implements HandlersPackage{
     private final static String COMMANDDISPATCHER = RemoteManagerCommandDispatcherLineHandler.class.getName();
     private final static String WELCOMEMESSAGEHANDLER = WelcomeHandler.class.getName();
 
-    public CoreCmdLoaderService() {
+    public CoreCmdHandlerLoader() {
         // Insert the base commands in the Map
         commands.add(WELCOMEMESSAGEHANDLER);
         commands.add(COMMANDDISPATCHER);
