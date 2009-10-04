@@ -39,11 +39,6 @@ import org.apache.james.socket.configuration.JamesConfiguration;
 
 /**
  * Provides a really rude network interface to administer James.
- * Allow to add accounts.
- * TODO: -improve protocol
- *       -add remove user
- *       -much more...
- * @version 1.0.0, 24/04/1999
  */
 public class RemoteManager
     extends AbstractProtocolServer implements RemoteManagerMBean {
@@ -81,12 +76,21 @@ public class RemoteManager
         = new RemoteManagerHandlerConfigurationDataImpl();
 
 
+    /**
+     * The chain to use
+     */
     private RemoteManagerHandlerChain handlerChain;
 
 
+    /**
+     * The loader
+     */
     private LoaderService loader;
 
 
+    /**
+     * The configuration
+     */
     private Configuration handlerConfiguration;
     
     /**

@@ -364,9 +364,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue(getLastLine(readAnswer()).endsWith(" does not exist"));
     }
 
-    /*
     public void testQuit() throws IOException {
-        int helpLines = 38;
     
         finishSetUp(m_testConfiguration);
         connect();
@@ -375,18 +373,16 @@ public class RemoteManagerTest extends TestCase {
         sendCommand("help");
         delay();
         assertTrue("command line is effective", readAnswer().size() > 0);
-        readAnswer(helpLines);
         
         sendCommand("quit");
         delay();
-        assertTrue("",readAnswer(1).contains("Bye"));
+        assertTrue("",readAnswer(39).contains("Bye"));
 
         sendCommand("help");
         delay();
         assertNull("connection is closed", m_reader.readLine());
     }   
-    
-    */
+  
 
     public void testListUsers() throws IOException {
         finishSetUp(m_testConfiguration);

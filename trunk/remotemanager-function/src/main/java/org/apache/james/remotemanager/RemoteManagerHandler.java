@@ -39,8 +39,6 @@ import org.apache.james.socket.Watchdog;
  * Provides a console-based administration interface covering most of the management 
  * functionality found in the classes from package org.apache.james.management
  * 
- * TODO: -improve protocol
- *       -much more...
  */
 public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSession {
  
@@ -170,6 +168,8 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
      */
     public void resetHandler() {
         sessionEnded = true;
+        
+        // clear the state map
         getState().clear();
         
         // empty any previous line handler and add self (command dispatcher)

@@ -36,6 +36,8 @@ public class CoreCmdLoaderService implements HandlersPackage{
     private final static String DELUSERCMDHANDLER = DelUserCmdHandler.class.getName();
     private final static String EXPORTBAYESIANDATACMDHANDLER = ExportBayesianDataCmdHandler.class.getName();
     private final static String FLUSHSPOOLCMDHANDLER = FlushSpoolCmdHandler.class.getName();
+    private final static String HELPCMDHANDLER = HelpCmdHandler.class.getName();
+
     private final static String IMPORTBAYESIANDATACMDHANDLER = ImportBayesianDataCmdHandler.class.getName();
     private final static String LISTALLMAPPINGSCMDHANDLER = ListAllMappingsCmdHandler.class.getName();
     private final static String LISTDOMAINSCMDHANDLER = ListDomainsCmdHandler.class.getName();
@@ -82,6 +84,7 @@ public class CoreCmdLoaderService implements HandlersPackage{
         commands.add(DELUSERCMDHANDLER);
         commands.add(EXPORTBAYESIANDATACMDHANDLER);
         commands.add(FLUSHSPOOLCMDHANDLER);
+        commands.add(HELPCMDHANDLER);
         commands.add(IMPORTBAYESIANDATACMDHANDLER);
         commands.add(LISTALLMAPPINGSCMDHANDLER);
         commands.add(LISTDOMAINSCMDHANDLER);

@@ -40,7 +40,7 @@ public class RemoteManagerResponse {
      * @param description the description 
      */
     public RemoteManagerResponse(CharSequence description) {
-            this.rawLine = description.toString();
+        this.rawLine = description.toString();
     }
   
     public RemoteManagerResponse() {
@@ -99,6 +99,10 @@ public class RemoteManagerResponse {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return getLines().toString();
+        if (getLines() != null) {
+            return getLines().toString();
+        } else {
+            return rawLine;
+        }
     }
 }
