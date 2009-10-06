@@ -41,7 +41,6 @@ import org.apache.mailet.base.test.FakeMimeMessage;
 public class VirtualUserTableTest extends TestCase{
 
     private VirtualUserTable table;
-    private MockVirtualUserTableStore mockVutStore;
     
     @Override
     protected void setUp() throws Exception {
