@@ -30,7 +30,6 @@ import javax.mail.MessagingException;
 import junit.framework.TestCase;
 
 import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.test.FakeMail;
