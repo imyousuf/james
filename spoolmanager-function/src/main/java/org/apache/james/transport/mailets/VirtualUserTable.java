@@ -110,9 +110,9 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
     /**
      * @see org.apache.james.transport.mailets.AbstractVirtualUserTable#processMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
      */
-    public Collection processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
+    public Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
         try {
-            Collection<String> mappings = vut.getMappings(recipient.getUser(), recipient.getHost());
+            Collection<String> mappings = vut.getMappings(recipient.getLocalPart(), recipient.getDomain());
             
             if (mappings != null) {
                 return handleMappings(mappings, sender, recipient, message);
@@ -126,7 +126,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
                 throw new MessagingException(errorBuffer.toString());
         }
         
-        Collection rcpts = new ArrayList();
+        Collection<MailAddress> rcpts = new ArrayList<MailAddress>();
         rcpts.add(recipient);
         return rcpts;
     }

@@ -109,8 +109,8 @@ public class LinearProcessor
      */
     private static final String TERMINATING_MAILET_NAME = "Terminating%Mailet%Name";
 
-    private List mailets;  // The list of mailets for this processor
-    private List matchers; // The list of matchers for this processor
+    private List<Mailet> mailets;  // The list of mailets for this processor
+    private List<Matcher> matchers; // The list of matchers for this processor
     private volatile boolean listsClosed;  // Whether the matcher/mailet lists have been closed.
     private SpoolRepository spool;  // The spool on which this processor is acting
 
@@ -161,10 +161,10 @@ public class LinearProcessor
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
-        Iterator it = mailets.iterator();
+        Iterator<Mailet> it = mailets.iterator();
         boolean debugEnabled = getLogger().isDebugEnabled();
         while (it.hasNext()) {
-            Mailet mailet = (Mailet)it.next();
+            Mailet mailet = it.next();
             if (debugEnabled) {
                 getLogger().debug("Shutdown mailet " + mailet.getMailetInfo());
             }
@@ -223,7 +223,7 @@ public class LinearProcessor
         }
         Matcher terminatingMatcher =
             new GenericMatcher() {
-                public Collection match(Mail mail) {
+                public Collection<MailAddress> match(Mail mail) {
                     return mail.getRecipients();
                 }
             
@@ -363,7 +363,7 @@ public class LinearProcessor
 
 
             //Call the matcher and find what recipients match
-            Collection recipients = null;
+            Collection<MailAddress> recipients = null;
             Matcher matcher = (Matcher) matchers.get(i);
             StringBuffer logMessageBuffer = null;
             if (getLogger().isDebugEnabled()) {
@@ -379,7 +379,7 @@ public class LinearProcessor
                 recipients = matcher.match(mail);
                 if (recipients == null) {
                     //In case the matcher returned null, create an empty Collection
-                    recipients = new ArrayList(0);
+                    recipients = new ArrayList<MailAddress>(0);
                 } else if (recipients != mail.getRecipients()) {
                     //Make sure all the objects are MailAddress objects
                     verifyMailAddresses(recipients);
@@ -395,7 +395,7 @@ public class LinearProcessor
                 }
                 if (onMatchException.compareTo("nomatch") == 0) {
                     //In case the matcher returned null, create an empty Collection
-                    recipients = new ArrayList(0);
+                    recipients = new ArrayList<MailAddress>(0);
                 } else if (onMatchException.compareTo("matchall") == 0) {
                     recipients = mail.getRecipients();
                     // no need to verify addresses
@@ -406,11 +406,11 @@ public class LinearProcessor
 
             // Split the recipients into two pools.  notRecipients will contain the
             // recipients on the message that the matcher did not return.
-            Collection notRecipients;
+            Collection<MailAddress> notRecipients;
             if (recipients == mail.getRecipients() || recipients.size() == 0) {
-                notRecipients = new ArrayList(0);
+                notRecipients = new ArrayList<MailAddress>(0);
             } else {
-                notRecipients = new ArrayList(mail.getRecipients());
+                notRecipients = new ArrayList<MailAddress>(mail.getRecipients());
                 notRecipients.removeAll(recipients);
             }
 
@@ -498,7 +498,7 @@ public class LinearProcessor
      *
      * @throws MessagingException when the <code>Collection</code> contains objects that are not <code>MailAddress</code> objects
      */
-    private void verifyMailAddresses(Collection col) throws MessagingException {
+    private void verifyMailAddresses(Collection<MailAddress> col) throws MessagingException {
         try {
             MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
 
@@ -555,8 +555,8 @@ public class LinearProcessor
      * <p>Initialize the processor matcher/mailet list.</p>
      */
     public void openProcessorList() {
-        matchers = new ArrayList();
-        mailets = new ArrayList();
+        matchers = new ArrayList<Matcher>();
+        mailets = new ArrayList<Mailet>();
     }
 
     /**
@@ -673,9 +673,12 @@ public class LinearProcessor
         setSpool( (SpoolRepository) comp.lookup(SpoolRepository.ROLE));
     }
 
-    public List getMailetConfigs() {
-        List mailetConfigs = new ArrayList();
-        Iterator iterator = mailets.iterator();
+    /**
+     * @see org.apache.james.transport.MailetContainer#getMailetConfigs()
+     */
+    public List<MailetConfig> getMailetConfigs() {
+        List<MailetConfig> mailetConfigs = new ArrayList<MailetConfig>();
+        Iterator<Mailet> iterator = mailets.iterator();
         while (iterator.hasNext()) {
             Mailet mailet = (Mailet) iterator.next();
             MailetConfig mailetConfig = mailet.getMailetConfig();
@@ -685,9 +688,12 @@ public class LinearProcessor
         return mailetConfigs;
     }
 
-    public List getMatcherConfigs() {
-        List matcherConfigs = new ArrayList();
-        Iterator iterator = matchers.iterator();
+    /**
+     * @see org.apache.james.transport.MailetContainer#getMatcherConfigs()
+     */
+    public List<MatcherConfig> getMatcherConfigs() {
+        List<MatcherConfig> matcherConfigs = new ArrayList<MatcherConfig>();
+        Iterator<Matcher> iterator = matchers.iterator();
         while (iterator.hasNext()) {
             Matcher matcher = (Matcher) iterator.next();
             MatcherConfig matcherConfig = matcher.getMatcherConfig();

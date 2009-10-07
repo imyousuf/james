@@ -39,6 +39,8 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.SpoolManager;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailetConfig;
+import org.apache.mailet.MatcherConfig;
 
 /**
  * Manages the mail spool.  This class is responsible for retrieving
@@ -291,6 +293,9 @@ public class JamesSpoolManager
         ContainerUtil.dispose(processorList);
     }
 
+    /**
+     * @see org.apache.james.services.SpoolManager#getProcessorNames()
+     */
     public String[] getProcessorNames() {
         if (!(processorList instanceof ProcessorList)) {
             return new String[0];  
@@ -299,15 +304,21 @@ public class JamesSpoolManager
         return processorNames;
     }
 
-    public List getMailetConfigs(String processorName) {
+    /**
+     * @see org.apache.james.services.SpoolManager#getMailetConfigs(java.lang.String)
+     */
+    public List<MailetConfig> getMailetConfigs(String processorName) {
         MailetContainer mailetContainer = getMailetContainerByName(processorName);
-        if (mailetContainer == null) return new ArrayList();
+        if (mailetContainer == null) return new ArrayList<MailetConfig>();
         return mailetContainer.getMailetConfigs();
     }
 
-    public List getMatcherConfigs(String processorName) {
+    /**
+     * @see org.apache.james.services.SpoolManager#getMatcherConfigs(java.lang.String)
+     */
+    public List<MatcherConfig> getMatcherConfigs(String processorName) {
         MailetContainer mailetContainer = getMailetContainerByName(processorName);
-        if (mailetContainer == null) return new ArrayList();
+        if (mailetContainer == null) return new ArrayList<MatcherConfig>();
         return mailetContainer.getMatcherConfigs();
     }
 
