@@ -28,7 +28,7 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server</artifactId>
   <name>Apache JAMES Server</name>
-  <version>3.0-SNAPSHOT</version>
+  <version>3.0-M1</version>
   <description>The Apache Java Enterprise Mail Server (a.k.a. JAMES Server)</description>
   <url>http://james.apache.org/server/head/</url>
   <inceptionYear>2002</inceptionYear>
@@ -317,58 +317,58 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-javamail-util</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-domain-api</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-management-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-avalon-spring-bridge-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-avalon-socket-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -388,57 +388,57 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-avalon-user-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-basic-user-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-imapserver-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-pop3server-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-nntpserver-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-fetchmail-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-spoolmanager-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailets-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-remotemanager-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -453,7 +453,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-experimental-activemq-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -463,14 +463,14 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-jcr-store</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -485,14 +485,14 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -507,7 +507,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-phoenix-deployment</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>3.0-M1</version>
     </dependency>
 
     <dependency>
