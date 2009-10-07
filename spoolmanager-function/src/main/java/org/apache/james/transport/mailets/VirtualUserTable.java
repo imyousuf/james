@@ -103,6 +103,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
                     "provided by the container.");
         } else {
             vut = vutStore.getTable(vutName);
+            if (vut == null) throw new MailetException("Could not find VirtualUserTable with name " + vutName);
         }
     }
 
