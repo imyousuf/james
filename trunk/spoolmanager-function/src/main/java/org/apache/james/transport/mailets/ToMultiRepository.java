@@ -124,8 +124,8 @@ public class ToMultiRepository extends GenericMailet {
      *             if an error occurs while storing the mail
      */
     public void service(Mail mail) throws MessagingException {
-        Collection recipients = mail.getRecipients();
-        Collection errors = new Vector();
+        Collection<MailAddress> recipients = mail.getRecipients();
+        Collection<MailAddress> errors = new Vector<MailAddress>();
 
         MimeMessage message = mail.getMessage();
 
@@ -151,7 +151,7 @@ public class ToMultiRepository extends GenericMailet {
             }
         }
 
-        for (Iterator i = recipients.iterator(); i.hasNext();) {
+        for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext();) {
             MailAddress recipient = (MailAddress) i.next();
             try {
                 if (deliveryHeader != null) {
@@ -224,7 +224,7 @@ public class ToMultiRepository extends GenericMailet {
         }
         username = recipient.toString();
 
-        Collection recipients = new HashSet();
+        Collection<MailAddress> recipients = new HashSet<MailAddress>();
         recipients.add(recipient);
         MailImpl mail = new MailImpl(getId(), sender, recipients, message);
         try {

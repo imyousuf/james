@@ -225,9 +225,9 @@ public class StateAwareProcessorList
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
-        Iterator it = processors.keySet().iterator();
+        Iterator<String> it = processors.keySet().iterator();
         while (it.hasNext()) {
-            String processorName = (String)it.next();
+            String processorName = it.next();
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Processor " + processorName);
             }

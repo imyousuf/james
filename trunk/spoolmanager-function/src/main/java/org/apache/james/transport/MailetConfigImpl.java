@@ -93,8 +93,8 @@ public class MailetConfigImpl implements MailetConfig {
      *
      * @return an iterator over the set of configuration parameter names.
      */
-    public Iterator getInitParameterNames() {
-        return new Iterator () {
+    public Iterator<String> getInitParameterNames() {
+        return new Iterator<String> () {
             Configuration[] children;
             int count = 0;
             {
@@ -105,7 +105,7 @@ public class MailetConfigImpl implements MailetConfig {
                 return count < children.length;
             }
 
-            public Object next() {
+            public String next() {
                 return children[count++].getName();
             }
 

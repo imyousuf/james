@@ -47,8 +47,8 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
      * @see org.apache.mailet.base.GenericMailet#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {
-        Collection recipients = mail.getRecipients();
-        Collection errors = new Vector();
+        Collection<MailAddress> recipients = mail.getRecipients();
+        Collection<MailAddress> errors = new Vector<MailAddress>();
 
         MimeMessage message = mail.getMessage();
 
@@ -61,11 +61,11 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
                         (mail.getSender() == null ? "<>" : "<"
                                 + mail.getSender() + ">"));
 
-        Collection newRecipients = new LinkedList();
-        for (Iterator i = recipients.iterator(); i.hasNext();) {
+        Collection<MailAddress> newRecipients = new LinkedList<MailAddress>();
+        for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext();) {
             MailAddress recipient = (MailAddress) i.next();
             try {
-                Collection usernames = processMail(mail.getSender(), recipient,
+                Collection<MailAddress> usernames = processMail(mail.getSender(), recipient,
                         message);
 
                 // if the username is null or changed we remove it from the
@@ -118,11 +118,11 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
      * 
      * @throws MessagingException
      */
-    protected Collection handleMappings(Collection mappings, MailAddress sender, MailAddress recipient,
+    protected Collection<MailAddress> handleMappings(Collection<String> mappings, MailAddress sender, MailAddress recipient,
             MimeMessage message) throws MessagingException {
-        Iterator i = mappings.iterator();
-        Collection remoteRecipients = new ArrayList();
-        Collection localRecipients = new ArrayList();
+        Iterator<String> i = mappings.iterator();
+        Collection<MailAddress> remoteRecipients = new ArrayList<MailAddress>();
+        Collection<MailAddress> localRecipients = new ArrayList<MailAddress>();
         while (i.hasNext()) {
             String rcpt = (String) i.next();
 
@@ -132,7 +132,7 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
             }
 
             MailAddress nextMap = new MailAddress(rcpt);
-            if (getMailetContext().isLocalServer(nextMap.getHost())) {
+            if (getMailetContext().isLocalServer(nextMap.getDomain())) {
                 localRecipients.add(nextMap);
             } else {
                 remoteRecipients.add(nextMap);
@@ -143,7 +143,7 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
             try {
                 getMailetContext().sendMail(sender, remoteRecipients, message);
                 StringBuffer logBuffer = new StringBuffer(128).append("Mail for ").append(recipient).append(" forwarded to ");
-                for (Iterator j = remoteRecipients.iterator(); j.hasNext();) {
+                for (Iterator<MailAddress> j = remoteRecipients.iterator(); j.hasNext();) {
                     logBuffer.append(j.next());
                     if (j.hasNext())
                         logBuffer.append(", ");
@@ -152,7 +152,7 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
                 return null;
             } catch (MessagingException me) {
                 StringBuffer logBuffer = new StringBuffer(128).append("Error forwarding mail to ");
-                for (Iterator j = remoteRecipients.iterator(); j.hasNext();) {
+                for (Iterator<MailAddress> j = remoteRecipients.iterator(); j.hasNext();) {
                     logBuffer.append(j.next());
                     if (j.hasNext())
                         logBuffer.append(", ");
@@ -181,6 +181,6 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
      * 
      * @throws MessagingException
      */
-    public abstract Collection processMail(MailAddress sender, MailAddress recipient,
+    public abstract Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient,
             MimeMessage message) throws MessagingException;
 }
