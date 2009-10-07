@@ -29,7 +29,7 @@ import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
 public class RemoveMappingCmdHandler extends AbstractMappingCmdHandler {
-    private CommandHelp help = new CommandHelp("removemapping ([table=virtualusertablename]) [user@domain] [mapping]","remove mapping for the given emailaddress");
+    private CommandHelp help = new CommandHelp("removemapping ([table=virtualusertablename]) [toUser@toDomain] [fromMapping]","remove mapping for the given emailaddress");
 
     /**
      * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession,

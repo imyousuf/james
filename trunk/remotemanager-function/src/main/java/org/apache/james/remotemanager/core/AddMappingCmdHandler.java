@@ -30,7 +30,7 @@ import org.apache.james.remotemanager.RemoteManagerSession;
 
 public class AddMappingCmdHandler extends AbstractMappingCmdHandler {
 
-    private CommandHelp help = new CommandHelp("addmapping ([table=virtualusertablename]) [user@domain] [mapping]","add mapping for the given emailaddress");
+    private CommandHelp help = new CommandHelp("addmapping ([table=virtualusertablename]) [toUser@toDomain] [fromMapping]","add mapping for the given emailaddress");
     /**
      * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession,
      *      java.lang.String, java.lang.String)

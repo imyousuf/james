@@ -545,8 +545,8 @@ Regards, Postmaster XXX.YYY
          -->
 
 
-         <mailet match='All' class='VirtualUserTable'>
-
+         <mailet match="All" class="VirtualUserTable">
+             <virtualusertable>DefaultVirtualUserTable</virtualusertable>
          </mailet>
 
          <!-- Is the recipient is for a local account, deliver it locally -->
