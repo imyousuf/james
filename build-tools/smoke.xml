@@ -60,7 +60,7 @@
         <attribute name='name'/>
         <sequential>
             <mpt:mpt port='@{port}' script='../build-tools/@{name}.mpt'>
-                <addUser port='${org.apache.james.smoke.port.RemoteManager}' user='user' passwd='passwd'>S: JAMES Remote Administration Tool 3.0-SNAPSHOT
+                <addUser port='${org.apache.james.smoke.port.RemoteManager}' user='user' passwd='passwd'>S: JAMES Remote Administration Tool 3.0-M1
 S: Please enter your login and password
 S: Login id:
 C: root
