@@ -44,9 +44,9 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.MessageHook;
-import org.apache.james.socket.ExtensibleHandler;
-import org.apache.james.socket.LogEnabled;
 import org.apache.james.socket.WiringException;
+import org.apache.james.socket.shared.ExtensibleHandler;
+import org.apache.james.socket.shared.LogEnabled;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -185,7 +185,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
     }
     
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (MessageHook.class.equals(interfaceName)) {
@@ -203,7 +203,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
     }
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> classes = new LinkedList<Class<?>>();

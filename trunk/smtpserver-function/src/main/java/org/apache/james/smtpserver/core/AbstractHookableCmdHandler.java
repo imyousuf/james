@@ -29,7 +29,7 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.HookReturnCode;
-import org.apache.james.socket.ExtensibleHandler;
+import org.apache.james.socket.shared.ExtensibleHandler;
 
 /**
  * Abstract class which Handle hooks.
@@ -178,7 +178,7 @@ public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler
     
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> classes = new ArrayList<Class<?>>(2);
@@ -195,7 +195,7 @@ public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler
     protected abstract Class<Hook> getHookInterface();
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#wireExtensions(java.lang.Class,
+     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class,
      *      java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) {

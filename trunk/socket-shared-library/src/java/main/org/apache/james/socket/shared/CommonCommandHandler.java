@@ -17,28 +17,16 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket;
+package org.apache.james.socket.shared;
 
-import java.io.FilterInputStream;
-import java.io.InputStream;
+import java.util.Collection;
 
-/**
- * InputStream which allows to replace the wrapped InputStream
- * 
- * 
- */
-public class SwitchableInputStream extends FilterInputStream {
-
-    protected SwitchableInputStream(InputStream in) {
-        super(in);
-    }
+public interface CommonCommandHandler {
 
     /**
-     * Set the wrapped InputStream
+     * Return a Collection of implemented commands
      * 
-     * @param in
+     * @return Collection which contains implemented commands
      */
-    public void setWrappedInputStream(InputStream in) {
-        this.in = in;
-    }
+    Collection<String> getImplCommands();
 }

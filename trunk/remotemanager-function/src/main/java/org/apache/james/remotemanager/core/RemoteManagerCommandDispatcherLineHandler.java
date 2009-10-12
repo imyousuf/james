@@ -29,8 +29,8 @@ import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.socket.AbstractCommandDispatcher;
-import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.shared.AbstractCommandDispatcher;
+import org.apache.james.socket.shared.LogEnabled;
 
 public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDispatcher<CommandHandler> implements LineHandler, LogEnabled{
     /** This log is the fall back shared by all instances */
@@ -44,21 +44,21 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
     private Log serviceLog = FALLBACK_LOG;
 
     /**
-     * @see org.apache.james.socket.AbstractCommandDispatcher#getLog()
+     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getLog()
      */
     protected Log getLog() {
         return serviceLog;
     }
 
     /**
-     * @see org.apache.james.socket.AbstractCommandDispatcher#getMandatoryCommands()
+     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getMandatoryCommands()
      */
     protected List<String> getMandatoryCommands() {
         return new ArrayList<String>();
     }
 
     /**
-     * @see org.apache.james.socket.AbstractCommandDispatcher#getUnknownCommandHandler()
+     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getUnknownCommandHandler()
      */
     protected CommandHandler getUnknownCommandHandler() {
         return unknownCmdHandler;
@@ -67,7 +67,7 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
 
     /**
      * (non-Javadoc)
-     * @see org.apache.james.socket.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
+     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
      */
     protected String getUnknownCommandHandlerIdentifier() {
         return UnknownCmdHandler.COMMAND_NAME;
@@ -75,7 +75,7 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
 
     /**
      * (non-Javadoc)
-     * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
      */
     @SuppressWarnings("unchecked")
     public List<Class<?>> getMarkerInterfaces() {
@@ -84,7 +84,7 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
         return mList;
     }
     /**
-     * @see org.apache.james.socket.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.socket.shared.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
     public void setLog(Log log) {
         this.serviceLog = log;

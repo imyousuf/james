@@ -38,8 +38,8 @@ import org.apache.james.smtpserver.hook.HookReturnCode;
 import org.apache.james.smtpserver.hook.MailHook;
 import org.apache.james.smtpserver.hook.MessageHook;
 import org.apache.james.smtpserver.hook.RcptHook;
-import org.apache.james.socket.LogEnabled;
 import org.apache.james.socket.configuration.Configurable;
+import org.apache.james.socket.shared.LogEnabled;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

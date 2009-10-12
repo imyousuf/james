@@ -22,7 +22,7 @@
 package org.apache.james.pop3server;
 
 
-import org.apache.james.socket.CommonCommandHandler;
+import org.apache.james.socket.shared.CommonCommandHandler;
 
 /**
  * Custom command handlers must implement this interface

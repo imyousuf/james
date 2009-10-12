@@ -25,7 +25,7 @@ import org.apache.james.smtpserver.core.esmtp.AuthCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.EhloCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.MailSizeEsmtpExtension;
 import org.apache.james.smtpserver.core.esmtp.StartTlsCmdHandler;
-import org.apache.james.socket.HandlersPackage;
+import org.apache.james.socket.shared.HandlersPackage;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -82,7 +82,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(DATALINEMESSAGEHOOKHANDLER);
         commands.add(STARTTLSHANDLER);    }
     /**
-     * @see org.apache.james.socket.HandlersPackage#getHandlers()
+     * @see org.apache.james.socket.shared.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {
         return commands;

@@ -17,34 +17,64 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket;
+
+package org.apache.james.socket.shared;
 
 import java.io.IOException;
 
 /**
- * Handles protocol interactions.
+ * Session which supports TLS 
+ * 
+ *
  */
-public interface ProtocolHandler {
+public interface TLSSupportedSession extends LogEnabledSession{
+    /**
+     * Returns the user name associated with this interaction.
+     *
+     * @return the user name
+     */
+    String getUser();
 
     /**
-     * Handle the protocol
-     * @param context not null
+     * Sets the user name associated with this interaction.
+     *
+     * @param user the user name
+     */
+    void setUser(String user);
+    
+
+    /**
+     * Returns host name of the client
+     *
+     * @return hostname of the client
+     */
+    String getRemoteHost();
+
+    /**
+     * Returns host ip address of the client
+     *
+     * @return host ip address of the client
+     */
+    String getRemoteIPAddress();
+	/**
+	 * Return true if StartTLS is supported by the configuration
+	 * 
+	 * @return supported
+	 */
+    boolean isStartTLSSupported();
+    
+    /**
+     * Return true if the starttls was started
      * 
-     * @throws IOException get thrown if an IO error is detected
+     * @return true
      */
-    public abstract void handleProtocol(ProtocolContext context) throws IOException;
+    boolean isTLSStarted();
 
     /**
-     * Resets the handler data to a basic state.
+     * Starttls
+     * 
+     * @throws IOException
      */
-    public abstract void resetHandler();
-
-    /**
-     * Called when a fatal failure occurs during processing.
-     * Provides a last ditch chance to send a message to the client.
-     * @param e exception
-     * @param context not null
-     */
-    public abstract void fatalFailure(RuntimeException e, ProtocolContext context);
-
+    void startTLS() throws IOException;
+    
 }

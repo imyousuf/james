@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.james.services.MailRepository;
-import org.apache.james.socket.TLSSupportedSession;
 import org.apache.james.socket.Watchdog;
+import org.apache.james.socket.shared.TLSSupportedSession;
 import org.apache.mailet.Mail;
 
 /**

@@ -17,30 +17,21 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket;
+package org.apache.james.socket.shared;
 
-import java.util.List;
-
+import org.apache.commons.logging.Log;
 
 /**
- * Handlers extends this interface to be notified of available
- * extensions of the given type.
+ * Indicates that a services requires general logging.
+ * Note that this log should only be used for general service operations.
+ * A context sensitive log should be preferred where that is available 
+ * within the context of a call.
  */
-public interface ExtensibleHandler {
-     
+public interface LogEnabled {
+
     /**
-     * Return a List of interfaces of plugins that will
-     * extend this.
+     * Sets the service log.
+     * @param log not null
      */
-    List<Class<?>> getMarkerInterfaces();
-    
-    /**
-     * Method called during initialization after all the handlers have been declared
-     * in the handlerchain.
-     * 
-     * @param interfaceName
-     * @param extension a list of objects implementing the marker interface
-     */
-    void wireExtensions(Class interfaceName, List extension) throws WiringException;
-    
+    public void setLog(Log log);
 }

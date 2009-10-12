@@ -19,7 +19,7 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.james.socket.CommonCommandHandler;
+import org.apache.james.socket.shared.CommonCommandHandler;
 
 public interface CommandHandler extends CommonCommandHandler{
 	

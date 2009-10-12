@@ -27,8 +27,8 @@ import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.socket.ExtensibleHandler;
 import org.apache.james.socket.WiringException;
+import org.apache.james.socket.shared.ExtensibleHandler;
 
 public class HelpCmdHandler implements CommandHandler, ExtensibleHandler{
 
@@ -64,7 +64,7 @@ public class HelpCmdHandler implements CommandHandler, ExtensibleHandler{
     }
   
     /**
-     * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
+     * @see org.apache.james.socket.shared.CommonCommandHandler#getImplCommands()
      */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();
@@ -73,7 +73,7 @@ public class HelpCmdHandler implements CommandHandler, ExtensibleHandler{
     }
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
      */
     @SuppressWarnings("unchecked")
     public List<Class<?>> getMarkerInterfaces() {
@@ -83,7 +83,7 @@ public class HelpCmdHandler implements CommandHandler, ExtensibleHandler{
     }
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (interfaceName.equals(CommandHandler.class)) {

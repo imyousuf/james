@@ -34,8 +34,8 @@ import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
-import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.configuration.JamesConfiguration;
+import org.apache.james.socket.shared.ProtocolHandler;
 
 /**
  * Provides a really rude network interface to administer James.

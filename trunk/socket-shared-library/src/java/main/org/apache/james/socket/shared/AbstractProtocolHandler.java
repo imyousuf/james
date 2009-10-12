@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.socket;
+package org.apache.james.socket.shared;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public abstract class AbstractProtocolHandler implements ProtocolHandler, TLSSup
     private String user;
 
     /**
-     * @see org.apache.james.socket.ProtocolHandler#resetHandler()
+     * @see org.apache.james.socket.shared.ProtocolHandler#resetHandler()
      */
     public void resetHandler() {
         user = null;
@@ -44,7 +44,7 @@ public abstract class AbstractProtocolHandler implements ProtocolHandler, TLSSup
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandler#handleProtocol(org.apache.james.socket.ProtocolContext)
+     * @see org.apache.james.socket.shared.ProtocolHandler#handleProtocol(org.apache.james.socket.shared.ProtocolContext)
      */
     public void handleProtocol(ProtocolContext context) throws IOException {
         this.context = context;
@@ -52,42 +52,42 @@ public abstract class AbstractProtocolHandler implements ProtocolHandler, TLSSup
     }
 
     /**
-     * @see org.apache.james.socket.TLSSupportedSession#getRemoteHost()
+     * @see org.apache.james.socket.shared.TLSSupportedSession#getRemoteHost()
      */
     public String getRemoteHost() {
         return context.getRemoteHost();
     }
 
     /**
-     * @see org.apache.james.socket.TLSSupportedSession#getRemoteIPAddress()
+     * @see org.apache.james.socket.shared.TLSSupportedSession#getRemoteIPAddress()
      */
     public String getRemoteIPAddress() {
         return context.getRemoteIP();
     }
 
     /**
-     * @see org.apache.james.socket.TLSSupportedSession#getUser()
+     * @see org.apache.james.socket.shared.TLSSupportedSession#getUser()
      */
     public String getUser() {
         return user;
     }
 
     /**
-     * @see org.apache.james.socket.TLSSupportedSession#isTLSStarted()
+     * @see org.apache.james.socket.shared.TLSSupportedSession#isTLSStarted()
      */
     public boolean isTLSStarted() {
         return context.isSecure();
     }
 
     /**
-     * @see org.apache.james.socket.TLSSupportedSession#setUser(java.lang.String)
+     * @see org.apache.james.socket.shared.TLSSupportedSession#setUser(java.lang.String)
      */
     public void setUser(String user) {
         this.user = user;
     }
 
     /**
-     * @see org.apache.james.socket.TLSSupportedSession#startTLS()
+     * @see org.apache.james.socket.shared.TLSSupportedSession#startTLS()
      */
     public void startTLS() throws IOException {
         context.secure();
@@ -95,14 +95,14 @@ public abstract class AbstractProtocolHandler implements ProtocolHandler, TLSSup
     
     
     /**
-     * @see org.apache.james.socket.TLSSupportedSession#getLogger()
+     * @see org.apache.james.socket.shared.TLSSupportedSession#getLogger()
      */
     public Log getLogger() {
         return context.getLogger();
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolHandler#fatalFailure(java.lang.RuntimeException, org.apache.james.socket.ProtocolContext)
+     * @see org.apache.james.socket.shared.ProtocolHandler#fatalFailure(java.lang.RuntimeException, org.apache.james.socket.shared.ProtocolContext)
      */
     public void fatalFailure(RuntimeException e, ProtocolContext context) {
     }
