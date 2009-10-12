@@ -29,7 +29,7 @@ import java.io.InputStream;
  */
 public class SwitchableInputStream extends FilterInputStream {
 
-    protected SwitchableInputStream(InputStream in) {
+    public SwitchableInputStream(InputStream in) {
         super(in);
     }
 
