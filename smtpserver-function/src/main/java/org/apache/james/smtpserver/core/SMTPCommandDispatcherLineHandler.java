@@ -98,8 +98,12 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
 
             }        
         } catch (UnsupportedEncodingException e) {
-            // TODO Define what to do
-            e.printStackTrace();
+            // This should never happen, anyway return a error message and disconnect is prolly the best thing todo here
+            session.getLogger().error("Unable to parse line",e);
+            //end the session
+            SMTPResponse resp = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to parse line.");
+            resp.setEndSession(true);
+            session.writeSMTPResponse(resp);
         }
     }
 
