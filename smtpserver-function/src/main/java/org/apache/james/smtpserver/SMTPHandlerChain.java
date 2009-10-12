@@ -28,8 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.core.CoreMessageHookLoader;
 import org.apache.james.smtpserver.core.DataLineMessageHookHandler;
-import org.apache.james.socket.AbstractHandlerChain;
-import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.shared.AbstractHandlerChain;
+import org.apache.james.socket.shared.LogEnabled;
 
 /**
   * The SMTPHandlerChain is per service object providing access
@@ -77,14 +77,14 @@ public class SMTPHandlerChain extends AbstractHandlerChain implements LogEnabled
     }
 
     /**
-     * @see org.apache.james.socket.AbstractHandlerChain#getLog()
+     * @see org.apache.james.socket.shared.AbstractHandlerChain#getLog()
      */
     protected Log getLog() {
         return log;
     }
 
     /**
-     * @see org.apache.james.socket.AbstractHandlerChain#getCoreCmdHandlerLoader()
+     * @see org.apache.james.socket.shared.AbstractHandlerChain#getCoreCmdHandlerLoader()
      */
     protected Class<?> getCoreCmdHandlerLoader() {
         return CoreCmdHandlerLoader.class;

@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket;
+package org.apache.james.socket.shared;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.socket.WiringException;
 
 /**
  * Abstract base class which CommandDispatcher implementations should extend
@@ -79,7 +80,7 @@ public abstract class AbstractCommandDispatcher<CommandHandler extends CommonCom
 
     /**
      * @throws WiringException 
-     * @see org.apache.james.socket.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     @SuppressWarnings("unchecked")
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {

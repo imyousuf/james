@@ -17,14 +17,24 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket;
 
-import org.apache.commons.logging.Log;
 
-public interface LogEnabledSession {
+package org.apache.james.socket.shared;
+
+import java.util.List;
+
+/**
+ * Provides a mean to bundle a set of handlers (defined by their classnames) within
+ * a single object.
+ * This is used for the default set of CoreCommands.
+ */
+public interface HandlersPackage {
+    
     /**
-     * Gets the context sensitive log for this session.
-     * @return log, not null
+     * Return a List which contains a set of CommandHandlers
+     * 
+     * @return Map
      */
-    public Log getLogger();
+    List<String> getHandlers();
+
 }

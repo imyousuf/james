@@ -17,64 +17,14 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.socket.shared;
 
-package org.apache.james.socket;
+import org.apache.commons.logging.Log;
 
-import java.io.IOException;
-
-/**
- * Session which supports TLS 
- * 
- *
- */
-public interface TLSSupportedSession extends LogEnabledSession{
+public interface LogEnabledSession {
     /**
-     * Returns the user name associated with this interaction.
-     *
-     * @return the user name
+     * Gets the context sensitive log for this session.
+     * @return log, not null
      */
-    String getUser();
-
-    /**
-     * Sets the user name associated with this interaction.
-     *
-     * @param user the user name
-     */
-    void setUser(String user);
-    
-
-    /**
-     * Returns host name of the client
-     *
-     * @return hostname of the client
-     */
-    String getRemoteHost();
-
-    /**
-     * Returns host ip address of the client
-     *
-     * @return host ip address of the client
-     */
-    String getRemoteIPAddress();
-	/**
-	 * Return true if StartTLS is supported by the configuration
-	 * 
-	 * @return supported
-	 */
-    boolean isStartTLSSupported();
-    
-    /**
-     * Return true if the starttls was started
-     * 
-     * @return true
-     */
-    boolean isTLSStarted();
-
-    /**
-     * Starttls
-     * 
-     * @throws IOException
-     */
-    void startTLS() throws IOException;
-    
+    public Log getLogger();
 }

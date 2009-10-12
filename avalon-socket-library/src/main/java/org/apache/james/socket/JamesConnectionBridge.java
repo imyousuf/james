@@ -40,6 +40,11 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.socket.shared.CRLFTerminatedReader;
+import org.apache.james.socket.shared.ProtocolContext;
+import org.apache.james.socket.shared.ProtocolHandler;
+import org.apache.james.socket.shared.SwitchableInputStream;
+import org.apache.james.socket.shared.SwitchableOutputStream;
 import org.apache.james.util.InternetPrintWriter;
 
 /**
@@ -490,63 +495,63 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#getRemoteIP()
+     * @see org.apache.james.socket.shared.ProtocolContext#getRemoteIP()
      */
     public String getRemoteIP() {
         return remoteIP;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#getInputReader()
+     * @see org.apache.james.socket.shared.ProtocolContext#getInputReader()
      */
     public CRLFTerminatedReader getInputReader() {
         return inReader;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#getInputStream()
+     * @see org.apache.james.socket.shared.ProtocolContext#getInputStream()
      */
     public InputStream getInputStream() {
         return in;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#getOutputStream()
+     * @see org.apache.james.socket.shared.ProtocolContext#getOutputStream()
      */
     public OutputStream getOutputStream() {
         return outs;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#getOutputWriter()
+     * @see org.apache.james.socket.shared.ProtocolContext#getOutputWriter()
      */
     public PrintWriter getOutputWriter() {
         return out;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#getRemoteHost()
+     * @see org.apache.james.socket.shared.ProtocolContext#getRemoteHost()
      */
     public String getRemoteHost() {
         return remoteHost;
     }
     
     /**
-     * @see org.apache.james.socket.ProtocolContext#getWatchdog()
+     * @see org.apache.james.socket.shared.ProtocolContext#getWatchdog()
      */
     public Watchdog getWatchdog() {
         return theWatchdog;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#getLogger()
+     * @see org.apache.james.socket.shared.ProtocolContext#getLogger()
      */
     public Log getLogger() {
         return log;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#isDisconnected()
+     * @see org.apache.james.socket.shared.ProtocolContext#isDisconnected()
      */
     public boolean isDisconnected() {
         return socket == null;
@@ -560,14 +565,14 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#isSecure()
+     * @see org.apache.james.socket.shared.ProtocolContext#isSecure()
      */
     public boolean isSecure() {
         return secureEnabled;
     }
 
     /**
-     * @see org.apache.james.socket.ProtocolContext#secure()
+     * @see org.apache.james.socket.shared.ProtocolContext#secure()
      */
     public void secure() throws IOException {
         if (factory == null) {

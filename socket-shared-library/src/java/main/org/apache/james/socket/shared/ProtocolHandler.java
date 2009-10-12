@@ -17,24 +17,34 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.socket.shared;
 
-
-package org.apache.james.socket;
-
-import java.util.List;
+import java.io.IOException;
 
 /**
- * Provides a mean to bundle a set of handlers (defined by their classnames) within
- * a single object.
- * This is used for the default set of CoreCommands.
+ * Handles protocol interactions.
  */
-public interface HandlersPackage {
-    
+public interface ProtocolHandler {
+
     /**
-     * Return a List which contains a set of CommandHandlers
+     * Handle the protocol
+     * @param context not null
      * 
-     * @return Map
+     * @throws IOException get thrown if an IO error is detected
      */
-    List<String> getHandlers();
+    public abstract void handleProtocol(ProtocolContext context) throws IOException;
+
+    /**
+     * Resets the handler data to a basic state.
+     */
+    public abstract void resetHandler();
+
+    /**
+     * Called when a fatal failure occurs during processing.
+     * Provides a last ditch chance to send a message to the client.
+     * @param e exception
+     * @param context not null
+     */
+    public abstract void fatalFailure(RuntimeException e, ProtocolContext context);
 
 }

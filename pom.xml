@@ -60,6 +60,7 @@
     <module>jcr-store</module>
     <module>phoenix-deployment</module>
     <module>spring-deployment</module>
+    <module>socket-shared-library</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -250,6 +251,12 @@
   </distributionManagement>
   <dependencyManagement>
     <dependencies>
+    
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-socket-shared-library</artifactId>
+      <version>3.0-M1</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>

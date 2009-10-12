@@ -33,8 +33,8 @@ import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
-import org.apache.james.socket.ProtocolHandler;
 import org.apache.james.socket.configuration.JamesConfiguration;
+import org.apache.james.socket.shared.ProtocolHandler;
 import org.apache.mailet.MailetContext;
 
 /**

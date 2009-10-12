@@ -40,8 +40,8 @@ import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.socket.ExtensibleHandler;
 import org.apache.james.socket.WiringException;
+import org.apache.james.socket.shared.ExtensibleHandler;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
 
@@ -303,7 +303,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
 
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
      */
     public List getMarkerInterfaces() {
         List classes = new LinkedList();
@@ -313,7 +313,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
 
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (DataLineFilter.class.equals(interfaceName)) {

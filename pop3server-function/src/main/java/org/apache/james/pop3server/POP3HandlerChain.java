@@ -24,8 +24,8 @@ package org.apache.james.pop3server;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
-import org.apache.james.socket.AbstractHandlerChain;
-import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.shared.AbstractHandlerChain;
+import org.apache.james.socket.shared.LogEnabled;
 
 /**
   * The POP3HandlerChain is per service object providing access
@@ -41,7 +41,7 @@ public class POP3HandlerChain extends AbstractHandlerChain implements LogEnabled
     
 
     /**
-     * @see org.apache.james.socket.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.socket.shared.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
     public void setLog(Log log) {
         this.log = log;
@@ -49,14 +49,14 @@ public class POP3HandlerChain extends AbstractHandlerChain implements LogEnabled
 
 
     /**
-     * @see org.apache.james.socket.AbstractHandlerChain#getLog()
+     * @see org.apache.james.socket.shared.AbstractHandlerChain#getLog()
      */
     protected Log getLog() {
         return log;
     }
 
     /**
-     * @see org.apache.james.socket.AbstractHandlerChain#getCoreCmdHandlerLoader()
+     * @see org.apache.james.socket.shared.AbstractHandlerChain#getCoreCmdHandlerLoader()
      */
     protected Class<?> getCoreCmdHandlerLoader() {
         return CoreCmdHandlerLoader.class;

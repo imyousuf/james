@@ -30,8 +30,8 @@ import org.apache.james.pop3server.CommandHandler;
 import org.apache.james.pop3server.LineHandler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.socket.AbstractCommandDispatcher;
-import org.apache.james.socket.LogEnabled;
+import org.apache.james.socket.shared.AbstractCommandDispatcher;
+import org.apache.james.socket.shared.LogEnabled;
 
 public class POP3CommandDispatcherLineHandler extends
         AbstractCommandDispatcher<CommandHandler> implements LineHandler, LogEnabled {
@@ -48,28 +48,28 @@ public class POP3CommandDispatcherLineHandler extends
     private Log serviceLog = FALLBACK_LOG;
 
     /**
-     * @see org.apache.james.socket.AbstractCommandDispatcher#getLog()
+     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getLog()
      */
     protected Log getLog() {
         return serviceLog;
     }
 
     /**
-     * @see org.apache.james.socket.AbstractCommandDispatcher#getMandatoryCommands()
+     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getMandatoryCommands()
      */
     protected List<String> getMandatoryCommands() {
         return Arrays.asList(mandatoryCommands);
     }
 
     /**
-     * @see org.apache.james.socket.AbstractCommandDispatcher#getUnknownCommandHandler()
+     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getUnknownCommandHandler()
      */
     protected CommandHandler getUnknownCommandHandler() {
         return unknownHandler;
     }
 
     /**
-     * @see org.apache.james.socket.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
+     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
      */
     protected String getUnknownCommandHandlerIdentifier() {
         return UnknownCmdHandler.COMMAND_NAME;
@@ -139,7 +139,7 @@ public class POP3CommandDispatcherLineHandler extends
     }
 
     /**
-     * @see org.apache.james.socket.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.socket.shared.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
     public void setLog(Log log) {
         this.serviceLog = log;

@@ -90,7 +90,7 @@ public class VerifyCmdHandler implements CommandHandler{
 
 
     /**
-     * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
+     * @see org.apache.james.socket.shared.CommonCommandHandler#getImplCommands()
      */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();

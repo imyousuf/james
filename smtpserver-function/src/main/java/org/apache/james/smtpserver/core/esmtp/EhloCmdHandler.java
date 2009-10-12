@@ -87,7 +87,7 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
     }
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> classes = super.getMarkerInterfaces();
@@ -96,7 +96,7 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
     }
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#wireExtensions(java.lang.Class,
+     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class,
      *      java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) {

@@ -27,8 +27,8 @@ import java.util.List;
 import org.apache.james.pop3server.CommandHandler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.socket.ExtensibleHandler;
 import org.apache.james.socket.WiringException;
+import org.apache.james.socket.shared.ExtensibleHandler;
 
 /**
  * This handler is used to handle CAPA commands
@@ -57,7 +57,7 @@ public class CapaCmdHandler implements CommandHandler, ExtensibleHandler, CapaCa
 	
 
 	/**
-	 * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
+	 * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
 	 */
 	@SuppressWarnings("unchecked")
     public List<Class<?>> getMarkerInterfaces() {
@@ -67,7 +67,7 @@ public class CapaCmdHandler implements CommandHandler, ExtensibleHandler, CapaCa
     }
 
     /**
-     * @see org.apache.james.socket.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     @SuppressWarnings("unchecked")
     public void wireExtensions(Class interfaceName, List extension)
@@ -78,7 +78,7 @@ public class CapaCmdHandler implements CommandHandler, ExtensibleHandler, CapaCa
     }
 
     /**
-     * @see org.apache.james.socket.CommonCommandHandler#getImplCommands()
+     * @see org.apache.james.socket.shared.CommonCommandHandler#getImplCommands()
      */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();

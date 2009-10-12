@@ -58,6 +58,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.FileSystem;
+import org.apache.james.socket.shared.ProtocolHandler;
 
 /**
  * Server which creates connection handlers. All new James service must

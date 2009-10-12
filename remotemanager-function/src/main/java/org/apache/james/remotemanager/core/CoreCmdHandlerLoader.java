@@ -22,7 +22,7 @@ package org.apache.james.remotemanager.core;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.socket.HandlersPackage;
+import org.apache.james.socket.shared.HandlersPackage;
 
 public class CoreCmdHandlerLoader implements HandlersPackage{
     private final List<String> commands = new LinkedList<String>();
@@ -118,7 +118,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
     }
     
     /**
-     * @see org.apache.james.socket.HandlersPackage#getHandlers()
+     * @see org.apache.james.socket.shared.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {
         return commands;

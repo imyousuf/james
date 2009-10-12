@@ -32,10 +32,10 @@ import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.MailRepository;
-import org.apache.james.socket.AbstractProtocolHandler;
-import org.apache.james.socket.CRLFTerminatedReader;
-import org.apache.james.socket.ProtocolContext;
 import org.apache.james.socket.Watchdog;
+import org.apache.james.socket.shared.AbstractProtocolHandler;
+import org.apache.james.socket.shared.CRLFTerminatedReader;
+import org.apache.james.socket.shared.ProtocolContext;
 import org.apache.mailet.Mail;
 
 /**
@@ -117,7 +117,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
     
 
     /**
-     * @see org.apache.james.socket.AbstractProtocolHandler#handleProtocolInternal(org.apache.james.socket.ProtocolContext)
+     * @see org.apache.james.socket.shared.AbstractProtocolHandler#handleProtocolInternal(org.apache.james.socket.shared.ProtocolContext)
      */
     public void handleProtocolInternal(ProtocolContext context) throws IOException {
         this.context = context;
@@ -311,7 +311,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
 
 
 	/**
-	 * @see org.apache.james.socket.TLSSupportedSession#isStartTLSSupported()
+	 * @see org.apache.james.socket.shared.TLSSupportedSession#isStartTLSSupported()
 	 */
 	public boolean isStartTLSSupported() {
 		return getConfigurationData().isStartTLSSupported();
