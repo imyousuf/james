@@ -63,8 +63,7 @@ public class SMTPSessionImpl implements SMTPSession {
             smtpID = random.nextInt(1024) + "";
 
             this.socketAddress = (InetSocketAddress) session.getRemoteAddress();
-            // relayingAllowed = theConfigData.isRelayingAllowed(socketAddress
-             //       .getAddress().toString());
+            relayingAllowed = theConfigData.isRelayingAllowed(getRemoteHost());
             session.setAttribute(FilterLineHandlerAdapter.SMTP_SESSION, this);
             this.logger = logger;
             
@@ -223,8 +222,7 @@ public class SMTPSessionImpl implements SMTPSession {
          * @see org.apache.james.smtpserver.SMTPSession#isAuthSupported()
          */
         public boolean isAuthSupported() {
-            return false;
-            //return theConfigData.isAuthRequired(socketAddress.getAddress().getHostAddress());
+            return theConfigData.isAuthRequired(socketAddress.getAddress().getHostAddress());
         }
 
 
