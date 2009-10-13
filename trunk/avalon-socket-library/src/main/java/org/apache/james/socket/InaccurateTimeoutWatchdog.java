@@ -21,6 +21,7 @@
 package org.apache.james.socket;
 
 import org.apache.excalibur.thread.ThreadPool;
+import org.apache.james.socket.shared.Watchdog;
 import org.apache.avalon.framework.activity.Disposable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;

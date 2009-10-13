@@ -32,7 +32,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
-import org.apache.james.socket.WiringException;
 
 /**
  * Abstract class which HandlerChains should extend

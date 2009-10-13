@@ -21,8 +21,8 @@ package org.apache.james.remotemanager;
 
 import java.util.Map;
 
-import org.apache.james.socket.Watchdog;
 import org.apache.james.socket.shared.LogEnabledSession;
+import org.apache.james.socket.shared.Watchdog;
 
 public interface RemoteManagerSession extends LogEnabledSession{
 

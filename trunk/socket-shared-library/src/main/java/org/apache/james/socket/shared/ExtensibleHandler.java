@@ -21,7 +21,6 @@ package org.apache.james.socket.shared;
 
 import java.util.List;
 
-import org.apache.james.socket.WiringException;
 
 
 /**

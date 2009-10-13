@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.socket.Watchdog;
 
 /**
  * This is the helper interface provided to ProtocolHandlers to let them

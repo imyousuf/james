@@ -20,6 +20,8 @@
 
 package org.apache.james.socket;
 
+import org.apache.james.socket.shared.Watchdog;
+
 /**
  * This interface represents a factory for producing Watchdogs.
  *

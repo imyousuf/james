@@ -50,6 +50,17 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-jxpath</groupId>
+      <artifactId>commons-jxpath</artifactId>
+      <scope>runtime</scope>
+    </dependency> 
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-domain-api</artifactId>
     </dependency>
     <dependency>

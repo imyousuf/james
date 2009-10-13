@@ -16,43 +16,33 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.socket;
+
+
+package org.apache.james.socket.shared;
 
 /**
- * Indicates an issue prevent the successful wiring of the components
- * composing the SMTP processor.
+ * This interface represents an abstract watchdog process that serves to
+ * monitor a situation and triggers an action under an implementation-specific
+ * trigger condition.
+ *
  */
-public class WiringException extends Exception {
-
-    private static final long serialVersionUID = 8824880646965171467L;
+public interface Watchdog {
 
     /**
-     * Empty constructor
+     * Start this Watchdog, causing it to begin monitoring.  The Watchdog can
+     * be stopped and restarted.
      */
-    public WiringException() {
-        super();
-    }
+    void start();
 
     /**
-     * @param message
-     * @param t
+     * Reset this Watchdog.  Resets any conditions in the implementations
+     * (time to expiration, etc.) to their original values
      */
-    public WiringException(String message, Throwable t) {
-        super(message, t);
-    }
+    void reset();
 
     /**
-     * @param message
+     * Stop this Watchdog, terminating the monitoring condition.  The monitor
+     * can be restarted with a call to startWatchdog.
      */
-    public WiringException(String message) {
-        super(message);
-    }
-
-    /**
-     * @param t
-     */
-    public WiringException(Throwable t) {
-        super(t);
-    }
-
+    void stop();
 }

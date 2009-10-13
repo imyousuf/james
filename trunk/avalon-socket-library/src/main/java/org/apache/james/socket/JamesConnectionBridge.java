@@ -45,6 +45,7 @@ import org.apache.james.socket.shared.ProtocolContext;
 import org.apache.james.socket.shared.ProtocolHandler;
 import org.apache.james.socket.shared.SwitchableInputStream;
 import org.apache.james.socket.shared.SwitchableOutputStream;
+import org.apache.james.socket.shared.Watchdog;
 import org.apache.james.util.InternetPrintWriter;
 
 /**

@@ -23,6 +23,7 @@ package org.apache.james.socket;
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.Target;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
+import org.apache.james.socket.shared.Watchdog;
 
 /**
  * This class is a factory to produce Watchdogs, each of which is associated
