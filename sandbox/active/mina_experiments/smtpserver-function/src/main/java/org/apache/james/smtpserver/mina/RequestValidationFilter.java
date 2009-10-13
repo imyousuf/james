@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.mina;
 
+import org.apache.commons.logging.Log;
 import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
@@ -30,23 +31,23 @@ import org.apache.mina.core.write.WriteRequest;
  */
 public class RequestValidationFilter extends AbstractValidationFilter {
 
+    public RequestValidationFilter(Log logger) {
+        super(logger);
+    }
+
     /**
      * @see org.apache.mina.core.filterchain.IoFilterAdapter#messageReceived(org.apache.mina.core.filterchain.IoFilter.NextFilter,
      *      org.apache.mina.core.session.IoSession, java.lang.Object)
      */
     public void messageReceived(NextFilter nextFilter, IoSession session,
             Object message) throws Exception {
-        // TODO Auto-generated method stub
         if (message instanceof SMTPRequest) {
             super.messageReceived(nextFilter, session, message);
         } else {
-            getLogger()
-                    .error(
-                            "The Received object is not an instance of SMTPRequestImpl");
+            getLogger().error("The Received object is not an instance of SMTPRequestImpl");
             WriteRequest req = new DefaultWriteRequest(new SMTPResponse(
                     SMTPRetCode.TRANSACTION_FAILED,
-                    "Cannot handle Request of type "
-                            + (message != null ? message.getClass() : "NULL")));
+                    "Cannot handle Request of type " + (message != null ? message.getClass() : "NULL")));
             nextFilter.filterWrite(session, req);
         }
     }

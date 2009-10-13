@@ -137,7 +137,7 @@ public class SMTPCommandDispatcherIoHandler extends
      */
     public void messageSent(IoSession session, Object message) throws Exception {
         // Nothing todo here
-
+        System.err.println("SEND="+message);
     }
 
     /**

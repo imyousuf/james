@@ -22,17 +22,16 @@ import org.apache.commons.logging.Log;
 import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
-import org.apache.james.socket.shared.LogEnabled;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.DefaultWriteRequest;
 import org.apache.mina.core.write.WriteRequest;
 
-public class AbstractValidationFilter extends IoFilterAdapter implements LogEnabled {
+public class AbstractValidationFilter extends IoFilterAdapter {
 
     private Log logger;
     
-    public void setLog(Log logger) {
+    public AbstractValidationFilter(Log logger) {
         this.logger = logger;
     }
     

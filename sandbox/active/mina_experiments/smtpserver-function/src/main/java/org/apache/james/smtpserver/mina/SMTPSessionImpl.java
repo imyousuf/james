@@ -143,7 +143,7 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see com.googlecode.asyncmail.smtpserver.SMTPSession#setUser(java.lang.String)
+         * @see org.apache.james.socket.shared.TLSSupportedSession#setUser(java.lang.String)
          */
         public void setUser(String user) {
             this.user = user;

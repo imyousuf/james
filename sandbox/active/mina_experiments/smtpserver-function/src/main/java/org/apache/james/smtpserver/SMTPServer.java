@@ -45,11 +45,11 @@ import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.mina.RequestValidationFilter;
 import org.apache.james.smtpserver.mina.SMTPCommandDispatcherIoHandler;
 import org.apache.james.smtpserver.mina.SMTPResponseFilter;
-import org.apache.james.smtpserver.mina.TextLineCodecFactory;
 import org.apache.james.socket.configuration.JamesConfiguration;
 import org.apache.mailet.MailetContext;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
@@ -562,12 +562,13 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
         SocketAcceptor acceptor = new NioSocketAcceptor();
         acceptor.setHandler(new SMTPCommandDispatcherIoHandler(handlerChain, theConfigData));
         
-        acceptor.getFilterChain().addLast("loggingFilter",new LoggingFilter("blah"));
+        acceptor.getFilterChain().addLast("loggingFilter",new LoggingFilter());
         acceptor.getFilterChain().addLast("protocolCodecFactory", codecFactory);
         acceptor.getFilterChain().addLast("smtpResponseFilter", new SMTPResponseFilter());
-        acceptor.getFilterChain().addLast("requestValidationFilter", new RequestValidationFilter());
+        acceptor.getFilterChain().addLast("requestValidationFilter", new RequestValidationFilter(new AvalonLogger(getLogger())));
         acceptor.setBacklog(backlog);
-        acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, 120 );
+        acceptor.setReuseAddress(true);
+        acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, timeout );
         acceptor.bind(new InetSocketAddress(bindTo,port));
     }
 
