@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -82,7 +83,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
             } else {
                 int count = commandHandlers.size();
                 for(int i = 0; i < count; i++) {
-                    SMTPResponse response = commandHandlers.get(i).onCommand(session, curCommandName, curCommandArgument);
+                    SMTPResponse response = commandHandlers.get(i).onCommand(session, new SMTPRequest(curCommandName,curCommandArgument));
                     
                     session.writeSMTPResponse(response);
                     

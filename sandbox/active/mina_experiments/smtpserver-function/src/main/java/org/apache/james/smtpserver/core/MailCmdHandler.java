@@ -32,7 +32,7 @@ import javax.annotation.Resource;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -44,8 +44,7 @@ import org.apache.mailet.MailAddress;
 /**
  * Handles MAIL command
  */
-public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> implements
-        CommandHandler {
+public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> {
 
     /**
      * A map of parameterHooks
@@ -71,10 +70,11 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
         this.mailServer = mailServer;
     }
 
-    @Override
-	public SMTPResponse onCommand(SMTPSession session, String command,
-			String parameters) {
-		SMTPResponse response =  super.onCommand(session, command, parameters);
+    /**
+     * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#onCommand(org.apache.james.smtpserver.SMTPSession, org.apache.james.smtpserver.SMTPRequest)
+     */
+	public SMTPResponse onCommand(SMTPSession session,SMTPRequest request) {
+	    SMTPResponse response =  super.onCommand(session, request);
 		// Check if the response was not ok 
 		if (response.getRetCode().equals(SMTPRetCode.MAIL_OK) == false) {
 			// cleanup the session
@@ -296,6 +296,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> impleme
     /**
      * @see org.apache.james.smtpserver.core.AbstractHookableCmdHandler#wireExtensions(java.lang.Class, java.util.List)
      */
+    @SuppressWarnings("unchecked")
     public void wireExtensions(Class interfaceName, List extension) {
         if (MailParametersHook.class.equals(interfaceName)) {
             this.paramHooks = new HashMap<String, MailParametersHook>();

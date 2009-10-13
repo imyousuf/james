@@ -21,21 +21,38 @@
 
 package org.apache.james.smtpserver;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+
 import javax.annotation.Resource;
 
+import org.apache.avalon.framework.activity.Initializable;
+import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.Constants;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.AbstractProtocolServer;
+import org.apache.james.smtpserver.mina.RequestValidationFilter;
+import org.apache.james.smtpserver.mina.SMTPCommandDispatcherIoHandler;
+import org.apache.james.smtpserver.mina.SMTPResponseFilter;
+import org.apache.james.smtpserver.mina.TextLineCodecFactory;
 import org.apache.james.socket.configuration.JamesConfiguration;
-import org.apache.james.socket.shared.ProtocolHandler;
 import org.apache.mailet.MailetContext;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.logging.LoggingFilter;
+import org.apache.mina.transport.socket.SocketAcceptor;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 /**
  * <p>Accepts SMTP connections on a server socket and dispatches them to SMTPHandlers.</p>
@@ -48,9 +65,32 @@ import org.apache.mailet.MailetContext;
  * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
  * lifecycle methods, you MUST call super.<method> as well.
  */
-public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBean {
+public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, Serviceable, Initializable, Configurable {
+    /**
+     * The default value for the connection backlog.
+     */
+    protected static final int DEFAULT_BACKLOG = 5;
+    
+    /**
+     * The default value for the connection timeout.
+     */
+    protected static final int DEFAULT_TIMEOUT = 5* 60 * 1000;
 
+    /**
+     * The name of the parameter defining the connection timeout.
+     */
+    protected static final String TIMEOUT_NAME = "connectiontimeout";
 
+    /**
+     * The name of the parameter defining the connection backlog.
+     */
+    protected static final String BACKLOG_NAME = "connectionBacklog";
+
+    /**
+     * The name of the parameter defining the service hello name.
+     */
+    public static final String HELLO_NAME = "helloName";
+    
     /**
      * The handler chain - SMTPhandlers can lookup handlerchain to obtain
      * Command handlers , Message handlers and connection handlers
@@ -119,6 +159,20 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     = new SMTPHandlerConfigurationDataImpl();
 
     private boolean addressBracketsEnforcement = true;
+
+    private DNSService dns;
+
+    public String helloName;
+
+    private boolean enabled;
+
+    private int port;
+
+    private InetAddress bindTo;
+
+    private int timeout;
+
+    private int backlog;
     
     /**
      * Gets the current instance loader.
@@ -136,24 +190,144 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     public final void setLoader(LoaderService loader) {
         this.loader = loader;
     }
+    
+    public void setDNSService(DNSService dns) {
+        this.dns = dns;
+    }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service( final ServiceManager manager ) throws ServiceException {
-        super.service( manager );
         mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         mailServer = (MailServer) manager.lookup(MailServer.ROLE);
+        dns = (DNSService) manager.lookup(DNSService.ROLE);
     }
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(final Configuration configuration) throws ConfigurationException {
-        super.configure(configuration);
+        enabled = configuration.getAttributeAsBoolean("enabled", true);
+        final Logger logger = getLogger();
+        if (!enabled) {
+          logger.info(getServiceType() + " disabled by configuration");
+          return;
+        }
+
+        Configuration handlerConfiguration = configuration.getChild("handler");
+
+        
+        /*
+        boolean streamdump=handlerConfiguration.getChild("streamdump").getAttributeAsBoolean("enabled", false);
+        String streamdumpDir=streamdump ? handlerConfiguration.getChild("streamdump").getAttribute("directory", null) : null;
+        setStreamDumpDir(streamdumpDir);
+        */
+
+        port = configuration.getChild("port").getValueAsInteger(25);
+
+     
+
+        StringBuilder infoBuffer;
+        
+
+        try {
+            final String bindAddress = configuration.getChild("bind").getValue(null);
+            if( null != bindAddress ) {
+                bindTo = InetAddress.getByName(bindAddress);
+                infoBuffer =
+                    new StringBuilder(64)
+                            .append(getServiceType())
+                            .append(" bound to: ")
+                            .append(bindTo);
+                logger.info(infoBuffer.toString());
+            }
+        }
+        catch( final UnknownHostException unhe ) {
+            throw new ConfigurationException( "Malformed bind parameter in configuration of service " + getServiceType(), unhe );
+        }
+
+        configureHelloName(handlerConfiguration);
+
+        timeout = handlerConfiguration.getChild(TIMEOUT_NAME).getValueAsInteger(DEFAULT_TIMEOUT);
+
+        infoBuffer =
+            new StringBuilder(64)
+                    .append(getServiceType())
+                    .append(" handler connection timeout is: ")
+                    .append(timeout);
+        logger.info(infoBuffer.toString());
+
+        backlog = configuration.getChild(BACKLOG_NAME).getValueAsInteger(DEFAULT_BACKLOG);
+
+        infoBuffer =
+                    new StringBuilder(64)
+                    .append(getServiceType())
+                    .append(" connection backlog is: ")
+                    .append(backlog);
+        logger.info(infoBuffer.toString());
+
+        /*
+        String connectionLimitString = configuration.getChild("connectionLimit").getValue(null);
+        if (connectionLimitString != null) {
+            try {
+                connectionLimit = new Integer(connectionLimitString);
+            } catch (NumberFormatException nfe) {
+                logger.error("Connection limit value is not properly formatted.", nfe);
+            }
+            if (connectionLimit.intValue() < 0) {
+                logger.error("Connection limit value cannot be less than zero.");
+                throw new ConfigurationException("Connection limit value cannot be less than zero.");
+            }
+        } else {
+            connectionLimit = new Integer(connectionManager.getMaximumNumberOfOpenConnections());
+        }
+        infoBuffer = new StringBuilder(128)
+            .append(getServiceType())
+            .append(" will allow a maximum of ")
+            .append(connectionLimit.intValue())
+            .append(" connections.");
+        logger.info(infoBuffer.toString());
+        
+        String connectionLimitPerIP = conf.getChild("connectionLimitPerIP").getValue(null);
+        if (connectionLimitPerIP != null) {
+            try {
+            connPerIP = new Integer(connectionLimitPerIP).intValue();
+            connPerIPConfigured = true;
+            } catch (NumberFormatException nfe) {
+                logger.error("Connection limit per IP value is not properly formatted.", nfe);
+            }
+            if (connPerIP < 0) {
+                logger.error("Connection limit per IP value cannot be less than zero.");
+                throw new ConfigurationException("Connection limit value cannot be less than zero.");
+            }
+        } else {
+            connPerIP = connectionManager.getMaximumNumberOfOpenConnectionsPerIP();
+        }
+        infoBuffer = new StringBuilder(128)
+            .append(getServiceType())
+            .append(" will allow a maximum of ")
+            .append(connPerIP)
+            .append(" per IP connections for " +getServiceType());
+        logger.info(infoBuffer.toString());
+        
+        Configuration tlsConfig = conf.getChild("startTLS");
+        if (tlsConfig != null) {
+            useStartTLS = tlsConfig.getAttributeAsBoolean("enable", false);
+            
+            if (useStartTLS) {
+                keystore = tlsConfig.getChild("keystore").getValue(null);
+                if (keystore == null) {
+                    throw new ConfigurationException("keystore needs to get configured");
+                }
+                secret = tlsConfig.getChild("secret").getValue("");
+                loadJCEProviders(tlsConfig, getLogger());
+            }
+        }
+        */
         String hello = (String) mailetcontext.getAttribute(Constants.HELLO_NAME);
 
-        if (isEnabled()) {
+        if (configuration.getAttributeAsBoolean("enabled")) {
             // TODO Remove this in next not backwards compatible release!
             if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
 
@@ -194,7 +368,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
                     String addr = st.nextToken();
                     networks.add(addr);
                 }
-                authorizedNetworks = new NetMatcher(networks, getDnsServer());
+                authorizedNetworks = new NetMatcher(networks, dns);
             }
 
             if (authorizedNetworks != null) {
@@ -230,8 +404,46 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
             // TODO Remove this in next not backwards compatible release!
             if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
         }
+        
+        this.handlerConfiguration = handlerConfiguration;
     }
+    
+    private void configureHelloName(Configuration handlerConfiguration) {
+        StringBuilder infoBuffer;
+        String hostName = null;
+        try {
+            hostName = dns.getHostName(dns.getLocalHost());
+        } catch (UnknownHostException ue) {
+            hostName = "localhost";
+        }
 
+        infoBuffer =
+            new StringBuilder(64)
+                    .append(getServiceType())
+                    .append(" is running on: ")
+                    .append(hostName);
+        getLogger().info(infoBuffer.toString());
+
+        Configuration helloConf = handlerConfiguration.getChild(HELLO_NAME);
+ 
+        if (helloConf != null) {
+            boolean autodetect = helloConf.getAttributeAsBoolean("autodetect", true);
+            if (autodetect) {
+                helloName = hostName;
+            } else {
+                // Should we use the defaultdomain here ?
+                helloName = helloConf.getValue("localhost");
+            }
+        } else {
+            helloName = null;
+        }
+        infoBuffer =
+            new StringBuilder(64)
+                    .append(getServiceType())
+                    .append(" handler hello name is: ")
+                    .append(helloName);
+        getLogger().info(infoBuffer.toString());
+    }
     private void prepareHandlerChain() throws Exception {
         handlerChain = loader.load(SMTPHandlerChain.class);
         
@@ -242,10 +454,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         handlerChain.configure(new JamesConfiguration(handlerConfiguration.getChild("handlerchain")));
     }
 
-    @Override
-    protected void prepareInit() throws Exception {
-        prepareHandlerChain();
-    }
 
     /**
      * @see org.apache.james.core.AbstractProtocolServer#getDefaultPort()
@@ -260,15 +468,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     public String getServiceType() {
         return "SMTP Service";
     }
-
-    /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-     */
-    @SuppressWarnings("unchecked")
-    public Class getCreatedClass() {
-        return SMTPHandler.class;
-    }
-
 
 
     /**
@@ -344,7 +543,8 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         }
 
 		public boolean isStartTLSSupported() {
-			return SMTPServer.this.useStartTLS();
+		    //TODO: FIX ME
+			return false;
 		}
         
         //TODO: IF we create here an interface to get DNSServer
@@ -353,11 +553,38 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     }
 
     /**
-     * @see org.apache.james.socket.AbstractProtocolServer#newProtocolHandlerInstance()
+     * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
-    public ProtocolHandler newProtocolHandlerInstance() {
-        final SMTPHandler theHandler = new SMTPHandler(handlerChain, theConfigData);
-        return theHandler;
+    public void initialize() throws Exception {
+        prepareHandlerChain();
+        
+        ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory());
+        SocketAcceptor acceptor = new NioSocketAcceptor();
+        acceptor.setHandler(new SMTPCommandDispatcherIoHandler(handlerChain, theConfigData));
+        
+        acceptor.getFilterChain().addLast("loggingFilter",new LoggingFilter("blah"));
+        acceptor.getFilterChain().addLast("protocolCodecFactory", codecFactory);
+        acceptor.getFilterChain().addLast("smtpResponseFilter", new SMTPResponseFilter());
+        acceptor.getFilterChain().addLast("requestValidationFilter", new RequestValidationFilter());
+        acceptor.setBacklog(backlog);
+        acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, 120 );
+        acceptor.bind(new InetSocketAddress(bindTo,port));
+    }
+
+    public String getNetworkInterface() {
+        return null;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getSocketType() {
+        return "plain";
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
     
 }

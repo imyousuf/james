@@ -37,6 +37,7 @@ import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -118,7 +119,8 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
      *
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+        String parameters = request.getArgument();
         SMTPResponse response = doDATAFilter(session,parameters);
         
         if (response == null) {

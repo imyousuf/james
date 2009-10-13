@@ -71,25 +71,12 @@
       <artifactId>james-server-core-library</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-socket-library</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.avalon.cornerstone.datasources</groupId>
       <artifactId>cornerstone-datasources-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
       <artifactId>cornerstone-store-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.threads</groupId>
-      <artifactId>cornerstone-threads-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
-      <artifactId>cornerstone-sockets-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
@@ -115,7 +102,7 @@
       <groupId>commons-jxpath</groupId>
       <artifactId>commons-jxpath</artifactId>
       <scope>runtime</scope>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
@@ -147,6 +134,10 @@
     <dependency>
     	<groupId>junit</groupId>
     	<artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.mina</groupId>
+    	<artifactId>mina-core</artifactId>
     </dependency>
   </dependencies>
 </project>

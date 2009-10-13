@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Contains an SMTP result
  */
-public class SMTPResponse {
+public final class SMTPResponse {
 
     private String retCode = null;
     private List<CharSequence> lines = null;
