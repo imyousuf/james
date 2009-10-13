@@ -31,10 +31,10 @@ public class SMTPCommandDispatcherIoHandler extends
     private SMTPConfiguration conf;
 
     public SMTPCommandDispatcherIoHandler(SMTPHandlerChain chain,
-            SMTPConfiguration conf) {
+            SMTPConfiguration conf, Log logger) {
         this.chain = chain;
         this.conf = conf;
-
+        this.logger = logger;
     }
 
     /**
@@ -79,6 +79,7 @@ public class SMTPCommandDispatcherIoHandler extends
      */
     public void exceptionCaught(IoSession session, Throwable exception)
             throws Exception {
+    	exception.printStackTrace();
         logger.error("Caught exception: " + session.getCurrentWriteMessage(),
                 exception);
         // just close session
@@ -137,7 +138,7 @@ public class SMTPCommandDispatcherIoHandler extends
      */
     public void messageSent(IoSession session, Object message) throws Exception {
         // Nothing todo here
-        System.err.println("SEND="+message);
+        //System.err.println("SEND="+message);
     }
 
     /**
@@ -180,6 +181,7 @@ public class SMTPCommandDispatcherIoHandler extends
                         (SMTPSession) session.getAttribute(SMTP_SESSION));
             }
         }
+        System.err.println("FINISH");
     
     }
 }

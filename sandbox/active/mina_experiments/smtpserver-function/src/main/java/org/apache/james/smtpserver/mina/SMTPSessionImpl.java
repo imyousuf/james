@@ -58,7 +58,7 @@ public class SMTPSessionImpl implements SMTPSession {
         public SMTPSessionImpl(SMTPConfiguration theConfigData,
                 Log logger, IoSession session) {
             this.theConfigData = theConfigData;
-            //this.session = session;
+            this.session = session;
             connectionState = new HashMap<String, Object>();
             smtpID = random.nextInt(1024) + "";
 

@@ -73,6 +73,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-socket-shared-library</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-api</artifactId>
     </dependency>
     <dependency>
@@ -116,6 +120,10 @@
     <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.db.torque</groupId>
+      <artifactId>runtime</artifactId>
     </dependency>
         
     <dependency>

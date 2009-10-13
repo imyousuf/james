@@ -560,7 +560,7 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
         
         ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory());
         SocketAcceptor acceptor = new NioSocketAcceptor();
-        acceptor.setHandler(new SMTPCommandDispatcherIoHandler(handlerChain, theConfigData));
+        acceptor.setHandler(new SMTPCommandDispatcherIoHandler(handlerChain, theConfigData,new AvalonLogger(getLogger())));
         
         acceptor.getFilterChain().addLast("loggingFilter",new LoggingFilter());
         acceptor.getFilterChain().addLast("protocolCodecFactory", codecFactory);

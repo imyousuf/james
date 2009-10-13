@@ -29,6 +29,15 @@
   <name>Apache JAMES Server SMTP function</name>
   <dependencies>
     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-socket-shared-library</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${javax.activation.groupId}</groupId>
+      <artifactId>${javax.activation.artifactId}</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>${javax.mail.groupId}</groupId>
       <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
@@ -65,6 +74,14 @@
       <artifactId>james-server-core-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
