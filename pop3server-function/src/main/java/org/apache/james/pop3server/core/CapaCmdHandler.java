@@ -27,8 +27,8 @@ import java.util.List;
 import org.apache.james.pop3server.CommandHandler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.socket.WiringException;
 import org.apache.james.socket.shared.ExtensibleHandler;
+import org.apache.james.socket.shared.WiringException;
 
 /**
  * This handler is used to handle CAPA commands

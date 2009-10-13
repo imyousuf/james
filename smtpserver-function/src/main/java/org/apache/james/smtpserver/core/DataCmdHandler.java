@@ -40,8 +40,8 @@ import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
-import org.apache.james.socket.WiringException;
 import org.apache.james.socket.shared.ExtensibleHandler;
+import org.apache.james.socket.shared.WiringException;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
 

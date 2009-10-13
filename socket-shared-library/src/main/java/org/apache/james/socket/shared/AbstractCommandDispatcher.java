@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.socket.WiringException;
 
 /**
  * Abstract base class which CommandDispatcher implementations should extend

@@ -27,8 +27,8 @@ import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.socket.WiringException;
 import org.apache.james.socket.shared.ExtensibleHandler;
+import org.apache.james.socket.shared.WiringException;
 
 public class HelpCmdHandler implements CommandHandler, ExtensibleHandler{
 

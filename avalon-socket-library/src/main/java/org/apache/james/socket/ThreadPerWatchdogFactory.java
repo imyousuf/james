@@ -23,6 +23,7 @@ package org.apache.james.socket;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.excalibur.thread.ThreadPool;
+import org.apache.james.socket.shared.Watchdog;
 
 /**
  * This class is a factory to produce Watchdogs, each of which is associated

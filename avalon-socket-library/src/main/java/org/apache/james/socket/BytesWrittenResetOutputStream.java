@@ -24,6 +24,8 @@ package org.apache.james.socket;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.james.socket.shared.Watchdog;
+
 /**
  * This will reset the Watchdog each time a certain amount of data has
  * been transferred.  This allows us to keep the timeout settings low, while

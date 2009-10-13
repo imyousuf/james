@@ -32,10 +32,10 @@ import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.MailRepository;
-import org.apache.james.socket.Watchdog;
 import org.apache.james.socket.shared.AbstractProtocolHandler;
 import org.apache.james.socket.shared.CRLFTerminatedReader;
 import org.apache.james.socket.shared.ProtocolContext;
+import org.apache.james.socket.shared.Watchdog;
 import org.apache.mailet.Mail;
 
 /**

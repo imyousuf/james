@@ -59,6 +59,7 @@ import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.FileSystem;
 import org.apache.james.socket.shared.ProtocolHandler;
+import org.apache.james.socket.shared.Watchdog;
 
 /**
  * Server which creates connection handlers. All new James service must

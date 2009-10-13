@@ -44,9 +44,9 @@ import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.hook.HookResult;
 import org.apache.james.smtpserver.hook.HookResultHook;
 import org.apache.james.smtpserver.hook.MessageHook;
-import org.apache.james.socket.WiringException;
 import org.apache.james.socket.shared.ExtensibleHandler;
 import org.apache.james.socket.shared.LogEnabled;
+import org.apache.james.socket.shared.WiringException;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

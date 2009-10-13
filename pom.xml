@@ -343,6 +343,13 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+      <version>3.0-M1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-domain-api</artifactId>
       <version>3.0-M1</version>
     </dependency>
@@ -634,6 +641,12 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>2.2</version>
+    </dependency>
+    <!--  used by spring deployment  -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
     </dependency>
     <!-- used by torque -->
     <dependency>
