@@ -1,2 +1,0 @@
-report/*;                         ; x-java-content-handler=org.apache.mailet.mail.multipart_report
-message/disposition-notification; ; x-java-content-handler=org.apache.mailet.mail.message_disposition_notification
