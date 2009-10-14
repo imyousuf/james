@@ -530,7 +530,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         theWatchdogFactory = getWatchdogFactory();
 
         // Allow subclasses to perform initialisation
-        protocolHandlerFactory.initialize();
+        protocolHandlerFactory.init();
     }
     
     private void initStartTLS() throws Exception {
