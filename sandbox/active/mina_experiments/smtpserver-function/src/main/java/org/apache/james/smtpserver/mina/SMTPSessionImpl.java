@@ -33,6 +33,7 @@ import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPConfiguration;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.mina.filter.FilterLineHandlerAdapter;
 import org.apache.james.smtpserver.mina.filter.TarpitFilter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;

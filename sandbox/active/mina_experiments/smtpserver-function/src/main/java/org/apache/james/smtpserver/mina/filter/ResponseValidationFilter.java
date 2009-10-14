@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.mina;
+package org.apache.james.smtpserver.mina.filter;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.smtpserver.SMTPResponse;

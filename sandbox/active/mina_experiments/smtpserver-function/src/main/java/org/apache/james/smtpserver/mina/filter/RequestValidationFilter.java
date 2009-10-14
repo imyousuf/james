@@ -16,45 +16,40 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.mina;
+package org.apache.james.smtpserver.mina.filter;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
-import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.DefaultWriteRequest;
 import org.apache.mina.core.write.WriteRequest;
 
-public class AbstractValidationFilter extends IoFilterAdapter {
+/**
+ * Filter which check if valid Object are used
+ */
+public class RequestValidationFilter extends AbstractValidationFilter {
 
-    private Log logger;
-    
-    public AbstractValidationFilter(Log logger) {
-        this.logger = logger;
-    }
-    
-    protected Log getLogger() {
-        return logger;
+    public RequestValidationFilter(Log logger) {
+        super(logger);
     }
 
     /**
-     * @see org.apache.mina.core.filterchain.IoFilterAdapter#filterWrite(org.apache.mina.core.filterchain.IoFilter.NextFilter, org.apache.mina.core.session.IoSession, org.apache.mina.core.write.WriteRequest)
+     * @see org.apache.mina.core.filterchain.IoFilterAdapter#messageReceived(org.apache.mina.core.filterchain.IoFilter.NextFilter,
+     *      org.apache.mina.core.session.IoSession, java.lang.Object)
      */
-    public void filterWrite(NextFilter arg0, IoSession arg1, WriteRequest arg2)
-            throws Exception {
-        Object obj = arg2.getMessage();
-
-        if (obj instanceof SMTPResponse || obj instanceof SMTPRequest) {
-            super.filterWrite(arg0, arg1, arg2);
+    public void messageReceived(NextFilter nextFilter, IoSession session,
+            Object message) throws Exception {
+        if (message instanceof SMTPRequest) {
+            super.messageReceived(nextFilter, session, message);
         } else {
-            logger.error("WriteRequest holds not a SMTPResponseImpl but "
-                    + (obj == null ? "NULL" : obj.getClass()));
-            arg0.filterWrite(arg1, new DefaultWriteRequest(new SMTPResponse(
-                    SMTPRetCode.TRANSACTION_FAILED, "Cannot handle Request")));
+            getLogger().error("The Received object is not an instance of SMTPRequestImpl");
+            WriteRequest req = new DefaultWriteRequest(new SMTPResponse(
+                    SMTPRetCode.TRANSACTION_FAILED,
+                    "Cannot handle Request of type " + (message != null ? message.getClass() : "NULL")));
+            nextFilter.filterWrite(session, req);
         }
     }
-
 
 }
