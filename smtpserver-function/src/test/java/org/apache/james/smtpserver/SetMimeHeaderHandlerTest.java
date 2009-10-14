@@ -22,7 +22,8 @@ package org.apache.james.smtpserver;
 
 import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.smtpserver.core.SetMimeHeaderHandler;
+import org.apache.james.smtpserver.protocol.SMTPSession;
+import org.apache.james.smtpserver.protocol.core.SetMimeHeaderHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.Mail;
 

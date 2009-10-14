@@ -28,6 +28,13 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.james.smtpserver.protocol.ConnectHandler;
+import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.smtpserver.protocol.SMTPConfiguration;
+import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
+import org.apache.james.smtpserver.protocol.SMTPResponse;
+import org.apache.james.smtpserver.protocol.SMTPRetCode;
+import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.shared.AbstractProtocolHandler;
 import org.apache.james.socket.shared.CRLFDelimitedByteBuffer;
@@ -169,7 +176,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.SMTPResponse)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.protocol.SMTPResponse)
      */
     public void writeSMTPResponse(SMTPResponse response) {
         // Write a single-line or multiline response
@@ -217,7 +224,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#resetState()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#resetState()
      */
     public void resetState() {
         // remember the ehlo mode between resets
@@ -238,7 +245,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
      * set of sequential MAIL-RCPT-DATA commands, as described in RFC 2821.  Per
      * connection values should be stored as member variables in this class.
      * 
-     * @see org.apache.james.smtpserver.SMTPSession#getState()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getState()
      */
     @SuppressWarnings("unchecked")
     public Map<String,Object> getState() {
@@ -251,41 +258,41 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getConfigurationData()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getConfigurationData()
      */
     public SMTPConfiguration getConfigurationData() {
         return theConfigData;
     }
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#isRelayingAllowed()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#isRelayingAllowed()
      */
     public boolean isRelayingAllowed() {
         return relayingAllowed;
     }
     
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#setRelayingAllowed(boolean relayingAllowed)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#setRelayingAllowed(boolean relayingAllowed)
      */
     public void setRelayingAllowed(boolean relayingAllowed) {
         this.relayingAllowed = relayingAllowed;
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#isAuthSupported()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#isAuthSupported()
      */
     public boolean isAuthSupported() {
         return authSupported;
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getSessionID()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getSessionID()
      */
     public String getSessionID() {
         return smtpID;
     }
     
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getRcptCount()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getRcptCount()
      */
     @SuppressWarnings("unchecked")
     public int getRcptCount() {
@@ -304,14 +311,14 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
     }
     
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getConnectionState()
      */
     public Map<String,Object> getConnectionState() {
         return connectionState;
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#popLineHandler()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#popLineHandler()
      */
     public void popLineHandler() {
         if (lineHandlers != null) {
@@ -320,7 +327,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#pushLineHandler(org.apache.james.smtpserver.LineHandler)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#pushLineHandler(org.apache.james.smtpserver.protocol.LineHandler)
      */
     public void pushLineHandler(LineHandler lineHandler) {
         if (lineHandlers == null) {
@@ -330,7 +337,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
     }
     
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#sleep(long)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#sleep(long)
      */
     public void sleep(long ms) {
         try {
@@ -342,35 +349,35 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
 
    
 	/**
-	 * @see org.apache.james.smtpserver.SMTPSession#getHelloName()
+	 * @see org.apache.james.smtpserver.protocol.SMTPSession#getHelloName()
 	 */
     public String getHelloName() {
         return getConfigurationData().getHelloName();
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getMaxMessageSize()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getMaxMessageSize()
      */
     public long getMaxMessageSize() {
         return getConfigurationData().getMaxMessageSize();
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getSMTPGreeting()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getSMTPGreeting()
      */
     public String getSMTPGreeting() {
         return getConfigurationData().getSMTPGreeting();
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#useAddressBracketsEnforcement()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#useAddressBracketsEnforcement()
      */
     public boolean useAddressBracketsEnforcement() {
         return getConfigurationData().useAddressBracketsEnforcement();
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#useHeloEhloEnforcement()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#useHeloEhloEnforcement()
      */
     public boolean useHeloEhloEnforcement() {
         return getConfigurationData().useAddressBracketsEnforcement();

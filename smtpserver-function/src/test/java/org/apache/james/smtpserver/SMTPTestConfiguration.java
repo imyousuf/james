@@ -23,12 +23,12 @@ package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.james.smtpserver.core.CoreCmdHandlerLoader;
-import org.apache.james.smtpserver.core.filter.fastfail.DNSRBLHandler;
-import org.apache.james.smtpserver.core.filter.fastfail.MaxRcptHandler;
-import org.apache.james.smtpserver.core.filter.fastfail.ResolvableEhloHeloHandler;
-import org.apache.james.smtpserver.core.filter.fastfail.ReverseEqualsEhloHeloHandler;
-import org.apache.james.smtpserver.core.filter.fastfail.ValidSenderDomainHandler;
+import org.apache.james.smtpserver.protocol.core.CoreCmdHandlerLoader;
+import org.apache.james.smtpserver.protocol.core.filter.fastfail.DNSRBLHandler;
+import org.apache.james.smtpserver.protocol.core.filter.fastfail.MaxRcptHandler;
+import org.apache.james.smtpserver.protocol.core.filter.fastfail.ResolvableEhloHeloHandler;
+import org.apache.james.smtpserver.protocol.core.filter.fastfail.ReverseEqualsEhloHeloHandler;
+import org.apache.james.smtpserver.protocol.core.filter.fastfail.ValidSenderDomainHandler;
 import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
 

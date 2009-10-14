@@ -32,6 +32,9 @@ import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.protocol.SMTPConfiguration;
+import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
+import org.apache.james.smtpserver.protocol.SMTPServerMBean;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.configuration.JamesConfiguration;
@@ -267,7 +270,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     private class SMTPHandlerConfigurationDataImpl implements SMTPConfiguration {
 
         /**
-         * @see org.apache.james.smtpserver.SMTPConfiguration#getHelloName()
+         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#getHelloName()
          */
         public String getHelloName() {
             if (SMTPServer.this.getHelloName() == null) {
@@ -278,21 +281,21 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPConfiguration#getResetLength()
+         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#getResetLength()
          */
         public int getResetLength() {
             return SMTPServer.this.lengthReset;
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPConfiguration#getMaxMessageSize()
+         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#getMaxMessageSize()
          */
         public long getMaxMessageSize() {
             return SMTPServer.this.maxMessageSize;
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPConfiguration#isAuthSupported(String)
+         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#isAuthSupported(String)
          */
         public boolean isRelayingAllowed(String remoteIP) {
             boolean relayingAllowed = false;
@@ -303,7 +306,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPConfiguration#useHeloEhloEnforcement()
+         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#useHeloEhloEnforcement()
          */
         public boolean useHeloEhloEnforcement() {
             return SMTPServer.this.heloEhloEnforcement;
@@ -311,14 +314,14 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
 
 
         /**
-         * @see org.apache.james.smtpserver.SMTPConfiguration#getSMTPGreeting()
+         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#getSMTPGreeting()
          */
         public String getSMTPGreeting() {
             return SMTPServer.this.smtpGreeting;
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPConfiguration#useAddressBracketsEnforcement()
+         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#useAddressBracketsEnforcement()
          */
         public boolean useAddressBracketsEnforcement() {
             return SMTPServer.this.addressBracketsEnforcement;

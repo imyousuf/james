@@ -19,7 +19,7 @@
 package org.apache.james.smtpserver.mina.filter;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 

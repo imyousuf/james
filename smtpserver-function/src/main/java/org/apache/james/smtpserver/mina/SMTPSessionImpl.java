@@ -29,12 +29,12 @@ import java.util.Random;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.smtpserver.LineHandler;
-import org.apache.james.smtpserver.SMTPConfiguration;
-import org.apache.james.smtpserver.SMTPResponse;
-import org.apache.james.smtpserver.SMTPSession;
 import org.apache.james.smtpserver.mina.filter.FilterLineHandlerAdapter;
 import org.apache.james.smtpserver.mina.filter.TarpitFilter;
+import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.smtpserver.protocol.SMTPConfiguration;
+import org.apache.james.smtpserver.protocol.SMTPResponse;
+import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
 
@@ -81,7 +81,7 @@ public class SMTPSessionImpl implements SMTPSession {
             this(theConfigData,logger,session,null);
         }
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#getConnectionState()
          */
         public Map<String, Object> getConnectionState() {
             return connectionState;
@@ -102,14 +102,14 @@ public class SMTPSessionImpl implements SMTPSession {
         }
         
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#getSessionID()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#getSessionID()
          */
         public String getSessionID() {
             return smtpID;
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#getState()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#getState()
          */
         @SuppressWarnings("unchecked")
         public Map<String, Object> getState() {
@@ -130,14 +130,14 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#isRelayingAllowed()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#isRelayingAllowed()
          */
         public boolean isRelayingAllowed() {
             return relayingAllowed;
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#resetState()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#resetState()
          */
         public void resetState() {
             // remember the ehlo mode between resets
@@ -163,7 +163,7 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#popLineHandler()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#popLineHandler()
          */
         public void popLineHandler() {
             getIoSession().getFilterChain()
@@ -172,7 +172,7 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#pushLineHandler(org.apache.james.smtpserver.LineHandler)
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#pushLineHandler(org.apache.james.smtpserver.protocol.LineHandler)
          */
         public void pushLineHandler(LineHandler overrideCommandHandler) {
             lineHandlerCount++;
@@ -182,7 +182,7 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.SMTPResponse)
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.protocol.SMTPResponse)
          */
         public void writeSMTPResponse(SMTPResponse response) {
             getIoSession().write(response);
@@ -190,7 +190,7 @@ public class SMTPSessionImpl implements SMTPSession {
 
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#getHelloName()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#getHelloName()
          */
         public String getHelloName() {
             return theConfigData.getHelloName();
@@ -198,7 +198,7 @@ public class SMTPSessionImpl implements SMTPSession {
 
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#getMaxMessageSize()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#getMaxMessageSize()
          */
         public long getMaxMessageSize() {
             return theConfigData.getMaxMessageSize();
@@ -206,7 +206,7 @@ public class SMTPSessionImpl implements SMTPSession {
 
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#getRcptCount()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#getRcptCount()
          */
         @SuppressWarnings("unchecked")
         public int getRcptCount() {
@@ -221,7 +221,7 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#getSMTPGreeting()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#getSMTPGreeting()
          */
         public String getSMTPGreeting() {
             return theConfigData.getSMTPGreeting();
@@ -229,7 +229,7 @@ public class SMTPSessionImpl implements SMTPSession {
 
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#isAuthSupported()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#isAuthSupported()
          */
         public boolean isAuthSupported() {
             return theConfigData.isAuthRequired(socketAddress.getAddress().getHostAddress());
@@ -237,7 +237,7 @@ public class SMTPSessionImpl implements SMTPSession {
 
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#setRelayingAllowed(boolean)
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#setRelayingAllowed(boolean)
          */
         public void setRelayingAllowed(boolean relayingAllowed) {
             this.relayingAllowed = relayingAllowed;
@@ -245,7 +245,7 @@ public class SMTPSessionImpl implements SMTPSession {
 
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#sleep(long)
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#sleep(long)
          */
         public void sleep(long ms) {
             session.getFilterChain().addAfter("connectionFilter", "tarpitFilter",new TarpitFilter(ms));
@@ -253,14 +253,14 @@ public class SMTPSessionImpl implements SMTPSession {
 
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#useAddressBracketsEnforcement()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#useAddressBracketsEnforcement()
          */
         public boolean useAddressBracketsEnforcement() {
             return theConfigData.useAddressBracketsEnforcement();
         }
 
         /**
-         * @see org.apache.james.smtpserver.SMTPSession#useHeloEhloEnforcement()
+         * @see org.apache.james.smtpserver.protocol.SMTPSession#useHeloEhloEnforcement()
          */
         public boolean useHeloEhloEnforcement() {
             return theConfigData.useHeloEhloEnforcement();

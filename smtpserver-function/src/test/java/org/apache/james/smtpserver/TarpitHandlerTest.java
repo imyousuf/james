@@ -21,7 +21,8 @@ package org.apache.james.smtpserver;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.smtpserver.core.filter.fastfail.TarpitHandler;
+import org.apache.james.smtpserver.protocol.SMTPSession;
+import org.apache.james.smtpserver.protocol.core.filter.fastfail.TarpitHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
 
