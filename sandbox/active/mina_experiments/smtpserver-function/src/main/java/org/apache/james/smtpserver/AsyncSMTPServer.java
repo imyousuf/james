@@ -70,7 +70,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
  * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
  * lifecycle methods, you MUST call super.<method> as well.
  */
-public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, Serviceable, Initializable, Configurable {
+public class AsyncSMTPServer extends AbstractLogEnabled implements SMTPServerMBean, Serviceable, Initializable, Configurable {
     /**
      * The default value for the connection backlog.
      */
@@ -505,10 +505,10 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
          * @see org.apache.james.smtpserver.SMTPConfiguration#getHelloName()
          */
         public String getHelloName() {
-            if (SMTPServer.this.helloName == null) {
-                return SMTPServer.this.mailServer.getHelloName();
+            if (AsyncSMTPServer.this.helloName == null) {
+                return AsyncSMTPServer.this.mailServer.getHelloName();
             } else {
-                return SMTPServer.this.helloName;
+                return AsyncSMTPServer.this.helloName;
             }
         }
 
@@ -516,14 +516,14 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
          * @see org.apache.james.smtpserver.SMTPConfiguration#getResetLength()
          */
         public int getResetLength() {
-            return SMTPServer.this.lengthReset;
+            return AsyncSMTPServer.this.lengthReset;
         }
 
         /**
          * @see org.apache.james.smtpserver.SMTPConfiguration#getMaxMessageSize()
          */
         public long getMaxMessageSize() {
-            return SMTPServer.this.maxMessageSize;
+            return AsyncSMTPServer.this.maxMessageSize;
         }
 
         /**
@@ -532,7 +532,7 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
         public boolean isRelayingAllowed(String remoteIP) {
             boolean relayingAllowed = false;
             if (authorizedNetworks != null) {
-                relayingAllowed = SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+                relayingAllowed = AsyncSMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
             return relayingAllowed;
         }
@@ -541,7 +541,7 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
          * @see org.apache.james.smtpserver.SMTPConfiguration#useHeloEhloEnforcement()
          */
         public boolean useHeloEhloEnforcement() {
-            return SMTPServer.this.heloEhloEnforcement;
+            return AsyncSMTPServer.this.heloEhloEnforcement;
         }
 
 
@@ -549,21 +549,21 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
          * @see org.apache.james.smtpserver.SMTPConfiguration#getSMTPGreeting()
          */
         public String getSMTPGreeting() {
-            return SMTPServer.this.smtpGreeting;
+            return AsyncSMTPServer.this.smtpGreeting;
         }
 
         /**
          * @see org.apache.james.smtpserver.SMTPConfiguration#useAddressBracketsEnforcement()
          */
         public boolean useAddressBracketsEnforcement() {
-            return SMTPServer.this.addressBracketsEnforcement;
+            return AsyncSMTPServer.this.addressBracketsEnforcement;
         }
 
         public boolean isAuthRequired(String remoteIP) {
-            if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
-            boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
+            if (AsyncSMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
+            boolean authRequired = AsyncSMTPServer.this.authRequired != AUTH_DISABLED;
             if (authorizedNetworks != null) {
-                authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+                authRequired = authRequired && !AsyncSMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
             return authRequired;
         }
