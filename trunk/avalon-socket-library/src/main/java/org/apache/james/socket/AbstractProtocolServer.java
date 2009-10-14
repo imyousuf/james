@@ -72,27 +72,27 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
     /**
      * The default value for the connection timeout.
      */
-    protected static final int DEFAULT_TIMEOUT = 5* 60 * 1000;
+    private static final int DEFAULT_TIMEOUT = 5* 60 * 1000;
 
     /**
      * The name of the parameter defining the connection timeout.
      */
-    protected static final String TIMEOUT_NAME = "connectiontimeout";
+    private static final String TIMEOUT_NAME = "connectiontimeout";
 
     /**
      * The default value for the connection backlog.
      */
-    protected static final int DEFAULT_BACKLOG = 5;
+    private static final int DEFAULT_BACKLOG = 5;
 
     /**
      * The name of the parameter defining the connection backlog.
      */
-    protected static final String BACKLOG_NAME = "connectionBacklog";
+    private static final String BACKLOG_NAME = "connectionBacklog";
 
     /**
      * The name of the parameter defining the service hello name.
      */
-    public static final String HELLO_NAME = "helloName";
+    private static final String HELLO_NAME = "helloName";
 
     /**
      * The ConnectionManager that spawns and manages service connections.
@@ -103,62 +103,57 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
      * The name of the thread group to be used by this service for 
      * generating connections
      */
-    protected String threadGroup;
+    private String threadGroup;
 
     /**
      * The thread pool used by this service that holds the threads
      * that service the client connections.
      */
-    protected ThreadPool threadPool = null;
+    private ThreadPool threadPool = null;
 
     /**
      * The server socket type used to generate connections for this server.
      */
-    protected String serverSocketType = "plain";
+    private String serverSocketType = "plain";
 
     /**
      * The port on which this service will be made available.
      */
-    protected int port = -1;
+    private int port = -1;
 
     /**
      * Network interface to which the service will bind.  If not set,
      * the server binds to all available interfaces.
      */
-    protected InetAddress bindTo = null;
-
-    /**
-     * The server socket associated with this service
-     */
-    protected ServerSocket serverSocket;
+    private InetAddress bindTo = null;
 
     /**
      * The name of the connection used by this service.  We need to
      * track this so we can tell the ConnectionManager which service
      * to disconnect upon shutdown.
      */
-    protected String connectionName;
+    private String connectionName;
 
     /**
      * The maximum number of connections allowed for this service.
      */
-    protected Integer connectionLimit;
+    private Integer connectionLimit;
 
     /**
      * The connection idle timeout.  Used primarily to prevent server
      * problems from hanging a connection.
      */
-    protected int timeout;
+    private int timeout;
 
     /**
      * The connection backlog.
      */
-    protected int backlog;
+    private int backlog;
 
     /**
      * The hello name for the service.
      */
-    protected String helloName;
+    private String helloName;
 
     /**
      * The component manager used by this service.
@@ -179,12 +174,12 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
     /**
      * The pool used to provide Protocol Handler objects
      */
-    protected Pool theHandlerPool = null;
+    private Pool theHandlerPool = null;
 
     /**
      * The factory used to generate Watchdog objects
      */
-    protected WatchdogFactory theWatchdogFactory = null;
+    private WatchdogFactory theWatchdogFactory = null;
     
     /**
      * The DNSService
@@ -443,18 +438,8 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
         logger.debug(e.getMessage(), e);
     }
 
-    protected void setStreamDumpDir(String streamdumpDir) {
+    private void setStreamDumpDir(String streamdumpDir) {
         this.streamDumpDir = streamdumpDir;
-    }
-
-    protected String getLocalHostName() {
-        String hostName = null;
-        try {
-            hostName = dnsService.getHostName(dnsService.getLocalHost());
-        } catch (UnknownHostException ue) {
-            hostName = "localhost";
-        }
-        return hostName;
     }
     
     private void configureHelloName(Configuration handlerConfiguration) {
@@ -767,7 +752,7 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
      *
      * @return the WatchdogFactory to be employed by subclasses.
      */
-    protected WatchdogFactory getWatchdogFactory() {
+    private WatchdogFactory getWatchdogFactory() {
         WatchdogFactory theWatchdogFactory = null;
         theWatchdogFactory = new ThreadPerWatchdogFactory(threadPool, timeout);
         ContainerUtil.enableLogging(theWatchdogFactory,getLogger());
