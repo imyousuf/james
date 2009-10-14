@@ -38,6 +38,7 @@
     <module>javamail-util</module>
     <module>common-util</module>
     <module>core-api</module>
+    <module>socket-api</module>
     <module>user-api</module>
     <module>domain-api</module>
     <module>user-library</module>
@@ -339,6 +340,11 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
+      <version>3.0-M1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-socket-api</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
