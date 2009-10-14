@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket.shared;
+package org.apache.james.socket;
 
 import java.io.IOException;
 import java.io.OutputStream;

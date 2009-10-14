@@ -44,8 +44,6 @@ import org.apache.james.socket.api.CRLFTerminatedReader;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.api.Watchdog;
-import org.apache.james.socket.shared.SwitchableInputStream;
-import org.apache.james.socket.shared.SwitchableOutputStream;
 import org.apache.james.util.InternetPrintWriter;
 
 /**
