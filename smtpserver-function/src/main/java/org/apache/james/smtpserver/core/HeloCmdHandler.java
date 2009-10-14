@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -33,8 +32,7 @@ import org.apache.james.smtpserver.hook.HookResult;
 /**
  * Handles HELO command
  */
-public class HeloCmdHandler extends AbstractHookableCmdHandler<HeloHook> implements
-        CommandHandler {
+public class HeloCmdHandler extends AbstractHookableCmdHandler<HeloHook> {
 
     /**
      * The name of the command handled by the command handler

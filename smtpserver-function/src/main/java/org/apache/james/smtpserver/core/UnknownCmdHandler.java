@@ -26,6 +26,7 @@ import java.util.Collection;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -44,13 +45,12 @@ public class UnknownCmdHandler implements CommandHandler {
      * Handler method called upon receipt of an unrecognized command.
      * Returns an error response and logs the command.
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
+    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
         StringBuilder result = new StringBuilder();
         result.append(DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_CMD))
                       .append(" Command ")
-                      .append(command)
+                      .append(request.getCommand())
                       .append(" unrecognized.");
         return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, result);
     }

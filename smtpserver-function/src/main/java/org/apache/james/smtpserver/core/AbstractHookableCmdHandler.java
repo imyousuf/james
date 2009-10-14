@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -47,8 +48,9 @@ public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler
      * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession,
      *      java.lang.String, java.lang.String)
      */
-    public SMTPResponse onCommand(SMTPSession session, String command,
-            String parameters) {
+    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+        String command = request.getCommand();
+        String parameters = request.getArgument();
         SMTPResponse response = doFilterChecks(session, command, parameters);
 
         if (response == null) {

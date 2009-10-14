@@ -107,7 +107,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
                     processExtensions(session, mail);
                     
                     session.popLineHandler();
-                    
+                    //next.onLine(session, line);
     
                 } catch (MessagingException e) {
                     // TODO probably return a temporary problem

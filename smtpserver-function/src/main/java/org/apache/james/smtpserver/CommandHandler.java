@@ -35,6 +35,6 @@ import org.apache.james.socket.shared.CommonCommandHandler;
     /**
      * Handle the command
     **/
-    SMTPResponse onCommand(SMTPSession session, String command, String parameters);
+    SMTPResponse onCommand(SMTPSession session, SMTPRequest request);
  
 }
