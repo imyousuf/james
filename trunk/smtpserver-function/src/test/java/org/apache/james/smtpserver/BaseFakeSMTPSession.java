@@ -25,6 +25,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.smtpserver.protocol.SMTPConfiguration;
+import org.apache.james.smtpserver.protocol.SMTPResponse;
+import org.apache.james.smtpserver.protocol.SMTPSession;
 
 /**
  * Abstract class to simplify the mocks
@@ -34,91 +38,91 @@ public class BaseFakeSMTPSession implements SMTPSession {
     private static final Log log = LogFactory.getLog(BaseFakeSMTPSession.class);
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getConfigurationData()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getConfigurationData()
      */
     public SMTPConfiguration getConfigurationData() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getConnectionState()
      */
     public Map<String, Object> getConnectionState() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getRcptCount()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getRcptCount()
      */
     public int getRcptCount() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getRemoteHost()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getRemoteHost()
      */
     public String getRemoteHost() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getRemoteIPAddress()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getRemoteIPAddress()
      */
     public String getRemoteIPAddress() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getSessionID()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getSessionID()
      */
     public String getSessionID() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getState()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getState()
      */
     public Map<String, Object> getState() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getUser()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getUser()
      */
     public String getUser() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#isAuthSupported()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#isAuthSupported()
      */
     public boolean isAuthSupported() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#isRelayingAllowed()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#isRelayingAllowed()
      */
     public boolean isRelayingAllowed() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#resetState()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#resetState()
      */
     public void resetState() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#setRelayingAllowed(boolean)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#setRelayingAllowed(boolean)
      */
     public void setRelayingAllowed(boolean relayingAllowed) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#setUser(java.lang.String)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#setUser(java.lang.String)
      */
     public void setUser(String user) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
@@ -126,28 +130,28 @@ public class BaseFakeSMTPSession implements SMTPSession {
 
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#popLineHandler()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#popLineHandler()
      */
     public void popLineHandler() {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#pushLineHandler(org.apache.james.smtpserver.LineHandler)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#pushLineHandler(org.apache.james.smtpserver.protocol.LineHandler)
      */
     public void pushLineHandler(LineHandler overrideCommandHandler) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.SMTPResponse)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.protocol.SMTPResponse)
      */
     public void writeSMTPResponse(SMTPResponse response) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#sleep(long)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#sleep(long)
      */
     public void sleep(long ms) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
@@ -174,7 +178,7 @@ public class BaseFakeSMTPSession implements SMTPSession {
     }
 
     /**
-     * @see org.apache.james.smtpserver.SMTPSession#getLogger()
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#getLogger()
      */
     public Log getLogger() {
         return log;

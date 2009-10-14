@@ -23,12 +23,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.smtpserver.ConnectHandler;
-import org.apache.james.smtpserver.LineHandler;
-import org.apache.james.smtpserver.SMTPConfiguration;
-import org.apache.james.smtpserver.SMTPHandlerChain;
-import org.apache.james.smtpserver.SMTPRequest;
-import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.protocol.ConnectHandler;
+import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.smtpserver.protocol.SMTPConfiguration;
+import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
+import org.apache.james.smtpserver.protocol.SMTPRequest;
+import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;

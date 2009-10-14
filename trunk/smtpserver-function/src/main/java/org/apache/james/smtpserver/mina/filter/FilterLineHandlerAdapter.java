@@ -18,8 +18,8 @@
  ****************************************************************/
 package org.apache.james.smtpserver.mina.filter;
 
-import org.apache.james.smtpserver.LineHandler;
-import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 

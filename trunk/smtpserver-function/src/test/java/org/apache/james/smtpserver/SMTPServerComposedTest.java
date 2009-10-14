@@ -20,6 +20,7 @@
 package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.smtpserver.protocol.SMTPServerComposed;
 import org.apache.james.test.mock.avalon.MockLogger;
 
 public class SMTPServerComposedTest extends SMTPServerTest {

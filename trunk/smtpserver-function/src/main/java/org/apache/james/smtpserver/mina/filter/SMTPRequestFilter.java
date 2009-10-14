@@ -18,8 +18,8 @@
  ****************************************************************/
 package org.apache.james.smtpserver.mina.filter;
 
-import org.apache.james.smtpserver.SMTPRequest;
-import org.apache.james.smtpserver.SMTPResponse;
+import org.apache.james.smtpserver.protocol.SMTPRequest;
+import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.DefaultWriteRequest;
