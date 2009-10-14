@@ -39,8 +39,12 @@ public class TarpitHandlerTest extends TestCase {
             }
             
             public void sleep(long ms) {
-                // use the real code 
-                (new SMTPHandler(new SMTPHandlerChain(), null)).sleep(ms);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
 
         };

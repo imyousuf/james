@@ -165,7 +165,7 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
         DefaultConfiguration tlsConfig = new DefaultConfiguration("startTLS");
         tlsConfig.setAttribute("enable", m_startTLS);
         tlsConfig.addChild(new AttrValConfiguration("keystore","file://conf/test_keystore"));
-        tlsConfig.addChild(Util.getValuedConfiguration("secret", "jamestest"));
+        tlsConfig.addChild(new AttrValConfiguration("secret", "jamestest"));
         addChild(tlsConfig);
         
         if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));

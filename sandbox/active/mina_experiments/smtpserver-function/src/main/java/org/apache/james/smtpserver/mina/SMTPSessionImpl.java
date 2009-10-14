@@ -26,12 +26,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.james.smtpserver.LineHandler;
 import org.apache.james.smtpserver.SMTPConfiguration;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPSession;
+import org.apache.james.smtpserver.mina.filter.TarpitFilter;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.ssl.SslFilter;
 
 public class SMTPSessionImpl implements SMTPSession {
 
@@ -54,22 +58,27 @@ public class SMTPSessionImpl implements SMTPSession {
         private int lineHandlerCount = 0;
 
         private Log logger;
+        
+        private SSLContext context;
 
         public SMTPSessionImpl(SMTPConfiguration theConfigData,
-                Log logger, IoSession session) {
+                Log logger, IoSession session, SSLContext context) {
             this.theConfigData = theConfigData;
             this.session = session;
             connectionState = new HashMap<String, Object>();
             smtpID = random.nextInt(1024) + "";
 
             this.socketAddress = (InetSocketAddress) session.getRemoteAddress();
-            relayingAllowed = theConfigData.isRelayingAllowed(getRemoteHost());
+            relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());
             session.setAttribute(FilterLineHandlerAdapter.SMTP_SESSION, this);
             this.logger = logger;
-            
+            this.context = context;
         }
 
-
+        public SMTPSessionImpl(SMTPConfiguration theConfigData,
+                Log logger, IoSession session) {
+            this(theConfigData,logger,session,null);
+        }
         /**
          * @see org.apache.james.smtpserver.SMTPSession#getConnectionState()
          */
@@ -238,8 +247,7 @@ public class SMTPSessionImpl implements SMTPSession {
          * @see org.apache.james.smtpserver.SMTPSession#sleep(long)
          */
         public void sleep(long ms) {
-            // TODO Need to check howto implement this with mina
-            
+            session.getFilterChain().addAfter("connectionFilter", "tarpitFilter",new TarpitFilter(ms));
         }
 
 
@@ -249,7 +257,6 @@ public class SMTPSessionImpl implements SMTPSession {
         public boolean useAddressBracketsEnforcement() {
             return theConfigData.useAddressBracketsEnforcement();
         }
-
 
         /**
          * @see org.apache.james.smtpserver.SMTPSession#useHeloEhloEnforcement()
@@ -263,18 +270,26 @@ public class SMTPSessionImpl implements SMTPSession {
          * @see org.apache.james.socket.shared.TLSSupportedSession#isStartTLSSupported()
          */
         public boolean isStartTLSSupported() {
-            return false;
+            return context != null;
         }
 
-
+        /**
+         * @see org.apache.james.socket.shared.TLSSupportedSession#isTLSStarted()
+         */
         public boolean isTLSStarted() {
-            return false;
+            return session.getFilterChain().contains("sslFilter");
         }
 
-
+        /**
+         * @see org.apache.james.socket.shared.TLSSupportedSession#startTLS()
+         */
         public void startTLS() throws IOException {
-            // TODO Auto-generated method stub
-            
+            session.suspendRead();
+            SslFilter filter = new SslFilter(context);
+            resetState();
+            session.getFilterChain()
+                    .addFirst("sslFilter", filter);
+            session.resumeRead();
         }
 
 

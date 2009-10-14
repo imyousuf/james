@@ -40,6 +40,7 @@ public interface SMTPSession extends TLSSupportedSession{
     public final static String CURRENT_HELO_NAME = "CURRENT_HELO_NAME";
     /** the Session state */
     public final static String SESSION_STATE_MAP = "SESSION_STATE_MAP";
+    public static final Object MAIL_ENVELOPE = null;
 
 
     /**

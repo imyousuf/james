@@ -25,6 +25,7 @@ import org.apache.james.smtpserver.core.esmtp.AuthCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.EhloCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.MailSizeEsmtpExtension;
 import org.apache.james.smtpserver.core.esmtp.StartTlsCmdHandler;
+import org.apache.james.smtpserver.mina.SMTPCommandDispatcherIoHandler;
 import org.apache.james.socket.shared.HandlersPackage;
 
 import java.util.LinkedList;

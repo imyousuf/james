@@ -90,6 +90,9 @@ public interface SMTPConfiguration {
      */
     boolean useAddressBracketsEnforcement();
     
+    /**
+     * 
+     */
     boolean isStartTLSSupported();
 
 }

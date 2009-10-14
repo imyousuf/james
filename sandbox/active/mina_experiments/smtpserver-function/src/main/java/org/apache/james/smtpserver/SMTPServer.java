@@ -36,21 +36,26 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.mina.RequestValidationFilter;
 import org.apache.james.smtpserver.mina.SMTPCommandDispatcherIoHandler;
 import org.apache.james.smtpserver.mina.SMTPResponseFilter;
+import org.apache.james.smtpserver.mina.filter.ConnectionFilter;
 import org.apache.james.socket.configuration.JamesConfiguration;
 import org.apache.mailet.MailetContext;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
-import org.apache.mina.filter.logging.LoggingFilter;
+import org.apache.mina.filter.ssl.BogusTrustManagerFactory;
+import org.apache.mina.filter.ssl.KeyStoreFactory;
+import org.apache.mina.filter.ssl.SslContextFactory;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
@@ -103,6 +108,8 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
      */
     private MailetContext mailetcontext;
 
+    private FileSystem fileSystem;
+    
     /**
      * The internal mail server service.
      */
@@ -173,7 +180,16 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
     private int timeout;
 
     private int backlog;
-    
+    private int connectionLimit = 0;
+    private int connPerIP = 0;
+
+    private boolean useStartTLS;
+
+    private String keystore;
+
+    private String secret;
+
+
     /**
      * Gets the current instance loader.
      * @return the loader
@@ -194,14 +210,27 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
+    
+    public void setFileSystem(FileSystem filesystem) {
+        this.fileSystem = filesystem;
+    }
+    
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
+    public void setMailetContext(MailetContext mailetcontext) {
+        this.mailetcontext = mailetcontext;
+    }
 
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service( final ServiceManager manager ) throws ServiceException {
-        mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
-        mailServer = (MailServer) manager.lookup(MailServer.ROLE);
-        dns = (DNSService) manager.lookup(DNSService.ROLE);
+        setMailetContext((MailetContext) manager.lookup("org.apache.mailet.MailetContext"));
+        setMailServer((MailServer) manager.lookup(MailServer.ROLE));
+        setDNSService((DNSService) manager.lookup(DNSService.ROLE));
+        setFileSystem((FileSystem) manager.lookup(FileSystem.ROLE));
     }
 
     /**
@@ -267,7 +296,7 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
                     .append(backlog);
         logger.info(infoBuffer.toString());
 
-        /*
+        
         String connectionLimitString = configuration.getChild("connectionLimit").getValue(null);
         if (connectionLimitString != null) {
             try {
@@ -275,56 +304,53 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
             } catch (NumberFormatException nfe) {
                 logger.error("Connection limit value is not properly formatted.", nfe);
             }
-            if (connectionLimit.intValue() < 0) {
+            if (connectionLimit < 0) {
                 logger.error("Connection limit value cannot be less than zero.");
                 throw new ConfigurationException("Connection limit value cannot be less than zero.");
+            } else if (connectionLimit > 0){
+                infoBuffer = new StringBuilder(128)
+                .append(getServiceType())
+                .append(" will allow a maximum of ")
+                .append(connectionLimitString)
+                .append(" connections.");
+                logger.info(infoBuffer.toString());
             }
-        } else {
-            connectionLimit = new Integer(connectionManager.getMaximumNumberOfOpenConnections());
-        }
-        infoBuffer = new StringBuilder(128)
-            .append(getServiceType())
-            .append(" will allow a maximum of ")
-            .append(connectionLimit.intValue())
-            .append(" connections.");
-        logger.info(infoBuffer.toString());
-        
-        String connectionLimitPerIP = conf.getChild("connectionLimitPerIP").getValue(null);
+        } 
+       
+        String connectionLimitPerIP = handlerConfiguration.getChild("connectionLimitPerIP").getValue(null);
         if (connectionLimitPerIP != null) {
             try {
             connPerIP = new Integer(connectionLimitPerIP).intValue();
-            connPerIPConfigured = true;
             } catch (NumberFormatException nfe) {
                 logger.error("Connection limit per IP value is not properly formatted.", nfe);
             }
             if (connPerIP < 0) {
                 logger.error("Connection limit per IP value cannot be less than zero.");
                 throw new ConfigurationException("Connection limit value cannot be less than zero.");
+            } else if (connPerIP > 0){
+                infoBuffer = new StringBuilder(128)
+                .append(getServiceType())
+                .append(" will allow a maximum of ")
+                .append(connPerIP)
+                .append(" per IP connections for " +getServiceType());
+                logger.info(infoBuffer.toString());
             }
-        } else {
-            connPerIP = connectionManager.getMaximumNumberOfOpenConnectionsPerIP();
         }
-        infoBuffer = new StringBuilder(128)
-            .append(getServiceType())
-            .append(" will allow a maximum of ")
-            .append(connPerIP)
-            .append(" per IP connections for " +getServiceType());
-        logger.info(infoBuffer.toString());
+       
         
-        Configuration tlsConfig = conf.getChild("startTLS");
+        Configuration tlsConfig = configuration.getChild("startTLS");
         if (tlsConfig != null) {
             useStartTLS = tlsConfig.getAttributeAsBoolean("enable", false);
-            
+
             if (useStartTLS) {
                 keystore = tlsConfig.getChild("keystore").getValue(null);
                 if (keystore == null) {
                     throw new ConfigurationException("keystore needs to get configured");
                 }
                 secret = tlsConfig.getChild("secret").getValue("");
-                loadJCEProviders(tlsConfig, getLogger());
             }
         }
-        */
+        
         String hello = (String) mailetcontext.getAttribute(Constants.HELLO_NAME);
 
         if (configuration.getAttributeAsBoolean("enabled")) {
@@ -543,8 +569,7 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
         }
 
 		public boolean isStartTLSSupported() {
-		    //TODO: FIX ME
-			return false;
+			return useStartTLS;
 		}
         
         //TODO: IF we create here an interface to get DNSServer
@@ -557,13 +582,16 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
      */
     public void initialize() throws Exception {
         prepareHandlerChain();
-        
+        Log logger = new AvalonLogger(getLogger());
         ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory());
         SocketAcceptor acceptor = new NioSocketAcceptor();
-        acceptor.setHandler(new SMTPCommandDispatcherIoHandler(handlerChain, theConfigData,new AvalonLogger(getLogger())));
-        
-        acceptor.getFilterChain().addLast("loggingFilter",new LoggingFilter());
+        SMTPCommandDispatcherIoHandler ioHandler = new SMTPCommandDispatcherIoHandler(handlerChain, theConfigData,logger,buildSSLContextFactory());
+        // init the handler
+        ioHandler.init();
+        acceptor.setHandler(ioHandler);
+                
         acceptor.getFilterChain().addLast("protocolCodecFactory", codecFactory);
+        acceptor.getFilterChain().addLast("connectionFilter", new ConnectionFilter(logger, connectionLimit, connPerIP));
         acceptor.getFilterChain().addLast("smtpResponseFilter", new SMTPResponseFilter());
         acceptor.getFilterChain().addLast("requestValidationFilter", new RequestValidationFilter(new AvalonLogger(getLogger())));
         acceptor.setBacklog(backlog);
@@ -572,18 +600,51 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
         acceptor.bind(new InetSocketAddress(bindTo,port));
     }
 
+    private SslContextFactory buildSSLContextFactory() throws Exception{
+        SslContextFactory contextFactory = null;
+        if (useStartTLS) {
+            KeyStoreFactory kfactory = new KeyStoreFactory();
+            kfactory.setDataFile(fileSystem.getFile(keystore));
+            kfactory.setPassword(secret);
+            
+            contextFactory = new SslContextFactory();
+            contextFactory.setKeyManagerFactoryKeyStore(kfactory.newInstance());
+            contextFactory.setKeyManagerFactoryAlgorithm("SunX509");
+            contextFactory.setTrustManagerFactory(new BogusTrustManagerFactory());
+            contextFactory.setKeyManagerFactoryKeyStorePassword(secret);
+        }
+
+        return contextFactory;
+    }
+    
+    /**
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.SMTPServerMBean#getNetworkInterface()
+     */
     public String getNetworkInterface() {
-        return null;
+        return "unkown";
     }
 
+    /**
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.SMTPServerMBean#getPort()
+     */
     public int getPort() {
         return port;
     }
 
+    /**
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.SMTPServerMBean#getSocketType()
+     */
     public String getSocketType() {
         return "plain";
     }
 
+    /**
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.SMTPServerMBean#isEnabled()
+     */
     public boolean isEnabled() {
         return enabled;
     }
