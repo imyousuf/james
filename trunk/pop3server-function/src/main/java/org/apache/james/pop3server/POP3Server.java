@@ -140,7 +140,7 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
     /**
      * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()
      */
-     protected int getDefaultPort() {
+     public int getDefaultPort() {
         return 110;
      }
 
@@ -170,10 +170,10 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (POP3Server.this.helloName == null) {
+            if (POP3Server.this.getHelloName() == null) {
                 return POP3Server.this.mailServer.getHelloName();
             } else {
-                return POP3Server.this.helloName;
+                return POP3Server.this.getHelloName();
             }
         }
 

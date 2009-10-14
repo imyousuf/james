@@ -942,5 +942,9 @@ public abstract class AbstractProtocolServer extends AbstractHandlerFactory
     	return useStartTLS;
     }
     
+    public String getHelloName() {
+        return helloName;
+    }
+
 }
 

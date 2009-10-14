@@ -155,7 +155,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
 
         if (isEnabled()) {
             // TODO Remove this in next not backwards compatible release!
-            if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, helloName);
+            if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, getHelloName());
 
             handlerConfiguration = configuration.getChild("handler");
             String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
@@ -250,7 +250,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     /**
      * @see org.apache.james.core.AbstractProtocolServer#getDefaultPort()
      */
-    protected int getDefaultPort() {
+    public int getDefaultPort() {
         return 25;
     }
 
@@ -262,16 +262,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     }
 
     /**
-     * @see org.apache.avalon.excalibur.pool.ObjectFactory#getCreatedClass()
-     */
-    @SuppressWarnings("unchecked")
-    public Class getCreatedClass() {
-        return SMTPHandler.class;
-    }
-
-
-
-    /**
      * A class to provide SMTP handler configuration to the handlers
      */
     private class SMTPHandlerConfigurationDataImpl implements SMTPConfiguration {
@@ -280,10 +270,10 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
          * @see org.apache.james.smtpserver.SMTPConfiguration#getHelloName()
          */
         public String getHelloName() {
-            if (SMTPServer.this.helloName == null) {
+            if (SMTPServer.this.getHelloName() == null) {
                 return SMTPServer.this.mailServer.getHelloName();
             } else {
-                return SMTPServer.this.helloName;
+                return SMTPServer.this.getHelloName();
             }
         }
 

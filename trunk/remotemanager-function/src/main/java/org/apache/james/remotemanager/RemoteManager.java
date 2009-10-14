@@ -164,7 +164,7 @@ public class RemoteManager
     /**
      * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()
      */
-     protected int getDefaultPort() {
+     public int getDefaultPort() {
         return 4555;
      }
 
@@ -192,10 +192,10 @@ public class RemoteManager
          * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (RemoteManager.this.helloName == null) {
+            if (RemoteManager.this.getHelloName() == null) {
                 return RemoteManager.this.mailServer.getHelloName();
             } else {
-                return RemoteManager.this.helloName;
+                return RemoteManager.this.getHelloName();
             }
         }
         

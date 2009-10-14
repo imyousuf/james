@@ -86,13 +86,13 @@ public class ImapServer extends AbstractProtocolServer implements ImapConstants,
     public void configure( final Configuration configuration ) throws ConfigurationException {
         super.configure( configuration );
         factory.configure(configuration);
-        hello  = softwaretype + " Server " + helloName + " is ready.";
+        hello  = softwaretype + " Server " + getHelloName() + " is ready.";
     }
     
     /**
      * @see AbstractProtocolServer#getDefaultPort()
      */
-    protected int getDefaultPort() {
+    public int getDefaultPort() {
         return 143;
     }
 
