@@ -32,10 +32,10 @@ import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.services.MailRepository;
+import org.apache.james.socket.api.CRLFTerminatedReader;
+import org.apache.james.socket.api.ProtocolContext;
+import org.apache.james.socket.api.Watchdog;
 import org.apache.james.socket.shared.AbstractProtocolHandler;
-import org.apache.james.socket.shared.CRLFTerminatedReader;
-import org.apache.james.socket.shared.ProtocolContext;
-import org.apache.james.socket.shared.Watchdog;
 import org.apache.mailet.Mail;
 
 /**
@@ -117,7 +117,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
     
 
     /**
-     * @see org.apache.james.socket.shared.AbstractProtocolHandler#handleProtocolInternal(org.apache.james.socket.shared.ProtocolContext)
+     * @see org.apache.james.socket.shared.AbstractProtocolHandler#handleProtocolInternal(org.apache.james.socket.api.ProtocolContext)
      */
     public void handleProtocolInternal(ProtocolContext context) throws IOException {
         this.context = context;

@@ -24,6 +24,8 @@ package org.apache.james.socket.shared;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.socket.api.ProtocolContext;
+import org.apache.james.socket.api.ProtocolHandler;
 
 /**
  * Abstract base class for ProtocolHandler
@@ -36,7 +38,7 @@ public abstract class AbstractProtocolHandler implements ProtocolHandler, TLSSup
     private String user;
 
     /**
-     * @see org.apache.james.socket.shared.ProtocolHandler#resetHandler()
+     * @see org.apache.james.socket.api.ProtocolHandler#resetHandler()
      */
     public void resetHandler() {
         user = null;
@@ -44,7 +46,7 @@ public abstract class AbstractProtocolHandler implements ProtocolHandler, TLSSup
     }
 
     /**
-     * @see org.apache.james.socket.shared.ProtocolHandler#handleProtocol(org.apache.james.socket.shared.ProtocolContext)
+     * @see org.apache.james.socket.api.ProtocolHandler#handleProtocol(org.apache.james.socket.api.ProtocolContext)
      */
     public void handleProtocol(ProtocolContext context) throws IOException {
         this.context = context;
@@ -102,7 +104,7 @@ public abstract class AbstractProtocolHandler implements ProtocolHandler, TLSSup
     }
 
     /**
-     * @see org.apache.james.socket.shared.ProtocolHandler#fatalFailure(java.lang.RuntimeException, org.apache.james.socket.shared.ProtocolContext)
+     * @see org.apache.james.socket.api.ProtocolHandler#fatalFailure(java.lang.RuntimeException, org.apache.james.socket.api.ProtocolContext)
      */
     public void fatalFailure(RuntimeException e, ProtocolContext context) {
     }

@@ -17,9 +17,10 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket.shared;
+package org.apache.james.socket.api;
 
 import java.io.IOException;
+
 
 /**
  * Handles protocol interactions.

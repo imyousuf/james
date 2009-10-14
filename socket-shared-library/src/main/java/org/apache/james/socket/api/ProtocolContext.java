@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.socket.shared;
+package org.apache.james.socket.api;
 
 import java.io.IOException;
 import java.io.InputStream;

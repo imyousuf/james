@@ -24,7 +24,7 @@ package org.apache.james.socket;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.james.socket.shared.Watchdog;
+import org.apache.james.socket.api.Watchdog;
 
 /**
  * This will reset the Watchdog each time a certain amount of data has
