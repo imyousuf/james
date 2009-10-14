@@ -69,6 +69,6 @@ public interface ProtocolHandlerFactory {
      * 
      * @throws Exception
      */
-    void initialize() throws Exception;
+    void init() throws Exception;
 
 }
