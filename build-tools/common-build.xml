@@ -239,6 +239,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${avalon-phoenix.jar}"/>     
                     <include name="${jsr250.jar}"/>
                     <include name='${path.lib.james}/apache-james-imap*.jar'/>
+                    <include name="${mina-core.jar}"/>
                 </fileset>   
             </path>   
             <path id='classpath.jackrabbit.repo'>  
