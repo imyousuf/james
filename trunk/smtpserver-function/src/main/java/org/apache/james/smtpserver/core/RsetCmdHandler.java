@@ -26,6 +26,7 @@ import java.util.Collection;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -42,10 +43,9 @@ public class RsetCmdHandler implements CommandHandler {
     /**
      * handles RSET command
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
     **/
-    public SMTPResponse onCommand(SMTPSession session, String command, String parameters) {
-        return doRSET(session, parameters);
+    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+        return doRSET(session, request.getArgument());
     }
 
 

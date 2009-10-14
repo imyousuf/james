@@ -26,6 +26,7 @@ import java.util.Collection;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
+import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -44,9 +45,8 @@ public class NoopCmdHandler implements CommandHandler {
      * Handler method called upon receipt of a NOOP command.
      * Just sends back an OK and logs the command.
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(org.apache.james.smtpserver.SMTPSession, java.lang.String, java.lang.String) 
      */
-    public SMTPResponse onCommand(SMTPSession session, String command, String arguments) {
+    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
         return new SMTPResponse(SMTPRetCode.MAIL_OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK");
     }
     

@@ -32,6 +32,7 @@ import java.util.StringTokenizer;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.CommandHandler;
 import org.apache.james.smtpserver.LineHandler;
+import org.apache.james.smtpserver.SMTPRequest;
 import org.apache.james.smtpserver.SMTPResponse;
 import org.apache.james.smtpserver.SMTPRetCode;
 import org.apache.james.smtpserver.SMTPSession;
@@ -95,10 +96,9 @@ public class AuthCmdHandler
     /**
      * handles AUTH command
      *
-     * @see org.apache.james.smtpserver.CommandHandler#onCommand(SMTPSession)
      */
-    public SMTPResponse onCommand(SMTPSession session, String command, String argument) {
-        return doAUTH(session, argument);
+    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+        return doAUTH(session, request.getArgument());
     }
 
 

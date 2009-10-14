@@ -111,7 +111,7 @@ public interface SMTPSession extends TLSSupportedSession{
      * @return authentication required or not
      */
     boolean isAuthSupported();
-;
+
 
     /**
      * Returns the SMTP session id

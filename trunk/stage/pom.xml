@@ -46,6 +46,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-socket-shared-library</artifactId>
     </dependency>
