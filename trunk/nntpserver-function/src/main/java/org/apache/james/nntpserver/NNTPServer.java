@@ -29,7 +29,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
-import org.apache.james.socket.shared.ProtocolHandler;
+import org.apache.james.socket.api.ProtocolHandler;
 
 /**
  * NNTP Server

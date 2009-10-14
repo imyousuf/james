@@ -17,32 +17,19 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-package org.apache.james.socket.shared;
+package org.apache.james.socket.api;
 
 /**
- * This interface represents an abstract watchdog process that serves to
- * monitor a situation and triggers an action under an implementation-specific
- * trigger condition.
- *
+ * Each socket provider implements this interface.
+ * A ProtocolHandlerFactory can retrieve transport informations
+ * using this interface
  */
-public interface Watchdog {
+public interface ProtocolServer {
+	
+	boolean isEnabled();
 
-    /**
-     * Start this Watchdog, causing it to begin monitoring.  The Watchdog can
-     * be stopped and restarted.
-     */
-    void start();
+	String getHelloName();
+	
+	boolean useStartTLS();
 
-    /**
-     * Reset this Watchdog.  Resets any conditions in the implementations
-     * (time to expiration, etc.) to their original values
-     */
-    void reset();
-
-    /**
-     * Stop this Watchdog, terminating the monitoring condition.  The monitor
-     * can be restarted with a call to startWatchdog.
-     */
-    void stop();
 }

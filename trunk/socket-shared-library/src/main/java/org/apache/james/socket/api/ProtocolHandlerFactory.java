@@ -17,7 +17,8 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket.shared;
+package org.apache.james.socket.api;
+
 
 /**
  * An interface each protocol factory will expose to socket services.

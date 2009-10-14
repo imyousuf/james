@@ -56,9 +56,9 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.FileSystem;
-import org.apache.james.socket.shared.ProtocolHandlerFactory;
-import org.apache.james.socket.shared.ProtocolServer;
-import org.apache.james.socket.shared.Watchdog;
+import org.apache.james.socket.api.ProtocolHandlerFactory;
+import org.apache.james.socket.api.ProtocolServer;
+import org.apache.james.socket.api.Watchdog;
 
 /**
  * Server which creates connection handlers. 

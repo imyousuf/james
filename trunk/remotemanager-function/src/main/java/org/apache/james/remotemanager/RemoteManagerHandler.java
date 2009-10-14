@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.socket.shared.CRLFTerminatedReader;
-import org.apache.james.socket.shared.ProtocolContext;
-import org.apache.james.socket.shared.ProtocolHandler;
-import org.apache.james.socket.shared.Watchdog;
+import org.apache.james.socket.api.CRLFTerminatedReader;
+import org.apache.james.socket.api.ProtocolContext;
+import org.apache.james.socket.api.ProtocolHandler;
+import org.apache.james.socket.api.Watchdog;
 
 
 /**

@@ -24,8 +24,8 @@ package org.apache.james.nntpserver;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.nntpserver.repository.NNTPArticle;
 import org.apache.james.nntpserver.repository.NNTPGroup;
-import org.apache.james.socket.shared.ProtocolContext;
-import org.apache.james.socket.shared.ProtocolHandler;
+import org.apache.james.socket.api.ProtocolContext;
+import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.util.stream.CharTerminatedInputStream;
 import org.apache.james.util.stream.DotStuffingInputStream;
 import org.apache.james.util.stream.ExtraDotOutputStream;
@@ -254,7 +254,7 @@ public class NNTPHandler implements ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.shared.ProtocolHandler#handleProtocol(ProtocolContext)
+     * @see org.apache.james.socket.api.ProtocolHandler#handleProtocol(ProtocolContext)
      */
     public void handleProtocol(ProtocolContext context) throws IOException {
         // section 7.1
@@ -284,7 +284,7 @@ public class NNTPHandler implements ProtocolHandler {
     }
     
     /**
-     * @see org.apache.james.socket.shared.ProtocolHandler#fatalFailure(java.lang.RuntimeException, ProtocolContext)
+     * @see org.apache.james.socket.api.ProtocolHandler#fatalFailure(java.lang.RuntimeException, ProtocolContext)
      */
     public void fatalFailure(final RuntimeException e, final ProtocolContext context) {
         // If the connection has been idled out, the

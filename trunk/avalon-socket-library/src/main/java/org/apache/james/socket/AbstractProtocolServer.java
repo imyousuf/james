@@ -22,9 +22,9 @@ package org.apache.james.socket;
 import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.socket.shared.ProtocolHandler;
-import org.apache.james.socket.shared.ProtocolHandlerFactory;
-import org.apache.james.socket.shared.ProtocolServer;
+import org.apache.james.socket.api.ProtocolHandler;
+import org.apache.james.socket.api.ProtocolHandlerFactory;
+import org.apache.james.socket.api.ProtocolServer;
 
 /**
  * Server which creates connection handlers. All new James service must
@@ -87,14 +87,14 @@ public abstract class AbstractProtocolServer extends AvalonProtocolServer implem
     public abstract ProtocolHandler newProtocolHandlerInstance();
 
     /**
-     * @see org.apache.james.socket.shared.ProtocolHandlerFactory#prepare(org.apache.james.socket.shared.ProtocolServer)
+     * @see org.apache.james.socket.api.ProtocolHandlerFactory#prepare(org.apache.james.socket.api.ProtocolServer)
      */
     public void prepare(ProtocolServer server) throws Exception {
         prepareInit();
     }
 
     /**
-     * @see org.apache.james.socket.shared.ProtocolHandlerFactory#init()
+     * @see org.apache.james.socket.api.ProtocolHandlerFactory#init()
      */
     public void init() throws Exception {
         doInit();

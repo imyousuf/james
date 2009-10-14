@@ -27,8 +27,8 @@ import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.apache.james.imap.main.OutputStreamImapResponseWriter;
-import org.apache.james.socket.shared.ProtocolContext;
-import org.apache.james.socket.shared.ProtocolHandler;
+import org.apache.james.socket.api.ProtocolContext;
+import org.apache.james.socket.api.ProtocolHandler;
 
 /**
  * Handles IMAP connections.
