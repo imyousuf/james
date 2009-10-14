@@ -25,7 +25,6 @@ import org.apache.james.smtpserver.core.esmtp.AuthCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.EhloCmdHandler;
 import org.apache.james.smtpserver.core.esmtp.MailSizeEsmtpExtension;
 import org.apache.james.smtpserver.core.esmtp.StartTlsCmdHandler;
-import org.apache.james.smtpserver.mina.SMTPCommandDispatcherIoHandler;
 import org.apache.james.socket.shared.HandlersPackage;
 
 import java.util.LinkedList;
@@ -36,6 +35,7 @@ import java.util.List;
  */
 public class CoreCmdHandlerLoader implements HandlersPackage {
 
+    private final String COMMANDDISPATCHER = SMTPCommandDispatcherLineHandler.class.getName();
     private final String AUTHCMDHANDLER = AuthCmdHandler.class.getName();
     private final String DATACMDHANDLER = DataCmdHandler.class.getName();
     private final String EHLOCMDHANDLER = EhloCmdHandler.class.getName();
@@ -61,6 +61,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     public CoreCmdHandlerLoader() {
         // Insert the base commands in the Map
         commands.add(WELCOMEMESSAGEHANDLER);
+        commands.add(COMMANDDISPATCHER);
         commands.add(AUTHCMDHANDLER);
         commands.add(DATACMDHANDLER);
         commands.add(EHLOCMDHANDLER);

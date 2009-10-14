@@ -287,8 +287,7 @@ public class SMTPSessionImpl implements SMTPSession {
             session.suspendRead();
             SslFilter filter = new SslFilter(context);
             resetState();
-            session.getFilterChain()
-                    .addFirst("sslFilter", filter);
+            session.getFilterChain().addFirst("sslFilter", filter);
             session.resumeRead();
         }
 

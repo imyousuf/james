@@ -45,7 +45,7 @@ import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.mina.RequestValidationFilter;
-import org.apache.james.smtpserver.mina.SMTPCommandDispatcherIoHandler;
+import org.apache.james.smtpserver.mina.SMTPIoHandler;
 import org.apache.james.smtpserver.mina.SMTPResponseFilter;
 import org.apache.james.smtpserver.mina.filter.ConnectionFilter;
 import org.apache.james.socket.configuration.JamesConfiguration;
@@ -585,10 +585,7 @@ public class SMTPServer extends AbstractLogEnabled implements SMTPServerMBean, S
         Log logger = new AvalonLogger(getLogger());
         ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory());
         SocketAcceptor acceptor = new NioSocketAcceptor();
-        SMTPCommandDispatcherIoHandler ioHandler = new SMTPCommandDispatcherIoHandler(handlerChain, theConfigData,logger,buildSSLContextFactory());
-        // init the handler
-        ioHandler.init();
-        acceptor.setHandler(ioHandler);
+        acceptor.setHandler(new SMTPIoHandler(handlerChain, theConfigData,logger,buildSSLContextFactory()));
                 
         acceptor.getFilterChain().addLast("protocolCodecFactory", codecFactory);
         acceptor.getFilterChain().addLast("connectionFilter", new ConnectionFilter(logger, connectionLimit, connPerIP));
