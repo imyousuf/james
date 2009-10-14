@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="socket-api">
+  <description>Builds socket-api module. This is an api module.</description>
+  <property name="name.module" value="socket-api" />
+  <import file="../build-tools/api-build.xml" optional="no" />
+</project>
