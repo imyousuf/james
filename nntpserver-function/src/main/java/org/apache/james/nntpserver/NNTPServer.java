@@ -120,7 +120,7 @@ public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBea
     /**
      * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()
      */
-     protected int getDefaultPort() {
+     public int getDefaultPort() {
         return 119;
      }
 
@@ -149,10 +149,10 @@ public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBea
          * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (NNTPServer.this.helloName == null) {
+            if (NNTPServer.this.getHelloName() == null) {
                 return NNTPServer.this.mailServer.getHelloName();
             } else {
-                return NNTPServer.this.helloName;
+                return NNTPServer.this.getHelloName();
             }
         }
 
