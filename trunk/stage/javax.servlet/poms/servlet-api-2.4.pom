@@ -1,0 +1,14 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>sun-servlet</groupId>
+  <artifactId>servlet-api</artifactId>
+  <version>2.4</version>
+  <description>Tomcat 5.5 servlet 2.4 spec api classes</description>
+  <url>http://jakarta.apache.org/tomcat/index.html</url>
+  <licenses>
+   <license>
+     <name>apache-2.0</name>
+     <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+   </license>
+  </licenses>  
+</project>
