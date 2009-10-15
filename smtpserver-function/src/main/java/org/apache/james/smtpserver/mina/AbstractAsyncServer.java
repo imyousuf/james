@@ -185,28 +185,49 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
 
     /**
      * This method is called on init of the Server. Subclasses should override this method to init stuff
+     *
      * @throws Exception 
      */
     protected void preInit() throws Exception {
-        // TODO Auto-generated method stub
-        
+        // override me
     }
 
+    /**
+     * Return the DNSService
+     * 
+     * @return dns
+     */
     protected DNSService getDNSService() {
         return dns;
     }
     
+    /**
+     * Return the MailServer
+     * 
+     * @return mailServer
+     */
     protected MailServer getMailServer() {
         return mailServer;
     }
     
+    /**
+     * Return the MailetContext
+     * 
+     * @return mailetContext
+     */
     protected MailetContext getMailetContext() {
         return mailetcontext;
     }
     
+    /**
+     * Return the FileSystem
+     * 
+     * @return fileSystem
+     */
     protected FileSystem getFileSystem() {
         return fileSystem;
     }
+    
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
      */
@@ -339,6 +360,11 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
     }
 
     
+    /**
+     * Configure the helloName for the given Configuration
+     * 
+     * @param handlerConfiguration
+     */
     private void configureHelloName(Configuration handlerConfiguration) {
         StringBuilder infoBuffer;
         String hostName = null;
@@ -422,6 +448,11 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
         return useStartTLS;
     }
     
+    /**
+     * Build the SslContextFactory
+     * 
+     * @throws Exception
+     */
     private void buildSSLContextFactory() throws Exception{
         if (useStartTLS) {
             KeyStoreFactory kfactory = new KeyStoreFactory();
@@ -452,6 +483,16 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
         return contextFactory;
     }
     
+    
+    /**
+     * Create IoFilterChainBuilder which will get used for the Acceptor. 
+     * The builder will contain a ProtocalCodecFilter which handles Line based Protocols and
+     * a ConnectionFilter which limit the connection count / connection count per ip.
+     * 
+     * Developers should override this to add more filters to the chain.
+     * 
+     * @return ioFilterChainBuilder
+     */
     protected DefaultIoFilterChainBuilder createIoFilterChainBuilder() {
         ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory());
         Log cLogger = new AvalonLogger(getLogger());
