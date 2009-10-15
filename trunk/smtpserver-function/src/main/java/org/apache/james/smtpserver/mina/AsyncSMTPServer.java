@@ -43,7 +43,7 @@ import org.apache.mina.core.service.IoHandler;
  * @version 1.1.0, 06/02/2001
  */
 /*
- * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
+ * IMPORTANT: AsyncSMTPServer extends AbstractAsyncServer.  If you implement ANY
  * lifecycle methods, you MUST call super.<method> as well.
  */
 public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMBean {
@@ -112,7 +112,6 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
     public void configure(final Configuration configuration) throws ConfigurationException {
         super.configure(configuration);
         if (isEnabled()) {
-            System.out.println("HELLO");
             handlerConfiguration = configuration.getChild("handler");
             String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
@@ -307,9 +306,6 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 		public boolean isStartTLSSupported() {
 			return AsyncSMTPServer.this.isStartTLSSupported();
 		}
-        
-        //TODO: IF we create here an interface to get DNSServer
-        //      we should access it from the SMTPHandlers
 
     }
     
