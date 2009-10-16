@@ -26,12 +26,13 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.dnsservice.util.NetMatcher;
-import org.apache.james.smtpserver.mina.filter.RequestValidationFilter;
+import org.apache.james.smtpserver.mina.filter.SMTPValidationFilter;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
 import org.apache.james.smtpserver.protocol.SMTPServerMBean;
 import org.apache.james.socket.configuration.JamesConfiguration;
+import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 
@@ -202,7 +203,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 
 
     /**
-     * @see org.apache.james.smtpserver.mina.AbstractAsyncServer#preInit()
+     * @see org.apache.james.socket.mina.AbstractAsyncServer#preInit()
      */
     protected void preInit() throws Exception {
         prepareHandlerChain();
@@ -211,7 +212,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 
 
     /**
-     * @see org.apache.james.smtpserver.mina.AbstractAsyncServer#getDefaultPort()
+     * @see org.apache.james.socket.mina.AbstractAsyncServer#getDefaultPort()
      */
     protected int getDefaultPort() {
         return 25;
@@ -327,21 +328,21 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 
 
     /**
-     * @see org.apache.james.smtpserver.mina.AbstractAsyncServer#createIoFilterChainBuilder()
+     * @see org.apache.james.socket.mina.AbstractAsyncServer#createIoFilterChainBuilder()
      */
     protected DefaultIoFilterChainBuilder createIoFilterChainBuilder() {
         DefaultIoFilterChainBuilder builder = super.createIoFilterChainBuilder();
         
         // response and validation filter to the chain
         builder.addLast("smtpResponseFilter", new SMTPResponseFilter());
-        builder.addLast("requestValidationFilter", new RequestValidationFilter(new AvalonLogger(getLogger())));
+        builder.addLast("requestValidationFilter", new SMTPValidationFilter(new AvalonLogger(getLogger())));
         return builder;
     }
 
 
 
     /**
-     * @see org.apache.james.smtpserver.mina.AbstractAsyncServer#createIoHandler()
+     * @see org.apache.james.socket.mina.AbstractAsyncServer#createIoHandler()
      */
     protected IoHandler createIoHandler() {
         Log logger = new AvalonLogger(getLogger());

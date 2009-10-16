@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.mina;
+package org.apache.james.socket.mina;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -35,12 +35,11 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
-import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.mina.filter.ConnectionFilter;
+import org.apache.james.socket.mina.filter.ConnectionFilter;
 import org.apache.mailet.MailetContext;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
@@ -354,9 +353,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
                 }
                 secret = tlsConfig.getChild("secret").getValue("");
             }
-        }
-        
-       helloName = (String) mailetcontext.getAttribute(Constants.HELLO_NAME);
+        }        
     }
 
     

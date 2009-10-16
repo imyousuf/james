@@ -76,6 +76,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mina-socket-library</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-socket-shared-library</artifactId>
     </dependency>
     <dependency>
@@ -131,10 +135,6 @@
     <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
