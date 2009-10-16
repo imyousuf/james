@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.mina.filter;
+package org.apache.james.socket.mina.filter;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
