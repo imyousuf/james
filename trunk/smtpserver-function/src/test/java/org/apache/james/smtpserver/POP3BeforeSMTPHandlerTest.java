@@ -21,8 +21,8 @@
 package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.smtpserver.integration.POP3BeforeSMTPHandler;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.POP3BeforeSMTPHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 
