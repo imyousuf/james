@@ -21,13 +21,9 @@
 
 package org.apache.james.smtpserver.protocol;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.smtpserver.protocol.core.CoreCmdHandlerLoader;
-import org.apache.james.smtpserver.protocol.core.CoreMessageHookLoader;
-import org.apache.james.smtpserver.protocol.core.DataLineMessageHookHandler;
 import org.apache.james.socket.shared.AbstractHandlerChain;
 import org.apache.james.socket.shared.LogEnabled;
 
@@ -38,7 +34,7 @@ import org.apache.james.socket.shared.LogEnabled;
 public class SMTPHandlerChain extends AbstractHandlerChain implements LogEnabled{
 
     /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineMessageHookHandler.class);
+    private static final Log FALLBACK_LOG = LogFactory.getLog(SMTPHandlerChain.class);
     
     /** Non context specific log should only be used when no context specific log is available */
     private Log log = FALLBACK_LOG;
@@ -50,30 +46,6 @@ public class SMTPHandlerChain extends AbstractHandlerChain implements LogEnabled
      */
     public void setLog(Log log) {
         this.log = log;
-    }
-
-    /**
-     * loads the various handlers from the configuration
-     * 
-     * @param configuration
-     *            configuration under handlerchain node
-     */
-    @SuppressWarnings("unchecked")
-	protected void loadHandlers() throws Exception {
-        super.loadHandlers();
-        if (commonsConf != null) {
-            List<org.apache.commons.configuration.Configuration> children = commonsConf.configurationsAt("handler");
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-            // load the configured handlers
-            if (children != null && children.isEmpty() == false) {
-
-                // load core messageHandlers
-                loadClass(classLoader, CoreMessageHookLoader.class.getName(),
-                        addHandler(CoreMessageHookLoader.class.getName()));
-
-            }
-        }
     }
 
     /**
