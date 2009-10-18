@@ -26,9 +26,9 @@ import org.apache.commons.logging.Log;
 import org.apache.james.smtpserver.protocol.ConnectHandler;
 import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
-import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
 import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPSession;
+import org.apache.james.socket.shared.ProtocolHandlerChain;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -43,16 +43,16 @@ public class SMTPIoHandler extends IoHandlerAdapter{
     private final static String SMTP_SESSION = "org.apache.james.smtpserver.mina.SMTPIoHandler.SMTP_SESSION";
     
     private Log logger;
-    private SMTPHandlerChain chain;
+    private ProtocolHandlerChain chain;
     private SMTPConfiguration conf;
     private SslContextFactory contextFactory;
 
-    public SMTPIoHandler(SMTPHandlerChain chain,
+    public SMTPIoHandler(ProtocolHandlerChain chain,
             SMTPConfiguration conf, Log logger) {
         this(chain,conf,logger,null);
     }
     
-    public SMTPIoHandler(SMTPHandlerChain chain,
+    public SMTPIoHandler(ProtocolHandlerChain chain,
             SMTPConfiguration conf, Log logger, SslContextFactory contextFactory) {
         this.chain = chain;
         this.conf = conf;

@@ -36,6 +36,7 @@ import org.apache.james.socket.api.CRLFTerminatedReader;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.api.Watchdog;
 import org.apache.james.socket.shared.AbstractProtocolHandler;
+import org.apache.james.socket.shared.ProtocolHandlerChain;
 import org.apache.mailet.Mail;
 
 /**
@@ -84,7 +85,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
     /**
      * The POP3HandlerChain object set by POP3Server
      */
-    private final POP3HandlerChain handlerChain;
+    private final ProtocolHandlerChain handlerChain;
 
     /**
      * The session termination status
@@ -108,7 +109,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
      */
     private final LinkedList<ConnectHandler> connectHandlers;
     
-    public POP3Handler(final POP3HandlerConfigurationData theConfigData, final POP3HandlerChain handlerChain) {
+    public POP3Handler(final POP3HandlerConfigurationData theConfigData, final ProtocolHandlerChain handlerChain) {
         this.theConfigData = theConfigData;
         this.handlerChain = handlerChain;
         connectHandlers = handlerChain.getHandlers(ConnectHandler.class);

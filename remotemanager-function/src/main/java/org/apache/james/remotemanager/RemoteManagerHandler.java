@@ -33,6 +33,7 @@ import org.apache.james.socket.api.CRLFTerminatedReader;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.api.Watchdog;
+import org.apache.james.socket.shared.ProtocolHandlerChain;
 
 
 /**
@@ -52,13 +53,13 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
 
     private boolean sessionEnded;
 
-    private RemoteManagerHandlerChain handlerChain;
+    private ProtocolHandlerChain handlerChain;
 
     private LinkedList<ConnectHandler> connectHandlers;
 
     private LinkedList<LineHandler> lineHandlers;
     
-    public RemoteManagerHandler(final RemoteManagerHandlerConfigurationData theConfigData, final RemoteManagerHandlerChain handlerChain) {
+    public RemoteManagerHandler(final RemoteManagerHandlerConfigurationData theConfigData, final ProtocolHandlerChain handlerChain) {
         this.theConfigData = theConfigData; 
         this.handlerChain = handlerChain;
         connectHandlers = handlerChain.getHandlers(ConnectHandler.class);

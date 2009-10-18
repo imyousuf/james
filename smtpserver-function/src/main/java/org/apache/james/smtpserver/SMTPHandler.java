@@ -31,13 +31,13 @@ import java.util.Random;
 import org.apache.james.smtpserver.protocol.ConnectHandler;
 import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
-import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.shared.AbstractProtocolHandler;
 import org.apache.james.socket.shared.CRLFDelimitedByteBuffer;
+import org.apache.james.socket.shared.ProtocolHandlerChain;
 
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
@@ -86,11 +86,11 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
 
 	private boolean authSupported;
 
-	private final SMTPHandlerChain handlerChain;
+	private final ProtocolHandlerChain handlerChain;
 
 	private String smtpID;
 
-	public SMTPHandler(SMTPHandlerChain handlerChain, final SMTPConfiguration theConfigData) {
+	public SMTPHandler(ProtocolHandlerChain handlerChain, final SMTPConfiguration theConfigData) {
         this.handlerChain = handlerChain;
         connectHandlers = handlerChain.getHandlers(ConnectHandler.class);
         lineHandlers = handlerChain.getHandlers(LineHandler.class);

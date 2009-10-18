@@ -34,6 +34,7 @@ import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.configuration.JamesConfiguration;
+import org.apache.james.socket.shared.ProtocolHandlerChain;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
@@ -48,7 +49,7 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
      * The handler chain - POP3handlers can lookup handlerchain to obtain
      * Command handlers , Message handlers and connection handlers
      */
-    private POP3HandlerChain handlerChain;
+    private ProtocolHandlerChain handlerChain;
 
     /**
      * The internal mail server service
@@ -124,7 +125,7 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
     
     private void prepareHandlerChain() throws Exception {
 
-        handlerChain = loader.load(POP3HandlerChain.class);
+        handlerChain = loader.load(ProtocolHandlerChain.class);
         
         //set the logger
         handlerChain.setLog(new AvalonLogger(getLogger()));
