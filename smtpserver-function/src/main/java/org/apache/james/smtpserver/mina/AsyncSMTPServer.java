@@ -31,6 +31,7 @@ import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
 import org.apache.james.smtpserver.protocol.SMTPServerMBean;
+import org.apache.james.smtpserver.protocol.core.CoreCmdHandlerLoader;
 import org.apache.james.socket.configuration.JamesConfiguration;
 import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
@@ -198,7 +199,10 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         handlerChain.setLog(new AvalonLogger(getLogger()));
         
         //read from the XML configuration and create and configure each of the handlers
-        handlerChain.configure(new JamesConfiguration(handlerConfiguration.getChild("handlerchain")));
+        JamesConfiguration jamesConfiguration = new JamesConfiguration(handlerConfiguration.getChild("handlerchain"));
+        if (jamesConfiguration.getProperty("coreHandlersPackage") == null)
+            jamesConfiguration.addProperty("coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
+        handlerChain.configure(jamesConfiguration);
     }
 
 

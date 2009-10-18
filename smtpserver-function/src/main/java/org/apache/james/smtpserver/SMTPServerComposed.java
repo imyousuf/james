@@ -40,6 +40,7 @@ import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
+import org.apache.james.smtpserver.protocol.core.CoreCmdHandlerLoader;
 import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
@@ -268,7 +269,10 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
         handlerChain.setLog(new AvalonLogger(getLogger()));
         
         //read from the XML configuration and create and configure each of the handlers
-        handlerChain.configure(new JamesConfiguration(handlerConfiguration.getChild("handlerchain")));
+        JamesConfiguration jamesConfiguration = new JamesConfiguration(handlerConfiguration.getChild("handlerchain"));
+        if (jamesConfiguration.getProperty("coreHandlersPackage") == null)
+            jamesConfiguration.addProperty("coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
+        handlerChain.configure(jamesConfiguration);
     }
 
     /**
