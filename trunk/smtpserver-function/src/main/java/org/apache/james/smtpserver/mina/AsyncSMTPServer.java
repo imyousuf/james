@@ -26,14 +26,14 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.dnsservice.util.NetMatcher;
-import org.apache.james.smtpserver.mina.filter.SMTPValidationFilter;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
+import org.apache.james.smtpserver.mina.filter.SMTPValidationFilter;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
-import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
 import org.apache.james.smtpserver.protocol.SMTPServerMBean;
 import org.apache.james.smtpserver.protocol.core.CoreCmdHandlerLoader;
 import org.apache.james.socket.configuration.JamesConfiguration;
 import org.apache.james.socket.mina.AbstractAsyncServer;
+import org.apache.james.socket.shared.ProtocolHandlerChain;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 
@@ -55,7 +55,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
      * Command handlers , Message handlers and connection handlers
      * Constructed during initialisation to allow dependency injection.
      */
-    private SMTPHandlerChain handlerChain;
+    private ProtocolHandlerChain handlerChain;
 
    
     /** Cached configuration data for handler */
@@ -193,7 +193,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
      * @throws Exception
      */
     private void prepareHandlerChain() throws Exception {
-        handlerChain = getLoader().load(SMTPHandlerChain.class);
+        handlerChain = getLoader().load(ProtocolHandlerChain.class);
                       
         //set the logger
         handlerChain.setLog(new AvalonLogger(getLogger()));
