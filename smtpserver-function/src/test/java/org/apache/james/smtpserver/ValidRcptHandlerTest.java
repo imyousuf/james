@@ -36,7 +36,7 @@ import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.filter.fastfail.ValidRcptHandler;
+import org.apache.james.smtpserver.protocol.core.fastfail.ValidRcptHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.james.MockVirtualUserTableStore;

@@ -34,7 +34,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.filter.fastfail.ResolvableEhloHeloHandler;
+import org.apache.james.smtpserver.protocol.core.fastfail.ResolvableEhloHeloHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;

@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.filter.fastfail.SpamAssassinHandler;
+import org.apache.james.smtpserver.protocol.core.fastfail.SpamAssassinHandler;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.test.mock.MockMimeMessage;
