@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver.protocol.core;
+package org.apache.james.smtpserver.integration;
 
 import java.util.Date;
 
