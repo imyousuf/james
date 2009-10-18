@@ -17,12 +17,8 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.protocol;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.smtpserver.protocol.core.CoreCmdHandlerLoader;
 import org.apache.james.socket.shared.AbstractHandlerChain;
 import org.apache.james.socket.shared.LogEnabled;
@@ -32,28 +28,6 @@ import org.apache.james.socket.shared.LogEnabled;
   * ConnectHandlers, Command handlers and message handlers
   */
 public class SMTPHandlerChain extends AbstractHandlerChain implements LogEnabled{
-
-    /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(SMTPHandlerChain.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
-    private Log log = FALLBACK_LOG;
-   
-    /**
-     * Sets the service log.
-     * Where available, a context sensitive log should be used.
-     * @param Log not null
-     */
-    public void setLog(Log log) {
-        this.log = log;
-    }
-
-    /**
-     * @see org.apache.james.socket.shared.AbstractHandlerChain#getLog()
-     */
-    protected Log getLog() {
-        return log;
-    }
 
     /**
      * @see org.apache.james.socket.shared.AbstractHandlerChain#getCoreCmdHandlerLoader()
