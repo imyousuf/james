@@ -20,17 +20,17 @@
 package org.apache.james.smtpserver.protocol;
 
 import org.apache.james.smtpserver.protocol.core.CoreCmdHandlerLoader;
-import org.apache.james.socket.shared.AbstractHandlerChain;
+import org.apache.james.socket.shared.ProtocolHandlerChain;
 import org.apache.james.socket.shared.LogEnabled;
 
 /**
   * The SMTPHandlerChain is per service object providing access
   * ConnectHandlers, Command handlers and message handlers
   */
-public class SMTPHandlerChain extends AbstractHandlerChain implements LogEnabled{
+public class SMTPHandlerChain extends ProtocolHandlerChain implements LogEnabled{
 
     /**
-     * @see org.apache.james.socket.shared.AbstractHandlerChain#getCoreCmdHandlerLoader()
+     * @see org.apache.james.socket.shared.ProtocolHandlerChain#getCoreCmdHandlerLoader()
      */
     protected Class<?> getCoreCmdHandlerLoader() {
         return CoreCmdHandlerLoader.class;

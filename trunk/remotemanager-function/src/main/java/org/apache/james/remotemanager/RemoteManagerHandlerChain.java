@@ -20,14 +20,14 @@
 package org.apache.james.remotemanager;
 
 import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
-import org.apache.james.socket.shared.AbstractHandlerChain;
+import org.apache.james.socket.shared.ProtocolHandlerChain;
 import org.apache.james.socket.shared.LogEnabled;
 
-public class RemoteManagerHandlerChain extends AbstractHandlerChain implements LogEnabled{
+public class RemoteManagerHandlerChain extends ProtocolHandlerChain implements LogEnabled{
 
     /**
      * (non-Javadoc)
-     * @see org.apache.james.socket.shared.AbstractHandlerChain#getCoreCmdHandlerLoader()
+     * @see org.apache.james.socket.shared.ProtocolHandlerChain#getCoreCmdHandlerLoader()
      */
     protected Class<?> getCoreCmdHandlerLoader() {
         return CoreCmdHandlerLoader.class;
