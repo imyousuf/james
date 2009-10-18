@@ -39,7 +39,7 @@ public class POP3BeforeSMTPHandler implements ConnectHandler {
 
 
     /**
-     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration config) throws ConfigurationException {
         try {

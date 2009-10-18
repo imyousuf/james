@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket.shared;
+package org.apache.james.api.protocol;
 
 import java.util.Collection;
 

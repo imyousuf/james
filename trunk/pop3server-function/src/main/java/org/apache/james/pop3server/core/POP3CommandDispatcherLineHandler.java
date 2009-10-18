@@ -26,12 +26,12 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.api.protocol.AbstractCommandDispatcher;
+import org.apache.james.api.protocol.LogEnabled;
 import org.apache.james.pop3server.CommandHandler;
 import org.apache.james.pop3server.LineHandler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.socket.shared.AbstractCommandDispatcher;
-import org.apache.james.socket.shared.LogEnabled;
 
 public class POP3CommandDispatcherLineHandler extends
         AbstractCommandDispatcher<CommandHandler> implements LineHandler, LogEnabled {
@@ -48,28 +48,28 @@ public class POP3CommandDispatcherLineHandler extends
     private Log serviceLog = FALLBACK_LOG;
 
     /**
-     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getLog()
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getLog()
      */
     protected Log getLog() {
         return serviceLog;
     }
 
     /**
-     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getMandatoryCommands()
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getMandatoryCommands()
      */
     protected List<String> getMandatoryCommands() {
         return Arrays.asList(mandatoryCommands);
     }
 
     /**
-     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getUnknownCommandHandler()
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getUnknownCommandHandler()
      */
     protected CommandHandler getUnknownCommandHandler() {
         return unknownHandler;
     }
 
     /**
-     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
      */
     protected String getUnknownCommandHandlerIdentifier() {
         return UnknownCmdHandler.COMMAND_NAME;
@@ -139,7 +139,7 @@ public class POP3CommandDispatcherLineHandler extends
     }
 
     /**
-     * @see org.apache.james.socket.shared.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.api.protocol.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
     public void setLog(Log log) {
         this.serviceLog = log;

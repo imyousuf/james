@@ -45,7 +45,7 @@ public class SetMimeHeaderHandler implements MessageHook {
 
 
     /**
-     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration handlerConfiguration) throws ConfigurationException {
        setHeaderName(handlerConfiguration.getString("headername"));

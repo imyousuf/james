@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.james.api.protocol.ProtocolHandlerChain;
 import org.apache.james.smtpserver.protocol.ConnectHandler;
 import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
@@ -37,7 +38,6 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.shared.AbstractProtocolHandler;
 import org.apache.james.socket.shared.CRLFDelimitedByteBuffer;
-import org.apache.james.socket.shared.ProtocolHandlerChain;
 
 /**
  * Provides SMTP functionality by carrying out the server side of the SMTP
@@ -385,7 +385,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
 
  
 	/**
-	 * @see org.apache.james.socket.shared.TLSSupportedSession#isStartTLSSupported()
+	 * @see org.apache.james.api.protocol.TLSSupportedSession#isStartTLSSupported()
 	 */
 	public boolean isStartTLSSupported() {
 		return getConfigurationData().isStartTLSSupported();

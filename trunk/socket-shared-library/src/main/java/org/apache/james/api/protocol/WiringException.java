@@ -16,25 +16,43 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
-package org.apache.james.socket.shared;
-
-import java.util.List;
+package org.apache.james.api.protocol;
 
 /**
- * Provides a mean to bundle a set of handlers (defined by their classnames) within
- * a single object.
- * This is used for the default set of CoreCommands.
+ * Indicates an issue prevent the successful wiring of the components
+ * composing the SMTP processor.
  */
-public interface HandlersPackage {
-    
+public class WiringException extends Exception {
+
+    private static final long serialVersionUID = 8824880646965171467L;
+
     /**
-     * Return a List which contains a set of CommandHandlers
-     * 
-     * @return Map
+     * Empty constructor
      */
-    List<String> getHandlers();
+    public WiringException() {
+        super();
+    }
+
+    /**
+     * @param message
+     * @param t
+     */
+    public WiringException(String message, Throwable t) {
+        super(message, t);
+    }
+
+    /**
+     * @param message
+     */
+    public WiringException(String message) {
+        super(message);
+    }
+
+    /**
+     * @param t
+     */
+    public WiringException(Throwable t) {
+        super(t);
+    }
 
 }

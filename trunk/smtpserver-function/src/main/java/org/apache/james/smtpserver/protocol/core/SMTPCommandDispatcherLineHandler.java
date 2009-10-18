@@ -27,14 +27,14 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.api.protocol.AbstractCommandDispatcher;
+import org.apache.james.api.protocol.LogEnabled;
 import org.apache.james.smtpserver.protocol.CommandHandler;
 import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.socket.shared.AbstractCommandDispatcher;
-import org.apache.james.socket.shared.LogEnabled;
 
 
 public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<CommandHandler> implements LogEnabled, LineHandler {
@@ -109,7 +109,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
     }
 
     /**
-     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
      */
     @SuppressWarnings("unchecked")
     public List getMarkerInterfaces() {
@@ -119,7 +119,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
     }
 
     /**
-     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getLog()
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getLog()
      */
     protected Log getLog() {
         return serviceLog;
@@ -127,28 +127,28 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
 
 
     /**
-     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getUnknownCommandHandlerIdentifier()
      */
     protected String getUnknownCommandHandlerIdentifier() {
         return UnknownCmdHandler.UNKNOWN_COMMAND;
     }
 
     /**
-     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getMandatoryCommands()
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getMandatoryCommands()
      */
     protected List<String> getMandatoryCommands() {
         return Arrays.asList(mandatoryCommands);
     }
 
     /**
-     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getUnknownCommandHandler()
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getUnknownCommandHandler()
      */
     protected CommandHandler getUnknownCommandHandler() {
         return unknownHandler;
     }
 
     /**
-     * @see org.apache.james.socket.shared.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.api.protocol.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
     public void setLog(Log log) {
         this.serviceLog = log;

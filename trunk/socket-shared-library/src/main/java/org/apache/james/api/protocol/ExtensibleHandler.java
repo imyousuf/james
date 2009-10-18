@@ -17,24 +17,31 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.api.protocol;
 
-package org.apache.james.socket.configuration;
+import java.util.List;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
+
 
 /**
- * Classes which needs to access the configuration should implement this
- *
+ * Handlers extends this interface to be notified of available
+ * extensions of the given type.
  */
-public interface Configurable {
-
-	/**
-	 * Configure
-	 * 
-	 * @param config
-	 * @throws ConfigurationException
-	 */
-	public void configure(Configuration config) throws ConfigurationException;
-	
+public interface ExtensibleHandler {
+     
+    /**
+     * Return a List of interfaces of plugins that will
+     * extend this.
+     */
+    List<Class<?>> getMarkerInterfaces();
+    
+    /**
+     * Method called during initialization after all the handlers have been declared
+     * in the handlerchain.
+     * 
+     * @param interfaceName
+     * @param extension a list of objects implementing the marker interface
+     */
+    void wireExtensions(Class interfaceName, List extension) throws WiringException;
+    
 }

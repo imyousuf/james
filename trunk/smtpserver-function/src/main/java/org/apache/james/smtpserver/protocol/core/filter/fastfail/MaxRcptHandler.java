@@ -24,13 +24,13 @@ package org.apache.james.smtpserver.protocol.core.filter.fastfail;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.api.protocol.Configurable;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.RcptHook;
-import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 
 public class MaxRcptHandler implements RcptHook, Configurable {
