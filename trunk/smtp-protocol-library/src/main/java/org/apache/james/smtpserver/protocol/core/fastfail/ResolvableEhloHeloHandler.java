@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.protocol.core.filter.fastfail;
+package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import java.net.UnknownHostException;
 

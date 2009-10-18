@@ -19,11 +19,12 @@
 
 
 
+package org.apache.james.smtpserver.protocol.core.fastfail;
 
-package org.apache.james.smtpserver.protocol.core.filter.fastfail;
 
-import java.util.Collection;
-
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.api.protocol.Configurable;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -32,30 +33,40 @@ import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.RcptHook;
 import org.apache.mailet.MailAddress;
 
-/**
- * 
- * This handler can be used to just ignore duplicated recipients. 
- */
-public class SupressDuplicateRcptHandler implements RcptHook {
+public class MaxRcptHandler implements RcptHook, Configurable {
 
+    private int maxRcpt = 0;
+
+    /**
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
+     */
+    public void configure(Configuration handlerConfiguration)
+            throws ConfigurationException {
+        int maxRcpt = handlerConfiguration.getInt("maxRcpt", 0);
+        setMaxRcpt(maxRcpt);
+    }
+
+    /**
+     * Set the max rcpt for wich should be accepted
+     * 
+     * @param maxRcpt
+     *            The max rcpt count
+     */
+    public void setMaxRcpt(int maxRcpt) {
+        this.maxRcpt = maxRcpt;
+    }
+   
     /**
      * @see org.apache.james.smtpserver.protocol.hook.RcptHook#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    @SuppressWarnings("unchecked")
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        Collection rcptList = (Collection) session.getState().get(SMTPSession.RCPT_LIST);
-    
-        // Check if the recipient is already in the rcpt list
-        if(rcptList != null && rcptList.contains(rcpt)) {
-            StringBuilder responseBuffer = new StringBuilder();
-        
-            responseBuffer.append(DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.ADDRESS_VALID))
-                          .append(" Recipient <")
-                          .append(rcpt.toString())
-                          .append("> OK");
-            session.getLogger().debug("Duplicate recipient not add to recipient list: " + rcpt.toString());
-            return new HookResult(HookReturnCode.OK,SMTPRetCode.MAIL_OK, responseBuffer.toString());
+        if ((session.getRcptCount() + 1) > maxRcpt) {
+            session.getLogger().info("Maximum recipients of " + maxRcpt + " reached");
+            
+            return new HookResult(HookReturnCode.DENY, SMTPRetCode.SYSTEM_STORAGE_ERROR, DSNStatus.getStatus(DSNStatus.NETWORK, DSNStatus.DELIVERY_TOO_MANY_REC)
+                    + " Requested action not taken: max recipients reached");
+        } else {
+            return new HookResult(HookReturnCode.DECLINED);
         }
-        return new HookResult(HookReturnCode.DECLINED);
     }
 }

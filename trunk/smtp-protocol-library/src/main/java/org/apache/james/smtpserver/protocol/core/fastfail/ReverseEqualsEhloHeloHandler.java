@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.protocol.core.filter.fastfail;
+package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import org.apache.james.smtpserver.protocol.SMTPSession;
 
@@ -28,7 +28,7 @@ import java.net.UnknownHostException;
 public class ReverseEqualsEhloHeloHandler extends ResolvableEhloHeloHandler {
 
     /**
-     * @see org.apache.james.smtpserver.protocol.core.filter.fastfail.ResolvableEhloHeloHandler#isBadHelo(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String)
+     * @see org.apache.james.smtpserver.protocol.core.fastfail.ResolvableEhloHeloHandler#isBadHelo(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String)
      */
     protected boolean isBadHelo(SMTPSession session, String argument) {
         try {

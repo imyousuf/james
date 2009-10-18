@@ -42,7 +42,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.filter.fastfail.DNSRBLHandler;
+import org.apache.james.smtpserver.protocol.core.fastfail.DNSRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
 

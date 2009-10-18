@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.protocol.core.filter.fastfail;
+package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import java.util.Collection;
 

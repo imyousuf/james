@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.smtpserver.protocol.core.filter.fastfail;
+package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;

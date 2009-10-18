@@ -30,7 +30,7 @@ import org.apache.james.jspf.core.DNSRequest;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.jspf.core.exceptions.TimeoutException;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.filter.fastfail.SPFHandler;
+import org.apache.james.smtpserver.protocol.core.fastfail.SPFHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.base.test.FakeMail;
