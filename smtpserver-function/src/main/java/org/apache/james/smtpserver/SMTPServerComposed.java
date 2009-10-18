@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.smtpserver.protocol;
+package org.apache.james.smtpserver;
 
 import javax.annotation.Resource;
 
@@ -38,7 +38,8 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.SMTPHandler;
+import org.apache.james.smtpserver.protocol.SMTPConfiguration;
+import org.apache.james.smtpserver.protocol.SMTPHandlerChain;
 import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
