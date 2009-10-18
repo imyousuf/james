@@ -22,7 +22,6 @@
 package org.apache.james.smtpserver.integration;
 
 import org.apache.james.api.protocol.HandlersPackage;
-import org.apache.james.smtpserver.protocol.core.AddDefaultAttributesMessageHook;
 import org.apache.james.smtpserver.protocol.core.AuthRequiredToRelayRcptHook;
 import org.apache.james.smtpserver.protocol.core.ExpnCmdHandler;
 import org.apache.james.smtpserver.protocol.core.HeloCmdHandler;
