@@ -38,7 +38,7 @@ public class MaxRcptHandler implements RcptHook, Configurable {
     private int maxRcpt = 0;
 
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration handlerConfiguration)
             throws ConfigurationException {

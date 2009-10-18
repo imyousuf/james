@@ -110,8 +110,9 @@ public class ValidRcptHandler implements LogEnabled, RcptHook, Configurable {
         loadTable();
     }
     
+
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     @SuppressWarnings("unchecked")
 	public void configure(Configuration config) throws ConfigurationException {
