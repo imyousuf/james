@@ -37,7 +37,6 @@ import org.apache.james.smtpserver.protocol.core.SendMailHandler;
 import org.apache.james.smtpserver.protocol.core.SenderAuthIdentifyVerificationRcptHook;
 import org.apache.james.smtpserver.protocol.core.UsersRepositoryAuthHook;
 import org.apache.james.smtpserver.protocol.core.VrfyCmdHandler;
-import org.apache.james.smtpserver.protocol.core.WelcomeMessageHandler;
 import org.apache.james.smtpserver.protocol.core.esmtp.AuthCmdHandler;
 import org.apache.james.smtpserver.protocol.core.esmtp.EhloCmdHandler;
 import org.apache.james.smtpserver.protocol.core.esmtp.MailSizeEsmtpExtension;
