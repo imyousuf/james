@@ -23,7 +23,7 @@ package org.apache.james.smtpserver;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.james.smtpserver.protocol.core.CoreCmdHandlerLoader;
+import org.apache.james.smtpserver.integration.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.protocol.core.filter.fastfail.DNSRBLHandler;
 import org.apache.james.smtpserver.protocol.core.filter.fastfail.MaxRcptHandler;
 import org.apache.james.smtpserver.protocol.core.filter.fastfail.ResolvableEhloHeloHandler;

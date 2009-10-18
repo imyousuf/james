@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.smtpserver.protocol.core;
+package org.apache.james.smtpserver.integration;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,6 +44,8 @@ import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
+import org.apache.james.smtpserver.protocol.core.AbstractHookableCmdHandler;
+import org.apache.james.smtpserver.protocol.core.DataLineFilter;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookResultHook;
 import org.apache.james.smtpserver.protocol.hook.MessageHook;
