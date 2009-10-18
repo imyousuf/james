@@ -56,6 +56,11 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final String SENDERAUTHIDENTITYVERIFICATION = SenderAuthIdentifyVerificationRcptHook.class.getName();
     private final String DATALINEMESSAGEHOOKHANDLER = DataLineMessageHookHandler.class.getName();
     private final String STARTTLSHANDLER = StartTlsCmdHandler.class.getName();
+
+    // MessageHooks
+    private final String ADDDEFAULTATTRIBUTESHANDLER = AddDefaultAttributesMessageHook.class.getName();
+    private final String SENDMAILHANDLER = SendMailHandler.class.getName();
+
     private final List<String> commands = new LinkedList<String>();
 
     public CoreCmdHandlerLoader() {
@@ -80,7 +85,11 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(SENDERAUTHIDENTITYVERIFICATION);
         commands.add(POSTMASTERABUSEHOOK);
         commands.add(DATALINEMESSAGEHOOKHANDLER);
-        commands.add(STARTTLSHANDLER);    }
+        commands.add(STARTTLSHANDLER);
+        // Add the default messageHooks
+        commands.add(ADDDEFAULTATTRIBUTESHANDLER);
+        commands.add(SENDMAILHANDLER);
+    }
     /**
      * @see org.apache.james.socket.shared.HandlersPackage#getHandlers()
      */

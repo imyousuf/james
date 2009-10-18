@@ -32,19 +32,20 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.socket.configuration.Configurable;
 
 /**
  * Abstract class which HandlerChains should extend
  * 
  *
  */
-public abstract class AbstractHandlerChain {
+public abstract class AbstractHandlerChain implements LogEnabled, Configurable {
     protected final List<Object> handlers = new LinkedList<Object>();
     
     /** Loads instances */
     private LoaderService loader;
 
-    protected HierarchicalConfiguration commonsConf;
+    protected Configuration commonsConf;
     
     
     /**
@@ -175,8 +176,8 @@ public abstract class AbstractHandlerChain {
      */
     @SuppressWarnings("unchecked")
     protected void loadHandlers() throws Exception {
-        if (commonsConf != null) {
-            List<org.apache.commons.configuration.Configuration> children = commonsConf.configurationsAt("handler");
+        if (commonsConf != null && commonsConf instanceof HierarchicalConfiguration) {
+            List<org.apache.commons.configuration.Configuration> children = ((HierarchicalConfiguration) commonsConf).configurationsAt("handler");
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
             // load the configured handlers
@@ -209,12 +210,15 @@ public abstract class AbstractHandlerChain {
      * Configure the chain
      * 
      * @param commonsConf
-     * @throws Exception
      */
-    public void configure(HierarchicalConfiguration commonsConf) throws Exception {
+    public void configure(Configuration commonsConf) throws ConfigurationException {
         this.commonsConf =  commonsConf;
-        loadHandlers();    
-        wireExtensibleHandlers();
+        try {
+            loadHandlers();
+            wireExtensibleHandlers();
+        } catch (Exception e) {
+            throw new ConfigurationException(e.getMessage(), e);
+        }    
     }
     
     /**
