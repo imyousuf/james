@@ -29,6 +29,7 @@ import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
@@ -129,7 +130,10 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         handlerChain.setLog(new AvalonLogger(getLogger()));
         
         //read from the XML configuration and create and configure each of the handlers
-        handlerChain.configure(new JamesConfiguration(handlerConfiguration.getChild("handlerchain")));
+        JamesConfiguration jamesConfiguration = new JamesConfiguration(handlerConfiguration.getChild("handlerchain"));
+        if (jamesConfiguration.getProperty("coreHandlersPackage") == null)
+            jamesConfiguration.addProperty("coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
+        handlerChain.configure(jamesConfiguration);
     }
 
     @Override

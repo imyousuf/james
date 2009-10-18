@@ -40,7 +40,7 @@ import org.apache.james.socket.configuration.Configurable;
  * 
  *
  */
-public abstract class AbstractHandlerChain implements LogEnabled, Configurable {
+public class AbstractHandlerChain implements LogEnabled, Configurable {
     
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(AbstractHandlerChain.class);
@@ -201,17 +201,18 @@ public abstract class AbstractHandlerChain implements LogEnabled, Configurable {
     @SuppressWarnings("unchecked")
     protected void loadHandlers() throws Exception {
         if (commonsConf != null && commonsConf instanceof HierarchicalConfiguration) {
+            
             List<org.apache.commons.configuration.Configuration> children = ((HierarchicalConfiguration) commonsConf).configurationsAt("handler");
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+            String coreCmdName = (String) commonsConf.getProperty("coreHandlersPackage");
+            // load the core handlers
+            loadClass(classLoader, coreCmdName,
+                    addHandler(coreCmdName));
 
             // load the configured handlers
             if (children != null && children.isEmpty() == false) {
 
-                String coreCmdName = getCoreCmdHandlerLoader().getName();
-                // load the core handlers
-                loadClass(classLoader, coreCmdName,
-                        addHandler(coreCmdName));
-                
                 for (int i = 0; i < children.size(); i++) {
                     org.apache.commons.configuration.Configuration hConf = children.get(i);
                     String className = hConf.getString("@class");
@@ -244,12 +245,5 @@ public abstract class AbstractHandlerChain implements LogEnabled, Configurable {
             throw new ConfigurationException(e.getMessage(), e);
         }    
     }
-    
-    /**
-     * Return the Class which lists all core commands
-     * 
-     * @return class
-     */
-    protected abstract Class<?> getCoreCmdHandlerLoader();
     
 }
