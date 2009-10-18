@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.protocol.core;
+package org.apache.james.smtpserver.integration;
 
 import org.apache.james.core.MailImpl;
 import org.apache.james.smtpserver.protocol.SMTPSession;
