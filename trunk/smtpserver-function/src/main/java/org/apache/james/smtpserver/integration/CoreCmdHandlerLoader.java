@@ -19,9 +19,26 @@
 
 
 
-package org.apache.james.smtpserver.protocol.core;
+package org.apache.james.smtpserver.integration;
 
 import org.apache.james.api.protocol.HandlersPackage;
+import org.apache.james.smtpserver.protocol.core.AddDefaultAttributesMessageHook;
+import org.apache.james.smtpserver.protocol.core.AuthRequiredToRelayRcptHook;
+import org.apache.james.smtpserver.protocol.core.ExpnCmdHandler;
+import org.apache.james.smtpserver.protocol.core.HeloCmdHandler;
+import org.apache.james.smtpserver.protocol.core.HelpCmdHandler;
+import org.apache.james.smtpserver.protocol.core.MailCmdHandler;
+import org.apache.james.smtpserver.protocol.core.NoopCmdHandler;
+import org.apache.james.smtpserver.protocol.core.PostmasterAbuseRcptHook;
+import org.apache.james.smtpserver.protocol.core.QuitCmdHandler;
+import org.apache.james.smtpserver.protocol.core.RcptCmdHandler;
+import org.apache.james.smtpserver.protocol.core.RsetCmdHandler;
+import org.apache.james.smtpserver.protocol.core.SMTPCommandDispatcherLineHandler;
+import org.apache.james.smtpserver.protocol.core.SendMailHandler;
+import org.apache.james.smtpserver.protocol.core.SenderAuthIdentifyVerificationRcptHook;
+import org.apache.james.smtpserver.protocol.core.UsersRepositoryAuthHook;
+import org.apache.james.smtpserver.protocol.core.VrfyCmdHandler;
+import org.apache.james.smtpserver.protocol.core.WelcomeMessageHandler;
 import org.apache.james.smtpserver.protocol.core.esmtp.AuthCmdHandler;
 import org.apache.james.smtpserver.protocol.core.esmtp.EhloCmdHandler;
 import org.apache.james.smtpserver.protocol.core.esmtp.MailSizeEsmtpExtension;
