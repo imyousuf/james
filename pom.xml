@@ -44,6 +44,7 @@
     <module>user-library</module>
     <module>core-library</module>
     <module>management-library</module>
+    <module>smtp-protocol-library</module>
     <module>avalon-spring-bridge-library</module>
     <module>avalon-socket-library</module>
     <module>core-function</module>
