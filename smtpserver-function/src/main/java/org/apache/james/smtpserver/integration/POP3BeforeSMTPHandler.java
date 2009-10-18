@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver.protocol.core;
+package org.apache.james.smtpserver.integration;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
