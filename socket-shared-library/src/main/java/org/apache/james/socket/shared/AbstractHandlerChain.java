@@ -31,6 +31,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.socket.configuration.Configurable;
 
@@ -40,6 +41,29 @@ import org.apache.james.socket.configuration.Configurable;
  *
  */
 public abstract class AbstractHandlerChain implements LogEnabled, Configurable {
+    
+    /** This log is the fall back shared by all instances */
+    private static final Log FALLBACK_LOG = LogFactory.getLog(AbstractHandlerChain.class);
+    
+    /** Non context specific log should only be used when no context specific log is available */
+    private Log log = FALLBACK_LOG;
+   
+    /**
+     * Sets the service log.
+     * Where available, a context sensitive log should be used.
+     * @param Log not null
+     */
+    public void setLog(Log log) {
+        this.log = log;
+    }
+
+    /**
+     * @see org.apache.james.socket.shared.AbstractHandlerChain#getLog()
+     */
+    protected Log getLog() {
+        return log;
+    }
+
     protected final List<Object> handlers = new LinkedList<Object>();
     
     /** Loads instances */
@@ -228,10 +252,4 @@ public abstract class AbstractHandlerChain implements LogEnabled, Configurable {
      */
     protected abstract Class<?> getCoreCmdHandlerLoader();
     
-    /**
-     * Return the Log to use
-     * 
-     * @return log
-     */
-    protected abstract Log getLog();
 }

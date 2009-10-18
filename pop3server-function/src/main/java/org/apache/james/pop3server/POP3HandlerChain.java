@@ -21,8 +21,6 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.socket.shared.AbstractHandlerChain;
 import org.apache.james.socket.shared.LogEnabled;
@@ -32,29 +30,7 @@ import org.apache.james.socket.shared.LogEnabled;
   * ConnectHandlers and Commandhandlers
   */
 public class POP3HandlerChain extends AbstractHandlerChain implements LogEnabled{
-
-    /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(POP3HandlerChain.class);
     
-    /** Non context specific log should only be used when no context specific log is available */
-    private Log log  = FALLBACK_LOG;
-    
-
-    /**
-     * @see org.apache.james.socket.shared.LogEnabled#setLog(org.apache.commons.logging.Log)
-     */
-    public void setLog(Log log) {
-        this.log = log;
-    }
-
-
-    /**
-     * @see org.apache.james.socket.shared.AbstractHandlerChain#getLog()
-     */
-    protected Log getLog() {
-        return log;
-    }
-
     /**
      * @see org.apache.james.socket.shared.AbstractHandlerChain#getCoreCmdHandlerLoader()
      */
