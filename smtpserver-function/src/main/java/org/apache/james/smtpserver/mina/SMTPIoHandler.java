@@ -23,12 +23,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.ProtocolHandlerChain;
 import org.apache.james.smtpserver.protocol.ConnectHandler;
 import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.socket.shared.ProtocolHandlerChain;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -62,7 +62,7 @@ public class SMTPIoHandler extends IoHandlerAdapter{
     
 
     /**
-     * @see org.apache.james.socket.shared.AbstractCommandDispatcher#getLog()
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getLog()
      */
     protected Log getLog() {
         return logger;

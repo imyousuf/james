@@ -21,7 +21,7 @@
 
 package org.apache.james.smtpserver.protocol;
 
-import org.apache.james.socket.shared.CommonCommandHandler;
+import org.apache.james.api.protocol.CommonCommandHandler;
 
 
 /**

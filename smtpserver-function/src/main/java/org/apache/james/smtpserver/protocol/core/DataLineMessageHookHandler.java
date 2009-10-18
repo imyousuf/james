@@ -32,6 +32,9 @@ import javax.mail.MessagingException;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.api.protocol.ExtensibleHandler;
+import org.apache.james.api.protocol.LogEnabled;
+import org.apache.james.api.protocol.WiringException;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
@@ -44,9 +47,6 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookResultHook;
 import org.apache.james.smtpserver.protocol.hook.MessageHook;
-import org.apache.james.socket.shared.ExtensibleHandler;
-import org.apache.james.socket.shared.LogEnabled;
-import org.apache.james.socket.shared.WiringException;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -185,7 +185,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
     }
     
     /**
-     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (MessageHook.class.equals(interfaceName)) {
@@ -203,7 +203,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
     }
 
     /**
-     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> classes = new LinkedList<Class<?>>();

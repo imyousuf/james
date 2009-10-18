@@ -121,7 +121,7 @@ public class ListSpoolCmdHandler implements CommandHandler {
     }
 
     /**
-     * @see org.apache.james.socket.shared.CommonCommandHandler#getImplCommands()
+     * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
      */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();

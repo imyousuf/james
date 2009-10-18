@@ -33,7 +33,12 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.kernel.LoaderService;
-import org.apache.james.socket.configuration.Configurable;
+import org.apache.james.api.protocol.Configurable;
+import org.apache.james.api.protocol.ExtensibleHandler;
+import org.apache.james.api.protocol.HandlersPackage;
+import org.apache.james.api.protocol.LogEnabled;
+import org.apache.james.api.protocol.ProtocolHandlerChain;
+import org.apache.james.api.protocol.WiringException;
 
 /**
  * Abstract class which HandlerChains should extend
@@ -130,8 +135,8 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
         }
 
         // configure the handler
-        if (handler instanceof org.apache.james.socket.configuration.Configurable) {
-            org.apache.james.socket.configuration.Configurable configurableHandler = (org.apache.james.socket.configuration.Configurable) handler;
+        if (handler instanceof org.apache.james.api.protocol.Configurable) {
+            org.apache.james.api.protocol.Configurable configurableHandler = (org.apache.james.api.protocol.Configurable) handler;
             configurableHandler.configure(config);
         }
 

@@ -31,6 +31,8 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.james.Constants;
+import org.apache.james.api.protocol.ExtensibleHandler;
+import org.apache.james.api.protocol.WiringException;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.dsn.DSNStatus;
@@ -41,8 +43,6 @@ import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.socket.shared.ExtensibleHandler;
-import org.apache.james.socket.shared.WiringException;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
 
@@ -305,7 +305,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
 
 
     /**
-     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
      */
     public List getMarkerInterfaces() {
         List classes = new LinkedList();
@@ -315,7 +315,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
 
 
     /**
-     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (DataLineFilter.class.equals(interfaceName)) {

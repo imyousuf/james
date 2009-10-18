@@ -41,13 +41,13 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.protocol.Configurable;
+import org.apache.james.api.protocol.LogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.MessageHook;
-import org.apache.james.socket.configuration.Configurable;
-import org.apache.james.socket.shared.LogEnabled;
 import org.apache.mailet.Mail;
 
 /**
@@ -102,7 +102,7 @@ public class URIRBLHandler implements LogEnabled, MessageHook, Configurable {
 
     
     /**
-     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration config) throws ConfigurationException {
         String[] servers = config.getStringArray("uriRblServers/server");

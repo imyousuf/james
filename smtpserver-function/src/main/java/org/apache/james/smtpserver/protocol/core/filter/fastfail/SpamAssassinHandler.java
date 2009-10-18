@@ -27,12 +27,12 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.james.api.protocol.Configurable;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.MessageHook;
-import org.apache.james.socket.configuration.Configurable;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
 
@@ -72,7 +72,7 @@ public class SpamAssassinHandler implements MessageHook, Configurable {
     private boolean checkAuthNetworks = false;
 
     /**
-     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration config) throws ConfigurationException {
         setSpamdHost(config.getString("spamdHost","localhost"));

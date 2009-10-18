@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.ProtocolHandlerChain;
 import org.apache.james.socket.api.CRLFTerminatedReader;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.api.Watchdog;
-import org.apache.james.socket.shared.ProtocolHandlerChain;
 
 
 /**

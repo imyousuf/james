@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.apache.james.api.protocol.ExtensibleHandler;
+import org.apache.james.api.protocol.WiringException;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.CommandHandler;
 import org.apache.james.smtpserver.protocol.LineHandler;
@@ -41,8 +43,6 @@ import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookResultHook;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.MailParametersHook;
-import org.apache.james.socket.shared.ExtensibleHandler;
-import org.apache.james.socket.shared.WiringException;
 import org.apache.james.util.codec.Base64;
 
 
@@ -420,7 +420,7 @@ public class AuthCmdHandler
     }
 
     /**
-     * @see org.apache.james.socket.shared.ExtensibleHandler#getMarkerInterfaces()
+     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> classes = new ArrayList<Class<?>>(1);
@@ -430,7 +430,7 @@ public class AuthCmdHandler
 
 
     /**
-     * @see org.apache.james.socket.shared.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (AuthHook.class.equals(interfaceName)) {

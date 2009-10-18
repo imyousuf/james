@@ -24,6 +24,7 @@ package org.apache.james.socket.shared;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.TLSSupportedSession;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.api.ProtocolHandler;
 
@@ -54,42 +55,42 @@ public abstract class AbstractProtocolHandler implements ProtocolHandler, TLSSup
     }
 
     /**
-     * @see org.apache.james.socket.shared.TLSSupportedSession#getRemoteHost()
+     * @see org.apache.james.api.protocol.TLSSupportedSession#getRemoteHost()
      */
     public String getRemoteHost() {
         return context.getRemoteHost();
     }
 
     /**
-     * @see org.apache.james.socket.shared.TLSSupportedSession#getRemoteIPAddress()
+     * @see org.apache.james.api.protocol.TLSSupportedSession#getRemoteIPAddress()
      */
     public String getRemoteIPAddress() {
         return context.getRemoteIP();
     }
 
     /**
-     * @see org.apache.james.socket.shared.TLSSupportedSession#getUser()
+     * @see org.apache.james.api.protocol.TLSSupportedSession#getUser()
      */
     public String getUser() {
         return user;
     }
 
     /**
-     * @see org.apache.james.socket.shared.TLSSupportedSession#isTLSStarted()
+     * @see org.apache.james.api.protocol.TLSSupportedSession#isTLSStarted()
      */
     public boolean isTLSStarted() {
         return context.isSecure();
     }
 
     /**
-     * @see org.apache.james.socket.shared.TLSSupportedSession#setUser(java.lang.String)
+     * @see org.apache.james.api.protocol.TLSSupportedSession#setUser(java.lang.String)
      */
     public void setUser(String user) {
         this.user = user;
     }
 
     /**
-     * @see org.apache.james.socket.shared.TLSSupportedSession#startTLS()
+     * @see org.apache.james.api.protocol.TLSSupportedSession#startTLS()
      */
     public void startTLS() throws IOException {
         context.secure();
@@ -97,7 +98,7 @@ public abstract class AbstractProtocolHandler implements ProtocolHandler, TLSSup
     
     
     /**
-     * @see org.apache.james.socket.shared.TLSSupportedSession#getLogger()
+     * @see org.apache.james.api.protocol.TLSSupportedSession#getLogger()
      */
     public Log getLogger() {
         return context.getLogger();

@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.protocol.Configurable;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -33,7 +34,6 @@ import org.apache.james.smtpserver.protocol.hook.HeloHook;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.RcptHook;
-import org.apache.james.socket.configuration.Configurable;
 import org.apache.mailet.MailAddress;
 
 
@@ -68,7 +68,7 @@ public class ResolvableEhloHeloHandler implements RcptHook, HeloHook,Configurabl
 
     /**
      * (non-Javadoc)
-     * @see org.apache.james.socket.configuration.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration handlerConfiguration)
             throws ConfigurationException {

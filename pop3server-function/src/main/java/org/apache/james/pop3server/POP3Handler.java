@@ -31,12 +31,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.api.protocol.ProtocolHandlerChain;
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.api.CRLFTerminatedReader;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.api.Watchdog;
 import org.apache.james.socket.shared.AbstractProtocolHandler;
-import org.apache.james.socket.shared.ProtocolHandlerChain;
 import org.apache.mailet.Mail;
 
 /**
@@ -312,7 +312,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
 
 
 	/**
-	 * @see org.apache.james.socket.shared.TLSSupportedSession#isStartTLSSupported()
+	 * @see org.apache.james.api.protocol.TLSSupportedSession#isStartTLSSupported()
 	 */
 	public boolean isStartTLSSupported() {
 		return getConfigurationData().isStartTLSSupported();

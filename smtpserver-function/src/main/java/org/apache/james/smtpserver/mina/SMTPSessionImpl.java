@@ -88,14 +88,14 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see org.apache.james.socket.shared.TLSSupportedSession#getRemoteHost()
+         * @see org.apache.james.api.protocol.TLSSupportedSession#getRemoteHost()
          */
         public String getRemoteHost() {
             return socketAddress.getHostName();
         }
 
         /**
-         * @see org.apache.james.socket.shared.TLSSupportedSession#getRemoteIPAddress()
+         * @see org.apache.james.api.protocol.TLSSupportedSession#getRemoteIPAddress()
          */
         public String getRemoteIPAddress() {
             return socketAddress.getAddress().getHostAddress();
@@ -123,7 +123,7 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see org.apache.james.socket.shared.TLSSupportedSession#getUser()
+         * @see org.apache.james.api.protocol.TLSSupportedSession#getUser()
          */
         public String getUser() {
             return user;
@@ -152,7 +152,7 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see org.apache.james.socket.shared.TLSSupportedSession#setUser(java.lang.String)
+         * @see org.apache.james.api.protocol.TLSSupportedSession#setUser(java.lang.String)
          */
         public void setUser(String user) {
             this.user = user;
@@ -268,21 +268,21 @@ public class SMTPSessionImpl implements SMTPSession {
 
 
         /**
-         * @see org.apache.james.socket.shared.TLSSupportedSession#isStartTLSSupported()
+         * @see org.apache.james.api.protocol.TLSSupportedSession#isStartTLSSupported()
          */
         public boolean isStartTLSSupported() {
             return context != null;
         }
 
         /**
-         * @see org.apache.james.socket.shared.TLSSupportedSession#isTLSStarted()
+         * @see org.apache.james.api.protocol.TLSSupportedSession#isTLSStarted()
          */
         public boolean isTLSStarted() {
             return session.getFilterChain().contains("sslFilter");
         }
 
         /**
-         * @see org.apache.james.socket.shared.TLSSupportedSession#startTLS()
+         * @see org.apache.james.api.protocol.TLSSupportedSession#startTLS()
          */
         public void startTLS() throws IOException {
             session.suspendRead();
@@ -294,7 +294,7 @@ public class SMTPSessionImpl implements SMTPSession {
 
 
         /**
-         * @see org.apache.james.socket.shared.LogEnabledSession#getLogger()
+         * @see org.apache.james.api.protocol.LogEnabledSession#getLogger()
          */
         public Log getLogger() {
             return logger;

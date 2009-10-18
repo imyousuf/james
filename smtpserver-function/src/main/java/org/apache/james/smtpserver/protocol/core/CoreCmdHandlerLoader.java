@@ -21,11 +21,11 @@
 
 package org.apache.james.smtpserver.protocol.core;
 
+import org.apache.james.api.protocol.HandlersPackage;
 import org.apache.james.smtpserver.protocol.core.esmtp.AuthCmdHandler;
 import org.apache.james.smtpserver.protocol.core.esmtp.EhloCmdHandler;
 import org.apache.james.smtpserver.protocol.core.esmtp.MailSizeEsmtpExtension;
 import org.apache.james.smtpserver.protocol.core.esmtp.StartTlsCmdHandler;
-import org.apache.james.socket.shared.HandlersPackage;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -91,7 +91,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(SENDMAILHANDLER);
     }
     /**
-     * @see org.apache.james.socket.shared.HandlersPackage#getHandlers()
+     * @see org.apache.james.api.protocol.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {
         return commands;
