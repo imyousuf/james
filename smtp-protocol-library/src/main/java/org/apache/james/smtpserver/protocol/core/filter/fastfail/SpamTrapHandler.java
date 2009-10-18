@@ -48,9 +48,9 @@ public class SpamTrapHandler implements RcptHook, Configurable {
     
     /** Default blocktime 12 hours */
     private long blockTime = 4320000; 
-    
+
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     @SuppressWarnings("unchecked")
 	public void configure(Configuration config) throws ConfigurationException {
