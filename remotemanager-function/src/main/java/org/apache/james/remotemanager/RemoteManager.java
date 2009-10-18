@@ -37,7 +37,7 @@ import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.configuration.JamesConfiguration;
-import org.apache.james.socket.shared.ProtocolHandlerChain;
+import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
 
 /**
  * Provides a really rude network interface to administer James.
@@ -81,7 +81,7 @@ public class RemoteManager
     /**
      * The chain to use
      */
-    private ProtocolHandlerChain handlerChain;
+    private ProtocolHandlerChainImpl handlerChain;
 
 
     /**
@@ -148,7 +148,7 @@ public class RemoteManager
     
     private void prepareHandlerChain() throws Exception {
 
-        handlerChain = loader.load(ProtocolHandlerChain.class);
+        handlerChain = loader.load(ProtocolHandlerChainImpl.class);
         
         //set the logger
         handlerChain.setLog(new AvalonLogger(getLogger()));

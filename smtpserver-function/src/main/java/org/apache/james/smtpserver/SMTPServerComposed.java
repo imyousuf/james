@@ -45,7 +45,7 @@ import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolServer;
 import org.apache.james.socket.configuration.JamesConfiguration;
-import org.apache.james.socket.shared.ProtocolHandlerChain;
+import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
 import org.apache.mailet.MailetContext;
 
 /**
@@ -70,7 +70,7 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
      * Command handlers , Message handlers and connection handlers
      * Constructed during initialisation to allow dependency injection.
      */
-    private ProtocolHandlerChain handlerChain;
+    private ProtocolHandlerChainImpl handlerChain;
 
     /**
      * The mailet context - we access it here to set the hello name for the Mailet API
@@ -263,7 +263,7 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
     }
 
     private void prepareHandlerChain() throws Exception {
-        handlerChain = loader.load(ProtocolHandlerChain.class);
+        handlerChain = loader.load(ProtocolHandlerChainImpl.class);
         
         //set the logger
         handlerChain.setLog(new AvalonLogger(getLogger()));
