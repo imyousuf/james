@@ -40,10 +40,10 @@ import org.apache.james.socket.configuration.Configurable;
  * 
  *
  */
-public class AbstractHandlerChain implements LogEnabled, Configurable {
+public class ProtocolHandlerChain implements LogEnabled, Configurable {
     
     /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(AbstractHandlerChain.class);
+    private static final Log FALLBACK_LOG = LogFactory.getLog(ProtocolHandlerChain.class);
     
     /** Non context specific log should only be used when no context specific log is available */
     private Log log = FALLBACK_LOG;
@@ -58,7 +58,7 @@ public class AbstractHandlerChain implements LogEnabled, Configurable {
     }
 
     /**
-     * @see org.apache.james.socket.shared.AbstractHandlerChain#getLog()
+     * @see org.apache.james.socket.shared.ProtocolHandlerChain#getLog()
      */
     protected Log getLog() {
         return log;
@@ -205,7 +205,7 @@ public class AbstractHandlerChain implements LogEnabled, Configurable {
             List<org.apache.commons.configuration.Configuration> children = ((HierarchicalConfiguration) commonsConf).configurationsAt("handler");
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-            String coreCmdName = (String) commonsConf.getProperty("coreHandlersPackage");
+            String coreCmdName = commonsConf.getString("@coreHandlersPackage");
             // load the core handlers
             loadClass(classLoader, coreCmdName,
                     addHandler(coreCmdName));

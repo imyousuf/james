@@ -22,17 +22,17 @@
 package org.apache.james.pop3server;
 
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
-import org.apache.james.socket.shared.AbstractHandlerChain;
+import org.apache.james.socket.shared.ProtocolHandlerChain;
 import org.apache.james.socket.shared.LogEnabled;
 
 /**
   * The POP3HandlerChain is per service object providing access
   * ConnectHandlers and Commandhandlers
   */
-public class POP3HandlerChain extends AbstractHandlerChain implements LogEnabled{
+public class POP3HandlerChain extends ProtocolHandlerChain implements LogEnabled{
     
     /**
-     * @see org.apache.james.socket.shared.AbstractHandlerChain#getCoreCmdHandlerLoader()
+     * @see org.apache.james.socket.shared.ProtocolHandlerChain#getCoreCmdHandlerLoader()
      */
     protected Class<?> getCoreCmdHandlerLoader() {
         return CoreCmdHandlerLoader.class;

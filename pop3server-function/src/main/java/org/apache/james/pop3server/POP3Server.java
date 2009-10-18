@@ -131,8 +131,8 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         
         //read from the XML configuration and create and configure each of the handlers
         JamesConfiguration jamesConfiguration = new JamesConfiguration(handlerConfiguration.getChild("handlerchain"));
-        if (jamesConfiguration.getProperty("coreHandlersPackage") == null)
-            jamesConfiguration.addProperty("coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
+        if (jamesConfiguration.getString("@coreHandlersPackage") == null)
+            jamesConfiguration.addProperty("/ @coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
         handlerChain.configure(jamesConfiguration);
     }
 
