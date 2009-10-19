@@ -135,7 +135,7 @@
      <!-- If uncomment this block you can enable greylisting. For more infos-->
      <!-- how greylisting work see: http://projects.puremagic.com/greylisting/whitepaper.html -->
      <!--
-     <handler class="org.apache.james.smtpserver.integration.GreylistHandler">
+     <handler class="org.apache.james.smtpserver.integration.JDBCGreylistHandler">
          <repositoryPath> db://maildb </repositoryPath>
          <sqlFile>file://conf/sqlResources.xml</sqlFile>
          <tempBlockTime> 1 hour </tempBlockTime>

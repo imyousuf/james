@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
@@ -41,29 +42,18 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.util.NetMatcher;
-import org.apache.james.api.protocol.Configurable;
-import org.apache.james.api.protocol.LogEnabled;
-import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.FileSystem;
-import org.apache.james.smtpserver.protocol.SMTPRetCode;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.smtpserver.protocol.hook.RcptHook;
-import org.apache.james.util.TimeConverter;
+import org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
-import org.apache.mailet.MailAddress;
 
 /**
  * GreylistHandler which can be used to activate Greylisting
  */
-public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
+public class JDBCGreylistHandler extends AbstractGreylistHandler {
 
     /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(GreylistHandler.class);
+    private static final Log FALLBACK_LOG = LogFactory.getLog(JDBCGreylistHandler.class);
     
     /** Non context specific log should only be used when no context specific log is available */
     private Log serviceLog = FALLBACK_LOG;
@@ -73,15 +63,6 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
     private DataSourceComponent datasource = null;
 
     private FileSystem fileSystem = null;
-
-    /** 1 hour */
-    private long tempBlockTime = 3600000;
-
-    /** 36 days */
-    private long autoWhiteListLifeTime = 3110400000L;
-
-    /** 4 hours */
-    private long unseenLifeTime = 14400000;
 
     private String selectQuery;
 
@@ -112,38 +93,6 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
      * The repositoryPath
      */
     private String repositoryPath;
-
-    private DNSService dnsService;
-
-    private NetMatcher wNetworks;
-
-
-    /**
-     * Sets the service log.
-     * Where available, a context sensitive log should be used.
-     * @param Log not null
-     */
-    public void setLog(Log log) {
-        this.serviceLog = log;
-    }
-    
-    /**
-     * Gets the file system service.
-     * @return the fileSystem
-     */
-    public final FileSystem getFileSystem() {
-        return fileSystem;
-    }
-    
-    /**
-     * Sets the filesystem service
-     * 
-     * @param system The filesystem service
-     */
-    @Resource(name="filesystem")
-    public void setFileSystem(FileSystem system) {
-        this.fileSystem = system;
-    }
     
     /**
      * @return the datasources
@@ -162,23 +111,7 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
     public void setDataSources(DataSourceSelector datasources) {
         this.datasources = datasources;
     }
-    
-    /**
-     * Gets the DNS service.
-     * @return the dnsService
-     */
-    public final DNSService getDNSService() {
-        return dnsService;
-    }
 
-    /**
-     * Sets the DNS service.
-     * @param dnsService the dnsService to set
-     */
-    @Resource(name="dnsserver")
-    public final void setDNSService(DNSService dnsService) {
-        this.dnsService = dnsService;
-    }
 
     /**
      * Set the sqlFileUrl to use for getting the sqlRessource.xml file
@@ -189,31 +122,13 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
     public void setSqlFileUrl(String sqlFileUrl) {
         this.sqlFileUrl = sqlFileUrl;
     } 
-    
 
-    @SuppressWarnings("unchecked")
+    /**
+     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#configure(org.apache.commons.configuration.Configuration)
+     */
 	public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-        try {
-            setTempBlockTime(handlerConfiguration.getString("tempBlockTime"));
-        } catch (NumberFormatException e) {
-           throw new ConfigurationException(e.getMessage());
-        }
-       
-    
-      
-        try {
-            setAutoWhiteListLifeTime(handlerConfiguration.getString("autoWhiteListLifeTime"));
-        } catch (NumberFormatException e) {
-            throw new ConfigurationException(e.getMessage());
-        }
-       
-
-        try {
-            setUnseenLifeTime(handlerConfiguration.getString("unseenLifeTime"));
-        } catch (NumberFormatException e) {
-            throw new ConfigurationException(e.getMessage());
-        }
-
+    	super.configure(handlerConfiguration);
+    	
         String configRepositoryPath = handlerConfiguration.getString("repositoryPath", null);
         if (configRepositoryPath != null) {
             setRepositoryPath(configRepositoryPath);
@@ -234,22 +149,19 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
         } else {
             throw new ConfigurationException("sqlFile is not configured");
         }
-
-        Collection<String> nets  = handlerConfiguration.getList("whitelistedNetworks");
-        if (nets != null) {
-
-            if (nets != null) {
-                wNetworks = new NetMatcher(nets,dnsService);
-                serviceLog.info("Whitelisted addresses: " + wNetworks.toString());
-            }
-        }
     }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-       
+    @PostConstruct
+    public void init() throws Exception {
+    	 try {
+ 			setDataSource(initDataSource(repositoryPath));
+ 			initSqlQueries(datasource.getConnection(), sqlFileUrl);
+ 		        
+ 		    // create table if not exist
+ 		    createTable("greyListTableName", "createGreyListTable");
+ 		} catch (Exception e) {
+ 			throw new RuntimeException("Unable to init datasource",e);
+ 		}
     }
     
     /**
@@ -260,17 +172,6 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
      */
     public void setRepositoryPath(String repositoryPath) {
         this.repositoryPath = repositoryPath;
-        
-        try {
-			setDataSource(initDataSource(repositoryPath));
-			initSqlQueries(datasource.getConnection(), sqlFileUrl);
-		        
-		    // create table if not exist
-		    createTable(datasource.getConnection(), "greyListTableName", "createGreyListTable");
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to init datasource",e);
-		}
-      
     }
 
     /**
@@ -284,124 +185,13 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
     }
 
     /**
-     * Setup the temporary blocking time
-     * 
-     * @param tempBlockTime
-     *            The temporary blocking time 
+     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#getGreyListData(java.lang.String, java.lang.String, java.lang.String)
      */
-    public void setTempBlockTime(String tempBlockTime) {
-        this.tempBlockTime = TimeConverter.getMilliSeconds(tempBlockTime);
-    }
-
-    /**
-     * Setup the autowhitelist lifetime for which we should whitelist a triplet.
-     * After this lifetime the record will be deleted
-     * 
-     * @param autoWhiteListLifeTime
-     *            The lifeTime 
-     */
-    public void setAutoWhiteListLifeTime(String autoWhiteListLifeTime) {
-        this.autoWhiteListLifeTime = TimeConverter.getMilliSeconds(autoWhiteListLifeTime);
-    }
-
-    /**
-     * Set up the liftime of only once seen triplet. After this liftime the
-     * record will be deleted
-     * 
-     * @param unseenLifeTime
-     *            The lifetime 
-     */
-    public void setUnseenLifeTime(String unseenLifeTime) {
-        this.unseenLifeTime = TimeConverter.getMilliSeconds(unseenLifeTime);
-    }
-
-    private HookResult doGreyListCheck(SMTPSession session, MailAddress senderAddress, MailAddress recipAddress) {
-        String recip = "";
-        String sender = "";
-
-        if (recipAddress != null) recip = recipAddress.toString();
-        if (senderAddress != null) sender = senderAddress.toString();
-    
-        long time = System.currentTimeMillis();
-        String ipAddress = session.getRemoteIPAddress();
-        
-        try {
-            long createTimeStamp = 0;
-            int count = 0;
-            
-            // get the timestamp when he triplet was last seen
-            Iterator<String> data = getGreyListData(datasource.getConnection(), ipAddress, sender, recip);
-            
-            if (data.hasNext()) {
-                createTimeStamp = Long.parseLong(data.next());
-                count = Integer.parseInt(data.next());
-            }
-            
-            session.getLogger().debug("Triplet " + ipAddress + " | " + sender + " | " + recip  +" -> TimeStamp: " + createTimeStamp);
-
-
-            // if the timestamp is bigger as 0 we have allready a triplet stored
-            if (createTimeStamp > 0) {
-                long acceptTime = createTimeStamp + tempBlockTime;
-        
-                if ((time < acceptTime) && (count == 0)) {
-                    return new HookResult(HookReturnCode.DENYSOFT, SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
-                        + " Temporary rejected: Reconnect to fast. Please try again later");
-                } else {
-                    
-                    session.getLogger().debug("Update triplet " + ipAddress + " | " + sender + " | " + recip + " -> timestamp: " + time);
-                    
-                    // update the triplet..
-                    updateTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
-
-                }
-            } else {
-                session.getLogger().debug("New triplet " + ipAddress + " | " + sender + " | " + recip );
-           
-                // insert a new triplet
-                insertTriplet(datasource.getConnection(), ipAddress, sender, recip, count, time);
-      
-                // Tempory block on new triplet!
-                return new HookResult(HookReturnCode.DENYSOFT, SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) 
-                    + " Temporary rejected: Please try again later");
-            }
-
-            // some kind of random cleanup process
-            if (Math.random() > 0.99) {
-                // cleanup old entries
-            
-                session.getLogger().debug("Delete old entries");
-            
-                cleanupAutoWhiteListGreyList(datasource.getConnection(),(time - autoWhiteListLifeTime));
-                cleanupGreyList(datasource.getConnection(), (time - unseenLifeTime));
-            }
-
-        } catch (SQLException e) {
-            // just log the exception
-            session.getLogger().error("Error on SQLquery: " + e.getMessage());
-        }
-        return new HookResult(HookReturnCode.DECLINED);
-    }
-
-    /**
-     * Get all necessary data for greylisting based on provided triplet
-     * 
-     * @param conn
-     *            The Connection
-     * @param ipAddress
-     *            The ipAddress of the client
-     * @param sender
-     *            The mailFrom
-     * @param recip
-     *            The rcptTo
-     * @return data
-     *            The data
-     * @throws SQLException
-     */
-    private Iterator<String> getGreyListData(Connection conn, String ipAddress,
+    protected Iterator<String> getGreyListData(String ipAddress,
         String sender, String recip) throws SQLException {
         Collection<String> data = new ArrayList<String>(2);
         PreparedStatement mappingStmt = null;
+        Connection conn = datasource.getConnection();
         try {
             mappingStmt = conn.prepareStatement(selectQuery);
             ResultSet mappingRS = null;
@@ -425,26 +215,15 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
         return data.iterator();
     }
 
+    
     /**
-     * Insert new triplet in the store
-     * 
-     * @param conn
-     *            The Connection
-     * @param ipAddress
-     *            The ipAddress of the client
-     * @param sender
-     *            The mailFrom
-     * @param recip
-     *            The rcptTo
-     * @param count
-     *            The count
-     * @param createTime
-     *            The createTime
-     * @throws SQLException
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#insertTriplet(java.lang.String, java.lang.String, java.lang.String, int, long)
      */
-    private void insertTriplet(Connection conn, String ipAddress,
+    protected void insertTriplet(String ipAddress,
         String sender, String recip, int count, long createTime)
         throws SQLException {
+        Connection conn = datasource.getConnection();
 
         PreparedStatement mappingStmt = null;
 
@@ -464,27 +243,12 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
     }
 
     /**
-     * Update the triplet
-     * 
-     * @param conn
-     *            The Connection
-     * 
-     * @param ipAddress
-     *            The ipAddress of the client
-     * @param sender
-     *            The mailFrom
-     * @param recip
-     *            The rcptTo
-     * @param count
-     *            The count
-     * @param time
-     *            the current time in ms
-     * @throws SQLException
+     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#updateTriplet(java.lang.String, java.lang.String, java.lang.String, int, long)
      */
-    private void updateTriplet(Connection conn, String ipAddress,
+    protected void updateTriplet(String ipAddress,
         String sender, String recip, int count, long time)
         throws SQLException {
-
+        Connection conn = datasource.getConnection();
         PreparedStatement mappingStmt = null;
 
         try {
@@ -520,17 +284,12 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
     }
 
     /**
-     * Cleanup the autowhitelist
-     * 
-     * @param conn
-     *            The Connection
-     * @param time
-     *            The time which must be reached before delete the records
-     * @throws SQLException
+     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#cleanupAutoWhiteListGreyList(long)
      */
-    private void cleanupAutoWhiteListGreyList(Connection conn, long time)
+    protected void cleanupAutoWhiteListGreyList(long time)
         throws SQLException {
         PreparedStatement mappingStmt = null;
+        Connection conn = datasource.getConnection();
 
         try {
             mappingStmt = conn.prepareStatement(deleteAutoWhiteListQuery);
@@ -545,16 +304,12 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
     }
 
     /**
-     * Cleanup the autowhitelist
-     * 
-     * @param conn
-     *            The Connection
-     * @param time
-     *            The time which must be reached before delete the records
-     * @throws SQLException
+     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#cleanupGreyList(long)
      */
-    private void cleanupGreyList(Connection conn, long time)
+    protected void cleanupGreyList(long time)
         throws SQLException {
+        Connection conn = datasource.getConnection();
+
         PreparedStatement mappingStmt = null;
 
         try {
@@ -589,7 +344,7 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
      * @throws Exception
      *             If any error occurs
      */
-    public void initSqlQueries(Connection conn, String sqlFileUrl)
+    private void initSqlQueries(Connection conn, String sqlFileUrl)
         throws Exception {
         try {
 
@@ -628,8 +383,9 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
      * @return true or false
      * @throws SQLException
      */
-    private boolean createTable(Connection conn, String tableNameSqlStringName,
+    private boolean createTable(String tableNameSqlStringName,
     String createSqlStringName) throws SQLException {
+        Connection conn = datasource.getConnection();
         String tableName = sqlQueries.getSqlString(tableNameSqlStringName, true);
 
         DatabaseMetaData dbMetaData = conn.getMetaData();
@@ -655,22 +411,5 @@ public class GreylistHandler implements LogEnabled, RcptHook, Configurable {
             theJDBCUtil.closeJDBCStatement(createStatement);
         }
         return true;
-    }
-
-    /**
-     * @see org.apache.james.smtpserver.protocol.hook.RcptHook#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
-     */
-    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
-        if (!session.isRelayingAllowed()) {
-
-            if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
-                return doGreyListCheck(session, sender,rcpt);
-            } else {
-                session.getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
-            }
-        } else {
-            session.getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is allowed to send. Skip greylisting.");
-        }
-        return new HookResult(HookReturnCode.DECLINED);
     }
 }
