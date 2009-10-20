@@ -38,9 +38,7 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.MailHook;
-import org.apache.james.smtpserver.protocol.hook.MessageHook;
 import org.apache.james.smtpserver.protocol.hook.RcptHook;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -55,7 +53,7 @@ import org.apache.mailet.MailAddress;
  * &lt;checkAuthNetworks&gt;false&lt/checkAuthNetworks&gt; 
  * &lt;/handler&gt;
  */
-public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook,Configurable {
+public class SPFHandler implements LogEnabled, MailHook, RcptHook, Configurable {
     
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(SPFHandler.class);
@@ -203,16 +201,6 @@ public class SPFHandler implements LogEnabled, MailHook, RcptHook, MessageHook,C
 
     }
 
-    /**
-     * @see org.apache.james.smtpserver.protocol.hook.MessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.Mail)
-     */
-    public HookResult onMessage(SMTPSession session, Mail mail) {
-        // Store the spf header as attribute for later using
-        mail.setAttribute(SPF_HEADER_MAIL_ATTRIBUTE_NAME, (String) session.getState().get(SPF_HEADER));
-    
-        return null;
-    }
-    
     /**
      * @see org.apache.james.smtpserver.protocol.hook.RcptHook#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */

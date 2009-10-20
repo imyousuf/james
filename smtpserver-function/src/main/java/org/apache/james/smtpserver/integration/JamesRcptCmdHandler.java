@@ -16,20 +16,42 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.protocol.hook;
 
-import org.apache.james.smtpserver.protocol.MailEnvelope;
-import org.apache.james.smtpserver.protocol.SMTPSession;
+package org.apache.james.smtpserver.integration;
 
-/**
- * Custom message handlers must implement this interface The message hooks will
- * be server-wide common to all the SMTPHandlers, therefore the handlers must
- * store all the state information in the SMTPSession object
- */
-public interface MessageHook {
+import javax.annotation.Resource;
+
+import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.protocol.core.RcptCmdHandler;
+
+public class JamesRcptCmdHandler extends RcptCmdHandler{
+	private MailServer mailServer;
+
 	/**
-	 * Handle Message
+	 * Gets the mail server.
+	 * 
+	 * @return the mailServer
 	 */
-	HookResult onMessage(SMTPSession session, MailEnvelope mail);
+	public final MailServer getMailServer() {
+		return mailServer;
+	}
 
+	/**
+	 * Sets the mail server.
+	 * 
+	 * @param mailServer
+	 *            the mailServer to set
+	 */
+	@Resource(name = "James")
+	public final void setMailServer(MailServer mailServer) {
+		this.mailServer = mailServer;
+	}
+
+	/**
+	 * (non-Javadoc)
+	 * @see org.apache.james.smtpserver.protocol.core.RcptCmdHandler#getDefaultDomain()
+	 */
+    protected String getDefaultDomain() {
+    	return mailServer.getDefaultDomain();
+    }
 }

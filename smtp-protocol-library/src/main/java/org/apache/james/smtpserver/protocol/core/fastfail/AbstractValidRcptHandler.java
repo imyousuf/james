@@ -16,45 +16,51 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.integration;
 
-import org.apache.james.core.MailImpl;
+
+
+
+package org.apache.james.smtpserver.protocol.core.fastfail;
+
+import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.mailet.Mail;
+import org.apache.james.smtpserver.protocol.hook.RcptHook;
+import org.apache.mailet.MailAddress;
+
 
 /**
- * This hook adds the default attributes to the just created Mail 
+ * Handler which want todo an recipient check should extend this
+ *
  */
-public class AddDefaultAttributesMessageHook implements JamesMessageHook {
-
-    /**
-     * The mail attribute holding the SMTP AUTH user name, if any.
-     */
-    private final static String SMTP_AUTH_USER_ATTRIBUTE_NAME = "org.apache.james.SMTPAuthUser";
-
-    /**
-     * The mail attribute which get set if the client is allowed to relay
-     */
-    private final static String SMTP_AUTH_NETWORK_NAME = "org.apache.james.SMTPIsAuthNetwork";
+public abstract class AbstractValidRcptHandler implements RcptHook {
 
     
-    public HookResult onMessage(SMTPSession session, Mail mail) {
-        if (mail instanceof MailImpl) {
-            
-            final MailImpl mailImpl = (MailImpl) mail;
-            mailImpl.setRemoteHost(session.getRemoteHost());
-            mailImpl.setRemoteAddr(session.getRemoteIPAddress());
-            if (session.getUser() != null) {
-                mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, session.getUser());
+    /**
+     * @see org.apache.james.smtpserver.protocol.hook.RcptHook#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     */
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
+        
+        if (!session.isRelayingAllowed()) {
+            if (isValidRecipient(session, rcpt) == false) {
+                //user not exist
+                session.getLogger().info("Rejected message. Unknown user: " + rcpt.toString());
+                return new HookResult(HookReturnCode.DENY,SMTPRetCode.TRANSACTION_FAILED, DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.ADDRESS_MAILBOX) + " Unknown user: " + rcpt.toString());
             }
-            
-            if (session.isRelayingAllowed()) {
-                mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
-            }
+        } else {
+            session.getLogger().debug("Sender allowed");
         }
         return new HookResult(HookReturnCode.DECLINED);
     }
-
+    
+  
+    /**
+     * Return true if email for the given recipient should get accepted
+     * 
+     * @param recipient
+     * @return isValid
+     */
+    protected abstract boolean isValidRecipient(SMTPSession session, MailAddress recipient);
 }

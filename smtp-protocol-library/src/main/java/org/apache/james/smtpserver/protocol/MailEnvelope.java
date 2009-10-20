@@ -16,20 +16,27 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.protocol.hook;
 
-import org.apache.james.smtpserver.protocol.MailEnvelope;
-import org.apache.james.smtpserver.protocol.SMTPSession;
 
-/**
- * Custom message handlers must implement this interface The message hooks will
- * be server-wide common to all the SMTPHandlers, therefore the handlers must
- * store all the state information in the SMTPSession object
- */
-public interface MessageHook {
-	/**
-	 * Handle Message
-	 */
-	HookResult onMessage(SMTPSession session, MailEnvelope mail);
+package org.apache.james.smtpserver.protocol;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+
+import org.apache.mailet.MailAddress;
+
+public interface MailEnvelope {
+
+	public int getSize();
+
+	public List<MailAddress> getRecipients();
+
+	public MailAddress getSender();
+
+	public void setRecipients(List<MailAddress> recipientCollection);
+
+	public OutputStream getBodyOutputStream() throws Exception;
+
+	public InputStream getBodyInputStream() throws Exception;
 }

@@ -30,8 +30,8 @@ import javax.mail.internet.MimeMessage;
 import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.smtpserver.integration.SpamAssassinHandler;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.fastfail.SpamAssassinHandler;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.test.mock.MockMimeMessage;
@@ -41,7 +41,7 @@ import org.apache.james.test.mock.util.MockSpamd;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
-
+ 
 public class SpamAssassinHandlerTest extends TestCase {
     private SMTPSession mockedSMTPSession;
 

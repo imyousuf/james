@@ -16,32 +16,28 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.smtpserver.integration;
 
-
-
-package org.apache.james.smtpserver.protocol.core;
-
-import java.util.Collection;
+import java.util.Locale;
 
 import javax.annotation.Resource;
-import javax.mail.MessagingException;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.smtpserver.protocol.hook.MessageHook;
-import org.apache.mailet.Mail;
-
+import org.apache.james.smtpserver.protocol.hook.RcptHook;
+import org.apache.mailet.MailAddress;
 
 /**
-  * Adds the header to the message
-  */
-public class SendMailHandler implements MessageHook {
+ * Handler which check if the authenticated user is incorrect
+ */
+public class SenderAuthIdentifyVerificationRcptHook implements RcptHook {
 
     private MailServer mailServer;
-        
+    
     /**
      * Gets the mail server.
      * @return the mailServer
@@ -60,37 +56,28 @@ public class SendMailHandler implements MessageHook {
     }
     
     /**
-     * Adds header to the message
-     * @see org.apache.james.smtpserver#onMessage(SMTPSession)
+     * @see org.apache.james.smtpserver.protocol.hook.RcptHook#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession,
+     *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
-    public HookResult onMessage(SMTPSession session, Mail mail) {
-        session.getLogger().debug("sending mail");
+    public HookResult doRcpt(SMTPSession session, MailAddress sender,
+            MailAddress rcpt) {
+        if (session.getUser() != null) {
+            String authUser = (session.getUser()).toLowerCase(Locale.US);
+            MailAddress senderAddress = (MailAddress) session.getState().get(
+                    SMTPSession.SENDER);
 
-        try {
-            mailServer.sendMail(mail);
-            Collection theRecipients = mail.getRecipients();
-            String recipientString = "";
-            if (theRecipients != null) {
-                recipientString = theRecipients.toString();
+            if ((senderAddress == null)
+                    || (!authUser.equals(senderAddress.getLocalPart()))
+                    || (!mailServer
+                            .isLocalServer(senderAddress.getDomain()))) {
+                return new HookResult(HookReturnCode.DENY, 
+                        SMTPRetCode.BAD_SEQUENCE,
+                        DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                DSNStatus.SECURITY_AUTH)
+                                + " Incorrect Authentication for Specified Email Address");
             }
-            if (session.getLogger().isInfoEnabled()) {
-                StringBuilder infoBuffer =
-                     new StringBuilder(256)
-                         .append("Successfully spooled mail ")
-                         .append(mail.getName())
-                         .append(" from ")
-                         .append(mail.getSender())
-                         .append(" on ")
-                         .append(session.getRemoteIPAddress())
-                         .append(" for ")
-                         .append(recipientString);
-                session.getLogger().info(infoBuffer.toString());
-            }
-        } catch (MessagingException me) {
-            session.getLogger().error("Unknown error occurred while processing DATA.", me);
-            return new HookResult(HookReturnCode.DENYSOFT,DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.");
         }
-        return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
+        return new HookResult(HookReturnCode.DECLINED);
     }
 
 }
