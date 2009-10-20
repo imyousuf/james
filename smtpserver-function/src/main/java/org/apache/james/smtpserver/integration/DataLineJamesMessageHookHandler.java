@@ -277,16 +277,16 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     	}
     	
     	/**
-    	 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getBodyInputStream()
+    	 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getMessageInputStream()
     	 */
-		public InputStream getBodyInputStream() throws Exception {
+		public InputStream getMessageInputStream() throws Exception {
 			return mail.getMessage().getInputStream();
 		}
 		
 		/**
 		 * Return just null. Not sure if this is a good idea ..
 		 */
-		public OutputStream getBodyOutputStream() {
+		public OutputStream getMessageOutputStream() {
 			return null;
 		}
 

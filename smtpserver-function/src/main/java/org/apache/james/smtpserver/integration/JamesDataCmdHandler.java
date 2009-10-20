@@ -73,14 +73,7 @@ public class JamesDataCmdHandler extends DataCmdHandler {
         try {
             MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(mailServer.getId());
             OutputStream out = mmiss.getWritableOutputStream();
-            /*
-            // Prepend output headers with out Received
-            MailHeaders mh = createNewReceivedMailHeaders(session);
-            for (Enumeration en = mh.getAllHeaderLines(); en.hasMoreElements(); ) {
-                out.write(en.nextElement().toString().getBytes());
-                out.write("\r\n".getBytes());
-            }
-            */
+
             session.getState().put(DATA_MIMEMESSAGE_STREAMSOURCE, mmiss);
             session.getState().put(DATA_MIMEMESSAGE_OUTPUTSTREAM, out);
 

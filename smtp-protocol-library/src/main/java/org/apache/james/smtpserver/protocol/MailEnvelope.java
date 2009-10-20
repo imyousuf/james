@@ -36,7 +36,7 @@ public interface MailEnvelope {
 
 	public void setRecipients(List<MailAddress> recipientCollection);
 
-	public OutputStream getBodyOutputStream() throws Exception;
+	public OutputStream getMessageOutputStream() throws Exception;
 
-	public InputStream getBodyInputStream() throws Exception;
+	public InputStream getMessageInputStream() throws Exception;
 }
