@@ -163,7 +163,7 @@
      -->
      
      <!-- Load the core command handlers -->
-     <handler class="org.apache.james.smtpserver.core.CoreCmdHandlerLoader"/>        
+     <handler class="org.apache.james.smtpserver.integration.CoreCmdHandlerLoader"/>        
       
      <!-- The message handler configuration -->
      
