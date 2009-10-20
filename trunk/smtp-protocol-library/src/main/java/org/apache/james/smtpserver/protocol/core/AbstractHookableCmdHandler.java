@@ -40,7 +40,7 @@ public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler
 
 
     private List<Hook> hooks;
-    private List rHooks;
+    private List<HookResultHook> rHooks;
 
     /**
      * Handle command processing

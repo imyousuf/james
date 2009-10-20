@@ -26,7 +26,7 @@
 
   <!-- interfaces that may be exported to manange this block -->
   <management-access-points>
-    <service name="org.apache.james.smtpserver.SMTPServerMBean"/>
+    <service name="org.apache.james.smtpserver.protocol.SMTPServerMBean"/>
   </management-access-points>
 
   <dependencies>
