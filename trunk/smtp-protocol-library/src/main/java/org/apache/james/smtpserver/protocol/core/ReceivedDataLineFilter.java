@@ -54,8 +54,8 @@ public class ReceivedDataLineFilter implements DataLineFilter{
         
         headerLineBuffer.append(" ([")
                         .append(session.getRemoteIPAddress())
-                        .append("])");
-        
+                        .append("])")
+        				.append("\r\n");
         next.onLine(session,headerLineBuffer.toString().getBytes());
         headerLineBuffer.delete(0, headerLineBuffer.length());
         
@@ -88,14 +88,15 @@ public class ReceivedDataLineFilter implements DataLineFilter{
             // Only indicate a recipient if they're the only recipient
             // (prevents email address harvesting and large headers in
             //  bulk email)
-            
+        	headerLineBuffer.append("\r\n");
             next.onLine(session,headerLineBuffer.toString().getBytes());
             headerLineBuffer.delete(0, headerLineBuffer.length());
             
             headerLineBuffer.delete(0, headerLineBuffer.length());
             headerLineBuffer.append("          for <")
                             .append(((List) session.getState().get(SMTPSession.RCPT_LIST)).get(0).toString())
-                            .append(">;");            
+                            .append(">;")
+                            .append("\r\n");
             
             next.onLine(session,headerLineBuffer.toString().getBytes());
             headerLineBuffer.delete(0, headerLineBuffer.length());
@@ -104,11 +105,11 @@ public class ReceivedDataLineFilter implements DataLineFilter{
         } else {
             // Put the ; on the end of the 'by' line
             headerLineBuffer.append(";");
-            
+            headerLineBuffer.append("\r\n");
             next.onLine(session,headerLineBuffer.toString().getBytes());
             headerLineBuffer.delete(0, headerLineBuffer.length());
         }
         headerLineBuffer = null;
-        next.onLine(session,("          " + rfc822DateFormat.format(new Date())).getBytes());
+        next.onLine(session,("          " + rfc822DateFormat.format(new Date()) + "\r\n").getBytes());
     }
 }
