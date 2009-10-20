@@ -40,7 +40,7 @@ public abstract class AbstractAuthRequiredToRelayRcptHook implements RcptHook {
             MailAddress rcpt) {
         if (!session.isRelayingAllowed()) {
             String toDomain = rcpt.getDomain();
-            if (isLocalDomain(toDomain)) {
+            if (isLocalDomain(toDomain) == false) {
                 if (session.isAuthSupported()) {
                     return new HookResult(HookReturnCode.DENY,
                             SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(
