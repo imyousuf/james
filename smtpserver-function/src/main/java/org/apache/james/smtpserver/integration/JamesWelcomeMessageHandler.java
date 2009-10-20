@@ -20,19 +20,13 @@
 
 package org.apache.james.smtpserver.integration;
 
-import java.util.Date;
-
 import org.apache.james.Constants;
-import org.apache.james.smtpserver.protocol.ConnectHandler;
-import org.apache.james.smtpserver.protocol.SMTPResponse;
-import org.apache.james.smtpserver.protocol.SMTPRetCode;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.mailet.base.RFC822DateFormat;
+import org.apache.james.smtpserver.protocol.core.WelcomeMessageHandler;
 
 /**
  * This ConnectHandler print the greeting on connecting
  */
-public class WelcomeMessageHandler implements ConnectHandler {
+public class JamesWelcomeMessageHandler extends WelcomeMessageHandler {
 
     /**
      * SMTP Server identification string used in SMTP headers
@@ -40,33 +34,8 @@ public class WelcomeMessageHandler implements ConnectHandler {
     private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
                                                  + Constants.SOFTWARE_VERSION;
 
-    /**
-     * Static RFC822DateFormat used to generate date headers
-     */
-    private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
-
-    /**
-     * @see org.apache.james.smtpserver.protocol.ConnectHandler#onConnect(SMTPSession)
-     */
-    public void onConnect(SMTPSession session) {
-        String smtpGreeting = session.getSMTPGreeting();
-
-        SMTPResponse welcomeResponse;
-        // if no greeting was configured use a default
-        if (smtpGreeting == null) {
-            // Initially greet the connector
-            // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-            welcomeResponse = new SMTPResponse(SMTPRetCode.SERVICE_READY,
-                          new StringBuilder(256)
-                          .append(session.getHelloName())
-                          .append(" SMTP Server (")
-                          .append(SOFTWARE_TYPE)
-                          .append(") ready ")
-                          .append(rfc822DateFormat.format(new Date())));
-        } else {
-            welcomeResponse = new SMTPResponse(SMTPRetCode.SERVICE_READY,smtpGreeting);
-        }
-        session.writeSMTPResponse(welcomeResponse);
+    @Override
+    protected String getProductName() {
+        return SOFTWARE_TYPE;
     }
-
 }

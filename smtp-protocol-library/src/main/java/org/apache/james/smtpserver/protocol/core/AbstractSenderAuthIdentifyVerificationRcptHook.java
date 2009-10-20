@@ -18,10 +18,9 @@
  ****************************************************************/
 package org.apache.james.smtpserver.protocol.core;
 
-import javax.annotation.Resource;
+import java.util.Locale;
 
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
@@ -30,58 +29,34 @@ import org.apache.james.smtpserver.protocol.hook.RcptHook;
 import org.apache.mailet.MailAddress;
 
 /**
- * Handler which check for authenticated users
+ * Handler which check if the authenticated user is incorrect
  */
-public class AuthRequiredToRelayRcptHook implements RcptHook {
-
-    private MailServer mailServer;
-    
-    /**
-     * Gets the mail server.
-     * @return the mailServer
-     */
-    public final MailServer getMailServer() {
-        return mailServer;
-    }
-
-    /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="James")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
-    
+public abstract class AbstractSenderAuthIdentifyVerificationRcptHook implements RcptHook {  
     /**
      * @see org.apache.james.smtpserver.protocol.hook.RcptHook#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession,
      *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender,
             MailAddress rcpt) {
-        if (!session.isRelayingAllowed()) {
-            String toDomain = rcpt.getDomain();
-            if (!mailServer.isLocalServer(toDomain)) {
-                if (session.isAuthSupported()) {
-                    return new HookResult(HookReturnCode.DENY,
-                            SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(
-                                    DSNStatus.PERMANENT,
-                                    DSNStatus.SECURITY_AUTH)
-                                    + " Authentication Required");
-                } else {
-                    return new HookResult(
-                            HookReturnCode.DENY,
-                            // sendmail returns 554 (SMTPRetCode.TRANSACTION_FAILED).
-                            // it is not clear in RFC wether it is better to use 550 or 554.
-                            SMTPRetCode.MAILBOX_PERM_UNAVAILABLE,
-                            DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                    DSNStatus.SECURITY_AUTH)
-                                    + " Requested action not taken: relaying denied");
-                }
-            }
+        if (session.getUser() != null) {
+            String authUser = (session.getUser()).toLowerCase(Locale.US);
+            MailAddress senderAddress = (MailAddress) session.getState().get(
+                    SMTPSession.SENDER);
 
+            if ((senderAddress == null)
+                    || (!authUser.equals(senderAddress.getLocalPart()))
+                    || (!isLocalDomain(senderAddress.getDomain()))) {
+                return new HookResult(HookReturnCode.DENY, 
+                        SMTPRetCode.BAD_SEQUENCE,
+                        DSNStatus.getStatus(DSNStatus.PERMANENT,
+                                DSNStatus.SECURITY_AUTH)
+                                + " Incorrect Authentication for Specified Email Address");
+            }
         }
         return new HookResult(HookReturnCode.DECLINED);
     }
+    
+    
+    protected abstract boolean isLocalDomain(String domain);
 
 }

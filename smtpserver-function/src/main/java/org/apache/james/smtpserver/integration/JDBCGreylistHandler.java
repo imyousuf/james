@@ -42,16 +42,20 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.james.api.protocol.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler;
+import org.apache.james.util.TimeConverter;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 
 /**
  * GreylistHandler which can be used to activate Greylisting
  */
-public class JDBCGreylistHandler extends AbstractGreylistHandler {
+public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogEnabled{
 
+    
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(JDBCGreylistHandler.class);
     
@@ -94,6 +98,25 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler {
      */
     private String repositoryPath;
     
+    
+    /**
+     * Gets the file system service.
+     * @return the fileSystem
+     */
+    public final FileSystem getFileSystem() {
+        return fileSystem;
+    }
+    
+    /**
+     * Sets the filesystem service
+     * 
+     * @param system The filesystem service
+     */
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
+    }
+    
     /**
      * @return the datasources
      */
@@ -124,11 +147,70 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler {
     } 
 
     /**
+     * Setup the temporary blocking time
+     * 
+     * @param tempBlockTime
+     *            The temporary blocking time 
+     */
+    public void setTempBlockTime(String tempBlockTime) {
+       setTempBlockTime(TimeConverter.getMilliSeconds(tempBlockTime));
+    }
+
+    /**
+     * Setup the autowhitelist lifetime for which we should whitelist a triplet.
+     * After this lifetime the record will be deleted
+     * 
+     * @param autoWhiteListLifeTime
+     *            The lifeTime 
+     */
+    public void setAutoWhiteListLifeTime(String autoWhiteListLifeTime) {
+        setAutoWhiteListLifeTime(TimeConverter.getMilliSeconds(autoWhiteListLifeTime));
+    }
+
+    /**
+     * Set up the liftime of only once seen triplet. After this liftime the
+     * record will be deleted
+     * 
+     * @param unseenLifeTime
+     *            The lifetime 
+     */
+    public void setUnseenLifeTime(String unseenLifeTime) {
+        setUnseenLifeTime(TimeConverter.getMilliSeconds(unseenLifeTime));
+    }
+    
+    /**
      * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#configure(org.apache.commons.configuration.Configuration)
      */
+    @SuppressWarnings("unchecked")
 	public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-    	super.configure(handlerConfiguration);
-    	
+	    try {
+            setTempBlockTime(handlerConfiguration.getString("tempBlockTime"));
+        } catch (NumberFormatException e) {
+           throw new ConfigurationException(e.getMessage());
+        }
+       
+    
+      
+        try {
+            setAutoWhiteListLifeTime(handlerConfiguration.getString("autoWhiteListLifeTime"));
+        } catch (NumberFormatException e) {
+            throw new ConfigurationException(e.getMessage());
+        }
+       
+
+        try {
+            setUnseenLifeTime(handlerConfiguration.getString("unseenLifeTime"));
+        } catch (NumberFormatException e) {
+            throw new ConfigurationException(e.getMessage());
+        }
+        Collection<String> nets  = handlerConfiguration.getList("whitelistedNetworks");
+        if (nets != null) {
+
+            if (nets != null) {
+                setWhiteListedNetworks( new NetMatcher(nets,getDNSService()));
+                serviceLog.info("Whitelisted addresses: " + getWhiteListedNetworks().toString());
+            }
+        }    	
         String configRepositoryPath = handlerConfiguration.getString("repositoryPath", null);
         if (configRepositoryPath != null) {
             setRepositoryPath(configRepositoryPath);
@@ -411,5 +493,12 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler {
             theJDBCUtil.closeJDBCStatement(createStatement);
         }
         return true;
+    }
+
+    /**
+     * @see org.apache.james.api.protocol.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
+    public void setLog(Log log) {
+        this.serviceLog = log;
     }
 }

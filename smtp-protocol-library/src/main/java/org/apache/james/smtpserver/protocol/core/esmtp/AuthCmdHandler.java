@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.james.api.protocol.ExtensibleHandler;
 import org.apache.james.api.protocol.WiringException;
 import org.apache.james.dsn.DSNStatus;
@@ -43,7 +44,6 @@ import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookResultHook;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.MailParametersHook;
-import org.apache.james.util.codec.Base64;
 
 
 /**
@@ -173,7 +173,7 @@ public class AuthCmdHandler
         String user = null, pass = null;
         try {
             if (userpass != null) {
-                userpass = Base64.decodeAsString(userpass);
+                userpass = new String(Base64.decodeBase64(userpass));
             }
             if (userpass != null) {
                 /*  See: RFC 2595, Section 6
@@ -236,7 +236,7 @@ public class AuthCmdHandler
     private SMTPResponse doLoginAuthPass(SMTPSession session, String user) {
         if (user != null) {
             try {
-                user = Base64.decodeAsString(user);
+                user = new String(Base64.decodeBase64(user));
             } catch (Exception e) {
                 // Ignored - this parse error will be
                 // addressed in the if clause below
@@ -263,7 +263,7 @@ public class AuthCmdHandler
     private SMTPResponse doLoginAuthPassCheck(SMTPSession session, String user, String pass) {
         if (pass != null) {
             try {
-                pass = Base64.decodeAsString(pass);
+                pass = new String(Base64.decodeBase64(pass));
             } catch (Exception e) {
                 // Ignored - this parse error will be
                 // addressed in the if clause below

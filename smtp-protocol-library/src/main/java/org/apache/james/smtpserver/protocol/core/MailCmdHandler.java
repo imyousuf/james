@@ -28,10 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.annotation.Resource;
-
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
@@ -50,25 +47,6 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> {
      * A map of parameterHooks
      */
     private Map<String, MailParametersHook> paramHooks;
-
-    private MailServer mailServer;
-        
-    /**
-     * Gets the mail server.
-     * @return the mailServer
-     */
-    public final MailServer getMailServer() {
-        return mailServer;
-    }
-
-    /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="James")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
 
     /**
      * @see org.apache.james.smtpserver.protocol.core.AbstractHookableCmdHandler#onCommand(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.james.smtpserver.protocol.SMTPRequest)
@@ -243,7 +221,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> {
                 if (sender.indexOf("@") < 0) {
                     sender = sender
                             + "@"
-                            + mailServer.getDefaultDomain();
+                            + getDefaultDomain();
                 }
 
                 try {
@@ -312,5 +290,13 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> {
         }
     }
 
+    /**
+     * Return the default domain to append if the sender contains none
+     * 
+     * @return defaultDomain
+     */
+    public String getDefaultDomain() {
+        return "localhost";
+    }
 
 }
