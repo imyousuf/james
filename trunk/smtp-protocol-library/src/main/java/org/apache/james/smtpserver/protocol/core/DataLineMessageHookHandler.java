@@ -59,7 +59,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
      */
     public void onLine(SMTPSession session, byte[] line, LineHandler next) {
         MailEnvelopeImpl env = (MailEnvelopeImpl) session.getState().get(DataCmdHandler.MAILENV);
-        OutputStream out = env.getBodyOutputStream();
+        OutputStream out = env.getMessageOutputStream();
         
         try {
             // 46 is "."

@@ -58,12 +58,12 @@ public class MailEnvelopeImpl implements MailEnvelope{
         this.sender = sender;
     }
 
-    public OutputStream getBodyOutputStream() {
+    public OutputStream getMessageOutputStream() {
         this.outputStream = new ByteArrayOutputStream(100000);
         return outputStream;
     }
 
-    public InputStream getBodyInputStream() {
+    public InputStream getMessageInputStream() {
         return new ByteArrayInputStream(outputStream.toByteArray());
     }
 }
