@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.smtpserver.protocol.core;
+package org.apache.james.smtpserver.integration;
 
 import javax.mail.internet.MimeMessage;
 
@@ -28,14 +28,13 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.smtpserver.protocol.hook.MessageHook;
 import org.apache.mailet.Mail;
 
 
 /**
   * Adds the header to the message
   */
-public class SetMimeHeaderHandler implements MessageHook {
+public class SetMimeHeaderHandler implements JamesMessageHook {
 
     /**
      * The header name and value that needs to be added
@@ -74,7 +73,7 @@ public class SetMimeHeaderHandler implements MessageHook {
     /**
      * Adds header to the message
      *
-     * @see org.apache.james.smtpserver.protocol.hook.MessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.integration.JamesMessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.Mail)
      */
     public HookResult onMessage(SMTPSession session, Mail mail) {
         try {

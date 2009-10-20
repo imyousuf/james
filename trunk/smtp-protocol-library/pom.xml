@@ -34,15 +34,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-domain-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-javamail-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -77,12 +69,25 @@
       <artifactId>apache-jspf</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-datasource</artifactId>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mailet-base</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-api</artifactId>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-javamail-util</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+    
   </dependencies>
 </project>

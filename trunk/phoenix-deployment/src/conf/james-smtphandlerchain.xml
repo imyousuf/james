@@ -72,7 +72,7 @@
      <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
      <!-- are allowed to relay. Default is false. -->  
      <!--
-     <handler class="org.apache.james.smtpserver.core.fastfail.SPFHandler">
+     <handler class="org.apache.james.smtpserver.integration.JamesSPFHandler">
          <checkAuthNetworks> false </checkAuthNetworks>
          <blockSoftFail> false </blockSoftFail>
          <blockPermError> true </blockPermError>
@@ -171,7 +171,7 @@
      <!-- accept the email. So its possible to reject a message on smtplevel if a -->
      <!-- configured hits amount is reached. -->
      <!--
-     <handler class="org.apache.james.smtpserver.core.fastfail.SpamAssassinHandler">
+     <handler class="org.apache.james.smtpserver.integration.SpamAssassinHandler">
          <spamdHost> 127.0.0.1 </spamdHost>
          <spamdPort> 783 </spamdPort>
          <spamdRejectionHits> 10 </spamdRejectionHits>
@@ -183,7 +183,7 @@
      <!-- this domains against uriRbllists. See http://www.surbl.org for more informations. -->
      <!-- The message get rejected if a domain matched . -->
      <!--
-     <handler class="org.apache.james.smtpserver.core.fastfail.URIRBLHandler">
+     <handler class="org.apache.james.smtpserver.integration.URIRBLHandler">
          <action> reject </action>
          <getDetail> true </getDetail>
          <checkAuthNetworks> false </checkAuthNetworks>
@@ -194,7 +194,7 @@
      -->
      
      <!-- 
-     <handler class="org.apache.james.smtpserver.core.SetMimeHeaderHandler">
+     <handler class="org.apache.james.smtpserver.integration.SetMimeHeaderHandler">
          <headername>SPF-test</headername>
          <headervalue>passed</headervalue>
      </handler>
@@ -203,5 +203,5 @@
      <!--  The default message receiving handler -->
      <!--  The default behaviour is to put the message in the root processor of -->
      <!--  the spooler -->
-     <handler class="org.apache.james.smtpserver.core.SendMailHandler"></handler>
+     <handler class="org.apache.james.smtpserver.integration.SendMailHandler"></handler>
 </handlerchain>

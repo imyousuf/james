@@ -18,43 +18,20 @@
  ****************************************************************/
 package org.apache.james.smtpserver.integration;
 
-import org.apache.james.core.MailImpl;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.mailet.Mail;
 
 /**
- * This hook adds the default attributes to the just created Mail 
+ * Custom message handlers must implement this interface
+ * The message hooks will be server-wide common to all the SMTPHandlers,
+ * therefore the handlers must store all the state information
+ * in the SMTPSession object
  */
-public class AddDefaultAttributesMessageHook implements JamesMessageHook {
-
+public interface JamesMessageHook {
     /**
-     * The mail attribute holding the SMTP AUTH user name, if any.
+     * Handle Message
      */
-    private final static String SMTP_AUTH_USER_ATTRIBUTE_NAME = "org.apache.james.SMTPAuthUser";
-
-    /**
-     * The mail attribute which get set if the client is allowed to relay
-     */
-    private final static String SMTP_AUTH_NETWORK_NAME = "org.apache.james.SMTPIsAuthNetwork";
-
-    
-    public HookResult onMessage(SMTPSession session, Mail mail) {
-        if (mail instanceof MailImpl) {
-            
-            final MailImpl mailImpl = (MailImpl) mail;
-            mailImpl.setRemoteHost(session.getRemoteHost());
-            mailImpl.setRemoteAddr(session.getRemoteIPAddress());
-            if (session.getUser() != null) {
-                mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, session.getUser());
-            }
-            
-            if (session.isRelayingAllowed()) {
-                mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
-            }
-        }
-        return new HookResult(HookReturnCode.DECLINED);
-    }
+    HookResult onMessage(SMTPSession session, Mail mail);
 
 }

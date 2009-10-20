@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver.protocol.core.fastfail;
+package org.apache.james.smtpserver.integration;
 
 import java.util.Iterator;
 
@@ -32,7 +32,6 @@ import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.smtpserver.protocol.hook.MessageHook;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
 
@@ -52,7 +51,7 @@ import org.apache.mailet.Mail;
  * &lt;spamdRejectionHits&gt;15.0&lt;/spamdRejectionHits&gt;
  * &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt; &lt;/handler&gt;
  */
-public class SpamAssassinHandler implements MessageHook, Configurable {
+public class SpamAssassinHandler implements JamesMessageHook, Configurable {
 
     /**
      * The port spamd is listen on
@@ -123,7 +122,7 @@ public class SpamAssassinHandler implements MessageHook, Configurable {
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.hook.MessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.integration.JamesMessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.Mail)
      */
     public HookResult onMessage(SMTPSession session, Mail mail) {
 

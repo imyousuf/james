@@ -22,7 +22,9 @@
 package org.apache.james.smtpserver.integration;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,6 +43,7 @@ import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.smtpserver.protocol.MailEnvelope;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -52,19 +55,26 @@ import org.apache.james.smtpserver.protocol.hook.MessageHook;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
-public final class DataLineMessageHookHandler implements DataLineFilter, ExtensibleHandler, LogEnabled {
+/**
+ * 
+ * Handles the calling of JamesMessageHooks
+ *
+ */
+public final class DataLineJamesMessageHookHandler implements DataLineFilter, ExtensibleHandler, LogEnabled {
 
     /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineMessageHookHandler.class);
+    private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineJamesMessageHookHandler.class);
     
     /** Non context specific log should only be used when no context specific log is available */
     private Log serviceLog = FALLBACK_LOG;
     
-    private List messageHandlers;
+    private List<JamesMessageHook> messageHandlers;
     
-    private List rHooks;
+    private List<HookResultHook> rHooks;
     
     private MailServer mailServer;
+
+	private List<MessageHook> mHandlers;
     
     /**
      * Gets the mail server.
@@ -87,8 +97,8 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
      * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.smtpserver.protocol.LineHandler)
      */
     public void onLine(SMTPSession session, byte[] line, LineHandler next) {
-        MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(DataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE);
-        OutputStream out = (OutputStream)  session.getState().get(DataCmdHandler.DATA_MIMEMESSAGE_OUTPUTSTREAM);
+        MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE);
+        OutputStream out = (OutputStream)  session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_OUTPUTSTREAM);
         try {
             // 46 is "."
             // Stream terminated
@@ -145,61 +155,97 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
         }
     }
 
+	/**
+	 * @param session
+	 */
+	private void processExtensions(SMTPSession session, Mail mail) {
+		if (mail != null && messageHandlers != null) {
+			try {
+				for (int i = 0; i < mHandlers.size(); i++) {
+					MessageHook rawHandler = mHandlers.get(i);
+					session.getLogger().debug(
+							"executing james message handler " + rawHandler);
+					HookResult hRes = rawHandler.onMessage(session,
+							new MailToMailEnvelopeWrapper(mail));
 
-    /**
-     * @param session
-     */
-    private void processExtensions(SMTPSession session, Mail mail) {
-        if(mail != null && mail instanceof Mail && messageHandlers != null) {
-            try {
-                int count = messageHandlers.size();
-                for(int i =0; i < count; i++) {
-                    Object rawHandler =  messageHandlers.get(i);
-                    session.getLogger().debug("executing message handler " + rawHandler);
-                    HookResult hRes = ((MessageHook)rawHandler).onMessage(session, (Mail) mail);
-                    
-                    if (rHooks != null) {
-                        for (int i2 = 0; i2 < rHooks.size(); i2++) {
-                            Object rHook = rHooks.get(i2);
-                            session.getLogger().debug("executing hook " + rHook);
-                            hRes = ((HookResultHook) rHook).onHookResult(session, hRes, rawHandler);
-                        }
-                    }
-                    
-                    SMTPResponse response = AbstractHookableCmdHandler.calcDefaultSMTPResponse(hRes);
-                    
-                    //if the response is received, stop processing of command handlers
-                    if(response != null) {
-                        session.writeSMTPResponse(response);
-                        break;
-                    }
-                }
-            } finally {
-                // Dispose the mail object and remove it
-                if(mail != null) {
-                    ContainerUtil.dispose(mail);
-                    mail = null;
-                }
-                //do the clean up
-                session.resetState();
-            }
-        }
-    }
+					if (rHooks != null) {
+						for (int i2 = 0; i2 < rHooks.size(); i2++) {
+							Object rHook = rHooks.get(i2);
+							session.getLogger()
+									.debug("executing hook " + rHook);
+							hRes = ((HookResultHook) rHook).onHookResult(
+									session, hRes, rawHandler);
+						}
+					}
+
+					SMTPResponse response = AbstractHookableCmdHandler
+							.calcDefaultSMTPResponse(hRes);
+
+					// if the response is received, stop processing of command
+					// handlers
+					if (response != null) {
+						session.writeSMTPResponse(response);
+						return;
+					}
+				}
+
+				int count = messageHandlers.size();
+				for (int i = 0; i < count; i++) {
+					Object rawHandler = messageHandlers.get(i);
+					session.getLogger().debug(
+							"executing james message handler " + rawHandler);
+					HookResult hRes = ((JamesMessageHook) rawHandler)
+							.onMessage(session, (Mail) mail);
+
+					if (rHooks != null) {
+						for (int i2 = 0; i2 < rHooks.size(); i2++) {
+							Object rHook = rHooks.get(i2);
+							session.getLogger()
+									.debug("executing hook " + rHook);
+							hRes = ((HookResultHook) rHook).onHookResult(
+									session, hRes, rawHandler);
+						}
+					}
+
+					SMTPResponse response = AbstractHookableCmdHandler
+							.calcDefaultSMTPResponse(hRes);
+
+					// if the response is received, stop processing of command
+					// handlers
+					if (response != null) {
+						session.writeSMTPResponse(response);
+						break;
+					}
+				}
+			} finally {
+				// Dispose the mail object and remove it
+				if (mail != null) {
+					ContainerUtil.dispose(mail);
+					mail = null;
+				}
+				// do the clean up
+				session.resetState();
+			}
+		}
+	}
+
     
     /**
      * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
-        if (MessageHook.class.equals(interfaceName)) {
+        if (JamesMessageHook.class.equals(interfaceName)) {
             this.messageHandlers = extension;
             if (messageHandlers.size() == 0) {
                 if (serviceLog.isErrorEnabled()) {
-                    serviceLog.error(
-                                    "No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
+                    serviceLog.error("No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
                 }
                 throw new WiringException("No messageHandler configured");
             }
+        } else if (MessageHook.class.equals(interfaceName)) {
+        	this.mHandlers = extension;
         } else if (HookResultHook.class.equals(interfaceName)) {
+
             this.rHooks = extension;
         }
     }
@@ -209,6 +255,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> classes = new LinkedList<Class<?>>();
+        classes.add(JamesMessageHook.class);
         classes.add(MessageHook.class);
         classes.add(HookResultHook.class);
         return classes;
@@ -221,5 +268,61 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
      */
     public void setLog(Log log) {
         this.serviceLog = log;
+    }
+    
+    private class MailToMailEnvelopeWrapper implements MailEnvelope {
+    	private Mail mail;
+    	public MailToMailEnvelopeWrapper(Mail mail) {
+    		this.mail = mail;
+    	}
+    	
+    	/**
+    	 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getBodyInputStream()
+    	 */
+		public InputStream getBodyInputStream() throws Exception {
+			return mail.getMessage().getInputStream();
+		}
+		
+		/**
+		 * Return just null. Not sure if this is a good idea ..
+		 */
+		public OutputStream getBodyOutputStream() {
+			return null;
+		}
+
+		/**
+		 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getRecipients()
+		 */
+		public List<MailAddress> getRecipients() {
+			return new ArrayList<MailAddress>(mail.getRecipients());
+		}
+
+		/**
+		 * (non-Javadoc)
+		 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getSender()
+		 */
+		public MailAddress getSender() {
+			return mail.getSender();
+		}
+		
+		/**
+		 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getSize()
+		 */
+		public int getSize() {
+			try {
+				return new Long(mail.getMessageSize()).intValue();
+			} catch (MessagingException e) {
+				return -1;
+			}
+		}
+
+		/**
+		 * (non-Javadoc)
+		 * @see org.apache.james.smtpserver.protocol.MailEnvelope#setRecipients(java.util.List)
+		 */
+		public void setRecipients(List<MailAddress> recipientCollection) {
+			mail.setRecipients(recipientCollection);
+		}
+    	
     }
 }

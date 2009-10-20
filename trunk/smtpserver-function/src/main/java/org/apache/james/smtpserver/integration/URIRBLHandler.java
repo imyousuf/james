@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.smtpserver.protocol.core.fastfail;
+package org.apache.james.smtpserver.integration;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -47,13 +47,12 @@ import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.smtpserver.protocol.hook.MessageHook;
 import org.apache.mailet.Mail;
 
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
  */
-public class URIRBLHandler implements LogEnabled, MessageHook, Configurable {
+public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(URIRBLHandler.class);
@@ -155,7 +154,7 @@ public class URIRBLHandler implements LogEnabled, MessageHook, Configurable {
     }
     
     /**
-     * @see org.apache.james.smtpserver.protocol.hook.MessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.integration.JamesMessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.Mail)
      */
     public HookResult onMessage(SMTPSession session, Mail mail) {
         if (check(session, mail)) {

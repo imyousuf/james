@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.smtpserver.protocol.core.fastfail;
+package org.apache.james.smtpserver.integration;
 
 import java.net.URI;
 import java.net.URISyntaxException;

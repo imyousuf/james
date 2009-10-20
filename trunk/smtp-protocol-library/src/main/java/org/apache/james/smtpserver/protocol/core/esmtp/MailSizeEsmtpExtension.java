@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.smtpserver.protocol.MailEnvelope;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.DataLineFilter;
@@ -15,7 +16,6 @@ import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.MailParametersHook;
 import org.apache.james.smtpserver.protocol.hook.MessageHook;
-import org.apache.mailet.Mail;
 
 /**
  * Handle the ESMTP SIZE extension.
@@ -155,9 +155,9 @@ public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.hook.MessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.protocol.hook.MessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.james.smtpserver.protocol.MailEnvelopeImpl)
      */
-    public HookResult onMessage(SMTPSession session, Mail mail) {
+    public HookResult onMessage(SMTPSession session, MailEnvelope mail) {
         Boolean failed = (Boolean) session.getState().get(MESG_FAILED);
         if (failed != null && failed.booleanValue()) {
             HookResult response = new HookResult(HookReturnCode.DENY, SMTPRetCode.QUOTA_EXCEEDED,DSNStatus.getStatus(DSNStatus.PERMANENT,
@@ -172,8 +172,6 @@ public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension
                     .append(
                             session.getMaxMessageSize());
             session.getLogger().error(errorBuffer.toString());
-            // TODO ???
-            // session.pushLineHandler(new DataCmdHandler.DataConsumerLineHandler());
             return response;
         } else {
             return new HookResult(HookReturnCode.DECLINED);

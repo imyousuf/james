@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.protocol.Configurable;
-import org.apache.james.api.protocol.LogEnabled;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.ConnectHandler;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -46,7 +45,7 @@ import org.apache.mailet.MailAddress;
 /**
   * Connect handler for DNSRBL processing
   */
-public class DNSRBLHandler implements LogEnabled, ConnectHandler, RcptHook, Configurable{
+public class DNSRBLHandler implements  ConnectHandler, RcptHook, Configurable{
     
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DNSRBLHandler.class);
@@ -70,15 +69,6 @@ public class DNSRBLHandler implements LogEnabled, ConnectHandler, RcptHook, Conf
     
     public static final String RBL_DETAIL_MAIL_ATTRIBUTE_NAME = "org.apache.james.smtpserver.rbl.detail";
 
-
-    /**
-     * Sets the service log.
-     * Where available, a context sensitive log should be used.
-     * @param Log not null
-     */
-    public void setLog(Log log) {
-        this.serviceLog = log;
-    }
     
     /**
      * Gets the DNS service.

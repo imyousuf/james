@@ -24,10 +24,7 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import javax.annotation.Resource;
-
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.CommandHandler;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
@@ -44,24 +41,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
 
     public static final String CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
 
-    private MailServer mailServer;
-    
-    /**
-     * Gets the mail server.
-     * @return the mailServer
-     */
-    public final MailServer getMailServer() {
-        return mailServer;
-    }
-
-    /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="James")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
+   
     
     /**
      * Handler method called upon receipt of a RCPT command. Reads recipient.
@@ -165,7 +145,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
             // set the default domain
             recipient = recipient
                     + "@"
-                    + mailServer.getDefaultDomain();
+                    + getDefaultDomain();
         }
 
         try {
@@ -276,4 +256,7 @@ public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> impleme
                 (MailAddress) session.getState().get(CURRENT_RECIPIENT));
     }
 
+    protected String getDefaultDomain() {
+    	return "localhost";
+    }
 }
