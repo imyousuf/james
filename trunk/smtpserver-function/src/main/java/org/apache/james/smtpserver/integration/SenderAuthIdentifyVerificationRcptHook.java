@@ -18,23 +18,15 @@
  ****************************************************************/
 package org.apache.james.smtpserver.integration;
 
-import java.util.Locale;
-
 import javax.annotation.Resource;
 
-import org.apache.james.dsn.DSNStatus;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.SMTPRetCode;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.smtpserver.protocol.hook.RcptHook;
-import org.apache.mailet.MailAddress;
+import org.apache.james.smtpserver.protocol.core.AbstractSenderAuthIdentifyVerificationRcptHook;
 
 /**
  * Handler which check if the authenticated user is incorrect
  */
-public class SenderAuthIdentifyVerificationRcptHook implements RcptHook {
+public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthIdentifyVerificationRcptHook {
 
     private MailServer mailServer;
     
@@ -54,30 +46,11 @@ public class SenderAuthIdentifyVerificationRcptHook implements RcptHook {
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
-    
+
     /**
-     * @see org.apache.james.smtpserver.protocol.hook.RcptHook#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession,
-     *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     * @see org.apache.james.smtpserver.protocol.core.AbstractSenderAuthIdentifyVerificationRcptHook#isLocalDomain(java.lang.String)
      */
-    public HookResult doRcpt(SMTPSession session, MailAddress sender,
-            MailAddress rcpt) {
-        if (session.getUser() != null) {
-            String authUser = (session.getUser()).toLowerCase(Locale.US);
-            MailAddress senderAddress = (MailAddress) session.getState().get(
-                    SMTPSession.SENDER);
-
-            if ((senderAddress == null)
-                    || (!authUser.equals(senderAddress.getLocalPart()))
-                    || (!mailServer
-                            .isLocalServer(senderAddress.getDomain()))) {
-                return new HookResult(HookReturnCode.DENY, 
-                        SMTPRetCode.BAD_SEQUENCE,
-                        DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                DSNStatus.SECURITY_AUTH)
-                                + " Incorrect Authentication for Specified Email Address");
-            }
-        }
-        return new HookResult(HookReturnCode.DECLINED);
+    protected boolean isLocalDomain(String domain) {
+        return mailServer.isLocalServer(domain);
     }
-
 }

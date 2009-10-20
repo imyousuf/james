@@ -20,27 +20,19 @@
 package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Iterator;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.protocol.Configurable;
-import org.apache.james.api.protocol.LogEnabled;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.services.FileSystem;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.RcptHook;
-import org.apache.james.util.TimeConverter;
 import org.apache.mailet.MailAddress;
 
 
@@ -49,16 +41,7 @@ import org.apache.mailet.MailAddress;
  * 
  *
  */
-public abstract class AbstractGreylistHandler implements LogEnabled, RcptHook, Configurable {
-
-    /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(AbstractGreylistHandler.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
-    private Log serviceLog = FALLBACK_LOG;
-
-
-    private FileSystem fileSystem = null;
+public abstract class AbstractGreylistHandler implements RcptHook, Configurable {
 
     /** 1 hour */
     private long tempBlockTime = 3600000;
@@ -73,35 +56,6 @@ public abstract class AbstractGreylistHandler implements LogEnabled, RcptHook, C
     private DNSService dnsService;
 
     private NetMatcher wNetworks;
-
-
-    /**
-     * Sets the service log.
-     * Where available, a context sensitive log should be used.
-     * @param Log not null
-     */
-    public void setLog(Log log) {
-        this.serviceLog = log;
-    }
-    
-    /**
-     * Gets the file system service.
-     * @return the fileSystem
-     */
-    public final FileSystem getFileSystem() {
-        return fileSystem;
-    }
-    
-    /**
-     * Sets the filesystem service
-     * 
-     * @param system The filesystem service
-     */
-    @Resource(name="filesystem")
-    public void setFileSystem(FileSystem system) {
-        this.fileSystem = system;
-    }
-  
     
     /**
      * Gets the DNS service.
@@ -120,68 +74,25 @@ public abstract class AbstractGreylistHandler implements LogEnabled, RcptHook, C
         this.dnsService = dnsService;
     }
 
-    @SuppressWarnings("unchecked")
-	public void configure(Configuration handlerConfiguration) throws ConfigurationException {
-        try {
-            setTempBlockTime(handlerConfiguration.getString("tempBlockTime"));
-        } catch (NumberFormatException e) {
-           throw new ConfigurationException(e.getMessage());
-        }
-       
     
-      
-        try {
-            setAutoWhiteListLifeTime(handlerConfiguration.getString("autoWhiteListLifeTime"));
-        } catch (NumberFormatException e) {
-            throw new ConfigurationException(e.getMessage());
-        }
-       
-
-        try {
-            setUnseenLifeTime(handlerConfiguration.getString("unseenLifeTime"));
-        } catch (NumberFormatException e) {
-            throw new ConfigurationException(e.getMessage());
-        }
-        Collection<String> nets  = handlerConfiguration.getList("whitelistedNetworks");
-        if (nets != null) {
-
-            if (nets != null) {
-                wNetworks = new NetMatcher(nets,dnsService);
-                serviceLog.info("Whitelisted addresses: " + wNetworks.toString());
-            }
-        }
+    public void setUnseenLifeTime(long unseenLifeTime) {
+        this.unseenLifeTime = unseenLifeTime;
     }
-
-    /**
-     * Setup the temporary blocking time
-     * 
-     * @param tempBlockTime
-     *            The temporary blocking time 
-     */
-    public void setTempBlockTime(String tempBlockTime) {
-        this.tempBlockTime = TimeConverter.getMilliSeconds(tempBlockTime);
+    
+    public void setAutoWhiteListLifeTime(long autoWhiteListLifeTime) {
+        this.autoWhiteListLifeTime = autoWhiteListLifeTime;
     }
-
-    /**
-     * Setup the autowhitelist lifetime for which we should whitelist a triplet.
-     * After this lifetime the record will be deleted
-     * 
-     * @param autoWhiteListLifeTime
-     *            The lifeTime 
-     */
-    public void setAutoWhiteListLifeTime(String autoWhiteListLifeTime) {
-        this.autoWhiteListLifeTime = TimeConverter.getMilliSeconds(autoWhiteListLifeTime);
+    
+    public void setTempBlockTime(long tempBlockTime) {
+        this.tempBlockTime = tempBlockTime;
     }
-
-    /**
-     * Set up the liftime of only once seen triplet. After this liftime the
-     * record will be deleted
-     * 
-     * @param unseenLifeTime
-     *            The lifetime 
-     */
-    public void setUnseenLifeTime(String unseenLifeTime) {
-        this.unseenLifeTime = TimeConverter.getMilliSeconds(unseenLifeTime);
+    
+    public void setWhiteListedNetworks(NetMatcher wNetworks) {
+        this.wNetworks = wNetworks;
+    }
+    
+    protected NetMatcher getWhiteListedNetworks() {
+        return wNetworks;
     }
 
     private HookResult doGreyListCheck(SMTPSession session, MailAddress senderAddress, MailAddress recipAddress) {
