@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.mina;
 
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -32,6 +33,7 @@ import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.configuration.JamesConfiguration;
@@ -60,6 +62,8 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
     private org.apache.commons.configuration.HierarchicalConfiguration config;
     private Injector injector;
 	private UsersRepository userRepos;
+	private DataSourceSelector dselector;
+	private VirtualUserTableStore vutStore;
    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
@@ -81,6 +85,8 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
         context = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         filesystem = (FileSystem) manager.lookup(FileSystem.ROLE);
         userRepos = (UsersRepository) manager.lookup(UsersRepository.ROLE);
+        dselector = (DataSourceSelector) manager.lookup(DataSourceSelector.ROLE);
+        vutStore = (VirtualUserTableStore) manager.lookup(VirtualUserTableStore.ROLE);
     }
 
     /**
@@ -114,7 +120,9 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
             bind(MailetContext.class).annotatedWith(Names.named("org.apache.mailet.MailetContext")).toInstance(context);
             bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(filesystem);
             bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
-            
+            bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(dselector);
+            bind(VirtualUserTableStore.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTableStore")).toInstance(vutStore);
+
             // we bind the LoaderService to an Provider to get sure everything is there when the SMTPLoaderService get created.
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
 
@@ -149,7 +157,10 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
             bind(MailServer.class).annotatedWith(Names.named("James")).toInstance(mailserver);
             bind(MailetContext.class).annotatedWith(Names.named("James")).toInstance(context);
             bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(filesystem);
+            bind(DataSourceSelector.class).annotatedWith(Names.named("database-connections")).toInstance(dselector);
             bind(UsersRepository.class).annotatedWith(Names.named("localusersrepository")).toInstance(userRepos);
+            bind(VirtualUserTableStore.class).annotatedWith(Names.named("virtualusertable-store")).toInstance(vutStore);
+
         }   
     }
 }

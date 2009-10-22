@@ -93,7 +93,7 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
      * Sets the DNS service.
      * @param dnsService the dnsService to set
      */
-    @Resource(name="dnsserver")
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }

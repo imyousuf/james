@@ -39,7 +39,7 @@ public class JamesMailCmdHandler extends MailCmdHandler{
      * Sets the mail server.
      * @param mailServer the mailServer to set
      */
-    @Resource(name="James")
+    @Resource(name="org.apache.james.services.MailServer")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

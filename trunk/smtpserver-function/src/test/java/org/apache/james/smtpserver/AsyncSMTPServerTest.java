@@ -19,11 +19,15 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.mina.AvalonAsyncSMTPServer;
@@ -44,7 +48,6 @@ public class AsyncSMTPServerTest extends SMTPServerTest {
         ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
         m_serviceManager = setUpServiceManager();
         ContainerUtil.service(m_smtpServer, m_serviceManager);
-        //m_smtpServer.setLoader(m_serviceManager);
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
@@ -60,16 +63,14 @@ public class AsyncSMTPServerTest extends SMTPServerTest {
         m_serviceManager.put(MailetContext.class.getName(), new FakeMailContext());
         m_mailServer = new MockMailServer(new MockUsersRepository());
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
-     // Phoenix loader does not understand aliases
-        m_serviceManager.put("James", m_mailServer);
-        m_serviceManager.put("localusersrepository", m_usersRepository);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
         m_dnsServer = new AlterableDNSServer();
         m_serviceManager.put(DNSService.ROLE, m_dnsServer);
-        m_serviceManager.put("dnsserver", m_dnsServer);
         m_serviceManager.put(Store.ROLE, new MockStore());
         m_serviceManager.put(FileSystem.ROLE, new MockFileSystem());
-    
+        m_serviceManager.put(VirtualUserTableStore.ROLE, new DummyVirtualUserTableStore());
+        m_serviceManager.put(DataSourceSelector.ROLE, new DummyDataSourceSelector());
+
         return m_serviceManager;
     }
     
@@ -78,5 +79,33 @@ public class AsyncSMTPServerTest extends SMTPServerTest {
         // TODO try to understand and fix it.
     }
 
+    private class DummyVirtualUserTableStore implements VirtualUserTableStore {
 
+		public VirtualUserTable getTable(String name) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+    	
+    }
+    
+    private class DummyDataSourceSelector implements DataSourceSelector {
+
+		public boolean isSelectable(Object arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public void release(Object arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public Object select(Object arg0) throws ServiceException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+    	
+    }
+
+    	
 }

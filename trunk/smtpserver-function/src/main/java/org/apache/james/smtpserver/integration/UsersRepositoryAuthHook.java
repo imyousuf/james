@@ -45,7 +45,7 @@ public class UsersRepositoryAuthHook implements AuthHook {
      * Sets the users repository.
      * @param users the users to set
      */
-    @Resource(name="localusersrepository")
+    @Resource(name="org.apache.james.api.user.UsersRepository")
     public final void setUsers(UsersRepository users) {
         this.users = users;
     }
