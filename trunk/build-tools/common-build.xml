@@ -195,6 +195,7 @@ JAMES requires Ant 1.7 or higher. Please install a more modern version of Ant.
                     <include name="${commons-dbcp.jar}"/>
                     <include name="${commons-pool.jar}"/>
                     <include name="${commons-jxpath.jar}"/>
+                    <include name="${commons-codec.jar}"/>
                     <include name="${jakarta-oro.jar}"/>
                     <include name="${excalibur-pool-api.jar}"/>
                     <include name="${excalibur-pool-impl.jar}"/>
