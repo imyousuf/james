@@ -130,7 +130,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @param datasources
      *            The datasources
      */
-    @Resource(name="database-connections")
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
     public void setDataSources(DataSourceSelector datasources) {
         this.datasources = datasources;
     }
