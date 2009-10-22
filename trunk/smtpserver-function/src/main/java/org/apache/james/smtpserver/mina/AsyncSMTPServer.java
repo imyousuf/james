@@ -21,17 +21,17 @@
 
 package org.apache.james.smtpserver.mina;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.AvalonLogger;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.smtpserver.integration.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.smtpserver.mina.filter.SMTPValidationFilter;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPServerMBean;
-import org.apache.james.socket.configuration.JamesConfiguration;
 import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
@@ -59,7 +59,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 
    
     /** Cached configuration data for handler */
-    private Configuration handlerConfiguration;
+    private HierarchicalConfiguration handlerConfiguration;
 
     /**
      * Whether authentication is required to use
@@ -108,14 +108,17 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
     private boolean addressBracketsEnforcement = true;
 
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(final Configuration configuration) throws ConfigurationException {
-        super.configure(configuration);
+    // this is only needed because of an bug in guiceyfruit
+    // http://code.google.com/p/guiceyfruit/issues/detail?id=28
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+    }
+    
+    public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
-            handlerConfiguration = configuration.getChild("handler");
-            String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
+            handlerConfiguration = configuration.configurationAt("handler");
+            String authRequiredString = handlerConfiguration.getString("authRequired","false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
             else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
             else authRequired = AUTH_DISABLED;
@@ -125,7 +128,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
                 getLogger().info("This SMTP server does not require authentication.");
             }
 
-            String authorizedAddresses = handlerConfiguration.getChild("authorizedAddresses").getValue(null);
+            String authorizedAddresses = handlerConfiguration.getString("authorizedAddresses",null);
             if (authRequired == AUTH_DISABLED && authorizedAddresses == null) {
                 /* if SMTP AUTH is not requred then we will use
                  * authorizedAddresses to determine whether or not to
@@ -160,14 +163,14 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
-            maxMessageSize = handlerConfiguration.getChild( "maxmessagesize" ).getValueAsLong( maxMessageSize ) * 1024;
+            maxMessageSize = handlerConfiguration.getLong( "maxmessagesize",maxMessageSize ) * 1024;
             if (maxMessageSize > 0) {
                 getLogger().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
             } else {
                 getLogger().info("No maximum message size is enforced for this server.");
             }
             // How many bytes to read before updating the timer that data is being transfered
-            lengthReset = configuration.getChild("lengthReset").getValueAsInteger(lengthReset);
+            lengthReset = configuration.getInt("lengthReset", lengthReset);
             if (lengthReset <= 0) {
                 throw new ConfigurationException("The configured value for the idle timeout reset, " + lengthReset + ", is not valid.");
             }
@@ -175,14 +178,14 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
 
-            heloEhloEnforcement = handlerConfiguration.getChild("heloEhloEnforcement").getValueAsBoolean(true);
+            heloEhloEnforcement = handlerConfiguration.getBoolean("heloEhloEnforcement",true);
 
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
 
             // get the smtpGreeting
-            smtpGreeting = handlerConfiguration.getChild("smtpGreeting").getValue(null);
+            smtpGreeting = handlerConfiguration.getString("smtpGreeting",null);
 
-            addressBracketsEnforcement = handlerConfiguration.getChild("addressBracketsEnforcement").getValueAsBoolean(true);
+            addressBracketsEnforcement = handlerConfiguration.getBoolean("addressBracketsEnforcement",true);
         }
     }
     
@@ -196,13 +199,13 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         handlerChain = getLoader().load(ProtocolHandlerChainImpl.class);
                       
         //set the logger
-        handlerChain.setLog(new AvalonLogger(getLogger()));
+        handlerChain.setLog(getLogger());
         
         //read from the XML configuration and create and configure each of the handlers
-        JamesConfiguration jamesConfiguration = new JamesConfiguration(handlerConfiguration.getChild("handlerchain"));
-        if (jamesConfiguration.getString("@coreHandlersPackage") == null)
-            jamesConfiguration.addProperty("/ @coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
-        handlerChain.configure(jamesConfiguration);
+        HierarchicalConfiguration handlerchainConfig = handlerConfiguration.configurationAt("handlerchain");
+        if (handlerchainConfig.getString("@coreHandlersPackage") == null)
+            handlerchainConfig.addProperty("/ @coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
+        handlerChain.configure(handlerchainConfig);
     }
 
 
@@ -339,7 +342,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         
         // response and validation filter to the chain
         builder.addLast("smtpResponseFilter", new SMTPResponseFilter());
-        builder.addLast("requestValidationFilter", new SMTPValidationFilter(new AvalonLogger(getLogger())));
+        builder.addLast("requestValidationFilter", new SMTPValidationFilter(getLogger()));
         return builder;
     }
 
@@ -349,8 +352,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
      * @see org.apache.james.socket.mina.AbstractAsyncServer#createIoHandler()
      */
     protected IoHandler createIoHandler() {
-        Log logger = new AvalonLogger(getLogger());
-        return new SMTPIoHandler(handlerChain, theConfigData,logger,getSslContextFactory());
+        return new SMTPIoHandler(handlerChain, theConfigData,getLogger(),getSslContextFactory());
     }
     
 }

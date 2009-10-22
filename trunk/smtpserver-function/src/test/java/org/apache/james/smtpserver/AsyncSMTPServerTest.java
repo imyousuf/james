@@ -26,7 +26,7 @@ import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.mina.AsyncSMTPServer;
+import org.apache.james.smtpserver.mina.AvalonAsyncSMTPServer;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
@@ -37,14 +37,14 @@ import org.apache.mailet.base.test.FakeMailContext;
 
 public class AsyncSMTPServerTest extends SMTPServerTest {
 
-    private AsyncSMTPServer m_smtpServer;
+    private AvalonAsyncSMTPServer m_smtpServer;
 
     protected void setUp() throws Exception {
-        m_smtpServer = new AsyncSMTPServer();
+        m_smtpServer = new AvalonAsyncSMTPServer();
         ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
         m_serviceManager = setUpServiceManager();
         ContainerUtil.service(m_smtpServer, m_serviceManager);
-        m_smtpServer.setLoader(m_serviceManager);
+        //m_smtpServer.setLoader(m_serviceManager);
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 

@@ -22,19 +22,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.LogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.services.FileSystem;
@@ -56,7 +50,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
  * Abstract base class for Servers which want to use async io
  *
  */
-public abstract class AbstractAsyncServer implements LogEnabled, Initializable, Serviceable, Configurable{
+public abstract class AbstractAsyncServer {
     /**
      * The default value for the connection backlog.
      */
@@ -98,7 +92,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
     /** Loads instances */
     private LoaderService loader;
 
-    private Logger logger;
+    private Log logger;
 
     private DNSService dns;
 
@@ -124,7 +118,9 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
 
     private int timeout;
 
-    private SslContextFactory contextFactory;;
+    private SslContextFactory contextFactory;
+
+    private HierarchicalConfiguration config;;
 
     /**
      * Gets the current instance loader.
@@ -143,43 +139,52 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
         this.loader = loader;
     }
     
-    public void setDNSService(DNSService dns) {
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public final void setDNSService(DNSService dns) {
         this.dns = dns;
     }
     
-    public void setFileSystem(FileSystem filesystem) {
+    @Resource(name="org.apache.james.services.FileSystem")
+    public final void setFileSystem(FileSystem filesystem) {
         this.fileSystem = filesystem;
     }
     
-    public void setMailServer(MailServer mailServer) {
+    @Resource(name="org.apache.james.services.MailServer")
+    public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
     
-    public void setMailetContext(MailetContext mailetcontext) {
+    @Resource(name="org.apache.mailet.MailetContext")
+    public final void setMailetContext(MailetContext mailetcontext) {
         this.mailetcontext = mailetcontext;
     }
 
-    
-    /**
-     * @see org.apache.avalon.framework.logger.LogEnabled#enableLogging(org.apache.avalon.framework.logger.Logger)
-     */
-    public void enableLogging(Logger logger) {
+    @Resource(name="org.apache.commons.logging.Log")
+    public final void setLog(Log logger) {
        this.logger = logger;
     }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        preInit();
-        buildSSLContextFactory();
-        SocketAcceptor acceptor = new NioSocketAcceptor();  
-        acceptor.setFilterChainBuilder(createIoFilterChainBuilder());
-        acceptor.setBacklog(backlog);
-        acceptor.setReuseAddress(true);
-        acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, timeout );
-        acceptor.setHandler(createIoHandler());
-        acceptor.bind(new InetSocketAddress(bindTo,port));
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public final void setConfiguration(HierarchicalConfiguration config) {
+        this.config = config;
+    }
+    
+    
+    @PostConstruct
+    public void init() throws Exception {
+        configure(config);
+        doConfigure(config);
+        if (isEnabled()) {
+            preInit();
+            buildSSLContextFactory();
+            SocketAcceptor acceptor = new NioSocketAcceptor();  
+            acceptor.setFilterChainBuilder(createIoFilterChainBuilder());
+            acceptor.setBacklog(backlog);
+            acceptor.setReuseAddress(true);
+            acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, timeout );
+            acceptor.setHandler(createIoHandler());
+            acceptor.bind(new InetSocketAddress(bindTo,port));
+        }
     }
 
     /**
@@ -188,6 +193,10 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
      * @throws Exception 
      */
     protected void preInit() throws Exception {
+        // override me
+    }
+    
+    protected void doConfigure(HierarchicalConfiguration config) throws Exception {
         // override me
     }
 
@@ -227,28 +236,19 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
         return fileSystem;
     }
     
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service( final ServiceManager manager ) throws ServiceException {
-        setMailetContext((MailetContext) manager.lookup("org.apache.mailet.MailetContext"));
-        setMailServer((MailServer) manager.lookup(MailServer.ROLE));
-        setDNSService((DNSService) manager.lookup(DNSService.ROLE));
-        setFileSystem((FileSystem) manager.lookup(FileSystem.ROLE));
-    }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public void configure(Configuration configuration) throws ConfigurationException {
-        enabled = configuration.getAttributeAsBoolean("enabled", true);
-        final Logger logger = getLogger();
+    private void configure(Configuration configuration) throws ConfigurationException {
+        if ((configuration instanceof HierarchicalConfiguration) == false) throw new ConfigurationException("Configuration must extend HierarchicalConfiguration");
+       
+        Configuration handlerConfiguration = ((HierarchicalConfiguration)configuration).configurationAt("handler");
+
+        enabled = configuration.getBoolean("/ @enabled", true);
+        
+        final Log logger = getLogger();
         if (!enabled) {
           logger.info(getServiceType() + " disabled by configuration");
           return;
         }
-
-        Configuration handlerConfiguration = configuration.getChild("handler");
 
         
         /*
@@ -257,7 +257,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
         setStreamDumpDir(streamdumpDir);
         */
 
-        port = configuration.getChild("port").getValueAsInteger(getDefaultPort());
+        port = configuration.getInt("port",getDefaultPort());
 
      
 
@@ -265,7 +265,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
         
 
         try {
-            final String bindAddress = configuration.getChild("bind").getValue(null);
+            final String bindAddress = configuration.getString("bind",null);
             if( null != bindAddress ) {
                 bindTo = InetAddress.getByName(bindAddress);
                 infoBuffer =
@@ -282,7 +282,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
 
         configureHelloName(handlerConfiguration);
 
-        timeout = handlerConfiguration.getChild(TIMEOUT_NAME).getValueAsInteger(DEFAULT_TIMEOUT);
+        timeout = handlerConfiguration.getInt(TIMEOUT_NAME,DEFAULT_TIMEOUT);
 
         infoBuffer =
             new StringBuilder(64)
@@ -291,7 +291,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
                     .append(timeout);
         logger.info(infoBuffer.toString());
 
-        backlog = configuration.getChild(BACKLOG_NAME).getValueAsInteger(DEFAULT_BACKLOG);
+        backlog = configuration.getInt(BACKLOG_NAME,DEFAULT_BACKLOG);
 
         infoBuffer =
                     new StringBuilder(64)
@@ -301,7 +301,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
         logger.info(infoBuffer.toString());
 
         
-        String connectionLimitString = configuration.getChild("connectionLimit").getValue(null);
+        String connectionLimitString = configuration.getString("connectionLimit",null);
         if (connectionLimitString != null) {
             try {
                 connectionLimit = new Integer(connectionLimitString);
@@ -321,7 +321,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
             }
         } 
        
-        String connectionLimitPerIP = handlerConfiguration.getChild("connectionLimitPerIP").getValue(null);
+        String connectionLimitPerIP = handlerConfiguration.getString("connectionLimitPerIP",null);
         if (connectionLimitPerIP != null) {
             try {
             connPerIP = new Integer(connectionLimitPerIP).intValue();
@@ -341,19 +341,17 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
             }
         }
        
-        
-        Configuration tlsConfig = configuration.getChild("startTLS");
-        if (tlsConfig != null) {
-            useStartTLS = tlsConfig.getAttributeAsBoolean("enable", false);
 
-            if (useStartTLS) {
-                keystore = tlsConfig.getChild("keystore").getValue(null);
-                if (keystore == null) {
-                    throw new ConfigurationException("keystore needs to get configured");
-                }
-                secret = tlsConfig.getChild("secret").getValue("");
+        useStartTLS = configuration.getBoolean("startTLS/ @enable", false);
+
+        if (useStartTLS) {
+            keystore = configuration.getString("startTLS/keystore", null);
+            if (keystore == null) {
+                throw new ConfigurationException("keystore needs to get configured");
             }
-        }        
+            secret = configuration.getString("startTLS/secret","");
+        }
+             
     }
 
     
@@ -378,19 +376,14 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
                     .append(hostName);
         getLogger().info(infoBuffer.toString());
 
-        Configuration helloConf = handlerConfiguration.getChild(HELLO_NAME);
- 
-        if (helloConf != null) {
-            boolean autodetect = helloConf.getAttributeAsBoolean("autodetect", true);
-            if (autodetect) {
-                helloName = hostName;
-            } else {
-                // Should we use the defaultdomain here ?
-                helloName = helloConf.getValue("localhost");
-            }
+        boolean autodetect = handlerConfiguration.getBoolean(HELLO_NAME + "/ @autodetect", true);
+        if (autodetect) {
+            helloName = hostName;
         } else {
-            helloName = null;
+            // Should we use the defaultdomain here ?
+            helloName = handlerConfiguration.getString(HELLO_NAME + "/localhost");
         }
+
         infoBuffer =
             new StringBuilder(64)
                     .append(getServiceType())
@@ -413,7 +406,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
      * 
      * @return logger
      */
-    protected Logger getLogger() {
+    protected Log getLogger() {
         return logger;
     }
     
@@ -492,11 +485,9 @@ public abstract class AbstractAsyncServer implements LogEnabled, Initializable, 
      */
     protected DefaultIoFilterChainBuilder createIoFilterChainBuilder() {
         ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory());
-        Log cLogger = new AvalonLogger(getLogger());
-
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         builder.addLast("protocolCodecFactory", codecFactory);
-        builder.addLast("connectionFilter", new ConnectionFilter(cLogger, connectionLimit, connPerIP));
+        builder.addLast("connectionFilter", new ConnectionFilter(getLogger(), connectionLimit, connPerIP));
         return builder;
     }
     

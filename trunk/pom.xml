@@ -1126,7 +1126,7 @@
     </dependency>
     <dependency>
       <groupId>org.guiceyfruit</groupId>
-      <artifactId>guiceyfruit-bundle</artifactId>
+      <artifactId>guiceyfruit-core</artifactId>
       <version>2.0</version>
     </dependency>
   </dependencies>
