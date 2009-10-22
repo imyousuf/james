@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.configuration.JamesConfiguration;
@@ -40,12 +41,17 @@ import org.guiceyfruit.jsr250.Jsr250Module;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 
+/**
+ * This is a bridge to the Avalon lifecycle. After everything is received it use Guice to create the real instance
+ * of AsyncSMTPServer. This way AsyncSMTPServer has no dependencies on avalon anymore
+ *
+ */
 public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Serviceable, Initializable {
 
-    private LoaderService loaderService;
     private FileSystem filesystem;
     private MailServer mailserver;
     private DNSService dns;
@@ -53,6 +59,7 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
     private Log logger;
     private org.apache.commons.configuration.HierarchicalConfiguration config;
     private Injector injector;
+	private UsersRepository userRepos;
    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
@@ -73,7 +80,7 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
         mailserver = (MailServer) manager.lookup(MailServer.ROLE);
         context = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         filesystem = (FileSystem) manager.lookup(FileSystem.ROLE);
-        loaderService = (LoaderService) manager.lookup("org.apache.james.LoaderService");
+        userRepos = (UsersRepository) manager.lookup(UsersRepository.ROLE);
     }
 
     /**
@@ -91,6 +98,10 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
         this.logger = new AvalonLogger(logger);
     }
 
+    /**
+     * This module bind all necessary injection points to the right instances
+     *
+     */
     private final class SMTPServerModule extends AbstractModule {
 
         @Override
@@ -100,9 +111,45 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
             bind(MailServer.class).annotatedWith(Names.named("org.apache.james.services.MailServer")).toInstance(mailserver);
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-            bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toInstance(loaderService);
             bind(MailetContext.class).annotatedWith(Names.named("org.apache.mailet.MailetContext")).toInstance(context);
             bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(filesystem);
+            bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
+            
+            // we bind the LoaderService to an Provider to get sure everything is there when the SMTPLoaderService get created.
+            bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
+
+				public LoaderService get() {
+				    return new SMTPLoaderService();
+				}
+				
+				// Mimic the loaderservice
+				class SMTPLoaderService implements LoaderService {
+					Injector injector = Guice.createInjector(new LoaderServiceModule(), new SMTPServerModule(), new Jsr250Module());
+
+					public <T> T load(Class<T> type) {
+						return injector.getInstance(type);
+					}
+					
+				}
+            	
+            });
+
+        }   
+    }
+    
+    /**
+     * This Module mimic the current implementation of LoaderService. It use the name of the block to find the right thing to inject
+     *
+     */
+    private final class LoaderServiceModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
+            bind(MailServer.class).annotatedWith(Names.named("James")).toInstance(mailserver);
+            bind(MailetContext.class).annotatedWith(Names.named("James")).toInstance(context);
+            bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(filesystem);
+            bind(UsersRepository.class).annotatedWith(Names.named("localusersrepository")).toInstance(userRepos);
         }   
     }
 }
