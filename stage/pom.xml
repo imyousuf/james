@@ -397,7 +397,7 @@
     </dependency>
     <dependency>
       <groupId>org.guiceyfruit</groupId>
-      <artifactId>guiceyfruit-bundle</artifactId>
+      <artifactId>guiceyfruit-core</artifactId>
     </dependency>
   </dependencies>
   
