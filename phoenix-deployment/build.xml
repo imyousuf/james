@@ -555,6 +555,15 @@
 			<lib dir="${lib.dir}/${path.lib.commonsdbcp}" includes="${jarname.commons-dbcp.jar}" />
 			<lib dir="${lib.dir}/${path.lib.commonspool}" includes="${jarname.commons-pool.jar}" />
 			<lib dir="${lib.dir}/${path.lib.commonsjxpath}" includes="${jarname.commons-jxpath.jar}" />
+			<lib dir="${lib.dir}/${path.lib.commonscodec}" includes="${jarname.commons-codec.jar}" />
+			<lib dir="${lib.dir}/${path.lib.guice}" includes="${jarname.guice.jar}" />
+			<lib dir="${lib.dir}/${path.lib.guiceyfruit}" includes="${jarname.guiceyfruit-core.jar}" />
+			<lib dir="${lib.dir}/${path.lib.springaopalliance}" includes="${jarname.spring-aopalliance.jar}" />		
+		    <lib dir="${lib.dir}/${path.lib.mina}" includes="${jarname.mina-core.jar}" />
+		    <lib dir="${lib.dir}/${path.lib.slf4j}" includes="${jarname.slf4j-api.jar}" />
+		    <lib dir="${lib.dir}/${path.lib.slf4j}" includes="${jarname.slf4j-log4j.jar}" />
+		    <lib dir="${lib.dir}/${path.lib.log4j}" includes="${jarname.log4j.jar}" />
+
 			<lib dir="${lib.dir}/${path.lib.excaliburthread}" includes="${jarname.excalibur-thread-api.jar}" />
 			<lib dir="${lib.dir}/${path.lib.excaliburthread}" includes="${jarname.excalibur-thread-impl.jar}" />
 			<lib dir="${lib.dir}/${path.lib.excaliburpool}" includes="${jarname.excalibur-pool-api.jar}" />

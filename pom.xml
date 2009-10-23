@@ -1129,6 +1129,12 @@
       <artifactId>guiceyfruit-core</artifactId>
       <version>2.0</version>
     </dependency>
+    <dependency>
+      <groupId>spring-aopalliance</groupId>
+      <artifactId>spring-aopalliance</artifactId>
+      <version>1.0</version>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
   </dependencyManagement>
 
