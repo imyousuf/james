@@ -152,13 +152,31 @@
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
-    <provide name="database-connections"
+    <provide name="database-connections"213
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
     <provide name="defaultvirtualusertable"
              role="org.apache.james.api.vut.VirtualUserTable" />
     <proxy disable='true'/>
   </block>
+  
+  <!-- Async SMTP Server -->
+  <!-- enable this to use the MINA based SMTP Server which uses NIO -->
+  <!-- 
+  <block name="smtpserver" class="org.apache.james.smtpserver.mina.AvalonAsyncSMTPServer" >
+    <provide name="James" role="org.apache.mailet.MailetContext"/>
+    <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
+    <provide name="filesystem" role="org.apache.james.services.FileSystem" />
+    <provide name="defaultvirtualusertable"
+             role="org.apache.james.api.vut.VirtualUserTable" />
+    <provide name="virtualusertable-store" role="org.apache.james.api.vut.VirtualUserTableStore"/>
+    <proxy disable='true'/>
+  </block>
+  -->
 
   <!-- NNTP Server -->
   <block name="nntpserver" class="org.apache.james.nntpserver.NNTPServer" >

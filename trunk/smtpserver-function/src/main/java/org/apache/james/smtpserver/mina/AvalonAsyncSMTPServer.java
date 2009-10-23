@@ -36,6 +36,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.protocol.SMTPServerMBean;
 import org.apache.james.socket.configuration.JamesConfiguration;
 import org.apache.mailet.MailetContext;
 import org.guiceyfruit.jsr250.Jsr250Module;
@@ -52,8 +53,9 @@ import com.google.inject.name.Names;
  * of AsyncSMTPServer. This way AsyncSMTPServer has no dependencies on avalon anymore
  *
  */
-public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Serviceable, Initializable, GuiceInjected {
+public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Serviceable, Initializable, GuiceInjected,SMTPServerMBean {
 
+    private AsyncSMTPServer smtpserver;
     private FileSystem filesystem;
     private MailServer mailserver;
     private DNSService dns;
@@ -94,7 +96,7 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
      */
     public void initialize() throws Exception {
         injector = Guice.createInjector(new SMTPServerModule(), new Jsr250Module());
-        injector.getInstance(AsyncSMTPServer.class);
+        smtpserver = injector.getInstance(AsyncSMTPServer.class);
     }
                  
     /**
@@ -162,5 +164,33 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
             bind(VirtualUserTableStore.class).annotatedWith(Names.named("virtualusertable-store")).toInstance(vutStore);
 
         }   
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#getNetworkInterface()
+     */
+    public String getNetworkInterface() {
+        return smtpserver.getNetworkInterface();
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#getPort()
+     */
+    public int getPort() {
+        return smtpserver.getPort();
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#getSocketType()
+     */
+    public String getSocketType() {
+        return smtpserver.getSocketType();
+    }
+
+    /**
+     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#isEnabled()
+     */
+    public boolean isEnabled() {
+        return smtpserver.isEnabled();
     }
 }

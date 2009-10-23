@@ -399,6 +399,11 @@
       <groupId>org.guiceyfruit</groupId>
       <artifactId>guiceyfruit-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>spring-aopalliance</groupId>
+      <artifactId>spring-aopalliance</artifactId>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
   
   <build>
