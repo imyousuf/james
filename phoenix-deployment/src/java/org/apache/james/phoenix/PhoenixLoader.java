@@ -33,6 +33,7 @@ import org.apache.avalon.phoenix.ApplicationEvent;
 import org.apache.avalon.phoenix.ApplicationListener;
 import org.apache.avalon.phoenix.BlockEvent;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.smtpserver.mina.GuiceInjected;
 
 public class PhoenixLoader implements LoaderService, ApplicationListener, LogEnabled {
 
@@ -62,12 +63,19 @@ public class PhoenixLoader implements LoaderService, ApplicationListener, LogEna
      */
     public void applicationStarted() {
         for (Object resource : servicesByName.values()) {
-            injectResources(resource);
+            
+            // Only handle injection if it not use guice already 
+            if ((resource instanceof GuiceInjected) == false) {
+                injectResources(resource);
+            }
         }
         
         try {
             for (Object resource : servicesByName.values()) {
-                postConstruct(resource);
+                // Only handle injection if it not use guice already 
+                if ((resource instanceof GuiceInjected) == false) {
+                    postConstruct(resource);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Initialisation failed", e);
