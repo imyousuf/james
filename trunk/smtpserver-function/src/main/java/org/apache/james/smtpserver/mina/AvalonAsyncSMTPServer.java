@@ -52,7 +52,7 @@ import com.google.inject.name.Names;
  * of AsyncSMTPServer. This way AsyncSMTPServer has no dependencies on avalon anymore
  *
  */
-public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Serviceable, Initializable {
+public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Serviceable, Initializable, GuiceInjected {
 
     private FileSystem filesystem;
     private MailServer mailserver;
