@@ -98,6 +98,7 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
         this.dnsService = dnsService;
     }
     
+    
 
     
     /**

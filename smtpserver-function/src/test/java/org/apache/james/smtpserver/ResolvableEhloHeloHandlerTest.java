@@ -33,6 +33,7 @@ import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.ResolvableEhloHeloHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
@@ -80,7 +81,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         return session;
     }
     
-    private DNSService setupMockDNSServer() {
+    private SMTPServerDNSServiceAdapter setupMockDNSServer() {
     	DNSService dns = new AbstractDNSServer(){
             public InetAddress getByName(String host) throws UnknownHostException {
                 if (host.equals(INVALID_HOST)) 
@@ -89,7 +90,9 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
             }
         };
         
-        return dns;
+        SMTPServerDNSServiceAdapter adapter = new SMTPServerDNSServiceAdapter();
+        adapter.setDNSService(dns);
+        return adapter;
     }
     
     public void testRejectInvalidHelo() throws ParseException {

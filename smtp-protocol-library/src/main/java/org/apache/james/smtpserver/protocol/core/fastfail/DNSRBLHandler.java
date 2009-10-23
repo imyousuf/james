@@ -32,10 +32,10 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.protocol.Configurable;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.ConnectHandler;
+import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
@@ -82,7 +82,7 @@ public class DNSRBLHandler implements  ConnectHandler, RcptHook, Configurable{
      * Sets the DNS service.
      * @param dnsService the dnsService to set
      */
-    @Resource(name="dnsserver")
+    @Resource(name="org.apache.james.smtpserver.protocol.DNSService")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }
@@ -222,7 +222,7 @@ public class DNSRBLHandler implements  ConnectHandler, RcptHook, Configurable{
                     
                     // we should try to retrieve details
                     if (getDetail) {
-                        Collection txt = dnsService.findTXTRecords(reversedOctets + rblList[i]);
+                        Collection<String> txt = dnsService.findTXTRecords(reversedOctets + rblList[i]);
                         
                         // Check if we found a txt record
                         if (!txt.isEmpty()) {

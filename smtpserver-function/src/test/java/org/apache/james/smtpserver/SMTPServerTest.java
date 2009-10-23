@@ -49,6 +49,7 @@ import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -217,7 +218,10 @@ public class SMTPServerTest extends TestCase {
         m_serviceManager.put("dnsserver", m_dnsServer);
         m_serviceManager.put(Store.ROLE, new MockStore());
         m_serviceManager.put(FileSystem.ROLE, new MockFileSystem());
-    
+        
+        SMTPServerDNSServiceAdapter dnsAdapter = new SMTPServerDNSServiceAdapter();
+        dnsAdapter.setDNSService(m_dnsServer);
+        m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
         return m_serviceManager;
     }
 

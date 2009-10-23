@@ -40,7 +40,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.DNSRBLHandler;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -48,7 +48,7 @@ import org.apache.mailet.MailAddress;
 
 public class DNSRBLHandlerTest extends TestCase {
 
-    private DNSService mockedDnsServer;
+    private SMTPServerDNSServiceAdapter mockedDnsServer;
 
     private SMTPSession mockedSMTPSession;
 
@@ -89,7 +89,7 @@ public class DNSRBLHandlerTest extends TestCase {
      *
      */
     private void setupMockedDnsServer() {
-        mockedDnsServer = new AbstractDNSServer() {
+        org.apache.james.api.dnsservice.DNSService dns  = new AbstractDNSServer() {
 
             public Collection findMXRecords(String hostname) {
                 throw new UnsupportedOperationException("Unimplemented in mock");
@@ -119,6 +119,9 @@ public class DNSRBLHandlerTest extends TestCase {
                 throw new UnsupportedOperationException("getByName("+host+") not implemented in DNSRBLHandlerTest mock");
             }
         };
+        
+        mockedDnsServer = new SMTPServerDNSServiceAdapter();
+        mockedDnsServer.setDNSService(dns);
     }
 
     /**

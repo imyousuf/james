@@ -66,6 +66,7 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
 	private UsersRepository userRepos;
 	private DataSourceSelector dselector;
 	private VirtualUserTableStore vutStore;
+    private org.apache.james.smtpserver.protocol.DNSService dnsServiceAdapter;
    
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
@@ -89,6 +90,7 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
         userRepos = (UsersRepository) manager.lookup(UsersRepository.ROLE);
         dselector = (DataSourceSelector) manager.lookup(DataSourceSelector.ROLE);
         vutStore = (VirtualUserTableStore) manager.lookup(VirtualUserTableStore.ROLE);
+        dnsServiceAdapter = (org.apache.james.smtpserver.protocol.DNSService) manager.lookup("org.apache.james.smtpserver.protocol.DNSService");
     }
 
     /**
@@ -116,6 +118,7 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
         protected void configure() {
             bind(AsyncSMTPServer.class).in(Singleton.class);
             bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
+            bind(org.apache.james.smtpserver.protocol.DNSService.class).annotatedWith(Names.named("org.apache.james.smtpserver.protocol.DNSService")).toInstance(dnsServiceAdapter);
             bind(MailServer.class).annotatedWith(Names.named("org.apache.james.services.MailServer")).toInstance(mailserver);
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
