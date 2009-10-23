@@ -42,13 +42,18 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.protocol.LogEnabled;
 import org.apache.james.services.FileSystem;
+import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler;
+import org.apache.james.smtpserver.protocol.hook.HookResult;
+import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.util.TimeConverter;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
+import org.apache.mailet.MailAddress;
 
 /**
  * GreylistHandler which can be used to activate Greylisting
@@ -97,7 +102,13 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * The repositoryPath
      */
     private String repositoryPath;
+
+    private DNSService dnsService;
     
+
+    private NetMatcher wNetworks;
+    
+
     
     /**
      * Gets the file system service.
@@ -112,7 +123,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * 
      * @param system The filesystem service
      */
-    @Resource(name="filesystem")
+    @Resource(name="org.apache.james.services.FileSystem")
     public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
@@ -178,6 +189,21 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
         setUnseenLifeTime(TimeConverter.getMilliSeconds(unseenLifeTime));
     }
     
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public final void setDNSService(DNSService dnsService) {
+        this.dnsService = dnsService;
+    }
+    
+    
+    public void setWhiteListedNetworks(NetMatcher wNetworks) {
+        this.wNetworks = wNetworks;
+    }
+    
+    protected NetMatcher getWhiteListedNetworks() {
+        return wNetworks;
+    }
+    
+    
     /**
      * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#configure(org.apache.commons.configuration.Configuration)
      */
@@ -207,7 +233,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
         if (nets != null) {
 
             if (nets != null) {
-                setWhiteListedNetworks( new NetMatcher(nets,getDNSService()));
+                setWhiteListedNetworks( new NetMatcher(nets ,dnsService));
                 serviceLog.info("Whitelisted addresses: " + getWhiteListedNetworks().toString());
             }
         }    	
@@ -493,6 +519,19 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
             theJDBCUtil.closeJDBCStatement(createStatement);
         }
         return true;
+    }
+
+    
+    /**
+     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     */
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
+        if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
+            return super.doRcpt(session, sender, rcpt);
+        } else {
+            session.getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
+        }
+        return new HookResult(HookReturnCode.DECLINED);
     }
 
     /**

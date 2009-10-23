@@ -24,8 +24,6 @@ import java.util.Iterator;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.protocol.Configurable;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
@@ -53,27 +51,6 @@ public abstract class AbstractGreylistHandler implements RcptHook, Configurable 
     private long unseenLifeTime = 14400000;
 
 
-    private DNSService dnsService;
-
-    private NetMatcher wNetworks;
-    
-    /**
-     * Gets the DNS service.
-     * @return the dnsService
-     */
-    public final DNSService getDNSService() {
-        return dnsService;
-    }
-
-    /**
-     * Sets the DNS service.
-     * @param dnsService the dnsService to set
-     */
-    @Resource(name="dnsserver")
-    public final void setDNSService(DNSService dnsService) {
-        this.dnsService = dnsService;
-    }
-
     
     public void setUnseenLifeTime(long unseenLifeTime) {
         this.unseenLifeTime = unseenLifeTime;
@@ -86,14 +63,7 @@ public abstract class AbstractGreylistHandler implements RcptHook, Configurable 
     public void setTempBlockTime(long tempBlockTime) {
         this.tempBlockTime = tempBlockTime;
     }
-    
-    public void setWhiteListedNetworks(NetMatcher wNetworks) {
-        this.wNetworks = wNetworks;
-    }
-    
-    protected NetMatcher getWhiteListedNetworks() {
-        return wNetworks;
-    }
+
 
     private HookResult doGreyListCheck(SMTPSession session, MailAddress senderAddress, MailAddress recipAddress) {
         String recip = "";
@@ -240,12 +210,7 @@ public abstract class AbstractGreylistHandler implements RcptHook, Configurable 
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         if (!session.isRelayingAllowed()) {
-
-            if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {
-                return doGreyListCheck(session, sender,rcpt);
-            } else {
-                session.getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is whitelisted. Skip greylisting.");
-            }
+            return doGreyListCheck(session, sender,rcpt);
         } else {
             session.getLogger().info("IpAddress " + session.getRemoteIPAddress() + " is allowed to send. Skip greylisting.");
         }

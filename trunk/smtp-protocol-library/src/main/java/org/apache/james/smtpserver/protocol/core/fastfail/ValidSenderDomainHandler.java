@@ -24,12 +24,12 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.protocol.Configurable;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
+import org.apache.james.smtpserver.protocol.TemporaryResolutionException;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.MailHook;
@@ -56,7 +56,7 @@ public class ValidSenderDomainHandler implements MailHook, Configurable {
      * Sets the DNS service.
      * @param dnsService the dnsService to set
      */
-    @Resource(name="dnsserver")
+    @Resource(name="org.apache.james.smtpserver.protocol.DNSService")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }
@@ -90,7 +90,7 @@ public class ValidSenderDomainHandler implements MailHook, Configurable {
         	return false;
         }
 
-        Collection records = null;
+        Collection<String> records = null;
             
         // try to resolv the provided domain in the senderaddress. If it can not resolved do not accept it.
         try {

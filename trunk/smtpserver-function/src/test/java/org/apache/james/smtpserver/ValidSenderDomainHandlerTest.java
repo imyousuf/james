@@ -31,6 +31,7 @@ import junit.framework.TestCase;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.ValidSenderDomainHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
@@ -39,7 +40,7 @@ import org.apache.mailet.MailAddress;
 
 public class ValidSenderDomainHandlerTest extends TestCase {
     
-    private DNSService setupDNSServer() {
+    private SMTPServerDNSServiceAdapter setupDNSServer() {
     	DNSService dns = new AbstractDNSServer(){
 
             public Collection findMXRecords(String hostname) {
@@ -51,7 +52,9 @@ public class ValidSenderDomainHandlerTest extends TestCase {
             }
             
         };
-        return dns;
+        SMTPServerDNSServiceAdapter adapter = new SMTPServerDNSServiceAdapter();
+        adapter.setDNSService(dns);
+        return adapter;
     }
     
     private SMTPSession setupMockedSession(final MailAddress sender) {

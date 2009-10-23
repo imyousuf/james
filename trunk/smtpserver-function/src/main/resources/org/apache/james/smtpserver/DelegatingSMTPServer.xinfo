@@ -40,6 +40,9 @@
       <service name="org.apache.james.api.dnsservice.DNSService" version="1.0"/>
     </dependency>
     <dependency>
+      <service name="org.apache.james.smtpserver.protocol.DNSService" version="1.0"/>
+    </dependency>
+    <dependency>
       <service name="org.apache.james.socket.JamesConnectionManager" version="1.0"/>
     </dependency>
     <dependency>

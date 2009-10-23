@@ -40,13 +40,53 @@ public class PhoenixLoader implements LoaderService, ApplicationListener, LogEna
     private Logger logger;
     
     private final Map<String, Object> servicesByName;
-
+    private final Map<String, String> nameMappings;
     public PhoenixLoader() {
-        servicesByName = new HashMap<String, Object>();
+        nameMappings = new HashMap<String, String>();
+        setupNameMappings();
+        servicesByName = new HashMap<String, Object>();     
         servicesByName.put("org.apache.james.LoaderService", this);
     }
     
+    /**
+     * This is really a ugly thing put it let us refactor step by step
+     */
+    private void setupNameMappings() {
+        nameMappings.put("org.apache.james.services.MailServer", "James");
+        nameMappings.put("org.apache.mailet.MailetContext", "James");
+        nameMappings.put("org.apache.james.services.FileSystem", "filesystem");
+        nameMappings.put("org.apache.james.api.dnsservice.DNSService", "dnsserver");
+        nameMappings.put("org.apache.james.services.MailServer", "James");
+        nameMappings.put("org.apache.james.api.user.UsersRepository", "localusersrepository");
+        nameMappings.put("org.apache.james.services.SpoolRepository", "spoolrepository");
+        nameMappings.put("org.apache.james.api.domainlist.DomainList", "domainlist");
+        nameMappings.put("org.apache.avalon.cornerstone.services.sockets.SocketManager", "sockets");
+        nameMappings.put("org.apache.james.services.SpoolRepository", "spoolrepository");
+        nameMappings.put("org.apache.avalon.cornerstone.services.scheduler.TimeScheduler", "scheduler");
+        nameMappings.put("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector", "database-connections");
+        nameMappings.put("org.apache.james.api.vut.VirtualUserTable", "defaultvirtualusertable");
+        nameMappings.put("org.apache.james.transport.MatcherLoader", "matcherpackages");
+        nameMappings.put("org.apache.james.transport.MailetLoader", "mailetpackages");
+        nameMappings.put("org.apache.avalon.cornerstone.services.store.Store", "mailstore");
+        nameMappings.put("org.apache.james.transport.MatcherLoader", "matcherpackages");
+        nameMappings.put("org.apache.james.api.user.UsersStore", "users-store");
+
+
+        nameMappings.put("org.apache.james.socket.JamesConnectionManager", "connections");
+        nameMappings.put("org.apache.avalon.cornerstone.services.threads.ThreadManager", "thread-manager");
+        nameMappings.put("org.apache.james.management.SpoolManagementService", "spoolmanagement");
+        nameMappings.put("org.apache.james.management.BayesianAnalyzerManagementService", "bayesiananalyzermanagement");
+        nameMappings.put("org.apache.james.management.ProcessorManagementService", "processormanagement");
+
+        nameMappings.put("org.apache.james.api.vut.management.VirtualUserTableManagementService", "virtualusertablemanagement");
+        nameMappings.put("org.apache.james.management.DomainListManagementService", "domainlistmanagement");
+    }
+    
     public Object get(String name) {
+        // re-map if needed
+        if (nameMappings.containsKey(name)) {
+            name = nameMappings.get(name);
+        }
         Object service = servicesByName.get(name);
         return service;
     }

@@ -145,6 +145,7 @@
     <provide name="James" role="org.apache.mailet.MailetContext"/>
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
+    <provide name="org.apache.james.smtpserver.protocol.DNSService" role="org.apache.james.smtpserver.protocol.DNSService"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
     <provide name="connections"
@@ -152,7 +153,7 @@
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
-    <provide name="database-connections"213
+    <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
     <provide name="defaultvirtualusertable"
@@ -166,7 +167,8 @@
   <block name="smtpserver" class="org.apache.james.smtpserver.mina.AvalonAsyncSMTPServer" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
-    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
+    <provide name="org.apache.james.smtpserver.protocol.DNSService" role="org.apache.james.smtpserver.protocol.DNSService"/>
+    <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>    
     <provide name="James" role="org.apache.james.services.MailServer"/>
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
@@ -178,6 +180,10 @@
   </block>
   -->
 
+  <block name="org.apache.james.smtpserver.protocol.DNSService" class="org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter" >
+    <proxy disable='true'/>
+  </block>
+  
   <!-- NNTP Server -->
   <block name="nntpserver" class="org.apache.james.nntpserver.NNTPServer" >
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>

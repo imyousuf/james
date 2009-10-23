@@ -30,6 +30,7 @@ import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.smtpserver.mina.AvalonAsyncSMTPServer;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
@@ -70,7 +71,10 @@ public class AsyncSMTPServerTest extends SMTPServerTest {
         m_serviceManager.put(FileSystem.ROLE, new MockFileSystem());
         m_serviceManager.put(VirtualUserTableStore.ROLE, new DummyVirtualUserTableStore());
         m_serviceManager.put(DataSourceSelector.ROLE, new DummyDataSourceSelector());
-
+        
+        SMTPServerDNSServiceAdapter dnsAdapter = new SMTPServerDNSServiceAdapter();
+        dnsAdapter.setDNSService(m_dnsServer);
+        m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
         return m_serviceManager;
     }
     
