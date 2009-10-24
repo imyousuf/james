@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.socket.configuration;
+package org.apache.james.util;
 
 import java.io.ByteArrayInputStream;
 import org.apache.avalon.framework.configuration.ConfigurationUtil;
@@ -29,11 +29,11 @@ import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 /**
  * Bridges commons configuration to Avalon.
  */
-public class JamesConfiguration extends XMLConfiguration {
+public class ConfigurationConverter extends XMLConfiguration {
 
 	private static final long serialVersionUID = 6920719067623856243L;
 
-	public JamesConfiguration(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
+	public ConfigurationConverter(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
 		String config = ConfigurationUtil.toString(avalonConfig);
 		load(new ByteArrayInputStream(config.getBytes()));
 		
