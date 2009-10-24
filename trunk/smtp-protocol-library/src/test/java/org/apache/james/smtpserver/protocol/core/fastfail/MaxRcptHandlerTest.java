@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,13 +29,10 @@ import javax.mail.internet.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.MaxRcptHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.smtpserver.protocol.hook.RcptHook;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
 
 
@@ -44,9 +41,9 @@ public class MaxRcptHandlerTest extends TestCase{
     
     private SMTPSession setupMockedSession(final int rcptCount) {
         SMTPSession session = new BaseFakeSMTPSession() {
-            HashMap state = new HashMap();
+            HashMap<String,Object> state = new HashMap<String,Object>();
 
-            public Map getState() {
+            public Map<String,Object> getState() {
                 return state;
             }
             
@@ -65,10 +62,7 @@ public class MaxRcptHandlerTest extends TestCase{
     public void testRejectMaxRcpt() throws ParseException {
         SMTPSession session = setupMockedSession(3);
         MaxRcptHandler handler = new MaxRcptHandler();
-    
-        ContainerUtil.enableLogging(handler,new MockLogger());
-    
-        //handler.setAction("reject");
+        
         handler.setMaxRcpt(2);
         int resp = handler.doRcpt(session,null,new MailAddress("test@test")).getResult();
     
@@ -78,10 +72,7 @@ public class MaxRcptHandlerTest extends TestCase{
     
     public void testNotRejectMaxRcpt() throws ParseException {
         SMTPSession session = setupMockedSession(3);
-        MaxRcptHandler handler = new MaxRcptHandler();
-    
-        ContainerUtil.enableLogging(handler,new MockLogger());
-    
+        MaxRcptHandler handler = new MaxRcptHandler();    
 
         handler.setMaxRcpt(4);
         int resp = handler.doRcpt(session,null,new MailAddress("test@test")).getResult();
