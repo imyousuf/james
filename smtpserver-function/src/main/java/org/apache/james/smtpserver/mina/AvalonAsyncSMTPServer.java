@@ -37,7 +37,7 @@ import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.SMTPServerMBean;
-import org.apache.james.socket.configuration.JamesConfiguration;
+import org.apache.james.util.ConfigurationConverter;
 import org.apache.mailet.MailetContext;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
@@ -73,7 +73,7 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
      */
     public void configure(Configuration config) throws ConfigurationException {
         try {
-            this.config = new JamesConfiguration(config);
+            this.config = new ConfigurationConverter(config);
         } catch (org.apache.commons.configuration.ConfigurationException e) {
             throw new ConfigurationException("Unable to convert configuration", e);
         }

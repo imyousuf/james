@@ -33,8 +33,8 @@ import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
-import org.apache.james.socket.configuration.JamesConfiguration;
 import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
+import org.apache.james.util.ConfigurationConverter;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
@@ -131,7 +131,7 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         handlerChain.setLog(new AvalonLogger(getLogger()));
         
         //read from the XML configuration and create and configure each of the handlers
-        JamesConfiguration jamesConfiguration = new JamesConfiguration(handlerConfiguration.getChild("handlerchain"));
+        ConfigurationConverter jamesConfiguration = new ConfigurationConverter(handlerConfiguration.getChild("handlerchain"));
         if (jamesConfiguration.getString("@coreHandlersPackage") == null)
             jamesConfiguration.addProperty("/ @coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
         handlerChain.configure(jamesConfiguration);
