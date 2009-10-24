@@ -42,6 +42,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.integration.URIRBLHandler;
+import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;

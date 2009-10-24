@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -36,19 +36,17 @@ import javax.mail.internet.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
+import org.apache.james.smtpserver.protocol.BaseFakeDNSService;
+import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
+import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.fastfail.DNSRBLHandler;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
 
 public class DNSRBLHandlerTest extends TestCase {
 
-    private SMTPServerDNSServiceAdapter mockedDnsServer;
+    private DNSService mockedDnsServer;
 
     private SMTPSession mockedSMTPSession;
 
@@ -89,14 +87,10 @@ public class DNSRBLHandlerTest extends TestCase {
      *
      */
     private void setupMockedDnsServer() {
-        org.apache.james.api.dnsservice.DNSService dns  = new AbstractDNSServer() {
+        mockedDnsServer  = new BaseFakeDNSService() {
 
-            public Collection findMXRecords(String hostname) {
-                throw new UnsupportedOperationException("Unimplemented in mock");
-            }
-
-            public Collection findTXTRecords(String hostname) {
-                List res = new ArrayList();
+            public Collection<String> findTXTRecords(String hostname) {
+                List<String> res = new ArrayList<String>();
                 if (hostname == null) {
                     return res;
                 }
@@ -120,8 +114,6 @@ public class DNSRBLHandlerTest extends TestCase {
             }
         };
         
-        mockedDnsServer = new SMTPServerDNSServiceAdapter();
-        mockedDnsServer.setDNSService(dns);
     }
 
     /**
@@ -162,9 +154,7 @@ public class DNSRBLHandlerTest extends TestCase {
     // ip is blacklisted and has txt details
     public void testBlackListedTextPresent() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
-
-        ContainerUtil.enableLogging(rbl, new MockLogger());
-
+       
         setupMockedSMTPSession(new MailAddress("any@domain"));
         rbl.setDNSService(mockedDnsServer);
 
@@ -179,9 +169,6 @@ public class DNSRBLHandlerTest extends TestCase {
     // ip is blacklisted and has txt details but we don'T want to retrieve the txt record
     public void testGetNoDetail() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
-
-        ContainerUtil.enableLogging(rbl, new MockLogger());
-
         setupMockedSMTPSession(new MailAddress("any@domain"));
         rbl.setDNSService(mockedDnsServer);
 
@@ -195,9 +182,6 @@ public class DNSRBLHandlerTest extends TestCase {
     // ip is allowed to relay
     public void testRelayAllowed() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
-
-        ContainerUtil.enableLogging(rbl, new MockLogger());
-
         setRelayingAllowed(true);
         setupMockedSMTPSession(new MailAddress("any@domain"));
 
@@ -214,7 +198,6 @@ public class DNSRBLHandlerTest extends TestCase {
     public void testNotBlackListed() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
-        ContainerUtil.enableLogging(rbl, new MockLogger());
         setRemoteIp("192.168.0.1");
         setupMockedSMTPSession(new MailAddress("any@domain"));
 
@@ -231,7 +214,6 @@ public class DNSRBLHandlerTest extends TestCase {
     public void testBlackListedNoTxt() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
-        ContainerUtil.enableLogging(rbl, new MockLogger());
         setRemoteIp("127.0.0.3");
         setupMockedSMTPSession(new MailAddress("any@domain"));
 
@@ -248,7 +230,6 @@ public class DNSRBLHandlerTest extends TestCase {
     public void testWhiteListed() throws ParseException {
         DNSRBLHandler rbl = new DNSRBLHandler();
 
-        ContainerUtil.enableLogging(rbl, new MockLogger());
         setRemoteIp("127.0.0.2");
         setupMockedSMTPSession(new MailAddress("any@domain"));
 

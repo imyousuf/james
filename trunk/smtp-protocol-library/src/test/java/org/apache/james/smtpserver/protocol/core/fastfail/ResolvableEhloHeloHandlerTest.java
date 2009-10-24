@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -30,14 +30,12 @@ import javax.mail.internet.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
+import org.apache.james.smtpserver.protocol.BaseFakeDNSService;
+import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
+import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.ResolvableEhloHeloHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
 
 public class ResolvableEhloHeloHandlerTest extends TestCase {
@@ -81,8 +79,8 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         return session;
     }
     
-    private SMTPServerDNSServiceAdapter setupMockDNSServer() {
-    	DNSService dns = new AbstractDNSServer(){
+    private DNSService setupMockDNSServer() {
+    	DNSService dns = new BaseFakeDNSService(){
             public InetAddress getByName(String host) throws UnknownHostException {
                 if (host.equals(INVALID_HOST)) 
                     throw new UnknownHostException();
@@ -90,18 +88,13 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
             }
         };
         
-        SMTPServerDNSServiceAdapter adapter = new SMTPServerDNSServiceAdapter();
-        adapter.setDNSService(dns);
-        return adapter;
+        return dns;
     }
     
     public void testRejectInvalidHelo() throws ParseException {
         MailAddress mailAddress = new MailAddress("test@localhost");
         SMTPSession session = setupMockSession(INVALID_HOST,false,false,null,mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
         handler.setDNSService(setupMockDNSServer());
         
         handler.doHelo(session, INVALID_HOST);
@@ -116,9 +109,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         MailAddress mailAddress = new MailAddress("test@localhost");
         SMTPSession session = setupMockSession(VALID_HOST,false,false,null,mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
+                
         handler.setDNSService(setupMockDNSServer());
   
         handler.doHelo(session, VALID_HOST);
@@ -152,9 +143,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         MailAddress mailAddress = new MailAddress("test@localhost");
         SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
+                
         handler.setDNSService(setupMockDNSServer());
 
         handler.doHelo(session, INVALID_HOST);
@@ -169,9 +158,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         MailAddress mailAddress = new MailAddress("test@localhost");
         SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
+                
         handler.setDNSService(setupMockDNSServer());
         
 
@@ -187,7 +174,6 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,mailAddress);
         ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
         
-        ContainerUtil.enableLogging(handler,new MockLogger());
         
         handler.setDNSService(setupMockDNSServer());
         handler.setCheckAuthNetworks(true);

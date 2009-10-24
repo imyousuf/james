@@ -31,6 +31,7 @@ import junit.framework.TestCase;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.integration.SpamAssassinHandler;
+import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;

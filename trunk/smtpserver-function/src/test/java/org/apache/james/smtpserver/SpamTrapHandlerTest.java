@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import javax.mail.internet.ParseException;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.SpamTrapHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
