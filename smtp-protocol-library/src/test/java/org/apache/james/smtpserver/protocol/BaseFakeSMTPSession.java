@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.protocol;
 
 import java.io.IOException;
 import java.util.Map;

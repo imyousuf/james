@@ -29,6 +29,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.jspf.core.DNSRequest;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.jspf.core.exceptions.TimeoutException;
+import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.SPFHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
