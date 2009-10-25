@@ -29,11 +29,11 @@ import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 /**
  * Bridges commons configuration to Avalon.
  */
-public class ConfigurationConverter extends XMLConfiguration {
+public class ConfigurationAdapter extends XMLConfiguration {
 
 	private static final long serialVersionUID = 6920719067623856243L;
 
-	public ConfigurationConverter(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
+	public ConfigurationAdapter(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
 		String config = ConfigurationUtil.toString(avalonConfig);
 		load(new ByteArrayInputStream(config.getBytes()));
 		

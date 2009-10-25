@@ -50,8 +50,8 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         SMTPSession session = new BaseFakeSMTPSession() {
 
-            HashMap connectionMap = new HashMap();
-            HashMap map = new HashMap();
+            HashMap<String,Object> connectionMap = new HashMap<String,Object>();
+            HashMap<String,Object> map = new HashMap<String,Object>();
             
             public boolean isAuthSupported() {
                 return authRequired;
@@ -61,7 +61,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
                 return user;
             }
             
-            public Map getConnectionState() {
+            public Map<String,Object> getConnectionState() {
                 return connectionMap;
             }
             
@@ -69,7 +69,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
                 return relaying;
             }
             
-            public Map getState() {
+            public Map<String,Object> getState() {
                 return map;
             }
             
