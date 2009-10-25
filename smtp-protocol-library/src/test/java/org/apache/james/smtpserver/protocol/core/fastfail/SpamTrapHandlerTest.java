@@ -18,18 +18,16 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import java.util.ArrayList;
 
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.SpamTrapHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;
@@ -52,11 +50,10 @@ public class SpamTrapHandlerTest extends TestCase {
         String ip2 = "192.168.100.2";
         long blockTime = 2000;
     
-        ArrayList rcpts = new ArrayList();
+        ArrayList<String> rcpts = new ArrayList<String>();
         rcpts.add(SPAM_TRAP_RECIP1);
     
         SpamTrapHandler handler = new SpamTrapHandler();
-        ContainerUtil.enableLogging(handler, new MockLogger());
     
         handler.setBlockTime(blockTime);
         handler.setSpamTrapRecipients(rcpts);

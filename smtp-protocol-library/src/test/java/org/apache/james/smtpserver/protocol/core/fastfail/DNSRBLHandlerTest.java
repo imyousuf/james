@@ -121,14 +121,14 @@ public class DNSRBLHandlerTest extends TestCase {
      */
     private void setupMockedSMTPSession(final MailAddress rcpt) {
         mockedSMTPSession = new BaseFakeSMTPSession() {
-            HashMap state = new HashMap();
-            HashMap connectionState = new HashMap();
+            HashMap<String,Object> state = new HashMap<String,Object>();
+            HashMap<String,Object> connectionState = new HashMap<String,Object>();
             
             public String getRemoteIPAddress() {
                 return remoteIp;
             }
 
-            public Map getState() {
+            public Map<String,Object> getState() {
                 return state;
             }
 
@@ -144,7 +144,7 @@ public class DNSRBLHandlerTest extends TestCase {
                 return 0;
             }
 
-            public Map getConnectionState() {       
+            public Map<String,Object> getConnectionState() {       
                 return connectionState;
             }
 
@@ -249,207 +249,170 @@ public class DNSRBLHandlerTest extends TestCase {
             rbl.configure(new Configuration() {
 				
 				public Configuration subset(String prefix) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public void setProperty(String key, Object value) {
-					// TODO Auto-generated method stub
 					
 				}
 				
 				public boolean isEmpty() {
-					// TODO Auto-generated method stub
 					return true;
 				}
 				
 				public String[] getStringArray(String key) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public String getString(String key, String defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public String getString(String key) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public Short getShort(String key, Short defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public short getShort(String key, short defaultValue) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public short getShort(String key) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public Object getProperty(String key) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public Properties getProperties(String key) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public Long getLong(String key, Long defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public long getLong(String key, long defaultValue) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public long getLong(String key) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
-				public List getList(String key, List defaultValue) {
-					// TODO Auto-generated method stub
+				@SuppressWarnings("unchecked")
+                public List getList(String key, List defaultValue) {
 					return null;
 				}
 				
-				public List getList(String key) {
-					// TODO Auto-generated method stub
+				@SuppressWarnings("unchecked")
+                public List getList(String key) {
 					return null;
 				}
 				
-				public Iterator getKeys(String prefix) {
-					// TODO Auto-generated method stub
+				@SuppressWarnings("unchecked")
+                public Iterator getKeys(String prefix) {
 					return null;
 				}
 				
-				public Iterator getKeys() {
-					// TODO Auto-generated method stub
+				@SuppressWarnings("unchecked")
+                public Iterator getKeys() {
 					return null;
 				}
 				
 				public Integer getInteger(String key, Integer defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public int getInt(String key, int defaultValue) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public int getInt(String key) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public Float getFloat(String key, Float defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public float getFloat(String key, float defaultValue) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public float getFloat(String key) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public Double getDouble(String key, Double defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public double getDouble(String key, double defaultValue) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public double getDouble(String key) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public Byte getByte(String key, Byte defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public byte getByte(String key, byte defaultValue) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public byte getByte(String key) {
-					// TODO Auto-generated method stub
 					return 0;
 				}
 				
 				public Boolean getBoolean(String key, Boolean defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public boolean getBoolean(String key, boolean defaultValue) {
-					// TODO Auto-generated method stub
 					return false;
 				}
 				
 				public boolean getBoolean(String key) {
-					// TODO Auto-generated method stub
 					return false;
 				}
 				
 				public BigInteger getBigInteger(String key, BigInteger defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public BigInteger getBigInteger(String key) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public BigDecimal getBigDecimal(String key, BigDecimal defaultValue) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public BigDecimal getBigDecimal(String key) {
-					// TODO Auto-generated method stub
 					return null;
 				}
 				
 				public boolean containsKey(String key) {
-					// TODO Auto-generated method stub
 					return false;
 				}
 				
 				public void clearProperty(String key) {
-					// TODO Auto-generated method stub
 					
 				}
 				
 				public void clear() {
-					// TODO Auto-generated method stub
 					
 				}
 				
 				public void addProperty(String key, Object value) {
-					// TODO Auto-generated method stub
 					
 				}
 			});
