@@ -73,7 +73,7 @@ public class SimpleMailBuilder implements MailBuilder {
 	}
 	
 	public Mail build(String text) throws MessagingException {
-		final Collection recipients = new ArrayList();
+		final Collection<MailAddress> recipients = new ArrayList<MailAddress>();
 		MailAddress sender = null;
 		final int length = text.length();
 		int position = 0;
@@ -135,7 +135,7 @@ public class SimpleMailBuilder implements MailBuilder {
 		return result;
 	}
 	
-	private void parseTo(final String text, Collection addresses, final int length, int position) throws ParseException {
+	private void parseTo(final String text, Collection<MailAddress> addresses, final int length, int position) throws ParseException {
 		int eol = text.indexOf('\r', position);
 		if (eol == -1) {
 			eol = length;
@@ -160,7 +160,7 @@ public class SimpleMailBuilder implements MailBuilder {
 		}
 	}
 
-	private void addMailAddresses(Collection addresses, final MailboxList mailboxes) throws ParseException {
+	private void addMailAddresses(Collection<MailAddress> addresses, final MailboxList mailboxes) throws ParseException {
 		int size = mailboxes.size();
 		for (int i=0;i< size;i++) {
 			final MailAddress address = toMailAddress(mailboxes.get(i));

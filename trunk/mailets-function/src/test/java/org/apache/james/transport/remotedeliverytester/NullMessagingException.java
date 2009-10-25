@@ -24,6 +24,7 @@ import javax.mail.MessagingException;
 /**
  * Used by the remotedelivery tester
  */
+@SuppressWarnings("serial")
 public class NullMessagingException extends MessagingException {
 
 }

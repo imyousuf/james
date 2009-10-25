@@ -51,7 +51,7 @@ public class RecipientIsRegexTest extends AbstractRecipientIsTest {
 
         setupAll();
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNotNull(matchedRecipients);
         assertEquals(matchedRecipients.size(), mockedMail.getRecipients()
@@ -67,7 +67,7 @@ public class RecipientIsRegexTest extends AbstractRecipientIsTest {
 
         setupAll();
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNotNull(matchedRecipients);
         assertEquals(matchedRecipients.size(), 1);
@@ -82,14 +82,14 @@ public class RecipientIsRegexTest extends AbstractRecipientIsTest {
 
         setupAll();
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertEquals(matchedRecipients.size(), 0);
     }
 
     // test if an exception was thrown cause the regex was invalid
     public void testRegexIsNotMatchedCauseError() throws MessagingException {
-        Collection matchedRecipients = null;
+        Collection<MailAddress> matchedRecipients = null;
         String invalidRegex = "(!(";
         String regexException = null;
         String exception = "Malformed pattern: " + invalidRegex;

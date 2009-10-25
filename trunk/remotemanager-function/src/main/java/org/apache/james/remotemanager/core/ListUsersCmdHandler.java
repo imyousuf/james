@@ -75,8 +75,8 @@ public class ListUsersCmdHandler implements CommandHandler{
 
         if (parameters == null) {
             response = new RemoteManagerResponse("Existing accounts " + users.countUsers());
-            for (Iterator it = users.list(); it.hasNext();) {
-                response.appendLine("user: " + (String) it.next());
+            for (Iterator<String> it = users.list(); it.hasNext();) {
+                response.appendLine("user: " + it.next());
             }
             return response;
         } else {
@@ -85,7 +85,7 @@ public class ListUsersCmdHandler implements CommandHandler{
                 return response;
             }
         
-            ArrayList userList = getDomainUserList(users,parameters);
+            ArrayList<String> userList = getDomainUserList(users,parameters);
             response = new RemoteManagerResponse("Existing accounts from domain " + parameters + " " + userList.size());
             for (int i = 0; i <userList.size(); i++) {
                 response.appendLine("user: " + userList.get(i));
@@ -100,11 +100,11 @@ public class ListUsersCmdHandler implements CommandHandler{
      * @param domain the domain
      * @return ArrayList which contains the users
      */
-    protected ArrayList getDomainUserList(UsersRepository users, String domain) {
-        ArrayList userList = new ArrayList();
+    protected ArrayList<String> getDomainUserList(UsersRepository users, String domain) {
+        ArrayList<String> userList = new ArrayList<String>();
         
-        for (Iterator it = users.list(); it.hasNext();) {
-           String user = (String) it.next();
+        for (Iterator<String> it = users.list(); it.hasNext();) {
+           String user = it.next();
            if (user.endsWith(domain)) {
                userList.add(user);
            }

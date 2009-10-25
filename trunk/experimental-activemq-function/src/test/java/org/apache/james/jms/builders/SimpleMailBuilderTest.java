@@ -68,9 +68,9 @@ public class SimpleMailBuilderTest extends MockObjectTestCase {
 		assertEquals(KEY, mail.getName());
 		MailAddress sender = mail.getSender();
 		assertNotNull("Use 'from' header", sender);
-		assertEquals("foobar", sender.getUser());
-		assertEquals("Blurdybloop.COM", sender.getHost());
-		Collection recipients = mail.getRecipients();
+		assertEquals("foobar", sender.getLocalPart());
+		assertEquals("Blurdybloop.COM", sender.getDomain());
+		Collection<MailAddress> recipients = mail.getRecipients();
 		assertNotNull(recipients);
 		assertEquals("Use 'to' header", 1, recipients.size());
 		MimeMessage message = mail.getMessage();

@@ -42,7 +42,7 @@ public abstract class AbstractAvalonStore
     extends AbstractLogEnabled
     implements Serviceable, Configurable, Initializable {
 
-    private HashMap objects;
+    private HashMap<String,Object> objects;
 
     /**
      * The Avalon configuration used by the instance
@@ -77,7 +77,7 @@ public abstract class AbstractAvalonStore
         throws Exception {
 
         getLogger().info(getStoreName() + " init...");
-        objects = new HashMap();
+        objects = new HashMap<String,Object>();
 
         Configuration[] repConfs = getConfigurations(configuration);
         ClassLoader theClassLoader = null;
@@ -137,7 +137,7 @@ public abstract class AbstractAvalonStore
      * @return an Iterator over the set of repository names
      *         for this store
      */
-    protected Iterator getObjectNames() {
+    protected Iterator<String> getObjectNames() {
         return this.objects.keySet().iterator();
     }
     

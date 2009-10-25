@@ -25,6 +25,7 @@ import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.base.test.FakeMatcherConfig;
 import org.apache.mailet.base.test.MailUtil;
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.base.RFC2822Headers;
 
@@ -76,7 +77,7 @@ public class NESSpamCheckTest extends TestCase {
         mockedMail = MailUtil.createMockMail2Recipients(mockedMimeMessage);
         setupMatcher();
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNotNull(matchedRecipients);
         assertEquals(matchedRecipients.size(), mockedMail.getRecipients().size());
@@ -87,7 +88,7 @@ public class NESSpamCheckTest extends TestCase {
         mockedMail = MailUtil.createMockMail2Recipients(mockedMimeMessage);
         setupMatcher();
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNull(matchedRecipients);
     }

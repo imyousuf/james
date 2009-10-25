@@ -112,7 +112,7 @@ public class JMSService extends AbstractLogEnabled implements Configurable, Serv
     protected void setupLogger(Object subject) {
         super.setupLogger(subject);
         if (!(subject instanceof AbstractLogEnabled)) {
-            Class[] commonsLog = {org.apache.commons.logging.Log.class};
+            Class<?>[] commonsLog = {org.apache.commons.logging.Log.class};
             try {
                 Object[] args = {new AvalonLogger(getLogger())};
                 subject.getClass().getMethod("setLog", commonsLog).invoke(subject, args);
@@ -199,7 +199,7 @@ public class JMSService extends AbstractLogEnabled implements Configurable, Serv
     
     private Object load(String className) throws ConfigurationException {
         final Object result;
-        Class clazz;
+        Class<?> clazz;
         try {
             clazz = Class.forName(className);
         } catch (ClassNotFoundException e) {

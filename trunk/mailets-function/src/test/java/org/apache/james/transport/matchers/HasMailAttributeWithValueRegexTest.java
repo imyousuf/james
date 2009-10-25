@@ -20,6 +20,7 @@
 
 package org.apache.james.transport.matchers;
 
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.GenericMatcher;
 
 import javax.mail.MessagingException;
@@ -54,7 +55,7 @@ public class HasMailAttributeWithValueRegexTest extends
         setRegex(".*");
         setupAll();
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNotNull(matchedRecipients);
         assertEquals(matchedRecipients.size(), mockedMail.getRecipients()
@@ -66,7 +67,7 @@ public class HasMailAttributeWithValueRegexTest extends
         setRegex("\\d");
         setupAll();
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNull(matchedRecipients);
     }
@@ -87,7 +88,7 @@ public class HasMailAttributeWithValueRegexTest extends
             regexException = m.getMessage();
         }
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNull(matchedRecipients);
         

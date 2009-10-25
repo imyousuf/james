@@ -100,11 +100,11 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
 
 
 
-    public Iterator list() throws MessagingException {
+    public Iterator<String> list() throws MessagingException {
         try {
             Session session = login();
             try {
-                Collection keys = new ArrayList();
+                Collection<String> keys = new ArrayList<String>();
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Query query = manager.createQuery(
                         "/jcr:root/" + path + "//element(*,james:mail)",
@@ -213,14 +213,14 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
         remove(mail.getName());
     }
 
-    public void remove(Collection mails) throws MessagingException {
+    public void remove(Collection<Mail> mails) throws MessagingException {
         try {
             Session session = login();
             try {
                 QueryManager manager = session.getWorkspace().getQueryManager();
-                Iterator iterator = mails.iterator();
+                Iterator<Mail> iterator = mails.iterator();
                 while (iterator.hasNext()) {
-                    Mail mail = (Mail) iterator.next();
+                    Mail mail = iterator.next();
                     try {
                         String name = ISO9075.encode(
                                 Text.escapeIllegalJcrChars(mail.getName()));
@@ -483,11 +483,12 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
      * @throws MessagingException if a messaging error occurs
      * @throws RepositoryException if a repository error occurs
      */
-    private Collection getRecipients(Node node)
+    @SuppressWarnings("unchecked")
+    private Collection<MailAddress> getRecipients(Node node)
             throws MessagingException, RepositoryException {
         try {
             Value[] values = node.getProperty("james:recipients").getValues();
-            Collection recipients = new ArrayList(values.length);
+            Collection<MailAddress> recipients = new ArrayList<MailAddress>(values.length);
             for (int i = 0; i < values.length; i++) {
                 recipients.add(new MailAddress(values[i].getString()));
             }
@@ -505,10 +506,10 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
      * @throws MessagingException if a messaging error occurs
      * @throws RepositoryException if a repository error occurs
      */
-    private void setRecipients(Node node, Collection recipients)
+    private void setRecipients(Node node, Collection<MailAddress> recipients)
             throws MessagingException, RepositoryException {
         String[] values = new String[recipients.size()];
-        Iterator iterator = recipients.iterator();
+        Iterator<MailAddress> iterator = recipients.iterator();
         for (int i = 0; iterator.hasNext(); i++) {
             values[i] = iterator.next().toString();
         }
@@ -619,7 +620,7 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
      */
     private void setAttributes(Node node, Mail mail)
             throws RepositoryException, IOException {
-        Iterator iterator = mail.getAttributeNames();
+        Iterator<String> iterator = mail.getAttributeNames();
         while (iterator.hasNext()) {
             String name = (String) iterator.next();
             Object value = mail.getAttribute(name);

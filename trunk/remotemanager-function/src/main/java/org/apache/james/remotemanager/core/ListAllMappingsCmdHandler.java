@@ -70,15 +70,15 @@ public class ListAllMappingsCmdHandler implements CommandHandler {
         }
 
         try {
-            Map mappings = vutManagement.getAllMappings(table);
+            Map<String,Collection<String>> mappings = vutManagement.getAllMappings(table);
             if (mappings == null) {
                 response = new RemoteManagerResponse("No mappings found");
             } else {
                 response = new RemoteManagerResponse("Mappings:");
 
-                Iterator m = mappings.keySet().iterator();
+                Iterator<String> m = mappings.keySet().iterator();
                 while (m.hasNext()) {
-                    String key = m.next().toString();
+                    String key = m.next();
                     response.appendLine(key + "  -> " + mappings.get(key));
                 }
             }

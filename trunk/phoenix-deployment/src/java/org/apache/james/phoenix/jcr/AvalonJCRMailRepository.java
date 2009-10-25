@@ -88,7 +88,7 @@ public class AvalonJCRMailRepository extends JCRMailRepository
                 JackrabbitNodeTypeManager jackrabbit =
                     (JackrabbitNodeTypeManager) manager;
                 if (!jackrabbit.hasNodeType("james:mail")) {
-                    Class clazz = AvalonJCRMailRepository.class; 
+                    Class<?> clazz = AvalonJCRMailRepository.class; 
                     jackrabbit.registerNodeTypes(
                             clazz.getResourceAsStream("james.cnd"),
                             JackrabbitNodeTypeManager.TEXT_X_JCR_CND);

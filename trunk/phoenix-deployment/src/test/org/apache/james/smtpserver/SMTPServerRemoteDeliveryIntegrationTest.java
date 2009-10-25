@@ -58,6 +58,7 @@ import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.transport.mailets.RemoteDelivery;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
@@ -73,8 +74,8 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         
         private InetAddress localhostByName = null;
         
-        public Collection findMXRecords(String hostname) {
-            List res = new ArrayList();
+        public Collection<String> findMXRecords(String hostname) {
+            List<String> res = new ArrayList<String>();
             if (hostname == null) {
                 return res;
             };
@@ -84,7 +85,7 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
             return res;
         }
 
-        public Iterator getSMTPHostAddresses(String domainName) {
+        public Iterator<HostAddress> getSMTPHostAddresses(String domainName) {
             throw new UnsupportedOperationException("Unimplemented mock service");
         }
 
@@ -117,8 +118,8 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
             //return InetAddress.getByName(host);
         }
 
-        public Collection findTXTRecords(String hostname) {
-            List res = new ArrayList();
+        public Collection<String> findTXTRecords(String hostname) {
+            List<String> res = new ArrayList<String>();
             if (hostname == null) {
                 return res;
             };

@@ -60,15 +60,15 @@ public class ListDomainsCmdHandler implements CommandHandler{
     public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters) {
         RemoteManagerResponse response = null;
         
-        Collection domains = domService.getDomains();
+        Collection<String> domains = domService.getDomains();
         if (domains == null) {
             response = new RemoteManagerResponse("No domains found");
         } else {
             response = new RemoteManagerResponse("Domains:");
                 
-            Iterator d = domains.iterator();
+            Iterator<String> d = domains.iterator();
             while(d.hasNext()) {
-                response.appendLine(d.next().toString());
+                response.appendLine(d.next());
             }
         }   
         return response;

@@ -58,7 +58,7 @@ public class AvalonUsersStore
      * @return an Iterator over the set of repository names
      *         for this store
      */
-    public Iterator getRepositoryNames() {
+    public Iterator<String> getRepositoryNames() {
         return getObjectNames();
     }
     

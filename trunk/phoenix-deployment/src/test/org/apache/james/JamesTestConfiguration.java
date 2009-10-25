@@ -24,6 +24,7 @@ package org.apache.james;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.test.util.Util;
 
+@SuppressWarnings("serial")
 public class JamesTestConfiguration extends DefaultConfiguration {
     
     public JamesTestConfiguration() {

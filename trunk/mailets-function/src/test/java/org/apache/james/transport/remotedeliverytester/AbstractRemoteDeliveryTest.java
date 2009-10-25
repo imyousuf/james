@@ -134,6 +134,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         return servers;
     }
 
+    @SuppressWarnings("static-access")
     protected int waitEmptySpool(int maxWait) {
         if (maxWait == 0) maxWait = -1;
         while (outgoingSpool.size() > 0 && (maxWait > 0 || maxWait == -1)) {
@@ -147,9 +148,9 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
 
         
         if (outgoingSpool.size() > 0) {
-            Iterator i = outgoingSpool.list();
+            Iterator<String> i = outgoingSpool.list();
             while (i.hasNext()) {
-                String key = (String) i.next();
+                String key = i.next();
                 Mail m = null;
                 try {
                     m = outgoingSpool.retrieve(key);
