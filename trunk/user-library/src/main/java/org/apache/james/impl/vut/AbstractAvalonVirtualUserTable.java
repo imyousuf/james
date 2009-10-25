@@ -40,7 +40,7 @@ import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.api.vut.management.VirtualUserTableManagement;
-import org.apache.james.smtpserver.mina.GuiceInjected;
+import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.util.ConfigurationAdapter;
 
 import com.google.inject.AbstractModule;

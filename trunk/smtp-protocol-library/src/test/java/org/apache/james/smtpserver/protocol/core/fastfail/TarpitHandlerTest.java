@@ -20,14 +20,11 @@ package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.framework.container.ContainerUtil;
+import junit.framework.TestCase;
+
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.fastfail.TarpitHandler;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
-
-import junit.framework.TestCase;
 
 public class TarpitHandlerTest extends TestCase {
 
@@ -59,9 +56,7 @@ public class TarpitHandlerTest extends TestCase {
         long tarpitTolerance = 100;
         long startTime;
         TarpitHandler handler = new TarpitHandler();
-
-        ContainerUtil.enableLogging(handler, new MockLogger());
-
+        
         handler.setTarpitRcptCount(2);
         handler.setTarpitSleepTime(tarpitTime);
 
