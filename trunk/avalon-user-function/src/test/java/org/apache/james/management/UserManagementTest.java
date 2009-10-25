@@ -21,19 +21,15 @@
 
 package org.apache.james.management;
 
-import junit.framework.TestCase;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
-import org.apache.james.api.user.management.UserManagementException;
-import org.apache.james.impl.user.UserManagement;
-import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.james.test.mock.james.MockUsersStore;
-import org.apache.james.userrepository.MockUsersRepository;
-
 import java.util.Arrays;
 import java.util.List;
+
+import junit.framework.TestCase;
+
+import org.apache.james.api.user.management.UserManagementException;
+import org.apache.james.impl.user.UserManagement;
+import org.apache.james.test.mock.james.MockUsersStore;
+import org.apache.james.userrepository.MockUsersRepository;
 
 /**
  * Tests the UserManagement
@@ -44,18 +40,14 @@ public class UserManagementTest extends TestCase {
     private UserManagement m_userManagement;
 
     protected void setUp() throws Exception {
-        m_userManagement = new UserManagement();
-        ContainerUtil.enableLogging(m_userManagement, new MockLogger());
-        ContainerUtil.service(m_userManagement, setUpServiceManager());
+        m_mockUsersRepository = new MockUsersRepository();
+
+        m_userManagement = new UserManagement();      
+        m_userManagement.setUsersRepository(m_mockUsersRepository);
+        m_userManagement.setUsersStore(new MockUsersStore(m_mockUsersRepository));
     }
 
-    private MockServiceManager setUpServiceManager() {
-        MockServiceManager serviceManager = new MockServiceManager();
-        m_mockUsersRepository = new MockUsersRepository();
-        serviceManager.put(UsersRepository.ROLE, m_mockUsersRepository);
-        serviceManager.put(UsersStore.ROLE, new MockUsersStore(m_mockUsersRepository));
-        return serviceManager;
-    }
+   
 
     public void testUserCount() throws UserManagementException {
         assertEquals("no user yet", 0, m_userManagement.countUsers(null));
@@ -103,10 +95,10 @@ public class UserManagementTest extends TestCase {
     public void testListUsers() throws UserManagementException {
 
         String[] usersArray = new String[] {"ccc", "aaa", "dddd", "bbbbb"};
-        List users = Arrays.asList(usersArray);
+        List<String> users = Arrays.asList(usersArray);
 
         for (int i = 0; i < users.size(); i++) {
-            String user = (String) users.get(i);
+            String user = users.get(i);
             assertTrue("user added", m_mockUsersRepository.addUser(user, "test"));
         }
 

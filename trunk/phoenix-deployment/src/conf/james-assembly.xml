@@ -119,7 +119,7 @@
 </block>
 
   <!-- The User Management block  -->
-  <block name="usermanagement" class="org.apache.james.impl.user.UserManagement" >
+  <block name="usermanagement" class="org.apache.james.impl.user.AvalonUserManagement" >
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="users-store" role="org.apache.james.api.user.UsersStore"/>
     <proxy disable='true'/>
@@ -256,7 +256,7 @@
   <!-- This is needed to support <usernames> configuraion inside James -->
   <!-- If backward compatibility is not need the LocalUsersRepository implementaion -->
   <!-- could be safely used -->
-  <block name="localusersrepository" class="org.apache.james.impl.jamesuser.LocalJamesUsersRepository">
+  <block name="localusersrepository" class="org.apache.james.impl.jamesuser.AvalonLocalJamesUsersRepository">
     <provide name="users-store"
              role="org.apache.james.api.user.UsersStore"/>
     <proxy disable='true'/>
@@ -267,7 +267,7 @@
   </block>
   
   <!-- The VirtualUserTable Management block  -->
-  <block name="virtualusertablemanagement" class="org.apache.james.impl.vut.VirtualUserTableManagement" >
+  <block name="virtualusertablemanagement" class="org.apache.james.impl.vut.AvalonVirtualUserTableManagement" >
     <provide name="virtualusertable-store" role="org.apache.james.api.vut.VirtualUserTableStore"/>
     <provide name="defaultvirtualusertable" role="org.apache.james.api.vut.management.VirtualUserTableManagement" />
     <proxy disable='true'/>
@@ -282,7 +282,7 @@
     <proxy disable='true'/>
   </block>
   
-  <block name="defaultvirtualusertable" class="org.apache.james.impl.vut.DefaultVirtualUserTable">
+  <block name="defaultvirtualusertable" class="org.apache.james.impl.vut.AvalonDefaultVirtualUserTable">
     <provide name="virtualusertable-store"
              role="org.apache.james.api.vut.VirtualUserTableStore"/>
     <proxy disable='true'/>
@@ -308,7 +308,7 @@
   
   <!-- JDBC VirtualUserTable implementation of the domainlist service -->
   <!--
-  <block name="domainlist" class="org.apache.james.vut.JDBCVirtualUserTable">
+  <block name="domainlist" class="org.apache.james.vut.AvalonJDBCVirtualUserTable">
     <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector"/>
     <provide name="filesystem" role="org.apache.james.services.FileSystem"/>
@@ -318,7 +318,7 @@
   
   <!-- XML VirtualUserTable implementation of the domainlist service -->
   <!--
-  <block name="domainlist" class="org.apache.james.vut.XMLVirtualUserTable">
+  <block name="domainlist" class="org.apache.james.vut.AvalonXMLVirtualUserTable">
       <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
   </block>
   -->

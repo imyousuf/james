@@ -21,22 +21,16 @@
 
 package org.apache.james.vut;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
-
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
-import org.apache.james.services.FileSystem;
-
-import org.apache.james.test.mock.avalon.MockLogger;
-
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
+import org.apache.james.util.ConfigurationAdapter;
 
 public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     
@@ -44,20 +38,16 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
      * @see org.apache.james.vut.AbstractVirtualUserTableTest#getVirtalUserTable()
      */
     protected AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception {
-        DefaultServiceManager serviceManager = new DefaultServiceManager();
-        serviceManager.put(FileSystem.ROLE, new MockFileSystem());
-        serviceManager.put(DataSourceSelector.ROLE, Util.getDataSourceSelector());
-        serviceManager.put(DNSService.ROLE, setUpDNSServer());
         JDBCVirtualUserTable mr = new JDBCVirtualUserTable();
-        
-
-        mr.enableLogging(new MockLogger());
+        mr.setLogger(new SimpleLog("MockLog"));
+        mr.setDataSourceSelector(Util.getDataSourceSelector());
+        mr.setDNSService(setUpDNSServer());
+        mr.setFileSystem(new MockFileSystem());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
         defaultConfiguration.setAttribute("destinationURL","db://maildb/VirtualUserTable");
         defaultConfiguration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
-        mr.service(serviceManager);
-        mr.configure(defaultConfiguration);
-        mr.initialize();
+        mr.setConfiguration(new ConfigurationAdapter(defaultConfiguration));
+        mr.init();
         return mr;
     }    
     

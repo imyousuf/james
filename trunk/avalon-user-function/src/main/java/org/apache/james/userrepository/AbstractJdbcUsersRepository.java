@@ -21,13 +21,8 @@ package org.apache.james.userrepository;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.CascadingRuntimeException;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
 import org.apache.james.services.FileSystem;
@@ -47,6 +42,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 /**
  * An abstract base class for creating UserRepository implementations
@@ -71,10 +69,10 @@ import java.util.Map;
  *
  */
 public abstract class AbstractJdbcUsersRepository extends
-        AbstractUsersRepository implements Serviceable, Initializable {
+        AbstractUsersRepository {
 
 
-    protected Map m_sqlParameters;
+    protected Map<String,String> m_sqlParameters;
 
     private String m_sqlFileName;
 
@@ -213,7 +211,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * @return the number of users in the repository
      */
     public int countUsers() {
-        List usernames = listUserNames();
+        List<String> usernames = listUserNames();
         return usernames.size();
     }
 
@@ -223,7 +221,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * @return Iterator over a collection of Strings, each being one user in the
      *         repository.
      */
-    public Iterator list() {
+    public Iterator<String> list() {
         return listUserNames().iterator();
     }
 
@@ -233,120 +231,21 @@ public abstract class AbstractJdbcUsersRepository extends
      * @param datasources
      *            the DataSourceSelector
      */
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
     void setDatasources(DataSourceSelector datasources) {
         m_datasources = datasources;
     }
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(final ServiceManager componentManager)
-            throws ServiceException {
-        StringBuffer logBuffer = null;
-        if (getLogger().isDebugEnabled()) {
-            logBuffer = new StringBuffer(64).append(this.getClass().getName())
-                    .append(".compose()");
-            getLogger().debug(logBuffer.toString());
-        }
-
-        setDatasources((DataSourceSelector) componentManager
-                .lookup(DataSourceSelector.ROLE));
-        setFileSystem((FileSystem) componentManager.lookup(FileSystem.ROLE));
-    }
-
     /**
      * Sets the filesystem service
      * 
      * @param system
      *            the new service
      */
+    @Resource(name="org.apache.james.services.FileSystem")
     void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
 
-    /**
-     * Configures the UserRepository for JDBC access.<br>
-     * <br>
-     * Requires a configuration element in the .conf.xml file of the form:<br>
-     * <br>
-     * 
-     * <pre>
-     *   &lt;repository name=&quot;LocalUsers&quot;
-     *       class=&quot;org.apache.james.userrepository.JamesUsersJdbcRepository&quot;&gt;
-     *       &lt;!-- Name of the datasource to use --&gt;
-     *       &lt;data-source&gt;MailDb&lt;/data-source&gt;
-     *       &lt;!-- File to load the SQL definitions from --&gt;
-     *       &lt;sqlFile&gt;dist/conf/sqlResources.xml&lt;/sqlFile&gt;
-     *       &lt;!-- replacement parameters for the sql file --&gt;
-     *       &lt;sqlParameters table=&quot;JamesUsers&quot;/&gt;
-     *   &lt;/repository&gt;
-     * </pre>
-     * 
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration configuration)
-            throws ConfigurationException {
-        super.configure(configuration);
-        StringBuffer logBuffer = null;
-        if (getLogger().isDebugEnabled()) {
-            logBuffer = new StringBuffer(64).append(this.getClass().getName())
-                    .append(".configure()");
-            getLogger().debug(logBuffer.toString());
-        }
-
-        // Parse the DestinationURL for the name of the datasource,
-        // the table to use, and the (optional) repository Key.
-        String destUrl = configuration.getAttribute("destinationURL");
-        // normalise the destination, to simplify processing.
-        if (!destUrl.endsWith("/")) {
-            destUrl += "/";
-        }
-        // Split on "/", starting after "db://"
-        List urlParams = new ArrayList();
-        int start = 5;
-        int end = destUrl.indexOf('/', start);
-        while (end > -1) {
-            urlParams.add(destUrl.substring(start, end));
-            start = end + 1;
-            end = destUrl.indexOf('/', start);
-        }
-
-        // Build SqlParameters and get datasource name from URL parameters
-        m_sqlParameters = new HashMap();
-        switch (urlParams.size()) {
-        case 3:
-            m_sqlParameters.put("key", urlParams.get(2));
-        case 2:
-            m_sqlParameters.put("table", urlParams.get(1));
-        case 1:
-            m_datasourceName = (String) urlParams.get(0);
-            break;
-        default:
-            throw new ConfigurationException(
-                    "Malformed destinationURL - "
-                            + "Must be of the format \"db://<data-source>[/<table>[/<key>]]\".");
-        }
-
-        if (getLogger().isDebugEnabled()) {
-            logBuffer = new StringBuffer(128).append("Parsed URL: table = '")
-                    .append(m_sqlParameters.get("table")).append("', key = '")
-                    .append(m_sqlParameters.get("key")).append("'");
-            getLogger().debug(logBuffer.toString());
-        }
-
-        // Get the SQL file location
-        m_sqlFileName = configuration.getChild("sqlFile", true).getValue();
-
-        // Get other sql parameters from the configuration object,
-        // if any.
-        Configuration sqlParamsConfig = configuration.getChild("sqlParameters");
-        String[] paramNames = sqlParamsConfig.getAttributeNames();
-        for (int i = 0; i < paramNames.length; i++) {
-            String paramName = paramNames[i];
-            String paramValue = sqlParamsConfig.getAttribute(paramName);
-            m_sqlParameters.put(paramName, paramValue);
-        }
-    }
 
     /**
      * <p>Initialises the JDBC repository.</p>
@@ -360,7 +259,10 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
-    public void initialize() throws Exception {
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+        
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             logBuffer = new StringBuffer(128).append(this.getClass().getName())
@@ -389,7 +291,7 @@ public abstract class AbstractJdbcUsersRepository extends
             try {
                 sqlFile = fileSystem.getResource(m_sqlFileName);
             } catch (Exception e) {
-                getLogger().fatalError(e.getMessage(), e);
+                getLogger().error(e.getMessage(), e);
                 throw e;
             }
 
@@ -466,6 +368,90 @@ public abstract class AbstractJdbcUsersRepository extends
             theJDBCUtil.closeJDBCConnection(conn);
         }
     }
+    
+    /**
+     * Configures the UserRepository for JDBC access.<br>
+     * <br>
+     * Requires a configuration element in the .conf.xml file of the form:<br>
+     * <br>
+     * 
+     * <pre>
+     *   &lt;repository name=&quot;LocalUsers&quot;
+     *       class=&quot;org.apache.james.userrepository.JamesUsersJdbcRepository&quot;&gt;
+     *       &lt;!-- Name of the datasource to use --&gt;
+     *       &lt;data-source&gt;MailDb&lt;/data-source&gt;
+     *       &lt;!-- File to load the SQL definitions from --&gt;
+     *       &lt;sqlFile&gt;dist/conf/sqlResources.xml&lt;/sqlFile&gt;
+     *       &lt;!-- replacement parameters for the sql file --&gt;
+     *       &lt;sqlParameters table=&quot;JamesUsers&quot;/&gt;
+     *   &lt;/repository&gt;
+     * </pre>
+     * 
+     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    @SuppressWarnings("unchecked")
+    public void doConfigure(HierarchicalConfiguration configuration)
+            throws ConfigurationException {
+        StringBuffer logBuffer = null;
+        if (getLogger().isDebugEnabled()) {
+            logBuffer = new StringBuffer(64).append(this.getClass().getName())
+                    .append(".configure()");
+            getLogger().debug(logBuffer.toString());
+        }
+
+        // Parse the DestinationURL for the name of the datasource,
+        // the table to use, and the (optional) repository Key.
+        String destUrl = configuration.getString("/ @destinationURL");
+        // normalise the destination, to simplify processing.
+        if (!destUrl.endsWith("/")) {
+            destUrl += "/";
+        }
+        // Split on "/", starting after "db://"
+        List<String> urlParams = new ArrayList<String>();
+        int start = 5;
+        int end = destUrl.indexOf('/', start);
+        while (end > -1) {
+            urlParams.add(destUrl.substring(start, end));
+            start = end + 1;
+            end = destUrl.indexOf('/', start);
+        }
+
+        // Build SqlParameters and get datasource name from URL parameters
+        m_sqlParameters = new HashMap<String,String>();
+        switch (urlParams.size()) {
+        case 3:
+            m_sqlParameters.put("key", urlParams.get(2));
+        case 2:
+            m_sqlParameters.put("table", urlParams.get(1));
+        case 1:
+            m_datasourceName = (String) urlParams.get(0);
+            break;
+        default:
+            throw new ConfigurationException(
+                    "Malformed destinationURL - "
+                            + "Must be of the format \"db://<data-source>[/<table>[/<key>]]\".");
+        }
+
+        if (getLogger().isDebugEnabled()) {
+            logBuffer = new StringBuffer(128).append("Parsed URL: table = '")
+                    .append(m_sqlParameters.get("table")).append("', key = '")
+                    .append(m_sqlParameters.get("key")).append("'");
+            getLogger().debug(logBuffer.toString());
+        }
+
+        // Get the SQL file location
+        m_sqlFileName = configuration.getString("sqlFile", null);
+
+        // Get other sql parameters from the configuration object,
+        // if any.
+        Iterator<String> paramIt = configuration.getKeys("sqlParameters");
+        while(paramIt.hasNext()) {
+            String rawName = paramIt.next();
+            String paramName = paramIt.next().substring("sqlParameters/ @".length(), rawName.length());
+            String paramValue = configuration.getString(rawName);
+            m_sqlParameters.put(paramName, paramValue);
+        }
+    }
 
     /**
      * Produces the complete list of User names, with correct case.
@@ -473,11 +459,11 @@ public abstract class AbstractJdbcUsersRepository extends
      * @return a <code>List</code> of <code>String</code>s representing
      *         user names.
      */
-    protected List listUserNames() {
-        Collection users = getAllUsers();
-        List userNames = new ArrayList(users.size());
-        for (Iterator it = users.iterator(); it.hasNext();) {
-            userNames.add(((User) it.next()).getUserName());
+    protected List<String> listUserNames() {
+        Collection<User> users = getAllUsers();
+        List<String> userNames = new ArrayList<String>(users.size());
+        for (Iterator<User> it = users.iterator(); it.hasNext();) {
+            userNames.add(it.next().getUserName());
         }
         users.clear();
         return userNames;
@@ -488,7 +474,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @return an <code>Iterator</code> of <code>User</code>s.
      */
-    protected Iterator listAllUsers() {
+    protected Iterator<User> listAllUsers() {
         return getAllUsers().iterator();
     }
 
@@ -497,8 +483,8 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @return a <code>Collection</code> of <code>JamesUser</code>s.
      */
-    private Collection getAllUsers() {
-        List userList = new ArrayList(); // Build the users into this list.
+    private Collection<User> getAllUsers() {
+        List<User> userList = new ArrayList<User>(); // Build the users into this list.
 
         Connection conn = openConnection();
         PreparedStatement getUsersStatement = null;
@@ -515,7 +501,7 @@ public abstract class AbstractJdbcUsersRepository extends
             }
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new CascadingRuntimeException("Error accessing database",
+            throw new RuntimeException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsUsers);
@@ -547,7 +533,7 @@ public abstract class AbstractJdbcUsersRepository extends
             addUserStatement.execute();
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new CascadingRuntimeException("Error accessing database",
+            throw new RuntimeException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCStatement(addUserStatement);
@@ -575,7 +561,7 @@ public abstract class AbstractJdbcUsersRepository extends
             removeUserStatement.execute();
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new CascadingRuntimeException("Error accessing database",
+            throw new RuntimeException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCStatement(removeUserStatement);
@@ -600,7 +586,7 @@ public abstract class AbstractJdbcUsersRepository extends
             updateUserStatement.execute();
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new CascadingRuntimeException("Error accessing database",
+            throw new RuntimeException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCStatement(updateUserStatement);
@@ -622,9 +608,9 @@ public abstract class AbstractJdbcUsersRepository extends
      */
     protected User getUserByNameIterating(String name, boolean ignoreCase) {
         // Just iterate through all of the users until we find one matching.
-        Iterator users = listAllUsers();
+        Iterator<User> users = listAllUsers();
         while (users.hasNext()) {
-            User user = (User) users.next();
+            User user = users.next();
             String username = user.getUserName();
             if ((!ignoreCase && username.equals(name))
                     || (ignoreCase && username.equalsIgnoreCase(name))) {
@@ -684,7 +670,7 @@ public abstract class AbstractJdbcUsersRepository extends
             return user;
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new CascadingRuntimeException("Error accessing database",
+            throw new RuntimeException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsUsers);
@@ -752,7 +738,7 @@ public abstract class AbstractJdbcUsersRepository extends
         try {
             return m_datasource.getConnection();
         } catch (SQLException sqle) {
-            throw new CascadingRuntimeException(
+            throw new RuntimeException(
                     "An exception occurred getting a database connection.",
                     sqle);
         }

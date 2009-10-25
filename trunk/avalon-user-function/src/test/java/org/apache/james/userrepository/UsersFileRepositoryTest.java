@@ -21,8 +21,8 @@ package org.apache.james.userrepository;
 
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.avalon.framework.service.DefaultServiceManager;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
@@ -30,6 +30,7 @@ import org.apache.james.mailrepository.filepair.File_Persistent_Object_Repositor
 import org.apache.james.services.FileSystem;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
+import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.MailAddress;
 
 import java.io.File;
@@ -83,14 +84,14 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
         DefaultConfiguration destinationConf = new DefaultConfiguration("destination");
         destinationConf.setAttribute("URL", "file://target/var/users");
         configuration.addChild(destinationConf);
-        res.enableLogging(new ConsoleLogger());
-        res.configure(configuration );
-        res.initialize();
+        res.setLogger(new SimpleLog("MockLog"));
+        res.setConfiguration(new ConfigurationAdapter(configuration));
+        res.init();
         return res;
     }
 
     protected void disposeUsersRepository() {
-        Iterator i = this.usersRepository.list();
+        Iterator<String> i = this.usersRepository.list();
         while (i.hasNext()) {
             this.usersRepository.removeUser((String) i.next());
         }

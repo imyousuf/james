@@ -23,20 +23,18 @@ package org.apache.james.userrepository;
 
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
 import org.apache.james.impl.user.DefaultJamesUser;
 
 
 import java.util.Iterator;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 /**
  * Implementation of a Repository to store users on the File System.
@@ -52,8 +50,7 @@ import java.util.Iterator;
  *
  */
 public class UsersFileRepository
-    extends AbstractUsersRepository
-    implements Configurable, Serviceable, Initializable {
+    extends AbstractUsersRepository {
  
     /**
      * Whether 'deep debugging' is turned on.
@@ -74,45 +71,31 @@ public class UsersFileRepository
      * 
      * @param store the Store
      */
+    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
     public void setStore(Store store) {
         this.store = store;
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service( final ServiceManager componentManager )
-        throws ServiceException {
-
-        try {
-            setStore((Store)componentManager.lookup( Store.ROLE ));
-        } catch (Exception e) {
-            final String message = "Failed to retrieve Store component:" + e.getMessage();
-            getLogger().error( message, e );
-            throw new ServiceException ("", message, e );
-        }
-    }
 
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure( final Configuration configuration )
+    public void doConfigure( final HierarchicalConfiguration configuration )
         throws ConfigurationException {
-        super.configure(configuration);
-        destination = configuration.getChild( "destination" ).getAttribute( "URL" );
+        destination = configuration.getString( "destination/ @URL" );
 
         if (!destination.endsWith(urlSeparator)) {
             destination += urlSeparator;
         }
     }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize()
+    @PostConstruct
+    public void init()
         throws Exception {
+        super.init();
 
         try {
+            //TODO Check how to remove this!
             //prepare Configurations for object and stream repositories
             final DefaultConfiguration objectConfiguration
                 = new DefaultConfiguration( "repository",
@@ -142,7 +125,8 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.api.user.UsersRepository#list()
      */
-    public Iterator list() {
+    @SuppressWarnings("unchecked")
+    public Iterator<String> list() {
         return objectRepository.list();
     }
 
@@ -204,9 +188,9 @@ public class UsersFileRepository
      */
     public String getRealName(String name, boolean ignoreCase) {
         if (ignoreCase) {
-            Iterator it = list();
+            Iterator<String> it = list();
             while (it.hasNext()) {
-                String temp = (String) it.next();
+                String temp = it.next();
                 if (name.equalsIgnoreCase(temp)) {
                     return temp;
                 }
@@ -258,7 +242,7 @@ public class UsersFileRepository
      * @see org.apache.james.api.user.UsersRepository#containsCaseInsensitive(java.lang.String)
      */
     public boolean containsCaseInsensitive(String name) {
-        Iterator it = list();
+        Iterator<String> it = list();
         while (it.hasNext()) {
             if (name.equalsIgnoreCase((String)it.next())) {
                 return true;
@@ -286,7 +270,7 @@ public class UsersFileRepository
      */
     public int countUsers() {
         int count = 0;
-        for (Iterator it = list(); it.hasNext(); it.next()) {
+        for (Iterator<String> it = list(); it.hasNext(); it.next()) {
             count++;
         }
         return count;

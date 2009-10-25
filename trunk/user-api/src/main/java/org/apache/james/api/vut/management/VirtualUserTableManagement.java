@@ -108,7 +108,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @return the collection which holds the mappings. 
      * @throws InvalidMappingException  get thrown if an invalid use or domain was given
      */
-    public Collection getUserDomainMappings(String user, String domain) throws InvalidMappingException;
+    public Collection<String> getUserDomainMappings(String user, String domain) throws InvalidMappingException;
     
     /**
      * Add mapping
@@ -139,7 +139,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * 
      * @return Map which holds all mappings
      */
-    public Map getAllMappings();
+    public Map<String,Collection<String>> getAllMappings();
     
     /**
      * Add aliasDomain mapping

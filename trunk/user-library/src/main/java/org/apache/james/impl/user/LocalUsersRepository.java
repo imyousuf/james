@@ -19,44 +19,34 @@
 
 package org.apache.james.impl.user;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 
 import java.util.Iterator;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 /**
  * Provide access to the default "LocalUsers" UsersRepository.
  */
-public class LocalUsersRepository implements UsersRepository, Serviceable, Initializable {
+public class LocalUsersRepository implements UsersRepository {
 
     private UsersStore usersStore;
     protected UsersRepository users;
 
+    @Resource(name="org.apache.james.api.user.UsersStore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager serviceManager) throws ServiceException {
-        UsersStore usersStore =
-           (UsersStore) serviceManager.lookup(UsersStore.ROLE);
-        setUsersStore(usersStore);
-    }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
+    
+    @PostConstruct
+    public void init() throws Exception {
         users = usersStore.getRepository("LocalUsers");
         if (users == null) {
-            throw new ServiceException("","The user repository could not be found.");
+            throw new Exception("The user repository could not be found.");
         }
     }
 
