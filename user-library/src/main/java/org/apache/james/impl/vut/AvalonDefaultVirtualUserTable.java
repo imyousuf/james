@@ -30,7 +30,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.api.vut.management.InvalidMappingException;
-import org.apache.james.smtpserver.mina.GuiceInjected;
+import org.apache.james.bridge.GuiceInjected;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;

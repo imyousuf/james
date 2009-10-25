@@ -34,6 +34,7 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTableStore;
+import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.SMTPServerMBean;

@@ -33,7 +33,7 @@ import org.apache.avalon.phoenix.ApplicationEvent;
 import org.apache.avalon.phoenix.ApplicationListener;
 import org.apache.avalon.phoenix.BlockEvent;
 import org.apache.james.api.kernel.LoaderService;
-import org.apache.james.smtpserver.mina.GuiceInjected;
+import org.apache.james.bridge.GuiceInjected;
 
 public class PhoenixLoader implements LoaderService, ApplicationListener, LogEnabled {
 

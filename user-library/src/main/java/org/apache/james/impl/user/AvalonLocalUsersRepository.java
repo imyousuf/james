@@ -27,7 +27,7 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
-import org.apache.james.smtpserver.mina.GuiceInjected;
+import org.apache.james.bridge.GuiceInjected;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;

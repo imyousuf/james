@@ -61,6 +61,10 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-avalon-guice-bridge-api</artifactId>
+    </dependency>
     
     <dependency>
       <groupId>org.apache.avalon.framework</groupId>
