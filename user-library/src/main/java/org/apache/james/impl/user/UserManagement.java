@@ -22,9 +22,6 @@
 
 package org.apache.james.impl.user;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
@@ -33,12 +30,13 @@ import org.apache.james.api.user.management.UserManagementException;
 import org.apache.james.api.user.management.UserManagementMBean;
 import org.apache.mailet.MailAddress;
 
+import javax.annotation.Resource;
 import javax.mail.internet.ParseException;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserManagement implements UserManagementMBean, Serviceable {
+public class UserManagement implements UserManagementMBean {
 
     String ROLE = "org.apache.james.impl.user.UserManagement";
     
@@ -48,30 +46,17 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     private UsersRepository localUsers;
     private UsersStore usersStore;
 
-    public void setLocalUsers(UsersRepository localUsers) {
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository localUsers) {
         this.localUsers = localUsers;
     }
-
+    
+    @Resource(name="org.apache.james.api.user.UsersStore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service( final ServiceManager componentManager )
-        throws ServiceException {
-        localUsers = (UsersRepository) componentManager.lookup(UsersRepository.ROLE);
-        if (localUsers == null) {
-            throw new ServiceException("","The local user repository could not be found.");
-        }
-        setLocalUsers(localUsers);
-        usersStore = (UsersStore)componentManager.lookup( UsersStore.ROLE );
-        if (usersStore == null) {
-            throw new ServiceException("","The user store containing the user repositories could not be found.");
-        }
-        setUsersStore(usersStore);
-    }
+
 
     private JamesUser getJamesUser(String userName, String repositoryName) throws UserManagementException {
         User baseuser = getUserRepository(repositoryName).getUserByName(userName);
@@ -129,9 +114,9 @@ public class UserManagement implements UserManagementMBean, Serviceable {
      * @see org.apache.james.api.user.management.UserManagementMBean#listAllUsers(java.lang.String)
      */
     public String[] listAllUsers(String repositoryName) throws UserManagementException {
-        List userNames = new ArrayList();
+        List<String> userNames = new ArrayList<String>();
         UsersRepository users = getUserRepository(repositoryName);
-        for (Iterator it = users.list(); it.hasNext();) {
+        for (Iterator<String> it = users.list(); it.hasNext();) {
             userNames.add(it.next());
         }
         return (String[])userNames.toArray(new String[]{});
@@ -227,11 +212,11 @@ public class UserManagement implements UserManagementMBean, Serviceable {
     /**
      * @see org.apache.james.api.user.management.UserManagementMBean#getUserRepositoryNames()
      */
-    public List getUserRepositoryNames() {
-        List result = new ArrayList();
+    public List<String> getUserRepositoryNames() {
+        List<String> result = new ArrayList<String>();
         if (usersStore == null) return result;
         
-        Iterator repositoryNames = usersStore.getRepositoryNames();
+        Iterator<String> repositoryNames = usersStore.getRepositoryNames();
         while (repositoryNames.hasNext()) {
             String name = (String) repositoryNames.next();
             result.add(name);

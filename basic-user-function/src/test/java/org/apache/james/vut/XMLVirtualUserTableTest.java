@@ -23,37 +23,25 @@ package org.apache.james.vut;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.DefaultServiceManager;
-
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
-import org.apache.james.services.FileSystem;
-
-import org.apache.james.test.mock.avalon.MockLogger;
-
-import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.util.AttrValConfiguration;
+import org.apache.james.util.ConfigurationAdapter;
 
 
 public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     DefaultConfiguration defaultConfiguration = new DefaultConfiguration("conf");
     
     protected AbstractVirtualUserTable getVirtalUserTable() throws Exception {
-        DefaultServiceManager serviceManager = new DefaultServiceManager();
-        serviceManager.put(FileSystem.ROLE, new MockFileSystem());
-        serviceManager.put(DNSService.ROLE, setUpDNSServer());
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
-        ContainerUtil.enableLogging(mr, new MockLogger());
-
-        ContainerUtil.service(mr, serviceManager);
+        mr.setDNSService(setUpDNSServer());
+        mr.setLogger(new SimpleLog("MockLog"));
+       
         return mr;
     }
     
@@ -66,10 +54,10 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         if (user == null) user = "*";
         if (domain == null) domain = "*";
         
-        Collection mappings = virtualUserTable.getUserDomainMappings(user, domain);
+        Collection<String> mappings = virtualUserTable.getUserDomainMappings(user, domain);
 
         if (mappings == null) {
-            mappings = new ArrayList();
+            mappings = new ArrayList<String>();
         } else {
            removeMappings(user,domain,mappings);
         }
@@ -89,8 +77,9 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         }
     
         try {
-            ContainerUtil.configure(virtualUserTable,defaultConfiguration);
-        } catch (ConfigurationException e) {
+            virtualUserTable.setConfiguration(new ConfigurationAdapter(defaultConfiguration));
+            virtualUserTable.init();        
+            } catch (Exception e) {
             if (mappings.size() > 0) {
                 return false;
             } else {
@@ -107,7 +96,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         if (user == null) user = "*";
         if (domain == null) domain = "*";
         
-        Collection mappings = virtualUserTable.getUserDomainMappings(user, domain);
+        Collection<String> mappings = virtualUserTable.getUserDomainMappings(user, domain);
         
         if (mappings == null) {
             return false;
@@ -130,8 +119,9 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         } 
     
         try {
-            ContainerUtil.configure(((XMLVirtualUserTable) virtualUserTable),defaultConfiguration);
-        } catch (ConfigurationException e) {
+            virtualUserTable.setConfiguration(new ConfigurationAdapter(defaultConfiguration));
+            virtualUserTable.init();        
+            } catch (Exception e) {
            if (mappings.size() > 0) {
                return false;
            } else {
@@ -142,7 +132,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
     
     
-    private void removeMappings(String user, String domain, Collection mappings) {
+    private void removeMappings(String user, String domain, Collection<String> mappings) {
         Configuration [] conf = defaultConfiguration.getChildren("mapping");
         
         for (int i = 0; i < conf.length; i++ ) {
@@ -154,7 +144,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
                 if (c.getValue().equalsIgnoreCase(mapping)){
                     defaultConfiguration.removeChild(c);
                 }
-            } catch (ConfigurationException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

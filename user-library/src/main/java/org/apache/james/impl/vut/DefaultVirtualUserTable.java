@@ -24,10 +24,9 @@ package org.apache.james.impl.vut;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.api.vut.management.InvalidMappingException;
@@ -36,27 +35,23 @@ import org.apache.james.api.vut.management.VirtualUserTableManagement;
 /**
  * Default VirtualUserTable
  */
-public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serviceable, Initializable {
+public class DefaultVirtualUserTable implements VirtualUserTableManagement {
 
     VirtualUserTableManagement vut = null;
     
     VirtualUserTableStore store = null;
     
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        vut = (VirtualUserTableManagement) store.getTable("DefaultVirtualUserTable");
-        if (vut == null) {
-            throw new ServiceException("","The DefaultVirtualUserTable could not be found.");
-        }
+    @Resource(name="org.apache.james.api.vut.VirtualUserTableStore")
+    public void setVirtualUserTableStore(VirtualUserTableStore store) {
+        this.store = store;
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        store = (VirtualUserTableStore) arg0.lookup(VirtualUserTableStore.ROLE);
+    @PostConstruct
+    public void init() throws Exception {
+        vut = (VirtualUserTableManagement) store.getTable("DefaultVirtualUserTable");
+        if (vut == null) {
+            throw new RuntimeException("The DefaultVirtualUserTable could not be found.");
+        }
     }
 
     /**
@@ -83,7 +78,7 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serv
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
      */
-    public Collection getUserDomainMappings(String user, String domain) throws InvalidMappingException {
+    public Collection<String> getUserDomainMappings(String user, String domain) throws InvalidMappingException {
         return vut.getUserDomainMappings(user, domain);
     }
 
@@ -132,7 +127,7 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement, Serv
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getAllMappings()
      */
-    public Map getAllMappings() {
+    public Map<String,Collection<String>> getAllMappings() {
         return vut.getAllMappings();
     }
 

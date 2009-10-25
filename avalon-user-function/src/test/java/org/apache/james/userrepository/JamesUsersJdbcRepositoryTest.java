@@ -22,13 +22,14 @@ package org.apache.james.userrepository;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.ConsoleLogger;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
+import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.MailAddress;
 
 import java.util.Collection;
@@ -65,9 +66,9 @@ public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         DefaultConfiguration configuration = new DefaultConfiguration("test");
         configuration.setAttribute("destinationURL", "db://maildb/"+tableString);
         configuration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
-        res.enableLogging(new ConsoleLogger());
-        res.configure(configuration );
-        res.initialize();
+        res.setLogger(new SimpleLog("MockLog"));
+        res.setConfiguration(new ConfigurationAdapter(configuration));
+        res.init();
     }
 
     /**
@@ -78,7 +79,7 @@ public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
     }
 
     protected void disposeUsersRepository() {
-        Iterator i = this.usersRepository.list();
+        Iterator<String> i = this.usersRepository.list();
         while (i.hasNext()) {
             this.usersRepository.removeUser((String) i.next());
         }

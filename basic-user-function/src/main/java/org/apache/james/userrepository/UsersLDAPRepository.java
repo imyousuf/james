@@ -85,7 +85,7 @@ public class UsersLDAPRepository
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     public void configure(Configuration conf) throws ConfigurationException {
-        super.configure(conf);
+       
 
         //TODO: Take care of baseNodeDN
         LDAPHost = conf.getChild("LDAPServer").getValue();

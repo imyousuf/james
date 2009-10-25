@@ -30,16 +30,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.vut.ErrorMappingException;
@@ -53,8 +50,7 @@ import org.apache.oro.text.regex.Perl5Compiler;
 /**
  * 
  */
-public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
-    implements VirtualUserTable, VirtualUserTableManagement, DomainList, Serviceable, Configurable {
+public abstract class AbstractVirtualUserTable implements VirtualUserTable, VirtualUserTableManagement, DomainList {
     
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
@@ -65,38 +61,45 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
        
     // TODO: Should we use true or false as default ?
     private boolean recursive = true;
+    private HierarchicalConfiguration config;
+    private Log logger;
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        dns = (DNSService)arg0.lookup(DNSService.ROLE); 
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public void setDNSService(DNSService dns) {
+        this.dns = dns;
+    }
+
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration config) {
+        this.config = config;
+    }
+
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLogger(Log logger) {
+        this.logger = logger;
     }
     
+    private void configure() throws ConfigurationException {
+        setRecursiveMapping(config.getBoolean("recursiveMapping", true));
+        try {
+            setMappingLimit(config.getInt("mappingLimit",10));
+        } catch (IllegalArgumentException e) {
+            throw new ConfigurationException(e.getMessage());
+        }
+        doConfigure(config);
+    }
     
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration recursiveConf = arg0.getChild("recursiveMapping", false);
-
-        if (recursiveConf != null) {
-            setRecursiveMapping(recursiveConf.getValueAsBoolean(true));
-        }
+    protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
         
-        Configuration mappingLimitConf = arg0.getChild("mappingLimit", false);
-        
-        if (mappingLimitConf != null )  {
-            try {
-                setMappingLimit(mappingLimitConf.getValueAsInteger(10));
-            } catch (IllegalArgumentException e) {
-                throw new ConfigurationException(e.getMessage());
-            }
-        }
     }
     
     public void setRecursiveMapping(boolean recursive) {
         this.recursive = recursive;
+    }
+    
+    @PostConstruct
+    public void init() throws Exception {
+        configure();
     }
     
     /**
@@ -316,9 +319,9 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getAllMappings()
      */
-    public Map getAllMappings() {
+    public Map<String,Collection<String>> getAllMappings() {
         int count = 0;
-        Map mappings = getAllMappingsInternal();
+        Map<String,Collection<String>> mappings = getAllMappingsInternal();
     
         if (mappings != null) {
             count = mappings.size();
@@ -329,7 +332,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     
     
    private boolean checkMapping(String user,String domain, String mapping) {
-       Collection mappings = getUserDomainMappings(user,domain);
+       Collection<String> mappings = getUserDomainMappings(user,domain);
        if (mappings != null && mappings.contains(mapping)) {
            return false;
        } else {
@@ -341,8 +344,8 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.api.domainlist.DomainList#getDomains()
      */
-    public List getDomains() {
-        List domains = getDomainsInternal();
+    public List<String> getDomains() {
+        List<String> domains = getDomainsInternal();
         if (domains != null) {
             
             String hostName = null;
@@ -361,7 +364,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
             }
            
             if (autoDetectIP == true) {
-                List ipList = getDomainsIP(domains,dns,getLogger());
+                List<String> ipList = getDomainsIP(domains,dns,getLogger());
                 for(int i = 0; i < ipList.size(); i++) {
                     if (domains.contains(ipList.get(i)) == false) {
                         domains.add(ipList.get(i));
@@ -370,7 +373,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
             }
        
             if (getLogger().isInfoEnabled()) {
-                for (Iterator i = domains.iterator(); i.hasNext(); ) {
+                for (Iterator<String> i = domains.iterator(); i.hasNext(); ) {
                     getLogger().info("Handling mail for: " + i.next());
                 }
             }  
@@ -386,11 +389,11 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @param domains List of domains
      * @return domainIP List of ipaddress for domains
      */
-    private static List getDomainsIP(List domains,DNSService dns,Logger log) {
-        List domainIP = new ArrayList();
+    private static List<String> getDomainsIP(List<String> domains,DNSService dns,Log log) {
+        List<String> domainIP = new ArrayList<String>();
         if (domains.size() > 0 ) {
             for (int i = 0; i < domains.size(); i++) {
-                List domList = getDomainIP(domains.get(i).toString(),dns,log);
+                List<String> domList = getDomainIP(domains.get(i).toString(),dns,log);
                 
                 for(int i2 = 0; i2 < domList.size();i2++) {
                     if(domainIP.contains(domList.get(i2)) == false) {
@@ -405,8 +408,8 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see #getDomainsIP(List, DNSService, Logger)
      */
-    private static List getDomainIP(String domain, DNSService dns, Logger log) {
-        List domainIP = new ArrayList();
+    private static List<String> getDomainIP(String domain, DNSService dns, Log log) {
+        List<String> domainIP = new ArrayList<String>();
         try {
             InetAddress[]  addrs = dns.getAllByName(domain);
             for (int j = 0; j < addrs.length ; j++) {
@@ -424,7 +427,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
      */
-    public Collection getUserDomainMappings(String user, String domain) {
+    public Collection<String> getUserDomainMappings(String user, String domain) {
         return getUserDomainMappingsInternal(user, domain);
     }
     
@@ -473,10 +476,10 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         // check if we need to sort
         // TODO: Maybe we should just return the aliasdomain mapping
         if (mappings != null && mappings.indexOf(VirtualUserTable.ALIASDOMAIN_PREFIX) > -1) {
-            Collection mapCol = VirtualUserTableUtil.mappingToCollection(mappings);
-            Iterator mapIt = mapCol.iterator();
+            Collection<String> mapCol = VirtualUserTableUtil.mappingToCollection(mappings);
+            Iterator<String> mapIt = mapCol.iterator();
         
-            List col = new ArrayList(mapCol.size());
+            List<String> col = new ArrayList<String>(mapCol.size());
         
             while (mapIt.hasNext()) {
                 int i = 0;
@@ -495,6 +498,9 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
         }
     }
       
+    protected Log getLogger() {
+        return logger;
+    }
     
     /**
      * Add new mapping
@@ -523,7 +529,7 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * 
      * @return domains  the domains
      */
-    protected abstract List getDomainsInternal();
+    protected abstract List<String> getDomainsInternal();
     
     /**
      * Return Collection of all mappings for the given username and domain
@@ -532,14 +538,14 @@ public abstract class AbstractVirtualUserTable extends AbstractLogEnabled
      * @param domain the domain
      * @return Collection which hold the mappings
      */
-    protected abstract Collection getUserDomainMappingsInternal(String user, String domain);
+    protected abstract Collection<String> getUserDomainMappingsInternal(String user, String domain);
 
     /**
      * Return a Map which holds all Mappings
      * 
      * @return Map
      */
-    protected abstract Map getAllMappingsInternal();
+    protected abstract Map<String,Collection<String>> getAllMappingsInternal();
     
     /**
      * Override to map virtual recipients to real recipients, both local and non-local.

@@ -21,10 +21,9 @@
 
 package org.apache.james.impl.jamesuser;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.User;
 import org.apache.james.api.vut.ErrorMappingException;
@@ -33,15 +32,16 @@ import org.apache.james.impl.user.DefaultUser;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 /**
  * A partial implementation of a Repository to store users.
  * <p>This implements common functionality found in different UsersRespository 
  * implementations, and makes it easier to create new User repositories.</p>
  *
  */
-public abstract class AbstractUsersRepository
-    extends AbstractLogEnabled
-    implements Configurable, JamesUsersRepository {
+public abstract class AbstractUsersRepository implements JamesUsersRepository {
 
     /**
      * Ignore case in usernames
@@ -58,14 +58,35 @@ public abstract class AbstractUsersRepository
      */
     protected boolean enableForwarding;
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public void configure(Configuration configuration)
-        throws ConfigurationException {
-        setIgnoreCase(configuration.getChild("usernames").getValueAsBoolean(false));
-        setEnableAliases(configuration.getChild("enableAliases").getValueAsBoolean(false));
-        setEnableForwarding(configuration.getChild("enableForwarding").getValueAsBoolean(false));
+    private HierarchicalConfiguration configuration;
+
+    private Log logger;
+
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    @PostConstruct
+    public void init() throws Exception{
+        configure();
+    }
+    
+    private void configure() throws ConfigurationException {
+        setIgnoreCase(configuration.getBoolean("usernames", false));
+        setEnableAliases(configuration.getBoolean("enableAliases", false));
+        setEnableForwarding(configuration.getBoolean("enableForwarding", false));
+        
+        doConfigure(configuration);
+    }
+    
+    protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException{
+        
     }
 
     /**
@@ -191,6 +212,12 @@ public abstract class AbstractUsersRepository
         }
     }
 
+    protected Log getLogger() {
+        return logger;
+    }
+    
+    
+    
     /**
      * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableAliases(boolean)
      */

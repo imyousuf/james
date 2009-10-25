@@ -28,42 +28,47 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
 
-public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Configurable {
+public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * Holds the configured mappings
      */
-    private Map mappings;
+    private Map<String,String> mappings;
     
-    private List domains;
+    private List<String> domains;
     
     private final static String WILDCARD = "*";
     
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        super.configure(arg0);
-        Configuration[] mapConf = arg0.getChildren("mapping");
+    // TODO: REMOVE ME!
+    public void init() throws Exception {
+        super.init();
+    }
     
-        mappings = new HashMap();
-        domains = new ArrayList();
+
+    /**
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    @SuppressWarnings("unchecked")
+    public void doConfigure(HierarchicalConfiguration arg0) throws ConfigurationException {
+        List<String> mapConf = arg0.getList("mapping");
+    
+        mappings = new HashMap<String,String>();
+        domains = new ArrayList<String>();
         
-        if (mapConf != null && mapConf.length > 0) {
-            for (int i = 0; i < mapConf.length; i ++) {       
-                mappings.putAll(VirtualUserTableUtil.getXMLMappings(mapConf[i].getValue()));
+        if (mapConf != null && mapConf.size() > 0) {
+            for (int i = 0; i < mapConf.size(); i ++) {       
+                mappings.putAll(VirtualUserTableUtil.getXMLMappings(mapConf.get(i)));
             }
         } else {
             throw new ConfigurationException("No mapping configured");
         }
         
         // Add domains of the mappings map to the domains List
-        Iterator keys = mappings.keySet().iterator();
+        Iterator<String> keys = mappings.keySet().iterator();
         
         while (keys.hasNext()) {
             String key = keys.next().toString();
@@ -77,15 +82,9 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
             }
         }
         
-        Configuration autoConf = arg0.getChild("autodetect");
-        if (autoConf != null) {
-            setAutoDetect(autoConf.getValueAsBoolean(true));  
-        }
+        setAutoDetect(arg0.getBoolean("autodetect",true));  
+        setAutoDetectIP(arg0.getBoolean("autodetectIP", true));  
         
-        Configuration autoIPConf = arg0.getChild("autodetectIP");
-        if (autoConf != null) {
-            setAutoDetectIP(autoIPConf.getValueAsBoolean(true));  
-        }
     }
     
     /**
@@ -119,11 +118,11 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getUserDomainMappingsInternal(java.lang.String, java.lang.String)
      */
-    public Collection getUserDomainMappingsInternal(String user, String domain) {
+    public Collection<String> getUserDomainMappingsInternal(String user, String domain) {
         if (mappings == null) {
             return null;
         } else {
-            String maps = (String) mappings.get(user + "@" + domain);
+            String maps = mappings.get(user + "@" + domain);
             if (maps != null) {
                 return VirtualUserTableUtil.mappingToCollection(maps);
             } else {
@@ -135,7 +134,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getDomainsInternal()
      */
-    protected List getDomainsInternal() {
+    protected List<String> getDomainsInternal() {
         return domains;
     }
 
@@ -153,13 +152,13 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable implements Con
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getAllMappingsInternal()
      */
-    public Map getAllMappingsInternal() {
+    public Map<String,Collection<String>> getAllMappingsInternal() {
         if ( mappings != null && mappings.size() > 0) {
-            Map mappingsNew = new HashMap();
-            Iterator maps = mappings.keySet().iterator();
+            Map<String,Collection<String>> mappingsNew = new HashMap<String,Collection<String>>();
+            Iterator<String> maps = mappings.keySet().iterator();
                 
             while (maps.hasNext()) {
-                String key = maps.next().toString();
+                String key = maps.next();
                 mappingsNew.put(key, VirtualUserTableUtil.mappingToCollection(mappings.get(key).toString()));
             }
             return mappingsNew;

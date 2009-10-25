@@ -188,7 +188,7 @@ public class RemoteManagerTest extends TestCase {
         MockVirtualUserTableStore vutStore = new MockVirtualUserTableStore(); 
         VirtualUserTableManagement vutManagement = new VirtualUserTableManagement();
         vutManagement.setVirtualUserTableStore(vutStore);
-        vutManagement.setDefaultVirtualUserTable(new MockVirtualUserTableManagementImpl());
+        vutManagement.setVirtualUserTableManagement(new MockVirtualUserTableManagementImpl());
         serviceManager.put(VirtualUserTableManagementService.ROLE, vutManagement);
        
         ManageableDomainList xml = new SimpleDomainList();

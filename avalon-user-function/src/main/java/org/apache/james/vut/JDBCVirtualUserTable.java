@@ -34,15 +34,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
@@ -53,7 +51,7 @@ import org.apache.james.util.sql.SqlResources;
 /**
  * 
  */
-public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Configurable,Serviceable, Initializable{
+public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
     private DataSourceSelector datasources = null;
     private DataSourceComponent dataSourceComponent = null;
@@ -78,21 +76,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     protected String datasourceName;
     
     
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        super.service(arg0);
-        datasources = (DataSourceSelector)arg0.lookup(DataSourceSelector.ROLE); 
-        setFileSystem((FileSystem) arg0.lookup(FileSystem.ROLE));
-    }
     
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        super.configure(arg0);
-        String destination = arg0.getAttribute("destinationURL",null);
+    public void doConfigure(HierarchicalConfiguration arg0) throws ConfigurationException {
+        String destination = arg0.getString("/ @destinationURL",null);
     
         if (destination == null) {
             throw new ConfigurationException("destinationURL must configured");
@@ -105,7 +91,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         // Parse the DestinationURL for the name of the datasource,
         // the table to use, and the (optional) repository Key.
         // Split on "/", starting after "db://"
-        List urlParams = new ArrayList();
+        List<String> urlParams = new ArrayList<String>();
         int start = 5;
         
         int end = destination.indexOf('/', start);
@@ -121,7 +107,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
                 new StringBuffer(256)
                         .append("Malformed destinationURL - Must be of the format '")
                         .append("db://<data-source>'.  Was passed ")
-                        .append(arg0.getAttribute("repositoryPath"));
+                        .append(arg0.getString("/ @repositoryPath"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
         if (urlParams.size() >= 1) {
@@ -141,24 +127,16 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             getLogger().debug(logBuffer.toString());
         }
     
-        sqlFileName = arg0.getChild("sqlFile").getValue();
+        sqlFileName = arg0.getString("sqlFile");
         
-        Configuration autoConf = arg0.getChild("autodetect");
-        if (autoConf != null) {
-            setAutoDetect(autoConf.getValueAsBoolean(true));  
-        }
-        
-        Configuration autoIPConf = arg0.getChild("autodetectIP");
-        if (autoConf != null) {
-            setAutoDetectIP(autoIPConf.getValueAsBoolean(true));  
-        }
+        setAutoDetect(arg0.getBoolean("autodetect",true));  
+        setAutoDetectIP(arg0.getBoolean("autodetectIP", true));  
+
     }
-    
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-    
+
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
         setDataSourceComponent((DataSourceComponent) datasources.select(dataSourceName));
     
         StringBuffer logBuffer = null;
@@ -177,7 +155,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             try {
                 sqlFile = fileSystem.getResource(sqlFileName);
             } catch (Exception e) {
-                getLogger().fatalError(e.getMessage(), e);
+                getLogger().error(e.getMessage(), e);
                 throw e;
             }
 
@@ -193,7 +171,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
             }
 
             // Build the statement parameters
-            Map sqlParameters = new HashMap();
+            Map<String,String> sqlParameters = new HashMap<String,String>();
             if (tableName != null) {
                 sqlParameters.put("table", tableName);
             }
@@ -245,7 +223,12 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
         this.dataSourceComponent = dataSourceComponent;
     }
     
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    public void setDataSourceSelector(DataSourceSelector datasources) {
+        this.datasources = datasources;
+    }
 
+    @Resource(name="org.apache.james.services.FileSystem")
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
@@ -288,7 +271,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     public boolean removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException {
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
-        Collection map = getUserDomainMappings(newUser,newDomain);
+        Collection<String> map = getUserDomainMappings(newUser,newDomain);
 
         if (map != null && map.size() > 1) {
             map.remove(mapping);
@@ -305,7 +288,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     public boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
-        Collection map =  getUserDomainMappings(newUser,newDomain);
+        Collection<String> map =  getUserDomainMappings(newUser,newDomain);
 
         if (map != null && map.size() != 0) {
             map.add(regex);
@@ -474,7 +457,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
      */
-    protected Collection getUserDomainMappingsInternal(String user, String domain) {
+    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         
@@ -506,8 +489,8 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getDomainsInternal()
      */
-    protected List getDomainsInternal() {
-        List domains = new ArrayList();
+    protected List<String> getDomainsInternal() {
+        List<String> domains = new ArrayList<String>();
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         
@@ -575,10 +558,10 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable implements Co
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getAllMappingsInternal()
      */
-    public Map getAllMappingsInternal() {
+    public Map<String,Collection<String>> getAllMappingsInternal() {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
-        HashMap mapping = new HashMap();
+        Map<String,Collection<String>> mapping = new HashMap<String,Collection<String>>();
         
         try {
             conn = dataSourceComponent.getConnection();

@@ -24,9 +24,8 @@ package org.apache.james.impl.vut;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import javax.annotation.Resource;
+
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.api.vut.management.InvalidMappingException;
@@ -39,24 +38,18 @@ import org.apache.james.api.vut.management.VirtualUserTableManagementService;
  * Management for VirtualUserTables
  * 
  */
-public class VirtualUserTableManagement implements Serviceable, VirtualUserTableManagementService, VirtualUserTableManagementMBean {
+public class VirtualUserTableManagement implements VirtualUserTableManagementService, VirtualUserTableManagementMBean {
 
-    VirtualUserTableStore store;
-    org.apache.james.api.vut.management.VirtualUserTableManagement defaultVUT;    
+    private VirtualUserTableStore store;
+    private org.apache.james.api.vut.management.VirtualUserTableManagement defaultVUT;    
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        setVirtualUserTableStore((VirtualUserTableStore) arg0.lookup(VirtualUserTableStore.ROLE));
-        setDefaultVirtualUserTable((org.apache.james.api.vut.management.VirtualUserTableManagement) arg0.lookup(DefaultVirtualUserTable.ROLE));
-    }
-
+    @Resource(name="org.apache.james.api.vut.VirtualUserTableStore")
     public void setVirtualUserTableStore(VirtualUserTableStore store) {
         this.store = store;
     }
     
-    public void setDefaultVirtualUserTable(org.apache.james.api.vut.management.VirtualUserTableManagement defaultVUT) {
+    @Resource(name="org.apache.james.api.vut.management.VirtualUserTableManagement")
+    public void setVirtualUserTableManagement(org.apache.james.api.vut.management.VirtualUserTableManagement defaultVUT) {
         this.defaultVUT = defaultVUT;
     }
     
@@ -122,7 +115,7 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagementService#getUserDomainMappings(java.lang.String, java.lang.String, java.lang.String)
      */
-    public Collection getUserDomainMappings(String virtualUserTable, String user, String domain) throws VirtualUserTableManagementException {
+    public Collection<String> getUserDomainMappings(String virtualUserTable, String user, String domain) throws VirtualUserTableManagementException {
         try {
             return getTable(virtualUserTable).getUserDomainMappings(user, domain);
         } catch (InvalidMappingException e) {
@@ -188,7 +181,7 @@ public class VirtualUserTableManagement implements Serviceable, VirtualUserTable
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagementService#getAllMappings(java.lang.String)
      */
-    public Map getAllMappings(String virtualUserTable) throws VirtualUserTableManagementException{
+    public Map<String,Collection<String>> getAllMappings(String virtualUserTable) throws VirtualUserTableManagementException{
         return getTable(virtualUserTable).getAllMappings();
     }
 
