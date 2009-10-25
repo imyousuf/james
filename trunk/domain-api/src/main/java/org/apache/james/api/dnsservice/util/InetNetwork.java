@@ -206,8 +206,8 @@ class InetNetwork
 
     static {
         try {
-            Class inetAddressClass = Class.forName("java.net.InetAddress");
-            Class[] parameterTypes = { byte[].class };
+            Class<?> inetAddressClass = Class.forName("java.net.InetAddress");
+            Class<?>[] parameterTypes = { byte[].class };
             getByAddress = inetAddressClass.getMethod("getByAddress", parameterTypes);
         } catch (Exception e) {
             getByAddress = null;

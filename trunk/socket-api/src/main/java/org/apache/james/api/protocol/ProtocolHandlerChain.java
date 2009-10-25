@@ -11,7 +11,6 @@ public interface ProtocolHandlerChain {
      * @param type the type of handler we're interested in
      * @return a List of handlers
      */
-    @SuppressWarnings("unchecked")
     public abstract <T> LinkedList<T> getHandlers(Class<T> type);
 
 }

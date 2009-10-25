@@ -28,13 +28,13 @@ import java.util.List;
  * Simplest implementation for ManageableDomainList
  */
 public class SimpleDomainList implements ManageableDomainList {
-    List domains = new LinkedList();
+    List<String> domains = new LinkedList<String>();
 
     public boolean containsDomain(String domain) {
         return domains.contains(domain);
     }
 
-    public List getDomains() {
+    public List<String> getDomains() {
         return domains;
     }
 

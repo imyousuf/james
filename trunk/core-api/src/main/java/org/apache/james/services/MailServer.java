@@ -63,7 +63,7 @@ public interface MailServer
      * 
      * @deprecated You can use MailetContext service for this purpose
      */
-    void sendMail(MailAddress sender, Collection recipients, MimeMessage msg)
+    void sendMail(MailAddress sender, Collection<MailAddress> recipients, MimeMessage msg)
         throws MessagingException;
 
     /**
@@ -77,7 +77,7 @@ public interface MailServer
      * 
      * @deprecated You can use MailetContext service for this purpose
      */
-    void sendMail(MailAddress sender, Collection recipients, InputStream msg)
+    void sendMail(MailAddress sender, Collection<MailAddress> recipients, InputStream msg)
         throws MessagingException;
 
     /**

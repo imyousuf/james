@@ -42,6 +42,6 @@ public interface ExtensibleHandler {
      * @param interfaceName
      * @param extension a list of objects implementing the marker interface
      */
-    void wireExtensions(Class interfaceName, List extension) throws WiringException;
+    void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException;
     
 }

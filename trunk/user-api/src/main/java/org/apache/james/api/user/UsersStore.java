@@ -54,5 +54,5 @@ public interface UsersStore
      * @return an Iterator over the set of repository names
      *         for this store
      */
-    Iterator getRepositoryNames();
+    Iterator<String> getRepositoryNames();
 }

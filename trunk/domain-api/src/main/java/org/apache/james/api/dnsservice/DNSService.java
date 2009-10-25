@@ -26,6 +26,8 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.mailet.HostAddress;
+
 
 /**
  * Provides abstraction for DNS resolutions. The interface is Mail specific.
@@ -53,7 +55,7 @@ public interface DNSService {
      *         this mail domain name
      * @throws TemporaryResolutionException get thrown on temporary problems 
      */
-    Collection findMXRecords(String hostname) throws TemporaryResolutionException;
+    Collection<String> findMXRecords(String hostname) throws TemporaryResolutionException;
 
     /**
      * Get a collection of DNS TXT Records
@@ -61,7 +63,7 @@ public interface DNSService {
      * @param hostname The hostname to check
      * @return collection of strings representing TXT record values
      */
-    Collection findTXTRecords(String hostname);
+    Collection<String> findTXTRecords(String hostname);
 
 
     /**
@@ -82,7 +84,7 @@ public interface DNSService {
      * @return an Iterator over HostAddress instances, sorted by priority
      * @throws TemporaryResolutionException get thrown on temporary problems
      */
-    Iterator getSMTPHostAddresses(String domainName) throws TemporaryResolutionException;
+    Iterator<HostAddress> getSMTPHostAddresses(String domainName) throws TemporaryResolutionException;
     
     /**
      * @see java.net.InetAddress#getAllByName(String)

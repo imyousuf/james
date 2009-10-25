@@ -56,7 +56,7 @@ public class SpamAssassinInvoker {
 
     private String required = "?";
 
-    private HashMap headers = new HashMap();
+    private Map<String,String> headers = new HashMap<String,String>();
 
     /**
      * Init the spamassassin invoker
@@ -180,7 +180,7 @@ public class SpamAssassinInvoker {
      * 
      * @return headers Map of headers to add as attributes
      */
-    public Map getHeadersAsAttribute() {
+    public Map<String,String> getHeadersAsAttribute() {
         return headers;
     }
 }
