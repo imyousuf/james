@@ -137,7 +137,7 @@ public class MBoxMailRepository
      * The internal list of the emails
      * The key is an adapted MD5 checksum of the mail
      */
-    private Hashtable mList = null;
+    private Hashtable<String,Long> mList = null;
     /**
      * The filename to read & write the mbox from/to
      */
@@ -464,7 +464,7 @@ public class MBoxMailRepository
             if (initialCapacity > Integer.MAX_VALUE) {
                 initialCapacity = Integer.MAX_VALUE - 1;
             }
-            this.mList = new Hashtable((int)initialCapacity);
+            this.mList = new Hashtable<String,Long>((int)initialCapacity);
             this.parseMboxFile(ins, new MessageAction() {
                 public boolean isComplete() { return false; }
                 public MimeMessage messageAction(String messageSeparator, String bodyText, long messageStart) {
@@ -484,7 +484,7 @@ public class MBoxMailRepository
             //System.out.println("Done Load keys!");
         } catch (FileNotFoundException e) {
             getLogger().error("Unable to save(open) file (File not found) " + mboxFile, e);
-            this.mList = new Hashtable((int)DEFAULTMLISTCAPACITY);
+            this.mList = new Hashtable<String,Long>((int)DEFAULTMLISTCAPACITY);
         } catch (IOException e) {
             getLogger().error("Unable to write file (General I/O problem) " + mboxFile, e);
         } finally {
@@ -545,9 +545,9 @@ public class MBoxMailRepository
     /**
      * @see org.apache.james.services.MailRepository#list()
      */
-    public Iterator list() {
+    public Iterator<String> list() {
         loadKeys();
-        ArrayList keys =  new ArrayList(mList.keySet());
+        ArrayList<String> keys =  new ArrayList<String>(mList.keySet());
         
         if (keys.isEmpty() == false) {
             // find the first message.  This is a trick to make sure that if
@@ -601,7 +601,7 @@ public class MBoxMailRepository
      * @see org.apache.james.services.MailRepository#remove(Mail)
      */
     public void remove(Mail mail) {
-        ArrayList remArray = new ArrayList();
+        ArrayList<Mail> remArray = new ArrayList<Mail>();
         remArray.add(mail);
         remove(remArray);
     }
@@ -666,7 +666,7 @@ public class MBoxMailRepository
     /**
      * @see org.apache.james.services.MailRepository#remove(Collection)
      */
-    public void remove(final Collection mails)
+    public void remove(final Collection<Mail> mails)
     {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             StringBuffer logBuffer =
@@ -691,11 +691,11 @@ public class MBoxMailRepository
                     try {
                         String currentKey=generateKeyValue(bodyText);
                         boolean foundKey=false;
-                        Iterator mailList = mails.iterator();
+                        Iterator<Mail> mailList = mails.iterator();
                         String key;
                         while (mailList.hasNext()) {
                             // Attempt to find the current key in the array
-                            key = ((Mail)mailList.next()).getName();
+                            key = mailList.next().getName();
                             if (key.equals(currentKey)) {
                                 // Don't write the message to disk
                                 foundKey = true;
@@ -730,11 +730,11 @@ public class MBoxMailRepository
             }
 
             // Now delete the keys in mails from the main hash
-            Iterator mailList = mails.iterator();
+            Iterator<Mail> mailList = mails.iterator();
             String key;
             while (mailList.hasNext()) {
                 // Attempt to find the current key in the array
-                key = ((Mail)mailList.next()).getName();
+                key = mailList.next().getName();
                 mList.remove(key);
             }
 
@@ -757,7 +757,7 @@ public class MBoxMailRepository
             getLogger().error("Lock failed!",e);
             return; // No lock, so exit
         }
-        ArrayList keys = new ArrayList();
+        ArrayList<Mail> keys = new ArrayList<Mail>();
         keys.add(retrieve(key));
 
         this.remove(keys);

@@ -76,11 +76,10 @@ public class AvalonApplicationContext extends AbstractRefreshableApplicationCont
 
     public static void loadAvalonBasedBeanDefinitions(DefaultListableBeanFactory defaultListableBeanFactory, Resource containerConfigurationResource, Resource applicationConfigurationResource) {
         XmlBeanDefinitionReader containerBeanDefinitionReader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
-        int containerBeanCount = containerBeanDefinitionReader.loadBeanDefinitions(containerConfigurationResource);
+        containerBeanDefinitionReader.loadBeanDefinitions(containerConfigurationResource);
 
         AvalonBeanDefinitionReader applicationBeanDefinitionReader = new AvalonBeanDefinitionReader(defaultListableBeanFactory);
-        int applicationBeanCount = applicationBeanDefinitionReader.loadBeanDefinitions(applicationConfigurationResource);
+        applicationBeanDefinitionReader.loadBeanDefinitions(applicationConfigurationResource);
 
-        int totalBeanCount = containerBeanCount + applicationBeanCount;
     }
 }

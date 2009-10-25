@@ -25,6 +25,7 @@ package org.apache.james.domain;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
@@ -39,7 +40,7 @@ import junit.framework.TestCase;
 
 public class XMLDomainListTest extends TestCase {
     
-    private Configuration setUpConfiguration(boolean auto,boolean autoIP,ArrayList names) {
+    private Configuration setUpConfiguration(boolean auto,boolean autoIP, List<String> names) {
         DefaultConfiguration configuration = new DefaultConfiguration("test");
         DefaultConfiguration sNamesConf = new DefaultConfiguration("domainnames");
         DefaultConfiguration autoConf = new DefaultConfiguration("autodetect");
@@ -85,7 +86,7 @@ public class XMLDomainListTest extends TestCase {
     }
     
     public void testGetDomains() throws Exception {
-        ArrayList domains = new ArrayList();
+        List<String> domains = new ArrayList<String>();
         domains.add("domain1.");
         domains.add("domain2.");
     
@@ -99,7 +100,7 @@ public class XMLDomainListTest extends TestCase {
     }
     
     public void testGetDomainsAutoDetectNotLocalHost() throws Exception {
-        ArrayList domains = new ArrayList();
+        List<String> domains = new ArrayList<String>();
         domains.add("domain1.");
     
         XMLDomainList dom = new XMLDomainList();
@@ -112,7 +113,7 @@ public class XMLDomainListTest extends TestCase {
     }
     
     public void testGetDomainsAutoDetectLocalHost() throws Exception {
-        ArrayList domains = new ArrayList();
+        List<String> domains = new ArrayList<String>();
         domains.add("domain1.");
     
         ManageableDomainList dom = new XMLDomainList();

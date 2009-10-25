@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class AvalonConfigurationFileProvider implements ConfigurationProvider, ResourceLoaderAware {
 
-    private List configurationInterceptors;
+    private List<ConfigurationInterceptor> configurationInterceptors;
     private String configuration;
     private ResourceLoader resourceLoader;
     
@@ -71,9 +71,9 @@ public class AvalonConfigurationFileProvider implements ConfigurationProvider, R
 
         // apply all interceptors
         if (configuration != null && configurationInterceptors != null) {
-            Iterator interceptorsIterator = configurationInterceptors.iterator();
+            Iterator<ConfigurationInterceptor> interceptorsIterator = configurationInterceptors.iterator();
             while (interceptorsIterator.hasNext()) {
-                ConfigurationInterceptor configurationInterceptor = (ConfigurationInterceptor) interceptorsIterator.next();
+                ConfigurationInterceptor configurationInterceptor = interceptorsIterator.next();
                 configuration = configurationInterceptor.intercept(configuration);
             }
         }
@@ -84,7 +84,7 @@ public class AvalonConfigurationFileProvider implements ConfigurationProvider, R
         this.configuration = configuration;
     }
 
-    public void setConfigurationInterceptors(List configurationInterceptors) {
+    public void setConfigurationInterceptors(List<ConfigurationInterceptor> configurationInterceptors) {
         this.configurationInterceptors = configurationInterceptors;
     }
 

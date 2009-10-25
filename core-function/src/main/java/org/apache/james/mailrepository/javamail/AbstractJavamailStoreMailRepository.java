@@ -306,7 +306,7 @@ public abstract class AbstractJavamailStoreMailRepository extends
      * @param mails
      * @throws MessagingException
      */
-    public void remove(final Collection mails) throws MessagingException {
+    public void remove(final Collection<Mail> mails) throws MessagingException {
         log.debug("UIDPlusFolder remove by Collection " + mails.size());
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
             StringBuffer logBuffer = new StringBuffer(128).append(
@@ -315,13 +315,13 @@ public abstract class AbstractJavamailStoreMailRepository extends
 
             getLogger().debug(logBuffer.toString());
         }
-        Iterator mailList = mails.iterator();
+        Iterator<Mail> mailList = mails.iterator();
 
         /*
          * remove every email from the Collection
          */
         while (mailList.hasNext()) {
-            remove(((Mail) mailList.next()).getName());
+            remove(mailList.next().getName());
         }
     }
 

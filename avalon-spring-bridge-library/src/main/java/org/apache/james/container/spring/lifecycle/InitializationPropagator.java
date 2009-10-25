@@ -36,7 +36,7 @@ import org.springframework.core.Ordered;
  */
 public class InitializationPropagator extends AbstractPropagator implements BeanPostProcessor, Ordered, LoaderService {
 
-    protected Class getLifecycleInterface() {
+    protected Class<?> getLifecycleInterface() {
         return Initializable.class;
     }
 

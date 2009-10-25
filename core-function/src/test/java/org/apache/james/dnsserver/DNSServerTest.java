@@ -23,6 +23,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.mailet.HostAddress;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;
@@ -54,7 +55,7 @@ public class DNSServerTest extends TestCase {
         dnsServer.setResolver(null);
         dnsServer.setCache(new ZoneCache("dnstest.com."));
         //a.setSearchPath(new String[] { "searchdomain.com." });
-        Collection records = dnsServer.findMXRecords("nomx.dnstest.com.");
+        Collection<String> records = dnsServer.findMXRecords("nomx.dnstest.com.");
         assertEquals(1, records.size());
         assertEquals("nomx.dnstest.com.", records.iterator()
                 .next());
@@ -64,11 +65,11 @@ public class DNSServerTest extends TestCase {
         dnsServer.setResolver(null);
         dnsServer.setCache(new ZoneCache("dnstest.com."));
         //a.setSearchPath(new String[] { "searchdomain.com." });
-        Collection records = dnsServer.findMXRecords("badmx.dnstest.com.");
+        Collection<String> records = dnsServer.findMXRecords("badmx.dnstest.com.");
         assertEquals(1, records.size());
         assertEquals("badhost.dnstest.com.", records.iterator()
                 .next());
-        Iterator it = dnsServer.getSMTPHostAddresses("badmx.dnstest.com.");
+        Iterator<HostAddress> it = dnsServer.getSMTPHostAddresses("badmx.dnstest.com.");
         assertFalse(it.hasNext());
     }
     
@@ -77,7 +78,7 @@ public class DNSServerTest extends TestCase {
         dnsServer.setResolver(null);
         dnsServer.setCache(new ZoneCache("pippo.com."));
         // dnsServer.setLookupper(new ZoneLookupper(z));
-        Collection records = dnsServer.findMXRecords("www.pippo.com.");
+        Collection<String> records = dnsServer.findMXRecords("www.pippo.com.");
         assertEquals(1, records.size());
         assertEquals("pippo.com.inbound.mxlogic.net.", records.iterator()
                 .next());
@@ -88,9 +89,9 @@ public class DNSServerTest extends TestCase {
         dnsServer.setResolver(null);
         dnsServer.setCache(new ZoneCache("test-zone.com."));
         // dnsServer.setLookupper(new ZoneLookupper(z));
-        Collection res = dnsServer.findMXRecords("test-zone.com.");
+        Collection<String> res = dnsServer.findMXRecords("test-zone.com.");
         try {
-            res.add(new Object());
+            res.add(new String());
             fail("MX Collection should not be modifiable");
         } catch (UnsupportedOperationException e) {
         }
@@ -103,7 +104,7 @@ public class DNSServerTest extends TestCase {
         dnsServer.setResolver(null);
         dnsServer.setCache(new ZoneCache("brandilyncollins.com."));
         // dnsServer.setLookupper(new ZoneLookupper(z));
-        Iterator records = dnsServer.getSMTPHostAddresses("brandilyncollins.com.");
+        Iterator<HostAddress> records = dnsServer.getSMTPHostAddresses("brandilyncollins.com.");
         assertEquals(true, records.hasNext());
     }
 

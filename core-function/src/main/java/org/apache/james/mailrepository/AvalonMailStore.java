@@ -55,13 +55,14 @@ public class AvalonMailStore
     private static long id;
 
     // map of [destinationURL + type]->Repository
+    @SuppressWarnings("unchecked")
     private Map repositories;
 
     // map of [protocol(destinationURL) + type ]->classname of repository;
-    private Map classes;
+    private Map<String,String> classes;
 
     // map of [protocol(destinationURL) + type ]->default config for repository.
-    private Map defaultConfigs;
+    private Map<String,Configuration> defaultConfigs;
 
     /**
      * The Avalon configuration used by the instance
@@ -102,8 +103,8 @@ public class AvalonMailStore
 
         getLogger().info("JamesMailStore init...");
         repositories = new ReferenceMap();
-        classes = new HashMap();
-        defaultConfigs = new HashMap();
+        classes = new HashMap<String,String>();
+        defaultConfigs = new HashMap<String,Configuration>();
         Configuration[] registeredClasses
             = configuration.getChild("repositories").getChildren("repository");
         for ( int i = 0; i < registeredClasses.length; i++ )
@@ -185,6 +186,7 @@ public class AvalonMailStore
      *                            Configuration or retrieving the 
      *                            MailRepository
      */
+    @SuppressWarnings("unchecked")
     public synchronized Object select(Object hint) throws ServiceException {
         Configuration repConf = null;
         try {

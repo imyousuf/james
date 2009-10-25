@@ -30,7 +30,7 @@ public class StoreGateKeeperImpl implements StoreGateKeeper {
     
     private Store store;
     
-    Map folderGateKeeperMap = new HashMap();
+    Map<String, FolderGateKeeper> folderGateKeeperMap = new HashMap<String, FolderGateKeeper>();
     FolderGateKeeper defaultFolder = null;
 
     private FolderAdapterFactory folderFactory;

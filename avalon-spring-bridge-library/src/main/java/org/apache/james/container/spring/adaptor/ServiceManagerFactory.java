@@ -29,7 +29,7 @@ public interface ServiceManagerFactory {
 
     ServiceManager getInstanceFor(String beanName, BeanDefinition beanDefinition);
     
-    void setReplacements(Map replacements);
+    void setReplacements(Map<String,String> replacements);
     
     
 }

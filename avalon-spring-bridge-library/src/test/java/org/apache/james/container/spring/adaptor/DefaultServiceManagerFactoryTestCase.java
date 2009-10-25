@@ -40,16 +40,16 @@ public class DefaultServiceManagerFactoryTestCase extends TestCase {
 
     private class TestApplicationContext extends AbstractRefreshableApplicationContext {
         
-        private HashMap beannameToDefinitionMap = new HashMap();
+        private HashMap<String,BeanDefinition> beannameToDefinitionMap = new HashMap<String,BeanDefinition>();
 
         public void addBean(String beanName, BeanDefinition beanDefinition) {
             beannameToDefinitionMap.put(beanName, beanDefinition);
         }
 
         protected void loadBeanDefinitions(DefaultListableBeanFactory defaultListableBeanFactory) throws IOException, BeansException {
-            Iterator iterator = beannameToDefinitionMap.keySet().iterator();
+            Iterator<String> iterator = beannameToDefinitionMap.keySet().iterator();
             while (iterator.hasNext()) {
-                String beanname = (String) iterator.next();
+                String beanname = iterator.next();
                 BeanDefinition beanDefinition = (BeanDefinition) beannameToDefinitionMap.get(beanname);
                 defaultListableBeanFactory.registerBeanDefinition(beanname, beanDefinition);
             }
@@ -120,7 +120,7 @@ public class DefaultServiceManagerFactoryTestCase extends TestCase {
         DefaultServiceManagerFactory managerFactory = new DefaultServiceManagerFactory();
         managerFactory.setApplicationContext(testApplicationContext);
         try {
-            ServiceManager manager = managerFactory.getInstanceFor("referencingBean", referencingBeanDefinition);
+            managerFactory.getInstanceFor("referencingBean", referencingBeanDefinition);
             fail("must throw exception");
         } catch (Exception e) {
             assertTrue("cannot have 2 references of same type!", true);

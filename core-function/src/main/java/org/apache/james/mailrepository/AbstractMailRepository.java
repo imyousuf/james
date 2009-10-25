@@ -186,10 +186,10 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
     /**
      * @see org.apache.james.services.MailRepository#remove(Collection)
      */
-    public void remove(Collection mails) throws MessagingException {
-        Iterator delList = mails.iterator();
+    public void remove(Collection<Mail> mails) throws MessagingException {
+        Iterator<Mail>delList = mails.iterator();
         while (delList.hasNext()) {
-            remove((Mail)delList.next());
+            remove(delList.next());
         }
     }
 

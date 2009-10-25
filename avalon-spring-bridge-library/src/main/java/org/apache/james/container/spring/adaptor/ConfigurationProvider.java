@@ -19,6 +19,7 @@
 package org.apache.james.container.spring.adaptor;
 
 import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.james.container.spring.configuration.ConfigurationInterceptor;
 
 import java.util.List;
 
@@ -30,6 +31,6 @@ public interface ConfigurationProvider {
 
     Configuration getConfiguration();
 
-    void setConfigurationInterceptors(List configurationInterceptors);
+    void setConfigurationInterceptors(List<ConfigurationInterceptor> configurationInterceptors);
 
 }

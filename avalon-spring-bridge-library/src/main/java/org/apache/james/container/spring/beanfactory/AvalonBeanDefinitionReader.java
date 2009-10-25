@@ -104,8 +104,8 @@ public class AvalonBeanDefinitionReader extends AbstractBeanDefinitionReader {
         return bd;
     }
     
-    private List loadServiceReferences(Configuration block) {
-        List serviceReferences = new ArrayList();
+    private List<AvalonServiceReference> loadServiceReferences(Configuration block) {
+        List<AvalonServiceReference> serviceReferences = new ArrayList<AvalonServiceReference>();
         Configuration[] referencedComponentDefs  = block.getChildren("provide");
         if (referencedComponentDefs == null) return serviceReferences;
 

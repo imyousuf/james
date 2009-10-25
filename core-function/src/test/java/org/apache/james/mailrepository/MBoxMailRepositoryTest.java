@@ -61,7 +61,7 @@ public class MBoxMailRepositoryTest extends TestCase {
     public void testReadMboxrdFile() throws ServiceException, ConfigurationException, Exception {
         MailRepository mr = getMailRepository();
     
-        Iterator keys = mr.list();
+        Iterator<String> keys = mr.list();
     
         assertTrue("Two messages in list", keys.hasNext());
         keys.next();

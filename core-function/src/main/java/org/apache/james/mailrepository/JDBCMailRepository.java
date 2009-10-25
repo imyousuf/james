@@ -183,7 +183,7 @@ public class JDBCMailRepository
         // Parse the DestinationURL for the name of the datasource,
         // the table to use, and the (optional) repository Key.
         // Split on "/", starting after "db://"
-        List urlParams = new ArrayList();
+        List<String> urlParams = new ArrayList<String>();
         int start = 5;
         if (destination.startsWith("dbfile")) {
             //this is dbfile:// instead of db://
@@ -321,7 +321,7 @@ public class JDBCMailRepository
             }
 
             // Build the statement parameters
-            Map sqlParameters = new HashMap();
+            Map<String,String> sqlParameters = new HashMap<String,String>();
             if (tableName != null) {
                 sqlParameters.put("table", tableName);
             }
@@ -492,7 +492,7 @@ public class JDBCMailRepository
                         updateMessage.setString(3, mc.getSender().toString());
                     }
                     StringBuffer recipients = new StringBuffer();
-                    for (Iterator i = mc.getRecipients().iterator(); i.hasNext(); ) {
+                    for (Iterator<MailAddress> i = mc.getRecipients().iterator(); i.hasNext(); ) {
                         recipients.append(i.next().toString());
                         if (i.hasNext()) {
                             recipients.append("\r\n");
@@ -607,7 +607,7 @@ public class JDBCMailRepository
                         insertMessage.setString(5, mc.getSender().toString());
                     }
                     StringBuffer recipients = new StringBuffer();
-                    for (Iterator i = mc.getRecipients().iterator(); i.hasNext(); ) {
+                    for (Iterator<MailAddress> i = mc.getRecipients().iterator(); i.hasNext(); ) {
                         recipients.append(i.next().toString());
                         if (i.hasNext()) {
                             recipients.append("\r\n");

@@ -235,7 +235,7 @@ public class UIDPlusFolderMailRepository extends
      * @throws MessagingException 
      * 
      */
-    public Iterator list() throws MessagingException {
+    public Iterator<String> list() throws MessagingException {
         log.debug("UIDPlusFolder list");
         try {
             getFolderGateKeeper().use();
@@ -243,7 +243,7 @@ public class UIDPlusFolderMailRepository extends
             String[] keysBefore = getUidToKeyBidiMap().getKeys();
             // get the messages
             Message[] msgs = getFolderGateKeeper().getOpenFolder().getMessages();
-            Collection keys = new ArrayList(msgs.length);
+            Collection<String> keys = new ArrayList<String>(msgs.length);
             if (msgs == null)
                 throw new RuntimeException("inbox.getMessages returned null");
             for (int i = 0; i < msgs.length; i++) {
@@ -304,26 +304,26 @@ public class UIDPlusFolderMailRepository extends
      */
     private class UidToKeyBidiMapImpl implements UidToKeyBidiMap {
 
-        private Map keyToUid;
+        private Map<String,Long> keyToUid;
 
-        private Map uidToKey;
+        private Map<Long,String> uidToKey;
 
         public UidToKeyBidiMapImpl() {
-            keyToUid = new HashMap();
-            uidToKey = new HashMap();
+            keyToUid = new HashMap<String,Long>();
+            uidToKey = new HashMap<Long,String>();
         }
 
         public synchronized String[] getKeys() {
-            final ArrayList al = new ArrayList(keyToUid.keySet());
+            final ArrayList<String> al = new ArrayList<String>(keyToUid.keySet());
             final String[] keys = (String[]) al.toArray(new String[0]);
             return keys;
         }
 
         public synchronized void retainAllListedAndAddedByKeys(
-                final String[] before, final Collection listed) {
-            Collection added = new HashSet(keyToUid.keySet());
+                final String[] before, final Collection<String> listed) {
+            Collection<String> added = new HashSet<String>(keyToUid.keySet());
             added.removeAll(Arrays.asList(before));
-            Collection retain = new HashSet(listed);
+            Collection<String> retain = new HashSet<String>(listed);
             retain.addAll(added);
             keyToUid.keySet().retainAll(retain);
             uidToKey.keySet().retainAll(keyToUid.values());

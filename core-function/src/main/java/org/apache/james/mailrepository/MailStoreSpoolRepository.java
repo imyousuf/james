@@ -136,7 +136,7 @@ public class MailStoreSpoolRepository
     /**
      * @see org.apache.james.services.MailRepository#list()
      */
-    public Iterator list() throws MessagingException {
+    public Iterator<String> list() throws MessagingException {
         return spoolRep.list();
     }
 
@@ -157,7 +157,7 @@ public class MailStoreSpoolRepository
     /**
      * @see org.apache.james.services.MailRepository#remove(java.util.Collection)
      */
-    public void remove(Collection mails) throws MessagingException {
+    public void remove(Collection<Mail> mails) throws MessagingException {
         spoolRep.remove(mails);
     }
 
