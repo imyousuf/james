@@ -229,7 +229,7 @@ public class UserManagementTest extends TestCase {
     }
     
     public void testListRepositories() throws UserManagementException {
-        List userRepositoryNames = m_userManagement.getUserRepositoryNames();
+        List<String> userRepositoryNames = m_userManagement.getUserRepositoryNames();
         assertTrue("default is there", userRepositoryNames.contains("LocalUsers"));
     }
 }

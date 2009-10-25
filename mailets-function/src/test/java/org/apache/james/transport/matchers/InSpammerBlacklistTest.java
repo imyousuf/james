@@ -93,7 +93,7 @@ public class InSpammerBlacklistTest extends TestCase {
         setupMockedMail(LISTED_HOST.toString());
         setupMatcher(BLACKLIST);
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNotNull(matchedRecipients);
         assertEquals(matchedRecipients.size(), mockedMail.getRecipients().size());
@@ -103,7 +103,7 @@ public class InSpammerBlacklistTest extends TestCase {
         setupMockedMail("212.12.14.1");
         setupMatcher(BLACKLIST);
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNull(matchedRecipients);
     }

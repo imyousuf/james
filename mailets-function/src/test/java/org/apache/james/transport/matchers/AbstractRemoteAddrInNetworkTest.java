@@ -86,10 +86,10 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
                         "Unimplemented mock service");
             }
 
-            public Collection getRecipients() {
-                ArrayList r = new ArrayList();
+            public Collection<MailAddress> getRecipients() {
+                ArrayList<MailAddress> r = new ArrayList<MailAddress>();
                 try {
-                    r = new ArrayList(Arrays
+                    r = new ArrayList<MailAddress>(Arrays
                             .asList(new MailAddress[] { new MailAddress(
                                     "test@james.apache.org") }));
                 } catch (ParseException e) {

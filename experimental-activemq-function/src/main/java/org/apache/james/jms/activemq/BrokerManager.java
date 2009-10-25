@@ -48,7 +48,7 @@ import org.apache.james.jms.MailMessageListener;
 public class BrokerManager {
 
 	private final BrokerService broker;
-	private final Collection registrations;
+	private final Collection<ConsumerRegistration> registrations;
 	private final Log log;
 	
 	private ActiveMQConnectionFactory factory;
@@ -57,7 +57,7 @@ public class BrokerManager {
 	
 	public BrokerManager(final BrokerService broker, final Log log) {
 		this.broker = broker;
-		this.registrations = new ArrayList();
+		this.registrations = new ArrayList<ConsumerRegistration>();
 		this.log = log;
 	}
 	
@@ -73,8 +73,8 @@ public class BrokerManager {
 				factory = new ActiveMQConnectionFactory("vm://localhost");
 				connection = factory.createConnection();
 				
-				for (final Iterator it=registrations.iterator();it.hasNext();) {
-					final ConsumerRegistration registration = (ConsumerRegistration) it.next();
+				for (final Iterator<ConsumerRegistration> it=registrations.iterator();it.hasNext();) {
+					final ConsumerRegistration registration =  it.next();
 					try {
 						registration.register(this);
 						it.remove();

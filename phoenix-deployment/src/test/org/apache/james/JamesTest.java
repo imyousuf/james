@@ -108,8 +108,8 @@ public class JamesTest extends MailServerTestAllImplementations {
         });
         serviceManager.put(DomainList.ROLE, new DomainList() {
 
-            public List getDomains() {
-                ArrayList d = new ArrayList();
+            public List<String> getDomains() {
+                ArrayList<String> d = new ArrayList<String>();
                 d.add("localhost");
                 return d;
             }

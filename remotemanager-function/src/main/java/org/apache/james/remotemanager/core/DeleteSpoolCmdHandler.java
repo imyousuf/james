@@ -95,7 +95,7 @@ public class DeleteSpoolCmdHandler implements CommandHandler {
         }
 
         try {
-            ArrayList lockingFailures = new ArrayList();
+            ArrayList<String >lockingFailures = new ArrayList<String>();
             int count = 0;
 
             if (key != null) {
@@ -104,8 +104,8 @@ public class DeleteSpoolCmdHandler implements CommandHandler {
                 count = spoolManagement.removeSpoolItems(url, key, lockingFailures, new SpoolFilter(SpoolFilter.ERROR_STATE, header, regex));
             }
             response = new RemoteManagerResponse();
-            for (Iterator iterator = lockingFailures.iterator(); iterator.hasNext();) {
-                String lockFailureKey = (String) iterator.next();
+            for (Iterator<String> iterator = lockingFailures.iterator(); iterator.hasNext();) {
+                String lockFailureKey = iterator.next();
                 response.appendLine("Error locking the mail with key:  " + lockFailureKey);
             }
 

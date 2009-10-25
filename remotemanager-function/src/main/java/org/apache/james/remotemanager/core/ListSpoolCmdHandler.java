@@ -91,7 +91,7 @@ public class ListSpoolCmdHandler implements CommandHandler {
         }
 
         try {
-            List spoolItems;
+            List<String> spoolItems;
 
             if (headername == null || regex == null) {
                 spoolItems = spoolManagement.getSpoolItems(url, SpoolFilter.ERRORMAIL_FILTER);
@@ -102,8 +102,8 @@ public class ListSpoolCmdHandler implements CommandHandler {
             count = spoolItems.size();
             if (count > 0) {
                 response = new RemoteManagerResponse("Messages in spool:");
-                for (Iterator iterator = spoolItems.iterator(); iterator.hasNext();) {
-                    String item = (String) iterator.next();
+                for (Iterator<String> iterator = spoolItems.iterator(); iterator.hasNext();) {
+                    String item = iterator.next();
                     response.appendLine(item);
                 }
                 response.appendLine("Number of spooled mails: " + count);

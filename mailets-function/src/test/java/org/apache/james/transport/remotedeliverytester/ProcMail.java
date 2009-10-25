@@ -70,12 +70,12 @@ public class ProcMail {
     private String mailName;
     
     private MailStatus startMailStatus;
-    private List sendDates;
-    private List sendServers;
-    private List sendExceptions;
+    private List<Date> sendDates;
+    private List<String> sendServers;
+    private List<Exception> sendExceptions;
     
-    private List bounceStatus;
-    private List bounceMails;
+    private List<MailStatus> bounceStatus;
+    private List<Mail> bounceMails;
 
     private MailStatus finalMailStatus;
     
@@ -113,11 +113,11 @@ public class ProcMail {
     private ProcMail(Tester owner) {
         this.owner = owner;
         state = STATE_IDLE;
-        sendDates = new Vector();
-        bounceStatus = new Vector();
-        sendExceptions = new Vector();
-        bounceMails = new Vector();
-        sendServers = new Vector();
+        sendDates = new Vector<Date>();
+        bounceStatus = new Vector<MailStatus>();
+        sendExceptions = new Vector<Exception>();
+        bounceMails = new Vector<Mail>();
+        sendServers = new Vector<String>();
         lastEventDate = new Date();
     }
 
@@ -156,7 +156,7 @@ public class ProcMail {
 
         // check server
         String domain = owner.getDomainAssociated(serverName);
-        if (!recipient.getHost().equals(domain)) errorFlags = errorFlags | ERRORFLAG_WRONGSERVER; 
+        if (!recipient.getDomain().equals(domain)) errorFlags = errorFlags | ERRORFLAG_WRONGSERVER; 
     }
     
 //  public void removed(Mail mail) {
@@ -199,11 +199,11 @@ public class ProcMail {
         this.errorFlags = errorFlags;
     }
 
-    public List getBounceMails() {
+    public List<Mail> getBounceMails() {
         return bounceMails;
     }
 
-    public void setBounceMails(List bounceMails) {
+    public void setBounceMails(List<Mail> bounceMails) {
         this.bounceMails = bounceMails;
     }
     
@@ -211,11 +211,11 @@ public class ProcMail {
         return (Mail) bounceMails.get(idx);
     }
 
-    public List getBounceStatus() {
+    public List<MailStatus> getBounceStatus() {
         return bounceStatus;
     }
 
-    public void setBounceStatus(List bounceStatus) {
+    public void setBounceStatus(List<MailStatus> bounceStatus) {
         this.bounceStatus = bounceStatus;
     }
     
@@ -287,11 +287,11 @@ public class ProcMail {
         this.recipient = recipient;
     }
 
-    public List getSendExceptions() {
+    public List<Exception> getSendExceptions() {
         return sendExceptions;
     }
 
-    public void setSendExceptions(List sendExceptions) {
+    public void setSendExceptions(List<Exception> sendExceptions) {
         this.sendExceptions = sendExceptions;
     }
     
@@ -299,11 +299,11 @@ public class ProcMail {
         return (Exception) sendExceptions.get(idx);
     }
 
-    public List getSendServers() {
+    public List<String> getSendServers() {
         return sendServers;
     }
 
-    public void setSendServers(List sendServers) {
+    public void setSendServers(List<String> sendServers) {
         this.sendServers = sendServers;
     }
     
@@ -311,11 +311,11 @@ public class ProcMail {
         return (String) sendServers.get(idx);
     }
 
-    public List getSendDates() {
+    public List<Date> getSendDates() {
         return sendDates;
     }
 
-    public void setSendDates(List sendDate) {
+    public void setSendDates(List<Date> sendDate) {
         this.sendDates = sendDate;
     }
 
@@ -388,8 +388,8 @@ public class ProcMail {
     }
     
     public static class Listing {
-        HashMap map = new HashMap();
-        List list = new Vector();
+        HashMap<String,ProcMail> map = new HashMap<String,ProcMail>();
+        List<ProcMail> list = new Vector<ProcMail>();
         
         public Listing() {
         }

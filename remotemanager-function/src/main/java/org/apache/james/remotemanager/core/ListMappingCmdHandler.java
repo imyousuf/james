@@ -75,15 +75,15 @@ public class ListMappingCmdHandler extends AbstractMappingCmdHandler {
             }
 
             try {
-                Collection mappings = vutManagement.getUserDomainMappings(table, user, domain);
+                Collection<String> mappings = vutManagement.getUserDomainMappings(table, user, domain);
                 if (mappings == null) {
                     response = new RemoteManagerResponse("No mappings found");
                 } else {
                     response = new RemoteManagerResponse("Mappings:");
 
-                    Iterator m = mappings.iterator();
+                    Iterator<String> m = mappings.iterator();
                     while (m.hasNext()) {
-                        response.appendLine(m.next().toString());
+                        response.appendLine(m.next());
                     }
                 }
             } catch (VirtualUserTableManagementException e) {

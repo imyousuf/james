@@ -48,6 +48,6 @@ public class HelloWorldMailet implements Mailet {
     public void service(Mail mail) throws MessagingException {
         MailetContext context = config.getMailetContext();
         context.log("Hello, World!");
-        context.log("You have mail from " + mail.getSender().getUser());
+        context.log("You have mail from " + mail.getSender().getLocalPart());
     }
 }

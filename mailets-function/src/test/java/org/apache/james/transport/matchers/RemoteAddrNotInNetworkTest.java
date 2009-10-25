@@ -25,6 +25,8 @@ import java.util.Collection;
 
 import javax.mail.MessagingException;
 
+import org.apache.mailet.MailAddress;
+
 public class RemoteAddrNotInNetworkTest extends AbstractRemoteAddrInNetworkTest {
 
     private final String ALLOWED_NETWORK = "192.168.200.0/24";
@@ -40,7 +42,7 @@ public class RemoteAddrNotInNetworkTest extends AbstractRemoteAddrInNetworkTest 
 
         setupAll();
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNotNull(matchedRecipients);
         assertEquals(matchedRecipients.size(), mockedMail.getRecipients()
@@ -53,7 +55,7 @@ public class RemoteAddrNotInNetworkTest extends AbstractRemoteAddrInNetworkTest 
 
         setupAll();
 
-        Collection matchedRecipients = matcher.match(mockedMail);
+        Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNull(matchedRecipients);
     }

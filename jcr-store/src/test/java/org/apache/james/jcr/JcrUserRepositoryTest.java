@@ -22,8 +22,6 @@ package org.apache.james.jcr;
 import java.io.File;
 import java.io.StringReader;
 
-import javax.jcr.Repository;
-
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.james.api.user.UsersRepository;

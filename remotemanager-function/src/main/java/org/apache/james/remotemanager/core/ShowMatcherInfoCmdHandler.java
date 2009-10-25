@@ -118,7 +118,7 @@ public class ShowMatcherInfoCmdHandler implements CommandHandler{
     
     protected boolean processorExists(String name) {
         name = name.toLowerCase(Locale.US);
-        List processorList = Arrays.asList(processorManagementService.getProcessorNames());
+        List<String> processorList = Arrays.asList(processorManagementService.getProcessorNames());
         return processorList.contains(name);
     }
     

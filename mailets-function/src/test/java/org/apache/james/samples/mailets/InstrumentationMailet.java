@@ -77,13 +77,13 @@ public class InstrumentationMailet implements Mailet {
         context.log("Remote Address: " + mail.getRemoteAddr());
         context.log("Remote Host: " + mail.getRemoteHost());
         context.log("State: " + mail.getState());
-        context.log("Sender host: " + mail.getSender().getHost());
-        context.log("Sender user: " + mail.getSender().getUser());
-        Collection recipients = mail.getRecipients();
-        for (Iterator it = recipients.iterator(); it.hasNext();)
+        context.log("Sender host: " + mail.getSender().getDomain());
+        context.log("Sender user: " + mail.getSender().getLocalPart());
+        Collection<MailAddress> recipients = mail.getRecipients();
+        for (Iterator<MailAddress> it = recipients.iterator(); it.hasNext();)
         {
-            MailAddress address = (MailAddress) it.next();
-            context.log("Recipient: " + address.getUser() + "@" + address.getHost());
+            MailAddress address = it.next();
+            context.log("Recipient: " + address.getLocalPart() + "@" + address.getDomain());
         }
         
         context.log("Subject: " + message.getSubject());

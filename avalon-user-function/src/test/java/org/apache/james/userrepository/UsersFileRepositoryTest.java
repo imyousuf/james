@@ -114,7 +114,7 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
         user.setAlias(alias);
         repos.updateUser(user);
         
-        Collection map = ((VirtualUserTable) repos).getMappings(username, domain);
+        Collection<String> map = ((VirtualUserTable) repos).getMappings(username, domain);
         assertNull("No mapping", map);
         
         user.setAliasing(true);
@@ -134,7 +134,7 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
         user.setForwarding(true);
         repos.updateUser(user);
         map = ((VirtualUserTable) repos).getMappings(username, domain);
-        Iterator mappings = map.iterator();
+        Iterator<String> mappings = map.iterator();
         assertTrue("Two mapping",map.size() == 2);
         assertEquals("Alias found", mappings.next().toString(), alias + "@" + domain);
         assertEquals("Forward found", mappings.next().toString(), forward);
