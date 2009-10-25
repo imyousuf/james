@@ -28,6 +28,13 @@
   <artifactId>james-server-domain-api</artifactId>
   <name>Apache JAMES Server Domain API</name>
   <dependencies>
-    <!-- No dependency -->
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mailet-base</artifactId>
+    </dependency>
+        <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+    </dependency>
   </dependencies>
 </project>
