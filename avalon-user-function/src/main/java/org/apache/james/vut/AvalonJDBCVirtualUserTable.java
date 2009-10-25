@@ -19,6 +19,8 @@
 package org.apache.james.vut;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.james.impl.vut.AbstractAvalonVirtualUserTable;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.services.FileSystem;
@@ -42,6 +44,15 @@ public class AvalonJDBCVirtualUserTable extends AbstractAvalonVirtualUserTable{
         table = Guice.createInjector(new Jsr250Module(), new AvalonJDBCVirtualUserTableModule()).getInstance(JDBCVirtualUserTable.class);
     }
     
+    
+    @Override
+    public void service(ServiceManager manager) throws ServiceException {
+        super.service(manager);
+        fs = (FileSystem) manager.lookup(FileSystem.ROLE);
+        selector = (DataSourceSelector) manager.lookup(DataSourceSelector.ROLE);
+    }
+
+
     private class AvalonJDBCVirtualUserTableModule extends BaseAvalonVirtualUserTableModule {
 
         @Override
