@@ -38,7 +38,7 @@ public interface UidToKeyBidiMap {
 
     String getByUid(long uid);
 
-    void retainAllListedAndAddedByKeys(String[] keysBefore, Collection keys);
+    void retainAllListedAndAddedByKeys(String[] keysBefore, Collection<String> keys);
 
     long getByKey(String key);
 

@@ -38,7 +38,7 @@ public class ServicePropagator extends AbstractPropagator implements BeanPostPro
         this.serviceManagerFactory = serviceManagerFactory;
     }
     
-    protected Class getLifecycleInterface() {
+    protected Class<?> getLifecycleInterface() {
         return Serviceable.class;
     }
 

@@ -46,7 +46,7 @@ public class ConfigurationPropagator extends AbstractPropagator implements BeanP
         return 3;
     }
 
-    protected Class getLifecycleInterface() {
+    protected Class<?> getLifecycleInterface() {
         return Configurable.class;
     }
 

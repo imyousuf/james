@@ -96,7 +96,7 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
         // Parse the DestinationURL for the name of the datasource,
         // the table to use, and the (optional) repository Key.
         // Split on "/", starting after "db://"
-        List urlParams = new ArrayList();
+        List<String> urlParams = new ArrayList<String>();
         int start = 5;
         
         int end = destination.indexOf('/', start);
@@ -181,7 +181,7 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
             }
 
             // Build the statement parameters
-            Map sqlParameters = new HashMap();
+            Map<String,String> sqlParameters = new HashMap<String,String>();
             if (tableName != null) {
                 sqlParameters.put("table", tableName);
             }
@@ -240,8 +240,8 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
     /**
      * @see org.apache.james.domain.AbstractDomainList#getDomainListInternal()
      */
-    protected List getDomainListInternal() {
-        List domains = new ArrayList();
+    protected List<String> getDomainListInternal() {
+        List<String> domains = new ArrayList<String>();
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         

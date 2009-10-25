@@ -61,7 +61,7 @@ public abstract class AbstractMailRepositoryTest extends TestCase {
         } catch (MessagingException e) {
         }
         mimeMessage = new MimeMessageCopyOnWriteProxy(mmis);
-        Collection recipients = new ArrayList();
+        Collection<MailAddress> recipients = new ArrayList<MailAddress>();
         recipients.add(new MailAddress("rec1","domain.com"));
         recipients.add(new MailAddress("rec2","domain.com"));
         mail = new MailImpl("mail1",new MailAddress("sender","domain.com"),recipients,mimeMessage);
@@ -71,8 +71,8 @@ public abstract class AbstractMailRepositoryTest extends TestCase {
     protected abstract MailRepository getMailRepository() throws Exception;
     
     protected void tearDown() throws Exception {
-        for (Iterator i = mailRepository.list(); i.hasNext(); ) {
-            mailRepository.remove((String) i.next());
+        for (Iterator<String> i = mailRepository.list(); i.hasNext(); ) {
+            mailRepository.remove(i.next());
         }
         ContainerUtil.dispose(mail);
         ContainerUtil.dispose(mimeMessage);
@@ -109,7 +109,7 @@ public abstract class AbstractMailRepositoryTest extends TestCase {
     public void testListMail() throws MessagingException {
         mailRepository.store(mail);
         mailRepository.store(mail);
-        Iterator i = mailRepository.list();
+        Iterator<String> i = mailRepository.list();
         assertTrue(i.hasNext());
         assertEquals(mail.getName(),i.next());
         assertFalse("Found more than one message after storing 2 times the SAME message: it MUST update the previous", i.hasNext());

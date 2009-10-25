@@ -55,8 +55,8 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
     /**
      * @see org.apache.james.api.domainlist.DomainList#getDomains()
      */
-    public List getDomains() {  
-        List domains = getDomainListInternal();
+    public List<String> getDomains() {  
+        List<String> domains = getDomainListInternal();
         if (domains != null) {
             
             String hostName = null;
@@ -78,7 +78,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
             }
        
             if (getLogger().isInfoEnabled()) {
-                for (Iterator i = domains.iterator(); i.hasNext(); ) {
+                for (Iterator<String> i = domains.iterator(); i.hasNext(); ) {
                     getLogger().debug("Handling mail for: " + i.next());
                 }
             }  
@@ -95,11 +95,11 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
      * @param domains List of domains
      * @return domainIP List of ipaddress for domains
      */
-    private static List getDomainsIP(List domains,DNSService dns,Logger log) {
-        List domainIP = new ArrayList();
+    private static List<String> getDomainsIP(List<String> domains,DNSService dns,Logger log) {
+        List<String> domainIP = new ArrayList<String>();
         if (domains.size() > 0 ) {
             for (int i = 0; i < domains.size(); i++) {
-                List domList = getDomainIP(domains.get(i).toString(),dns,log);
+                List<String> domList = getDomainIP(domains.get(i).toString(),dns,log);
                 
                 for(int i2 = 0; i2 < domList.size();i2++) {
                     if(domainIP.contains(domList.get(i2)) == false) {
@@ -114,8 +114,8 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
     /**
      * @see #getDomainsIP(List, DNSService, Logger)
      */
-    private static List getDomainIP(String domain, DNSService dns, Logger log) {
-        List domainIP = new ArrayList();
+    private static List<String> getDomainIP(String domain, DNSService dns, Logger log) {
+        List<String> domainIP = new ArrayList<String>();
         try {
             InetAddress[]  addrs = dns.getAllByName(domain);
             for (int j = 0; j < addrs.length ; j++) {
@@ -181,7 +181,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
      * 
      * @return List
      */
-    protected abstract List getDomainListInternal();
+    protected abstract List<String> getDomainListInternal();
     
     /**
      * Add domain

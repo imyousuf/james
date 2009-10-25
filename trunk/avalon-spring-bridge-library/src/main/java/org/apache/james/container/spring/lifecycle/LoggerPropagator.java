@@ -32,7 +32,7 @@ public class LoggerPropagator extends AbstractPropagator implements BeanPostProc
 
     private LoggerToComponentMapper loggerFactory;
 
-    protected Class getLifecycleInterface() {
+    protected Class<?> getLifecycleInterface() {
         return LogEnabled.class;
     }
 

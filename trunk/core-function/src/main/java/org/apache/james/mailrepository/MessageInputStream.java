@@ -153,6 +153,7 @@ final class MessageInputStream extends InputStream {
         }
     }
 
+    @SuppressWarnings("serial")
     private void throwException() throws IOException {
         try {
             if (wrapped == null) {

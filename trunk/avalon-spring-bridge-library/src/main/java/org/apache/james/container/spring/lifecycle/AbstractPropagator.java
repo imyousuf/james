@@ -31,7 +31,7 @@ import java.util.Collection;
  */
 public abstract class AbstractPropagator implements BeanFactoryAware {
 
-    private Collection excludeBeans;
+    private Collection<String> excludeBeans;
     private BeanFactory beanFactory;
 
     
@@ -67,11 +67,11 @@ public abstract class AbstractPropagator implements BeanFactoryAware {
         return bean;
     }
 
-    public void setExcludeBeans(Collection excludeBeans) {
+    public void setExcludeBeans(Collection<String> excludeBeans) {
     	this.excludeBeans=excludeBeans;
     }
 
-    protected abstract Class getLifecycleInterface();
+    protected abstract Class<?> getLifecycleInterface();
 
     protected abstract void invokeLifecycleWorker(String beanName, Object bean, BeanDefinition beanDefinition);
 

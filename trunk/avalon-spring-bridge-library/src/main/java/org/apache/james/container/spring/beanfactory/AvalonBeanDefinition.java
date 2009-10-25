@@ -25,22 +25,23 @@ import java.util.ArrayList;
 
 /**
  */
+@SuppressWarnings("serial")
 public class AvalonBeanDefinition extends RootBeanDefinition {
 
-    protected final List serviceReferences = new ArrayList();
+    protected final List<AvalonServiceReference> serviceReferences = new ArrayList<AvalonServiceReference>();
     
     public AvalonBeanDefinition() {
         super();
     }
 
-    public void addAllServiceReferences(List serviceReferences) {
+    public void addAllServiceReferences(List<AvalonServiceReference> serviceReferences) {
         this.serviceReferences.addAll(serviceReferences);
     }
     public void addServiceReference(AvalonServiceReference serviceReference) {
         serviceReferences.add(serviceReference);
     }
 
-    public List getServiceReferences() {
+    public List<AvalonServiceReference> getServiceReferences() {
         return serviceReferences;
     }
 }

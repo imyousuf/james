@@ -37,7 +37,7 @@ public class ContextPropagator extends AbstractPropagator implements BeanPostPro
         this.context = context;
     }
     
-    protected Class getLifecycleInterface() {
+    protected Class<?> getLifecycleInterface() {
         return Contextualizable.class;
     }
 

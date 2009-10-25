@@ -27,6 +27,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
+import org.apache.mailet.HostAddress;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.Credibility;
@@ -89,7 +90,7 @@ public class DNSServer
     /**
      * The DNS servers to be used by this service
      */
-    private List dnsServers = new ArrayList();
+    private List<String> dnsServers = new ArrayList<String>();
     
     /**
      * The search paths to be used
@@ -99,7 +100,7 @@ public class DNSServer
     /**
      * The MX Comparator used in the MX sort.
      */
-    private Comparator mxComparator = new MXRecordComparator();
+    private Comparator<MXRecord> mxComparator = new MXRecordComparator();
 
     /**
      * If true than the DNS server will return only a single IP per each MX record
@@ -129,7 +130,7 @@ public class DNSServer
         final boolean autodiscover =
             configuration.getChild( "autodiscover" ).getValueAsBoolean( true );
 
-        List sPaths = new ArrayList();
+        List<Name> sPaths = new ArrayList<Name>();
         if (autodiscover) {
             getLogger().info("Autodiscovery is enabled - trying to discover your system's DNS Servers");
             String[] serversArray = ResolverConfig.getCurrentConfig().servers();
@@ -144,8 +145,8 @@ public class DNSServer
                 sPaths.addAll(Arrays.asList(systemSearchPath));
             }
             if (getLogger().isInfoEnabled()) {
-                for (Iterator i = sPaths.iterator(); i.hasNext();) {
-                    Name searchPath = (Name) i.next();
+                for (Iterator<Name> i = sPaths.iterator(); i.hasNext();) {
+                    Name searchPath = i.next();
                     getLogger().info("Adding autodiscovered search path " + searchPath.toString());
                 }
             }
@@ -276,9 +277,9 @@ public class DNSServer
      * @return a list of MX records corresponding to this mail domain
      * @throws TemporaryResolutionException get thrown on temporary problems
      */
-    private List findMXRecordsRaw(String hostname) throws TemporaryResolutionException {
+    private List<String> findMXRecordsRaw(String hostname) throws TemporaryResolutionException {
         Record answers[] = lookup(hostname, Type.MX, "MX");
-        List servers = new ArrayList();
+        List<String> servers = new ArrayList<String>();
         if (answers == null) {
             return servers;
         }
@@ -300,8 +301,8 @@ public class DNSServer
     /**
      * @see org.apache.james.api.dnsservice.DNSService#findMXRecords(String)
      */
-    public Collection findMXRecords(String hostname) throws TemporaryResolutionException {
-        List servers = new ArrayList();
+    public Collection<String> findMXRecords(String hostname) throws TemporaryResolutionException {
+        List<String> servers = new ArrayList<String>();
         try {
             servers = findMXRecordsRaw(hostname);
             return Collections.unmodifiableCollection(servers);
@@ -402,11 +403,11 @@ public class DNSServer
      * = 0 ==> a = b
      * > 0 ==> a > b
      */
-    private static class MXRecordComparator implements Comparator {
+    private static class MXRecordComparator implements Comparator<MXRecord> {
         private final static Random random = new Random();
-        public int compare (Object a, Object b) {
-            int pa = ((MXRecord)a).getPriority();
-            int pb = ((MXRecord)b).getPriority();
+        public int compare (MXRecord a, MXRecord b) {
+            int pa = a.getPriority();
+            int pb = b.getPriority();
             return (pa == pb) ? (512 - random.nextInt(1024)) : pa - pb;
         }
     }
@@ -414,10 +415,10 @@ public class DNSServer
     /**
      * @see org.apache.james.api.dnsservice.DNSService#getSMTPHostAddresses(String)
      */
-    public Iterator getSMTPHostAddresses(final String domainName) throws TemporaryResolutionException {
-        return new Iterator() {
-            private Iterator mxHosts = findMXRecords(domainName).iterator();
-            private Iterator addresses = null;
+    public Iterator<HostAddress> getSMTPHostAddresses(final String domainName) throws TemporaryResolutionException {
+        return new Iterator<HostAddress>() {
+            private Iterator<String> mxHosts = findMXRecords(domainName).iterator();
+            private Iterator<HostAddress> addresses = null;
 
             public boolean hasNext() {
                 /* Make sure that when next() is called, that we can
@@ -448,14 +449,14 @@ public class DNSServer
                     }
                     final InetAddress[] ipAddresses = addrs;
 
-                    addresses = new Iterator() {
+                    addresses = new Iterator<HostAddress>() {
                         int i = 0;
 
                         public boolean hasNext() {
                             return ipAddresses != null && i < ipAddresses.length;
                         }
 
-                        public Object next() {
+                        public HostAddress next() {
                             return new org.apache.mailet.HostAddress(nextHostname, "smtp://" + ipAddresses[i++].getHostAddress());
                         }
 
@@ -468,7 +469,7 @@ public class DNSServer
                 return addresses != null && addresses.hasNext();
             }
 
-            public Object next() {
+            public HostAddress next() {
                 return addresses != null ? addresses.next() : null;
             }
 
@@ -557,8 +558,8 @@ public class DNSServer
     /**
      * @see org.apache.james.api.dnsservice.DNSService#findTXTRecords(String)
      */
-    public Collection findTXTRecords(String hostname){
-        List txtR = new ArrayList();
+    public Collection<String> findTXTRecords(String hostname){
+        List<String> txtR = new ArrayList<String>();
         Record[] records = lookupNoException(hostname, Type.TXT, "TXT");
     
         if (records != null) {

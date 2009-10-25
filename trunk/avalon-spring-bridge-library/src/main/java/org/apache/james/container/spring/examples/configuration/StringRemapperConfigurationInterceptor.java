@@ -31,12 +31,12 @@ import java.util.Map;
  */
 public class StringRemapperConfigurationInterceptor extends TraversingConfigurationInterceptor {
     
-    private final Map mappings = new LinkedHashMap();
+    private final Map<String,String> mappings = new LinkedHashMap<String,String>();
 
     /**
      * @param mappings - Map<String, String>, key being the string to be replaced, value being the replacement
      */
-    public void setMappings(Map mappings) {
+    public void setMappings(Map<String,String> mappings) {
         this.mappings.putAll(mappings);
     }
 
@@ -57,10 +57,10 @@ public class StringRemapperConfigurationInterceptor extends TraversingConfigurat
                 continue; // if value is not accessible, skip it
             }
 
-            Iterator iterator = mappings.keySet().iterator();
+            Iterator<String> iterator = mappings.keySet().iterator();
             while (iterator.hasNext()) {
-                String find = (String) iterator.next();
-                String replacement = (String) mappings.get(find);
+                String find = iterator.next();
+                String replacement = mappings.get(find);
                 String replaced = StringUtils.replace(attributeValue, find, replacement);
                 mutableConfiguration.setAttribute(attributeName, replaced);
             }
@@ -76,9 +76,9 @@ public class StringRemapperConfigurationInterceptor extends TraversingConfigurat
         }
         if (value == null) return;
 
-        Iterator iterator = mappings.keySet().iterator();
+        Iterator<String> iterator = mappings.keySet().iterator();
         while (iterator.hasNext()) {
-            String find = (String) iterator.next();
+            String find =  iterator.next();
             String replacement = (String) mappings.get(find);
             String replaced = StringUtils.replace(value, find, replacement);
             mutableConfiguration.setValue(replaced);

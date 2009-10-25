@@ -171,13 +171,13 @@ public class HashJavamailStoreMailRepository extends
      * 
      * @see org.apache.james.services.MailRepository#list()
      */
-    public Iterator list() throws MessagingException {
+    public Iterator<String> list() throws MessagingException {
         try {
             getFolderGateKeeper().use();
             log.debug("list()");
             rehash(null);
             final String[] keys = getKeyToMsgMap().getKeys();
-            final Iterator it = Arrays.asList(keys).iterator();
+            final Iterator<String> it = Arrays.asList(keys).iterator();
             return it;
         } catch (MessagingException e) {
             throw e;

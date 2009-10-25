@@ -27,6 +27,8 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.mailet.HostAddress;
+
 /**
  * Abstract class to simplify the mocks
  */
@@ -35,14 +37,14 @@ public class AbstractDNSServer implements DNSService {
     /**
      * @see org.apache.james.api.dnsservice.DNSService#findMXRecords(String)
      */
-    public Collection findMXRecords(String hostname) {
+    public Collection<String> findMXRecords(String hostname) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
      * @see org.apache.james.api.dnsservice.DNSService#findTXTRecords(String)
      */
-    public Collection findTXTRecords(String hostname) {
+    public Collection<String> findTXTRecords(String hostname) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
@@ -63,7 +65,7 @@ public class AbstractDNSServer implements DNSService {
     /**
      * @see org.apache.james.api.dnsservice.DNSService#getSMTPHostAddresses(String)
      */
-    public Iterator getSMTPHostAddresses(String domainName) {
+    public Iterator<HostAddress> getSMTPHostAddresses(String domainName) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 

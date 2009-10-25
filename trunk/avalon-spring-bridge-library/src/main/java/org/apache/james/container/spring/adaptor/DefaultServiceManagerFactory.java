@@ -38,25 +38,25 @@ import java.util.Iterator;
 public class DefaultServiceManagerFactory implements ApplicationContextAware, ServiceManagerFactory {
 
 	private ApplicationContext applicationContext;
-    private final Map replacements = new HashMap();
+    private final Map<String,String> replacements = new HashMap<String,String>();
 
     private class ServiceManagerBridge implements ServiceManager {
 
-		private final Map avalonServices = new HashMap();
+		private final Map<String,Object> avalonServices = new HashMap<String,Object>();
 		
-        public ServiceManagerBridge(List avalonServiceReferences) {
+        public ServiceManagerBridge(List<AvalonServiceReference> avalonServiceReferences) {
             populateServiceMap(avalonServiceReferences);
         }
 
-        private void populateServiceMap(List avalonServiceReferences) {
-            Iterator iterator = avalonServiceReferences.iterator();
+        private void populateServiceMap(List<AvalonServiceReference> avalonServiceReferences) {
+            Iterator<AvalonServiceReference> iterator = avalonServiceReferences.iterator();
             while (iterator.hasNext()) {
-                AvalonServiceReference serviceReference = (AvalonServiceReference) iterator.next();
+                AvalonServiceReference serviceReference = iterator.next();
                 String name = serviceReference.getName();
                 String rolename = serviceReference.getRolename();
                 
                 // the interface to be injected 
-                Class roleClass = null;
+                Class<?> roleClass = null;
                 try {
                     roleClass = Class.forName(rolename);
                 } catch (ClassNotFoundException e) {
@@ -65,7 +65,7 @@ public class DefaultServiceManagerFactory implements ApplicationContextAware, Se
 
                 // if the service should be replaced by a bean, update the name here.
                 if (replacements.containsKey(name)) {
-                    name = (String)replacements.get(name);
+                    name = replacements.get(name);
                 }
                 
                 // the object to be injected (reduced to roleClass)
@@ -119,7 +119,7 @@ public class DefaultServiceManagerFactory implements ApplicationContextAware, Se
      * @param replacements - Map<String, String>, the key indicating the service reference to be replaced, the value
      * indicating the replacement bean
      */
-    public void setReplacements(Map replacements) {
+    public void setReplacements(Map<String,String> replacements) {
         this.replacements.putAll(replacements);
     }
 

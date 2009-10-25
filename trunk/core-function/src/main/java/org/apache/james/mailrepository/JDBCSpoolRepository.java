@@ -101,7 +101,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     /**
      * A queue in memory of messages that need processing
      */
-    private LinkedList pendingMessages = new LinkedList();
+    private LinkedList<PendingMessage> pendingMessages = new LinkedList<PendingMessage>();
     /**
      * When the queue was last read
      */

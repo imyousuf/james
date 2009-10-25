@@ -34,7 +34,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
  */
 public class XMLDomainList extends AbstractDomainList implements Configurable {
     
-    private List domainNames = null;
+    private List<String> domainNames = null;
     
     private boolean managementDisabled = false;
     
@@ -66,12 +66,12 @@ public class XMLDomainList extends AbstractDomainList implements Configurable {
     /**
      * @see org.apache.james.domain.AbstractDomainList#getDomainListInternal()
      */
-    protected List getDomainListInternal() {
+    protected List<String> getDomainListInternal() {
         // TODO: Remove temporary fix!
         // This is set to true to get sure now new domain can get added or removed
         // after the domains were retrieved by James.java. See is a workaround!
         managementDisabled = true;
-        return new ArrayList(domainNames);
+        return new ArrayList<String>(domainNames);
     }
 
     /**
@@ -92,7 +92,7 @@ public class XMLDomainList extends AbstractDomainList implements Configurable {
         if (managementDisabled) throw new UnsupportedOperationException("Management not supported");
         
         if (domainNames == null) {
-            domainNames = new ArrayList();
+            domainNames = new ArrayList<String>();
         }
     
         String newDomain = domain.toLowerCase(Locale.US);
