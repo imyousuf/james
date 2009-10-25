@@ -61,7 +61,7 @@ public class AvalonUserManagement implements UserManagementMBean, GuiceInjected,
         return bean.getForwardAddress(userName, repositoryName);
     }
 
-    public List getUserRepositoryNames() {
+    public List<String> getUserRepositoryNames() {
         return bean.getUserRepositoryNames();
     }
 

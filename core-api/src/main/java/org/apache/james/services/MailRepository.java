@@ -60,7 +60,7 @@ public interface MailRepository {
      * @return an <code>Iterator</code> over the list of keys in the repository
      *
      */
-    Iterator list() throws MessagingException;
+    Iterator<String> list() throws MessagingException;
 
     /**
      * Retrieves a message given a key. At the moment, keys can be obtained
@@ -84,7 +84,7 @@ public interface MailRepository {
      * @param mails The Collection of <code>MailImpl</code>'s to delete
      * @since 2.2.0
      */
-     void remove(Collection mails) throws MessagingException;
+     void remove(Collection<Mail> mails) throws MessagingException;
 
     /**
      * Removes a message identified by key.

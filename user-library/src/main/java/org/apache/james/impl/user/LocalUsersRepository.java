@@ -137,7 +137,7 @@ public class LocalUsersRepository implements UsersRepository {
     /**
      * @see org.apache.james.api.user.UsersRepository#list()
      */
-    public Iterator list() {
+    public Iterator<String> list() {
         return users.list();
     }
 

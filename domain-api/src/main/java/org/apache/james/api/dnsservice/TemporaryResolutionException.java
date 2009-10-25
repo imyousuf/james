@@ -24,6 +24,7 @@ package org.apache.james.api.dnsservice;
 
 import java.io.IOException;
 
+@SuppressWarnings("serial")
 public class TemporaryResolutionException extends IOException {
 
     public TemporaryResolutionException() {

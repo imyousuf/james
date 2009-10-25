@@ -195,5 +195,5 @@ public interface UserManagementMBean {
      *
      * @return List<String> of repository names
      */
-    List getUserRepositoryNames();
+    List<String> getUserRepositoryNames();
 }

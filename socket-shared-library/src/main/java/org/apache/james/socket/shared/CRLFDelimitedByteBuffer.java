@@ -160,12 +160,10 @@ public class CRLFDelimitedByteBuffer {
         java.io.IOException e;
         byte[] bytes;
 
-        @SuppressWarnings("unused")
         public Line(byte[] data) {
             bytes = data;
         }
 
-        @SuppressWarnings("unused")
         public Line(String data) {
             bytes = data.getBytes();
         }

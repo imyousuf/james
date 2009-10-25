@@ -218,7 +218,7 @@ public class UserManagement implements UserManagementMBean {
         
         Iterator<String> repositoryNames = usersStore.getRepositoryNames();
         while (repositoryNames.hasNext()) {
-            String name = (String) repositoryNames.next();
+            String name = repositoryNames.next();
             result.add(name);
         }
         return result;

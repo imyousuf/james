@@ -129,7 +129,7 @@ public interface VirtualUserTableManagementMBean {
      * @return the collection which holds the mappings. 
      * @throws VirtualUserTableManagementException TODO
      */
-    public Collection getUserDomainMappings(String virtualUserTable, String user, String domain) throws VirtualUserTableManagementException;
+    public Collection<String> getUserDomainMappings(String virtualUserTable, String user, String domain) throws VirtualUserTableManagementException;
     
     /**
     * Try to identify the right method based on the prefix of the mapping and add it.

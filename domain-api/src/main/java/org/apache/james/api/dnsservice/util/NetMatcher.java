@@ -33,7 +33,7 @@ public class NetMatcher
 {
     private DNSService dnsServer;
     
-    private ArrayList networks;
+    private ArrayList<InetNetwork> networks;
 
 
     /**
@@ -41,15 +41,15 @@ public class NetMatcher
      *
      * @param nets a Collection which holds all networks
      */
-    public void initInetNetworks(final Collection nets)
+    public void initInetNetworks(final Collection<String> nets)
     {
-        networks = new ArrayList();
+        networks = new ArrayList<InetNetwork>();
         
         InetNetwork in = new InetNetwork(dnsServer);
         
-        for (Iterator iter = nets.iterator(); iter.hasNext(); ) try
+        for (Iterator<String> iter = nets.iterator(); iter.hasNext(); ) try
         {
-            InetNetwork net = in.getFromString((String) iter.next());
+            InetNetwork net = in.getFromString(iter.next());
             if (!networks.contains(net)) networks.add(net);
         }
         catch (java.net.UnknownHostException uhe)
@@ -67,7 +67,7 @@ public class NetMatcher
     public void initInetNetworks(final String[] nets)
     {
         
-        networks = new ArrayList();
+        networks = new ArrayList<InetNetwork>();
         
         InetNetwork in = new InetNetwork(dnsServer);
         
@@ -104,9 +104,9 @@ public class NetMatcher
 
         boolean sameNet = false;
 
-        if (ip != null) for (Iterator iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
+        if (ip != null) for (Iterator<InetNetwork> iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
         {
-            InetNetwork network = (InetNetwork) iter.next();
+            InetNetwork network = iter.next();
             sameNet = network.contains(ip);
         }
         return sameNet;
@@ -119,9 +119,9 @@ public class NetMatcher
     {
         boolean sameNet = false;
 
-        for (Iterator iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
+        for (Iterator<InetNetwork> iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
         {
-            InetNetwork network = (InetNetwork) iter.next();
+            InetNetwork network = iter.next();
             sameNet = network.contains(ip);
         }
         return sameNet;
@@ -145,7 +145,7 @@ public class NetMatcher
      * @param nets a Collection which holds all networks
      * @param dnsServer the DNSService which will be used in this class
      */ 
-    public NetMatcher(final Collection nets,DNSService dnsServer)
+    public NetMatcher(final Collection<String> nets,DNSService dnsServer)
     {
         this.dnsServer = dnsServer;
         initInetNetworks(nets);

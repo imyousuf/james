@@ -114,7 +114,7 @@ public interface VirtualUserTableManagementService {
      * @return the collection which holds the mappings. 
      * @throws VirtualUserTableManagementException  get thrown if an invalid use or domain was given
      */
-    public Collection getUserDomainMappings(String virtualUserTable, String user, String domain) throws VirtualUserTableManagementException;
+    public Collection<String> getUserDomainMappings(String virtualUserTable, String user, String domain) throws VirtualUserTableManagementException;
     
     /**
     * Try to identify the right method based on the prefix of the mapping and add it.
@@ -147,7 +147,7 @@ public interface VirtualUserTableManagementService {
      * @return Map which holds all mappings
      * @throws VirtualUserTableManagementException 
      */
-    public Map getAllMappings(String virtualUserTable) throws VirtualUserTableManagementException;
+    public Map<String,Collection<String>> getAllMappings(String virtualUserTable) throws VirtualUserTableManagementException;
     
     /**
      * Add aliasDomain mapping
