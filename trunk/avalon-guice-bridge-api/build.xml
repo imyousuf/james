@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="avalon-guice-bridge-api">
+  <description>Builds avalon-guice-bridge-api module. This is an api module.</description>
+  <property name="name.module" value="avalon-guice-bridge-api" />
+  <import file="../build-tools/api-build.xml" optional="no" />
+</project>
