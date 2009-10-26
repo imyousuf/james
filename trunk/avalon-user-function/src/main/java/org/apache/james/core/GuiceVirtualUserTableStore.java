@@ -116,7 +116,7 @@ public class GuiceVirtualUserTableStore
             protected void configure() {
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
                 bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(selector);
-                bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.service.FileSystem")).toInstance(fs);
+                bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
                 bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
             }
         };
