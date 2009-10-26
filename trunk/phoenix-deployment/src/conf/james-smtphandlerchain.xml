@@ -56,7 +56,7 @@
          please speak with your local system/network admins.
      -->
      <!--
-     <handler class="org.apache.james.smtpserver.core.fastfail.DNSRBLHandler">
+     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.DNSRBLHandler">
          <getDetail> false </getDetail>
          <rblservers>
              <whitelist> query.bondedsender.org. </whitelist>
@@ -86,7 +86,7 @@
      <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
      <!-- are allowed to relay. Default is false. -->
      <!--
-     <handler class="org.apache.james.smtpserver.core.fastfail.ResolvableEhloHeloHandler">
+     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.ResolvableEhloHeloHandler">
          <checkAuthNetworks> false </checkAuthNetworks>
          <checkAuthUsers> false </checkAuthUsers>
      </handler>  
@@ -96,7 +96,7 @@
      <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
      <!-- are allowed to relay. Default is false. -->
      <!--
-     <handler class="org.apache.james.smtpserver.core.fastfail.ReverseEqualsEhloHeloHandler">
+     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.ReverseEqualsEhloHeloHandler">
          <checkAuthClients> false </checkAuthClients>
          <checkAuthUsers> false </checkAuthUsers>
      </handler>
@@ -107,7 +107,7 @@
      <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
      <!-- are allowed to relay. Default is false. -->
      <!--
-     <handler class="org.apache.james.smtpserver.core.fastfail.ValidSenderDomainHandler">
+     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.ValidSenderDomainHandler">
          <checkAuthClients> false </checkAuthClients>
          <checkAuthUsers> false </checkAuthUsers>
      </handler>
@@ -118,7 +118,7 @@
      <!-- You need to add the recipient to the validRecipient list if you want -->
      <!-- to accept email for a recipient which not exist on the server -->
      <!-- 
-     <handler class="org.apache.james.smtpserver.core.fastfail.ValidRcptHandler">
+     <handler class="org.apache.james.smtpserver.integration.ValidRcptHandler">
          <validRecipients> </validRecipients>
          <validDomains> </validDomains>
          <validRegexPattern> </validRegexPattern>
@@ -127,7 +127,7 @@
             
      <!-- If activated you can limit the maximal recipients -->
      <!-- 
-     <handler class="org.apache.james.smtpserver.core.fastfail.MaxRcptHandler">
+     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.MaxRcptHandler">
          <maxRcpt> 10 </maxRcpt>                
      </handler>
      -->
@@ -150,7 +150,7 @@
      <!-- Default is set to 0 (disabled). -->
      <!-- You can also configure the time to sleep in milliseconds -->
      <!--
-     <handler class="org.apache.james.smtpserver.core.fastfail.TarpitHandler">
+     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.TarpitHandler">
          <tarpitRcptCount> 5 </tarpitRcptCount>
          <tarpitSleepTime> 5000 </tarpitSleepTime>
      </handler>
@@ -159,7 +159,7 @@
      <!-- This handler ignore duplicated recipients per session. So the email will get only send on time even -->
      <!-- if the recipient is specified more then once -->
      <!--
-     <handler class="org.apache.james.smtpserver.core.fastfail.SuppressDuplicateRcptHandler"/>
+     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.SuppressDuplicateRcptHandler"/>
      -->
      
      <!-- Load the core command handlers -->
