@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
@@ -95,6 +96,10 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	@Resource(name = "org.apache.james.api.vut.VirtualUserTableStore")
 	public final void setTableStore(VirtualUserTableStore tableStore) {
 		this.tableStore = tableStore;
+	}
+	
+	@PostConstruct
+	public void init() throws Exception{
 		loadTable();
 	}
 
@@ -169,15 +174,17 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
-		loadTable();
 	}
 
-	private void loadTable() {
+	private void loadTable() throws Exception {
 		if (this.tableName == null || this.tableName.equals("")) {
 			this.tableName = VirtualUserTableStore.DEFAULT_TABLE;
 		}
 		if (tableStore != null) {
 			table = tableStore.getTable(this.tableName);
+		}
+		if (table == null) {
+			throw new Exception("Unable to find VirtualUserTable with name " + tableName);
 		}
 	}
 
