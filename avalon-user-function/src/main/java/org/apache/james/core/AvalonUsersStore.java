@@ -16,70 +16,61 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.core;
-
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
 
 import java.util.Iterator;
 
-/**
- * Provides a registry of user repositories.
- *
- */
-public class AvalonUsersStore
-    extends AbstractAvalonStore
-    implements UsersStore {
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.user.UsersStore;
+import org.apache.james.services.FileSystem;
+import org.guiceyfruit.jsr250.Jsr250Module;
 
-    /** 
-     * Get the repository, if any, whose name corresponds to
-     * the argument parameter
-     *
-     * @param name the name of the desired repository
-     *
-     * @return the UsersRepository corresponding to the name parameter
-     */
-    public UsersRepository getRepository(String name) {
-        UsersRepository response = (UsersRepository) getObject(name);
-        if ((response == null) && (getLogger().isWarnEnabled())) {
-            getLogger().warn("No users repository called: " + name);
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.name.Names;
+
+public class AvalonUsersStore extends AbstractAvalonStore implements UsersStore{
+
+    private DataSourceSelector selector;
+    private FileSystem fs;
+    private UsersStore uStore;
+    private Store store;
+    
+    public void service(ServiceManager manager) throws ServiceException {
+        selector = (DataSourceSelector) manager.lookup(DataSourceSelector.ROLE);
+        fs = (FileSystem) manager.lookup(FileSystem.ROLE);
+        store = (Store) manager.lookup(Store.ROLE);
+    }
+
+    public void initialize() throws Exception {
+        uStore = Guice.createInjector(new Jsr250Module(), new AvalonUserStoreModule()).getInstance(GuiceUsersStore.class);
+    }
+    
+    public class AvalonUserStoreModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(configuration);
+            bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
+            bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(selector);
+            bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
+            bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(store);
         }
-        return response;
+        
     }
 
-    /** 
-     * Yield an <code>Iterator</code> over the set of repository
-     * names managed internally by this store.
-     *
-     * @return an Iterator over the set of repository names
-     *         for this store
-     */
+    
+    public UsersRepository getRepository(String name) {
+        return uStore.getRepository(name);
+    }
+
     public Iterator<String> getRepositoryNames() {
-        return getObjectNames();
-    }
-    
-    /**
-     * @see org.apache.james.core.AbstractAvalonStore#getClassInstance(java.lang.ClassLoader, java.lang.String)
-     */
-    public Object getClassInstance(ClassLoader loader, String repClass) throws Exception {
-        return  (UsersRepository) loader.loadClass(repClass).newInstance();
-    }
-
-    /**
-     * @see org.apache.james.core.AbstractAvalonStore#getConfigurations(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public Configuration[] getConfigurations(Configuration config) {
-        return configuration.getChildren("repository");
-    }
-    
-    /**
-     * @see org.apache.james.core.AbstractAvalonStore#getStoreName()
-     */
-    public String getStoreName() {
-        return "AvolonUsersStore";
+        return uStore.getRepositoryNames();
     }
 }

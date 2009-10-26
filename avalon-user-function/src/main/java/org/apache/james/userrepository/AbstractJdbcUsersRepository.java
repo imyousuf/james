@@ -390,7 +390,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
-    public void doConfigure(HierarchicalConfiguration configuration)
+    protected void doConfigure(HierarchicalConfiguration configuration)
             throws ConfigurationException {
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
@@ -401,7 +401,10 @@ public abstract class AbstractJdbcUsersRepository extends
 
         // Parse the DestinationURL for the name of the datasource,
         // the table to use, and the (optional) repository Key.
-        String destUrl = configuration.getString("/ @destinationURL");
+        String destUrl = configuration.getString("/ @destinationURL", null);
+        // throw an exception if the attribute is missing
+        if (destUrl == null) throw new ConfigurationException("destinatURL attribute is missing from Configuration");
+        
         // normalise the destination, to simplify processing.
         if (!destUrl.endsWith("/")) {
             destUrl += "/";
