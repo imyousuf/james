@@ -60,6 +60,7 @@ public class ValidRcptHandlerTest extends TestCase {
         handler = new ValidRcptHandler();
         handler.setUsers(users);
         handler.setTableStore(setUpVirtualUserTableStore());
+        handler.init();
     }
 
     private SMTPSession setupMockedSMTPSession(final SMTPConfiguration conf, final MailAddress rcpt, final boolean relayingAllowed) {
