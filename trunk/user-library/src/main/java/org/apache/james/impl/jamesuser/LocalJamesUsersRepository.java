@@ -24,12 +24,23 @@ import org.apache.james.impl.user.LocalUsersRepository;
 
 import java.util.Collection;
 
+import javax.annotation.PostConstruct;
+
 /**
  * This is a wrapper that provide access to the "LocalUsers" repository
  * but expect to find a JamesUsersRepository and return an object implementing
  * this extended interface
  */
 public class LocalJamesUsersRepository extends LocalUsersRepository implements JamesUsersRepository{
+
+    
+
+    // REMOVE ME!!!
+    @Override
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+    }
 
     /**
      * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableAliases(boolean)

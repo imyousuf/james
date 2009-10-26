@@ -37,7 +37,7 @@ import com.google.inject.name.Names;
 public class AvalonLocalUsersRepository implements GuiceInjected, Initializable,Serviceable,UsersRepository{
 
     private UsersStore usersStore;
-    private LocalUsersRepository repos;
+    protected LocalUsersRepository repos;
     
     public void initialize() throws Exception {
         repos = Guice.createInjector(new Jsr250Module(), new LocalUsersRepositoryModule()).getInstance(LocalUsersRepository.class);
@@ -47,7 +47,7 @@ public class AvalonLocalUsersRepository implements GuiceInjected, Initializable,
         usersStore = (UsersStore) manager.lookup(UsersStore.ROLE);
     }
     
-    private class LocalUsersRepositoryModule extends AbstractModule {
+    public class LocalUsersRepositoryModule extends AbstractModule {
 
         @Override
         protected void configure() {
