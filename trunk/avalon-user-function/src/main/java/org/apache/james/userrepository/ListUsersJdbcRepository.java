@@ -28,6 +28,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.annotation.PostConstruct;
+
 /**
  * A very lightweight UserRepository, which persists a list
  * of user names in a database. Password information is not 
@@ -37,6 +39,12 @@ import java.sql.SQLException;
 public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
 
+    // REMOVE ME!
+    @PostConstruct
+    @Override
+    public void init() throws Exception {
+        super.init();
+    }
     
     /**
      * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#test(java.lang.String, java.lang.String)

@@ -80,7 +80,7 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void doConfigure( final HierarchicalConfiguration configuration )
+    protected void doConfigure( final HierarchicalConfiguration configuration )
         throws ConfigurationException {
         destination = configuration.getString( "destination/ @URL" );
 

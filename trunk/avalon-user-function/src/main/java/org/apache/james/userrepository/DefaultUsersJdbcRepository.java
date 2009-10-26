@@ -28,6 +28,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.annotation.PostConstruct;
+
 
 /**
  * A Jdbc-backed UserRepository which handles User instances
@@ -42,6 +44,13 @@ import java.sql.SQLException;
  */
 public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
+    // REMOVE ME!
+    @PostConstruct
+    @Override
+    public void init() throws Exception {
+        super.init();
+    }
+    
     /**
      * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
      */
