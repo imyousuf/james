@@ -46,7 +46,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.name.Names;
 
-public class AvalonMailStoreRepository implements GuiceInjected, Serviceable, Configurable, Initializable, LogEnabled, SpoolRepository{
+public class AvalonMailStoreSpoolRepository implements GuiceInjected, Serviceable, Configurable, Initializable, LogEnabled, SpoolRepository{
 
     
     private Store store;
