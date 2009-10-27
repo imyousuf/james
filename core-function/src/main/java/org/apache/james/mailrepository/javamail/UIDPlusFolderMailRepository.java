@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import javax.annotation.PostConstruct;
 import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -369,6 +370,14 @@ public class UIDPlusFolderMailRepository extends
      */
     public FolderInterface createAdapter(Folder folder) {
         return new UIDPlusFolderAdapter(folder);
+    }
+
+
+
+    @PostConstruct
+    @Override
+    public void init() throws Exception {
+        super.init();
     }
 
 

@@ -28,30 +28,36 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import javax.annotation.Resource;
+
+import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.ManageableDomainList;
 
 /**
  * All implementations of the DomainList interface should extends this abstract class
  */
-public abstract class AbstractDomainList extends AbstractLogEnabled implements Serviceable, ManageableDomainList {
+public abstract class AbstractDomainList implements  ManageableDomainList {
     private DNSService dns;
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        dns = (DNSService) arg0.lookup(DNSService.ROLE);
+    private Log logger;
+    
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public void setDNSService(DNSService dns) {
+        this.dns = dns;
     }
     
-
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    protected Log getLogger() {
+        return logger;
+    }
+    
     /**
      * @see org.apache.james.api.domainlist.DomainList#getDomains()
      */
@@ -95,7 +101,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
      * @param domains List of domains
      * @return domainIP List of ipaddress for domains
      */
-    private static List<String> getDomainsIP(List<String> domains,DNSService dns,Logger log) {
+    private static List<String> getDomainsIP(List<String> domains,DNSService dns,Log log) {
         List<String> domainIP = new ArrayList<String>();
         if (domains.size() > 0 ) {
             for (int i = 0; i < domains.size(); i++) {
@@ -114,7 +120,7 @@ public abstract class AbstractDomainList extends AbstractLogEnabled implements S
     /**
      * @see #getDomainsIP(List, DNSService, Logger)
      */
-    private static List<String> getDomainIP(String domain, DNSService dns, Logger log) {
+    private static List<String> getDomainIP(String domain, DNSService dns, Log log) {
         List<String> domainIP = new ArrayList<String>();
         try {
             InetAddress[]  addrs = dns.getAllByName(domain);

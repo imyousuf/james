@@ -27,38 +27,24 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.domainlist.ManageableDomainList;
-import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockServiceManager;
 
 import junit.framework.TestCase;
 
 public class XMLDomainListTest extends TestCase {
     
-    private Configuration setUpConfiguration(boolean auto,boolean autoIP, List<String> names) {
-        DefaultConfiguration configuration = new DefaultConfiguration("test");
-        DefaultConfiguration sNamesConf = new DefaultConfiguration("domainnames");
-        DefaultConfiguration autoConf = new DefaultConfiguration("autodetect");
-        autoConf.setValue(auto);
-        configuration.addChild(autoConf);
-        
-        DefaultConfiguration autoIPConf = new DefaultConfiguration("autodetectIP");
-        autoIPConf.setValue(autoIP);
-        configuration.addChild(autoIPConf);
+    private HierarchicalConfiguration setUpConfiguration(boolean auto,boolean autoIP, List<String> names) {
+        DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
 
+        configuration.addProperty("autodetect", auto);
+        configuration.addProperty("autodetectIP", autoIP);
         for (int i= 0; i< names.size(); i++) {
-            DefaultConfiguration nameConf = new DefaultConfiguration("domainname");
-            
-            nameConf.setValue(names.get(i).toString());
-            sNamesConf.addChild(nameConf);
+            configuration.addProperty("domainnames/domainname", names.get(i).toString());
         }
-
-        configuration.addChild(sNamesConf);
         return configuration;
     }
     
@@ -78,23 +64,17 @@ public class XMLDomainListTest extends TestCase {
         };
         return dns;
     }
-    
-    private MockServiceManager setUpServiceManager(DNSService dns) {
-        MockServiceManager service = new MockServiceManager();
-        service.put(DNSService.ROLE, dns);
-        return service;
-    }
-    
+
     public void testGetDomains() throws Exception {
         List<String> domains = new ArrayList<String>();
         domains.add("domain1.");
         domains.add("domain2.");
     
         XMLDomainList dom = new XMLDomainList();
-        ContainerUtil.enableLogging(dom,new MockLogger());
-        ContainerUtil.service(dom,setUpServiceManager(setUpDNSServer("localhost")));
-        ContainerUtil.configure(dom, setUpConfiguration(false,false,domains));
-        ContainerUtil.initialize(dom);
+        dom.setLogger(new SimpleLog("MockLog"));
+        dom.setDNSService(setUpDNSServer("localhost"));
+        dom.setConfiguration(setUpConfiguration(false,false,domains));
+        dom.init();
 
         assertTrue("Two domain found",dom.getDomains().size() ==2);
     }
@@ -104,11 +84,10 @@ public class XMLDomainListTest extends TestCase {
         domains.add("domain1.");
     
         XMLDomainList dom = new XMLDomainList();
-        ContainerUtil.enableLogging(dom,new MockLogger());
-        ContainerUtil.service(dom,setUpServiceManager(setUpDNSServer("local")));
-        ContainerUtil.configure(dom, setUpConfiguration(true,false,domains));
-        ContainerUtil.initialize(dom);
-        
+        dom.setLogger(new SimpleLog("MockLog"));
+        dom.setDNSService(setUpDNSServer("local"));
+        dom.setConfiguration(setUpConfiguration(true,false,domains));
+        dom.init();
         assertEquals("Two domains found",dom.getDomains().size(), 2);
     }
     
@@ -116,11 +95,11 @@ public class XMLDomainListTest extends TestCase {
         List<String> domains = new ArrayList<String>();
         domains.add("domain1.");
     
-        ManageableDomainList dom = new XMLDomainList();
-        ContainerUtil.enableLogging(dom,new MockLogger());
-        ContainerUtil.service(dom,setUpServiceManager(setUpDNSServer("localhost")));
-        ContainerUtil.configure(dom, setUpConfiguration(true,false,domains));
-        ContainerUtil.initialize(dom);
+        XMLDomainList dom = new XMLDomainList();
+        dom.setLogger(new SimpleLog("MockLog"));
+        dom.setDNSService(setUpDNSServer("localhost"));
+        dom.setConfiguration(setUpConfiguration(true,false,domains));
+        dom.init();
         
         assertEquals("One domain found",dom.getDomains().size(), 1);
     }

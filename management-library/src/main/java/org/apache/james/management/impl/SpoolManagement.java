@@ -23,11 +23,11 @@
 package org.apache.james.management.impl;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementMBean;
@@ -476,10 +476,9 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
     private SpoolRepository getSpoolRepository(String url)
             throws SpoolManagementException {
         // Setup all needed data
-        DefaultConfiguration spoolConf = new DefaultConfiguration("spool",
-                "generated:RemoteManager.java");
-        spoolConf.setAttribute("destinationURL", url);
-        spoolConf.setAttribute("type", "SPOOL");
+        DefaultConfigurationBuilder spoolConf = new DefaultConfigurationBuilder();
+        spoolConf.addProperty("/ @destinationURL", url);
+        spoolConf.addProperty("/ @type", "SPOOL");
 
         try {
             return (SpoolRepository) mailStore.select(spoolConf);

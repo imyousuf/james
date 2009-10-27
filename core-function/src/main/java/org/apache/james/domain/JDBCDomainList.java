@@ -32,15 +32,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -48,7 +46,7 @@ import org.apache.james.util.sql.SqlResources;
 /**
  * Allow to query a costum table for domains
  */
-public class JDBCDomainList extends AbstractDomainList implements Serviceable,Configurable,Initializable {
+public class JDBCDomainList extends AbstractDomainList {
 
     private DataSourceSelector datasources;
     private DataSourceComponent dataSourceComponent;
@@ -68,27 +66,37 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
     private String sqlFileName;
 
     protected String datasourceName;
+    
+    private HierarchicalConfiguration configuration;
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        super.service(arg0);
-        datasources = (DataSourceSelector)arg0.lookup(DataSourceSelector.ROLE); 
-        setFileSystem((FileSystem) arg0.lookup(FileSystem.ROLE));
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    public void setDataSourceComponent(DataSourceComponent dataSourceComponent) {
+        this.dataSourceComponent = dataSourceComponent;
     }
     
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration config = arg0.getChild("repositoryPath");
+
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    public void setDataSourceSelector(DataSourceSelector datasources) {
+        this.datasources = datasources;
+    }
     
-        if (config == null) {
+    @Resource(name="org.apache.james.services.FileSystem")
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+
+
+    protected void configure() throws ConfigurationException {
+        String destination = configuration.getString("repositoryPath",null);
+        if (destination == null) {
             throw new ConfigurationException("RepositoryPath must configured");
         }
         
-        String destination = config.getValue();
+        
         // normalize the destination, to simplify processing.
         if ( ! destination.endsWith("/") ) {
             destination += "/";
@@ -112,7 +120,7 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
                 new StringBuffer(256)
                         .append("Malformed destinationURL - Must be of the format '")
                         .append("db://<data-source>/<table>'.  Was passed ")
-                        .append(arg0.getAttribute("repositoryPath"));
+                        .append(configuration.getString("/ @repositoryPath"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
         dataSourceName = (String)urlParams.get(0);
@@ -128,24 +136,17 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
             getLogger().debug(logBuffer.toString());
         }
     
-        sqlFileName = arg0.getChild("sqlFile").getValue();
+        sqlFileName = configuration.getString("sqlFile",null);
         
-        Configuration autoConf = arg0.getChild("autodetect");
-        if (autoConf != null) {
-            setAutoDetect(autoConf.getValueAsBoolean(true));    
-        }
+        setAutoDetect(configuration.getBoolean("autodetect", true));    
+        setAutoDetectIP(configuration.getBoolean("autodetectIP", true));    
         
-        Configuration autoIPConf = arg0.getChild("autodetectIP");
-        if (autoConf != null) {
-            setAutoDetectIP(autoIPConf.getValueAsBoolean(true));    
-        }
     }
     
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-    
+    @PostConstruct
+    public void init() throws Exception {
+        configure();
+        
         setDataSourceComponent((DataSourceComponent) datasources.select(dataSourceName));
     
         StringBuffer logBuffer = null;
@@ -165,7 +166,7 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
                 sqlFile = fileSystem.getResource(sqlFileName);
                 sqlFileName = null;
             } catch (Exception e) {
-                getLogger().fatalError(e.getMessage(), e);
+                getLogger().error(e.getMessage(), e);
                 throw e;
             }
 
@@ -227,15 +228,6 @@ public class JDBCDomainList extends AbstractDomainList implements Serviceable,Co
             getLogger().debug("JDBCVirtualUserTable: " + logString);
         }
     };
-
-    public void setDataSourceComponent(DataSourceComponent dataSourceComponent) {
-        this.dataSourceComponent = dataSourceComponent;
-    }
-    
-
-    public void setFileSystem(FileSystem fileSystem) {
-        this.fileSystem = fileSystem;
-    }
 
     /**
      * @see org.apache.james.domain.AbstractDomainList#getDomainListInternal()

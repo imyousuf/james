@@ -22,10 +22,10 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
@@ -360,10 +360,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             // Instantiate a MailRepository for mails to be processed.
             Store mailstore = (Store) compMgr.lookup(Store.ROLE);
 
-            DefaultConfiguration spoolConf = new DefaultConfiguration(
-                    "repository", "generated:RemoteDelivery");
-            spoolConf.setAttribute("destinationURL", workRepositoryPath);
-            spoolConf.setAttribute("type", "SPOOL");
+            DefaultConfigurationBuilder spoolConf = new DefaultConfigurationBuilder();
+            spoolConf.addProperty("/ @destinationURL", workRepositoryPath);
+            spoolConf.addProperty("/ @type", "SPOOL");
             workRepository = (SpoolRepository) mailstore.select(spoolConf);
         } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());

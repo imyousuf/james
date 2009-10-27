@@ -25,41 +25,43 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+
 
 /**
  * Mimic the old behavoir of JAMES
  */
-public class XMLDomainList extends AbstractDomainList implements Configurable {
+public class XMLDomainList extends AbstractDomainList {
     
     private List<String> domainNames = null;
     
     private boolean managementDisabled = false;
-    
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration conf = arg0.getChild("domainnames");      
-        if (conf != null) {
 
-            Configuration[] serverNameConfs = conf.getChildren( "domainname" );
-            for ( int i = 0; i < serverNameConfs.length; i++ ) {
-                addDomainInternal( serverNameConfs[i].getValue());
-            }
-            
-            Configuration autoConf = arg0.getChild("autodetect");
-            if (autoConf != null) {
-                setAutoDetect(autoConf.getValueAsBoolean(true));    
-            }
-            
-            Configuration autoIPConf = arg0.getChild("autodetectIP");
-            if (autoConf != null) {
-                setAutoDetectIP(autoIPConf.getValueAsBoolean(true));    
-            }
-        } 
+    private HierarchicalConfiguration configuration;
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    
+    @PostConstruct
+    public void init() throws Exception {
+        configure();
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected void configure() throws ConfigurationException {
+         List<String> serverNameConfs = configuration.getList( "domainnames/domainname" );
+         for ( int i = 0; i < serverNameConfs.size(); i++ ) {
+             addDomainInternal( serverNameConfs.get(i));
+         }
+         setAutoDetect(configuration.getBoolean("autodetect", true));    
+         setAutoDetectIP(configuration.getBoolean("autodetectIP", true));    
     }
     
     

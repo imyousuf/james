@@ -32,7 +32,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
     
     protected static final String EXISTING_USER_NAME = "testExistingUserName";
 
-    abstract public MailServer createMailServer() throws ServiceException;
+    abstract public MailServer createMailServer() throws ServiceException, Exception;
     abstract public boolean allowsPasswordlessUser();
 
     /**
@@ -43,7 +43,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
     abstract public boolean canTestUserExists();
     abstract public boolean isUserExisting(MailServer mailServerImpl, String username);
     
-    public void testId() throws ServiceException {
+    public void testId() throws Exception {
         MailServer mailServer = createMailServer();
         
         String id = mailServer.getId();
@@ -51,7 +51,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         assertFalse("mail id not empty", "".equals(id));
     }
     
-    public void testIdIncrement() throws ServiceException {
+    public void testIdIncrement() throws Exception {
         MailServer mailServer = createMailServer();
         
         String id1 = mailServer.getId();
@@ -59,7 +59,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         assertFalse("next id is different", id1.equals(id2));
     }
     
-    public void testAddUser() throws ServiceException {
+    public void testAddUser() throws Exception {
         
         // addUser acts on field localUsers for class org.apache.james.James 
         // thus, it is unrelated to getUserInbox() for the only known implementation of MailServer
@@ -99,7 +99,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         
     }
 
-    public void testGetNonexistingUserInbox() throws ServiceException {
+    public void testGetNonexistingUserInbox() throws Exception {
 
         MailServer mailServer = createMailServer();
 
@@ -110,7 +110,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         assertEquals("test user does not exist", null, userInbox);
     }
     
-    public void testGetExisitingUserInbox() throws ServiceException {
+    public void testGetExisitingUserInbox() throws Exception {
         MailServer mailServer = createMailServer();
 
         MailRepository userInbox = mailServer.getUserInbox(EXISTING_USER_NAME);

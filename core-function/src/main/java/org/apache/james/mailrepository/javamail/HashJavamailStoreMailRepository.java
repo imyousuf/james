@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.annotation.PostConstruct;
 import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -594,4 +595,9 @@ public class HashJavamailStoreMailRepository extends
         return new FolderAdapter(folder);
     }
 
+    
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+    }
 }

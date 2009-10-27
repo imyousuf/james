@@ -22,9 +22,8 @@
 package org.apache.james.test.mock.avalon;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,28 +43,26 @@ public class MockStore implements Store {
 
     private Object get(Object object) {
         Object key = extractKeyObject(object);
-        System.err.println(key);
+        System.out.println(key);
         return m_storedObjectMap.get(key);
     }
 
     private Object extractKeyObject(Object object) {
         if (object instanceof Configuration) {
             Configuration repConf = (Configuration) object;
-            try {
-                String type = repConf.getAttribute("type");
-                String prefix = "";
-                if (!"MAIL".equals(type) && !"SPOOL".equals(type)) {
-                    prefix = type+".";
-                }
-                String attribute = repConf.getAttribute("destinationURL");
-                String[] strings = attribute.split("/");
-                if (strings.length > 0) {
-                    return prefix+strings[strings.length-1];
-                }
-            } catch (ConfigurationException e) {
-                throw new RuntimeException("test configuration setup failed");
+
+            String type = repConf.getString("/ @type");
+            String prefix = "";
+            if (!"MAIL".equals(type) && !"SPOOL".equals(type)) {
+                prefix = type + ".";
             }
-            
+            String attribute = repConf.getString("/ @destinationURL");
+            String[] strings = attribute.split("/");
+            System.out.println(prefix);
+            if (strings.length > 0) {
+                return prefix + strings[strings.length - 1];
+            }
+
         }
         return object;
     }

@@ -21,18 +21,16 @@
 package org.apache.james.mailrepository;
 
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository;
 import org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository;
-import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
 
-public class AvalonMailRepositoryTest extends AbstractMailRepositoryTest {
+public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
 
     /**
      * @return
@@ -40,35 +38,36 @@ public class AvalonMailRepositoryTest extends AbstractMailRepositoryTest {
      * @throws ConfigurationException
      * @throws Exception
      */
-    protected MailRepository getMailRepository() throws ServiceException, ConfigurationException, Exception {
-        DefaultServiceManager serviceManager = new DefaultServiceManager();
-        serviceManager.put(FileSystem.ROLE, new MockFileSystem());
-        AvalonMailRepository mr = new AvalonMailRepository();
+    protected MailRepository getMailRepository() throws Exception {
+        MockFileSystem fs =  new MockFileSystem();
+        FileMailRepository mr = new FileMailRepository();
         MockStore mockStore = new MockStore();
         File_Persistent_Stream_Repository file_Persistent_Stream_Repository = new File_Persistent_Stream_Repository();
-        file_Persistent_Stream_Repository.service(serviceManager);
-        file_Persistent_Stream_Repository.enableLogging(new MockLogger());
-        DefaultConfiguration defaultConfiguration2 = new DefaultConfiguration("conf");
-        defaultConfiguration2.setAttribute("destinationURL", "file://target/var/mr");
-        file_Persistent_Stream_Repository.configure(defaultConfiguration2);
-        file_Persistent_Stream_Repository.initialize();
+        file_Persistent_Stream_Repository.setFileSystem(fs);
+        file_Persistent_Stream_Repository.setLogger(new SimpleLog("MockLog"));
+        
+        DefaultConfigurationBuilder defaultConfiguration2 = new DefaultConfigurationBuilder();
+        defaultConfiguration2.addProperty("/ @destinationURL", "file://target/var/mr");
+        file_Persistent_Stream_Repository.setConfiguration(defaultConfiguration2);
+        file_Persistent_Stream_Repository.init();
+        
         mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
         File_Persistent_Object_Repository file_Persistent_Object_Repository = new File_Persistent_Object_Repository();
-        file_Persistent_Object_Repository.service(serviceManager);
-        file_Persistent_Object_Repository.enableLogging(new MockLogger());
-        DefaultConfiguration defaultConfiguration22 = new DefaultConfiguration("conf");
-        defaultConfiguration22.setAttribute("destinationURL", "file://target/var/mr");
-        file_Persistent_Object_Repository.configure(defaultConfiguration22);
-        file_Persistent_Object_Repository.initialize();
+        file_Persistent_Object_Repository.setFileSystem(fs);
+        file_Persistent_Object_Repository.setLogger(new SimpleLog("MockLog"));
+        DefaultConfigurationBuilder defaultConfiguration22 = new DefaultConfigurationBuilder();
+        defaultConfiguration22.addProperty("/ @destinationURL", "file://target/var/mr");
+        file_Persistent_Object_Repository.setConfiguration(defaultConfiguration22);
+        file_Persistent_Object_Repository.init();
         mockStore.add("OBJECT.mr", file_Persistent_Object_Repository);
         mr.setStore(mockStore);
 
-        mr.enableLogging(new MockLogger());
-        DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
-        defaultConfiguration.setAttribute("destinationURL","file://target/var/mr");
-        defaultConfiguration.setAttribute("type","MAIL");
-        mr.configure(defaultConfiguration);
-        mr.initialize();
+        mr.setLogger(new SimpleLog("MockLog"));
+        DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
+        defaultConfiguration.addProperty("/ @destinationURL","file://target/var/mr");
+        defaultConfiguration.addProperty("/ @type","MAIL");
+        mr.setConfiguration(defaultConfiguration);
+        mr.init();
         return mr;
     }
 

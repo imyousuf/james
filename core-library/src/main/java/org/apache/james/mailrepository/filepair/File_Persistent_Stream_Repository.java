@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.PostConstruct;
+
 /**
  * Implementation of a StreamRepository to a File.
  * TODO: -retieve(String key) should return a FilterInputStream to allow
@@ -38,6 +40,11 @@ public class File_Persistent_Stream_Repository
     extends AbstractFileRepository
     implements StreamRepository
 {
+ 
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+    }
     
     /**
      * @see org.apache.james.mailrepository.filepair.AbstractFileRepository#getExtensionDecorator()

@@ -25,11 +25,9 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.services.MailRepository;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.james.MockFileSystem;
 
 /**
@@ -42,25 +40,26 @@ import org.apache.james.test.mock.james.MockFileSystem;
 public class MBoxMailRepositoryTest extends TestCase {
 
     
-    protected MailRepository getMailRepository() throws ServiceException, ConfigurationException, Exception {
+    protected MailRepository getMailRepository() throws  Exception {
         MBoxMailRepository mr = new MBoxMailRepository();
 
-        mr.enableLogging(new MockLogger());
-        DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
+        DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
         
         File fInbox = new MockFileSystem().getFile("file://conf/org/apache/james/mailrepository/testdata/Inbox");
         String mboxPath = "mbox://"+fInbox.toURI().toString().substring(new File("").toURI().toString().length());
         
-        defaultConfiguration.setAttribute("destinationURL",mboxPath);
-        defaultConfiguration.setAttribute("type","MAIL");
-        mr.configure(defaultConfiguration);
+        defaultConfiguration.addProperty("/ @destinationURL",mboxPath);
+        defaultConfiguration.addProperty("/ @type","MAIL");
+        mr.setConfiguration(defaultConfiguration);
+        mr.setLogger(new SimpleLog("MockLog"));;
+        mr.init();
         return mr;
     }
 
     // Try to write a unit test for JAMES-744. At the moment it seems that we cannot reproduce it.
-    public void testReadMboxrdFile() throws ServiceException, ConfigurationException, Exception {
+    public void testReadMboxrdFile() throws Exception {
         MailRepository mr = getMailRepository();
-    
+        
         Iterator<String> keys = mr.list();
     
         assertTrue("Two messages in list", keys.hasNext());

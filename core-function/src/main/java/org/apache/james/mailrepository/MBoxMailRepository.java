@@ -47,10 +47,9 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
@@ -59,6 +58,8 @@ import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Matcher;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
@@ -110,9 +111,7 @@ import java.util.Properties;
  */
 
 
-public class MBoxMailRepository
-        extends AbstractLogEnabled
-            implements MailRepository, Configurable {
+public class MBoxMailRepository implements MailRepository {
 
 
     static final SimpleDateFormat dy = new SimpleDateFormat("EE MMM dd HH:mm:ss yyyy", Locale.US);
@@ -154,6 +153,28 @@ public class MBoxMailRepository
     }
 
 
+    /**
+     * The repository configuration
+     */
+    private HierarchicalConfiguration configuration;
+
+    private Log logger;
+
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    protected Log getLogger() {
+        return logger;
+    }
+    
     /**
      * Convert a MimeMessage into raw text
      * @param mc The mime message to convert
@@ -781,12 +802,12 @@ public class MBoxMailRepository
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
-    public void configure(Configuration conf) throws ConfigurationException {
+    protected void configure(HierarchicalConfiguration conf) throws ConfigurationException {
         String destination;
         this.mList = null;
-        BUFFERING = conf.getAttributeAsBoolean("BUFFERING", true);
-        fifo = conf.getAttributeAsBoolean("FIFO", false);
-        destination = conf.getAttribute("destinationURL");
+        BUFFERING = conf.getBoolean("/ @BUFFERING", true);
+        fifo = conf.getBoolean("/ @FIFO", false);
+        destination = conf.getString("/ @destinationURL");
         if (destination.charAt(destination.length() - 1) == '/') {
             // Remove the trailing / as well as the protocol marker
             mboxFile = destination.substring("mbox://".length(), destination.lastIndexOf("/"));
@@ -798,7 +819,7 @@ public class MBoxMailRepository
             getLogger().debug("MBoxMailRepository.destinationURL: " + destination);
         }
 
-        String checkType = conf.getAttribute("type");
+        String checkType = conf.getString("/ @type");
         if (!(checkType.equals("MAIL") || checkType.equals("SPOOL"))) {
             String exceptionString = "Attempt to configure MboxMailRepository as " + checkType;
             if (getLogger().isWarnEnabled()) {
@@ -808,4 +829,8 @@ public class MBoxMailRepository
         }
     }
 
+    @PostConstruct
+    public void init() throws Exception {
+        configure(configuration);
+    }
 }

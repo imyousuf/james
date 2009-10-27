@@ -38,8 +38,8 @@ import java.util.Iterator;
  *
  * @version 1.0.0, 24/04/1999
  */
-public class AvalonSpoolRepository
-    extends AvalonMailRepository
+public class FileSpoolRepository
+    extends FileMailRepository
     implements SpoolRepository {
 
     /**

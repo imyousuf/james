@@ -24,6 +24,8 @@ package org.apache.james;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.DomainList;
@@ -54,7 +56,7 @@ public class JamesTest extends MailServerTestAllImplementations {
     private File tempContextFile = null;
     private InMemorySpoolRepository mockMailRepository;
 
-    public MailServer createMailServer() throws ServiceException {
+    public MailServer createMailServer() throws Exception {
         James james = new James();
         james.service(setUpServiceManager());
         MockLogger mockLogger = new MockLogger();
@@ -86,9 +88,13 @@ public class JamesTest extends MailServerTestAllImplementations {
 
 
 
-    private MockServiceManager setUpServiceManager() {
+    private MockServiceManager setUpServiceManager() throws Exception {
         MockServiceManager serviceManager = new MockServiceManager();
         MockUsersRepository mockUsersRepository = new MockUsersRepository();
+        mockUsersRepository.setLogger(new SimpleLog("MockLog"));
+        mockUsersRepository.setConfiguration(new DefaultConfigurationBuilder());
+        mockUsersRepository.init();
+        
         serviceManager.put(UsersRepository.ROLE, mockUsersRepository);
         serviceManager.put(UsersStore.ROLE, new MockUsersStore(mockUsersRepository));
         serviceManager.put(FileSystem.ROLE, new FileSystem() {
@@ -123,6 +129,7 @@ public class JamesTest extends MailServerTestAllImplementations {
         public void setAutoDetectIP(boolean autodetectIP) {}            
         });
         MockStore mockStore = new MockStore();
+        
         mockMailRepository = new InMemorySpoolRepository();
         mockStore.add(EXISTING_USER_NAME, mockMailRepository);
         serviceManager.put(Store.ROLE, mockStore);

@@ -19,27 +19,24 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.DefaultServiceManager;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository;
 import org.apache.james.services.FileSystem;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.MailAddress;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.FileInputStream;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Test basic behaviours of UsersFileRepository
@@ -54,8 +51,9 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
      */
     protected UsersRepository getUsersRepository() throws Exception {
         UsersFileRepository res = new UsersFileRepository();
-        DefaultServiceManager serviceManager = new DefaultServiceManager();
-        serviceManager.put(FileSystem.ROLE, new FileSystem() {
+
+        
+        FileSystem fs = new FileSystem() {
 
             public File getBasedir() throws FileNotFoundException {
                 return new File(".");
@@ -69,33 +67,34 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
                 throw new UnsupportedOperationException();
             }
             
-        });
+        };
         MockStore mockStore = new MockStore();
         File_Persistent_Object_Repository file_Persistent_Object_Repository = new File_Persistent_Object_Repository();
-        file_Persistent_Object_Repository.service(serviceManager);
-        file_Persistent_Object_Repository.enableLogging(new MockLogger());
-        DefaultConfiguration defaultConfiguration22 = new DefaultConfiguration("conf");
-        defaultConfiguration22.setAttribute("destinationURL", "file://target/var/users");
-        file_Persistent_Object_Repository.configure(defaultConfiguration22);
-        file_Persistent_Object_Repository.initialize();
+        file_Persistent_Object_Repository.setFileSystem(fs);
+        file_Persistent_Object_Repository.setLogger(new SimpleLog("MockLog"));
+        DefaultConfigurationBuilder defaultConfiguration22 = new DefaultConfigurationBuilder();
+        defaultConfiguration22.addProperty("/ @destinationURL", "file://target/var/users");
+        file_Persistent_Object_Repository.setConfiguration(defaultConfiguration22);
+        file_Persistent_Object_Repository.init();
+        
         mockStore.add("OBJECT.users", file_Persistent_Object_Repository);
         res.setStore(mockStore);
-        DefaultConfiguration configuration = new DefaultConfiguration("test");
-        DefaultConfiguration destinationConf = new DefaultConfiguration("destination");
-        destinationConf.setAttribute("URL", "file://target/var/users");
-        configuration.addChild(destinationConf);
+        DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder("test");
+        configuration.addProperty("destination/ @URL", "file://target/var/users");
         res.setLogger(new SimpleLog("MockLog"));
-        res.setConfiguration(new ConfigurationAdapter(configuration));
+        res.setConfiguration(configuration);
         res.init();
         return res;
     }
 
     protected void disposeUsersRepository() {
-        Iterator<String> i = this.usersRepository.list();
-        while (i.hasNext()) {
-            this.usersRepository.removeUser((String) i.next());
+        if (this.usersRepository != null) {
+            Iterator<String> i = this.usersRepository.list();
+            while (i.hasNext()) {
+                this.usersRepository.removeUser((String) i.next());
+            }
+            ContainerUtil.dispose(this.usersRepository);
         }
-        ContainerUtil.dispose(this.usersRepository);
     }
     
     public void testVirtualUserTableImpl() throws Exception {
