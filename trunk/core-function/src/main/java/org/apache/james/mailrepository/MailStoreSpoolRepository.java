@@ -22,17 +22,14 @@
 package org.apache.james.mailrepository;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.util.Collection;
@@ -50,9 +47,7 @@ import java.util.Iterator;
  *
  * @version This is $Revision: 165416 $
  */
-public class MailStoreSpoolRepository
-    extends AbstractLogEnabled
-    implements Serviceable, Initializable, Configurable, SpoolRepository {
+public class MailStoreSpoolRepository implements SpoolRepository {
 
     /**
      * The wrapped spoolRepository
@@ -67,32 +62,42 @@ public class MailStoreSpoolRepository
     /**
      * The repository configuration
      */
-    private Configuration configuration;
+    private HierarchicalConfiguration configuration;
+
+    private Log logger;
 
     
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
     public void setStore(Store store) {
         mailStore = store;
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager serviceManager) throws ServiceException {
-        Store mailStore = (Store) serviceManager.lookup(Store.ROLE);
-        setStore(mailStore);
+    protected Log getLogger() {
+        return logger;
     }
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */
-    public void configure(Configuration conf) throws ConfigurationException {
-        this.configuration = conf;
+    protected void configure(HierarchicalConfiguration conf) throws ConfigurationException {
     }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
+    @PostConstruct
     public void initialize() throws Exception {
+        configure(configuration);
         try {
             spoolRep  = (SpoolRepository) mailStore.select(configuration);
         } catch (Exception e) {

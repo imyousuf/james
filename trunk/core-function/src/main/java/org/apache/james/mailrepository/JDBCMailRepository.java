@@ -24,11 +24,9 @@ package org.apache.james.mailrepository;
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
@@ -38,6 +36,8 @@ import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
@@ -139,43 +139,24 @@ public class JDBCMailRepository
 
     private FileSystem fileSystem;
 
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
     public void setDatasources(DataSourceSelector datasources) {
         this.datasources = datasources;
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service( final ServiceManager componentManager )
-        throws ServiceException {
-        super.service(componentManager);
-        StringBuffer logBuffer = null;
-        if (getLogger().isDebugEnabled()) {
-            logBuffer =
-                new StringBuffer(64)
-                        .append(this.getClass().getName())
-                        .append(".compose()");
-            getLogger().debug(logBuffer.toString());
-        }
-        // Get the DataSourceSelector service
-        DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup( DataSourceSelector.ROLE );
-        setDatasources(datasources);
-        setFileSystem((FileSystem) componentManager.lookup(FileSystem.ROLE));
-    }
 
-    private void setFileSystem(FileSystem fileSystem) {
+    @Resource(name="org.apache.james.services.FileSystem")
+    public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
-
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration conf) throws ConfigurationException {
+    
+    protected void doConfigure(HierarchicalConfiguration configuration) throws ConfigurationException {
+        super.doConfigure(configuration);
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".configure()");
         }
 
-        String destination = conf.getAttribute("destinationURL");
+        String destination = configuration.getString("/ @destinationURL");
         // normalize the destination, to simplify processing.
         if ( ! destination.endsWith("/") ) {
             destination += "/";
@@ -202,7 +183,7 @@ public class JDBCMailRepository
                 new StringBuffer(256)
                         .append("Malformed destinationURL - Must be of the format '")
                         .append("db://<data-source>[/<table>[/<repositoryName>]]'.  Was passed ")
-                        .append(conf.getAttribute("destinationURL"));
+                        .append(configuration.getString("/ @destinationURL"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
         if (urlParams.size() >= 1) {
@@ -232,12 +213,14 @@ public class JDBCMailRepository
             getLogger().debug(logBuffer.toString());
         }
         
-        inMemorySizeLimit = conf.getChild("inMemorySizeLimit").getValueAsInteger(409600000); 
+        inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", 409600000); 
 
-        String filestore = conf.getChild("filestore").getValue(null);
-        sqlFileName = conf.getChild("sqlFile").getValue();
+        String filestore = configuration.getString("filestore", null);
+        sqlFileName = configuration.getString("sqlFile");
         try {
             if (filestore != null) {
+                
+                //TODO Remove me ???
                 //prepare Configurations for stream repositories
                 DefaultConfiguration streamConfiguration
                     = new DefaultConfiguration( "repository",
@@ -266,7 +249,9 @@ public class JDBCMailRepository
             getLogger().error(message, e);
             throw new ConfigurationException(message, e);
         }
+        
     }
+
 
     /**
      * Initialises the JDBC repository.
@@ -278,8 +263,10 @@ public class JDBCMailRepository
      *
      * @throws Exception if an error occurs
      */
-    public void initialize() throws Exception {
-        super.initialize();
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+        
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".initialize()");
@@ -305,7 +292,7 @@ public class JDBCMailRepository
             try {
                 sqlFile = fileSystem.getResource(sqlFileName);
             } catch (Exception e) {
-                getLogger().fatalError(e.getMessage(), e);
+                getLogger().error(e.getMessage(), e);
                 throw e;
             }
 
@@ -405,7 +392,7 @@ public class JDBCMailRepository
                              + "in table '"
                              + tableName
                              + "').");
-            getLogger().fatalError(logBuffer.toString());
+            getLogger().error(logBuffer.toString());
             throw new SQLException(logBuffer.toString());
         }
         if (!hasUpdateMessageAttributesSQL && hasRetrieveMessageAttributesSQL) {
@@ -414,7 +401,7 @@ public class JDBCMailRepository
                              + "in table '"
                              + tableName
                              + "'.");
-            getLogger().fatalError(logBuffer.toString());
+            getLogger().error(logBuffer.toString());
             throw new SQLException(logBuffer.toString());
         }
         if (!hasMessageAttributesColumn
@@ -425,7 +412,7 @@ public class JDBCMailRepository
                                  + "' is missing in table '"
                                  + tableName
                                  + "'.");
-                getLogger().fatalError(logBuffer.toString());
+                getLogger().error(logBuffer.toString());
                 throw new SQLException(logBuffer.toString());
         }
         if (hasUpdateMessageAttributesSQL && hasRetrieveMessageAttributesSQL) {

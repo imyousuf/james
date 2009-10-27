@@ -32,15 +32,12 @@ import junit.framework.TestCase;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.services.FileSystem;
-import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.sql.JDBCUtil;
@@ -95,16 +92,10 @@ public class JDBCDomainListTest  extends TestCase {
         protected void delegatedLog(String logString) {}
     };
     
-    private Configuration setUpConfiguration(String url) {
-        DefaultConfiguration configuration = new DefaultConfiguration("test");
-        DefaultConfiguration reposConf = new DefaultConfiguration("repositoryPath");          
-        reposConf.setValue(url);
-        configuration.addChild(reposConf);
-        
-        DefaultConfiguration sqlConf = new DefaultConfiguration("sqlFile");          
-        sqlConf.setValue("file://conf/sqlResources.xml");
-        configuration.addChild(sqlConf);
-
+    private HierarchicalConfiguration setUpConfiguration(String url) {
+        DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
+        configuration.addProperty("repositoryPath", url);
+        configuration.addProperty("sqlFile", "file://conf/sqlResources.xml");
         return configuration;
     }
     
@@ -124,23 +115,18 @@ public class JDBCDomainListTest  extends TestCase {
         };
         return dns;
     }
-    
-    private MockServiceManager setUpServiceManager(DNSService dns) throws Exception {
-        MockServiceManager service = new MockServiceManager();
-        service.put(DNSService.ROLE, dns);
-        service.put(FileSystem.ROLE, new MockFileSystem());
-        service.put(DataSourceSelector.ROLE, dataSource);
-        return service;
-    }
+   
     
     public void testAddRemoveGetDomains() throws Exception {
         
     
         JDBCDomainList dom = new JDBCDomainList();
-        ContainerUtil.enableLogging(dom,new MockLogger());
-        dom.service(setUpServiceManager(setUpDNSServer("localhost")));
-        dom.configure(setUpConfiguration(repos + table));
-        dom.initialize();
+        dom.setDNSService(setUpDNSServer("localhost"));
+        dom.setFileSystem(new MockFileSystem());
+        dom.setDataSourceSelector(dataSource);
+        dom.setConfiguration(setUpConfiguration(repos + table));
+        dom.setLogger(new SimpleLog("MockLog"));
+        dom.init();
         dom.addDomain("domain1.");
 
         assertEquals("two domain found",dom.getDomains().size(),2);
@@ -153,25 +139,18 @@ public class JDBCDomainListTest  extends TestCase {
 
     public void testThrowConfigurationException() throws Exception {
         boolean exception = false;
-        boolean exception2 = false;
         JDBCDomainList dom = new JDBCDomainList();
-        ContainerUtil.enableLogging(dom,new MockLogger());
-        dom.service(setUpServiceManager(setUpDNSServer("localhost")));
+        dom.setDNSService(setUpDNSServer("localhost"));
+        dom.setFileSystem(new MockFileSystem());
+        dom.setDataSourceSelector(dataSource);
+        dom.setConfiguration(new DefaultConfigurationBuilder());
+        dom.setLogger(new SimpleLog("MockLog"));
         try {
-            dom.configure(new DefaultConfiguration("invalid"));
-            dom.initialize();
+            dom.init();
         } catch (ConfigurationException e) {
             exception = true;
         }
     
         assertTrue("Exception thrown",exception);
-    
-        try {
-            dom.configure(setUpConfiguration(null));
-        } catch (ConfigurationException e) {
-            exception2 = true;
-        }
-    
-        assertTrue("Exception thrown",exception2);
     }
 }

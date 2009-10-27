@@ -22,14 +22,10 @@
 package org.apache.james.mailrepository.filepair;
 
 import org.apache.avalon.cornerstone.services.store.Repository;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.io.ExtensionFileFilter;
 
@@ -43,15 +39,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 /**
  * This an abstract class implementing functionality for creating a file-store.
  *
  */
 public abstract class AbstractFileRepository
-    extends AbstractLogEnabled
-    implements Repository, Serviceable, Configurable, Initializable
-{
+    implements Repository {
     protected static final boolean DEBUG = false;
 
     protected static final String HANDLED_URL = "file://";
@@ -68,44 +66,63 @@ public abstract class AbstractFileRepository
     protected FilenameFilter m_filter;
     protected File m_baseDirectory;
 
-    protected ServiceManager m_serviceManager;
+    private FileSystem fileSystem;
 
+    private Log logger;
+
+    private HierarchicalConfiguration configuration;
+
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    
+    @Resource(name="org.apache.james.services.FileSystem")
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+    
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    protected Log getLogger() {
+        return logger;
+    }
+      
+    
     protected abstract String getExtensionDecorator();
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service( final ServiceManager serviceManager )
-        throws ServiceException
-    {
-        m_serviceManager = serviceManager;
-        try {
-            m_baseDirectory = ((FileSystem) serviceManager.lookup(FileSystem.ROLE)).getBasedir();
-        } catch (FileNotFoundException e) {
-            throw new ServiceException(FileSystem.ROLE, "Cannot find the base directory of the application", e);
-        }
-    }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure( final Configuration configuration )
+
+    protected void doConfigure( final HierarchicalConfiguration configuration )
         throws ConfigurationException
     {
         if( null == m_destination )
         {
-            final String destination = configuration.getAttribute( "destinationURL" );
+            final String destination = configuration.getString( "/ @destinationURL" );
             setDestination( destination );
         }
     }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize()
+    @PostConstruct
+    public void init()
         throws Exception
     {
         getLogger().info( "Init " + getClass().getName() + " Store" );
+
+        doConfigure(configuration);
+        try {
+            m_baseDirectory = fileSystem.getBasedir();
+        } catch (FileNotFoundException e) {
+            getLogger().error("Cannot find the base directory of the application",e);
+            throw new FileNotFoundException("Cannot find the base directory of the application");
+        }
+        
 
         m_name = "Repository";
         String m_postfix = getExtensionDecorator();
@@ -225,16 +242,8 @@ public abstract class AbstractFileRepository
                                         childName + " : " + e );
         }
 
-        try
-        {
-            child.service( m_serviceManager );
-        }
-        catch( final ServiceException cme )
-        {
-            throw new RuntimeException( "Cannot service child " +
-                                        "repository " + childName +
-                                        " : " + cme );
-        }
+        child.setFileSystem(fileSystem);
+        child.setLogger(logger);
 
         try
         {
@@ -250,7 +259,7 @@ public abstract class AbstractFileRepository
 
         try
         {
-            child.initialize();
+            child.init();
         }
         catch( final Exception e )
         {
@@ -358,11 +367,11 @@ public abstract class AbstractFileRepository
     /**
      * Returns the list of used keys.
      */
-    public Iterator list()
+    public Iterator<String> list()
     {
         final File storeDir = new File( m_path );
         final String[] names = storeDir.list( m_filter );
-        final ArrayList list = new ArrayList();
+        final List<String> list = new ArrayList<String>();
 
         for( int i = 0; i < names.length; i++ )
         {

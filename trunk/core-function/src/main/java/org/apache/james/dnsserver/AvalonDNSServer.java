@@ -16,79 +16,94 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailrepository;
+package org.apache.james.dnsserver;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.cornerstone.services.store.Store;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.bridge.GuiceInjected;
-import org.apache.james.services.FileSystem;
 import org.apache.james.util.ConfigurationAdapter;
+import org.apache.mailet.HostAddress;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.name.Names;
 
-public class AvalonMailStore implements GuiceInjected, Serviceable, Configurable, Initializable, LogEnabled, Store{
-
-    private Store store;
-    private FileSystem fs;
-    private DataSourceSelector selector;
-    private Log logger;
+public class AvalonDNSServer implements GuiceInjected, DNSService, Configurable, Initializable, LogEnabled, DNSServerMBean{
+    private DNSServer dns;
     private HierarchicalConfiguration config;
+    private Log logger;
     
-    public void service(ServiceManager manager) throws ServiceException {
-        fs = (FileSystem) manager.lookup(FileSystem.ROLE);
-        selector = (DataSourceSelector) manager.lookup(DataSourceSelector.ROLE);
+    public Collection<String> findMXRecords(String hostname)
+            throws TemporaryResolutionException {
+        return dns.findMXRecords(hostname);
+    }
+
+    public Collection<String> findTXTRecords(String hostname) {
+        return dns.findTXTRecords(hostname);
+    }
+
+    public InetAddress[] getAllByName(String host) throws UnknownHostException {
+        return dns.getAllByName(host);
+    }
+
+    public InetAddress getByName(String host) throws UnknownHostException {
+        return dns.getByName(host);
+    }
+
+    public String getHostName(InetAddress addr) {
+        return dns.getHostName(addr);
+    }
+
+    public InetAddress getLocalHost() throws UnknownHostException {
+        return dns.getLocalHost();
+    }
+
+    public Iterator<HostAddress> getSMTPHostAddresses(String domainName)
+            throws TemporaryResolutionException {
+        return dns.getSMTPHostAddresses(domainName);
     }
 
     public void configure(Configuration arg0) throws ConfigurationException {
         try {
-            this.config = new ConfigurationAdapter(arg0);
+            config = new ConfigurationAdapter(arg0);
         } catch (org.apache.commons.configuration.ConfigurationException e) {
-            throw new ConfigurationException("Unable to convert config", e);
+            throw new ConfigurationException("Unable to convert config");
         }
     }
 
     public void initialize() throws Exception {
-        store = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
+        dns = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
             
             @Override
             protected void configure() {
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
                 bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-                bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
-                bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(selector);
+
             }
-        }).getInstance(GuiceMailStore.class);
+        }).getInstance(DNSServer.class);
+    }
+
+    public String[] getDNSServers() {
+        return dns.getDNSServers();
     }
 
     public void enableLogging(Logger arg0) {
-        this.logger = new AvalonLogger(arg0);
-    }
-
-    public Object select(Object arg0) throws ServiceException {
-        return select(arg0);
-    }
-
-    public boolean isSelectable(Object arg0) {
-        return store.isSelectable(arg0);
-    }
-
-    public void release(Object arg0) {
-        store.release(arg0);
+        logger = new AvalonLogger(arg0);
     }
 
 }

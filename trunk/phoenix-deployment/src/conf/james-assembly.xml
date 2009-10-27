@@ -75,7 +75,7 @@
     <proxy disable='true'/>
   </block>
 
-  <block name="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
+  <block name="dnsserver" class="org.apache.james.dnsserver.AvalonDNSServer" />
 
   <!-- The Spool Management block  -->
   <block name="spoolmanagement" class="org.apache.james.management.impl.SpoolManagement" >
@@ -234,7 +234,7 @@
   </block>  
         
   <!-- The main SpoolRepository -->
-  <block name="spoolrepository" class="org.apache.james.mailrepository.MailStoreSpoolRepository" >
+  <block name="spoolrepository" class="org.apache.james.mailrepository.AvalonMailStoreSpoolRepository" >
     <provide name="mailstore"
              role="org.apache.avalon.cornerstone.services.store.Store" />
     <proxy disable='true'/>
@@ -291,14 +291,14 @@
   
   <!-- ######################################################################## -->
   <!-- The context domainlist implementation -->
-  <block name="domainlist" class="org.apache.james.domain.XMLDomainList">
+  <block name="domainlist" class="org.apache.james.domain.AvalonXMLDomainList">
       <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>
       <proxy disable='true'/>
   </block>
   
   <!--  JDBC implementation of the domainlist service-->
   <!--
-  <block name="domainlist" class="org.apache.james.domain.JDBCDomainList">
+  <block name="domainlist" class="org.apache.james.domain.AvalonJDBCDomainList">
       <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector"/>
       <provide name="filesystem" role="org.apache.james.services.FileSystem"/>

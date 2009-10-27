@@ -20,6 +20,8 @@
 package org.apache.james.userrepository;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.impl.user.DefaultJamesUser;
@@ -46,7 +48,11 @@ public class MockUsersRepositoryTest extends TestCase {
      * @throws Exception 
      */
     protected UsersRepository getUsersRepository() throws Exception {
-        return new MockUsersRepository();
+        MockUsersRepository repos = new MockUsersRepository();
+        repos.setLogger(new SimpleLog("MockLog"));
+        repos.setConfiguration(new DefaultConfigurationBuilder());
+        repos.init();
+        return repos;
     }
 
     public void testUsersRepositoryEmpty() {
@@ -219,7 +225,9 @@ public class MockUsersRepositoryTest extends TestCase {
      * Dispose the repository
      */
     protected void disposeUsersRepository() {
-        ContainerUtil.dispose(this.usersRepository);
+        if (usersRepository != null) {
+            ContainerUtil.dispose(this.usersRepository);
+        }
     }
 
 }

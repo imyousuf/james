@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
@@ -34,15 +36,9 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.URLName;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
@@ -55,9 +51,7 @@ import org.apache.mailet.Mail;
  * TODO examine for thread-safety
  */
 
-public abstract class AbstractJavamailStoreMailRepository extends
-        AbstractLogEnabled implements MailRepository, StoreGateKeeperAware, FolderAdapterFactory, Configurable,
-        Initializable,Serviceable {
+public abstract class AbstractJavamailStoreMailRepository implements MailRepository, StoreGateKeeperAware, FolderAdapterFactory {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -72,7 +66,7 @@ public abstract class AbstractJavamailStoreMailRepository extends
      */
     private String destination;
 
-    protected Logger log;
+    protected Log log;
 
     /**
      * The underlaying Store can be used externaly via the StoreAware.getStore()
@@ -107,32 +101,47 @@ public abstract class AbstractJavamailStoreMailRepository extends
      */
     private File home;
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager serviceManager) throws ServiceException {
-        try {
-            home = ((FileSystem) serviceManager.lookup(FileSystem.ROLE)).getBasedir();
-        } catch (FileNotFoundException e) {
-            throw new ServiceException(FileSystem.ROLE, "Cannot find the base directory of the application", e);
-        }
-    }
+    private FileSystem fileSystem;
 
+    private Log logger;
+    private HierarchicalConfiguration configuration;
+
+
+    @Resource(name="org.apache.james.services.FileSystem")
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+    
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    protected Log getLogger() {
+        return logger;
+    }
+      
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    
     /**
      * builds destination from attributes destinationURL and postfix.
      * at the moment james does not hand over additional parameters like postfix.
      * 
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      * 
      */
-    public void configure(Configuration conf) throws ConfigurationException {
+    protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
         log.debug("JavamailStoreMailRepository configure");
-        destination = conf.getAttribute("destinationURL");
+        destination = conf.getString("/ @destinationURL");
         log.debug("JavamailStoreMailRepository.destinationURL: " + destination);
         if (!destination.endsWith("/")) {
             destination += "/";
         }
-        String postfix = conf.getAttribute("postfix", "");
+        String postfix = conf.getString("/ @postfix", "");
         if (postfix.length() > 0) {
             if (postfix.startsWith("/")) {
                 postfix = postfix.substring(1);
@@ -186,7 +195,7 @@ public abstract class AbstractJavamailStoreMailRepository extends
                     + destination, e);
         }
 
-        String checkType = conf.getAttribute("type");
+        String checkType = conf.getString("/ @type");
         if (!checkType.equals(TYPE)) {
             String exceptionString = "Attempt to configure JavaMailStoreMailRepository as "
                     + checkType;
@@ -196,12 +205,17 @@ public abstract class AbstractJavamailStoreMailRepository extends
         log.debug("JavaMailStoreMailRepository configured");
     }
 
-    /**
-     * Does nothing
-     * @see Initializable#initialize()
-     */
-    public void initialize() throws Exception {
+    @PostConstruct
+    public void init() throws Exception {
         log.debug("JavaMailStoreMailRepository initialized");
+        
+        doConfigure(configuration);
+        try {
+            home = fileSystem.getBasedir();
+        } catch (FileNotFoundException e) {
+            
+            throw new FileNotFoundException("Cannot find the base directory of the application");
+        }
     }
     
     private String getDirAsUrl(String dir) throws MalformedURLException {
@@ -347,16 +361,6 @@ public abstract class AbstractJavamailStoreMailRepository extends
 
     }
     
-    /**
-     * Set the Logger to use
-     * 
-     * @see org.apache.avalon.framework.logger.AbstractLogEnabled#enableLogging(Logger)
-     */
-    public void enableLogging(Logger log) {
-        super.enableLogging(log);
-        this.log=log;
-        
-    }
     
     /**
      * possibility to replace FolderGateKeeper implementation. Only used for

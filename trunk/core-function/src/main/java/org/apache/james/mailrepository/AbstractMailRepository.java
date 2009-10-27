@@ -22,16 +22,15 @@
 package org.apache.james.mailrepository;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.Lock;
 import org.apache.mailet.Mail;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.io.IOException;
@@ -41,8 +40,7 @@ import java.util.Iterator;
 /**
  * This class represent an AbstractMailRepository. All MailRepositories should extend this class. 
  */
-public abstract class AbstractMailRepository extends AbstractLogEnabled
-        implements MailRepository, Serviceable, Configurable, Initializable {
+public abstract class AbstractMailRepository implements MailRepository {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -53,34 +51,40 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
      * A lock used to control access to repository elements, locking access
      * based on the key 
      */
-    private Lock lock;
+    private final Lock lock = new Lock();;
 
     protected Store store; // variable is not used beyond initialization
+    
+    private Log logger;
+
+    private HierarchicalConfiguration configuration;
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    protected Log getLogger() {
+        return logger;
+    }
+      
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
     
     /**
      * Set the Store to use
      * 
      * @param store the Store
      */
-    void setStore(Store store) {
+    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    public void setStore(Store store) {
         this.store = store;
     }
-
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        lock = new Lock();
-    }
-
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager )
-     */
-    public void service( final ServiceManager componentManager )
-            throws ServiceException {
-        setStore((Store)componentManager.lookup( Store.ROLE ));
+    
+    protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
+        
     }
 
     /**
@@ -168,6 +172,10 @@ public abstract class AbstractMailRepository extends AbstractLogEnabled
         }
     }
 
+    @PostConstruct
+    public void init() throws Exception {
+        doConfigure(configuration);
+    }
 
     /**
      * @see #store(Mail)

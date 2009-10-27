@@ -25,6 +25,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.james.util.io.ClassLoaderObjectInputStream;
 
@@ -37,7 +40,11 @@ public class File_Persistent_Object_Repository
     extends AbstractFileRepository
     implements ObjectRepository
 {
-    
+ 
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+    }
     /**
      * @see org.apache.james.mailrepository.filepair.AbstractFileRepository#getExtensionDecorator()
      */

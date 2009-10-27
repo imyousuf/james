@@ -18,7 +18,11 @@
  ****************************************************************/
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import java.util.Collection;
+import java.util.Iterator;
+
+import javax.mail.MessagingException;
+
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
@@ -33,27 +37,28 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.bridge.GuiceInjected;
-import org.apache.james.services.FileSystem;
+import org.apache.james.services.SpoolRepository;
 import org.apache.james.util.ConfigurationAdapter;
+import org.apache.mailet.Mail;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.name.Names;
 
-public class AvalonMailStore implements GuiceInjected, Serviceable, Configurable, Initializable, LogEnabled, Store{
+public class AvalonMailStoreRepository implements GuiceInjected, Serviceable, Configurable, Initializable, LogEnabled, SpoolRepository{
 
+    
     private Store store;
-    private FileSystem fs;
-    private DataSourceSelector selector;
-    private Log logger;
-    private HierarchicalConfiguration config;
+    private ConfigurationAdapter config;
+    private AvalonLogger logger;
+    private SpoolRepository repos;
     
     public void service(ServiceManager manager) throws ServiceException {
-        fs = (FileSystem) manager.lookup(FileSystem.ROLE);
-        selector = (DataSourceSelector) manager.lookup(DataSourceSelector.ROLE);
+        store = (Store) manager.lookup(Store.ROLE);
+       
     }
-
+    
     public void configure(Configuration arg0) throws ConfigurationException {
         try {
             this.config = new ConfigurationAdapter(arg0);
@@ -63,32 +68,64 @@ public class AvalonMailStore implements GuiceInjected, Serviceable, Configurable
     }
 
     public void initialize() throws Exception {
-        store = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
+        repos = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
             
             @Override
             protected void configure() {
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
                 bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-                bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
-                bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(selector);
+                bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(store);
             }
-        }).getInstance(GuiceMailStore.class);
+        }).getInstance(MailStoreSpoolRepository.class);
     }
 
     public void enableLogging(Logger arg0) {
         this.logger = new AvalonLogger(arg0);
     }
 
-    public Object select(Object arg0) throws ServiceException {
-        return select(arg0);
+
+    public Mail accept() throws InterruptedException {
+        return repos.accept();
     }
 
-    public boolean isSelectable(Object arg0) {
-        return store.isSelectable(arg0);
+    public Mail accept(long delay) throws InterruptedException {
+        return repos.accept(delay);
     }
 
-    public void release(Object arg0) {
-        store.release(arg0);
+    public Mail accept(AcceptFilter filter) throws InterruptedException {
+        return repos.accept(filter);
     }
 
+    public Iterator<String> list() throws MessagingException {
+        return repos.list();
+    }
+
+    public boolean lock(String key) throws MessagingException {
+        return repos.lock(key);
+    }
+
+    public void remove(Mail mail) throws MessagingException {
+        repos.remove(mail);
+    }
+
+    public void remove(Collection<Mail> mails) throws MessagingException {
+        repos.remove(mails);
+    }
+
+    public void remove(String key) throws MessagingException {
+        repos.remove(key);
+    }
+
+    public Mail retrieve(String key) throws MessagingException {
+        return repos.retrieve(key);
+    }
+
+    public void store(Mail mc) throws MessagingException {
+        repos.store(mc);
+        
+    }
+
+    public boolean unlock(String key) throws MessagingException {
+        return repos.unlock(key);
+    }
 }

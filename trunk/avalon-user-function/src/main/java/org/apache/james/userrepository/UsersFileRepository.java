@@ -23,8 +23,8 @@ package org.apache.james.userrepository;
 
 import org.apache.avalon.cornerstone.services.store.ObjectRepository;
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
@@ -82,6 +82,7 @@ public class UsersFileRepository
      */
     protected void doConfigure( final HierarchicalConfiguration configuration )
         throws ConfigurationException {
+        super.doConfigure(configuration);
         destination = configuration.getString( "destination/ @URL" );
 
         if (!destination.endsWith(urlSeparator)) {
@@ -97,13 +98,12 @@ public class UsersFileRepository
         try {
             //TODO Check how to remove this!
             //prepare Configurations for object and stream repositories
-            final DefaultConfiguration objectConfiguration
-                = new DefaultConfiguration( "repository",
-                                            "generated:UsersFileRepository.compose()" );
+            final DefaultConfigurationBuilder objectConfiguration
+                = new DefaultConfigurationBuilder();
 
-            objectConfiguration.setAttribute( "destinationURL", destination );
-            objectConfiguration.setAttribute( "type", "OBJECT" );
-            objectConfiguration.setAttribute( "model", "SYNCHRONOUS" );
+            objectConfiguration.addProperty( "/ @destinationURL", destination );
+            objectConfiguration.addProperty( "/ @type", "OBJECT" );
+            objectConfiguration.addProperty( "/ @model", "SYNCHRONOUS" );
 
             objectRepository = (ObjectRepository)store.select( objectConfiguration );
             if (getLogger().isDebugEnabled()) {

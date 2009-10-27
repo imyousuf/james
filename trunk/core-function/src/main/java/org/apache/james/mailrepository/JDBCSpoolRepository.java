@@ -21,9 +21,8 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
@@ -32,6 +31,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Implementation of a SpoolRepository on a database.
@@ -114,11 +115,17 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
-    public void configure(Configuration conf) throws ConfigurationException {
-        super.configure(conf);
-        maxPendingMessages = conf.getChild("maxcache").getValueAsInteger(1000);
+    protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
+        super.doConfigure(conf);
+        maxPendingMessages = conf.getInt("maxcache",1000);
     }
 
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+    }
+    
+    
     /**
      * @see org.apache.james.services.SpoolRepository#accept()
      */

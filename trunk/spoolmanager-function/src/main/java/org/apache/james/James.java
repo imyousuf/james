@@ -51,6 +51,7 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.transport.MailetConfigImpl;
 import org.apache.james.transport.mailets.LocalDelivery;
+import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
@@ -606,7 +607,7 @@ public class James
                         .getChild("inboxRepository").getChild("repository"));
                 mboxConf.setAttribute("destinationURL", destination);
 
-                userInbox = (MailRepository) store.select(mboxConf);
+                userInbox = (MailRepository) store.select(new ConfigurationAdapter(mboxConf));
                 if (userInbox!=null) {
                     mailboxes.put(userName, userInbox);
                 }

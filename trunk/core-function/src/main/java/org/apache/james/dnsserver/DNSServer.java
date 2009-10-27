@@ -21,11 +21,10 @@
 
 package org.apache.james.dnsserver;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.mailet.HostAddress;
 import org.xbill.DNS.ARecord;
@@ -56,13 +55,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 /**
  * Provides DNS client functionality to services running
  * inside James
  */
-public class DNSServer
-    extends AbstractLogEnabled
-    implements Configurable, Initializable, org.apache.james.api.dnsservice.DNSService, DNSServerMBean {
+public class DNSServer implements DNSService, DNSServerMBean {
 
     /**
      * A resolver instance used to retrieve DNS records.  This
@@ -120,87 +120,98 @@ public class DNSServer
     
     private String localAddress;
     
-
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure( final Configuration configuration )
+    private HierarchicalConfiguration configuration;
+    
+    private Log logger;
+    
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void configure()
         throws ConfigurationException {
 
         final boolean autodiscover =
-            configuration.getChild( "autodiscover" ).getValueAsBoolean( true );
+            configuration.getBoolean( "autodiscover", true );
 
         List<Name> sPaths = new ArrayList<Name>();
         if (autodiscover) {
-            getLogger().info("Autodiscovery is enabled - trying to discover your system's DNS Servers");
+            logger.info("Autodiscovery is enabled - trying to discover your system's DNS Servers");
             String[] serversArray = ResolverConfig.getCurrentConfig().servers();
             if (serversArray != null) {
                 for ( int i = 0; i < serversArray.length; i++ ) {
                     dnsServers.add(serversArray[ i ]);
-                    getLogger().info("Adding autodiscovered server " + serversArray[i]);
+                    logger.info("Adding autodiscovered server " + serversArray[i]);
                 }
             }
             Name[] systemSearchPath = ResolverConfig.getCurrentConfig().searchPath();
             if (systemSearchPath != null && systemSearchPath.length > 0) {
                 sPaths.addAll(Arrays.asList(systemSearchPath));
             }
-            if (getLogger().isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 for (Iterator<Name> i = sPaths.iterator(); i.hasNext();) {
                     Name searchPath = i.next();
-                    getLogger().info("Adding autodiscovered search path " + searchPath.toString());
+                    logger.info("Adding autodiscovered search path " + searchPath.toString());
                 }
             }
         }
 
-        singleIPPerMX = configuration.getChild( "singleIPperMX" ).getValueAsBoolean( false ); 
+        singleIPPerMX = configuration.getBoolean( "singleIPperMX", false ); 
 
-        setAsDNSJavaDefault = configuration.getChild( "setAsDNSJavaDefault" ).getValueAsBoolean( true );
+        setAsDNSJavaDefault = configuration.getBoolean( "setAsDNSJavaDefault" ,true );
         
         // Get the DNS servers that this service will use for lookups
-        final Configuration serversConfiguration = configuration.getChild( "servers" );
-        final Configuration[] serverConfigurations =
-            serversConfiguration.getChildren( "server" );
+        final List<String> serversConfigurations = configuration.getList( "servers/server" );
+      
 
-        for ( int i = 0; i < serverConfigurations.length; i++ ) {
-            dnsServers.add( serverConfigurations[ i ].getValue() );
+        for ( int i = 0; i < serversConfigurations.size(); i++ ) {
+            dnsServers.add( serversConfigurations.get(i) );
         }
 
         // Get the DNS servers that this service will use for lookups
-        final Configuration searchPathsConfiguration = configuration.getChild( "searchpaths" );
-        final Configuration[] searchPathsConfigurations =
-            searchPathsConfiguration.getChildren( "searchpath" );
+        final List<String> searchPathsConfiguration = configuration.getList( "searchpaths/searchpath" );
 
-        for ( int i = 0; i < searchPathsConfigurations.length; i++ ) {
+        for ( int i = 0; i < searchPathsConfiguration.size(); i++ ) {
             try {
-                sPaths.add( Name.fromString(searchPathsConfigurations[ i ].getValue()) );
+                sPaths.add( Name.fromString(searchPathsConfiguration.get(i)) );
             } catch (TextParseException e) {
-                throw new ConfigurationException("Unable to parse searchpath host: "+searchPathsConfigurations[ i ].getValue(),e);
+                throw new ConfigurationException("Unable to parse searchpath host: "+searchPathsConfiguration.get(i),e);
             }
         }
         
         searchPaths = (Name[]) sPaths.toArray(new Name[0]);
 
         if (dnsServers.isEmpty()) {
-            getLogger().info("No DNS servers have been specified or found by autodiscovery - adding 127.0.0.1");
+            logger.info("No DNS servers have been specified or found by autodiscovery - adding 127.0.0.1");
             dnsServers.add("127.0.0.1");
         }
 
         final boolean authoritative =
-           configuration.getChild( "authoritative" ).getValueAsBoolean( false );
+           configuration.getBoolean( "authoritative" , false);
         // TODO: Check to see if the credibility field is being used correctly.  From the
         //      docs I don't think so
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
 
-        maxCacheSize = (int) configuration.getChild( "maxcachesize" ).getValueAsLong( maxCacheSize );
+        maxCacheSize = (int)configuration.getLong( "maxcachesize",maxCacheSize );
     }
+    
+    
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize()
+    @PostConstruct
+    public void init()
         throws Exception {
+        logger.debug("DNSService init...");
 
-        getLogger().debug("DNSService init...");
+        configure();
+        
 
         // If no DNS servers were configured, default to local host
         if (dnsServers.isEmpty()) {
@@ -214,16 +225,16 @@ public class DNSServer
         //Create the extended resolver...
         final String[] serversArray = (String[])dnsServers.toArray(new String[0]);
 
-        if (getLogger().isInfoEnabled()) {
+        if (logger.isInfoEnabled()) {
             for(int c = 0; c < serversArray.length; c++) {
-                getLogger().info("DNS Server is: " + serversArray[c]);
+                logger.info("DNS Server is: " + serversArray[c]);
             }
         }
 
         try {
             resolver = new ExtendedResolver( serversArray );
         } catch (UnknownHostException uhe) {
-            getLogger().fatalError("DNS service could not be initialized.  The DNS servers specified are not recognized hosts.", uhe);
+            logger.error("DNS service could not be initialized.  The DNS servers specified are not recognized hosts.", uhe);
             throw uhe;
         }
 
@@ -234,7 +245,7 @@ public class DNSServer
             Lookup.setDefaultResolver(resolver);
             Lookup.setDefaultCache(cache, DClass.IN);
             Lookup.setDefaultSearchPath(searchPaths);
-            getLogger().info("Registered cache, resolver and search paths as DNSJava defaults");
+            logger.info("Registered cache, resolver and search paths as DNSJava defaults");
         }
         
         // Cache the local hostname and local address. This is needed because 
@@ -246,7 +257,7 @@ public class DNSServer
         localHostName = addr.getHostName();
         localAddress = addr.getHostAddress();
         
-        getLogger().debug("DNSService ...init end");
+        logger.debug("DNSService ...init end");
     }
 
     /**
@@ -293,7 +304,7 @@ public class DNSServer
 
         for (int i = 0; i < mxAnswers.length; i++) {
             servers.add(mxAnswers[i].getTarget ().toString ());
-            getLogger().debug(new StringBuffer("Found MX record ").append(mxAnswers[i].getTarget ().toString ()).toString());
+            logger.debug(new StringBuffer("Found MX record ").append(mxAnswers[i].getTarget ().toString ()).toString());
         }
         return servers;
     }
@@ -315,7 +326,7 @@ public class DNSServer
                             .append("Couldn't resolve MX records for domain ")
                             .append(hostname)
                             .append(".");
-                getLogger().info(logBuffer.toString());
+                logger.info(logBuffer.toString());
                 try {
                     getByName(hostname);
                     servers.add(hostname);
@@ -327,7 +338,7 @@ public class DNSServer
                               .append("Couldn't resolve IP address for host ")
                               .append(hostname)
                               .append(".");
-                    getLogger().error(logBuffer.toString());
+                    logger.error(logBuffer.toString());
                 }
             }
         }
@@ -365,7 +376,7 @@ public class DNSServer
             } catch (IllegalStateException ise) {
                 // This is okay, because it mimics the original behaviour
                 // TODO find out if it's a bug in DNSJava 
-                getLogger().debug("Error determining result ", ise);
+                logger.debug("Error determining result ", ise);
                 throw new TemporaryResolutionException(
                         "DNSService is temporary not reachable");
             }
@@ -373,7 +384,7 @@ public class DNSServer
             // return rawDNSLookup(name, false, type, typeDesc);
         } catch (TextParseException tpe) {
             // TODO: Figure out how to handle this correctly.
-            getLogger().error("Couldn't parse name " + namestr, tpe);
+            logger.error("Couldn't parse name " + namestr, tpe);
             return null;
         }
     }
@@ -445,7 +456,7 @@ public class DNSServer
                                                  .append("Couldn't resolve IP address for discovered host ")
                                                  .append(nextHostname)
                                                  .append(".");
-                        getLogger().error(logBuffer.toString());
+                        logger.error(logBuffer.toString());
                     }
                     final InetAddress[] ipAddresses = addrs;
 

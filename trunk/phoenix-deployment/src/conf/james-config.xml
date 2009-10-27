@@ -1255,7 +1255,7 @@ Regards, Postmaster XXX.YYY
          </repository>
          <!-- File based repositories.  These repositories store all message data -->
          <!-- in the file system. -->
-         <repository class="org.apache.james.mailrepository.AvalonMailRepository">
+         <repository class="org.apache.james.mailrepository.FileMailRepository">
             <protocols>
                <protocol>file</protocol>
             </protocols>
@@ -1265,7 +1265,7 @@ Regards, Postmaster XXX.YYY
             <!-- Set if the messages should be listed sorted. False by default -->
             <config FIFO="false"/> 
          </repository>
-         <repository class="org.apache.james.mailrepository.AvalonSpoolRepository">
+         <repository class="org.apache.james.mailrepository.FileSpoolRepository">
             <protocols>
                <protocol>file</protocol>
             </protocols>

@@ -19,10 +19,8 @@
 
 package org.apache.james.dnsserver;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.mailet.HostAddress;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.DClass;
@@ -112,12 +110,10 @@ public class DNSServerTest extends TestCase {
         dnsServer = new TestableDNSServer();
         DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();
 
-        Configuration c = db.build(
-                new ByteArrayInputStream("<dnsserver><autodiscover>true</autodiscover><authoritative>false</authoritative></dnsserver>".getBytes()),
-                "dnsserver");
-        ContainerUtil.enableLogging(dnsServer, new MockLogger());
-        ContainerUtil.configure(dnsServer, c);
-        ContainerUtil.initialize(dnsServer);
+        db.load(new ByteArrayInputStream("<dnsserver><autodiscover>true</autodiscover><authoritative>false</authoritative></dnsserver>".getBytes()));
+        dnsServer.setLogger(new SimpleLog("MockLog"));
+        dnsServer.setConfiguration(db);
+        dnsServer.init();
         
         
         defaultCache = Lookup.getDefaultCache(DClass.IN);
@@ -130,7 +126,7 @@ public class DNSServerTest extends TestCase {
 
     protected void tearDown() throws Exception {
         dnsServer.setCache(null);
-        ContainerUtil.dispose(dnsServer);
+        dnsServer = null;
         Lookup.setDefaultCache(defaultCache, DClass.IN);
         Lookup.setDefaultResolver(defaultResolver);
         Lookup.setDefaultSearchPath(defaultSearchPaths);
