@@ -195,7 +195,7 @@ public abstract class AbstractJavamailStoreMailRepository implements MailReposit
                     + destination, e);
         }
 
-        String checkType = conf.getString("@type");
+        String checkType = conf.getString("[@type]");
         if (!checkType.equals(TYPE)) {
             String exceptionString = "Attempt to configure JavaMailStoreMailRepository as "
                     + checkType;

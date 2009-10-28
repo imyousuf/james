@@ -56,7 +56,7 @@ public class XMLDomainList extends AbstractDomainList {
     
     @SuppressWarnings("unchecked")
     protected void configure() throws ConfigurationException {
-         List<String> serverNameConfs = configuration.getList( "domainnames/domainname" );
+         List<String> serverNameConfs = configuration.getList( "domainnames.domainname" );
          for ( int i = 0; i < serverNameConfs.size(); i++ ) {
              addDomainInternal( serverNameConfs.get(i));
          }

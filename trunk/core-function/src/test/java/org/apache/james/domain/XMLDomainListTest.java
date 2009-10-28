@@ -43,7 +43,7 @@ public class XMLDomainListTest extends TestCase {
         configuration.addProperty("autodetect", auto);
         configuration.addProperty("autodetectIP", autoIP);
         for (int i= 0; i< names.size(); i++) {
-            configuration.addProperty("domainnames/domainname", names.get(i).toString());
+            configuration.addProperty("domainnames.domainname", names.get(i).toString());
         }
         return configuration;
     }

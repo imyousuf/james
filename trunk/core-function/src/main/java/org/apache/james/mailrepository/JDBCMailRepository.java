@@ -217,8 +217,9 @@ public class JDBCMailRepository
         
         inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", 409600000); 
 
-        String filestore = configuration.getString("config.filestore", null);
-        sqlFileName = configuration.getString("config.sqlFile");
+        getLogger().info(ConfigurationUtils.toString(configuration));
+        String filestore = configuration.getString("filestore", null);
+        sqlFileName = configuration.getString("sqlFile");
         try {
             if (filestore != null) {
                 
