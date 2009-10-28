@@ -155,10 +155,12 @@ public class GuiceMailStore
             String protocol = protocols.get(i);
 
             HierarchicalConfiguration defConf = null;
-            if (repConf.containsKey("config")) {
+            
+            if (repConf.getKeys("config").hasNext()) {
                 // Get the default configuration for these protocol/type combinations.
                 defConf = repConf.configurationAt("config");
             }
+            
 
             for ( int j = 0; j < types.size(); j++ )
             {

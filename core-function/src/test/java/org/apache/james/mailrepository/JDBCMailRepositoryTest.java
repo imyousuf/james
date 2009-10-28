@@ -55,7 +55,7 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
         
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
         defaultConfiguration.addProperty("[@destinationURL]","db://maildb/mr/testrepo");
-        defaultConfiguration.addProperty("config.sqlFile","file://conf/sqlResources.xml");
+        defaultConfiguration.addProperty("sqlFile","file://conf/sqlResources.xml");
         defaultConfiguration.addProperty("[@type]","MAIL");
         mr.setFileSystem(fs);
         mr.setStore(mockStore);

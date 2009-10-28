@@ -169,7 +169,7 @@ public class DNSServer implements DNSService, DNSServerMBean {
         setAsDNSJavaDefault = configuration.getBoolean( "setAsDNSJavaDefault" ,true );
         
         // Get the DNS servers that this service will use for lookups
-        final List<String> serversConfigurations = configuration.getList( "servers/server" );
+        final List<String> serversConfigurations = configuration.getList( "servers.server" );
       
 
         for ( int i = 0; i < serversConfigurations.size(); i++ ) {
@@ -177,7 +177,7 @@ public class DNSServer implements DNSService, DNSServerMBean {
         }
 
         // Get the DNS servers that this service will use for lookups
-        final List<String> searchPathsConfiguration = configuration.getList( "searchpaths/searchpath" );
+        final List<String> searchPathsConfiguration = configuration.getList( "searchpaths.searchpath" );
 
         for ( int i = 0; i < searchPathsConfiguration.size(); i++ ) {
             try {
