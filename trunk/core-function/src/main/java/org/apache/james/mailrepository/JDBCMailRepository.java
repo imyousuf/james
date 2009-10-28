@@ -25,7 +25,6 @@ import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MailImpl;
@@ -217,7 +216,6 @@ public class JDBCMailRepository
         
         inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", 409600000); 
 
-        getLogger().info(ConfigurationUtils.toString(configuration));
         String filestore = configuration.getString("filestore", null);
         sqlFileName = configuration.getString("sqlFile");
         try {
