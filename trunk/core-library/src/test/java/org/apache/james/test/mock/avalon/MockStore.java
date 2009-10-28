@@ -24,6 +24,7 @@ package org.apache.james.test.mock.avalon;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,15 +51,15 @@ public class MockStore implements Store {
     private Object extractKeyObject(Object object) {
         if (object instanceof Configuration) {
             Configuration repConf = (Configuration) object;
+            System.out.println(ConfigurationUtils.toString(repConf));
 
-            String type = repConf.getString("/ @type");
+            String type = repConf.getString("[@type]");
             String prefix = "";
             if (!"MAIL".equals(type) && !"SPOOL".equals(type)) {
                 prefix = type + ".";
             }
-            String attribute = repConf.getString("/ @destinationURL");
+            String attribute = repConf.getString("[@destinationURL]");
             String[] strings = attribute.split("/");
-            System.out.println(prefix);
             if (strings.length > 0) {
                 return prefix + strings[strings.length - 1];
             }

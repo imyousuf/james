@@ -155,8 +155,8 @@ public class RemoteManager
         
         //read from the XML configuration and create and configure each of the handlers
         ConfigurationAdapter jamesConfiguration = new ConfigurationAdapter(handlerConfiguration.getChild("handlerchain"));
-        if (jamesConfiguration.getString("@coreHandlersPackage") == null)
-            jamesConfiguration.addProperty("/ @coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
+        if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
+            jamesConfiguration.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
         handlerChain.configure(jamesConfiguration);
     }
     

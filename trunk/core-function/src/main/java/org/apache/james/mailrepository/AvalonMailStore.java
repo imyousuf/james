@@ -80,7 +80,7 @@ public class AvalonMailStore implements GuiceInjected, Serviceable, Configurable
     }
 
     public Object select(Object arg0) throws ServiceException {
-        return select(arg0);
+        return store.select(arg0);
     }
 
     public boolean isSelectable(Object arg0) {

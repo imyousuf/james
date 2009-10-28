@@ -77,8 +77,8 @@ public abstract class AbstractGuiceStore<Type> {
         for ( int i = 0; i < repConfs.size(); i++ )
         {
             final HierarchicalConfiguration repConf = repConfs.get(i);
-            String repName = repConf.getString("/ @name");
-            String repClass = repConf.getString("/ @class");
+            String repName = repConf.getString("[@name]");
+            String repClass = repConf.getString("[@class]");
 
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Starting " + repClass);

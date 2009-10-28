@@ -136,12 +136,12 @@ public abstract class AbstractJavamailStoreMailRepository implements MailReposit
      */
     protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
         log.debug("JavamailStoreMailRepository configure");
-        destination = conf.getString("/ @destinationURL");
+        destination = conf.getString("[@destinationURL]");
         log.debug("JavamailStoreMailRepository.destinationURL: " + destination);
         if (!destination.endsWith("/")) {
             destination += "/";
         }
-        String postfix = conf.getString("/ @postfix", "");
+        String postfix = conf.getString("[@postfix]", "");
         if (postfix.length() > 0) {
             if (postfix.startsWith("/")) {
                 postfix = postfix.substring(1);
@@ -195,7 +195,7 @@ public abstract class AbstractJavamailStoreMailRepository implements MailReposit
                     + destination, e);
         }
 
-        String checkType = conf.getString("/ @type");
+        String checkType = conf.getString("@type");
         if (!checkType.equals(TYPE)) {
             String exceptionString = "Attempt to configure JavaMailStoreMailRepository as "
                     + checkType;

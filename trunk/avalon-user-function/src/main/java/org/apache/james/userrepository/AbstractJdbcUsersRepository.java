@@ -376,7 +376,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * <br>
      * 
      * <pre>
-     *   &lt;repository name=&quot;LocalUsers&quot;
+     *   &lt;repository name=&quot;so even &quot;
      *       class=&quot;org.apache.james.userrepository.JamesUsersJdbcRepository&quot;&gt;
      *       &lt;!-- Name of the datasource to use --&gt;
      *       &lt;data-source&gt;MailDb&lt;/data-source&gt;
@@ -401,9 +401,9 @@ public abstract class AbstractJdbcUsersRepository extends
 
         // Parse the DestinationURL for the name of the datasource,
         // the table to use, and the (optional) repository Key.
-        String destUrl = configuration.getString("/ @destinationURL", null);
+        String destUrl = configuration.getString("[@destinationURL]", null);
         // throw an exception if the attribute is missing
-        if (destUrl == null) throw new ConfigurationException("destinatURL attribute is missing from Configuration");
+        if (destUrl == null) throw new ConfigurationException("destinationURL attribute is missing from Configuration");
         
         // normalise the destination, to simplify processing.
         if (!destUrl.endsWith("/")) {
@@ -450,7 +450,7 @@ public abstract class AbstractJdbcUsersRepository extends
         Iterator<String> paramIt = configuration.getKeys("sqlParameters");
         while(paramIt.hasNext()) {
             String rawName = paramIt.next();
-            String paramName = paramIt.next().substring("sqlParameters/ @".length(), rawName.length());
+            String paramName = paramIt.next().substring("sqlParameters.[@".length(), rawName.length() -1);
             String paramValue = configuration.getString(rawName);
             m_sqlParameters.put(paramName, paramValue);
         }

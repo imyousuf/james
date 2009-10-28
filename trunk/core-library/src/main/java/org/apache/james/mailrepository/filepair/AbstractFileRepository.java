@@ -104,7 +104,7 @@ public abstract class AbstractFileRepository
     {
         if( null == m_destination )
         {
-            final String destination = configuration.getString( "/ @destinationURL" );
+            final String destination = configuration.getString( "[@destinationURL]" );
             setDestination( destination );
         }
     }

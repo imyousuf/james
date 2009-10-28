@@ -361,8 +361,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             Store mailstore = (Store) compMgr.lookup(Store.ROLE);
 
             DefaultConfigurationBuilder spoolConf = new DefaultConfigurationBuilder();
-            spoolConf.addProperty("/ @destinationURL", workRepositoryPath);
-            spoolConf.addProperty("/ @type", "SPOOL");
+            spoolConf.addProperty("[@destinationURL]", workRepositoryPath);
+            spoolConf.addProperty("[@type]", "SPOOL");
             workRepository = (SpoolRepository) mailstore.select(spoolConf);
         } catch (ServiceException cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());

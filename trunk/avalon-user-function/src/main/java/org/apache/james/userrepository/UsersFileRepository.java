@@ -83,7 +83,7 @@ public class UsersFileRepository
     protected void doConfigure( final HierarchicalConfiguration configuration )
         throws ConfigurationException {
         super.doConfigure(configuration);
-        destination = configuration.getString( "destination/ @URL" );
+        destination = configuration.getString( "destination/[@URL]" );
 
         if (!destination.endsWith(urlSeparator)) {
             destination += urlSeparator;
@@ -101,9 +101,9 @@ public class UsersFileRepository
             final DefaultConfigurationBuilder objectConfiguration
                 = new DefaultConfigurationBuilder();
 
-            objectConfiguration.addProperty( "/ @destinationURL", destination );
-            objectConfiguration.addProperty( "/ @type", "OBJECT" );
-            objectConfiguration.addProperty( "/ @model", "SYNCHRONOUS" );
+            objectConfiguration.addProperty( "[@destinationURL]", destination );
+            objectConfiguration.addProperty( "[@type]", "OBJECT" );
+            objectConfiguration.addProperty( "[@model]", "SYNCHRONOUS" );
 
             objectRepository = (ObjectRepository)store.select( objectConfiguration );
             if (getLogger().isDebugEnabled()) {

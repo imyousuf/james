@@ -47,7 +47,7 @@ public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
         file_Persistent_Stream_Repository.setLogger(new SimpleLog("MockLog"));
         
         DefaultConfigurationBuilder defaultConfiguration2 = new DefaultConfigurationBuilder();
-        defaultConfiguration2.addProperty("/ @destinationURL", "file://target/var/mr");
+        defaultConfiguration2.addProperty( "[@destinationURL]", "file://target/var/mr");
         file_Persistent_Stream_Repository.setConfiguration(defaultConfiguration2);
         file_Persistent_Stream_Repository.init();
         
@@ -56,7 +56,7 @@ public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
         file_Persistent_Object_Repository.setFileSystem(fs);
         file_Persistent_Object_Repository.setLogger(new SimpleLog("MockLog"));
         DefaultConfigurationBuilder defaultConfiguration22 = new DefaultConfigurationBuilder();
-        defaultConfiguration22.addProperty("/ @destinationURL", "file://target/var/mr");
+        defaultConfiguration22.addProperty( "[@destinationURL]", "file://target/var/mr");
         file_Persistent_Object_Repository.setConfiguration(defaultConfiguration22);
         file_Persistent_Object_Repository.init();
         mockStore.add("OBJECT.mr", file_Persistent_Object_Repository);
@@ -64,8 +64,8 @@ public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
 
         mr.setLogger(new SimpleLog("MockLog"));
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
-        defaultConfiguration.addProperty("/ @destinationURL","file://target/var/mr");
-        defaultConfiguration.addProperty("/ @type","MAIL");
+        defaultConfiguration.addProperty( "[@destinationURL]","file://target/var/mr");
+        defaultConfiguration.addProperty( "[@type]","MAIL");
         mr.setConfiguration(defaultConfiguration);
         mr.init();
         return mr;

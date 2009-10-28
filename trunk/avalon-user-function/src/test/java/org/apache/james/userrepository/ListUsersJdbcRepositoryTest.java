@@ -22,6 +22,7 @@ package org.apache.james.userrepository;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.test.mock.james.MockFileSystem;
@@ -73,6 +74,7 @@ public class ListUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         configuration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
         res.setLogger(new SimpleLog("MockLog"));
         res.setConfiguration(new ConfigurationAdapter(configuration));
+        
         res.init();
     }
 

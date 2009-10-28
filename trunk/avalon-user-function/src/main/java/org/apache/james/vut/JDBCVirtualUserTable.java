@@ -78,7 +78,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     
     
     public void doConfigure(HierarchicalConfiguration arg0) throws ConfigurationException {
-        String destination = arg0.getString("/ @destinationURL",null);
+        String destination = arg0.getString("[@destinationURL]",null);
     
         if (destination == null) {
             throw new ConfigurationException("destinationURL must configured");
@@ -107,7 +107,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
                 new StringBuffer(256)
                         .append("Malformed destinationURL - Must be of the format '")
                         .append("db://<data-source>'.  Was passed ")
-                        .append(arg0.getString("/ @repositoryPath"));
+                        .append(arg0.getString("[@destinationURL]"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
         if (urlParams.size() >= 1) {

@@ -48,8 +48,8 @@ public class MBoxMailRepositoryTest extends TestCase {
         File fInbox = new MockFileSystem().getFile("file://conf/org/apache/james/mailrepository/testdata/Inbox");
         String mboxPath = "mbox://"+fInbox.toURI().toString().substring(new File("").toURI().toString().length());
         
-        defaultConfiguration.addProperty("/ @destinationURL",mboxPath);
-        defaultConfiguration.addProperty("/ @type","MAIL");
+        defaultConfiguration.addProperty("[@destinationURL]",mboxPath);
+        defaultConfiguration.addProperty("[@type]","MAIL");
         mr.setConfiguration(defaultConfiguration);
         mr.setLogger(new SimpleLog("MockLog"));;
         mr.init();

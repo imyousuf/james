@@ -121,7 +121,7 @@ public class GuiceMailStore
         classes = new HashMap<String,String>();
         defaultConfigs = new HashMap<String, HierarchicalConfiguration>();
         List<HierarchicalConfiguration> registeredClasses
-            = configuration.configurationsAt("repositories/repository");
+            = configuration.configurationsAt("repositories.repository");
         for ( int i = 0; i < registeredClasses.size(); i++ )
         {
             registerRepository(registeredClasses.get(i));
@@ -145,17 +145,20 @@ public class GuiceMailStore
     @SuppressWarnings("unchecked")
     public synchronized void registerRepository(HierarchicalConfiguration repConf)
         throws ConfigurationException {
-        String className = repConf.getString("/ @class");
+        String className = repConf.getString("[@class]");
         boolean infoEnabled = getLogger().isInfoEnabled();
-        List<String> protocols = repConf.getList("protocols/protocol");
-        List<String >types = repConf.getList("types/type");
+        List<String> protocols = repConf.getList("protocols.protocol");
+        List<String >types = repConf.getList("types.type");
         
         for ( int i = 0; i < protocols.size(); i++ )
         {
             String protocol = protocols.get(i);
 
-            // Get the default configuration for these protocol/type combinations.
-            HierarchicalConfiguration defConf = repConf.configurationAt("config");
+            HierarchicalConfiguration defConf = null;
+            if (repConf.containsKey("config")) {
+                // Get the default configuration for these protocol/type combinations.
+                defConf = repConf.configurationAt("config");
+            }
 
             for ( int j = 0; j < types.size(); j++ )
             {
@@ -169,7 +172,9 @@ public class GuiceMailStore
                             .append(" to handle ")
                             .append(protocol)
                             .append(" protocol requests for repositories of type ")
-                            .append(type);
+                            .append(type)
+                            .append(" with key ")
+                            .append(key);
                     getLogger().info(infoBuffer.toString());
                 }
                 if (classes.get(key) != null) {
@@ -211,97 +216,114 @@ public class GuiceMailStore
             throw new ServiceException("",
                 "hint is of the wrong type. Must be a Configuration", cce);
         }
+        
         String destination = null;
         String protocol = null;
 
-            destination = repConf.getString("/ @destinationURL");
-            int idx = destination.indexOf(':');
-            if ( idx == -1 )
-                throw new ServiceException("",
-                    "destination is malformed. Must be a valid URL: "
-                    + destination);
-            protocol = destination.substring(0,idx);
+        destination = repConf.getString("[@destinationURL]");
+        int idx = destination.indexOf(':');
+        if ( idx == -1 )
+            throw new ServiceException("",
+                "destination is malformed. Must be a valid URL: "
+                + destination);
+        protocol = destination.substring(0,idx);
         
 
-            String type = repConf.getString("/ @type");
-            String repID = destination + type;
-            Object reply = repositories.get(repID);
-            StringBuffer logBuffer = null;
-            if (reply != null) {
-                if (getLogger().isDebugEnabled()) {
+        String type = repConf.getString("[@type]");
+        String repID = destination + type;
+        Object reply = repositories.get(repID);
+        StringBuffer logBuffer = null;
+        if (reply != null) {
+            if (getLogger().isDebugEnabled()) {
+                logBuffer =
+                    new StringBuffer(128)
+                            .append("obtained repository: ")
+                            .append(repID)
+                            .append(",")
+                            .append(reply.getClass());
+                getLogger().debug(logBuffer.toString());
+            }
+            return reply;
+        } else {
+            String key = protocol + type;
+            String repClass = (String) classes.get( key );
+             if (getLogger().isDebugEnabled()) {
+                logBuffer =
+                    new StringBuffer(128)
+                            .append("obtained repository: ")
+                            .append(repClass)
+                            .append(" to handle: ")
+                            .append(protocol)
+                            .append(",")
+                            .append(type)
+                            .append(" with key ")
+                            .append(key);
+                getLogger().debug( logBuffer.toString() );
+            }
+
+            // If default values have been set, create a new repository
+            // configuration element using the default values
+            // and the values in the selector.
+            // If no default values, just use the selector.
+            final CombinedConfiguration config =  new CombinedConfiguration();
+            HierarchicalConfiguration defConf = defaultConfigs.get(key);
+            if ( defConf == null) {
+                config.addConfiguration(repConf);
+            }
+            else {
+                config.addConfiguration(repConf);
+                config.addConfiguration(defConf);
+            }
+
+            try {
+                Class<?> objectClass = Thread.currentThread().getContextClassLoader().loadClass(repClass);
+                reply = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
+                        
+                    @Override
+                    protected void configure() {
+                        bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
+                        bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
+                        bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
+                        bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(datasources);
+                        bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(new Store() {
+
+                            public Object select(Object arg0) throws ServiceException {
+                                return GuiceMailStore.this.select(arg0);
+                            }
+
+                            public boolean isSelectable(Object arg0) {
+                                return GuiceMailStore.this.isSelectable(arg0);                            
+                            }
+
+                            public void release(Object arg0) {
+                                GuiceMailStore.this.release(arg0);
+                            }
+                            
+                        });
+                    }
+                }).getInstance(objectClass);
+
+                repositories.put(repID, reply);
+                if (getLogger().isInfoEnabled()) {
                     logBuffer =
                         new StringBuffer(128)
-                                .append("obtained repository: ")
-                                .append(repID)
-                                .append(",")
-                                .append(reply.getClass());
-                    getLogger().debug(logBuffer.toString());
+                            .append("added repository: ")
+                            .append(repID)
+                            .append("->")
+                            .append(repClass);
+                    getLogger().info(logBuffer.toString());
                 }
                 return reply;
-            } else {
-                String key = protocol + type;
-                String repClass = (String) classes.get( key );
-
-                if (getLogger().isDebugEnabled()) {
-                    logBuffer =
-                        new StringBuffer(128)
-                                .append("obtained repository: ")
-                                .append(repClass)
-                                .append(" to handle: ")
-                                .append(protocol)
-                                .append(",")
-                                .append(type);
-                    getLogger().debug( logBuffer.toString() );
+            } catch (Exception e) {
+                if (getLogger().isWarnEnabled()) {
+                    getLogger().warn( "Exception while creating repository:" +
+                                      e.getMessage(), e );
                 }
-
-                // If default values have been set, create a new repository
-                // configuration element using the default values
-                // and the values in the selector.
-                // If no default values, just use the selector.
-                final CombinedConfiguration config =  new CombinedConfiguration();
-                HierarchicalConfiguration defConf = defaultConfigs.get(key);
-                if ( defConf == null) {
-                    config.addConfiguration(repConf);
-                }
-                else {
-                    config.addConfiguration(repConf);
-                    config.addConfiguration(defConf);
-                }
-
-                try {
-                    Class<?> objectClass = Thread.currentThread().getContextClassLoader().loadClass(repClass);
-                    reply = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
-                        
-                        @Override
-                        protected void configure() {
-                            bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                            bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-                            bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
-                            bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(datasources);
-                        }
-                    }).getInstance(objectClass);
-
-                    repositories.put(repID, reply);
-                    if (getLogger().isInfoEnabled()) {
-                        logBuffer =
-                            new StringBuffer(128)
-                                .append("added repository: ")
-                                .append(repID)
-                                .append("->")
-                                .append(repClass);
-                        getLogger().info(logBuffer.toString());
-                    }
-                    return reply;
-                } catch (Exception e) {
-                    if (getLogger().isWarnEnabled()) {
-                        getLogger().warn( "Exception while creating repository:" +
-                                          e.getMessage(), e );
-                    }
-                    throw new
-                        ServiceException("", "Cannot find or init repository",
-                                           e);
-                }
+                throw new
+                    ServiceException("", "Cannot find or init repository",
+                                       e);
             }
+        }
         
     }
 

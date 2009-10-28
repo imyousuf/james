@@ -499,7 +499,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
     public final void initialize() throws Exception {
         if (!isEnabled()) {
             getLogger().info(protocolHandlerFactory.getServiceType() + " Disabled");
-            System.out.println(protocolHandlerFactory.getServiceType() + " Disabled");
             return;
         }
         

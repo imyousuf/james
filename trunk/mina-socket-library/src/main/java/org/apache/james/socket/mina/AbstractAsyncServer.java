@@ -242,7 +242,7 @@ public abstract class AbstractAsyncServer {
        
         Configuration handlerConfiguration = ((HierarchicalConfiguration)configuration).configurationAt("handler");
 
-        enabled = configuration.getBoolean("/ @enabled", true);
+        enabled = configuration.getBoolean("[@enabled]", true);
         
         final Log logger = getLogger();
         if (!enabled) {
@@ -342,14 +342,14 @@ public abstract class AbstractAsyncServer {
         }
        
 
-        useStartTLS = configuration.getBoolean("startTLS/ @enable", false);
+        useStartTLS = configuration.getBoolean("startTLS.[@enable]", false);
 
         if (useStartTLS) {
-            keystore = configuration.getString("startTLS/keystore", null);
+            keystore = configuration.getString("startTLS.keystore", null);
             if (keystore == null) {
                 throw new ConfigurationException("keystore needs to get configured");
             }
-            secret = configuration.getString("startTLS/secret","");
+            secret = configuration.getString("startTLS.secret","");
         }
              
     }
@@ -376,7 +376,7 @@ public abstract class AbstractAsyncServer {
                     .append(hostName);
         getLogger().info(infoBuffer.toString());
 
-        boolean autodetect = handlerConfiguration.getBoolean(HELLO_NAME + "/ @autodetect", true);
+        boolean autodetect = handlerConfiguration.getBoolean(HELLO_NAME + "/[@autodetect]", true);
         if (autodetect) {
             helloName = hostName;
         } else {

@@ -120,7 +120,7 @@ public class JDBCDomainList extends AbstractDomainList {
                 new StringBuffer(256)
                         .append("Malformed destinationURL - Must be of the format '")
                         .append("db://<data-source>/<table>'.  Was passed ")
-                        .append(configuration.getString("/ @repositoryPath"));
+                        .append(configuration.getString("repositoryPath"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
         dataSourceName = (String)urlParams.get(0);
