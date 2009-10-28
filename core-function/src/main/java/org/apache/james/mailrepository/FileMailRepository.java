@@ -70,11 +70,11 @@ public class FileMailRepository
     protected void doConfigure(HierarchicalConfiguration config)
             throws org.apache.commons.configuration.ConfigurationException {
         super.doConfigure(config);
-        destination = config.getString("/ @destinationURL");
+        destination = config.getString("[@destinationURL]");
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("AvalonMailRepository.destinationURL: " + destination);
         }
-        String checkType = config.getString("/ @type");
+        String checkType = config.getString("[@type]");
         if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
             String exceptionString = "Attempt to configure AvalonMailRepository as " +
                                      checkType;
@@ -83,15 +83,12 @@ public class FileMailRepository
             }
             throw new ConfigurationException(exceptionString);
         }
-        fifo = config.getBoolean("/ @FIFO", false);
-        cacheKeys = config.getBoolean("/@ CACHEKEYS", true);
+        fifo = config.getBoolean("[@FIFO]", false);
+        cacheKeys = config.getBoolean("[@CACHEKEYS]", true);
         // ignore model
     }
 
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
     @PostConstruct
     public void init()
             throws Exception {
@@ -153,9 +150,9 @@ public class FileMailRepository
         DefaultConfigurationBuilder objectConfiguration
             = new DefaultConfigurationBuilder();
 
-        objectConfiguration.addProperty("/ @destinationURL", destination);
-        objectConfiguration.addProperty("/ @type", type);
-        objectConfiguration.addProperty("/ @model", "SYNCHRONOUS");
+        objectConfiguration.addProperty("[@destinationURL]", destination);
+        objectConfiguration.addProperty("[@type]", type);
+        objectConfiguration.addProperty("[@model]", "SYNCHRONOUS");
         return store.select(objectConfiguration);
     }
 

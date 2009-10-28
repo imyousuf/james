@@ -117,7 +117,7 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
      */
     protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
         super.doConfigure(conf);
-        maxPendingMessages = conf.getInt("maxcache",1000);
+        maxPendingMessages = conf.getInt("config.maxcache",1000);
     }
 
     @PostConstruct

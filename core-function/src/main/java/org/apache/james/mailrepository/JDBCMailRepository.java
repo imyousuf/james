@@ -24,8 +24,9 @@ package org.apache.james.mailrepository;
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConfigurationUtils;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
@@ -155,8 +156,8 @@ public class JDBCMailRepository
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".configure()");
         }
+        String destination = configuration.getString("[@destinationURL]");
 
-        String destination = configuration.getString("/ @destinationURL");
         // normalize the destination, to simplify processing.
         if ( ! destination.endsWith("/") ) {
             destination += "/";
@@ -183,7 +184,7 @@ public class JDBCMailRepository
                 new StringBuffer(256)
                         .append("Malformed destinationURL - Must be of the format '")
                         .append("db://<data-source>[/<table>[/<repositoryName>]]'.  Was passed ")
-                        .append(configuration.getString("/ @destinationURL"));
+                        .append(configuration.getString("[@destinationURL]"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
         if (urlParams.size() >= 1) {
@@ -200,7 +201,8 @@ public class JDBCMailRepository
                 }
                 repositoryName += (String)urlParams.get(i);
             }
-        }
+        }        
+
 
         if (getLogger().isDebugEnabled()) {
             StringBuffer logBuffer =
@@ -215,20 +217,18 @@ public class JDBCMailRepository
         
         inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", 409600000); 
 
-        String filestore = configuration.getString("filestore", null);
-        sqlFileName = configuration.getString("sqlFile");
+        String filestore = configuration.getString("config.filestore", null);
+        sqlFileName = configuration.getString("config.sqlFile");
         try {
             if (filestore != null) {
                 
-                //TODO Remove me ???
                 //prepare Configurations for stream repositories
-                DefaultConfiguration streamConfiguration
-                    = new DefaultConfiguration( "repository",
-                                                "generated:JDBCMailRepository.configure()" );
+                DefaultConfigurationBuilder streamConfiguration
+                    = new DefaultConfigurationBuilder();
 
-                streamConfiguration.setAttribute( "destinationURL", filestore );
-                streamConfiguration.setAttribute( "type", "STREAM" );
-                streamConfiguration.setAttribute( "model", "SYNCHRONOUS" );
+                streamConfiguration.addProperty( "[@destinationURL]", filestore );
+                streamConfiguration.addProperty( "[@type]", "STREAM" );
+                streamConfiguration.addProperty( "[@model]", "SYNCHRONOUS" );
                 sr = (StreamRepository) store.select(streamConfiguration);
 
                 if (getLogger().isDebugEnabled()) {
@@ -248,7 +248,7 @@ public class JDBCMailRepository
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error(message, e);
             throw new ConfigurationException(message, e);
-        }
+        } 
         
     }
 

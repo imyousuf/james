@@ -477,8 +477,8 @@ public class SpoolManagement implements Serviceable, SpoolManagementService, Spo
             throws SpoolManagementException {
         // Setup all needed data
         DefaultConfigurationBuilder spoolConf = new DefaultConfigurationBuilder();
-        spoolConf.addProperty("/ @destinationURL", url);
-        spoolConf.addProperty("/ @type", "SPOOL");
+        spoolConf.addProperty("[@destinationURL]", url);
+        spoolConf.addProperty("[@type]", "SPOOL");
 
         try {
             return (SpoolRepository) mailStore.select(spoolConf);

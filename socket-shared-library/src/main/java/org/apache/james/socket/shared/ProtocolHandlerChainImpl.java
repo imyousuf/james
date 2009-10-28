@@ -206,7 +206,7 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
             List<org.apache.commons.configuration.Configuration> children = ((HierarchicalConfiguration) commonsConf).configurationsAt("handler");
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-            String coreCmdName = commonsConf.getString("@coreHandlersPackage");
+            String coreCmdName = commonsConf.getString("[@coreHandlersPackage]");
             // load the core handlers
             loadClass(classLoader, coreCmdName,
                     addHandler(coreCmdName));
@@ -216,7 +216,7 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
 
                 for (int i = 0; i < children.size(); i++) {
                     org.apache.commons.configuration.Configuration hConf = children.get(i);
-                    String className = hConf.getString("@class");
+                    String className = hConf.getString("[@class]");
 
                     if (className != null) {
                         // ignore base handlers.

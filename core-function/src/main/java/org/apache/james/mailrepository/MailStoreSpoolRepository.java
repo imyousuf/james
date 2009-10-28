@@ -22,7 +22,6 @@
 package org.apache.james.mailrepository;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.services.SpoolRepository;
@@ -86,24 +85,15 @@ public class MailStoreSpoolRepository implements SpoolRepository {
         return logger;
     }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    protected void configure(HierarchicalConfiguration conf) throws ConfigurationException {
-    }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
     @PostConstruct
-    public void initialize() throws Exception {
-        configure(configuration);
+    public void init() throws Exception {        
         try {
             spoolRep  = (SpoolRepository) mailStore.select(configuration);
         } catch (Exception e) {
             getLogger().error("Cannot open private SpoolRepository");
             throw e;
         }
+
         if (getLogger().isInfoEnabled()) {
             getLogger().info("SpoolRepository opened: "
                       + spoolRep.hashCode());

@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.Configurable;
@@ -92,7 +93,7 @@ public class DNSRBLHandler implements  ConnectHandler, RcptHook, Configurable{
         boolean validConfig = false;
 
         ArrayList<String> rblserverCollection = new ArrayList<String>();
-        List<String> whiteList = handlerConfiguration.getList("rblservers/whitelist");
+        List<String> whiteList = handlerConfiguration.getList("rblservers.whitelist");
         if ( whiteList != null ) {
             for ( int i = 0 ; i < whiteList.size() ; i++ ) {
                 String rblServerName = whiteList.get(i);
@@ -107,7 +108,7 @@ public class DNSRBLHandler implements  ConnectHandler, RcptHook, Configurable{
                 validConfig = true;
             }
         }
-        List<String> blackList = handlerConfiguration.getList("rblservers/blacklist");
+        List<String> blackList = handlerConfiguration.getList("rblservers.blacklist");
         if ( blackList != null ) {
 
             for ( int i = 0 ; i < blackList.size() ; i++ ) {

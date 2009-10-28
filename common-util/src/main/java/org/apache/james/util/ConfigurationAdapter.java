@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import org.apache.avalon.framework.configuration.ConfigurationUtil;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 /**
  * Bridges commons configuration to Avalon.
@@ -36,7 +35,5 @@ public class ConfigurationAdapter extends XMLConfiguration {
 	public ConfigurationAdapter(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
 		String config = ConfigurationUtil.toString(avalonConfig);
 		load(new ByteArrayInputStream(config.getBytes()));
-		
-		setExpressionEngine(new XPathExpressionEngine());
 	}
 }

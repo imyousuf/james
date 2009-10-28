@@ -203,8 +203,8 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         
         //read from the XML configuration and create and configure each of the handlers
         HierarchicalConfiguration handlerchainConfig = handlerConfiguration.configurationAt("handlerchain");
-        if (handlerchainConfig.getString("@coreHandlersPackage") == null)
-            handlerchainConfig.addProperty("/ @coreHandlersPackage", CoreCmdHandlerLoader.class.getName());
+        if (handlerchainConfig.getString("[@coreHandlersPackage]") == null)
+            handlerchainConfig.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
         handlerChain.configure(handlerchainConfig);
     }
 

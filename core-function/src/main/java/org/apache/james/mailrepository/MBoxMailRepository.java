@@ -805,9 +805,9 @@ public class MBoxMailRepository implements MailRepository {
     protected void configure(HierarchicalConfiguration conf) throws ConfigurationException {
         String destination;
         this.mList = null;
-        BUFFERING = conf.getBoolean("/ @BUFFERING", true);
-        fifo = conf.getBoolean("/ @FIFO", false);
-        destination = conf.getString("/ @destinationURL");
+        BUFFERING = conf.getBoolean("[@BUFFERING]", true);
+        fifo = conf.getBoolean("[@FIFO]", false);
+        destination = conf.getString("[@destinationURL]");
         if (destination.charAt(destination.length() - 1) == '/') {
             // Remove the trailing / as well as the protocol marker
             mboxFile = destination.substring("mbox://".length(), destination.lastIndexOf("/"));
@@ -819,7 +819,7 @@ public class MBoxMailRepository implements MailRepository {
             getLogger().debug("MBoxMailRepository.destinationURL: " + destination);
         }
 
-        String checkType = conf.getString("/ @type");
+        String checkType = conf.getString("[@type]");
         if (!(checkType.equals("MAIL") || checkType.equals("SPOOL"))) {
             String exceptionString = "Attempt to configure MboxMailRepository as " + checkType;
             if (getLogger().isWarnEnabled()) {
