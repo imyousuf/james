@@ -139,7 +139,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         this.loader = loader;
     }
     
-    @Resource(name="org.apache.services.MailServer")
+    @Resource(name="org.apache.james.services.MailServer")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
@@ -156,13 +156,6 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
         super.init();
     }
     
-    
-
-    @Override
-    @PreDestroy
-    public void dispose() {
-        super.dispose();
-    }
 
     /**
      * @see org.apache.james.socket.AvalonProtocolServer#onConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
