@@ -21,6 +21,7 @@
 
 package org.apache.james.pop3server;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -93,6 +94,12 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         this.loader = loader;
     }
 
+    @PostConstruct
+    @Override
+    public void init() throws Exception {
+        super.init();
+    }
+    
     @Override
     protected void onConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {

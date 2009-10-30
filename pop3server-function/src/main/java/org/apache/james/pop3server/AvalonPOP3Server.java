@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver;
+package org.apache.james.pop3server;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.activity.Initializable;
@@ -35,15 +34,12 @@ import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.SMTPServerMBean;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
 import org.apache.james.util.ConfigurationAdapter;
-import org.apache.mailet.MailetContext;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
@@ -52,38 +48,34 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
-public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceable, Configurable, LogEnabled, SMTPServerMBean{
+public class AvalonPOP3Server implements GuiceInjected, Initializable, Serviceable, Configurable, LogEnabled, POP3ServerMBean {
     
     private FileSystem filesystem;
     private MailServer mailserver;
     private DNSService dns;
-    private MailetContext context;
     private Log logger;
     private org.apache.commons.configuration.HierarchicalConfiguration config;
     private Injector injector;
     private UsersRepository userRepos;
-    private DataSourceSelector dselector;
-    private VirtualUserTableStore vutStore;
-    private org.apache.james.smtpserver.protocol.DNSService dnsServiceAdapter;
     private JamesConnectionManager connectionManager;
     private SocketManager socketManager;
-    private SMTPServer smtpserver = new SMTPServer();
+    private POP3Server pop3server = new POP3Server();
     private ThreadManager threadManager;
     
     public String getNetworkInterface() {
-        return smtpserver.getNetworkInterface();
+        return pop3server.getNetworkInterface();
     }
 
     public int getPort() {
-        return smtpserver.getPort();
+        return pop3server.getPort();
     }
 
     public String getSocketType() {
-        return smtpserver.getSocketType();
+        return pop3server.getSocketType();
     }
 
     public boolean isEnabled() {
-        return smtpserver.isEnabled();
+        return pop3server.isEnabled();
     }
 
     /**
@@ -103,26 +95,22 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
     public void service(ServiceManager manager) throws ServiceException {
         dns = (DNSService) manager.lookup(DNSService.ROLE);
         mailserver = (MailServer) manager.lookup(MailServer.ROLE);
-        context = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
         filesystem = (FileSystem) manager.lookup(FileSystem.ROLE);
         userRepos = (UsersRepository) manager.lookup(UsersRepository.ROLE);
-        dselector = (DataSourceSelector) manager.lookup(DataSourceSelector.ROLE);
-        vutStore = (VirtualUserTableStore) manager.lookup(VirtualUserTableStore.ROLE);
-        dnsServiceAdapter = (org.apache.james.smtpserver.protocol.DNSService) manager.lookup("org.apache.james.smtpserver.protocol.DNSService");
         socketManager = (SocketManager) manager.lookup(SocketManager.ROLE);
         connectionManager = (JamesConnectionManager) manager.lookup(JamesConnectionManager.ROLE);     
         threadManager = (ThreadManager) manager.lookup(ThreadManager.ROLE);
         
         // thats needed because of used excalibur socket components
-        smtpserver.service(manager);
+        pop3server.service(manager);
     }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        injector = Guice.createInjector(new SMTPServerModule(), new Jsr250Module());
-        injector.injectMembers(smtpserver);
+        injector = Guice.createInjector(new POP3ServerModule(), new Jsr250Module());
+        injector.injectMembers(pop3server);
     }
                  
     /**
@@ -132,24 +120,20 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
         this.logger = new AvalonLogger(logger);
     }
 
-    private final class SMTPServerModule extends AbstractModule {
+    private final class POP3ServerModule extends AbstractModule {
 
         @Override
         protected void configure() {
             bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
-            bind(org.apache.james.smtpserver.protocol.DNSService.class).annotatedWith(Names.named("org.apache.james.smtpserver.protocol.DNSService")).toInstance(dnsServiceAdapter);
             bind(MailServer.class).annotatedWith(Names.named("org.apache.james.services.MailServer")).toInstance(mailserver);
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-            bind(MailetContext.class).annotatedWith(Names.named("org.apache.mailet.MailetContext")).toInstance(context);
             bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(filesystem);
             bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
-            bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(dselector);
-            bind(VirtualUserTableStore.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTableStore")).toInstance(vutStore);
             bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).toProvider(new Provider<ProtocolHandlerFactory>() {
 
                 public ProtocolHandlerFactory get() {
-                    return smtpserver;
+                    return pop3server;
                 }
                 
             });
@@ -165,7 +149,7 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
                 
                 // Mimic the loaderservice
                 class SMTPLoaderService implements LoaderService {
-                    Injector injector = Guice.createInjector(new SMTPServerModule(), new Jsr250Module());
+                    Injector injector = Guice.createInjector(new POP3ServerModule(), new Jsr250Module());
 
                     public <T> T load(Class<T> type) {
                         return injector.getInstance(type);
@@ -175,6 +159,6 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
                 
             });
 
-        }   
+        }
     }
 }

@@ -126,7 +126,7 @@
   </block>
         
   <!-- POP3 Server -->
-  <block name="pop3server" class="org.apache.james.pop3server.POP3Server" >
+  <block name="pop3server" class="org.apache.james.pop3server.AvalonPOP3Server" >
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
@@ -141,7 +141,7 @@
   </block>
 
   <!-- SMTP Server -->
-  <block name="smtpserver" class="org.apache.james.smtpserver.SMTPServer" >
+  <block name="smtpserver" class="org.apache.james.smtpserver.AvalonSMTPServer" >
     <provide name="James" role="org.apache.mailet.MailetContext"/>
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="dnsserver" role="org.apache.james.api.dnsservice.DNSService"/>

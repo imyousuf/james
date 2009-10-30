@@ -22,7 +22,6 @@
 package org.apache.james.smtpserver;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
