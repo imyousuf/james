@@ -38,6 +38,7 @@ import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
@@ -48,11 +49,14 @@ import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
+import org.apache.james.test.mock.DummyDataSourceSelector;
+import org.apache.james.test.mock.DummyVirtualUserTableStore;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockStore;
@@ -201,6 +205,7 @@ public class SMTPServerTest extends TestCase {
         m_smtpServer.setProtocolHandlerFactory(m_smtpServer);
         m_smtpServer.setSocketManager(socketManager);
         m_smtpServer.setThreadManager(threadManager);
+        
         ContainerUtil.service(m_smtpServer, m_serviceManager);
         
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
@@ -248,6 +253,8 @@ public class SMTPServerTest extends TestCase {
         dnsAdapter = new SMTPServerDNSServiceAdapter();
         dnsAdapter.setDNSService(m_dnsServer);
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
+        m_serviceManager.put(VirtualUserTableStore.ROLE, new DummyVirtualUserTableStore());
+        m_serviceManager.put(DataSourceSelector.ROLE, new DummyDataSourceSelector());
         return m_serviceManager;
     }
 
