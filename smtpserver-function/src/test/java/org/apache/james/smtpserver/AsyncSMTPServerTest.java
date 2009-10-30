@@ -32,6 +32,8 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.smtpserver.mina.AvalonAsyncSMTPServer;
+import org.apache.james.test.mock.DummyDataSourceSelector;
+import org.apache.james.test.mock.DummyVirtualUserTableStore;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
@@ -82,34 +84,7 @@ public class AsyncSMTPServerTest extends SMTPServerTest {
         // Disable superclass test because this doesn't work with MINA yet.
         // TODO try to understand and fix it.
     }
-
-    private class DummyVirtualUserTableStore implements VirtualUserTableStore {
-
-		public VirtualUserTable getTable(String name) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-    	
-    }
     
-    private class DummyDataSourceSelector implements DataSourceSelector {
-
-		public boolean isSelectable(Object arg0) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		public void release(Object arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public Object select(Object arg0) throws ServiceException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-    	
-    }
-
+   
     	
 }
