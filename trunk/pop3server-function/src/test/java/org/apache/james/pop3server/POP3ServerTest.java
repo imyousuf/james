@@ -65,11 +65,11 @@ import junit.framework.TestCase;
  * Tests the org.apache.james.smtpserver.SMTPServer unit
  */
 public class POP3ServerTest extends TestCase {
-    private int m_pop3ListenerPort = Util.getNonPrivilegedPort();
+    protected int m_pop3ListenerPort = Util.getNonPrivilegedPort();
 
     private MockMailServer m_mailServer;
 
-    private POP3TestConfiguration m_testConfiguration;
+    protected POP3TestConfiguration m_testConfiguration;
 
     private POP3Server m_pop3Server;
 
@@ -79,7 +79,7 @@ public class POP3ServerTest extends TestCase {
     private MailImpl testMail1;
 
     private MailImpl testMail2;
-    private FakeLoader serviceManager;
+    protected FakeLoader serviceManager;
 
     private MockThreadManager threadManager;
 
@@ -112,14 +112,14 @@ public class POP3ServerTest extends TestCase {
         m_testConfiguration = new POP3TestConfiguration(m_pop3ListenerPort);
     }
 
-    private void finishSetUp(POP3TestConfiguration testConfiguration)
+    protected void finishSetUp(POP3TestConfiguration testConfiguration)
             throws Exception {
         testConfiguration.init();
         m_pop3Server.setConfiguration(new ConfigurationAdapter(testConfiguration));
         m_pop3Server.init();
     }
 
-    private void setUpServiceManager() throws ServiceException {
+    protected void setUpServiceManager() throws ServiceException {
         serviceManager = new FakeLoader();
         connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
@@ -157,7 +157,7 @@ public class POP3ServerTest extends TestCase {
             m_pop3Protocol.sendCommand("quit");
             m_pop3Protocol.disconnect();
         }
-        m_pop3Server.dispose();
+        //m_pop3Server.dispose();
         ContainerUtil.dispose(m_mailServer);
         if (testMail1 != null) testMail1.dispose();
         if (testMail2 != null) testMail2.dispose();
