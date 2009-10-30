@@ -91,7 +91,6 @@ public class SMTPIoHandler extends IoHandlerAdapter{
      */
     public void exceptionCaught(IoSession session, Throwable exception)
             throws Exception {
-    	exception.printStackTrace();
         logger.error("Caught exception: " + session.getCurrentWriteMessage(),
                 exception);
         // just close session
