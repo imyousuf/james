@@ -42,6 +42,7 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.api.dnsservice.DNSService;
@@ -60,6 +61,7 @@ import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.util.codec.Base64;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -151,10 +153,18 @@ public class SMTPServerTest extends TestCase {
     protected final int m_smtpListenerPort;
     protected MockMailServer m_mailServer;
     protected SMTPTestConfiguration m_testConfiguration;
-    private SMTPServer m_smtpServer;
+    protected JamesConnectionManager connectionManager;
+    protected SMTPServer m_smtpServer;
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
     protected FakeLoader m_serviceManager;
     protected AlterableDNSServer m_dnsServer;
+    protected FakeMailContext mailetContext;
+    protected MockSocketManager socketManager;
+    protected MockThreadManager threadManager;
+    protected MockStore store;
+    protected MockFileSystem fileSystem;
+    protected SMTPServerDNSServiceAdapter dnsAdapter;
+    
     public SMTPServerTest() {
         super("SMTPServerTest");
         m_smtpListenerPort = Util.getNonPrivilegedPort();
@@ -180,10 +190,19 @@ public class SMTPServerTest extends TestCase {
     
     protected void setUp() throws Exception {
         m_smtpServer = new SMTPServer();
-        ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
+        m_smtpServer.setLog(new SimpleLog("MockLog"));
         m_serviceManager = setUpServiceManager();
-        ContainerUtil.service(m_smtpServer, m_serviceManager);
         m_smtpServer.setLoader(m_serviceManager);
+        m_smtpServer.setConnectionManager(connectionManager);
+        m_smtpServer.setDNSService(m_dnsServer);
+        m_smtpServer.setMailetContext(mailetContext);
+        m_smtpServer.setFileSystem(fileSystem);
+        m_smtpServer.setMailServer(m_mailServer);
+        m_smtpServer.setProtocolHandlerFactory(m_smtpServer);
+        m_smtpServer.setSocketManager(socketManager);
+        m_smtpServer.setThreadManager(threadManager);
+        ContainerUtil.service(m_smtpServer, m_serviceManager);
+        
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
@@ -194,32 +213,39 @@ public class SMTPServerTest extends TestCase {
 
     protected void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        ContainerUtil.configure(m_smtpServer, testConfiguration);
-        m_smtpServer.initialize();
+        ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
+        m_smtpServer.setConfiguration(conf);
+        m_smtpServer.init();
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
     }
 
     protected FakeLoader setUpServiceManager() throws Exception {
         m_serviceManager = new FakeLoader();
-        SimpleConnectionManager connectionManager = new SimpleConnectionManager();
+        connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
+        
         m_serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
-        m_serviceManager.put(MailetContext.class.getName(), new FakeMailContext());
-        m_mailServer = new MockMailServer(new MockUsersRepository());
+        mailetContext = new FakeMailContext();
+        m_serviceManager.put(MailetContext.class.getName(),mailetContext);
+        m_mailServer = new MockMailServer(new MockUsersRepository());    
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
-     // Phoenix loader does not understand aliases
-        m_serviceManager.put("James", m_mailServer);
-        m_serviceManager.put("localusersrepository", m_usersRepository);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
-        m_serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_smtpListenerPort));
-        m_serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
+        
+        socketManager = new MockSocketManager(m_smtpListenerPort);
+        m_serviceManager.put(SocketManager.ROLE, socketManager);
+        
+        threadManager = new MockThreadManager();
+        m_serviceManager.put(ThreadManager.ROLE, threadManager);
         m_dnsServer = new AlterableDNSServer();
         m_serviceManager.put(DNSService.ROLE, m_dnsServer);
-        m_serviceManager.put("dnsserver", m_dnsServer);
-        m_serviceManager.put(Store.ROLE, new MockStore());
-        m_serviceManager.put(FileSystem.ROLE, new MockFileSystem());
         
-        SMTPServerDNSServiceAdapter dnsAdapter = new SMTPServerDNSServiceAdapter();
+        store = new MockStore();
+        m_serviceManager.put(Store.ROLE, store);
+        fileSystem = new MockFileSystem();
+
+        m_serviceManager.put(FileSystem.ROLE, fileSystem);
+        
+        dnsAdapter = new SMTPServerDNSServiceAdapter();
         dnsAdapter.setDNSService(m_dnsServer);
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
         return m_serviceManager;

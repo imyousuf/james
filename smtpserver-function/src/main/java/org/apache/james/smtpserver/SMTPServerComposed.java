@@ -23,17 +23,9 @@ package org.apache.james.smtpserver;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.DefaultServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.commons.logging.impl.AvalonLogger;
-import org.apache.james.Constants;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
@@ -45,8 +37,6 @@ import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolServer;
 import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
-import org.apache.james.util.ConfigurationAdapter;
-import org.apache.mailet.MailetContext;
 
 /**
  * This is an test refactoring for SMTPServer where the avalon socket server
@@ -62,7 +52,7 @@ import org.apache.mailet.MailetContext;
  * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
  * lifecycle methods, you MUST call super.<method> as well.
  */
-public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHandlerFactory, Serviceable, Configurable, Initializable {
+public class SMTPServerComposed implements ProtocolHandlerFactory {
 
 
     /**
@@ -71,12 +61,6 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
      * Constructed during initialisation to allow dependency injection.
      */
     private ProtocolHandlerChainImpl handlerChain;
-
-    /**
-     * The mailet context - we access it here to set the hello name for the Mailet API
-     */
-    private MailetContext mailetcontext;
-
     /**
      * The internal mail server service.
      */
@@ -86,7 +70,7 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
     private LoaderService loader;
 
     /** Cached configuration data for handler */
-    private Configuration handlerConfiguration;
+    private HierarchicalConfiguration handlerConfiguration;
 
     /**
      * The DNSService
@@ -138,10 +122,11 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
     = new SMTPHandlerConfigurationDataImpl();
 
     private boolean addressBracketsEnforcement = true;
-
-    private ProtocolServer protocolServer;
     
     private AvalonProtocolServer avalonProtocolServer;
+
+    private Log log;
+    private HierarchicalConfiguration configuration;
     
     /**
      * Gets the current instance loader.
@@ -160,32 +145,32 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
         this.loader = loader;
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service( final ServiceManager manager ) throws ServiceException {
-        mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
-        mailServer = (MailServer) manager.lookup(MailServer.ROLE);
-        dnsService = (DNSService) manager.lookup(DNSService.ROLE);
-
-        // initialize the avalonProtocolServer passing "this" as the ProtocolHandlerFactory service
-        DefaultServiceManager sm = new DefaultServiceManager(manager);
-        sm.put(ProtocolHandlerFactory.ROLE, (ProtocolHandlerFactory) this);
-        avalonProtocolServer = new AvalonProtocolServer();
-        avalonProtocolServer.enableLogging(getLogger());
-        avalonProtocolServer.service(sm);
+    @Resource(name="org.apache.james.services.DNSService")
+    public final void setDNSService(DNSService dns) {
+        this.dnsService = dns;
     }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(final Configuration configuration) throws ConfigurationException {
-        avalonProtocolServer.configure(configuration);
-        
+    @Resource(name="org.apache.james.socket.AvalonProtocolServer")
+    public final void setAvalonProtocolServer(AvalonProtocolServer avalonProtocolServer) {
+        this.avalonProtocolServer = avalonProtocolServer;
+    }
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLog(Log logger) {
+        this.log = logger;
+    }
+    
+    private void configure() throws ConfigurationException {
         if (avalonProtocolServer.isEnabled()) {
 
-            handlerConfiguration = configuration.getChild("handler");
-            String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
+            handlerConfiguration = configuration.configurationAt("handler");
+            String authRequiredString = handlerConfiguration.getString("authRequired", "false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
             else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
             else authRequired = AUTH_DISABLED;
@@ -195,7 +180,7 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
                 getLogger().info("This SMTP server does not require authentication.");
             }
 
-            String authorizedAddresses = handlerConfiguration.getChild("authorizedAddresses").getValue(null);
+            String authorizedAddresses = handlerConfiguration.getString("authorizedAddresses",null);
             if (authRequired == AUTH_DISABLED && authorizedAddresses == null) {
                 /* if SMTP AUTH is not requred then we will use
                  * authorizedAddresses to determine whether or not to
@@ -230,14 +215,14 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
 
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
-            maxMessageSize = handlerConfiguration.getChild( "maxmessagesize" ).getValueAsLong( maxMessageSize ) * 1024;
+            maxMessageSize = handlerConfiguration.getLong( "maxmessagesize", maxMessageSize ) * 1024;
             if (maxMessageSize > 0) {
                 getLogger().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
             } else {
                 getLogger().info("No maximum message size is enforced for this server.");
             }
             // How many bytes to read before updating the timer that data is being transfered
-            lengthReset = configuration.getChild("lengthReset").getValueAsInteger(lengthReset);
+            lengthReset = configuration.getInteger("lengthReset", lengthReset);
             if (lengthReset <= 0) {
                 throw new ConfigurationException("The configured value for the idle timeout reset, " + lengthReset + ", is not valid.");
             }
@@ -245,31 +230,29 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
 
-            heloEhloEnforcement = handlerConfiguration.getChild("heloEhloEnforcement").getValueAsBoolean(true);
+            heloEhloEnforcement = handlerConfiguration.getBoolean("heloEhloEnforcement",true);
 
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
 
             // get the smtpGreeting
-            smtpGreeting = handlerConfiguration.getChild("smtpGreeting").getValue(null);
+            smtpGreeting = handlerConfiguration.getString("smtpGreeting", null);
 
-            addressBracketsEnforcement = handlerConfiguration.getChild("addressBracketsEnforcement").getValueAsBoolean(true);
+            addressBracketsEnforcement = handlerConfiguration.getBoolean("addressBracketsEnforcement",true);
         }
     }
 
-    public void initialize() throws Exception {
-        // this initialize the protocol server that wil call back our init(ProtocolServer) method
-        avalonProtocolServer.initialize();
-
+    protected Log getLogger() {
+        return log;
     }
 
     private void prepareHandlerChain() throws Exception {
         handlerChain = loader.load(ProtocolHandlerChainImpl.class);
         
         //set the logger
-        handlerChain.setLog(new AvalonLogger(getLogger()));
+        handlerChain.setLog(getLogger());
         
         //read from the XML configuration and create and configure each of the handlers
-        ConfigurationAdapter jamesConfiguration = new ConfigurationAdapter(handlerConfiguration.getChild("handlerchain"));
+        HierarchicalConfiguration jamesConfiguration = handlerConfiguration.configurationAt("handlerchain");
         if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
             jamesConfiguration.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
         handlerChain.configure(jamesConfiguration);
@@ -379,27 +362,12 @@ public class SMTPServerComposed extends AbstractLogEnabled implements ProtocolHa
     }
 
     
-    public void init() throws Exception {
+    public void doInit() throws Exception {
         // complete the initialization
-
+        configure();
     }
 
     public void prepare(ProtocolServer server) throws Exception {
-        // in this case the protocolServer has been instantiated by us,
-        // so this will equal to avalonProtocolServer.
-        this.protocolServer = server;
-
-        String hello = (String) mailetcontext.getAttribute(Constants.HELLO_NAME);
-
-        if (protocolServer.isEnabled()) {
-            // TODO Remove this in next not backwards compatible release!
-            if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, protocolServer.getHelloName());
-        } else {
-            // TODO Remove this in next not backwards compatible release!
-            if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
-        }
-
-        
         prepareHandlerChain();
     }
     

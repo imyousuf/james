@@ -25,6 +25,7 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
@@ -35,21 +36,24 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
 import org.apache.james.impl.vut.VirtualUserTableManagement;
+import org.apache.james.management.BayesianAnalyzerManagementException;
+import org.apache.james.management.BayesianAnalyzerManagementService;
 import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.DomainListManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockThreadManager;
+import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.test.mock.james.MockVirtualUserTableManagementImpl;
 import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.util.InternetPrintWriter;
 
 import java.io.BufferedInputStream;
@@ -84,13 +88,26 @@ public class RemoteManagerTest extends TestCase {
     private MockUsersRepository m_mockUsersRepository;
     private MockMailServer mailServer;
     private FakeLoader serviceManager;
+    private SimpleConnectionManager connectionManager;
+    private MockUsersStore usersStore;
+    private MockSocketManager socketManager;
+    private MockThreadManager threadManager;
+    private DNSService dnsservice;
+    private MockFileSystem filesystem;
 
     protected void setUp() throws Exception {
         m_remoteManager = new RemoteManager();
         setUpServiceManager();
-        ContainerUtil.enableLogging(m_remoteManager, new MockLogger());
-        ContainerUtil.service(m_remoteManager, serviceManager);
         m_remoteManager.setLoader(serviceManager);
+        m_remoteManager.setConnectionManager(connectionManager);
+        m_remoteManager.setFileSystem(filesystem);
+        m_remoteManager.setDNSService(dnsservice);
+        m_remoteManager.setLog(new SimpleLog("MockLog"));
+        m_remoteManager.setMailServer(mailServer);
+        m_remoteManager.setProtocolHandlerFactory(m_remoteManager);
+        m_remoteManager.setSocketManager(socketManager);
+        m_remoteManager.setThreadManager(threadManager);
+        ContainerUtil.service(m_remoteManager, serviceManager);
         m_testConfiguration = new RemoteManagerTestConfiguration(m_remoteManagerListenerPort);
     }
 
@@ -102,8 +119,8 @@ public class RemoteManagerTest extends TestCase {
     protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration) {
         testConfiguration.init();
         try {
-            ContainerUtil.configure(m_remoteManager, testConfiguration);
-            m_remoteManager.initialize();
+            m_remoteManager.setConfiguration(new ConfigurationAdapter(testConfiguration));
+            m_remoteManager.init();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -171,20 +188,29 @@ public class RemoteManagerTest extends TestCase {
 
     private void setUpServiceManager() throws ServiceException {
         serviceManager = new FakeLoader();
-        SimpleConnectionManager connectionManager = new SimpleConnectionManager();
+        connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
+        
         m_mockUsersRepository = new MockUsersRepository();
+       
         mailServer = new MockMailServer(m_mockUsersRepository);      
-        MockUsersStore usersStore = new MockUsersStore(m_mockUsersRepository);
+        usersStore = new MockUsersStore(m_mockUsersRepository);
 
         serviceManager.put(MailServer.ROLE, mailServer);
         serviceManager.put(UsersRepository.ROLE, m_mockUsersRepository);
         
+        filesystem = new MockFileSystem();
+        serviceManager.put(MockFileSystem.ROLE, filesystem);
+        
         serviceManager.put(UsersStore.ROLE, usersStore);
-        serviceManager.put(SocketManager.ROLE, new MockSocketManager(m_remoteManagerListenerPort));
-        serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
-        serviceManager.put(DNSService.ROLE, setUpDNSServer());
+        socketManager = new MockSocketManager(m_remoteManagerListenerPort);
+        serviceManager.put(SocketManager.ROLE, socketManager);
+        threadManager = new MockThreadManager();
+        serviceManager.put(ThreadManager.ROLE, threadManager);
+        
+        dnsservice = setUpDNSServer();
+        serviceManager.put(DNSService.ROLE, dnsservice);
         MockVirtualUserTableStore vutStore = new MockVirtualUserTableStore(); 
         VirtualUserTableManagement vutManagement = new VirtualUserTableManagement();
         vutManagement.setVirtualUserTableStore(vutStore);
@@ -223,14 +249,49 @@ public class RemoteManagerTest extends TestCase {
         }.setDomainList(xml);
         
         serviceManager.put(DomainListManagementService.ROLE, domManagement);
-        
-        
-        // Phoenix loader does not understand aliases
-        serviceManager.put("James", mailServer);
-        serviceManager.put("localusersrepository", m_mockUsersRepository);
-        serviceManager.put("users-store", usersStore);
-        serviceManager.put("virtualusertablemanagement", vutManagement);
-        serviceManager.put("domainlistmanagement", domManagement);
+        serviceManager.put(BayesianAnalyzerManagementService.ROLE, new BayesianAnalyzerManagementService() {
+            
+            public void resetData() throws BayesianAnalyzerManagementException {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void importData(String file)
+                    throws BayesianAnalyzerManagementException {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public void exportData(String file)
+                    throws BayesianAnalyzerManagementException {
+                // TODO Auto-generated method stub
+                
+            }
+            
+            public int addSpamFromMbox(String file)
+                    throws BayesianAnalyzerManagementException {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+            
+            public int addSpamFromDir(String dir)
+                    throws BayesianAnalyzerManagementException {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+            
+            public int addHamFromMbox(String file)
+                    throws BayesianAnalyzerManagementException {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+            
+            public int addHamFromDir(String dir)
+                    throws BayesianAnalyzerManagementException {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+        });
     }
     
     private DNSService setUpDNSServer() {

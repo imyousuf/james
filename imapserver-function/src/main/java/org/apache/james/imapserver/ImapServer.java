@@ -23,14 +23,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.Constants;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.api.ImapConstants;
@@ -38,7 +36,6 @@ import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.main.ImapRequestHandler;
-import org.apache.james.services.FileSystem;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.jsieve.mailet.Poster;
@@ -58,33 +55,25 @@ public class ImapServer extends AbstractProtocolServer implements ImapConstants,
     private ImapFactory factory;
     
     private String hello = softwaretype;
-    
-    
-    public void service(ServiceManager comp) throws ServiceException {
-        super.service(comp);
-        factory = new DefaultImapFactory((FileSystem) comp.lookup(FileSystem.ROLE), 
-                (UsersRepository) comp.lookup(UsersRepository.ROLE), getLogger());
-    }
 
+    private UsersRepository usersRepos;
+
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository usersRepos) {
+        this.usersRepos = usersRepos;
+    }
+    
 
     @Override
-    public void dispose() {
-        super.dispose();
-    }
-
-    @Override
-    protected void doInit() throws Exception {
-        getLogger().debug("Initialising...");
-        factory.initialize();
+    public  void doInit() throws Exception {
+        getLog().debug("Initialising...");
+        factory = new DefaultImapFactory(getFileSystem(),usersRepos , getLog());
+        factory.init();
     }
 
 
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure( final Configuration configuration ) throws ConfigurationException {
-        super.configure( configuration );
+    public void onConfigure( final HierarchicalConfiguration configuration ) throws ConfigurationException {
         factory.configure(configuration);
         hello  = softwaretype + " Server " + getHelloName() + " is ready.";
     }
@@ -144,7 +133,7 @@ public class ImapServer extends AbstractProtocolServer implements ImapConstants,
                             urlPath = url.substring(endOfHost, length);
                         }
                         final MailboxManager mailboxManager = factory.getMailbox();
-                        final MailboxSession session = mailboxManager.createSystemSession(user, new AvalonLogger(getLogger()));
+                        final MailboxSession session = mailboxManager.createSystemSession(user, getLog());
                         // This allows Sieve scripts to use a standard delimiter regardless of mailbox implementation
                         final String mailbox = urlPath.replace('/', session.getPersonalSpace().getDeliminator());
                         postToMailbox(user, mail, mailbox, session, mailboxManager);

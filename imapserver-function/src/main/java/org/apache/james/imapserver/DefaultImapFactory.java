@@ -20,9 +20,9 @@
 package org.apache.james.imapserver;
 
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.mailboxmanager.torque.DefaultMailboxManager;
@@ -33,16 +33,14 @@ import org.apache.james.user.impl.file.FileUserMetaDataRepository;
 public class DefaultImapFactory extends ImapFactory {
 
     
-    public DefaultImapFactory(FileSystem fileSystem, UsersRepository users, Logger logger) {
-        super(fileSystem, users, logger, new DefaultMailboxManager(new DefaultUserManager(
+    public DefaultImapFactory(FileSystem fileSystem, UsersRepository users, Log logger) {
+        super(fileSystem, users, new DefaultMailboxManager(new DefaultUserManager(
                 new FileUserMetaDataRepository("var/users"), users), fileSystem, logger));
     }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
+
     @Override
-    public void configure( final Configuration configuration ) throws ConfigurationException {
+    public void configure( final HierarchicalConfiguration configuration ) throws ConfigurationException {
         super.configure(configuration);
         final MailboxManager mailbox = getMailbox();
         if (mailbox instanceof DefaultMailboxManager) {
@@ -52,8 +50,8 @@ public class DefaultImapFactory extends ImapFactory {
     }
 
     @Override
-    public void initialize() throws Exception {
-        super.initialize();
+    public void init() throws Exception {
+        super.init();
         final MailboxManager mailbox = getMailbox();
         if (mailbox instanceof DefaultMailboxManager) {
             final DefaultMailboxManager manager = (DefaultMailboxManager) mailbox;

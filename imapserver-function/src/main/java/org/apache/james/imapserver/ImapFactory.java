@@ -19,9 +19,8 @@
 
 package org.apache.james.imapserver;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
@@ -40,7 +39,7 @@ public abstract class ImapFactory {
     private final ImapProcessor processor;
     private final MailboxManager mailboxManager;
 
-    public ImapFactory (FileSystem fileSystem, UsersRepository users, Logger logger,
+    public ImapFactory (FileSystem fileSystem, UsersRepository users,
             final MailboxManager mailboxManager) {
         super();
         decoder = new DefaultImapDecoderFactory().buildImapDecoder();
@@ -61,11 +60,11 @@ public abstract class ImapFactory {
         return mailboxManager;
     }
 
-    public void initialize() throws Exception {
+    public void init() throws Exception {
         // Do nothing
     }
 
-    public void configure(final Configuration configuration) throws ConfigurationException {
+    public void configure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         // Do nothing
     }
 }

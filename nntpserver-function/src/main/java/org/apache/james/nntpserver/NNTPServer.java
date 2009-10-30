@@ -21,10 +21,11 @@
 
 package org.apache.james.nntpserver;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.MailServer;
@@ -59,6 +60,7 @@ public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBea
      * 
      * @param userRepository the UserRepository
      */
+    @Resource(name="org.apache.james.api.user.UsersRepository")
     public void setUserRepository(UsersRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -68,10 +70,12 @@ public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBea
      * 
      * @param nntpRepository the NNTPRepository
      */
-    public void setRepository(NNTPRepository nntpRepository) {
+    @Resource(name="org.apache.james.nntpserver.repository.NNTPRepository")
+    public void setNNTPRepository(NNTPRepository nntpRepository) {
         this.nntpRepository = nntpRepository;
     }
     
+    @Resource(name="org.apache.james.services.MailServer")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
@@ -82,36 +86,22 @@ public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBea
     private NNTPHandlerConfigurationData theConfigData
         = new NNTPHandlerConfigurationDataImpl();
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service( final ServiceManager componentManager )
-        throws ServiceException {
-        super.service(componentManager);
-        UsersRepository userRepository = (UsersRepository)componentManager.lookup(UsersRepository.ROLE);
-        setUserRepository(userRepository);
+    
 
-        NNTPRepository repo = (NNTPRepository)componentManager
-            .lookup(NNTPRepository.ROLE);
-        setRepository(repo);
-        
-        setMailServer((MailServer) componentManager.lookup(MailServer.ROLE));
+    @PostConstruct
+    @Override
+    public void init() throws Exception {
+        super.init();
     }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(final Configuration configuration) throws ConfigurationException {
-        super.configure(configuration);
+    protected void onConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
-            Configuration handlerConfiguration = configuration.getChild("handler");
-            authRequired =
-                handlerConfiguration.getChild("authRequired").getValueAsBoolean(false);
-            if (getLogger().isDebugEnabled()) {
+            authRequired = configuration.getBoolean("handler.authRequired", false);
+            if (getLog().isDebugEnabled()) {
                 if (authRequired) {
-                    getLogger().debug("NNTP Server requires authentication.");
+                    getLog().debug("NNTP Server requires authentication.");
                 } else {
-                    getLogger().debug("NNTP Server doesn't require authentication.");
+                    getLog().debug("NNTP Server doesn't require authentication.");
                 }
             }
         }

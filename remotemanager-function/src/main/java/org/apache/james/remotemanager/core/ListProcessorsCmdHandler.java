@@ -25,8 +25,7 @@ public class ListProcessorsCmdHandler implements CommandHandler{
      * 
      * @param processorManagement the ProcessorManagementService
      */
-    @Resource(name="processormanagement")
-
+    @Resource(name="org.apache.james.management.ProcessorManagementService")
     public final void setProcessorManagement(ProcessorManagementService processorManagement) {
         this.processorManagementService = processorManagement;
     }

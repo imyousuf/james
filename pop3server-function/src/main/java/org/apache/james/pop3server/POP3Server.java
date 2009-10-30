@@ -23,18 +23,14 @@ package org.apache.james.pop3server;
 
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
-import org.apache.james.util.ConfigurationAdapter;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
@@ -73,8 +69,9 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
 
     private LoaderService loader;
 
-    private Configuration handlerConfiguration;
+    private HierarchicalConfiguration handlerConfiguration;
 
+    @Resource(name="org.apache.james.services.MailServer")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
@@ -96,27 +93,13 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         this.loader = loader;
     }
 
-    
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager) 
-     */
-    public void service( final ServiceManager componentManager )
-        throws ServiceException {
-        super.service(componentManager);
-        MailServer mailServer = (MailServer)componentManager.lookup( MailServer.ROLE );
-        setMailServer(mailServer);
-    }
-
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(final Configuration configuration) throws ConfigurationException {
-        super.configure(configuration);
+    @Override
+    protected void onConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
-            Configuration handlerConfiguration = configuration.getChild("handler");
-            lengthReset = handlerConfiguration.getChild("lengthReset").getValueAsInteger(lengthReset);
-            if (getLogger().isInfoEnabled()) {
-                getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
+            HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
+            lengthReset = handlerConfiguration.getInteger("lengthReset",lengthReset);
+            if (getLog().isInfoEnabled()) {
+                getLog().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
             
             this.handlerConfiguration = handlerConfiguration;
@@ -128,10 +111,10 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         handlerChain = loader.load(ProtocolHandlerChainImpl.class);
         
         //set the logger
-        handlerChain.setLog(new AvalonLogger(getLogger()));
+        handlerChain.setLog(getLog());
         
         //read from the XML configuration and create and configure each of the handlers
-        ConfigurationAdapter jamesConfiguration = new ConfigurationAdapter(handlerConfiguration.getChild("handlerchain"));
+        HierarchicalConfiguration jamesConfiguration = handlerConfiguration.configurationAt("handlerchain");
         if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
             jamesConfiguration.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
         handlerChain.configure(jamesConfiguration);

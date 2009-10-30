@@ -131,13 +131,13 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
     private SwitchableOutputStream switchableOut;
     
     public JamesConnectionBridge(final ProtocolHandler delegated, final DNSService dnsServer, final String name, 
-            final Logger logger, final SSLSocketFactory factory) {
-    	this(delegated, dnsServer, name, logger);
+            final Log log, final SSLSocketFactory factory) {
+    	this(delegated, dnsServer, name, log);
         this.factory = factory;
     }
     
     public JamesConnectionBridge(final ProtocolHandler delegated, final DNSService dnsServer, final String name, 
-            final Logger logger) {
+            final Log log) {
         this.protocolHandler = delegated;
         this.dnsServer = dnsServer;
         if (name == null) {
@@ -145,7 +145,7 @@ public class JamesConnectionBridge implements ProtocolContext, ConnectionHandler
         } else {
             this.name = name;
         }
-        this.log = new HandlerLog(logger, "[" + name + "] ");
+        this.log = new HandlerLog(log, "[" + name + "] ");
     }
 
     /**

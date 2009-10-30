@@ -21,13 +21,12 @@
 
 package org.apache.james.smtpserver;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.api.kernel.LoaderService;
@@ -38,7 +37,6 @@ import org.apache.james.smtpserver.protocol.SMTPServerMBean;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
-import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.MailetContext;
 
 /**
@@ -76,7 +74,7 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     private LoaderService loader;
 
     /** Cached configuration data for handler */
-    private Configuration handlerConfiguration;
+    private HierarchicalConfiguration handlerConfiguration;
 
     /**
      * Whether authentication is required to use
@@ -140,39 +138,54 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
     public final void setLoader(LoaderService loader) {
         this.loader = loader;
     }
+    
+    @Resource(name="org.apache.services.MailServer")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service( final ServiceManager manager ) throws ServiceException {
-        super.service( manager );
-        mailetcontext = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
-        mailServer = (MailServer) manager.lookup(MailServer.ROLE);
+    @Resource(name="org.apache.mailet.MailetContext")
+    public final void setMailetContext(MailetContext mailetcontext) {
+        this.mailetcontext = mailetcontext;
+    }
+
+    
+    @Override
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+    }
+    
+    
+
+    @Override
+    @PreDestroy
+    public void dispose() {
+        super.dispose();
     }
 
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.socket.AvalonProtocolServer#onConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(final Configuration configuration) throws ConfigurationException {
-        super.configure(configuration);
-        String hello = (String) mailetcontext.getAttribute(Constants.HELLO_NAME);
-
+    protected void onConfigure(HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
+            String hello = (String) mailetcontext.getAttribute(Constants.HELLO_NAME);
+
             // TODO Remove this in next not backwards compatible release!
             if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, getHelloName());
 
-            handlerConfiguration = configuration.getChild("handler");
-            String authRequiredString = handlerConfiguration.getChild("authRequired").getValue("false").trim().toLowerCase();
+            handlerConfiguration = configuration.configurationAt("handler");
+            String authRequiredString = handlerConfiguration.getString("authRequired","false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
             else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
             else authRequired = AUTH_DISABLED;
             if (authRequired != AUTH_DISABLED) {
-                getLogger().info("This SMTP server requires authentication.");
+                getLog().info("This SMTP server requires authentication.");
             } else {
-                getLogger().info("This SMTP server does not require authentication.");
+                getLog().info("This SMTP server does not require authentication.");
             }
 
-            String authorizedAddresses = handlerConfiguration.getChild("authorizedAddresses").getValue(null);
+            String authorizedAddresses = handlerConfiguration.getString("authorizedAddresses", null);
             if (authRequired == AUTH_DISABLED && authorizedAddresses == null) {
                 /* if SMTP AUTH is not requred then we will use
                  * authorizedAddresses to determine whether or not to
@@ -202,48 +215,48 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
             }
 
             if (authorizedNetworks != null) {
-                getLogger().info("Authorized addresses: " + authorizedNetworks.toString());
+                getLog().info("Authorized addresses: " + authorizedNetworks.toString());
             }
 
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
-            maxMessageSize = handlerConfiguration.getChild( "maxmessagesize" ).getValueAsLong( maxMessageSize ) * 1024;
+            maxMessageSize = handlerConfiguration.getLong( "maxmessagesize", maxMessageSize ) * 1024;
             if (maxMessageSize > 0) {
-                getLogger().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
+                getLog().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
             } else {
-                getLogger().info("No maximum message size is enforced for this server.");
+                getLog().info("No maximum message size is enforced for this server.");
             }
             // How many bytes to read before updating the timer that data is being transfered
-            lengthReset = configuration.getChild("lengthReset").getValueAsInteger(lengthReset);
+            lengthReset = configuration.getInt("lengthReset", lengthReset);
             if (lengthReset <= 0) {
                 throw new ConfigurationException("The configured value for the idle timeout reset, " + lengthReset + ", is not valid.");
             }
-            if (getLogger().isInfoEnabled()) {
-                getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
+            if (getLog().isInfoEnabled()) {
+                getLog().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
 
-            heloEhloEnforcement = handlerConfiguration.getChild("heloEhloEnforcement").getValueAsBoolean(true);
+            heloEhloEnforcement = handlerConfiguration.getBoolean("heloEhloEnforcement", true);
 
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
 
             // get the smtpGreeting
-            smtpGreeting = handlerConfiguration.getChild("smtpGreeting").getValue(null);
+            smtpGreeting = handlerConfiguration.getString("smtpGreeting",null);
 
-            addressBracketsEnforcement = handlerConfiguration.getChild("addressBracketsEnforcement").getValueAsBoolean(true);
-        } else {
+            addressBracketsEnforcement = handlerConfiguration.getBoolean("addressBracketsEnforcement",true);
+            
             // TODO Remove this in next not backwards compatible release!
             if (hello == null) mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
-        }
+        } 
     }
 
     private void prepareHandlerChain() throws Exception {
         handlerChain = loader.load(ProtocolHandlerChainImpl.class);
         
         //set the logger
-        handlerChain.setLog(new AvalonLogger(getLogger()));
+        handlerChain.setLog(getLog());
         
         //read from the XML configuration and create and configure each of the handlers
-        ConfigurationAdapter jamesConfiguration = new ConfigurationAdapter(handlerConfiguration.getChild("handlerchain"));
+        HierarchicalConfiguration jamesConfiguration = handlerConfiguration.configurationAt("handlerchain");
         if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
             jamesConfiguration.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
         handlerChain.configure(jamesConfiguration);
@@ -331,6 +344,9 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
             return SMTPServer.this.addressBracketsEnforcement;
         }
 
+        /**
+         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#isAuthRequired(java.lang.String)
+         */
         public boolean isAuthRequired(String remoteIP) {
             if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
             boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
@@ -340,13 +356,12 @@ public class SMTPServer extends AbstractProtocolServer implements SMTPServerMBea
             return authRequired;
         }
 
+        /**
+         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#isStartTLSSupported()
+         */
 		public boolean isStartTLSSupported() {
 			return SMTPServer.this.useStartTLS();
 		}
-        
-        //TODO: IF we create here an interface to get DNSServer
-        //      we should access it from the SMTPHandlers
-
     }
 
     /**

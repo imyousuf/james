@@ -23,6 +23,7 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.commons.net.pop3.POP3Reply;
@@ -38,9 +39,11 @@ import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
+import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.mailet.MailAddress;
@@ -77,6 +80,16 @@ public class POP3ServerTest extends TestCase {
 
     private MailImpl testMail2;
     private FakeLoader serviceManager;
+
+    private MockThreadManager threadManager;
+
+    private DNSService dnsservice;
+
+    private MockSocketManager socketManager;
+
+    private SimpleConnectionManager connectionManager;
+
+    private MockFileSystem fSystem;
     public POP3ServerTest() {
         super("POP3ServerTest");
     }
@@ -84,39 +97,46 @@ public class POP3ServerTest extends TestCase {
     protected void setUp() throws Exception {
         m_pop3Server = new POP3Server();
         setUpServiceManager();
-
-        ContainerUtil.enableLogging(m_pop3Server, new MockLogger());
+        
         ContainerUtil.service(m_pop3Server, serviceManager);
+        ContainerUtil.enableLogging(m_pop3Server, new MockLogger());
         m_pop3Server.setLoader(serviceManager);
-
+        m_pop3Server.setConnectionManager(connectionManager);
+        m_pop3Server.setDNSService(dnsservice);
+        m_pop3Server.setFileSystem(fSystem);
+        m_pop3Server.setMailServer(m_mailServer);
+        m_pop3Server.setProtocolHandlerFactory(m_pop3Server);
+        m_pop3Server.setSocketManager(socketManager);
+        m_pop3Server.setThreadManager(threadManager);
+        m_pop3Server.setLog(new SimpleLog("MockLog"));
         m_testConfiguration = new POP3TestConfiguration(m_pop3ListenerPort);
     }
 
     private void finishSetUp(POP3TestConfiguration testConfiguration)
             throws Exception {
         testConfiguration.init();
-        ContainerUtil.configure(m_pop3Server, testConfiguration);
-        m_pop3Server.initialize();
+        m_pop3Server.setConfiguration(new ConfigurationAdapter(testConfiguration));
+        m_pop3Server.init();
     }
 
     private void setUpServiceManager() throws ServiceException {
         serviceManager = new FakeLoader();
-        SimpleConnectionManager connectionManager = new SimpleConnectionManager();
+        connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
-        ContainerUtil.service(connectionManager, serviceManager);
         serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         m_mailServer = new MockMailServer(m_usersRepository);
-        // Phoenix loader does not understand aliases
-        serviceManager.put("James", m_mailServer);
-        serviceManager.put("localusersrepository", m_usersRepository);
-        serviceManager
-                .put(MailServer.ROLE, m_mailServer);
+        serviceManager.put(MailServer.ROLE, m_mailServer);
         serviceManager.put(UsersRepository.ROLE,
                 m_usersRepository);
-        serviceManager.put(SocketManager.ROLE, new MockSocketManager(
-                m_pop3ListenerPort));
-        serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
+        socketManager = new MockSocketManager(m_pop3ListenerPort);
+        serviceManager.put(SocketManager.ROLE, socketManager);
+        threadManager = new MockThreadManager();
+        serviceManager.put(ThreadManager.ROLE, threadManager);
+        dnsservice = setUpDNSServer();
         serviceManager.put(DNSService.ROLE, setUpDNSServer());
+        fSystem = new MockFileSystem();
+        serviceManager.put(MockFileSystem.ROLE,fSystem);
+      
     }
 
     private DNSService setUpDNSServer() {

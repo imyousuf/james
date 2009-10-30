@@ -47,7 +47,7 @@ public class AddUserCmdHandler implements CommandHandler{
     private MailServer mailServer;
     private DomainListManagementService domService;
 
-    @Resource(name="domainlistmanagement")
+    @Resource(name="org.apache.james.management.DomainListManagementService")
     public final void setDomainListManagement(DomainListManagementService domService) {
         this.domService = domService;
     }
@@ -56,7 +56,7 @@ public class AddUserCmdHandler implements CommandHandler{
      * Sets the users store.
      * @param users the users to set
      */
-    @Resource(name="users-store")
+    @Resource(name="org.apache.james.api.user.UsersStore")
     public final void setUsers(UsersStore uStore) {
         this.uStore = uStore;
     }
@@ -65,7 +65,7 @@ public class AddUserCmdHandler implements CommandHandler{
      * Sets the mail server.
      * @param mailServer the mailServer to set
      */
-    @Resource(name="James")
+    @Resource(name="org.apache.james.services.MailServer")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

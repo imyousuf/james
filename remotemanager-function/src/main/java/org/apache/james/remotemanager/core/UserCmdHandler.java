@@ -27,7 +27,7 @@ public class UserCmdHandler implements CommandHandler{
      * Sets the users store.
      * @param users the users to set
      */
-    @Resource(name="users-store")
+    @Resource(name="org.apache.james.api.user.UsersStore")
     public final void setUsers(UsersStore uStore) {
         this.uStore = uStore;
     }

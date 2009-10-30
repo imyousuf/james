@@ -25,13 +25,14 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.MailboxException;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
@@ -60,10 +61,10 @@ public class DefaultMailboxManager extends TorqueMailboxManager {
     private final FileSystem fileSystem;
     private String configFile;
     
-    public DefaultMailboxManager(UserManager userManager, FileSystem fileSystem, Logger logger) {
+    public DefaultMailboxManager(UserManager userManager, FileSystem fileSystem, Log logger) {
         super(userManager);
         this.fileSystem = fileSystem;
-        log = new AvalonLogger(logger);
+        log = logger;
     }
 
     
@@ -147,17 +148,15 @@ public class DefaultMailboxManager extends TorqueMailboxManager {
         configFile = "file://conf/mailboxManagerSqlResources.xml";
     }
 
-    public void configure(
-            org.apache.avalon.framework.configuration.Configuration conf)
+    @SuppressWarnings("unchecked")
+    public void configure(HierarchicalConfiguration conf)
             throws ConfigurationException {
         torqueConf = new BaseConfiguration();
-        org.apache.avalon.framework.configuration.Configuration[] tps = conf
-                .getChild("torque-properties").getChildren("property");
-        for (int i = 0; i < tps.length; i++) {
-            torqueConf.addProperty(tps[i].getAttribute("name"), tps[i]
-                    .getAttribute("value"));
+        List<HierarchicalConfiguration> tps = conf.configurationsAt("torque-properties.property");
+        for (int i = 0; i < tps.size(); i++) {
+            torqueConf.addProperty(tps.get(i).getString("[@name]"), tps.get(i).getString("[@value]"));
         }
-        configFile = conf.getChild("configFile").getValue();
+        configFile = conf.getString("configFile",null);
         if (configFile == null) configFile = "file://conf/mailboxManagerSqlResources.xml";
     }
 

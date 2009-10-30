@@ -19,26 +19,45 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.james.socket.AvalonProtocolServer;
+import org.apache.james.util.ConfigurationAdapter;
 
 public class SMTPServerComposedTest extends SMTPServerTest {
 
-    private SMTPServerComposed m_smtpServer;
-
-    protected void setUp() throws Exception {
-        m_smtpServer = new SMTPServerComposed();
-        ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
+    /*
+    private SMTPServerComposed server;
+    private AvalonProtocolServer pserver;
+    protected void setUp() throws Exception {      
+        server = new SMTPServerComposed();
+        server.setAvalonProtocolServer(m_smtpServer);
+        //ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
         m_serviceManager = setUpServiceManager();
-        ContainerUtil.service(m_smtpServer, m_serviceManager);
-        m_smtpServer.setLoader(m_serviceManager);
+        pserver = new AvalonProtocolServer();
+        pserver.setConnectionManager(connectionManager);
+        pserver.setDNSService(m_dnsServer);
+        pserver.setFileSystem(fileSystem);
+        pserver.setLog(new SimpleLog("Log"));
+        pserver.setProtocolHandlerFactory(server);
+        pserver.setSocketManager(socketManager);
+        pserver.setThreadManager(threadManager);
+        //ContainerUtil.service(m_smtpServer, m_serviceManager);
+        server.setLoader(m_serviceManager);
+        server.setDNSService(m_dnsServer);
+        server.setLog(new SimpleLog("MockLog"));
+        server.setAvalonProtocolServer(pserver);
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
     protected void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
-        testConfiguration.init();
-        ContainerUtil.configure(m_smtpServer, testConfiguration);
+       testConfiguration.init();
+        pserver.setConfiguration(new ConfigurationAdapter(testConfiguration));
+        server.setConfiguration(new ConfigurationAdapter(testConfiguration));
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
-        ContainerUtil.initialize(m_smtpServer);
+        pserver.init();
+
+        server.doInit();
+
     }
+    */
 }

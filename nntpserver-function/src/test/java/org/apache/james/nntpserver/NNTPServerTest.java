@@ -32,9 +32,11 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.nntp.NNTPClient;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.nntpserver.mock.MockNNTPRepository;
 import org.apache.james.nntpserver.repository.NNTPRepository;
@@ -44,18 +46,19 @@ import org.apache.james.services.MailServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockThreadManager;
+import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.util.ConfigurationAdapter;
 
 public class NNTPServerTest extends TestCase {
 	private int m_nntpListenerPort = Util.getNonPrivilegedPort();
 
 	private NNTPServer m_nntpServer;
-	private MockServiceManager serviceManager;
+	private FakeLoader serviceManager;
 
 	private MockUsersRepository m_usersRepository;
 	private NNTPTestConfiguration m_testConfiguration;
@@ -64,25 +67,46 @@ public class NNTPServerTest extends TestCase {
 	private MockMailServer m_mailServer;
 	private NNTPClient m_nntpProtocol;
 
-	protected void setUp() throws Exception {
-		m_nntpServer = new NNTPServer();
-		setUpServiceManager();
+    private SimpleConnectionManager connectionManager;
 
-		ContainerUtil.enableLogging(m_nntpServer, new MockLogger());
-		ContainerUtil.service(m_nntpServer, serviceManager);
+    private MockSocketManager socketManager;
 
-		m_testConfiguration = new NNTPTestConfiguration(m_nntpListenerPort);
-	}
+    private MockThreadManager threadManager;
+
+    private MockNNTPRepository nntpRepos;
+
+    private DNSService dnsService;
+
+    protected void setUp() throws Exception {
+        m_nntpServer = new NNTPServer();
+        setUpServiceManager();
+
+        ContainerUtil.service(m_nntpServer, serviceManager);
+
+        ContainerUtil.enableLogging(m_nntpServer, new MockLogger());
+
+        m_nntpServer.setLog(new SimpleLog("MockLog"));
+        m_nntpServer.setConnectionManager(connectionManager);
+        m_nntpServer.setDNSService(dnsService);
+        m_nntpServer.setFileSystem(new MockFileSystem());
+        m_nntpServer.setMailServer(m_mailServer);
+        m_nntpServer.setUserRepository(m_usersRepository);
+        m_nntpServer.setProtocolHandlerFactory(m_nntpServer);
+        m_nntpServer.setSocketManager(socketManager);
+        m_nntpServer.setThreadManager(threadManager);
+        m_nntpServer.setNNTPRepository(nntpRepos);
+        m_testConfiguration = new NNTPTestConfiguration(m_nntpListenerPort);
+    }
 
 	private void finishSetUp(NNTPTestConfiguration testConfiguration)
 			throws Exception {
 		testConfiguration.init();
-		ContainerUtil.configure(m_nntpServer, testConfiguration);
-		m_nntpServer.initialize();
+		m_nntpServer.setConfiguration(new ConfigurationAdapter(testConfiguration));
+		m_nntpServer.init();
 	}
 
 	private void setUpServiceManager() throws ServiceException {
-		serviceManager = new MockServiceManager();
+		serviceManager = new FakeLoader();
 		m_usersRepository = new MockUsersRepository();
 		m_mailServer = new MockMailServer(m_usersRepository);
 		m_nntpRepos = new NNTPRepositoryImpl();
@@ -102,18 +126,24 @@ public class NNTPServerTest extends TestCase {
 			
 		});
 
-		SimpleConnectionManager connectionManager = new SimpleConnectionManager();
+		connectionManager = new SimpleConnectionManager();
 		ContainerUtil.enableLogging(connectionManager, new MockLogger());
-		ContainerUtil.service(connectionManager, serviceManager);
+		
 		serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
 
 		serviceManager.put(MailServer.ROLE, m_mailServer);
 		serviceManager.put(UsersRepository.ROLE, m_usersRepository);
-		serviceManager.put(SocketManager.ROLE, new MockSocketManager(
-				m_nntpListenerPort));
-		serviceManager.put(ThreadManager.ROLE, new MockThreadManager());
-		serviceManager.put(NNTPRepository.ROLE, new MockNNTPRepository());
-		serviceManager.put(DNSService.ROLE, setUpDNSServer());
+		
+		socketManager = new MockSocketManager(m_nntpListenerPort);
+		serviceManager.put(SocketManager.ROLE,socketManager);
+		
+		threadManager = new MockThreadManager();
+		serviceManager.put(ThreadManager.ROLE, threadManager);
+		nntpRepos = new MockNNTPRepository();
+		serviceManager.put(NNTPRepository.ROLE, nntpRepos);
+		
+		dnsService = setUpDNSServer();
+		serviceManager.put(DNSService.ROLE, dnsService);
 	}
 
 	private DNSService setUpDNSServer() {

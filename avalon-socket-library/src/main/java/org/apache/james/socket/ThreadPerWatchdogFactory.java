@@ -20,8 +20,6 @@
 
 package org.apache.james.socket;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.socket.api.Watchdog;
 
@@ -30,9 +28,7 @@ import org.apache.james.socket.api.Watchdog;
  * with a single thread.
  *
  */
-public class ThreadPerWatchdogFactory
-    extends AbstractLogEnabled
-    implements WatchdogFactory {
+public class ThreadPerWatchdogFactory implements WatchdogFactory {
 
     /**
      * The thread pool used to generate InaccurateTimeoutWatchdogs
@@ -62,7 +58,6 @@ public class ThreadPerWatchdogFactory
     public Watchdog getWatchdog(WatchdogTarget theTarget)
             throws Exception {
         InaccurateTimeoutWatchdog watchdog = new InaccurateTimeoutWatchdog(timeout, theTarget, myThreadPool);
-        ContainerUtil.enableLogging(watchdog, getLogger());
         return watchdog;
     }
 }
