@@ -26,9 +26,12 @@ import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.Provider;
 import java.security.Security;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -44,15 +47,14 @@ import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
 import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.logger.CommonsLogger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.FileSystem;
@@ -66,7 +68,7 @@ import org.apache.james.socket.api.Watchdog;
  * create using the ProtocolHandlerFactory.
  */
 public class AvalonProtocolServer extends AbstractHandlerFactory
-    implements Serviceable, Configurable, Disposable, ConnectionHandlerFactory, ObjectFactory, ProtocolServer {
+    implements ConnectionHandlerFactory, ObjectFactory, ProtocolServer {
 
     /**
      * The default value for the connection timeout.
@@ -160,11 +162,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
     private String helloName;
 
     /**
-     * The component manager used by this service.
-     */
-    private ServiceManager componentManager;
-
-    /**
      * Whether this service is enabled.
      */
     private volatile boolean enabled;
@@ -213,6 +210,17 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
 	private String secret;    
      
 	private boolean useStartTLS;
+	
+	private HierarchicalConfiguration configuration;
+
+    private ThreadManager threadManager;
+
+    private SocketManager socketManager;
+
+    private Log logger;
+
+    private ServiceManager serviceManager;
+	
     /**
      * Gets the DNS Service.
      * @return the dnsServer
@@ -225,52 +233,82 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
      * Sets the DNS service.
      * @param dnsServer the dnsServer to set
      */
-    public final void setDnsServer(DNSService dnsServer) {
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public final void setDNSService(DNSService dnsServer) {
         this.dnsService = dnsServer;
     }
 
+    @Resource(name="org.apache.james.socket.JamesConnectionManager")
     public void setConnectionManager(JamesConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
-
+    
+    @Resource(name="org.apache.james.services.FileSystem")
     public void setFileSystem(FileSystem fSystem) {
     	this.fSystem = fSystem;
     }
+    
+    protected FileSystem getFileSystem() {
+        return fSystem;
+    }
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLog(Log logger) {
+        this.logger = logger;
+        setupLogger(this, new CommonsLogger(logger, getClass().getName()));
+    }
+    
+    /**
+     * Setter for the ProtocolHandlerFactory factory
+     * @param protocolHandlerFactory the factory
+     */
+    @Resource(name="org.apache.james.socket.api.ProtocolHandlerFactory")
+    public void setProtocolHandlerFactory(ProtocolHandlerFactory protocolHandlerFactory) {
+        this.protocolHandlerFactory = protocolHandlerFactory;
+    }
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    @Resource(name="org.apache.avalon.cornerstone.services.threads.ThreadManager")
+    public void setThreadManager(ThreadManager threadManager) {
+        this.threadManager = threadManager;
+    }
+    
+    @Resource(name="org.apache.avalon.cornerstone.services.sockets.SocketManager")
+    public void setSocketManager(SocketManager socketManager) {
+        this.socketManager = socketManager;
+    }
+    
     
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
     public void service(ServiceManager comp) throws ServiceException {
         super.service( comp );
-        componentManager = comp;
-        JamesConnectionManager connectionManager =
-            (JamesConnectionManager)componentManager.lookup(JamesConnectionManager.ROLE);
-        setConnectionManager(connectionManager);
-        dnsService = (DNSService) comp.lookup(DNSService.ROLE);
-        fSystem= (FileSystem) comp.lookup(FileSystem.ROLE);
-        setProtocolHandlerFactory((ProtocolHandlerFactory) comp.lookup(ProtocolHandlerFactory.ROLE));
+        serviceManager = comp;
     }
 
     /**
-     * Setter for the ProtocolHandlerFactory factory
-     * @param protocolHandlerFactory the factory
+     * Subclasses should override this method todo any configuration tasks
+     * @throws ConfigurationException 
      */
-    public void setProtocolHandlerFactory(ProtocolHandlerFactory protocolHandlerFactory) {
-        this.protocolHandlerFactory = protocolHandlerFactory;
+    protected void onConfigure(HierarchicalConfiguration config) throws ConfigurationException {
+        
     }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration conf) throws ConfigurationException {
-        enabled = conf.getAttributeAsBoolean("enabled", true);
-        final Logger logger = getLogger();
+    
+    private final void configure() throws ConfigurationException {
+        enabled = configuration.getBoolean("[@enabled]", true);
+        final Log logger = getLog();
         if (!enabled) {
           logger.info(protocolHandlerFactory.getServiceType() + " disabled by configuration");
           return;
         }
 
-        Configuration handlerConfiguration = conf.getChild("handler");
+        HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
 
         // Send the handler subconfiguration to the super class.  This 
         // ensures that the handler config is passed to the handlers.
@@ -279,31 +317,28 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         //       server configuration doesn't really make a whole lot of 
         //       sense.  We should modify the config to get rid of it.
         //       Keeping it for now to maintain backwards compatibility.
-        super.configure(handlerConfiguration);
+        //super.configure(handlerConfiguration);
         
         
-        boolean streamdump=handlerConfiguration.getChild("streamdump").getAttributeAsBoolean("enabled", false);
-        String streamdumpDir=streamdump ? handlerConfiguration.getChild("streamdump").getAttribute("directory", null) : null;
+        boolean streamdump=handlerConfiguration.getBoolean("streamdump.[@enabled]", false);
+        String streamdumpDir=streamdump ? handlerConfiguration.getString("streamdump.@[directory]", null) : null;
         setStreamDumpDir(streamdumpDir);
 
 
-        port = conf.getChild("port").getValueAsInteger(protocolHandlerFactory.getDefaultPort());
+        port = configuration.getInt("port",protocolHandlerFactory.getDefaultPort());
 
-        Configuration serverSocketTypeConf = conf.getChild("serverSocketType", false);
-        String confSocketType = null;
-        if (serverSocketTypeConf != null ) {
-            confSocketType = serverSocketTypeConf.getValue();
-        }
+        String confSocketType = configuration.getString("serverSocketType", null);
+        
 
         if (confSocketType == null) {
             // Only load the useTLS parameter if a specific socket type has not
             // been specified.  This maintains backwards compatibility while
             // allowing us to have more complex (i.e. multiple SSL configuration)
             // deployments
-            final boolean useTLS = conf.getChild("useTLS").getValueAsBoolean(isDefaultTLSEnabled());
+            final boolean useTLS = configuration.getBoolean("useTLS", isDefaultTLSEnabled());
             if (useTLS) {
                 serverSocketType = "ssl";
-                loadJCEProviders(conf, logger);
+                loadJCEProviders(configuration, logger);
             }
         } else {
             serverSocketType = confSocketType;
@@ -311,7 +346,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
      
 
         StringBuilder infoBuffer;
-        threadGroup = conf.getChild("threadGroup").getValue(null);
+        threadGroup = configuration.getString("threadGroup",null);
         if (threadGroup != null) {
             infoBuffer =
                 new StringBuilder(64)
@@ -325,7 +360,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         }
 
         try {
-            final String bindAddress = conf.getChild("bind").getValue(null);
+            final String bindAddress = configuration.getString("bind",null);
             if( null != bindAddress ) {
                 bindTo = InetAddress.getByName(bindAddress);
                 infoBuffer =
@@ -342,7 +377,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
 
         configureHelloName(handlerConfiguration);
 
-        timeout = handlerConfiguration.getChild(TIMEOUT_NAME).getValueAsInteger(DEFAULT_TIMEOUT);
+        timeout = handlerConfiguration.getInteger(TIMEOUT_NAME, DEFAULT_TIMEOUT);
 
         infoBuffer =
             new StringBuilder(64)
@@ -351,7 +386,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
                     .append(timeout);
         logger.info(infoBuffer.toString());
 
-        backlog = conf.getChild(BACKLOG_NAME).getValueAsInteger(DEFAULT_BACKLOG);
+        backlog = configuration.getInteger(BACKLOG_NAME, DEFAULT_BACKLOG);
 
         infoBuffer =
                     new StringBuilder(64)
@@ -360,7 +395,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
                     .append(backlog);
         logger.info(infoBuffer.toString());
 
-        String connectionLimitString = conf.getChild("connectionLimit").getValue(null);
+        String connectionLimitString = configuration.getString("connectionLimit",null);
         if (connectionLimitString != null) {
             try {
                 connectionLimit = new Integer(connectionLimitString);
@@ -381,7 +416,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
             .append(" connections.");
         logger.info(infoBuffer.toString());
         
-        String connectionLimitPerIP = conf.getChild("connectionLimitPerIP").getValue(null);
+        String connectionLimitPerIP = configuration.getString("connectionLimitPerIP", null);
         if (connectionLimitPerIP != null) {
             try {
             connPerIP = new Integer(connectionLimitPerIP).intValue();
@@ -403,30 +438,33 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
             .append(" per IP connections for " +protocolHandlerFactory.getServiceType());
         logger.info(infoBuffer.toString());
         
-       	Configuration tlsConfig = conf.getChild("startTLS");
-       	if (tlsConfig != null) {
-       		useStartTLS = tlsConfig.getAttributeAsBoolean("enable", false);
+       		useStartTLS = configuration.getBoolean("startTLS.[@enable]", false);
        		
        		if (useStartTLS) {
-       			keystore = tlsConfig.getChild("keystore").getValue(null);
+       			keystore = configuration.getString("startTLS.keystore", null);
        			if (keystore == null) {
        				throw new ConfigurationException("keystore needs to get configured");
        			}
-       			secret = tlsConfig.getChild("secret").getValue("");
-				loadJCEProviders(tlsConfig, getLogger());
+       			secret = configuration.getString("startTLS.secret","");
+				loadJCEProviders(configuration.configurationAt("startTLS"), getLog());
        		}
-       	}
+       	onConfigure(configuration);
     }
 
-    private void loadJCEProviders(Configuration conf, final Logger logger) throws ConfigurationException {
-        final Configuration [] providerConfiguration = conf.getChildren("provider");
-        for (int i = 0; i < providerConfiguration.length; i++) {
-            final String providerName = providerConfiguration[i].getValue();
+    protected Log getLog() {
+        return logger;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void loadJCEProviders(Configuration conf, final Log logger) throws ConfigurationException {
+        final List<String> providerConfiguration = conf.getList("provider");
+        for (int i = 0; i < providerConfiguration.size(); i++) {
+            final String providerName = providerConfiguration.get(i);
             loadProvider(logger, providerName);
         }
     }
 
-    private void loadProvider(final Logger logger, final String providerName) {
+    private void loadProvider(final Log logger, final String providerName) {
         if (providerName == null) {
             logger.warn("Failed to specify provider. Continuing but JCE provider will not be loaded");   
         } else {
@@ -446,7 +484,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         }
     }
 
-    private void logJCELoadFailure(final Logger logger, final String providerName, Exception e) {
+    private void logJCELoadFailure(final Log logger, final String providerName, Exception e) {
         logger.warn("Cannot load JCE provider" + providerName);
         logger.debug(e.getMessage(), e);
     }
@@ -455,7 +493,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         this.streamDumpDir = streamdumpDir;
     }
     
-    private void configureHelloName(Configuration handlerConfiguration) {
+    private void configureHelloName(HierarchicalConfiguration handlerConfiguration) {
         StringBuilder infoBuffer;
         String hostName = null;
         try {
@@ -469,17 +507,17 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
                     .append(protocolHandlerFactory.getServiceType())
                     .append(" is running on: ")
                     .append(hostName);
-        getLogger().info(infoBuffer.toString());
+        getLog().info(infoBuffer.toString());
 
-        Configuration helloConf = handlerConfiguration.getChild(HELLO_NAME);
+        
  
-        if (helloConf != null) {
-            boolean autodetect = helloConf.getAttributeAsBoolean("autodetect", true);
+        if (handlerConfiguration.getKeys(HELLO_NAME).hasNext()) {
+            boolean autodetect = handlerConfiguration.getBoolean(HELLO_NAME +".[@autodetect]", true);
             if (autodetect) {
                 helloName = hostName;
             } else {
                 // Should we use the defaultdomain here ?
-                helloName = helloConf.getValue("localhost");
+                helloName = handlerConfiguration.getString(HELLO_NAME, "localhost");
             }
         } else {
             helloName = null;
@@ -489,36 +527,34 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
                     .append(protocolHandlerFactory.getServiceType())
                     .append(" handler hello name is: ")
                     .append(helloName);
-        getLogger().info(infoBuffer.toString());
+        getLog().info(infoBuffer.toString());
     }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    @PostConstruct
-    public final void initialize() throws Exception {
-        if (!isEnabled()) {
-            getLogger().info(protocolHandlerFactory.getServiceType() + " Disabled");
-            return;
-        }
-        
-        getLogger().debug(protocolHandlerFactory.getServiceType() + " init...");
 
+    @PostConstruct
+    public void init() throws Exception {
+        
+        getLog().debug(protocolHandlerFactory.getServiceType() + " init...");
+
+        // parse configuration
+        configure();
+
+        if (!isEnabled()) {
+            getLog().info(protocolHandlerFactory.getServiceType() + " Disabled");
+            return;
+        }      
+        
         protocolHandlerFactory.prepare(this);
 
         if (useStartTLS) {
         	initStartTLS();
         }
-        
-        // keeping these looked up services locally, because they are only needed beyond initialization
-        ThreadManager threadManager = (ThreadManager) componentManager.lookup(ThreadManager.ROLE);
-        SocketManager socketManager = (SocketManager) componentManager.lookup(SocketManager.ROLE);
        
         initializeThreadPool(threadManager);
 
         initializeServerSocket(socketManager);
 
-        getLogger().debug(protocolHandlerFactory.getServiceType() + " ...init end");
+        getLog().debug(protocolHandlerFactory.getServiceType() + " ...init end");
 
         initializeHandlerPool();
         
@@ -529,7 +565,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         theWatchdogFactory = getWatchdogFactory();
 
         // Allow subclasses to perform initialisation
-        protocolHandlerFactory.init();
+        protocolHandlerFactory.doInit();
     }
     
     private void initStartTLS() throws Exception {
@@ -547,7 +583,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
 			// just to see SunJCE is loaded
 			Provider[] provs = Security.getProviders();
 			for (int i = 0; i < provs.length; i++)
-				getLogger().debug("Provider[" + i + "]=" + provs[i].getName());
+				getLog().debug("Provider[" + i + "]=" + provs[i].getName());
 
 			char[] passphrase = secret.toCharArray();
 			ks = KeyStore.getInstance("JKS","SUN");
@@ -557,15 +593,15 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
 			sslcontext = SSLContext.getInstance("SSL", "SunJSSE");
 			sslcontext.init(kmf.getKeyManagers(), null, null);
 		} catch (Exception e) {
-			getLogger().error("Exception accessing keystore: " + e);
+			getLog().error("Exception accessing keystore: " + e);
 			throw e;
 		}
 		factory = sslcontext.getSocketFactory();
 		// just to see the list of supported ciphers
 		String[] ss = factory.getSupportedCipherSuites();
-		getLogger().debug("list of supported ciphers");
+		getLog().debug("list of supported ciphers");
 		for (int i = 0; i < ss.length; i++)
-			getLogger().debug(ss[i]);
+			getLog().debug(ss[i]);
     }
 
     private void initializeThreadPool(ThreadManager threadManager) {
@@ -585,7 +621,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
             System.out.println("------------------------------");
             System.out.println(errorMessage);
             System.out.println("------------------------------");
-            getLogger().fatalError(errorMessage);
+            getLog().error(errorMessage);
             throw e;
         }       
     }
@@ -667,24 +703,22 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
                         .append(connectionName);
         String logString = logBuffer.toString();
         System.out.println(logString);
-        getLogger().info(logString);
+        getLog().info(logString);
 
         if (connectionLimit != null) {
             theHandlerPool = new HardResourceLimitingPool(this, 5, connectionLimit.intValue());
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Using a bounded pool for "+protocolHandlerFactory.getServiceType()+" handlers with upper limit " + connectionLimit.intValue());
+            if (getLog().isDebugEnabled()) {
+                getLog().debug("Using a bounded pool for "+protocolHandlerFactory.getServiceType()+" handlers with upper limit " + connectionLimit.intValue());
             }
         } else {
             // NOTE: The maximum here is not a real maximum.  The handler pool will continue to
             //       provide handlers beyond this value.
             theHandlerPool = new DefaultPool(this, null, 5, 30);
-            getLogger().debug("Using an unbounded pool for "+protocolHandlerFactory.getServiceType()+" handlers.");
+            getLog().debug("Using an unbounded pool for "+protocolHandlerFactory.getServiceType()+" handlers.");
         }
     }
-
-    /**
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
-     */
+    
+    @PreDestroy
     public void dispose() {
 
         if (!isEnabled()) {
@@ -693,25 +727,25 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
 
         if( m_disposed )
         {
-            if( getLogger().isWarnEnabled() )
+            if( getLog().isWarnEnabled() )
             {
-                getLogger().warn( "ignoring disposal request - already disposed" );
+                getLog().warn( "ignoring disposal request - already disposed" );
             }
             return;
         }
 
-        if( getLogger().isDebugEnabled() )
+        if( getLog().isDebugEnabled() )
         {
-            getLogger().debug( "disposal" );
+            getLog().debug( "disposal" );
         }
 
         m_disposed = true;
-        if( getLogger().isDebugEnabled() )
+        if( getLog().isDebugEnabled() )
         {
             StringBuilder infoBuffer =
                new StringBuilder(64).append(protocolHandlerFactory.getServiceType()).append(
                    " dispose... ").append(connectionName);
-            getLogger().debug(infoBuffer.toString());
+            getLog().debug(infoBuffer.toString());
         }
 
         try {
@@ -722,10 +756,8 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
                         .append("Error disconnecting ")
                         .append(protocolHandlerFactory.getServiceType())
                         .append(": ");
-            getLogger().warn(warnBuffer.toString(), e);
+            getLog().warn(warnBuffer.toString(), e);
         }
-
-        componentManager = null;
 
         connectionManager = null;
         threadPool = null;
@@ -734,7 +766,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         // TODO: Check this - shouldn't need to explicitly gc to force socket closure
         System.gc();
 
-        getLogger().debug(protocolHandlerFactory.getServiceType() + " ...dispose end");
+        getLog().debug(protocolHandlerFactory.getServiceType() + " ...dispose end");
     }
 
     /**
@@ -747,7 +779,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
     private WatchdogFactory getWatchdogFactory() {
         WatchdogFactory theWatchdogFactory = null;
         theWatchdogFactory = new ThreadPerWatchdogFactory(threadPool, timeout);
-        ContainerUtil.enableLogging(theWatchdogFactory,getLogger());
         return theWatchdogFactory;
      }
 
@@ -770,12 +801,12 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
             throws Exception {
         JamesConnectionBridge theHandler = (JamesConnectionBridge)theHandlerPool.get();
         
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Handler [" +  theHandler + "] obtained from pool.");
+        if (getLog().isDebugEnabled()) {
+            getLog().debug("Handler [" +  theHandler + "] obtained from pool.");
         }
 
         Watchdog theWatchdog = theWatchdogFactory.getWatchdog(theHandler);
-
+        ContainerUtil.enableLogging(theWatchdog,getLogger());
         theHandler.setStreamDumpDir(streamDumpDir);
         theHandler.setWatchdog(theWatchdog);
         return theHandler;
@@ -785,8 +816,8 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory#releaseConnectionHandler(ConnectionHandler)
      */
     public void releaseConnectionHandler( ConnectionHandler connectionHandler ) {
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Returning Handler [" +  connectionHandler + "] to pool.");
+        if (getLog().isDebugEnabled()) {
+            getLog().debug("Returning Handler [" +  connectionHandler + "] to pool.");
         }
         theHandlerPool.put((Poolable)connectionHandler);
     }
@@ -841,11 +872,13 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
     /**
      * @see org.apache.avalon.cornerstone.services.connection.AbstractHandlerFactory#createConnectionHandler()
      */
+    
     public ConnectionHandler createConnectionHandler() throws Exception {
         ConnectionHandler conn = super.createConnectionHandler();
-        ContainerUtil.service(conn, componentManager);
+        ContainerUtil.service(conn, serviceManager);
         return conn;
     }
+   
     
     /**
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
@@ -863,9 +896,9 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         final JamesConnectionBridge delegatingJamesHandler;
         
         if (useStartTLS) {
-        	delegatingJamesHandler = new JamesConnectionBridge(protocolHandlerFactory.newProtocolHandlerInstance(), dnsService, name, getLogger(), factory);
+        	delegatingJamesHandler = new JamesConnectionBridge(protocolHandlerFactory.newProtocolHandlerInstance(), dnsService, name, getLog(), factory);
         } else {
-            delegatingJamesHandler = new JamesConnectionBridge(protocolHandlerFactory.newProtocolHandlerInstance(), dnsService, name, getLogger());
+            delegatingJamesHandler = new JamesConnectionBridge(protocolHandlerFactory.newProtocolHandlerInstance(), dnsService, name, getLog());
         }
         return delegatingJamesHandler;
         

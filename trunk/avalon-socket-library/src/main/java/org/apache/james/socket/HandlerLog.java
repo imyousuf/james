@@ -19,7 +19,6 @@
 
 package org.apache.james.socket;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.commons.logging.Log;
 
 /**
@@ -27,11 +26,11 @@ import org.apache.commons.logging.Log;
  */
 public final class HandlerLog implements Log {
 
-    private final Logger logger;
+    private final Log logger;
     private final String prefix;
     
-    public HandlerLog(final Logger logger, final String prefix) {
-        this.logger = logger;
+    public HandlerLog(final Log log, final String prefix) {
+        this.logger = log;
         this.prefix = prefix;
     }
     
@@ -61,13 +60,13 @@ public final class HandlerLog implements Log {
 
     public final void fatal(Object message) {
         if (isFatalEnabled()) {
-            logger.fatalError(toString(message));
+            logger.fatal(toString(message));
         }
     }
 
     public final void fatal(Object message, Throwable t) {
         if (isFatalEnabled()) {
-            logger.fatalError(toString(message), t);
+            logger.fatal(toString(message), t);
         }
     }
 
@@ -92,7 +91,7 @@ public final class HandlerLog implements Log {
     }
 
     public final boolean isFatalEnabled() {
-        return logger.isFatalErrorEnabled();
+        return logger.isFatalEnabled();
     }
 
     public final boolean isInfoEnabled() {

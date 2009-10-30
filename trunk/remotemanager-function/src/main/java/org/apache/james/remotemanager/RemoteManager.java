@@ -22,22 +22,20 @@
 package org.apache.james.remotemanager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AbstractProtocolServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
-import org.apache.james.util.ConfigurationAdapter;
 
 /**
  * Provides a really rude network interface to administer James.
@@ -67,6 +65,7 @@ public class RemoteManager
      * 
      * @param mailServer the MailServer
      */
+    @Resource(name="org.apache.james.services.MailServer")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
@@ -93,7 +92,7 @@ public class RemoteManager
     /**
      * The configuration
      */
-    private Configuration handlerConfiguration;
+    private HierarchicalConfiguration handlerConfiguration;
     
     /**
      * Gets the current instance loader.
@@ -112,33 +111,25 @@ public class RemoteManager
         this.loader = loader;
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service( final ServiceManager componentManager )
-        throws ServiceException {
-        super.service(componentManager);
-        MailServer mailServer = (MailServer)componentManager.lookup(MailServer.ROLE );
-        setMailServer(mailServer);
+
+    @Override
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
     }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure( final Configuration configuration )
+    @SuppressWarnings("unchecked")
+    public void onConfigure( final HierarchicalConfiguration configuration )
         throws ConfigurationException {
-
-        super.configure(configuration);
         if (isEnabled()) {
-            Configuration handlerConfiguration = configuration.getChild("handler");
-            Configuration admin = handlerConfiguration.getChild( "administrator_accounts" );
-            Configuration[] accounts = admin.getChildren( "account" );
-            for ( int i = 0; i < accounts.length; i++ ) {
-                adminAccounts.put( accounts[ i ].getAttribute( "login" ),
-                                   accounts[ i ].getAttribute( "password" ) );
+            HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
+            List<HierarchicalConfiguration> accounts = handlerConfiguration.configurationsAt( "administrator_accounts.account" );
+            for ( int i = 0; i < accounts.size(); i++ ) {
+                adminAccounts.put( accounts.get(i).getString("[@login]" ),
+                                   accounts.get(i).getString( "[@password]" ) );
             }
-            Configuration promtConfiguration = handlerConfiguration.getChild("prompt", false);
-            if (promtConfiguration != null) prompt = promtConfiguration.getValue();
+            prompt =handlerConfiguration.getString("prompt", null);
+            
             if (prompt == null) prompt = ""; 
             else if (!prompt.equals("") && !prompt.endsWith(" ")) prompt += " "; 
            
@@ -151,10 +142,10 @@ public class RemoteManager
         handlerChain = loader.load(ProtocolHandlerChainImpl.class);
         
         //set the logger
-        handlerChain.setLog(new AvalonLogger(getLogger()));
+        handlerChain.setLog(getLog());
         
         //read from the XML configuration and create and configure each of the handlers
-        ConfigurationAdapter jamesConfiguration = new ConfigurationAdapter(handlerConfiguration.getChild("handlerchain"));
+        HierarchicalConfiguration jamesConfiguration = handlerConfiguration.configurationAt("handlerchain");
         if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
             jamesConfiguration.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
         handlerChain.configure(jamesConfiguration);

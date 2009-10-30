@@ -70,6 +70,6 @@ public interface ProtocolHandlerFactory {
      * 
      * @throws Exception
      */
-    void init() throws Exception;
+    void doInit() throws Exception;
 
 }

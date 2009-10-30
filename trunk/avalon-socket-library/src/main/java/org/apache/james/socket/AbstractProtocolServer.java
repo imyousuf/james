@@ -19,9 +19,8 @@
 
 package org.apache.james.socket;
 
-import org.apache.avalon.framework.service.DefaultServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
+import javax.annotation.PostConstruct;
+
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolServer;
@@ -36,12 +35,13 @@ public abstract class AbstractProtocolServer extends AvalonProtocolServer implem
     /**
      * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
      */
+    /*
     public void service(ServiceManager comp) throws ServiceException {
         DefaultServiceManager sm = new DefaultServiceManager(comp);
         sm.put(ProtocolHandlerFactory.ROLE, (ProtocolHandlerFactory) this);
         super.service(sm);
     }
-    
+    */
     /**
      * Hook for subclasses to perform an required initialisation
      * before the superclass has been initialised.
@@ -57,7 +57,7 @@ public abstract class AbstractProtocolServer extends AvalonProtocolServer implem
      * Called after the super class has completed it's initialisation.
      * @throws Exception
      */
-    protected void doInit() throws Exception {
+    public void doInit() throws Exception {
         
     }
 
@@ -96,8 +96,9 @@ public abstract class AbstractProtocolServer extends AvalonProtocolServer implem
     /**
      * @see org.apache.james.socket.api.ProtocolHandlerFactory#init()
      */
+    @PostConstruct
     public void init() throws Exception {
-        doInit();
+        super.init();
     }
 
 }

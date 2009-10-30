@@ -50,7 +50,7 @@ public class DeleteSpoolCmdHandler implements CommandHandler {
      * @param spoolManagement
      *            the SpoolManagementService
      */
-    @Resource(name = "spoolmanagement")
+    @Resource(name = "org.apache.james.management.SpoolManagementService")
     public final void setSpoolManagement(SpoolManagementService spoolManagement) {
         this.spoolManagement = spoolManagement;
     }
