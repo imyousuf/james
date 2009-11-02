@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.management.mock;
+package org.apache.james.api.vut.management;
 
 import java.util.ArrayList;
 import java.util.Collection;
