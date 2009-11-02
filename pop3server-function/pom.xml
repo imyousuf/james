@@ -105,7 +105,23 @@
       <groupId>org.apache.avalon.cornerstone.sockets</groupId>
       <artifactId>cornerstone-sockets-api</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-avalon-guice-bridge-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.guice</groupId>
+      <artifactId>guice</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.guiceyfruit</groupId>
+      <artifactId>guiceyfruit-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>spring-aopalliance</groupId>
+      <artifactId>spring-aopalliance</artifactId>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
