@@ -185,7 +185,7 @@
   </block>
   
   <!-- NNTP Server -->
-  <block name="nntpserver" class="org.apache.james.nntpserver.NNTPServer" >
+  <block name="nntpserver" class="org.apache.james.nntpserver.AvalonNNTPServer" >
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
@@ -202,7 +202,7 @@
   </block>
 
   <!-- NNTP Repository -->
-  <block name="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl">
+  <block name="nntp-repository" class="org.apache.james.nntpserver.repository.AvalonNNTPRepository">
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
     <proxy disable='true'/>
   </block>

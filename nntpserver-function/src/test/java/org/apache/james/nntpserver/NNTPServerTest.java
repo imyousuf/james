@@ -55,17 +55,17 @@ import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.ConfigurationAdapter;
 
 public class NNTPServerTest extends TestCase {
-	private int m_nntpListenerPort = Util.getNonPrivilegedPort();
+	protected int m_nntpListenerPort = Util.getNonPrivilegedPort();
 
 	private NNTPServer m_nntpServer;
-	private FakeLoader serviceManager;
+	protected FakeLoader serviceManager;
 
 	private MockUsersRepository m_usersRepository;
-	private NNTPTestConfiguration m_testConfiguration;
+	protected NNTPTestConfiguration m_testConfiguration;
 	private NNTPRepositoryImpl m_nntpRepos;
 	
-	private MockMailServer m_mailServer;
-	private NNTPClient m_nntpProtocol;
+	protected MockMailServer m_mailServer;
+	protected NNTPClient m_nntpProtocol;
 
     private SimpleConnectionManager connectionManager;
 
@@ -98,33 +98,36 @@ public class NNTPServerTest extends TestCase {
         m_testConfiguration = new NNTPTestConfiguration(m_nntpListenerPort);
     }
 
-	private void finishSetUp(NNTPTestConfiguration testConfiguration)
+    protected void finishSetUp(NNTPTestConfiguration testConfiguration)
 			throws Exception {
 		testConfiguration.init();
 		m_nntpServer.setConfiguration(new ConfigurationAdapter(testConfiguration));
 		m_nntpServer.init();
 	}
 
-	private void setUpServiceManager() throws ServiceException {
+    protected void setUpServiceManager() throws ServiceException {
 		serviceManager = new FakeLoader();
 		m_usersRepository = new MockUsersRepository();
 		m_mailServer = new MockMailServer(m_usersRepository);
 		m_nntpRepos = new NNTPRepositoryImpl();
-		m_nntpRepos.setFileSystem(new FileSystem() {
-			private File base = new File(System.getProperty("java.io.tmpdir"));
-			public File getBasedir() throws FileNotFoundException {
-				return base;
-			}
+		FileSystem fs = new FileSystem() {
+            private File base = new File(System.getProperty("java.io.tmpdir"));
+            public File getBasedir() throws FileNotFoundException {
+                return base;
+            }
 
-			public File getFile(String fileURL) throws FileNotFoundException {
-				return null;
-			}
+            public File getFile(String fileURL) throws FileNotFoundException {
+                return null;
+            }
 
-			public InputStream getResource(String url) throws IOException {
-				return null;
-			}
-			
-		});
+            public InputStream getResource(String url) throws IOException {
+                return null;
+            }
+            
+        };
+        serviceManager.put(FileSystem.ROLE, fs);
+        
+		m_nntpRepos.setFileSystem(fs);
 
 		connectionManager = new SimpleConnectionManager();
 		ContainerUtil.enableLogging(connectionManager, new MockLogger());
@@ -166,6 +169,7 @@ public class NNTPServerTest extends TestCase {
 			m_nntpProtocol.disconnect();
 		}
 		m_nntpServer.dispose();
+		
 		ContainerUtil.dispose(m_mailServer);
 
 		super.tearDown();

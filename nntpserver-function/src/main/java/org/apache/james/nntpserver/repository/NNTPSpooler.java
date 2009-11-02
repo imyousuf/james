@@ -21,19 +21,16 @@
 
 package org.apache.james.nntpserver.repository;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.Configurable;
+import org.apache.james.api.protocol.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.Lock;
 import org.apache.james.util.io.IOUtil;
 
+import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
 
 import java.io.BufferedReader;
@@ -49,8 +46,7 @@ import java.util.StringTokenizer;
  * Eats up inappropriate entries.
  *
  */
-class NNTPSpooler extends AbstractLogEnabled
-        implements Serviceable, Configurable, Initializable {
+public class NNTPSpooler implements Configurable, LogEnabled{
 
     /**
      * The array of spooler runnables, each associated with a Worker thread
@@ -77,23 +73,8 @@ class NNTPSpooler extends AbstractLogEnabled
      */
     private FileSystem fileSystem;
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(final ServiceManager serviceManager)
-            throws ServiceException {
-        setFileSystem((FileSystem) serviceManager.lookup(FileSystem.ROLE));
-    }
+    private Log logger;
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure( Configuration configuration ) throws ConfigurationException {
-        int threadCount = configuration.getChild("threadCount").getValueAsInteger(1);
-        threadIdleTime = configuration.getChild("threadIdleTime").getValueAsInteger(60 * 1000);
-        spoolPathString = configuration.getChild("spoolPath").getValue();
-        worker = new SpoolerRunnable[threadCount];
-    }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
@@ -114,13 +95,12 @@ class NNTPSpooler extends AbstractLogEnabled
                 throw new ConfigurationException(errorBuffer.toString());
             }
         } catch (Exception e) {
-            getLogger().fatalError(e.getMessage(), e);
+            logger.fatal(e.getMessage(), e);
             throw e;
         }
 
         for ( int i = 0 ; i < worker.length ; i++ ) {
-            worker[i] = new SpoolerRunnable(threadIdleTime,spoolPath);
-            ContainerUtil.enableLogging(worker[i], getLogger());
+            worker[i] = new SpoolerRunnable(threadIdleTime,spoolPath, logger);
         }
 
         // TODO: Replace this with a standard Avalon thread pool
@@ -165,7 +145,7 @@ class NNTPSpooler extends AbstractLogEnabled
      * A static inner class that provides the body for the spool
      * threads.
      */
-    static class SpoolerRunnable extends AbstractLogEnabled implements Runnable {
+    static class SpoolerRunnable implements Runnable {
 
         private static final Lock lock = new Lock();
 
@@ -189,9 +169,12 @@ class NNTPSpooler extends AbstractLogEnabled
          */
         private NNTPRepository repo;
 
-        SpoolerRunnable(int threadIdleTime,File spoolPath) {
+        private Log logger;
+        
+        SpoolerRunnable(int threadIdleTime,File spoolPath, Log logger) {
             this.threadIdleTime = threadIdleTime;
             this.spoolPath = spoolPath;
+            this.logger = logger;
         }
 
         /**
@@ -217,19 +200,19 @@ class NNTPSpooler extends AbstractLogEnabled
          * if it loses it tries to lock and process the next article.
          */
         public void run() {
-            getLogger().debug(Thread.currentThread().getName() + " is the NNTP spooler thread.");
+            logger.debug(Thread.currentThread().getName() + " is the NNTP spooler thread.");
             try {
                 while ( Thread.interrupted() == false ) {
                     String[] list = spoolPath.list();
-                    if (list.length > 0) getLogger().debug("Files to process: "+list.length);
+                    if (list.length > 0) logger.debug("Files to process: "+list.length);
                     for ( int i = 0 ; i < list.length ; i++ ) {
                         if ( lock.lock(list[i]) ) {
                             File f = new File(spoolPath,list[i]).getAbsoluteFile();
-                            getLogger().debug("Processing file: "+f.getAbsolutePath());
+                            logger.debug("Processing file: "+f.getAbsolutePath());
                             try {
                                 process(f);
                             } catch(Throwable ex) {
-                                getLogger().debug("Exception occured while processing file: "+
+                                logger.debug("Exception occured while processing file: "+
                                                   f.getAbsolutePath(),ex);
                             } finally {
                                 lock.unlock(list[i]);
@@ -262,7 +245,7 @@ class NNTPSpooler extends AbstractLogEnabled
                         .append(spoolFile.getAbsolutePath())
                         .append(",")
                         .append(spoolFile.getCanonicalPath());
-            getLogger().debug(logBuffer.toString());
+            logger.debug(logBuffer.toString());
             final MimeMessage msg;
             String articleID;
             // TODO: Why is this a block?
@@ -293,9 +276,9 @@ class NNTPSpooler extends AbstractLogEnabled
                 String[] idheader = msg.getHeader("Message-Id");
                 articleID = ((idheader != null && (idheader.length > 0))? idheader[0] : null);
                 if ((articleID != null) && ( articleIDRepo.isExists(articleID))) {
-                    getLogger().debug("Message already exists: "+articleID);
+                    logger.debug("Message already exists: "+articleID);
                     if (spoolFile.delete() == false)
-                        getLogger().error("Could not delete duplicate message from spool: " + spoolFile.getAbsolutePath());
+                        logger.error("Could not delete duplicate message from spool: " + spoolFile.getAbsolutePath());
                     return;
                 }
                 if ( articleID == null || lineCount != null) {
@@ -319,10 +302,10 @@ class NNTPSpooler extends AbstractLogEnabled
                     StringTokenizer tokenizer = new StringTokenizer(headers[i],",");
                     while ( tokenizer.hasMoreTokens() ) {
                         String groupName = tokenizer.nextToken().trim();
-                        getLogger().debug("Copying message to group: "+groupName);
+                        logger.debug("Copying message to group: "+groupName);
                         NNTPGroup group = repo.getGroup(groupName);
                         if ( group == null ) {
-                            getLogger().error("Couldn't add article with article ID " + articleID + " to group " + groupName + " - group not found.");
+                            logger.error("Couldn't add article with article ID " + articleID + " to group " + groupName + " - group not found.");
                             continue;
                         }
 
@@ -339,7 +322,7 @@ class NNTPSpooler extends AbstractLogEnabled
             articleIDRepo.addArticle(articleID,prop);
             boolean delSuccess = spoolFile.delete();
             if ( delSuccess == false ) {
-                getLogger().error("Could not delete file: " + spoolFile.getAbsolutePath());
+                logger.error("Could not delete file: " + spoolFile.getAbsolutePath());
             }
         }
     } // class SpoolerRunnable
@@ -349,7 +332,25 @@ class NNTPSpooler extends AbstractLogEnabled
      * 
      * @param fileSystem fs
      */
+    @Resource(name="org.apache.james.services.FileSystem")
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
+    }
+
+    /**
+     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
+     */
+    public void configure(Configuration config) throws ConfigurationException {
+        int threadCount = config.getInt("threadCount", 1);
+        threadIdleTime = config.getInt("threadIdleTime", 60 * 1000);
+        spoolPathString = config.getString("spoolPath");
+        worker = new SpoolerRunnable[threadCount];
+    }
+
+    /**
+     * @see org.apache.james.api.protocol.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
+    public void setLog(Log log) {
+        this.logger = log;
     }
 }
