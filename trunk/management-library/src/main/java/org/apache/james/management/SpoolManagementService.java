@@ -54,7 +54,7 @@ public interface SpoolManagementService {
      * @throws MessagingException 
      * @throws SpoolManagementException
      */
-    public int removeSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) 
+    public int removeSpoolItems(String spoolRepositoryURL, String key, List<String> lockingFailures, SpoolFilter filter) 
             throws MessagingException, SpoolManagementException;
     
     /**
@@ -69,7 +69,7 @@ public interface SpoolManagementService {
      * @throws MessagingException
      * @throws SpoolManagementException
      */
-    public int resendSpoolItems(String spoolRepositoryURL, String key, List lockingFailures, SpoolFilter filter) 
+    public int resendSpoolItems(String spoolRepositoryURL, String key, List<String> lockingFailures, SpoolFilter filter) 
             throws MessagingException, SpoolManagementException;
 
     /**
@@ -82,6 +82,6 @@ public interface SpoolManagementService {
      * @throws MessagingException
      * @throws SpoolManagementException
      */
-    public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter) 
+    public List<String> getSpoolItems(String spoolRepositoryURL, SpoolFilter filter) 
             throws MessagingException, SpoolManagementException;
 }

@@ -35,16 +35,21 @@ import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
-import org.apache.james.impl.vut.VirtualUserTableManagement;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementService;
 import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.DomainListManagementService;
+import org.apache.james.management.ProcessorManagementService;
+import org.apache.james.management.SpoolFilter;
+import org.apache.james.management.SpoolManagementException;
+import org.apache.james.management.SpoolManagementService;
+import org.apache.james.management.mock.MockVirtualUserTableManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockSocketManager;
+import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
@@ -64,8 +69,12 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.mail.MessagingException;
 
 import junit.framework.TestCase;
 
@@ -87,13 +96,14 @@ public class RemoteManagerTest extends TestCase {
     protected TelnetClient m_telnetClient;
     private MockUsersRepository m_mockUsersRepository;
     private MockMailServer mailServer;
-    private FakeLoader serviceManager;
+    protected FakeLoader serviceManager;
     private SimpleConnectionManager connectionManager;
     private MockUsersStore usersStore;
     private MockSocketManager socketManager;
     private MockThreadManager threadManager;
     private DNSService dnsservice;
     private MockFileSystem filesystem;
+    private MockVirtualUserTableManagementService vutManagement;
 
     protected void setUp() throws Exception {
         m_remoteManager = new RemoteManager();
@@ -116,7 +126,7 @@ public class RemoteManagerTest extends TestCase {
         super.tearDown();
     }
 
-    protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration) {
+    protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
         try {
             m_remoteManager.setConfiguration(new ConfigurationAdapter(testConfiguration));
@@ -186,7 +196,7 @@ public class RemoteManagerTest extends TestCase {
         readAnswer(3);
     }
 
-    private void setUpServiceManager() throws ServiceException {
+    protected void setUpServiceManager() throws ServiceException {
         serviceManager = new FakeLoader();
         connectionManager = new SimpleConnectionManager();
         ContainerUtil.enableLogging(connectionManager, new MockLogger());
@@ -211,11 +221,13 @@ public class RemoteManagerTest extends TestCase {
         
         dnsservice = setUpDNSServer();
         serviceManager.put(DNSService.ROLE, dnsservice);
-        MockVirtualUserTableStore vutStore = new MockVirtualUserTableStore(); 
-        VirtualUserTableManagement vutManagement = new VirtualUserTableManagement();
-        vutManagement.setVirtualUserTableStore(vutStore);
-        vutManagement.setVirtualUserTableManagement(new MockVirtualUserTableManagementImpl());
-        serviceManager.put(VirtualUserTableManagementService.ROLE, vutManagement);
+        vutManagement = new MockVirtualUserTableManagementService();
+        //VirtualUserTableManagementService vutManagement = new VirtualUserTableManagement();
+        //vutManagement.setVirtualUserTableStore(vutStore);
+        //vutManagement.setVirtualUserTableManagement(new MockVirtualUserTableManagementImpl());
+        serviceManager.put(VirtualUserTableManagementService.ROLE, new MockVirtualUserTableManagementService());
+
+            
        
         ManageableDomainList xml = new SimpleDomainList();
         
@@ -292,6 +304,64 @@ public class RemoteManagerTest extends TestCase {
                 return 0;
             }
         });
+        
+        serviceManager.put(SpoolManagementService.ROLE, new SpoolManagementService() {
+            
+            public int resendSpoolItems(String spoolRepositoryURL, String key,
+                    List lockingFailures, SpoolFilter filter)
+                    throws MessagingException, SpoolManagementException {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+            
+            public int removeSpoolItems(String spoolRepositoryURL, String key,
+                    List lockingFailures, SpoolFilter filter)
+                    throws MessagingException, SpoolManagementException {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+            
+            public int moveSpoolItems(String srcSpoolRepositoryURL,
+                    String dstSpoolRepositoryURL, String dstState, SpoolFilter filter)
+                    throws MessagingException, SpoolManagementException {
+                // TODO Auto-generated method stub
+                return 0;
+            }
+            
+            public List getSpoolItems(String spoolRepositoryURL, SpoolFilter filter)
+                    throws MessagingException, SpoolManagementException {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
+        serviceManager.put(MockStore.ROLE,new MockStore());
+        serviceManager.put(ProcessorManagementService.ROLE, new ProcessorManagementService() {
+            
+            public String[] getProcessorNames() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            public String[] getMatcherParameters(String processorName, int matcherIndex) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            public String[] getMatcherNames(String processorName) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            public String[] getMailetParameters(String processorName, int mailetIndex) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+            public String[] getMailetNames(String processorName) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
     }
     
     private DNSService setUpDNSServer() {
@@ -323,14 +393,14 @@ public class RemoteManagerTest extends TestCase {
         assertEquals("Arguments echoed", "hsif eht lla rof sknaht", lastLine);
     }
     */
-    public void testLogin() throws IOException {
+    public void testLogin() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
 
         login();
     }
 
-    public void testWrongLoginUser() throws IOException {
+    public void testWrongLoginUser() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
 
@@ -344,7 +414,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue("Last line does not start with 'Login id:' but with '"+last+"'",last.startsWith("Login id:")); // login failed, getting new login prompt
     }
 
-    public void testWrongLoginPassword() throws IOException {
+    public void testWrongLoginPassword() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
 
@@ -357,7 +427,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue("Line does not start with 'Login id:' but with '"+last+"'", last.startsWith("Login id:")); // login failed, getting new login prompt
     }
 
-    public void testUserCount() throws IOException {
+    public void testUserCount() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
         login();
@@ -383,7 +453,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue(getLastLine(readAnswer()).endsWith(" 1")); // 1 total
     }
 
-    public void testAddUserAndVerify() throws IOException {
+    public void testAddUserAndVerify() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
         login();
@@ -404,7 +474,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue(getLastLine(readAnswer()).endsWith(" does not exist"));
     }
 
-    public void testDelUser() throws IOException {
+    public void testDelUser() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
         login();
@@ -425,7 +495,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue(getLastLine(readAnswer()).endsWith(" does not exist"));
     }
 
-    public void testQuit() throws IOException {
+    public void testQuit() throws Exception {
     
         finishSetUp(m_testConfiguration);
         connect();
@@ -445,7 +515,7 @@ public class RemoteManagerTest extends TestCase {
     }   
   
 
-    public void testListUsers() throws IOException {
+    public void testListUsers() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
         login();
@@ -487,7 +557,7 @@ public class RemoteManagerTest extends TestCase {
         }
     }
 
-    public void testCommandCaseInsensitive() throws IOException {
+    public void testCommandCaseInsensitive() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
         login();
@@ -505,7 +575,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue(getLastLine(readAnswer()).endsWith(" exists"));
     }
 
-    public void testParameterCaseSensitive() throws IOException {
+    public void testParameterCaseSensitive() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
         login();
@@ -523,7 +593,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue(getLastLine(readAnswer()).endsWith(" does not exist"));
     }
 
-    public void testAlias() throws IOException {
+    public void testAlias() throws Exception {
         m_mockUsersRepository.setForceUseJamesUser();
         finishSetUp(m_testConfiguration);
         connect();
@@ -585,7 +655,7 @@ public class RemoteManagerTest extends TestCase {
 
     }
 
-    public void testForward() throws IOException {
+    public void testForward() throws Exception {
         m_mockUsersRepository.setForceUseJamesUser();
         finishSetUp(m_testConfiguration);
         connect();
@@ -626,7 +696,7 @@ public class RemoteManagerTest extends TestCase {
 
     }
 
-    public void testSetPassword() throws IOException {
+    public void testSetPassword() throws Exception {
         finishSetUp(m_testConfiguration);
         connect();
         login();
@@ -656,7 +726,7 @@ public class RemoteManagerTest extends TestCase {
         
     }
     
-    public void testAddMapping() throws IOException {
+    public void testAddMapping() throws Exception {
         String lastLine;
         finishSetUp(m_testConfiguration);
         connect();
@@ -671,7 +741,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue("Not add mapping... allready exists",lastLine.endsWith("false"));
     }
     
-    public void testRemoveMapping() throws IOException {
+    public void testRemoveMapping() throws Exception {
         String lastLine;
         finishSetUp(m_testConfiguration);
         connect();
@@ -690,7 +760,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue("Not remove mapping... mapping not exists",lastLine.endsWith("false"));
     }
     
-    public void testListAllMappings() throws IOException {
+    public void testListAllMappings() throws Exception {
         String lastLine;
         finishSetUp(m_testConfiguration);
         connect();
@@ -706,11 +776,11 @@ public class RemoteManagerTest extends TestCase {
        
         sendCommand("listallmappings");
         List answer = readAnswer(3);
-        assertTrue("Read first mapping", answer.get(1).toString().endsWith("junit"));
-        assertTrue("Read second mapping line", answer.get(2).toString().endsWith("junit2"));
+        assertTrue("Read first mapping", answer.get(1).toString().contains("junit"));
+        assertTrue("Read second mapping line", answer.get(2).toString().contains("junit2"));
     }
     
-    public void testListMapping() throws IOException {
+    public void testListMapping() throws Exception {
         String lastLine;
         finishSetUp(m_testConfiguration);
         connect();
@@ -729,7 +799,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue("list mapping", lastLine.endsWith("junit"));
     }
     
-    public void testaddDomain() throws IOException {
+    public void testaddDomain() throws Exception {
         String lastLine;
         finishSetUp(m_testConfiguration);
         connect();
@@ -749,7 +819,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue("list domain", lastLine.endsWith("domain"));       
     }
     
-    public void testremoveDomain() throws IOException {
+    public void testremoveDomain() throws Exception {
         String lastLine;
         finishSetUp(m_testConfiguration);
         connect();
@@ -768,7 +838,7 @@ public class RemoteManagerTest extends TestCase {
         assertTrue("Remove domain which not exist", lastLine.endsWith("fail"));    
     }
     
-    public void testListDomains() throws IOException {
+    public void testListDomains() throws Exception {
         String lastLine;
         finishSetUp(m_testConfiguration);
         connect();

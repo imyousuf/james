@@ -95,7 +95,7 @@
     <proxy disable='true'/>
   </block>
 
-  <block name="remotemanager" class="org.apache.james.remotemanager.RemoteManager" >
+  <block name="remotemanager" class="org.apache.james.remotemanager.AvalonRemoteManager" >
     <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
     <provide name="users-store" role="org.apache.james.api.user.UsersStore"/>
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
