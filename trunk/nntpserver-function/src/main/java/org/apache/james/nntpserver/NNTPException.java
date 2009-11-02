@@ -28,12 +28,8 @@ package org.apache.james.nntpserver;
  * Error Information is obtained by calling 'getMessage'
  *
  */
+@SuppressWarnings("serial")
 public class NNTPException extends RuntimeException {
-
-    /**
-     * The encapsulated Throwable
-     */
-    private final Throwable t;
 
     /**
      * Create an NNTPException with an error message and no
@@ -43,7 +39,6 @@ public class NNTPException extends RuntimeException {
      */
     public NNTPException(String msg) {
         super(msg);
-        this.t = null;
     }
 
     /**
@@ -55,7 +50,6 @@ public class NNTPException extends RuntimeException {
      */
     public NNTPException(String msg,Throwable t) {
         super(msg+((t!=null)?": "+t.toString():""));
-        this.t = t;
     }
 
     /**
@@ -66,6 +60,5 @@ public class NNTPException extends RuntimeException {
      */
     public NNTPException(Throwable t) {
         super(t.toString());
-        this.t = t;
     }
 }

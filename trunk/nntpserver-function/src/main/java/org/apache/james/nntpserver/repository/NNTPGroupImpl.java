@@ -21,28 +21,28 @@
 
 package org.apache.james.nntpserver.repository;
 
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 import org.apache.james.util.io.AndFileFilter;
 import org.apache.james.util.io.ExtensionFileFilter;
 import org.apache.james.util.io.IOUtil;
 import org.apache.james.util.io.InvertedFileFilter;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * Group is represented by a directory.
  * Articles are stored in files with the name of file == article number
  *
  */
-class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
+public class NNTPGroupImpl implements NNTPGroup {
 
     /**
      * The directory to which this group maps.
@@ -71,13 +71,16 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
      */
     private boolean articleRangeInfoCollected = false;
 
+    private Log logger;
+
     /**
      * The sole constructor for this particular NNTPGroupImpl.
      *
      * @param root the directory containing the articles
      */
-    NNTPGroupImpl(File root) {
+    public NNTPGroupImpl(File root, Log logger) {
         this.root = root;
+        this.logger = logger;
     }
 
     /**
@@ -234,8 +237,8 @@ class NNTPGroupImpl extends AbstractLogEnabled implements NNTPGroup {
             lastArticle = artNum;
             numOfArticles++;
         }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Copying message to: "+articleFile.getAbsolutePath());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Copying message to: "+articleFile.getAbsolutePath());
         }
         FileOutputStream fout = null;
         try {

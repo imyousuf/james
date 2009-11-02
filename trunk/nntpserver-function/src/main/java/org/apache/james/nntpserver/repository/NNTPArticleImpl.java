@@ -150,7 +150,7 @@ class NNTPArticleImpl implements NNTPArticle {
         FileInputStream fileStream = null;
         try {
             fileStream = new FileInputStream(articleFile);
-            MailHeaders headers = new MailHeaders(fileStream);
+            //MailHeaders headers = new MailHeaders(fileStream);
             byte[] readBuffer = new byte[1024];
             int read = 0;
             while ((read = fileStream.read(readBuffer)) > 0) {

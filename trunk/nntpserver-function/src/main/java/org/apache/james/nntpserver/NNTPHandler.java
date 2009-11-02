@@ -536,13 +536,13 @@ public class NNTPHandler implements ProtocolHandler {
         }
 
         context.writeLoggedFlushedResponse("230 list of new articles by message-id follows");
-        Iterator groupIter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
+        Iterator<NNTPGroup> groupIter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
         while ( groupIter.hasNext() ) {
-            Iterator articleIter = ((NNTPGroup)(groupIter.next())).getArticlesSince(theDate);
+            Iterator<NNTPArticle> articleIter = groupIter.next().getArticlesSince(theDate);
             while (articleIter.hasNext()) {
                 StringBuilder iterBuffer =
                     new StringBuilder(64)
-                        .append(((NNTPArticle)articleIter.next()).getUniqueID());
+                        .append(articleIter.next().getUniqueID());
                 context.writeLoggedResponse(iterBuffer.toString());
             }
         }
@@ -575,7 +575,7 @@ public class NNTPHandler implements ProtocolHandler {
             context.writeLoggedFlushedResponse("501 Syntax error");
             return;
         }
-        Iterator iter = theConfigData.getNNTPRepository().getGroupsSince(theDate);
+        Iterator<NNTPGroup> iter = theConfigData.getNNTPRepository().getGroupsSince(theDate);
         context.writeLoggedFlushedResponse("231 list of new newsgroups follows");
         while ( iter.hasNext() ) {
             NNTPGroup currentGroup = (NNTPGroup)iter.next();
@@ -687,10 +687,10 @@ public class NNTPHandler implements ProtocolHandler {
             }
         }
 
-        Iterator iter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
+        Iterator<NNTPGroup> iter = theConfigData.getNNTPRepository().getMatchedGroups(wildmat);
         context.writeLoggedFlushedResponse("215 list of newsgroups follows");
         while ( iter.hasNext() ) {
-            NNTPGroup theGroup = (NNTPGroup)iter.next();
+            NNTPGroup theGroup = iter.next();
             if (isListNewsgroups) {
                 context.writeLoggedResponse(theGroup.getListNewsgroupsFormat());
             } else {
@@ -1199,9 +1199,9 @@ public class NNTPHandler implements ProtocolHandler {
 
             context.writeLoggedFlushedResponse("211 list of article numbers follow");
 
-            Iterator iter = group.getArticles();
+            Iterator<NNTPArticle> iter = group.getArticles();
             while (iter.hasNext()) {
-                NNTPArticle article = (NNTPArticle)iter.next();
+                NNTPArticle article = iter.next();
                 context.writeLoggedResponse(article.getArticleNumber() + "");
             }
             context.writeLoggedFlushedResponse(".");
@@ -1472,7 +1472,7 @@ public class NNTPHandler implements ProtocolHandler {
                 end = Integer.parseInt(range.substring(idx + 1));
             }
         }
-        List list = new ArrayList();
+        List<NNTPArticle> list = new ArrayList<NNTPArticle>();
         for ( int i = start ; i <= end ; i++ ) {
             NNTPArticle article = group.getArticle(i);
             if ( article != null ) {
