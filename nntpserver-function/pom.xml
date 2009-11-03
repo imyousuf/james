@@ -135,6 +135,11 @@
       <artifactId>commons-net</artifactId>
       <scope>test</scope>
     </dependency>
-    
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
