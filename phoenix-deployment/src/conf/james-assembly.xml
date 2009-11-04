@@ -158,6 +158,7 @@
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
     <provide name="defaultvirtualusertable"
              role="org.apache.james.api.vut.VirtualUserTable" />
+    <provide name="virtualusertable-store" role="org.apache.james.api.vut.VirtualUserTableStore"/>
     <proxy disable='true'/>
   </block>
   

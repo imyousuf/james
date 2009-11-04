@@ -33,6 +33,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
+import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.ConfigurationAdapter;
@@ -40,6 +41,8 @@ import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
 public class AvalonNNTPRepository implements NNTPRepository, GuiceInjected, Configurable, Serviceable, LogEnabled, Initializable{
@@ -90,17 +93,35 @@ public class AvalonNNTPRepository implements NNTPRepository, GuiceInjected, Conf
     }
 
     public void initialize() throws Exception {
-        repos = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
-            
-            @Override
-            protected void configure() {
-                bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-                bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
-            }
-        }).getInstance(NNTPRepositoryImpl.class);
+        repos = Guice.createInjector(new Jsr250Module(), new NTTPRepositoryModule()).getInstance(NNTPRepositoryImpl.class);
     }
 
+    private class NTTPRepositoryModule extends AbstractModule {
+        
+        @Override
+        protected void configure() {
+            bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
+            bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
+            bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
+            bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
+
+                public LoaderService get() {
+                    return new NNTPLoaderService();
+                }
+                
+                // Mimic the loaderservice
+                class NNTPLoaderService implements LoaderService {
+                    Injector injector = Guice.createInjector(new NTTPRepositoryModule(), new Jsr250Module());
+
+                    public <T> T load(Class<T> type) {
+                        return injector.getInstance(type);
+                    }
+                    
+                }
+                
+            });
+        }
+    }
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
      */

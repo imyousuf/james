@@ -1210,7 +1210,7 @@ Regards, Postmaster XXX.YYY
          <newsgroup>org.apache.avalon.user</newsgroup>
       </newsgroups>
 
-      <spool>
+      <spool class="org.apache.james.nntpserver.repository.NNTPSpooler">
          <configuration>
             <spoolPath>file://var/nntp/spool</spoolPath>
             <!-- The number of threads that process spooler related tasks. -->
