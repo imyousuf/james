@@ -30,6 +30,7 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.util.Lock;
 import org.apache.james.util.io.IOUtil;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
 
@@ -75,13 +76,8 @@ public class NNTPSpooler implements Configurable, LogEnabled{
 
     private Log logger;
 
-
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-        //System.out.println(getClass().getName()+": init");
-
+    @PostConstruct
+    public void init() throws Exception {
         try {
             spoolPath = fileSystem.getFile(spoolPathString);
             if ( spoolPath.exists() == false ) {

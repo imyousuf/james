@@ -472,7 +472,9 @@ public class NNTPRepositoryImpl implements NNTPRepository {
         HierarchicalConfiguration spoolerConfiguration = configuration.configurationAt("spool");
         // Must be a subclass of org.apache.james.nntpserver.repository.NNTPSpooler
         className = spoolerConfiguration.getString("[@class]");
-
+        if (className == null) {
+        	className = NNTPSpooler.class.getName();
+        }
         try {
             Class<?> myClass = Thread.currentThread().getContextClassLoader().loadClass(className);
             Object obj = loader.load(myClass);
