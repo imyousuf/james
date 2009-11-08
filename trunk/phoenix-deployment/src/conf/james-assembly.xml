@@ -326,7 +326,7 @@
   
     
   <!-- IMAP server -->
-  <block name="imapserver" class="org.apache.james.imapserver.ImapServer">
+  <block name="imapserver" class="org.apache.james.imapserver.AvalonImapServer">
     <provide name="localusersrepository" role="org.apache.james.api.user.UsersRepository"/>
     <provide name="sockets"
              role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>

@@ -21,11 +21,9 @@
 
 package org.apache.james.nntpserver.repository;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.protocol.Configurable;
-import org.apache.james.api.protocol.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.Lock;
 import org.apache.james.util.io.IOUtil;
@@ -47,8 +45,12 @@ import java.util.StringTokenizer;
  * Eats up inappropriate entries.
  *
  */
-public class NNTPSpooler implements Configurable, LogEnabled{
+public class NNTPSpooler {
 
+    private ArticleIDRepository idRepos;
+    
+    private NNTPRepository nntpRepos;
+    
     /**
      * The array of spooler runnables, each associated with a Worker thread
      */
@@ -76,8 +78,16 @@ public class NNTPSpooler implements Configurable, LogEnabled{
 
     private Log logger;
 
+    private HierarchicalConfiguration config;
+
     @PostConstruct
     public void init() throws Exception {
+        int threadCount = config.getInt("threadCount", 1);
+        threadIdleTime = config.getInt("threadIdleTime", 60 * 1000);
+        spoolPathString = config.getString("spoolPath");
+        worker = new SpoolerRunnable[threadCount];
+        
+        
         try {
             spoolPath = fileSystem.getFile(spoolPathString);
             if ( spoolPath.exists() == false ) {
@@ -97,7 +107,10 @@ public class NNTPSpooler implements Configurable, LogEnabled{
 
         for ( int i = 0 ; i < worker.length ; i++ ) {
             worker[i] = new SpoolerRunnable(threadIdleTime,spoolPath, logger);
+            worker[i].setRepository(nntpRepos);
+            worker[i].setArticleIDRepository(idRepos);
         }
+        
 
         // TODO: Replace this with a standard Avalon thread pool
         for ( int i = 0 ; i < worker.length ; i++ ) {
@@ -110,10 +123,9 @@ public class NNTPSpooler implements Configurable, LogEnabled{
      *
      * @param repo the repository to be used
      */
-    void setRepository(NNTPRepository repo) {
-        for ( int i = 0 ; i < worker.length ; i++ ) {
-            worker[i].setRepository(repo);
-        }
+    @Resource(name="org.apache.james.nntpserver.repository.NNTPRepository")
+    void setNNTPRepository(NNTPRepository nntpRepos) {
+        this.nntpRepos = nntpRepos;
     }
 
     /**
@@ -121,10 +133,9 @@ public class NNTPSpooler implements Configurable, LogEnabled{
      *
      * @param articleIDRepo the article id repository to be used
      */
-    void setArticleIDRepository(ArticleIDRepository articleIDRepo) {
-        for ( int i = 0 ; i < worker.length ; i++ ) {
-            worker[i].setArticleIDRepository(articleIDRepo);
-        }
+    @Resource(name="org.apache.james.nntpserver.repository.ArticleIDRepository")
+    void setArticleIDRepository(ArticleIDRepository idRepos) {
+        this.idRepos = idRepos;
     }
 
     /**
@@ -333,19 +344,14 @@ public class NNTPSpooler implements Configurable, LogEnabled{
         this.fileSystem = fileSystem;
     }
 
-    /**
-     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
-     */
-    public void configure(Configuration config) throws ConfigurationException {
-        int threadCount = config.getInt("threadCount", 1);
-        threadIdleTime = config.getInt("threadIdleTime", 60 * 1000);
-        spoolPathString = config.getString("spoolPath");
-        worker = new SpoolerRunnable[threadCount];
+    
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void configure(HierarchicalConfiguration config) {
+        this.config = config;
     }
 
-    /**
-     * @see org.apache.james.api.protocol.LogEnabled#setLog(org.apache.commons.logging.Log)
-     */
+    @Resource(name="org.apache.commons.logging.Log")
     public void setLog(Log log) {
         this.logger = log;
     }
