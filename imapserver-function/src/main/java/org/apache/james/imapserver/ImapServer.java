@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -57,25 +58,34 @@ public class ImapServer extends AbstractProtocolServer implements ImapConstants,
     private String hello = softwaretype;
 
     private UsersRepository usersRepos;
+    private HierarchicalConfiguration configuration;
 
     @Resource(name="org.apache.james.api.user.UsersRepository")
     public void setUsersRepository(UsersRepository usersRepos) {
         this.usersRepos = usersRepos;
     }
-    
+
+    @PostConstruct
+    @Override
+    public void init() throws Exception {
+        super.init();
+    }
 
     @Override
     public  void doInit() throws Exception {
         getLog().debug("Initialising...");
-        factory = new DefaultImapFactory(getFileSystem(),usersRepos , getLog());
+        factory = new DefaultImapFactory(getFileSystem(), usersRepos, getLog());
+        factory.configure(configuration);
+
         factory.init();
     }
 
 
 
+    @Override
     public void onConfigure( final HierarchicalConfiguration configuration ) throws ConfigurationException {
-        factory.configure(configuration);
         hello  = softwaretype + " Server " + getHelloName() + " is ready.";
+        this.configuration = configuration;
     }
     
     /**
@@ -100,10 +110,13 @@ public class ImapServer extends AbstractProtocolServer implements ImapConstants,
     {  
         final ImapRequestHandler handler = factory.createHandler();
         final ImapHandler imapHandler = new ImapHandler(handler, hello); 
-        getLogger().debug("Create handler instance");
+        getLog().debug("Create handler instance");
         return imapHandler;
     }
     
+    /**
+     * @see org.apache.jsieve.mailet.Poster#post(java.lang.String, javax.mail.internet.MimeMessage)
+     */
     public void post(String url, MimeMessage mail)throws MessagingException {
         final int endOfScheme = url.indexOf(':');
         if (endOfScheme < 0) {
