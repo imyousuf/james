@@ -18,8 +18,6 @@
  ****************************************************************/
 
 
-
-
 package org.apache.james.management.impl;
 
 import java.io.BufferedReader;
@@ -35,17 +33,16 @@ import java.sql.SQLException;
 import java.sql.Connection;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import net.fortuna.mstor.data.MboxFile;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementMBean;
 import org.apache.james.management.BayesianAnalyzerManagementService;
@@ -58,7 +55,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 /**
  * Management for BayesianAnalyzer
  */
-public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementService, Serviceable, Initializable, Configurable, BayesianAnalyzerManagementMBean {
+public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementService, BayesianAnalyzerManagementMBean {
 
     private final static String HAM = "HAM";
     private final static String SPAM = "SPAM";
@@ -67,45 +64,47 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     private String repos;
     private String sqlFileUrl;
     private FileSystem fileSystem;
+    private Log logger;
+    private HierarchicalConfiguration configuration;
     
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        DataSourceSelector selector = (DataSourceSelector) arg0.lookup(DataSourceSelector.ROLE);
-        setDataSourceSelector(selector);
-        setFileSystem((FileSystem) arg0.lookup(FileSystem.ROLE));
-    }
-
     /**
      * Sets the file system service
      * 
      * @param system new service
      */
-    private void setFileSystem(FileSystem system) {
+    @Resource(name="org.apache.james.services.FileSystem")
+    public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
+
+    @PostConstruct
+    public void init() throws Exception {
+        configure();
         if (repos != null) {
             setDataSourceComponent((DataSourceComponent) selector.select(repos));
             File sqlFile = fileSystem.getFile(sqlFileUrl);
             analyzer.initSqlQueries(component.getConnection(), sqlFile.getAbsolutePath());
         }
     }
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLog(Log logger) {
+        this.logger = logger;
+    }
+    
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration arg0) throws ConfigurationException {
-        Configuration reposPath = arg0.getChild("repositoryPath",false);
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    private void configure() throws ConfigurationException {
+        String reposPath = configuration.getString("repositoryPath",null);
         if (reposPath != null) {
-            setRepositoryPath(reposPath.getValue());
+            setRepositoryPath(reposPath);
         }
-        sqlFileUrl = arg0.getChild("sqlFile").getValue();
+        sqlFileUrl = configuration.getString("sqlFile", null);
         if (sqlFileUrl == null) sqlFileUrl = "file://conf/sqlResources.xml";
     }
     

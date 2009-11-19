@@ -18,9 +18,6 @@
  ****************************************************************/
 package org.apache.james.management.impl;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.services.SpoolManager;
 import org.apache.james.management.ProcessorManagementMBean;
 import org.apache.james.management.ProcessorManagementService;
@@ -31,6 +28,7 @@ import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MatcherConfig;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
@@ -42,26 +40,22 @@ import java.util.List;
 /**
  * manage processors, mailets and matchers
  */
-public class ProcessorManagement implements Serviceable, ProcessorManagementService, ProcessorManagementMBean {
+public class ProcessorManagement implements ProcessorManagementService, ProcessorManagementMBean {
 
     private SpoolManager processorManager;
-
-    public void service(ServiceManager serviceManager) throws ServiceException {
-        SpoolManager processorManager = (SpoolManager)serviceManager.lookup(SpoolManager.ROLE);
-        setProcessorManager(processorManager);
-    }
 
     @PostConstruct
     public void init() {
         registerMBeans();
     }
     
+    @SuppressWarnings("unchecked")
     private void registerMBeans() {
-        ArrayList mBeanServers = MBeanServerFactory.findMBeanServer(null);
+        ArrayList<MBeanServer> mBeanServers = MBeanServerFactory.findMBeanServer(null);
         if (mBeanServers == null || mBeanServers.size() == 0) return; // no server to publish MBeans
 
         // take the first one
-        MBeanServer mBeanServer = (MBeanServer) mBeanServers.get(0);
+        MBeanServer mBeanServer = mBeanServers.get(0);
 
         String baseObjectName = "Phoenix:application=james,topic=ProcessorAdministration,block=ProcessorManagement,";
 
@@ -79,9 +73,9 @@ public class ProcessorManagement implements Serviceable, ProcessorManagementServ
         registerMBean(mBeanServer, processorMBeanName, processorMBean);
 
         // add all mailets but the last, because that is a terminator (see LinearProcessor.closeProcessorLists())
-        List mailetConfigs = processorManager.getMailetConfigs(processorName);
+        List<MailetConfig> mailetConfigs = processorManager.getMailetConfigs(processorName);
         for (int i = 0; i < mailetConfigs.size()-1; i++) {
-            MailetConfig mailetConfig = (MailetConfig) mailetConfigs.get(i);
+            MailetConfig mailetConfig = mailetConfigs.get(i);
 
             String mailetMBeanName = processorMBeanName + ",subtype=mailet,index=" + (i+1) + ",mailetname=" + mailetConfig.getMailetName();
             MailetManagement mailetMBean = new MailetManagement(mailetConfig);
@@ -89,9 +83,9 @@ public class ProcessorManagement implements Serviceable, ProcessorManagementServ
         }
 
         // add all matchers but the last, because that is a terminator (see LinearProcessor.closeProcessorLists())
-        List matcherConfigs = processorManager.getMatcherConfigs(processorName);
+        List<MatcherConfig> matcherConfigs = processorManager.getMatcherConfigs(processorName);
         for (int i = 0; i < matcherConfigs.size()-1; i++) {
-            MatcherConfig matcherConfig = (MatcherConfig) matcherConfigs.get(i);
+            MatcherConfig matcherConfig = matcherConfigs.get(i);
 
             String matcherMBeanName = processorMBeanName + ",subtype=matcher,index=" + (i+1) + ",matchername=" + matcherConfig.getMatcherName();
             MatcherManagement matcherMBean = new MatcherManagement(matcherConfig);
@@ -114,22 +108,29 @@ public class ProcessorManagement implements Serviceable, ProcessorManagementServ
         }
     }
 
+    @Resource(name="org.apache.james.services.SpoolManager")
     public void setProcessorManager(SpoolManager processorManager) {
         this.processorManager = processorManager;
     }
 
+    /**
+     * @see org.apache.james.management.ProcessorManagementMBean#getProcessorNames()
+     */
     public String[] getProcessorNames() {
         return processorManager.getProcessorNames();
     }
 
+    /**
+     * @see org.apache.james.management.ProcessorManagementService#getMailetNames(java.lang.String)
+     */
     public String[] getMailetNames(String processorName) {
-        List mailetConfigs = processorManager.getMailetConfigs(processorName);
+        List<MailetConfig> mailetConfigs = processorManager.getMailetConfigs(processorName);
         // always ommit the terminating mailet
         String[] mailetNames = new String[mailetConfigs.size()-1];
         int i = 0;
-        Iterator iterator = mailetConfigs.iterator();
+        Iterator<MailetConfig> iterator = mailetConfigs.iterator();
         while (iterator.hasNext()) {
-            MailetConfig mailetConfig = (MailetConfig) iterator.next();
+            MailetConfig mailetConfig = iterator.next();
             if (!iterator.hasNext()) continue; // ommit the terminating mailet
             String mailetName = mailetConfig.getMailetName();
             mailetNames[i] = mailetName;
@@ -138,14 +139,17 @@ public class ProcessorManagement implements Serviceable, ProcessorManagementServ
         return mailetNames;
     }
 
+    /**
+     * @see org.apache.james.management.ProcessorManagementService#getMatcherNames(java.lang.String)
+     */
     public String[] getMatcherNames(String processorName) {
-        List matcherConfigs = processorManager.getMatcherConfigs(processorName);
+        List<MatcherConfig> matcherConfigs = processorManager.getMatcherConfigs(processorName);
         // always ommit the terminating mailet
         String[] matcherNames = new String[matcherConfigs.size()-1];
         int i = 0;
-        Iterator iterator = matcherConfigs.iterator();
+        Iterator<MatcherConfig> iterator = matcherConfigs.iterator();
         while (iterator.hasNext()) {
-            MatcherConfig matcherConfig = (MatcherConfig) iterator.next();
+            MatcherConfig matcherConfig = iterator.next();
             if (!iterator.hasNext()) continue; // ommit the terminating mailet
             String matcherName = matcherConfig.getMatcherName();
             matcherNames[i] = matcherName;
@@ -154,17 +158,23 @@ public class ProcessorManagement implements Serviceable, ProcessorManagementServ
         return matcherNames;
     }
     
+    /**
+     * @see org.apache.james.management.ProcessorManagementService#getMatcherParameters(java.lang.String, int)
+     */
     public String[] getMatcherParameters(String processorName, int matcherIndex) {
-        List matcherConfigs = processorManager.getMatcherConfigs(processorName);
+        List<MatcherConfig> matcherConfigs = processorManager.getMatcherConfigs(processorName);
         if (matcherConfigs == null || matcherConfigs.size() < matcherIndex) return null;
-        MatcherConfig matcherConfig = (MatcherConfig)matcherConfigs.get(matcherIndex);
+        MatcherConfig matcherConfig = matcherConfigs.get(matcherIndex);
         return new String[] {matcherConfig.getCondition()};
     }
 
+    /**
+     * @see org.apache.james.management.ProcessorManagementService#getMailetParameters(java.lang.String, int)
+     */
     public String[] getMailetParameters(String processorName, int mailetIndex) {
-        List mailetConfigs = processorManager.getMailetConfigs(processorName);
+        List<MailetConfig> mailetConfigs = processorManager.getMailetConfigs(processorName);
         if (mailetConfigs == null || mailetConfigs.size() < mailetIndex) return null;
-        MailetConfig mailetConfig = (MailetConfig) mailetConfigs.get(mailetIndex);
+        MailetConfig mailetConfig = mailetConfigs.get(mailetIndex);
         return MailetManagement.getMailetParameters(mailetConfig);
     }
 
