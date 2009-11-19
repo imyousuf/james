@@ -23,9 +23,8 @@ package org.apache.james.management.impl;
 
 import java.util.List;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import javax.annotation.Resource;
+
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.management.DomainListManagementException;
@@ -35,16 +34,10 @@ import org.apache.james.management.DomainListManagementService;
 /**
  * Provide management class for DomainLists
  */
-public class DomainListManagement implements DomainListManagementService,DomainListManagementMBean,Serviceable {
+public class DomainListManagement implements DomainListManagementService,DomainListManagementMBean {
     private DomainList domList;
     
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(org.apache.avalon.framework.service.ServiceManager)
-     */
-    public void service(ServiceManager arg0) throws ServiceException {
-        setDomainList((DomainList) arg0.lookup(DomainList.ROLE));
-    }
-    
+    @Resource(name="org.apache.james.api.domainlist.DomainList")
     public void setDomainList(DomainList domList) {
         this.domList = domList;
     }
@@ -91,7 +84,7 @@ public class DomainListManagement implements DomainListManagementService,DomainL
     /**
      * @see org.apache.james.management.DomainListManagementService#getDomains()
      */
-    public List getDomains() {
+    public List<String> getDomains() {
         return domList.getDomains();
     }
 }

@@ -52,7 +52,7 @@ public interface DomainListManagementService {
      * 
      * @return domains
      */
-    public List getDomains();
+    public List<String> getDomains();
     
     /**
      * Return true if the domain exists in the service 

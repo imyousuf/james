@@ -47,12 +47,12 @@ public class SpoolFilter {
     /**
      * Map<String headerName, String headerValueRegex>
      */
-    private final Map headerFilters = new HashMap();
+    private final Map<String,String> headerFilters = new HashMap<String,String>();
 
     /**
      * Map<String headerName, Pattern>
      */
-    private final Map headerFiltersCompiled = new HashMap();
+    private final Map<String,Pattern> headerFiltersCompiled = new HashMap<String,Pattern>();
 
     /**
      * Construct the SpoolFilter
@@ -92,7 +92,7 @@ public class SpoolFilter {
      * @param state the message state on which message the filter should be used
      * @param headerFilters a Map which contains filters to use
      */
-    public SpoolFilter(String state, Map headerFilters) {
+    public SpoolFilter(String state, Map <String,String>headerFilters) {
         this.state = state;
         this.headerFilters.putAll(headerFilters);
         this.headerFilters.remove(null); // NULL is not acceptable here
@@ -134,7 +134,7 @@ public class SpoolFilter {
      * 
      * @return headers an Iterator which contains all headers which should be filtered
      */
-    public Iterator getHeaders() {
+    public Iterator<String> getHeaders() {
         return headerFilters.keySet().iterator();
     }
 

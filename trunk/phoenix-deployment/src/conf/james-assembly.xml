@@ -78,17 +78,17 @@
   <block name="dnsserver" class="org.apache.james.dnsserver.AvalonDNSServer" />
 
   <!-- The Spool Management block  -->
-  <block name="spoolmanagement" class="org.apache.james.management.impl.SpoolManagement" >
+  <block name="spoolmanagement" class="org.apache.james.management.impl.AvalonSpoolManagement" >
       <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
       <proxy disable='true'/>
   </block>
   
-  <block name="processormanagement" class="org.apache.james.management.impl.ProcessorManagement" >
+  <block name="processormanagement" class="org.apache.james.management.impl.AvalonProcessorManagement" >
       <provide name="spoolmanager" role="org.apache.james.services.SpoolManager"/>
       <proxy disable='true'/>
   </block>
 
-  <block name="bayesiananalyzermanagement" class="org.apache.james.management.impl.BayesianAnalyzerManagement" >
+  <block name="bayesiananalyzermanagement" class="org.apache.james.management.impl.AvalonBayesianAnalyzerManagement" >
       <provide name="database-connections"
              role="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" />
     <provide name="filesystem" role="org.apache.james.services.FileSystem" />
@@ -342,7 +342,7 @@
   
   <!-- #################################################################### -->
   
-  <block name="domainlistmanagement" class="org.apache.james.management.impl.DomainListManagement">
+  <block name="domainlistmanagement" class="org.apache.james.management.impl.AvalonDomainListManagement">
     <provide name="domainlist"
              role="org.apache.james.api.domainlist.DomainList"/>
     <proxy disable='true'/>
