@@ -60,18 +60,18 @@
   </block>
    
   <!-- The James Spool Manager block  -->
-  <block name="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" >
+  <block name="spoolmanager" class="org.apache.james.transport.AvalonJamesSpoolManager" >
     <provide name="spoolrepository" role="org.apache.james.services.SpoolRepository"/>
     <provide name="matcherpackages" role="org.apache.james.transport.MatcherLoader"/>
     <provide name="mailetpackages" role="org.apache.james.transport.MailetLoader"/>
     <proxy disable='true'/>
   </block>
 
-  <block name="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" >
+  <block name="matcherpackages" class="org.apache.james.transport.AvalonJamesMatcherLoader" >
     <proxy disable='true'/>
   </block>
 
-  <block name="mailetpackages" class="org.apache.james.transport.JamesMailetLoader" >
+  <block name="mailetpackages" class="org.apache.james.transport.AvalonJamesMailetLoader" >
     <proxy disable='true'/>
   </block>
 

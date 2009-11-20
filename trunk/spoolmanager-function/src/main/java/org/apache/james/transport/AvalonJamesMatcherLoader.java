@@ -18,31 +18,24 @@
  ****************************************************************/
 
 
-
 package org.apache.james.transport;
-
-import org.apache.commons.configuration.Configuration;
-import org.apache.mailet.Mailet;
 
 import javax.mail.MessagingException;
 
-public interface MailetLoader {
+import org.apache.mailet.Matcher;
+import org.guiceyfruit.jsr250.Jsr250Module;
 
-    /**
-     * The component role used by components implementing this service
-     */
-    String ROLE = "org.apache.james.transport.MailetLoader";
+import com.google.inject.Guice;
 
-    /**
-     * Get a new Mailet with the specified name acting
-     * in the specified context.
-     *
-     * @param mailetName the name of the mailet to be loaded
-     * @param configuration the Configuration to be passed to the new
-     *                mailet
-     * @throws MessagingException if an error occurs
-     */
-    public Mailet getMailet(String mailetName, Configuration configuration)
-            throws MessagingException;
+public class AvalonJamesMatcherLoader extends AbstractAvalonJamesLoader implements MatcherLoader{
+
+    private MatcherLoader loader;
+    public void initialize() throws Exception {
+        loader = Guice.createInjector(new Jsr250Module(), new Module()).getInstance(JamesMatcherLoader.class);
+    }
+
+    public Matcher getMatcher(String matchName) throws MessagingException {
+        return loader.getMatcher(matchName);
+    }
 
 }

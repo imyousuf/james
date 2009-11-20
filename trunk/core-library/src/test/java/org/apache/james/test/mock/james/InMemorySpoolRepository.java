@@ -55,7 +55,7 @@ public class InMemorySpoolRepository
     protected final static boolean DEEP_DEBUG = true;
     private Lock lock;
     private MockLogger logger;
-    private Hashtable spool;
+    private Hashtable<String, Mail> spool;
 
     private MockLogger getLogger() {
         if (logger == null) {
@@ -233,10 +233,10 @@ public class InMemorySpoolRepository
      * @throws MessagingException
      * @since 2.2.0
      */
-    public void remove(Collection mails) throws MessagingException {
-        Iterator delList = mails.iterator();
+    public void remove(Collection<Mail> mails) throws MessagingException {
+        Iterator<Mail> delList = mails.iterator();
         while (delList.hasNext()) {
-            remove((Mail)delList.next());
+            remove(delList.next());
         }
     }
 
@@ -271,12 +271,12 @@ public class InMemorySpoolRepository
      * @return an <code>Iterator</code> over the list of keys in the repository
      *
      */
-    public Iterator list() {
+    public Iterator<String> list() {
         // Fix ConcurrentModificationException by cloning 
         // the keyset before getting an iterator
-        final ArrayList clone;
+        final ArrayList<String> clone;
         synchronized(spool) {
-            clone = new ArrayList(spool.keySet());
+            clone = new ArrayList<String>(spool.keySet());
         }
         return clone.iterator();
     }
@@ -377,8 +377,8 @@ public class InMemorySpoolRepository
             getLogger().debug("Method accept(Filter) called");
         }
         while (!Thread.currentThread().isInterrupted()) try {
-            for (Iterator it = list(); it.hasNext(); ) {
-                String s = it.next().toString();
+            for (Iterator<String> it = list(); it.hasNext(); ) {
+                String s = it.next();
                 if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
                     StringBuffer logBuffer =
                         new StringBuffer(64)
@@ -426,7 +426,7 @@ public class InMemorySpoolRepository
      * 
      */
     public InMemorySpoolRepository() {
-        spool = new Hashtable();
+        spool = new Hashtable<String,Mail>();
         lock = new Lock();
     }
 
@@ -436,9 +436,9 @@ public class InMemorySpoolRepository
 
     public void clear() {
         if (spool != null) {
-            Iterator i = list();
+            Iterator<String> i = list();
             while (i.hasNext()) {
-                String key = (String) i.next();
+                String key = i.next();
                 try {
                     remove(key);
                 } catch (MessagingException e) {
@@ -454,7 +454,7 @@ public class InMemorySpoolRepository
     public String toString() {
         StringBuffer result = new StringBuffer();
         result.append(super.toString());
-        Iterator i = list();
+        Iterator<String> i = list();
         while (i.hasNext()) {
             result.append("\n\t"+i.next());
         }
