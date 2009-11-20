@@ -21,25 +21,21 @@
 
 package org.apache.james.management.impl;
 
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.management.SpoolFilter;
-import org.apache.james.management.SpoolManagementException;
-import org.apache.james.management.impl.SpoolManagement;
-import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.test.mock.james.InMemorySpoolRepository;
-import org.apache.mailet.base.test.FakeMimeMessage;
-import org.apache.mailet.base.test.FakeMail;
-import org.apache.mailet.base.test.MailUtil;
-import org.apache.mailet.Mail;
+import java.util.HashMap;
 
 import javax.mail.MessagingException;
 
-import java.util.HashMap;
-
 import junit.framework.TestCase;
+
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.management.SpoolFilter;
+import org.apache.james.management.SpoolManagementException;
+import org.apache.james.test.mock.avalon.MockStore;
+import org.apache.james.test.mock.james.InMemorySpoolRepository;
+import org.apache.mailet.Mail;
+import org.apache.mailet.base.test.FakeMail;
+import org.apache.mailet.base.test.FakeMimeMessage;
+import org.apache.mailet.base.test.MailUtil;
 
 /**
  * Tests the SpoolManagement
@@ -54,8 +50,11 @@ public class SpoolManagementTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_spoolManagement = new SpoolManagement();
-        ContainerUtil.enableLogging(m_spoolManagement, new MockLogger());
-        ContainerUtil.service(m_spoolManagement, setUpServiceManager());
+        m_mockSpoolRepository = new InMemorySpoolRepository();
+        m_mockStore = new MockStore();
+        m_mockStore.add("outgoing", m_mockSpoolRepository);
+        m_spoolManagement.setStore(m_mockStore);
+        
     }
 
     protected void tearDown() throws Exception {
@@ -63,15 +62,6 @@ public class SpoolManagementTest extends TestCase {
             ContainerUtil.dispose(m_mockSpoolRepository);
         }
         super.tearDown();
-    }
-
-    private MockServiceManager setUpServiceManager() {
-        MockServiceManager serviceManager = new MockServiceManager();
-        m_mockStore = new MockStore();
-        serviceManager.put(Store.ROLE, m_mockStore);
-        m_mockSpoolRepository = new InMemorySpoolRepository();
-        m_mockStore.add("outgoing", m_mockSpoolRepository);
-        return serviceManager;
     }
 
     public void testListSpoolItemsDontFilter() throws SpoolManagementException, MessagingException {
@@ -122,7 +112,7 @@ public class SpoolManagementTest extends TestCase {
         assertEquals("find first mail", 1, mailList.length);
         assertTrue("finds only default mail", mailList[0].indexOf(messageID1) >= 0);
 
-        HashMap headerMap = new HashMap();
+        HashMap<String,String> headerMap = new HashMap<String,String>();
         headerMap.put("TestHeader", "(.*)1");
         headerMap.put("to", "test2@james.apache.org");
         SpoolFilter matchableFilterWith2Headers = new SpoolFilter(null, headerMap);
@@ -130,7 +120,7 @@ public class SpoolManagementTest extends TestCase {
         assertEquals("find one mail", 1, mailList.length);
         assertTrue("finds only default mail", mailList[0].indexOf(messageID1) >= 0);
 
-        headerMap = new HashMap();
+        headerMap = new HashMap<String,String>();
         headerMap.put("TestHeader", "(.*)1");
         headerMap.put("UNmatchABLE", "test2@james.apache.org");
         SpoolFilter unmatchableFilterWith2Headers = new SpoolFilter(null, headerMap);
