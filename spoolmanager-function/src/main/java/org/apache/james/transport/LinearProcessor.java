@@ -32,6 +32,7 @@ import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.base.MatcherInverter;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.base.GenericMatcher;
@@ -625,7 +626,7 @@ public class LinearProcessor
                 throw new ConfigurationException("Unable to init matcher",c,ex);
             }
             try {
-                mailet = mailetLoader.getMailet(mailetClassName, c);
+                mailet = mailetLoader.getMailet(mailetClassName, new ConfigurationAdapter(c));
                 if (getLogger().isInfoEnabled()) {
                     StringBuffer infoBuffer =
                         new StringBuffer(64)
@@ -651,6 +652,9 @@ public class LinearProcessor
                 System.err.println("Unable to init mailet " + mailetClassName);
                 System.err.println("Check spool manager logs for more details.");
                 throw new ConfigurationException("Unable to init mailet",c,ex);
+            } catch (org.apache.commons.configuration.ConfigurationException e) {
+                throw new ConfigurationException("Unable to wrap config",e);
+
             }
             //Add this pair to the processor
             add(matcher, mailet);

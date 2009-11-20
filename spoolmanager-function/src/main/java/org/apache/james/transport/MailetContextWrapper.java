@@ -6,7 +6,7 @@ import java.util.Iterator;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.commons.logging.Log;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
@@ -19,7 +19,7 @@ final class MailetContextWrapper implements MailetContext {
     /** the mailetContext */
     private MailetContext mailetContext;
     /** the logger */
-    private Logger logger;
+    private Log logger;
 
     /**
      * Create a mailetContext wrapper that use a different logger for the log
@@ -28,7 +28,7 @@ final class MailetContextWrapper implements MailetContext {
      * @param mailetContext the mailet context to be wrapped
      * @param logger the logger to be used instead of the parent one. 
      */
-    public MailetContextWrapper(MailetContext mailetContext, Logger logger) {
+    public MailetContextWrapper(MailetContext mailetContext, Log logger) {
         this.mailetContext = mailetContext;
         this.logger = logger;
     }

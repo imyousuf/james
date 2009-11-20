@@ -23,30 +23,32 @@ package org.apache.james.transport;
 
 import junit.framework.TestCase;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.test.util.Util;
 import org.apache.james.transport.mailets.MailetLoaderTestMailet;
+import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 
 import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class JamesMailetLoaderTest extends TestCase {
     private JamesMailetLoader m_jamesMailetLoader  = new JamesMailetLoader();
     private JamesMailetLoaderConfiguration m_conf = new JamesMailetLoaderConfiguration();
 
     private class JamesMailetLoaderConfiguration extends DefaultConfiguration {
-        private ArrayList m_packageNames = new ArrayList();
+        private List<String> m_packageNames = new ArrayList<String>();
         
         public JamesMailetLoaderConfiguration() {
             super("mailetpackages");
         }
 
         public void init() {
-            for (Iterator iterator = m_packageNames.iterator(); iterator.hasNext();) {
+            for (Iterator<String> iterator = m_packageNames.iterator(); iterator.hasNext();) {
                 String packageName = (String) iterator.next();
                 addChild(Util.getValuedConfiguration("mailetpackage", packageName));
             }
@@ -63,11 +65,12 @@ public class JamesMailetLoaderTest extends TestCase {
 
     }
 
-    private void setUpLoader() throws ConfigurationException {
+    private void setUpLoader() throws Exception {
         m_conf.init();
-        m_jamesMailetLoader.enableLogging(new MockLogger());
-        m_jamesMailetLoader.configure(m_conf);
+        m_jamesMailetLoader.setLogger(new SimpleLog("Test"));
+        m_jamesMailetLoader.setConfiguration(new ConfigurationAdapter(m_conf));
         m_jamesMailetLoader.setLoaderService(new FakeLoaderService());
+        m_jamesMailetLoader.init();
     }
 
     private void assetIsNullMailet(Mailet mailet) {
@@ -76,11 +79,11 @@ public class JamesMailetLoaderTest extends TestCase {
     }
 
 
-    public void testUsingEmtpyConfig() throws ConfigurationException {
+    public void testUsingEmtpyConfig() throws Exception {
         setUpLoader();
     }
 
-    public void testFullQualifiedUsingFakeConfig() throws ConfigurationException, MessagingException {
+    public void testFullQualifiedUsingFakeConfig() throws Exception {
         m_conf.add("none.existing.package"); // has to be here so the Loader won't choke
         setUpLoader();
 
@@ -88,7 +91,7 @@ public class JamesMailetLoaderTest extends TestCase {
         assetIsNullMailet(mailet);
     }
 
-    public void testStandardMailets() throws ConfigurationException, MessagingException {
+    public void testStandardMailets() throws Exception {
         m_conf.addStandardPackages();
         setUpLoader();
 
@@ -102,7 +105,7 @@ public class JamesMailetLoaderTest extends TestCase {
 
     }
 
-    public void testTestMailets() throws ConfigurationException, MessagingException {
+    public void testTestMailets() throws Exception {
         m_conf.addStandardPackages();
         setUpLoader();
 
@@ -114,8 +117,8 @@ public class JamesMailetLoaderTest extends TestCase {
 
     private void checkTestMailet(String mailetName) throws MessagingException {
         // use standard package
-        DefaultConfiguration configuration = new DefaultConfiguration("mailetLoaderTest");
-        configuration.addChild(Util.getValuedConfiguration("testMailetKey", "testMailetValue"));
+        DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
+        configuration.addProperty("testMailetKey", "testMailetValue");
 
         Mailet mailet = m_jamesMailetLoader.getMailet(mailetName, configuration);
         assertTrue("MailetLoaderTestMailet mailet is expected class", mailet instanceof MailetLoaderTestMailet);

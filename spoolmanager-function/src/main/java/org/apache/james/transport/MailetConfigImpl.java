@@ -21,8 +21,7 @@
 
 package org.apache.james.transport;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.Configuration;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
 
@@ -68,24 +67,7 @@ public class MailetConfigImpl implements MailetConfig {
      * @return the parameter value
      */
     public String getInitParameter(String name) {
-        try {
-            String result = null;
-
-            final Configuration[] values = configuration.getChildren( name );
-            for ( int i = 0; i < values.length; i++ ) {
-                if (result == null) {
-                    result = "";
-                } else {
-                    result += ",";
-                }
-                Configuration conf = values[i];
-                result += conf.getValue();
-            }
-            return result;
-        } catch (ConfigurationException ce) {
-            throw new RuntimeException("Embedded configuration exception was: " + ce.getMessage());
-        }
-
+        return configuration.getString(name);
     }
 
     /**
@@ -93,26 +75,9 @@ public class MailetConfigImpl implements MailetConfig {
      *
      * @return an iterator over the set of configuration parameter names.
      */
+    @SuppressWarnings("unchecked")
     public Iterator<String> getInitParameterNames() {
-        return new Iterator<String> () {
-            Configuration[] children;
-            int count = 0;
-            {
-                children = configuration.getChildren();
-            }
-
-            public boolean hasNext() {
-                return count < children.length;
-            }
-
-            public String next() {
-                return children[count++].getName();
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException ("remove not supported");
-            }
-        };
+        return configuration.getKeys();
     }
 
     /**
@@ -123,7 +88,7 @@ public class MailetConfigImpl implements MailetConfig {
      * @return the attribute value or null if missing
      */
     public String getInitAttribute(String name) {
-        return configuration.getAttribute(name, null);
+        return configuration.getString("[@" +name+ "]", null);
     }
 
     /**

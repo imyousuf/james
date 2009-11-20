@@ -19,14 +19,16 @@
 
 
 package org.apache.james.transport;
+import java.util.List;
 import java.util.Vector;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
@@ -34,7 +36,7 @@ import org.apache.mailet.MailetException;
 /**
  * Common services for loaders.
  */
-public abstract class AbstractLoader extends AbstractLogEnabled implements Configurable {
+public abstract class AbstractLoader {
 
     /**
      * The list of packages that may contain Mailets or matchers
@@ -47,6 +49,10 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Confi
     protected MailetContext mailetContext;
 
     private LoaderService loaderService;
+
+    private Log logger;
+
+    private HierarchicalConfiguration config;
 
     
     /**
@@ -66,42 +72,55 @@ public abstract class AbstractLoader extends AbstractLogEnabled implements Confi
         this.loaderService = loaderService;
     }
 
+    @Resource(name="org.apache.commons.logging.Log")
+    public final void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public final void setConfiguration(HierarchicalConfiguration config) {
+        this.config = config;
+    }
     /**
      * Set the MailetContext
      * 
      * @param mailetContext the MailetContext
      */
- // Pheonix used to play games with service names
- // TODO: Support type based injection
-    @Resource(name="James") 
+    @Resource(name="org.apache.mailet.MailetContext") 
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }
 
+    protected Log getLogger() {
+        return logger;
+    }
     protected Object load(String className) throws ClassNotFoundException {
         final Object newInstance = loaderService.load(Thread.currentThread().getContextClassLoader().loadClass(className));
         return newInstance;
     }
 
-    protected void getPackages(Configuration conf, String packageType)
+    @SuppressWarnings("unchecked")
+    protected void getPackages(HierarchicalConfiguration conf, String packageType)
         throws ConfigurationException {
         packages = new Vector<String>();
         packages.addElement("");
-        final Configuration[] pkgConfs = conf.getChildren(packageType);
-        for (int i = 0; i < pkgConfs.length; i++) {
-            Configuration c = pkgConfs[i];
-            String packageName = c.getValue();
+        final List<String> pkgConfs = conf.getList(packageType);
+        for (int i = 0; i < pkgConfs.size(); i++) {
+            String packageName = pkgConfs.get(i);
             if (!packageName.endsWith(".")) {
                 packageName += ".";
             }
             packages.addElement(packageName);
         }
     }
+    
+    @PostConstruct
+    public void init() throws Exception {
+        configure(config);
+    }
         
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public abstract void configure(Configuration arg0) throws ConfigurationException;
+    protected abstract void configure(HierarchicalConfiguration arg0) throws ConfigurationException;
     
     /**
      * Gets a human readable description of the loader.

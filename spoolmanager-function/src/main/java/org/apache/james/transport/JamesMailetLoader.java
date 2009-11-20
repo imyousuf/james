@@ -19,10 +19,12 @@
 
 
 package org.apache.james.transport;
+import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.mailet.Mailet;
 /**
  * Loads Mailets for use inside James.
@@ -34,15 +36,22 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
     
     private final String MAILET_PACKAGE = "mailetpackage";
     
+
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+    }
+    
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.transport.AbstractLoader#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(Configuration conf) throws ConfigurationException {
+    public void configure(HierarchicalConfiguration conf) throws ConfigurationException {
         getPackages(conf,MAILET_PACKAGE);
     }
 
     /**
-     * @see org.apache.james.transport.MailetLoader#getMailet(java.lang.String, org.apache.avalon.framework.configuration.Configuration)
+     * (non-Javadoc)
+     * @see org.apache.james.transport.MailetLoader#getMailet(java.lang.String, org.apache.commons.configuration.Configuration)
      */
     public Mailet getMailet(final String mailetName, final Configuration configuration) throws MessagingException {
         try {
@@ -54,7 +63,7 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
                     final MailetConfigImpl configImpl = new MailetConfigImpl();
                     configImpl.setMailetName(mailetName);
                     configImpl.setConfiguration(configuration);
-                    configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger().getChildLogger(mailetName))); 
+                    configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger())); 
                     mailet.init(configImpl);
                     
                     return mailet;
@@ -66,6 +75,7 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
+            e.printStackTrace();
             throw loadFailed(mailetName, e);
         }
     }

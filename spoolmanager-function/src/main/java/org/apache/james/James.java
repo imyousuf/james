@@ -440,7 +440,11 @@ public class James
         DefaultConfiguration conf = new DefaultConfiguration("mailet", "generated:James.initialize()");
         MailetConfigImpl configImpl = new MailetConfigImpl();
         configImpl.setMailetName("LocalDelivery");
-        configImpl.setConfiguration(conf);
+        try {
+            configImpl.setConfiguration(new ConfigurationAdapter(conf));
+        } catch (org.apache.commons.configuration.ConfigurationException e) {
+            throw new MessagingException(e.getMessage());
+        }
         configImpl.setMailetContext(this);
         localDeliveryMailet = new LocalDelivery();
         localDeliveryMailet.init(configImpl);

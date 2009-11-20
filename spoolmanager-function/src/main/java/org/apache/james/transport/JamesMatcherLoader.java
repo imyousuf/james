@@ -20,10 +20,11 @@
 
 
 package org.apache.james.transport;
+import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.mailet.Matcher;
 /**
  * Loads Matchers for use inside James.
@@ -33,10 +34,17 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
     private static final String DISPLAY_NAME = "matcher";
     private final String MATCHER_PACKAGE = "matcherpackage";
 
+    
+    @PostConstruct
+    public void init() throws Exception {
+        super.init();
+    }
+    
+    
     /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.transport.AbstractLoader#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(Configuration conf) throws ConfigurationException {
+    public void configure(HierarchicalConfiguration conf) throws ConfigurationException {
            getPackages(conf,MATCHER_PACKAGE);
     }
 
@@ -59,7 +67,7 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
                     final MatcherConfigImpl configImpl = new MatcherConfigImpl();
                     configImpl.setMatcherName(matchName);
                     configImpl.setCondition(condition);
-                    configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger().getChildLogger(matchName)));
+                    configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger()));
                     matcher.init(configImpl);
                     
                     return matcher;

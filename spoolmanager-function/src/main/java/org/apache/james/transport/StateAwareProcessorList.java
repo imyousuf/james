@@ -21,22 +21,25 @@
 
 package org.apache.james.transport;
 
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
+import org.guiceyfruit.jsr250.Jsr250Module;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.name.Names;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,81 +48,82 @@ import java.util.Map;
  *
  * @version CVS $Revision: 405882 $ $Date: 2006-05-12 23:30:04 +0200 (ven, 12 mag 2006) $
  */
-public class StateAwareProcessorList
-    extends AbstractLogEnabled
-    implements Serviceable, Configurable, Initializable, Disposable, MailProcessor, ProcessorList {
-
-    /**
-     * System component manager
-     */
-    private ServiceManager compMgr;
-
-    /**
-     * The configuration object used by this spool manager.
-     */
-    private Configuration conf;
+public class StateAwareProcessorList implements MailProcessor, ProcessorList {
 
     /**
      * The map of processor names to processors
      */
     private final Map<String, MailProcessor> processors;
+
+    private Log logger;
+
+    private HierarchicalConfiguration config;
     
     public StateAwareProcessorList() {
         super();
         this.processors = new HashMap<String, MailProcessor>();
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager comp) throws ServiceException {
-        compMgr = comp;
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public final void setLogger(Log logger) {
+        this.logger = logger;
     }
-
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration conf) throws ConfigurationException {
-        this.conf = conf;
+    
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public final void setConfiguration(HierarchicalConfiguration config) {
+        this.config = config;
     }
+    
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
-    public void initialize() throws Exception {
-
-        final Configuration[] processorConfs = conf.getChildren( "processor" );
-        for ( int i = 0; i < processorConfs.length; i++ )
+    @SuppressWarnings("unchecked")
+    @PostConstruct
+    public void init() throws Exception {
+        final List<HierarchicalConfiguration> processorConfs = config.configurationsAt( "processor" );
+        for ( int i = 0; i < processorConfs.size(); i++ )
         {
-            Configuration processorConf = processorConfs[i];
-            String processorName = processorConf.getAttribute("name");
-            String processorClass = processorConf.getAttribute("class","org.apache.james.transport.LinearProcessor");
+            final HierarchicalConfiguration processorConf = processorConfs.get(i);
+            String processorName = processorConf.getString("[@name]");
+            String processorClass = processorConf.getString("[@class]","org.apache.james.transport.LinearProcessor");
 
             try {
-                MailProcessor processor = (MailProcessor) Thread.currentThread().getContextClassLoader().loadClass(processorClass).newInstance();
+                Class<MailProcessor> cObj = (Class<MailProcessor>) Thread.currentThread().getContextClassLoader().loadClass(processorClass);
+                MailProcessor processor = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
+
+                    @Override
+                    protected void configure() {
+                        bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(processorConf);
+                        bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
+                    }
+                    
+                }).getInstance(cObj);
                 processors.put(processorName, processor);
                 
-                setupLogger(processor, processorName);
-                ContainerUtil.service(processor, compMgr);
-                ContainerUtil.configure(processor, processorConf);
+                //setupLogger(processor, processorName);
+                //ContainerUtil.service(processor, compMgr);
+                //ContainerUtil.configure(processor, processorConf);
                 
-                if (getLogger().isInfoEnabled()) {
+                if (logger.isInfoEnabled()) {
                     StringBuffer infoBuffer =
                         new StringBuffer(64)
                                 .append("Processor ")
                                 .append(processorName)
                                 .append(" instantiated.");
-                    getLogger().info(infoBuffer.toString());
+                    logger.info(infoBuffer.toString());
                 }
             } catch (Exception ex) {
-                if (getLogger().isErrorEnabled()) {
+                if (logger.isErrorEnabled()) {
                     StringBuffer errorBuffer =
                        new StringBuffer(256)
                                .append("Unable to init processor ")
                                .append(processorName)
                                .append(": ")
                                .append(ex.toString());
-                    getLogger().error( errorBuffer.toString(), ex );
+                    logger.error( errorBuffer.toString(), ex );
                 }
                 throw ex;
             }
@@ -152,30 +156,30 @@ public class StateAwareProcessorList
                             .append(" requested for processing of ")
                             .append(mail.getName());
                     String exceptionMessage = exceptionMessageBuffer.toString();
-                    getLogger().debug(exceptionMessage);
+                    logger.debug(exceptionMessage);
                     mail.setState(Mail.ERROR);
                     throw new MailetException(exceptionMessage);
                 }
                 StringBuffer logMessageBuffer = null;
-                if (getLogger().isDebugEnabled()) {
+                if (logger.isDebugEnabled()) {
                     logMessageBuffer =
                         new StringBuffer(64)
                                 .append("Processing ")
                                 .append(mail.getName())
                                 .append(" through ")
                                 .append(processorName);
-                    getLogger().debug(logMessageBuffer.toString());
+                    logger.debug(logMessageBuffer.toString());
                 }
                 processor.service(mail);
-                if (getLogger().isDebugEnabled()) {
+                if (logger.isDebugEnabled()) {
                     logMessageBuffer =
                         new StringBuffer(128)
                                 .append("Processed ")
                                 .append(mail.getName())
                                 .append(" through ")
                                 .append(processorName);
-                    getLogger().debug(logMessageBuffer.toString());
-                    getLogger().debug("Result was " + mail.getState());
+                    logger.debug(logMessageBuffer.toString());
+                    logger.debug("Result was " + mail.getState());
                 }
                 return;
             } catch (Throwable e) {
@@ -186,7 +190,7 @@ public class StateAwareProcessorList
                             .append("Exception in processor <")
                             .append(processorName)
                             .append(">");
-                getLogger().error(exceptionBuffer.toString(), e);
+                logger.error(exceptionBuffer.toString(), e);
                 if (processorName.equals(Mail.ERROR)) {
                     // We got an error on the error processor...
                     // kill the message
@@ -201,15 +205,15 @@ public class StateAwareProcessorList
                     mail.setErrorMessage(e.getMessage());
                 }
             }
-            if (getLogger().isErrorEnabled()) {
+            if (logger.isErrorEnabled()) {
                 StringBuffer logMessageBuffer =
                     new StringBuffer(128)
                             .append("An error occurred processing ")
                             .append(mail.getName())
                             .append(" through ")
                             .append(processorName);
-                getLogger().error(logMessageBuffer.toString());
-                getLogger().error("Result was " + mail.getState());
+                logger.error(logMessageBuffer.toString());
+                logger.error("Result was " + mail.getState());
             }
         }
     }
@@ -224,15 +228,15 @@ public class StateAwareProcessorList
      *
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
+    @PreDestroy
     public void dispose() {
         Iterator<String> it = processors.keySet().iterator();
         while (it.hasNext()) {
             String processorName = it.next();
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Processor " + processorName);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Processor " + processorName);
             }
             Object processor = processors.get(processorName);
-            ContainerUtil.dispose(processor);
             processors.remove(processor);
         }
     }
