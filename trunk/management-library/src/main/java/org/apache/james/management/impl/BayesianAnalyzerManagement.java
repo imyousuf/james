@@ -122,6 +122,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
      * 
      * @param selector The DataSourceSelector
      */
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
     public void setDataSourceSelector (DataSourceSelector selector) {
         this.selector = selector;
     }
