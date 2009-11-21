@@ -58,6 +58,10 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
     private Log logger;
 
     private HierarchicalConfiguration config;
+
+    private MailetLoader mailetLoader;
+
+    private MatcherLoader matcherLoader;
     
     public StateAwareProcessorList() {
         super();
@@ -76,6 +80,15 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
         this.config = config;
     }
     
+    @Resource(name="org.apache.james.transport.MailetLoader")
+    public final void setMailetLoader(MailetLoader mailetLoader) {
+        this.mailetLoader = mailetLoader;
+    }
+    
+    @Resource(name="org.apache.james.transport.MatcherLoader")
+    public final void setMatcherLoader(MatcherLoader matcherLoader) {
+        this.matcherLoader = matcherLoader;
+    }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
@@ -98,6 +111,9 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
                     protected void configure() {
                         bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(processorConf);
                         bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
+                        bind(MailetLoader.class).annotatedWith(Names.named("org.apache.james.transport.MailetLoader")).toInstance(mailetLoader);
+                        bind(MatcherLoader.class).annotatedWith(Names.named("org.apache.james.transport.MatcherLoader")).toInstance(matcherLoader);
+
                     }
                     
                 }).getInstance(cObj);

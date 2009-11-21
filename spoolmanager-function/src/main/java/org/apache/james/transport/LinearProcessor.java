@@ -21,31 +21,6 @@
 
 package org.apache.james.transport;
 
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.core.MailImpl;
-import org.apache.james.services.SpoolRepository;
-import org.apache.james.util.ConfigurationAdapter;
-import org.apache.mailet.base.MatcherInverter;
-import org.apache.mailet.base.GenericMailet;
-import org.apache.mailet.base.GenericMatcher;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.Mailet;
-import org.apache.mailet.MailetConfig;
-import org.apache.mailet.MailetException;
-import org.apache.mailet.Matcher;
-import org.apache.mailet.MatcherConfig;
-
-import javax.mail.MessagingException;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -54,6 +29,28 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+import javax.mail.MessagingException;
+
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.logging.Log;
+import org.apache.james.core.MailImpl;
+import org.apache.james.services.SpoolRepository;
+import org.apache.james.util.ConfigurationAdapter;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
+import org.apache.mailet.MailetException;
+import org.apache.mailet.Matcher;
+import org.apache.mailet.MatcherConfig;
+import org.apache.mailet.base.GenericMailet;
+import org.apache.mailet.base.GenericMatcher;
+import org.apache.mailet.base.MatcherInverter;
 
 /**
  * Implements a processor for mails, directing the mail down
@@ -88,9 +85,7 @@ import java.util.Locale;
  * <P>CVS $Id$</P>
  * @version 2.2.0
  */
-public class LinearProcessor 
-    extends AbstractLogEnabled
-    implements Disposable, Configurable, Serviceable, MailProcessor, MailetContainer {
+public class LinearProcessor implements  MailProcessor, MailetContainer {
 
     /**
      *  The name of the matcher used to terminate the matcher chain.  The
@@ -119,6 +114,8 @@ public class LinearProcessor
 
     private MatcherLoader matchLoader;
 
+    private Log logger;
+
     /**
      * Set the spool to be used by this LinearProcessor.
      *
@@ -126,7 +123,8 @@ public class LinearProcessor
      *
      * @throws IllegalArgumentException when the spool passed in is null
      */
-    public void setSpool(SpoolRepository spool) {
+    @Resource(name="org.apache.james.services.SpoolRepository")
+    public void setSpoolRepository(SpoolRepository spool) {
         if (spool == null) {
             throw new IllegalArgumentException("The spool cannot be null");
         }
@@ -138,6 +136,7 @@ public class LinearProcessor
      * 
      * @param mailetLoader the MailetLoader
      */
+    @Resource(name="org.apache.james.transport.MailetLoader")
     public void setMailetLoader(MailetLoader mailetLoader) {
         this.mailetLoader = mailetLoader;
     }
@@ -147,9 +146,17 @@ public class LinearProcessor
      * 
      * @param matchLoader the MatcherLoader
      */
+    @Resource(name="org.apache.james.transport.MatcherLoader")
     public void setMatchLoader(MatcherLoader matchLoader) {
         this.matchLoader = matchLoader;
     }
+    
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public final void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
 
     /**
      * <p>The dispose operation is called at the end of a components lifecycle.
@@ -159,15 +166,15 @@ public class LinearProcessor
      * <p>This implementation disposes of all the mailet instances added to the
      * processor</p>
      *
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
+    @PreDestroy
     public void dispose() {
         Iterator<Mailet> it = mailets.iterator();
-        boolean debugEnabled = getLogger().isDebugEnabled();
+        boolean debugEnabled = logger.isDebugEnabled();
         while (it.hasNext()) {
             Mailet mailet = it.next();
             if (debugEnabled) {
-                getLogger().debug("Shutdown mailet " + mailet.getMailetInfo());
+                logger.debug("Shutdown mailet " + mailet.getMailetInfo());
             }
             mailet.destroy();
         }
@@ -244,7 +251,7 @@ public class LinearProcessor
                                               .append("Message ")
                                               .append(mail.getName())
                                               .append(" reached the end of this processor, and is automatically deleted.  This may indicate a configuration error.");
-                        LinearProcessor.this.getLogger().warn(warnBuffer.toString());
+                        LinearProcessor.this.logger.warn(warnBuffer.toString());
                     }
                     mail.setState(Mail.GHOST);
                 }
@@ -290,8 +297,8 @@ public class LinearProcessor
             throw new IllegalStateException("Attempt to service mail before matcher/mailet lists have been closed");
         }
 
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Servicing mail: " + mail.getName());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Servicing mail: " + mail.getName());
         }
         //  unprocessed is an array of Lists of Mail objects
         //  the array indicates which matcher/mailet (stage in the linear
@@ -367,14 +374,14 @@ public class LinearProcessor
             Collection<MailAddress> recipients = null;
             Matcher matcher = (Matcher) matchers.get(i);
             StringBuffer logMessageBuffer = null;
-            if (getLogger().isDebugEnabled()) {
+            if (logger.isDebugEnabled()) {
                 logMessageBuffer =
                     new StringBuffer(128)
                             .append("Checking ")
                             .append(mail.getName())
                             .append(" with ")
                             .append(matcher);
-                getLogger().debug(logMessageBuffer.toString());
+                logger.debug(logMessageBuffer.toString());
             }
             try {
                 recipients = matcher.match(mail);
@@ -434,14 +441,14 @@ public class LinearProcessor
             }
             // We have messages that need to process... time to run the mailet.
             Mailet mailet = (Mailet) mailets.get(i);
-            if (getLogger().isDebugEnabled()) {
+            if (logger.isDebugEnabled()) {
                 logMessageBuffer =
                     new StringBuffer(128)
                             .append("Servicing ")
                             .append(mail.getName())
                             .append(" by ")
                             .append(mailet.getMailetInfo());
-                getLogger().debug(logMessageBuffer.toString());
+                logger.debug(logMessageBuffer.toString());
             }
             try {
                 mailet.service(mail);
@@ -548,7 +555,7 @@ public class LinearProcessor
         }
         String errorString = sout.toString();
         mail.setErrorMessage(errorString);
-        getLogger().error(errorString);
+        logger.error(errorString);
         throw me;
     }
     
@@ -598,26 +605,26 @@ public class LinearProcessor
                 }
                 
                 //The matcher itself should log that it's been inited.
-                if (getLogger().isInfoEnabled()) {
+                if (logger.isInfoEnabled()) {
                     StringBuffer infoBuffer =
                         new StringBuffer(64)
                                 .append("Matcher ")
                                 .append(matcherName)
                                 .append(" instantiated.");
-                    getLogger().info(infoBuffer.toString());
+                    logger.info(infoBuffer.toString());
                 }
             } catch (MessagingException ex) {
                 // **** Do better job printing out exception
-                if (getLogger().isErrorEnabled()) {
+                if (logger.isErrorEnabled()) {
                     StringBuffer errorBuffer =
                         new StringBuffer(256)
                                 .append("Unable to init matcher ")
                                 .append(matcherName)
                                 .append(": ")
                                 .append(ex.toString());
-                    getLogger().error( errorBuffer.toString(), ex );
+                    logger.error( errorBuffer.toString(), ex );
                     if (ex.getNextException() != null) {
-                        getLogger().error( "Caused by nested exception: ", ex.getNextException());
+                        logger.error( "Caused by nested exception: ", ex.getNextException());
                     }
                 }
                 System.err.println("Unable to init matcher " + matcherName);
@@ -627,26 +634,26 @@ public class LinearProcessor
             }
             try {
                 mailet = mailetLoader.getMailet(mailetClassName, new ConfigurationAdapter(c));
-                if (getLogger().isInfoEnabled()) {
+                if (logger.isInfoEnabled()) {
                     StringBuffer infoBuffer =
                         new StringBuffer(64)
                                 .append("Mailet ")
                                 .append(mailetClassName)
                                 .append(" instantiated.");
-                    getLogger().info(infoBuffer.toString());
+                    logger.info(infoBuffer.toString());
                 }
             } catch (MessagingException ex) {
                 // **** Do better job printing out exception
-                if (getLogger().isErrorEnabled()) {
+                if (logger.isErrorEnabled()) {
                     StringBuffer errorBuffer =
                         new StringBuffer(256)
                                 .append("Unable to init mailet ")
                                 .append(mailetClassName)
                                 .append(": ")
                                 .append(ex.toString());
-                    getLogger().error( errorBuffer.toString(), ex );
+                    logger.error( errorBuffer.toString(), ex );
                     if (ex.getNextException() != null) {
-                        getLogger().error( "Caused by nested exception: ", ex.getNextException());
+                        logger.error( "Caused by nested exception: ", ex.getNextException());
                     }
                 }
                 System.err.println("Unable to init mailet " + mailetClassName);
@@ -666,15 +673,6 @@ public class LinearProcessor
         // of the LinearProcessor code.  The processor will not be
         // able to service mails until this call is made.
         closeProcessorLists();
-    }
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager comp) throws ServiceException {
-        setMailetLoader((MailetLoader) comp.lookup(MailetLoader.ROLE));
-        setMatchLoader((MatcherLoader) comp.lookup(MatcherLoader.ROLE));
-        setSpool( (SpoolRepository) comp.lookup(SpoolRepository.ROLE));
     }
 
     /**

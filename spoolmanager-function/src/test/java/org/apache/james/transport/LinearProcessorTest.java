@@ -22,6 +22,7 @@ package org.apache.james.transport;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
@@ -124,7 +125,8 @@ public class LinearProcessorTest extends TestCase {
     }
 
     public void testCopyOnWrite() throws IOException, MessagingException {
-        linearProcessor.setSpool(new InMemorySpoolRepository());
+        linearProcessor.setSpoolRepository(new InMemorySpoolRepository());
+        linearProcessor.setLogger(new SimpleLog("Test"));
         Matcher recipientIs = new RecipientIs();
         recipientIs.init(new DummyMatcherConfig("rec1@domain.com"));
 
@@ -174,12 +176,14 @@ public class LinearProcessorTest extends TestCase {
     }
 
     public void testStateChange() throws IOException, MessagingException {
-        linearProcessor.setSpool(new InMemorySpoolRepository() {
+        linearProcessor.setSpoolRepository(new InMemorySpoolRepository() {
             public void store(Mail mc) throws MessagingException {
                 assertEquals("MYSTATE", mc.getState());
                 super.store(mc);
             }
         });
+        linearProcessor.setLogger(new SimpleLog("Test"));
+
 
         Matcher recipientIs = new RecipientIs();
         recipientIs.init(new DummyMatcherConfig("rec1@domain.com"));
