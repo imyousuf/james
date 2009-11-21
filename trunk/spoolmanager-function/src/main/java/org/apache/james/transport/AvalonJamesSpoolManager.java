@@ -33,6 +33,8 @@ public class AvalonJamesSpoolManager implements Initializable, LogEnabled, Servi
     private ConfigurationAdapter config;
     private AvalonLogger logger;
     private SpoolRepository repos;
+    private MailetLoader mailetLoader;
+    private MatcherLoader matcherLoader;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
@@ -58,6 +60,8 @@ public class AvalonJamesSpoolManager implements Initializable, LogEnabled, Servi
      */
     public void service(ServiceManager comp) throws ServiceException {
         repos = (SpoolRepository) comp.lookup(SpoolRepository.ROLE);
+        mailetLoader = (MailetLoader) comp.lookup(MailetLoader.ROLE);
+        matcherLoader = (MatcherLoader) comp.lookup(MatcherLoader.ROLE);
     }
 
 
@@ -83,6 +87,8 @@ public class AvalonJamesSpoolManager implements Initializable, LogEnabled, Servi
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
             bind(SpoolRepository.class).annotatedWith(Names.named("org.apache.james.services.SpoolRepository")).toInstance(repos);
+            bind(MailetLoader.class).annotatedWith(Names.named("org.apache.james.transport.MailetLoader")).toInstance(mailetLoader);
+            bind(MatcherLoader.class).annotatedWith(Names.named("org.apache.james.transport.MatcherLoader")).toInstance(matcherLoader);
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
 
                 public LoaderService get() {
