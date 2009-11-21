@@ -29,7 +29,10 @@
     <service name="org.apache.james.transport.MailetLoader" version="1.0" />
   </services>
 
-  <dependencies>
+  <dependencies> 
+    <dependency>
+      <service name="org.apache.mailet.MailetContext" version="1.0" />
+    </dependency>
   </dependencies>  
 
 </blockinfo>

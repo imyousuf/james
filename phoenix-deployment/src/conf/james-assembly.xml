@@ -68,10 +68,12 @@
   </block>
 
   <block name="matcherpackages" class="org.apache.james.transport.AvalonJamesMatcherLoader" >
+    <provide name="James" role="org.apache.mailet.MailetContext"/>
     <proxy disable='true'/>
   </block>
 
   <block name="mailetpackages" class="org.apache.james.transport.AvalonJamesMailetLoader" >
+    <provide name="James" role="org.apache.mailet.MailetContext"/>
     <proxy disable='true'/>
   </block>
 

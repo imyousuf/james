@@ -28,12 +28,16 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.service.ServiceException;
+import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetContext;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
@@ -42,12 +46,13 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
-public abstract class AbstractAvalonJamesLoader implements Configurable, Initializable, LogEnabled, GuiceInjected {
+public abstract class AbstractAvalonJamesLoader implements Configurable, Serviceable, Initializable, LogEnabled, GuiceInjected {
 
     
 
     private ConfigurationAdapter config;
     private AvalonLogger logger;
+    private MailetContext context;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
@@ -61,6 +66,11 @@ public abstract class AbstractAvalonJamesLoader implements Configurable, Initial
     }
 
     
+    public void service(ServiceManager manager) throws ServiceException {       
+        context = (MailetContext) manager.lookup("org.apache.mailet.MailetContext");
+    }
+
+
     /**
      * @see org.apache.avalon.framework.logger.LogEnabled#enableLogging(org.apache.avalon.framework.logger.Logger)
      */
@@ -75,6 +85,7 @@ public abstract class AbstractAvalonJamesLoader implements Configurable, Initial
         protected void configure() {
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
+            bind(MailetContext.class).annotatedWith(Names.named("org.apache.mailet.MailetContext")).toInstance(context);
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
 
                 public LoaderService get() {

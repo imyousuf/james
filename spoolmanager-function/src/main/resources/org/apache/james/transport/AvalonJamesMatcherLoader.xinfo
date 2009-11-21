@@ -30,6 +30,9 @@
   </services>
 
   <dependencies>
+    <dependency>
+      <service name="org.apache.mailet.MailetContext" version="1.0" />
+    </dependency>
   </dependencies>  
 
 </blockinfo>
