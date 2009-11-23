@@ -46,7 +46,7 @@ public class InSpammerBlacklistTest extends TestCase {
 
     private FakeMail mockedMail;
 
-    private Matcher matcher;
+    private InSpammerBlacklist matcher;
     
     private final static String BLACKLIST = "my.black.list.";
     private final static StringBuffer LISTED_HOST = new StringBuffer("111.222.111.222");
@@ -55,12 +55,6 @@ public class InSpammerBlacklistTest extends TestCase {
         super(arg0);
     }
 
-    private MockServiceManager setUpServiceManager() {
-        MockServiceManager sMan = new MockServiceManager();
-        sMan.put(DNSService.ROLE, setUpDNSServer());
-        return sMan;
-    }
-    
     private DNSService setUpDNSServer() {
         DNSService dns = new AbstractDNSServer() {
             public InetAddress getByName(String name) throws UnknownHostException {
@@ -82,8 +76,8 @@ public class InSpammerBlacklistTest extends TestCase {
 
     private void setupMatcher(String blacklist) throws MessagingException {
         matcher = new InSpammerBlacklist();
+        matcher.setDNSService(setUpDNSServer());
         FakeMailContext context = new FakeMailContext();
-        context.setAttribute(Constants.AVALON_COMPONENT_MANAGER, setUpServiceManager());
         FakeMatcherConfig mci = new FakeMatcherConfig("InSpammerBlacklist=" + blacklist,context);
         matcher.init(mci);
     }

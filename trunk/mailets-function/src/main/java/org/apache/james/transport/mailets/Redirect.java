@@ -330,8 +330,8 @@ public class Redirect extends AbstractRedirect {
      * or the <CODE>to</CODE> init parameter if missing
      * or <CODE>null</CODE> if also the latter is missing
      */
-    protected Collection getRecipients() throws MessagingException {
-        Collection newRecipients = new HashSet();
+    protected Collection<MailAddress> getRecipients() throws MessagingException {
+        Collection<MailAddress> newRecipients = new HashSet<MailAddress>();
         String addressList = getInitParameter("recipients",getInitParameter("to"));
                                  
         // if nothing was specified, return <CODE>null</CODE> meaning no change

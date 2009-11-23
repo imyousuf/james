@@ -80,13 +80,13 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable
    * 
    * @param recipientsMap the mapping of virtual to real recipients
    */
-  protected void mapRecipients(Map recipientsMap) throws MessagingException {
-      Collection recipients = recipientsMap.keySet();  
+  protected void mapRecipients(Map<MailAddress,String> recipientsMap) throws MessagingException {
+      Collection<MailAddress> recipients = recipientsMap.keySet();  
         
-      for (Iterator i = recipients.iterator(); i.hasNext(); ) {
-          MailAddress source = (MailAddress)i.next();
-          String user = source.getUser().toLowerCase();
-          String domain = source.getHost().toLowerCase();
+      for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); ) {
+          MailAddress source = i.next();
+          String user = source.getLocalPart().toLowerCase();
+          String domain = source.getDomain().toLowerCase();
     
           String targetString = VirtualUserTableUtil.getTargetString(user, domain, mappings);
           

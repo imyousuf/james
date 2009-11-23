@@ -25,6 +25,7 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.StringTokenizer;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.avalon.framework.service.ServiceException;
@@ -33,6 +34,7 @@ import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * Checks the network IP address of the sending server against a
@@ -54,26 +56,22 @@ public class InSpammerBlacklist extends GenericMatcher {
     
     private DNSService dnsServer;
 
+  
+    
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public void setDNSService(DNSService dnsService) {
+        this.dnsServer = dnsService;
+    }
+    
     public void init() throws MessagingException {
         network = getCondition();
         
         // check if the needed condition was given
         if (network == null) throw new MessagingException("Please configure a blacklist");
-        
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        
-        try {
-            // Instantiate DNSService
-            dnsServer = (DNSService) compMgr.lookup(DNSService.ROLE);
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve DNSService" + cnfe.getMessage());
-        } catch (Exception e) {
-            log("Failed to retrieve DNSService:" + e.getMessage());
-        }
 
     }
 
-    public Collection match(Mail mail) {
+    public Collection<MailAddress> match(Mail mail) {
         String host = mail.getRemoteAddr();
         try {
             //Have to reverse the octets first

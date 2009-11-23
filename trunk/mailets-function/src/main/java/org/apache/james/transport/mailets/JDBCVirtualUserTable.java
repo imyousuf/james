@@ -23,13 +23,12 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.sql.Connection;
@@ -109,6 +108,14 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
         }
     };
 
+    private DataSourceSelector selector;
+
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    public void setDataSourceSelector(DataSourceSelector selector) {
+        this.selector = selector;
+    }
+    
+    
     /**
      * Initialize the mailet
      */
@@ -126,11 +133,8 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
         Connection conn = null;
 
         try {
-            ServiceManager componentManager = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            // Get the DataSourceSelector service
-            DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
             // Get the data-source required.
-            datasource = (DataSourceComponent)datasources.select(datasourceName);
+            datasource = (DataSourceComponent)selector.select(datasourceName);
 
             conn = datasource.getConnection();
 
@@ -166,23 +170,23 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
      * 
      * @param recipientsMap the mapping of virtual to real recipients
      */
-    protected void mapRecipients(Map recipientsMap) throws MessagingException {
+    protected void mapRecipients(Map<MailAddress,String> recipientsMap) throws MessagingException {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
 
-        Collection recipients = recipientsMap.keySet();
+        Collection<MailAddress> recipients = recipientsMap.keySet();
 
         try {
             conn = datasource.getConnection();
             mappingStmt = conn.prepareStatement(query);
 
-            for (Iterator i = recipients.iterator(); i.hasNext(); ) {
+            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); ) {
                 ResultSet mappingRS = null;
                 try {
-                    MailAddress source = (MailAddress)i.next();
-                    mappingStmt.setString(1, source.getUser());
-                    mappingStmt.setString(2, source.getHost());
-                    mappingStmt.setString(3, source.getHost());
+                    MailAddress source = i.next();
+                    mappingStmt.setString(1, source.getLocalPart());
+                    mappingStmt.setString(2, source.getDomain());
+                    mappingStmt.setString(3, source.getDomain());
                     mappingRS = mappingStmt.executeQuery();
                     if (mappingRS.next()) {
                         String targetString = mappingRS.getString(1);

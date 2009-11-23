@@ -21,20 +21,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
-import org.apache.james.util.sql.JDBCUtil;
-import org.apache.mailet.base.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.base.RFC2822Headers;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
@@ -42,6 +28,19 @@ import java.sql.Connection;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Iterator;
+
+import javax.annotation.Resource;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
+import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
+import org.apache.james.util.sql.JDBCUtil;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.base.GenericMailet;
+import org.apache.mailet.base.RFC2822Headers;
 
 /**
  * <P>Spam detection mailet using bayesian analysis techniques.</P>
@@ -155,6 +154,8 @@ extends GenericMailet {
      * Holds value of property lastCorpusLoadTime.
      */
     private long lastCorpusLoadTime;
+
+    private DataSourceSelector selector;
     
     /**
      * Getter for property maxSize.
@@ -181,6 +182,11 @@ extends GenericMailet {
     public long getLastCorpusLoadTime() {
         
         return this.lastCorpusLoadTime;
+    }
+    
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    public void setDataSourceSelector(DataSourceSelector selector) {
+        this.selector = selector;
     }
     
     /**
@@ -225,26 +231,21 @@ extends GenericMailet {
         
         initDb();
         
-            CorpusLoader corpusLoader = new CorpusLoader(this);
-            corpusLoader.setDaemon(true);
-            corpusLoader.start();
+        CorpusLoader corpusLoader = new CorpusLoader(this);
+        corpusLoader.setDaemon(true);
+        corpusLoader.start();
             
     }
     
     private void initDb() throws MessagingException {
         
         try {
-            ServiceManager serviceManager = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            
-            // Get the DataSourceSelector block
-            DataSourceSelector datasources = (DataSourceSelector) serviceManager.lookup(DataSourceSelector.ROLE);
-            
             // Get the data-source required.
             int stindex =   repositoryPath.indexOf("://") + 3;
             
             String datasourceName = repositoryPath.substring(stindex);
             
-            datasource = (DataSourceComponent) datasources.select(datasourceName);
+            datasource = (DataSourceComponent) selector.select(datasourceName);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
         }
@@ -276,7 +277,7 @@ extends GenericMailet {
             if (ignoreLocalSender) {
                 // ignore the message if the sender is local
                 if (mail.getSender() != null
-                        && getMailetContext().isLocalServer(mail.getSender().getHost())) {
+                        && getMailetContext().isLocalServer(mail.getSender().getDomain())) {
                     return;
                 }
             }
@@ -362,12 +363,12 @@ extends GenericMailet {
         
     }
     
-    private String getAddressesString(Collection addresses) {
+    private String getAddressesString(Collection<MailAddress> addresses) {
         if (addresses == null) {
             return "null";
         }
         
-        Iterator iter = addresses.iterator();
+        Iterator<MailAddress> iter = addresses.iterator();
         StringBuffer sb = new StringBuffer();
         sb.append('[');
         for (int i = 0; iter.hasNext(); i++) {

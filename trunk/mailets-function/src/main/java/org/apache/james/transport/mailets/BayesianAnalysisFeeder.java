@@ -22,25 +22,22 @@
 package org.apache.james.transport.mailets;
 
 import java.io.BufferedReader;
-import java.io.StringReader;
 import java.io.ByteArrayOutputStream;
-
+import java.io.StringReader;
 import java.sql.Connection;
 import java.util.Enumeration;
 
-import javax.mail.internet.MimeMessage;
+import javax.annotation.Resource;
 import javax.mail.Header;
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
-import org.apache.mailet.base.GenericMailet;
-import org.apache.mailet.Mail;
-
 import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
 import org.apache.james.util.sql.JDBCUtil;
+import org.apache.mailet.Mail;
+import org.apache.mailet.base.GenericMailet;
 
 /**
  * <P>Feeds ham OR spam messages to train the {@link BayesianAnalysis} mailet.</P>
@@ -145,6 +142,8 @@ extends GenericMailet {
      * Holds value of property maxSize.
      */
     private int maxSize = 100000;
+
+    private DataSourceSelector selector;
     
     /**
      * Getter for property maxSize.
@@ -155,6 +154,12 @@ extends GenericMailet {
         return this.maxSize;
     }
 
+    
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    public void setDataSourceSelector(DataSourceSelector selector) {
+        this.selector = selector;
+    }
+    
     /**
      * Setter for property maxSize.
      * @param maxSize New value of property maxSize.
@@ -193,17 +198,12 @@ extends GenericMailet {
     private void initDb() throws MessagingException {
         
         try {
-            ServiceManager serviceManager = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            
-            // Get the DataSourceSelector block
-            DataSourceSelector datasources = (DataSourceSelector) serviceManager.lookup(DataSourceSelector.ROLE);
-            
             // Get the data-source required.
             int stindex =   repositoryPath.indexOf("://") + 3;
             
             String datasourceName = repositoryPath.substring(stindex);
             
-            datasource = (DataSourceComponent) datasources.select(datasourceName);
+            datasource = (DataSourceComponent) selector.select(datasourceName);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
         }

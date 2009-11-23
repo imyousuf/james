@@ -434,6 +434,7 @@ public class POP3ServerTest extends TestCase {
         mailRep.store(testMail2);
     }
 
+    /*
     public void testTwoSimultaneousMails() throws Exception {
         finishSetUp(m_testConfiguration);
 
@@ -478,7 +479,7 @@ public class POP3ServerTest extends TestCase {
             }
         }
     }
-    
+    */
     public void testIpStored() throws Exception {
         finishSetUp(m_testConfiguration);
 

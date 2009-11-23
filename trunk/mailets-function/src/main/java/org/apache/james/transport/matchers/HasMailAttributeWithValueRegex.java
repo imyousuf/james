@@ -24,6 +24,7 @@ package org.apache.james.transport.matchers;
 
 import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.MatcherConfig;
 import java.util.Collection;
 import javax.mail.MessagingException;
@@ -89,7 +90,7 @@ public class HasMailAttributeWithValueRegex extends GenericMatcher
      * interpreted as a regular expression matches the toString value of the
      * corresponding attributes value.
      **/
-    public Collection match (Mail mail) throws MessagingException
+    public Collection<MailAddress> match (Mail mail) throws MessagingException
     {
         Serializable obj = mail.getAttribute (attributeName);
         //to be a little more generic the toString of the value is what is matched against

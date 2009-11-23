@@ -33,6 +33,30 @@
     <dependency>
       <service name="org.apache.mailet.MailetContext" version="1.0" />
     </dependency>
+    <dependency>
+      <service name="org.apache.jsieve.mailet.Poster" version="1.0" />
+    </dependency>
+    <dependency>
+      <service name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector" version="1.0"/>
+    </dependency>
+    <dependency>
+      <service name="org.apache.james.api.dnsservice.DNSService" version="1.0"/>
+    </dependency>
+    <dependency>
+      <service name="org.apache.avalon.cornerstone.services.store.Store" version="1.0"/>
+    </dependency>
+    <dependency>
+      <service name="org.apache.james.api.user.UsersStore" version="1.0"/>
+    </dependency>
+    <dependency>
+      <service name="org.apache.james.api.user.UsersRepository" version="1.0"/>
+    </dependency>
+    <dependency>
+      <service name="org.apache.james.api.vut.VirtualUserTable" version="1.0"/>
+    </dependency>   
+    <dependency>
+      <service name="org.apache.james.api.vut.VirtualUserTableStore" version="1.0"/>
+    </dependency>
   </dependencies>  
 
 </blockinfo>

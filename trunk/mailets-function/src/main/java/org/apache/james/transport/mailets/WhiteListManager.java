@@ -23,8 +23,6 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.util.sql.JDBCUtil;
@@ -35,6 +33,7 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
 
+import javax.annotation.Resource;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -156,13 +155,27 @@ public class WhiteListManager extends GenericMailet {
      /**
      * Holds value of property sqlParameters.
      */
-    private Map sqlParameters = new HashMap();
+    private Map<String,String> sqlParameters = new HashMap<String,String>();
 
+
+    private DataSourceSelector selector;
+
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    public void setDataSourceSelector(DataSourceSelector selector) {
+        this.selector = selector;
+    }
+    
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository localusers) {
+        this.localusers = localusers;
+    }
+    
+    
     /**
      * Getter for property sqlParameters.
      * @return Value of property sqlParameters.
      */
-    private Map getSqlParameters() {
+    private Map<String,String> getSqlParameters() {
 
         return this.sqlParameters;
     }
@@ -222,24 +235,13 @@ public class WhiteListManager extends GenericMailet {
             throw new MessagingException("repositoryPath is null");
         }
 
-        ServiceManager serviceManager = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-
         try {
-            // Get the DataSourceSelector block
-            DataSourceSelector datasources = (DataSourceSelector) serviceManager.lookup(DataSourceSelector.ROLE);
             // Get the data-source required.
             int stindex =   repositoryPath.indexOf("://") + 3;
             String datasourceName = repositoryPath.substring(stindex);
-            datasource = (DataSourceComponent) datasources.select(datasourceName);
+            datasource = (DataSourceComponent) selector.select(datasourceName);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
-        }
-
-         try {
-            // Get the UsersRepository
-            localusers = (UsersRepository)serviceManager.lookup(UsersRepository.ROLE);
-        } catch (Exception e) {
-            throw new MessagingException("Can't get the local users repository", e);
         }
 
         try {
@@ -268,7 +270,7 @@ public class WhiteListManager extends GenericMailet {
             return;
         }
         
-        Collection recipients = mail.getRecipients();
+        Collection<MailAddress> recipients = mail.getRecipients();
         
         if (recipients.size() == 1
         && whitelistManagerAddress != null
@@ -313,9 +315,9 @@ public class WhiteListManager extends GenericMailet {
     /** Loops through each address in the recipient list, checks if in the senders
      * list and inserts in it otherwise.
      */    
-    private void checkAndInsert(MailAddress senderMailAddress, Collection recipients) throws MessagingException {
-        String senderUser = senderMailAddress.getUser().toLowerCase(Locale.US);
-        String senderHost = senderMailAddress.getHost().toLowerCase(Locale.US);
+    private void checkAndInsert(MailAddress senderMailAddress, Collection<MailAddress> recipients) throws MessagingException {
+        String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
+        String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
         
         senderUser = getPrimaryName(senderUser);
         
@@ -326,12 +328,12 @@ public class WhiteListManager extends GenericMailet {
         
         try {
             
-            for (Iterator i = recipients.iterator(); i.hasNext(); ) {
+            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); ) {
                 ResultSet selectRS = null;
                 try {
                     MailAddress recipientMailAddress = (MailAddress)i.next();
-                    String recipientUser = recipientMailAddress.getUser().toLowerCase(Locale.US);
-                    String recipientHost = recipientMailAddress.getHost().toLowerCase(Locale.US);
+                    String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
+                    String recipientHost = recipientMailAddress.getDomain().toLowerCase(Locale.US);
                     
                     if (getMailetContext().isLocalServer(recipientHost)) {
                         // not a remote recipient, so skip
@@ -398,8 +400,8 @@ public class WhiteListManager extends GenericMailet {
     private void manageDisplayRequest(Mail mail)
     throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
-        String senderUser = senderMailAddress.getUser().toLowerCase(Locale.US);
-        String senderHost = senderMailAddress.getHost().toLowerCase(Locale.US);
+        String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
+        String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
         
         senderUser = getPrimaryName(senderUser);
         
@@ -447,8 +449,8 @@ public class WhiteListManager extends GenericMailet {
     private void manageInsertRequest(Mail mail)
     throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
-        String senderUser = senderMailAddress.getUser().toLowerCase(Locale.US);
-        String senderHost = senderMailAddress.getHost().toLowerCase(Locale.US);
+        String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
+        String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
         
         senderUser = getPrimaryName(senderUser);
         
@@ -482,8 +484,8 @@ public class WhiteListManager extends GenericMailet {
                         catch (javax.mail.internet.ParseException pe) {
                             continue;
                         }
-                        String recipientUser = recipientMailAddress.getUser().toLowerCase(Locale.US);
-                        String recipientHost = recipientMailAddress.getHost().toLowerCase(Locale.US);
+                        String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
+                        String recipientHost = recipientMailAddress.getDomain().toLowerCase(Locale.US);
                         
                         if (getMailetContext().isLocalServer(recipientHost)) {
                             // not a remote recipient, so skip
@@ -570,8 +572,8 @@ public class WhiteListManager extends GenericMailet {
     private void manageRemoveRequest(Mail mail)
     throws MessagingException {
         MailAddress senderMailAddress = mail.getSender();
-        String senderUser = senderMailAddress.getUser().toLowerCase(Locale.US);
-        String senderHost = senderMailAddress.getHost().toLowerCase(Locale.US);
+        String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
+        String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
         
         senderUser = getPrimaryName(senderUser);
         
@@ -605,8 +607,8 @@ public class WhiteListManager extends GenericMailet {
                         catch (javax.mail.internet.ParseException pe) {
                             continue;
                         }
-                        String recipientUser = recipientMailAddress.getUser().toLowerCase(Locale.US);
-                        String recipientHost = recipientMailAddress.getHost().toLowerCase(Locale.US);
+                        String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
+                        String recipientHost = recipientMailAddress.getDomain().toLowerCase(Locale.US);
                         
                         if (getMailetContext().isLocalServer(recipientHost)) {
                             // not a remote recipient, so skip
@@ -718,7 +720,7 @@ public class WhiteListManager extends GenericMailet {
             reply.setHeader(RFC2822Headers.CONTENT_TYPE, multipart.getContentType());
             
             //Create the list of recipients in our MailAddress format
-            Set recipients = new HashSet();
+            Set<MailAddress> recipients = new HashSet<MailAddress>();
             recipients.add(senderMailAddress);
             
             //Set additional headers

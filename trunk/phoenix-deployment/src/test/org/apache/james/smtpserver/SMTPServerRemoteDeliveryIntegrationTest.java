@@ -264,9 +264,10 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
     public void testDeliveryToSelfWithGatewayAndBind() throws Exception {
         finishSetUp(m_testConfiguration);
         outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
-        
+        store.add("outgoing", outgoingSpool);
         RemoteDelivery rd = new RemoteDelivery();
+        rd.setStore(store);
+        rd.setDNSService(m_dnsServer);
         
         FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
@@ -306,10 +307,10 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
     public void test8bitmimeFromStream() throws Exception {
         finishSetUp(m_testConfiguration);
         outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
-        
+        store.add("outgoing", outgoingSpool);
         RemoteDelivery rd = new RemoteDelivery();
-        
+        rd.setStore(store);
+        rd.setDNSService(m_dnsServer);
         FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
         mmc.setAttribute(Constants.HELLO_NAME,"localhost");
@@ -351,9 +352,11 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
     public void test8bitmimeFromStreamWith8bitContent() throws Exception {
         finishSetUp(m_testConfiguration);
         outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
         
+        store.add("outgoing", outgoingSpool);
         RemoteDelivery rd = new RemoteDelivery();
+        rd.setStore(store);
+        rd.setDNSService(m_dnsServer);
         
         FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
@@ -395,10 +398,12 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
      */
     public void test8bitmimeFromStreamWithoutContentTransferEncoding() throws Exception {
         finishSetUp(m_testConfiguration);
-        outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
-        
+        outgoingSpool = new InMemorySpoolRepository();        
+
+        store.add("outgoing", outgoingSpool);
         RemoteDelivery rd = new RemoteDelivery();
+        rd.setStore(store);
+        rd.setDNSService(m_dnsServer);
         
         FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
@@ -441,9 +446,11 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
     public void test8bitmimeFromStreamWithoutContentTransferEncodingSentAs8bit() throws Exception {
         finishSetUp(m_testConfiguration);
         outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
         
+        store.add("outgoing", outgoingSpool);
         RemoteDelivery rd = new RemoteDelivery();
+        rd.setStore(store);
+        rd.setDNSService(m_dnsServer);
         
         FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);
@@ -486,9 +493,11 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
     public void test8bitmimeWith8bitmimeDisabledInServer() throws Exception {
         finishSetUp(m_testConfiguration);
         outgoingSpool = new InMemorySpoolRepository();
-        ((MockStore) m_serviceManager.lookup(Store.ROLE)).add("outgoing", outgoingSpool);
         
+        store.add("outgoing", outgoingSpool);
         RemoteDelivery rd = new RemoteDelivery();
+        rd.setStore(store);
+        rd.setDNSService(m_dnsServer);
         
         FakeMailContext mmc = new FakeMailContext();
         mmc.setAttribute(Constants.AVALON_COMPONENT_MANAGER,m_serviceManager);

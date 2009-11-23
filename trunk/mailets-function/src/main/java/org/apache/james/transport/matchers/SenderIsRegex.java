@@ -73,7 +73,7 @@ public class SenderIsRegex extends GenericMatcher {
         }
     }
 
-    public Collection match(Mail mail) {
+    public Collection<MailAddress> match(Mail mail) {
         MailAddress mailAddress = mail.getSender();
         if (mailAddress == null) {
             return null;

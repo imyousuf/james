@@ -19,7 +19,7 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
-import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.core.MailImpl;
@@ -126,12 +126,13 @@ public class Tester {
         Tester.instance = this;
     }
         
-    public void init(ServiceManager serviceManager, Properties mailetConfigProperties) throws MessagingException {
-        mailetConfig = new TesterMailetConfig(this, mailetConfigProperties, serviceManager);
-        remoteDelivery.init(mailetConfig);
-        // do this after the init because init would override it.
+    public void init(Store store, Properties mailetConfigProperties) throws MessagingException {
+        mailetConfig = new TesterMailetConfig(this, mailetConfigProperties);
         remoteDelivery.setDNSServer(dnsServer);
+        remoteDelivery.setStore(store);
         
+        remoteDelivery.init(mailetConfig);
+
         if (mailetConfig.getWrappedSpoolRepository() != null) log("DEBUG", "Init WrappedSpoolRepository OK");
         else {
             log("WARN", "Init WrappedSpoolRepository ERROR");

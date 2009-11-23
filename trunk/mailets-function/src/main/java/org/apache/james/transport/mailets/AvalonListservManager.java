@@ -21,9 +21,8 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
+import javax.annotation.Resource;
+
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.mailet.MailAddress;
@@ -42,18 +41,21 @@ public class AvalonListservManager extends GenericListservManager {
 
     private UsersRepository members;
 
+    private UsersStore usersStore;
+
+    @Resource(name="org.apache.james.api.user.UsersStore")
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
+    
     /**
      * Initialize the mailet
      */
     public void init() {
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
-            UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
             String repName = getInitParameter("repositoryName");
 
             members = (UsersRepository) usersStore.getRepository(repName);
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve Store component:" + cnfe.getMessage());
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
         }

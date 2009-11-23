@@ -23,14 +23,13 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
 
@@ -59,7 +58,14 @@ public class JDBCAlias extends GenericMailet {
 
     protected DataSourceComponent datasource;
     protected String query = null;
+    private DataSourceSelector selector;
 
+
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    public void setDataSourceSelector(DataSourceSelector selector) {
+        this.selector = selector;
+    }
+    
     // The JDBCUtil helper class
     private final JDBCUtil theJDBCUtil =
             new JDBCUtil() {
@@ -87,11 +93,9 @@ public class JDBCAlias extends GenericMailet {
             throw new MailetException("target_column not specified for JDBCAlias");
         }
         try {
-            ServiceManager componentManager = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            // Get the DataSourceSelector service
-            DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
+            
             // Get the data-source required.
-            datasource = (DataSourceComponent)datasources.select(datasourceName);
+            datasource = (DataSourceComponent)selector.select(datasourceName);
 
             conn = datasource.getConnection();
 
@@ -137,17 +141,17 @@ public class JDBCAlias extends GenericMailet {
         PreparedStatement mappingStmt = null;
         ResultSet mappingRS = null;
 
-        Collection recipients = mail.getRecipients();
-        Collection recipientsToRemove = new Vector();
-        Collection recipientsToAdd = new Vector();
+        Collection<MailAddress> recipients = mail.getRecipients();
+        Collection<MailAddress> recipientsToRemove = new Vector<MailAddress>();
+        Collection<MailAddress> recipientsToAdd = new Vector<MailAddress>();
         try {
             conn = datasource.getConnection();
             mappingStmt = conn.prepareStatement(query);
 
 
-            for (Iterator i = recipients.iterator(); i.hasNext(); ) {
+            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); ) {
                 try {
-                    MailAddress source = (MailAddress)i.next();
+                    MailAddress source = i.next();
                     mappingStmt.setString(1, source.toString());
                     mappingRS = mappingStmt.executeQuery();
                     if (!mappingRS.next()) {

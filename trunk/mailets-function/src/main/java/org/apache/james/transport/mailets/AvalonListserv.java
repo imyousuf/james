@@ -21,13 +21,11 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.mailet.MailAddress;
 
+import javax.annotation.Resource;
 import javax.mail.internet.ParseException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -100,6 +98,13 @@ public class AvalonListserv extends GenericListserv {
      */
     private UsersRepository members;
 
+    private UsersStore usersStore;
+
+    @Resource(name="org.apache.james.api.user.UsersStore")
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
+    
     /**
      * Initialize the mailet
      */
@@ -127,23 +132,19 @@ public class AvalonListserv extends GenericListserv {
             // Ignore any exceptions, default to true
         }
 
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
-            UsersStore usersStore = (UsersStore)compMgr.lookup(UsersStore.ROLE);
             String repName = getInitParameter("repositoryName");
 
             members = (UsersRepository)usersStore.getRepository( repName );
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve Store component:" + cnfe.getMessage());
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
         }
     }
 
-    public Collection getMembers() throws ParseException {
-        Collection reply = new ArrayList();
-        for (Iterator it = members.list(); it.hasNext(); ) {
-            String member = it.next().toString();
+    public Collection<MailAddress> getMembers() throws ParseException {
+        Collection<MailAddress> reply = new ArrayList<MailAddress>();
+        for (Iterator<String> it = members.list(); it.hasNext(); ) {
+            String member = it.next();
             try {
                 reply.add(new MailAddress(member));
             }

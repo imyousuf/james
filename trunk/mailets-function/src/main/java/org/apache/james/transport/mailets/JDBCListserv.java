@@ -23,12 +23,11 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
 
@@ -67,7 +66,7 @@ public class JDBCListserv extends GenericListserv {
     protected boolean cacheSettings = true;
 
     //Settings for this listserv
-    protected Collection members = null;
+    protected Collection<MailAddress> members = null;
     protected boolean membersOnly = true;
     protected boolean attachmentsAllowed = true;
     protected boolean replyToList = true;
@@ -77,7 +76,14 @@ public class JDBCListserv extends GenericListserv {
     //Queries to DB
     protected String listservQuery = null;
     protected String membersQuery = null;
+    private DataSourceSelector selector;
 
+
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    public void setDataSourceSelector(DataSourceSelector selector) {
+        this.selector = selector;
+    }
+    
     /**
      * The JDBCUtil helper class
      */
@@ -121,11 +127,8 @@ public class JDBCListserv extends GenericListserv {
         Connection conn = null;
 
         try {
-            ServiceManager componentManager = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-            // Get the DataSourceSelector service
-            DataSourceSelector datasources = (DataSourceSelector)componentManager.lookup(DataSourceSelector.ROLE);
             // Get the data-source required.
-            datasource = (DataSourceComponent)datasources.select(datasourceName);
+            datasource = (DataSourceComponent)selector.select(datasourceName);
 
             conn = datasource.getConnection();
 
@@ -185,7 +188,7 @@ public class JDBCListserv extends GenericListserv {
     /**
      * Returns a Collection of MailAddress objects of members to receive this email
      */
-    public Collection getMembers() throws MessagingException {
+    public Collection<MailAddress> getMembers() throws MessagingException {
         if (!cacheSettings) {
             loadSettings();
         }
@@ -250,7 +253,7 @@ public class JDBCListserv extends GenericListserv {
                 stmt = conn.prepareStatement(membersQuery);
                 stmt.setString(1, listservID);
                 rs = stmt.executeQuery();
-                Collection tmpMembers = new Vector();
+                Collection<MailAddress> tmpMembers = new Vector<MailAddress>();
                 while (rs.next()) {
                     String address = rs.getString(1);
                     try {

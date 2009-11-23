@@ -19,6 +19,7 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.transport.remotedeliverytester.RemoteDeliveryTestable;
 import org.apache.james.transport.remotedeliverytester.Tester;
@@ -53,7 +54,10 @@ public class StandardRemoteDeliveryTestable extends RemoteDelivery implements Re
     }
     
     public void setDNSServer(DNSService dnsServer) {
-        super.setDNSServer(dnsServer);
+        super.setDNSService(dnsServer);
     }
 
+    public void setStore(Store mailStore) {
+        super.setStore(mailStore);
+    }
 }

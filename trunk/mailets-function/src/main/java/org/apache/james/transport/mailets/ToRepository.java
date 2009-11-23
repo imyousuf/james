@@ -21,11 +21,10 @@
 
 package org.apache.james.transport.mailets;
 
+import javax.annotation.Resource;
+
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
@@ -56,6 +55,14 @@ public class ToRepository extends GenericMailet {
      */
     private String repositoryPath;
 
+    private Store mailStore;
+
+    
+    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    public void setStore(Store mailStore) {
+        this.mailStore = mailStore;
+    }
+    
     /**
      * Initialize the mailet, loading configuration information.
      */
@@ -67,17 +74,13 @@ public class ToRepository extends GenericMailet {
             // Ignore exception, default to false
         }
 
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
-            Store mailstore = (Store) compMgr.lookup(Store.ROLE);
-            DefaultConfiguration mailConf
-                = new DefaultConfiguration("repository", "generated:ToRepository");
-            mailConf.setAttribute("destinationURL", repositoryPath);
-            mailConf.setAttribute("type", "MAIL");
-            mailConf.setAttribute("CACHEKEYS", getInitParameter("CACHEKEYS","TRUE"));
-            repository = (MailRepository) mailstore.select(mailConf);
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve Store component:" + cnfe.getMessage());
+            DefaultConfigurationBuilder mailConf
+                = new DefaultConfigurationBuilder();
+            mailConf.addProperty("[@destinationURL]", repositoryPath);
+            mailConf.addProperty("[@type]", "MAIL");
+            mailConf.addProperty("[@CACHEKEYS]", getInitParameter("CACHEKEYS","TRUE"));
+            repository = (MailRepository) mailStore.select(mailConf);
         } catch (Exception e) {
             log("Failed to retrieve Store component:" + e.getMessage());
         }

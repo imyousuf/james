@@ -19,8 +19,6 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.transport.remotedeliverytester.Tester.TestStatus;
@@ -45,9 +43,9 @@ import junit.framework.TestCase;
 public abstract class AbstractRemoteDeliveryTest extends TestCase {
     private int doTest = 0;
     
-    private MockServiceManager serviceManager;
     private InMemorySpoolRepository outgoingSpool;
-    
+    MockStore mockStore;
+
     public abstract RemoteDeliveryTestable getDeliverer();
     public abstract Properties getParameters();
     
@@ -103,12 +101,10 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
     
     protected void initEnvironment() {
         // Generate mock environment
-        serviceManager = new MockServiceManager();
-        MockStore mockStore = new MockStore();
+        mockStore = new MockStore();
         outgoingSpool = new InMemorySpoolRepository();
         // new AvalonSpoolRepository();
         mockStore.add("outgoing", outgoingSpool);
-        serviceManager.put(Store.ROLE, mockStore);
     }
     
     protected Properties getStandardParameters() {
@@ -244,7 +240,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             // test initialization
             tester.addDomainServer("test.it", "smtp://mail.test.it:25");
@@ -272,7 +268,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             // test initialization
             tester.addDomainServer("test.it", "smtp://mail.test.it:25", new TransportRule.Default() {
@@ -311,7 +307,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                     { "test.it", "smtp://mail-me-1-ok.ANY-me-1-ok.test.it:25" }
@@ -348,7 +344,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                     { "test.it", "smtp://s1-ok.aANY-smtpafe400.test.it:25" }
@@ -385,7 +381,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                     { "test.it", "smtp://s1-ok.aANY-smtpafe400V.test.it:25" }
@@ -421,7 +417,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                     { "test.it", "smtp://s1-ok.aANY-smtpafe411V.bANY-smtpafe500.test.it:25" }
@@ -479,7 +475,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                     { "test.it", "smtp://s1-ok.aANY-smtpafe400V.bANY-smtpafe500.test.it:25" },
@@ -526,7 +522,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                     { "test.it", "smtp://s1-ok.aANY-null.test.it:25" },
@@ -557,7 +553,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                     { "test.it", "smtp://s1-null.ANYANY-ok.test.it:25" },
@@ -593,7 +589,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                 // a.it: all addresses ok.
@@ -631,7 +627,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                 // a.it: all addresses ok.
@@ -671,7 +667,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             String[][] servers = addServers(tester, new String[][] {
                 // i.it: ioexception (during connect or send for "a", depending on the server) 
@@ -769,7 +765,7 @@ public abstract class AbstractRemoteDeliveryTest extends TestCase {
         initEnvironment();
         Tester tester = new Tester(rd);
         try {
-            tester.init(serviceManager, params);
+            tester.init(mockStore, params);
             
             // String[][] servers = 
             addServers(tester, getTestMultiServers(), true);
