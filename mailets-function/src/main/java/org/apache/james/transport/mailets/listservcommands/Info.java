@@ -21,8 +21,8 @@
 
 package org.apache.james.transport.mailets.listservcommands;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.transport.mailets.ICommandListservManager;
 import org.apache.james.util.XMLResources;
@@ -111,8 +111,8 @@ public class Info extends BaseCommand {
         StringBuffer buffer = new StringBuffer(0x1000);
         buffer.append("\r\n");
         UsersRepository usersRepository = getUsersRepository();
-        for (Iterator it = usersRepository.list(); it.hasNext();) {
-            String userName = (String) it.next();
+        for (Iterator<String> it = usersRepository.list(); it.hasNext();) {
+            String userName = it.next();
             buffer.append("    ").append(userName);
             buffer.append("\r\n");
         }

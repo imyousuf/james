@@ -21,10 +21,9 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.james.Constants;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.transport.mailets.listservcommands.ErrorCommand;
@@ -34,6 +33,7 @@ import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -100,14 +100,15 @@ import java.util.Properties;
  */
 public class CommandListservManager extends GenericMailet implements ICommandListservManager {
 
-    protected Map commandMap = new HashMap();
-    protected List commandPackages = new ArrayList();
+    protected Map<String,IListServCommand> commandMap = new HashMap<String,IListServCommand>();
+    protected List<String> commandPackages = new ArrayList<String>();
     protected UsersRepository usersRepository;
     protected String listName;
     protected String displayName;
     protected String listOwner;
     protected String listDomain;
     protected XMLResources xmlResources;
+    private UsersStore usersStore;
 
     /**
      * Get the name of this list specified by the config param: 'listName'.
@@ -169,7 +170,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      * @return a map of {@link IListServCommand}
      * @see #getCommand
      */
-    public Map getCommands() {
+    public Map<String,IListServCommand> getCommands() {
         return commandMap;
     }
 
@@ -244,10 +245,10 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
             Configuration configuration = (Configuration) getField(getMailetConfig(), "configuration");
 
             //get name
-            listName = configuration.getChild("listName").getValue();
-            displayName = configuration.getChild("displayName").getValue();
-            listOwner = configuration.getChild("listOwner").getValue();
-            listDomain = configuration.getChild("listDomain").getValue();
+            listName = configuration.getString("listName");
+            displayName = configuration.getString("displayName");
+            listOwner = configuration.getString("listOwner");
+            listDomain = configuration.getString("listDomain");
 
             //initialize resources
             initializeResources();
@@ -259,7 +260,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
             loadCommandPackages(configuration);
 
             //load commands
-            loadCommands(configuration);
+            loadCommands((HierarchicalConfiguration)configuration);
 
             //register w/context
             getMailetContext().setAttribute(ICommandListservManager.ID + listName, this);
@@ -319,7 +320,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      * @return the name of the command
      */
     protected String getCommandName(MailAddress mailAddress) {
-        String user = mailAddress.getUser();
+        String user = mailAddress.getLocalPart();
         int index = user.indexOf('-', listName.length());
         String commandName = user.substring(++index);
         return commandName;
@@ -332,14 +333,17 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     protected void initializeResources() throws Exception {
         xmlResources = initXMLResources(new String[]{"List Manager"})[0];
     }
+    
+    @Resource(name="org.apache.james.api.user.UsersStore")
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
 
     /**
      * Fetch the repository of users
      */
     protected void initUsersRepository() {
-        ServiceManager compMgr = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
         try {
-            UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
             String repName = getInitParameter("repositoryName");
 
             usersRepository = usersStore.getRepository(repName);
@@ -353,13 +357,14 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      * @param configuration
      * @throws ConfigurationException
      */
-    protected void loadCommands(Configuration configuration) throws Exception {
-        final Configuration commandConfigurations = configuration.getChild("commands");
-        final Configuration[] commandConfs = commandConfigurations.getChildren("command");
-        for (int index = 0; index < commandConfs.length; index++) {
-            Configuration commandConf = commandConfs[index];
-            String commandName = commandConf.getAttribute("name").toLowerCase();
-            String className = commandConf.getAttribute("class");
+    @SuppressWarnings("unchecked")
+    protected void loadCommands(HierarchicalConfiguration configuration) throws Exception {
+        
+        final List<HierarchicalConfiguration> commandConfs = configuration.configurationsAt("commands.command");
+        for (int index = 0; index < commandConfs.size(); index++) {
+            HierarchicalConfiguration commandConf = commandConfs.get(index);
+            String commandName = commandConf.getString("[@name]").toLowerCase();
+            String className = commandConf.getString("[@class]");
             loadCommand(commandName, className, commandConf);
         }
     }
@@ -377,8 +382,8 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
                                Configuration configuration)
             throws ConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException {
         ClassLoader theClassLoader = Thread.currentThread().getContextClassLoader();
-        for (Iterator it = commandPackages.iterator(); it.hasNext();) {
-            String packageName = (String) it.next();
+        for (Iterator<String> it = commandPackages.iterator(); it.hasNext();) {
+            String packageName = it.next();
 
             IListServCommand listServCommand = null;
             try {
@@ -401,13 +406,12 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      * @param configuration
      * @throws ConfigurationException
      */
+    @SuppressWarnings("unchecked")
     protected void loadCommandPackages(Configuration configuration) throws ConfigurationException {
         commandPackages.add("");
-        final Configuration packageConfiguration = configuration.getChild("commandpackages");
-        final Configuration[] pkgConfs = packageConfiguration.getChildren("commandpackage");
-        for (int index = 0; index < pkgConfs.length; index++) {
-            Configuration conf = pkgConfs[index];
-            String packageName = conf.getValue().trim();
+        final List<String>pkgConfs = configuration.getList("commandpackages.commandpackage");
+        for (int index = 0; index < pkgConfs.size(); index++) {
+            String packageName = pkgConfs.get(index).trim();
             if (!packageName.endsWith(".")) {
                 packageName += ".";
             }
@@ -420,7 +424,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      * @return null if not found, the object otherwise
      */
     protected static Object getField(Object instance, String name) throws IllegalAccessException {
-        Class clazz = instance.getClass();
+        Class<?> clazz = instance.getClass();
         Field[] fields;
         while (clazz != null) {
             fields = clazz.getDeclaredFields();

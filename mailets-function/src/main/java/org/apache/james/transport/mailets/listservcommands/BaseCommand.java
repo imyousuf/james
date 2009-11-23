@@ -21,8 +21,8 @@
 
 package org.apache.james.transport.mailets.listservcommands;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.transport.mailets.ICommandListservManager;
 import org.apache.mailet.base.RFC2822Headers;
@@ -72,7 +72,7 @@ public abstract class BaseCommand implements IListServCommand {
     public void init(ICommandListservManager commandListservManager, Configuration configuration) throws ConfigurationException {
         this.commandListservManager = commandListservManager;
         this.configuration = configuration;
-        commandName = configuration.getAttribute("name");
+        commandName = configuration.getString("[@name]");
         mailetContext = this.commandListservManager.getMailetConfig().getMailetContext();
         log("Initialized listserv command: [" + commandName + ", " + getClass().getName() + "]");
     }
@@ -161,7 +161,7 @@ public abstract class BaseCommand implements IListServCommand {
         MailAddress senderAddress = origMail.getSender();
         try {
             MimeMessage mimeMessage = generateMail(senderAddress.toString(),
-                    senderAddress.getUser(),
+                    senderAddress.getLocalPart(),
                     getCommandListservManager().getListOwner(),
                     getCommandListservManager().getListName(true),
                     subject,

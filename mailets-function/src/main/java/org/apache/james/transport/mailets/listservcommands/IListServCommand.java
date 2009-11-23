@@ -21,8 +21,8 @@
 
 package org.apache.james.transport.mailets.listservcommands;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.transport.mailets.ICommandListservManager;
 import org.apache.mailet.Mail;
 

@@ -21,9 +21,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.james.Constants;
+import org.apache.commons.configuration.Configuration;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.mailet.base.RFC2822Headers;
@@ -34,6 +32,7 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
@@ -43,6 +42,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -164,9 +164,11 @@ public class CommandListservProcessor extends GenericMailet {
     protected XMLResources xmlResources;
 
     protected boolean specificPostersOnly;
-    protected Collection allowedPosters;
+    protected Collection<MailAddress> allowedPosters;
     
     protected boolean addFooter;
+
+    private UsersStore usersStore;
 
     /**
      * Initialize the mailet
@@ -201,7 +203,7 @@ public class CommandListservProcessor extends GenericMailet {
      */
     public void service(Mail mail) throws MessagingException {
         try {
-            Collection members = getMembers();
+            Collection<MailAddress> members = getMembers();
             MailAddress listservAddr = (MailAddress) mail.getRecipients().iterator().next();
 
             // Check if allowed to post
@@ -339,7 +341,7 @@ public class CommandListservProcessor extends GenericMailet {
      * @return true if this message is ok, false otherwise
      * @throws MessagingException
      */
-    protected boolean checkMembers(Collection members, Mail mail) throws MessagingException {
+    protected boolean checkMembers(Collection<MailAddress> members, Mail mail) throws MessagingException {
         if (membersOnly && !members.contains(mail.getSender())) {
             Properties standardProperties = getCommandListservManager().getStandardProperties();
             getCommandListservManager().onError(mail,
@@ -351,10 +353,10 @@ public class CommandListservProcessor extends GenericMailet {
         return true;
     }
 
-    public Collection getMembers() throws ParseException {
-        Collection reply = new ArrayList();
-        for (Iterator it = usersRepository.list(); it.hasNext();) {
-            String member = it.next().toString();
+    public Collection<MailAddress> getMembers() throws ParseException {
+        Collection<MailAddress> reply = new ArrayList<MailAddress>();
+        for (Iterator<String> it = usersRepository.list(); it.hasNext();) {
+            String member = it.next();
             try {
                 reply.add(new MailAddress(member));
             } catch (Exception e) {
@@ -412,12 +414,15 @@ public class CommandListservProcessor extends GenericMailet {
         xmlResources = getCommandListservManager().initXMLResources(new String[]{"List Manager"})[0];
     }
 
+    @Resource(name="org.apache.james.api.user.UsersStore")
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
+    
     /**
      * Fetch the repository of users
      */
     protected void initUsersRepository() throws Exception {
-        ServiceManager compMgr = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
         String repName = getInitParameter("repositoryName");
 
         usersRepository = usersStore.getRepository(repName);
@@ -456,7 +461,7 @@ public class CommandListservProcessor extends GenericMailet {
      * @return null if not found, the object otherwise
      */
     protected static Object getField(Object instance, String name) throws IllegalAccessException {
-        Class clazz = instance.getClass();
+        Class<?> clazz = instance.getClass();
         Field[] fields;
         while (clazz != null) {
             fields = clazz.getDeclaredFields();
@@ -473,14 +478,13 @@ public class CommandListservProcessor extends GenericMailet {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     protected void initAllowedPosters(Configuration configuration) throws Exception {
-        final Configuration allowedPostersElement = configuration.getChild("allowedposters");
-        allowedPosters = new ArrayList();
-        if (allowedPostersElement != null) {
-            final Configuration[] addresses = allowedPostersElement.getChildren("address");
-            for (int index = 0; index < addresses.length; index++) {
-                Configuration address = addresses[index];
-                String emailAddress = address.getValue();
+        allowedPosters = new ArrayList<MailAddress>();
+        if (configuration.getKeys("allowedposters").hasNext()) {
+            List<String> addresses = configuration.getList("allowedposters.address");
+            for (int index = 0; index < addresses.size(); index++) {
+                String emailAddress = addresses.get(index);
                 allowedPosters.add(new MailAddress(emailAddress));
             }
         }
@@ -493,7 +497,7 @@ public class CommandListservProcessor extends GenericMailet {
      * @return true if this message is ok, false otherwise
      * @throws MessagingException
      */
-    protected boolean checkAllowedPoster(Mail mail, Collection members) throws MessagingException {
+    protected boolean checkAllowedPoster(Mail mail, Collection<MailAddress> members) throws MessagingException {
         /*
         if we don't require someone to be an allowed poster, then allow post if we don't require require them to be a subscriber, or they are one.
         if the sender is in the allowed list, post
