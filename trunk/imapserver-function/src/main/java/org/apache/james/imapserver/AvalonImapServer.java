@@ -35,7 +35,6 @@ import org.apache.avalon.framework.service.Serviceable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
