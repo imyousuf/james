@@ -21,7 +21,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.util.XMLResources;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;

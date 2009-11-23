@@ -23,8 +23,8 @@ package org.apache.james.transport.mailets.listservcommands;
 
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.transport.mailets.ICommandListservManager;
 
 import javax.mail.MessagingException;
@@ -40,7 +40,7 @@ import java.util.ArrayList;
  */
 public class Owner extends BaseCommand {
 
-    protected List m_listOwner = new ArrayList();
+    protected List<MailAddress> m_listOwner = new ArrayList<MailAddress>();
 
     /**
      * Perform any required initialization
