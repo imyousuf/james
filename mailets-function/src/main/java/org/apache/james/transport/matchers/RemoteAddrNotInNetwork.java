@@ -22,6 +22,7 @@
 package org.apache.james.transport.matchers;
 
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 import java.util.Collection;
 
@@ -34,7 +35,7 @@ import java.util.Collection;
  *
  */
 public class RemoteAddrNotInNetwork extends AbstractNetworkMatcher {
-    public Collection match(Mail mail) {
+    public Collection<MailAddress> match(Mail mail) {
         return matchNetwork(mail.getRemoteAddr()) ? null : mail.getRecipients();
     }
 }

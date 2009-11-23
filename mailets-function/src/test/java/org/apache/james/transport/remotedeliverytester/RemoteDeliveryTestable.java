@@ -19,6 +19,7 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
@@ -35,7 +36,7 @@ public interface RemoteDeliveryTestable {
     
     void setRemoteDeliveryTester(Tester tester);
     void setDNSServer(DNSService dnsServer);
-    
+    void setStore(Store store);
     void init() throws MessagingException;
     void init(MailetConfig newConfig) throws MessagingException;
     void service(Mail mail) throws MessagingException;

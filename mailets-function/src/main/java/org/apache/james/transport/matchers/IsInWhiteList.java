@@ -23,8 +23,6 @@ package org.apache.james.transport.matchers;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.transport.mailets.WhiteListManager;
@@ -34,6 +32,7 @@ import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.io.File;
@@ -95,13 +94,25 @@ public class IsInWhiteList extends GenericMatcher {
      /**
      * Holds value of property sqlParameters.
      */
-    private Map sqlParameters = new HashMap();
+    private Map<String,String> sqlParameters = new HashMap<String,String>();
 
+    private DataSourceSelector selector;
+
+    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    public void setDataSourceSelector(DataSourceSelector selector) {
+        this.selector = selector;
+    }
+    
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository localusers) {
+        this.localusers = localusers;
+    }
+    
     /**
      * Getter for property sqlParameters.
      * @return Value of property sqlParameters.
      */
-    private Map getSqlParameters() {
+    private Map<String,String> getSqlParameters() {
 
         return this.sqlParameters;
     }
@@ -122,24 +133,14 @@ public class IsInWhiteList extends GenericMatcher {
             throw new MessagingException("repositoryPath is null");
         }
 
-        ServiceManager serviceManager = (ServiceManager) getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-
+      
         try {
-            // Get the DataSourceSelector block
-            DataSourceSelector datasources = (DataSourceSelector) serviceManager.lookup(DataSourceSelector.ROLE);
             // Get the data-source required.
             int stindex =   repositoryPath.indexOf("://") + 3;
             String datasourceName = repositoryPath.substring(stindex);
-            datasource = (DataSourceComponent) datasources.select(datasourceName);
+            datasource = (DataSourceComponent) selector.select(datasourceName);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
-        }
-
-         try {
-            // Get the UsersRepository
-            localusers = (UsersRepository)serviceManager.lookup(UsersRepository.ROLE);
-        } catch (Exception e) {
-            throw new MessagingException("Can't get the local users repository", e);
         }
 
         try {
@@ -154,7 +155,7 @@ public class IsInWhiteList extends GenericMatcher {
     /**
      * @see org.apache.mailet.GenericMatcher#match(Mail)
      */
-    public Collection match(Mail mail) throws MessagingException {
+    public Collection<MailAddress> match(Mail mail) throws MessagingException {
         // check if it's a local sender
         MailAddress senderMailAddress = mail.getSender();
         if (senderMailAddress == null) {
@@ -165,26 +166,26 @@ public class IsInWhiteList extends GenericMatcher {
             return null;
         }
         
-        String senderUser = senderMailAddress.getUser();
-        String senderHost = senderMailAddress.getHost();
+        String senderUser = senderMailAddress.getLocalPart();
+        String senderHost = senderMailAddress.getDomain();
         
         senderUser = senderUser.toLowerCase(Locale.US);
         senderHost = senderHost.toLowerCase(Locale.US);
         
-        Collection recipients = mail.getRecipients();
+        Collection<MailAddress> recipients = mail.getRecipients();
                 
-        Collection inWhiteList = new java.util.HashSet();
+        Collection<MailAddress> inWhiteList = new java.util.HashSet<MailAddress>();
         
         Connection conn = null;
         PreparedStatement selectStmt = null;
         ResultSet selectRS = null;
         try {
             
-            for (Iterator i = recipients.iterator(); i.hasNext(); ) {
+            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); ) {
                 try {
-                    MailAddress recipientMailAddress = (MailAddress)i.next();
-                    String recipientUser = recipientMailAddress.getUser().toLowerCase(Locale.US);
-                    String recipientHost = recipientMailAddress.getHost().toLowerCase(Locale.US);
+                    MailAddress recipientMailAddress = i.next();
+                    String recipientUser = recipientMailAddress.getLocalPart().toLowerCase(Locale.US);
+                    String recipientHost = recipientMailAddress.getDomain().toLowerCase(Locale.US);
                     
                     if (!getMailetContext().isLocalServer(recipientHost)) {
                         // not a local recipient, so skip

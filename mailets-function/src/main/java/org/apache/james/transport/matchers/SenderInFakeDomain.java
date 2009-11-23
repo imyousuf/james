@@ -22,6 +22,7 @@
 package org.apache.james.transport.matchers;
 
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 import java.util.Collection;
 
@@ -33,13 +34,13 @@ import java.util.Collection;
  */
 public class SenderInFakeDomain extends AbstractNetworkMatcher {
 
-    public Collection match(Mail mail) {
+    public Collection<MailAddress> match(Mail mail) {
         if (mail.getSender() == null) {
             return null;
         }
-        String domain = mail.getSender().getHost();
+        String domain = mail.getSender().getDomain();
         //DNS Lookup for this domain
-        Collection servers = getMailetContext().getMailServers(domain);
+        Collection<String> servers = getMailetContext().getMailServers(domain);
         if (servers.size() == 0) {
             //No records...could not deliver to this domain, so matches criteria.
             log("No MX, A, or CNAME record found for domain: " + domain);
@@ -62,7 +63,7 @@ public class SenderInFakeDomain extends AbstractNetworkMatcher {
              *
              */
             log("Banned IP found for domain: " + domain);
-            log(" --> :" + servers.iterator().next().toString());
+            log(" --> :" + servers.iterator().next());
             return mail.getRecipients();
         } else {
             // Some servers were found... the domain is not fake.

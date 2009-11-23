@@ -22,9 +22,6 @@
 package org.apache.james.transport.matchers;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailRepository;
@@ -33,6 +30,7 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.util.Iterator;
@@ -53,29 +51,19 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
 
     private MailServer mailServer;
 
+    @Resource(name="org.apache.james.services.MailServer")
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository localusers) {
+        this.localusers = localusers;
+    }
     /** The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
      */
     private UsersRepository localusers;
-
-    /**
-     * Standard matcher initialization.
-     * Overriding classes must do a <CODE>super.init()</CODE>.
-     */
-    public void init() throws MessagingException {
-        super.init();
-        ServiceManager compMgr = (ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        try {
-            mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
-        } catch (ServiceException e) {
-            log("Exception in getting the MailServer: " + e.getMessage() + e.getKey());
-        }
-        try {
-            localusers = (UsersRepository) compMgr.lookup(UsersRepository.ROLE);
-        } catch (ServiceException e) {
-            log("Exception in getting the UsersStore: " + e.getMessage() + e.getKey());
-        }
-    }
 
     /** 
      * Checks the recipient.
@@ -98,9 +86,9 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      */    
     protected long getUsed(MailAddress recipient, Mail _) throws MessagingException {
         long size = 0;
-        MailRepository userInbox = mailServer.getUserInbox(getPrimaryName(recipient.getUser()));
-        for (Iterator it = userInbox.list(); it.hasNext(); ) {
-            String key = (String) it.next();
+        MailRepository userInbox = mailServer.getUserInbox(getPrimaryName(recipient.getLocalPart()));
+        for (Iterator<String> it = userInbox.list(); it.hasNext(); ) {
+            String key = it.next();
             Mail mc = userInbox.retrieve(key);
             // Retrieve can return null if the mail is no longer in the store.
             if (mc != null) try {

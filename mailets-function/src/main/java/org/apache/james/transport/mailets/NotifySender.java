@@ -120,8 +120,8 @@ public class NotifySender extends AbstractNotify {
     /**
      * @return <CODE>SpecialAddress.SENDER</CODE>, indicating the sender of the current mail
      */
-    protected Collection getRecipients() {
-        Collection newRecipients = new HashSet();
+    protected Collection<MailAddress> getRecipients() {
+        Collection<MailAddress> newRecipients = new HashSet<MailAddress>();
         newRecipients.add(SpecialAddress.SENDER);
         return newRecipients;
     }

@@ -23,6 +23,7 @@ package org.apache.james.transport.matchers;
 
 import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
@@ -64,7 +65,7 @@ abstract public class GenericRegexMatcher extends GenericMatcher {
     /**
      * @see org.apache.mailet.GenericMatcher#match(Mail)
      */
-    public Collection match(Mail mail) throws MessagingException {
+    public Collection<MailAddress> match(Mail mail) throws MessagingException {
         MimeMessage message = mail.getMessage();
         Perl5Matcher matcher = new Perl5Matcher();
 

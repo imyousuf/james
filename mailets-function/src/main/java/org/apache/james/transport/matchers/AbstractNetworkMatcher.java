@@ -21,11 +21,10 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.util.StringTokenizer;
 import java.util.Collection;
@@ -63,23 +62,10 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.base.Gene
      */
     private DNSService dnsServer;
     
-    /**
-     * The ServiceManger
-     */
-    private ServiceManager compMgr;
-
+ 
     public void init() throws MessagingException {
         
-        setServiceManager((ServiceManager)getMailetContext().getAttribute(Constants.AVALON_COMPONENT_MANAGER));
-        
-        try {
-            // Instantiate DNSService
-            setDNSServer((DNSService) compMgr.lookup(DNSService.ROLE));
-        } catch (Exception e) {
-            throw new MessagingException("Failed to retrieve DNSService:" + e.getMessage());
-        }
-        
-        Collection nets = allowedNetworks();
+        Collection<String> nets = allowedNetworks();
         
         if (nets != null) {
             authorizedNetworks = new NetMatcher(allowedNetworks(),dnsServer) {
@@ -92,11 +78,11 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.base.Gene
         }
     }
 
-    protected Collection allowedNetworks() {
-        Collection networks = null;
+    protected Collection<String> allowedNetworks() {
+        Collection<String> networks = null;
         if (getCondition() != null) {
             StringTokenizer st = new StringTokenizer(getCondition(), ", ", false);
-            networks = new java.util.ArrayList();
+            networks = new java.util.ArrayList<String>();
             while (st.hasMoreTokens()) networks.add(st.nextToken());
         }
         return networks;
@@ -111,11 +97,9 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.base.Gene
     }
     
     
-    private void setDNSServer(DNSService dnsServer) {
-        this.dnsServer = dnsServer;
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public void setDNSService(DNSService dnsService) {
+        this.dnsServer = dnsService;
     }
     
-    private void setServiceManager(ServiceManager compMgr) {
-        this.compMgr = compMgr;
-    }
 }

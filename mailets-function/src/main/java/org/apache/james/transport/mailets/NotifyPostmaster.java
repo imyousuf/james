@@ -121,8 +121,8 @@ public class NotifyPostmaster extends AbstractNotify {
     /**
      * @return the postmaster address
      */
-    protected Collection getRecipients() {
-        Collection newRecipients = new HashSet();
+    protected Collection<MailAddress> getRecipients() {
+        Collection<MailAddress> newRecipients = new HashSet<MailAddress>();
         newRecipients.add(getMailetContext().getPostmaster());
         return newRecipients;
     }

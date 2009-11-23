@@ -30,13 +30,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
@@ -116,6 +117,8 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
 
     private Log logger;
 
+    private HierarchicalConfiguration config;
+
     /**
      * Set the spool to be used by this LinearProcessor.
      *
@@ -155,6 +158,11 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
     @Resource(name="org.apache.commons.logging.Log")
     public final void setLogger(Log logger) {
         this.logger = logger;
+    }
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public final void setConfiguration(HierarchicalConfiguration config) {
+        this.config = config;
     }
     
 
@@ -567,23 +575,26 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
         mailets = new ArrayList<Mailet>();
     }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
-     */
-    public void configure(Configuration processorConf) throws ConfigurationException {
+    @PostConstruct
+    public void init() throws Exception {
+        configure(config);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void configure(HierarchicalConfiguration processorConf) throws ConfigurationException {
         openProcessorList();
         
-        final Configuration[] mailetConfs
-            = processorConf.getChildren( "mailet" );
+        final List<HierarchicalConfiguration> mailetConfs
+            = processorConf.configurationsAt( "mailet" );
         // Loop through the mailet configuration, load
         // all of the matcher and mailets, and add
         // them to the processor.
-        for ( int j = 0; j < mailetConfs.length; j++ )
+        for ( int j = 0; j < mailetConfs.size(); j++ )
         {
-            Configuration c = mailetConfs[j];
-            String mailetClassName = c.getAttribute("class");
-            String matcherName = c.getAttribute("match",null);
-            String invertedMatcherName = c.getAttribute("notmatch",null);
+            HierarchicalConfiguration c = mailetConfs.get(j);
+            String mailetClassName = c.getString("[@class]");
+            String matcherName = c.getString("[@match]",null);
+            String invertedMatcherName = c.getString("[@notmatch]",null);
 
             Mailet mailet = null;
             Matcher matcher = null;
@@ -630,10 +641,10 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
                 System.err.println("Unable to init matcher " + matcherName);
                 System.err.println("Check spool manager logs for more details.");
                 //System.exit(1);
-                throw new ConfigurationException("Unable to init matcher",c,ex);
+                throw new ConfigurationException("Unable to init matcher", ex);
             }
             try {
-                mailet = mailetLoader.getMailet(mailetClassName, new ConfigurationAdapter(c));
+                mailet = mailetLoader.getMailet(mailetClassName, c);
                 if (logger.isInfoEnabled()) {
                     StringBuffer infoBuffer =
                         new StringBuffer(64)
@@ -658,10 +669,7 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
                 }
                 System.err.println("Unable to init mailet " + mailetClassName);
                 System.err.println("Check spool manager logs for more details.");
-                throw new ConfigurationException("Unable to init mailet",c,ex);
-            } catch (org.apache.commons.configuration.ConfigurationException e) {
-                throw new ConfigurationException("Unable to wrap config",e);
-
+                throw new ConfigurationException("Unable to init mailet", ex);
             }
             //Add this pair to the processor
             add(matcher, mailet);

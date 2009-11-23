@@ -63,15 +63,15 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
             return;
         }
 
-        Collection recipientsToRemove = new HashSet();
-        Collection recipientsToAddLocal = new ArrayList();
-        Collection recipientsToAddForward = new ArrayList();
+        Collection<MailAddress> recipientsToRemove = new HashSet<MailAddress>();
+        Collection<MailAddress> recipientsToAddLocal = new ArrayList<MailAddress>();
+        Collection<MailAddress> recipientsToAddForward = new ArrayList<MailAddress>();
 
-        Collection recipients = mail.getRecipients();
-        Map recipientsMap = new HashMap(recipients.size());
+        Collection<MailAddress> recipients = mail.getRecipients();
+        Map<MailAddress,String> recipientsMap = new HashMap<MailAddress,String>(recipients.size());
 
-        for (Iterator iter = recipients.iterator(); iter.hasNext(); ) {
-            MailAddress address = (MailAddress)iter.next();
+        for (Iterator<MailAddress> iter = recipients.iterator(); iter.hasNext(); ) {
+            MailAddress address = iter.next();
 
             // Assume all addresses are non-virtual at start
             recipientsMap.put(address, null);
@@ -79,9 +79,9 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
 
         mapRecipients(recipientsMap);
 
-        for (Iterator iter = recipientsMap.keySet().iterator(); iter.hasNext(); ) {
-            MailAddress source = (MailAddress)iter.next();
-            String targetString = (String)recipientsMap.get(source);
+        for (Iterator<MailAddress> iter = recipientsMap.keySet().iterator(); iter.hasNext(); ) {
+            MailAddress source = iter.next();
+            String targetString = recipientsMap.get(source);
 
             // Only non-null mappings are translated
             if(targetString != null) {
@@ -115,7 +115,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
 
                             // We need to separate local and remote
                             // recipients.  This is explained below.
-                            if (getMailetContext().isLocalServer(target.getHost())) {
+                            if (getMailetContext().isLocalServer(target.getDomain())) {
                                 recipientsToAddLocal.add(target);
                             } else {
                                 recipientsToAddForward.add(target);
@@ -195,7 +195,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
      * @param recipientsMap the mapping of virtual to real recipients, as 
      *    <code>MailAddress</code>es to <code>String</code>s.
      */
-    protected abstract void mapRecipients(Map recipientsMap) throws MessagingException;
+    protected abstract void mapRecipients(Map<MailAddress,String> recipientsMap) throws MessagingException;
   
     /**
      * Sends the message for DSN processing
@@ -208,11 +208,13 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
         // parse "error:<code> <msg>"
       int msgPos = error.indexOf(' ');
       try {
+          @SuppressWarnings("unused")
           Integer code = Integer.valueOf(error.substring("error:".length(),msgPos));
       } catch (NumberFormatException e) {
           log("Cannot send DSN.  Exception parsing DSN code from: " + error, e);
           return;
       }
+      @SuppressWarnings("unused")
       String msg = error.substring(msgPos + 1);
       // process bounce for "source" address
       try {

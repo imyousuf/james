@@ -24,6 +24,7 @@ package org.apache.james.transport;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
 import org.guiceyfruit.jsr250.Jsr250Module;
@@ -62,6 +63,8 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
     private MailetLoader mailetLoader;
 
     private MatcherLoader matcherLoader;
+
+    private SpoolRepository spoolRepos;
     
     public StateAwareProcessorList() {
         super();
@@ -90,6 +93,11 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
         this.matcherLoader = matcherLoader;
     }
 
+    @Resource(name="org.apache.james.services.SpoolRepository")
+    public final void setSpoolRepository(SpoolRepository spoolRepos) {
+        this.spoolRepos = spoolRepos;
+    }
+    
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
@@ -113,7 +121,7 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
                         bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
                         bind(MailetLoader.class).annotatedWith(Names.named("org.apache.james.transport.MailetLoader")).toInstance(mailetLoader);
                         bind(MatcherLoader.class).annotatedWith(Names.named("org.apache.james.transport.MatcherLoader")).toInstance(matcherLoader);
-
+                        bind(SpoolRepository.class).annotatedWith(Names.named("org.apache.james.services.SpoolRepository")).toInstance(spoolRepos);
                     }
                     
                 }).getInstance(cObj);

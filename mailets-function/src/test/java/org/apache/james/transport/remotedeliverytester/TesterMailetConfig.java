@@ -42,27 +42,16 @@ public class TesterMailetConfig implements MailetConfig {
 
     private class MailetContextTester extends FakeMailContext {
         private TesterMailetConfig owner;
-        private ServiceManager serviceManager;
-        private ServiceManager wrappedServiceManager;
         
-        public MailetContextTester(TesterMailetConfig owner, ServiceManager serviceManager) {
+        public MailetContextTester(TesterMailetConfig owner) {
             this.owner = owner;
-            this.serviceManager = serviceManager;
         }
 
         public Object getAttribute(String name) {
-            if (name.equals(Constants.AVALON_COMPONENT_MANAGER)) {
-                if (wrappedServiceManager == null) wrappedServiceManager = new ServiceManagerWrapper(owner, serviceManager);
-                return wrappedServiceManager;
-            } else if (name.equals(Constants.HELLO_NAME)) {
+            if (name.equals(Constants.HELLO_NAME)) {
                 return "hello.name.com";
             }
             return null;
-        }
-
-        public MailetContext setServiceManager(ServiceManager serviceManager) {
-            this.serviceManager = serviceManager;
-            return this;
         }
 
         public void log(String message, Throwable t) {
@@ -110,33 +99,6 @@ public class TesterMailetConfig implements MailetConfig {
             throw new UnsupportedOperationException();
         }
 
-    }
-
-    private class ServiceManagerWrapper implements ServiceManager {
-        private TesterMailetConfig owner;
-        private ServiceManager wrapped;
-        private Store wrappedStore;
-
-        public ServiceManagerWrapper(TesterMailetConfig owner, ServiceManager wrapped) {
-            this.owner = owner;
-            this.wrapped = wrapped;
-        }
-
-        public Object lookup(String arg0) throws ServiceException {
-            if (arg0.equals(Store.ROLE)) {
-                if (wrappedStore == null) wrappedStore = new StoreWrapper(owner, (Store) wrapped.lookup("org.apache.avalon.cornerstone.services.store.Store"));
-                return wrappedStore;
-            }
-            return wrapped.lookup(arg0);
-        }
-
-        public boolean hasService(String arg0) {
-            return wrapped.hasService(arg0);
-        }
-
-        public void release(Object arg0) {
-            wrapped.release(arg0);
-        }
     }
 
     private class StoreWrapper implements Store {
@@ -233,10 +195,10 @@ public class TesterMailetConfig implements MailetConfig {
     // wrappedSpoolRepository will be set only when this manage the outgoing
     private SpoolRepository wrappedSpoolRepository;
 
-    public TesterMailetConfig(Tester owner, Properties properties, ServiceManager serviceManager) {
+    public TesterMailetConfig(Tester owner, Properties properties) {
         this.owner = owner;
         this.parameters = properties;
-        mailetContext = new MailetContextTester(this, serviceManager);
+        mailetContext = new MailetContextTester(this);
     }
 
     public SpoolRepository getWrappedSpoolRepository() {

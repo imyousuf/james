@@ -35,7 +35,7 @@ public class SieveMailet extends SieveMailboxMailet {
         setLocator(new ResourceLocatorImpl());
     }
 
-    @Resource(name="imapserver")
+    @Resource(name="org.apache.jsieve.mailet.Poster")
     @Override
     public void setPoster(Poster poster) {
         super.setPoster(poster);

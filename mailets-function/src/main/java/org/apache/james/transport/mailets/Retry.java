@@ -20,10 +20,8 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.Constants;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.base.GenericMailet;
@@ -35,6 +33,7 @@ import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.util.ArrayList;
@@ -99,7 +98,7 @@ public class Retry extends GenericMailet implements Runnable {
     // Holds allowed units for delayTime together with factor to turn it into
     // the
     // equivalent time in milliseconds.
-    private static final HashMap MULTIPLIERS = new HashMap(10);
+    private static final HashMap<String,Integer> MULTIPLIERS = new HashMap<String,Integer>(10);
 
     /*
      * Compiles pattern for processing delayTime entries. <p>Initializes
@@ -210,7 +209,7 @@ public class Retry extends GenericMailet implements Runnable {
     private int workersThreadCount = 1;
 
     // Collection that stores all worker threads.
-    private Collection workersThreads = new Vector();
+    private Collection<Thread> workersThreads = new Vector<Thread>();
 
     // Processor that will be called for retrying. Defaults to "root" processor.
     private String retryProcessor = Mail.DEFAULT;
@@ -233,6 +232,14 @@ public class Retry extends GenericMailet implements Runnable {
     // Path of the retry repository
     private String workRepositoryPath = null;
 
+    private Store mailStore;
+
+    
+    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    public void setStore(Store mailStore) {
+        this.mailStore = mailStore;
+    }
+    
     /**
      * Initializes all arguments based on configuration values specified in the
      * James configuration file.
@@ -245,7 +252,7 @@ public class Retry extends GenericMailet implements Runnable {
         isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
 
         // Create list of Delay Times.
-        ArrayList delayTimesList = new ArrayList();
+        ArrayList<Delay> delayTimesList = new ArrayList<Delay>();
         try {
             if (getInitParameter("delayTime") != null) {
                 delayTimeMatcher = new Perl5Matcher();
@@ -311,10 +318,7 @@ public class Retry extends GenericMailet implements Runnable {
         } catch (Exception e) {
             log("Invalid maxRetries setting: " + getInitParameter("maxRetries"));
         }
-
-        ServiceManager compMgr = (ServiceManager) getMailetContext()
-                .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-
+        
         // Get the path for the 'Retry' repository. This is the place on the
         // file system where Mail objects will be saved during the 'retry'
         // processing. This can be changed to a repository on a database (e.g.
@@ -325,15 +329,11 @@ public class Retry extends GenericMailet implements Runnable {
         }
 
         try {
-            // Instantiate a MailRepository for mails that should be retried.
-            Store mailstore = (Store) compMgr.lookup(Store.ROLE);
-
-            DefaultConfiguration spoolConf = new DefaultConfiguration(
-                    "repository", "generated:Retry");
-            spoolConf.setAttribute("destinationURL", workRepositoryPath);
-            spoolConf.setAttribute("type", "SPOOL");
-            workRepository = (SpoolRepository) mailstore.select(spoolConf);
-        } catch (ServiceException cnfe) {
+            DefaultConfigurationBuilder spoolConf = new DefaultConfigurationBuilder();
+            spoolConf.addProperty("[@destinationURL]", workRepositoryPath);
+            spoolConf.addProperty("[@type]", "SPOOL");
+            workRepository = (SpoolRepository) mailStore.select(spoolConf);
+        } catch (Exception cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
             throw new MessagingException("Failed to retrieve Store component",
                     cnfe);
@@ -364,11 +364,11 @@ public class Retry extends GenericMailet implements Runnable {
      *            list of 'Delay' objects
      * @return total no. of retry attempts
      */
-    private int calcTotalAttempts (ArrayList delayList) {
+    private int calcTotalAttempts (ArrayList<Delay> delayList) {
         int sum = 0;
-        Iterator i = delayList.iterator();
+        Iterator<Delay> i = delayList.iterator();
         while (i.hasNext()) {
-            Delay delay = (Delay)i.next();
+            Delay delay = i.next();
             sum += delay.getAttempts();
         }
         return sum;
@@ -396,7 +396,7 @@ public class Retry extends GenericMailet implements Runnable {
      *            the list to expand
      * @return the expanded list
      **/
-    private long[] expandDelays(ArrayList delayList) {
+    private long[] expandDelays(ArrayList<Delay> delayList) {
         long[] delays = new long[calcTotalAttempts(delayList)];
         int idx = 0;
         for (int i = 0; i < delayList.size(); i++) {

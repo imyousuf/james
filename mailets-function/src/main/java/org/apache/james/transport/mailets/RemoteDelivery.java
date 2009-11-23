@@ -23,8 +23,6 @@ package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
@@ -42,6 +40,7 @@ import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
+import javax.annotation.Resource;
 import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
@@ -261,6 +260,20 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     
     /** The retry count dnsProblemErrors */
     private int dnsProblemRetry = 0;
+
+    private Store mailStore;
+    
+    
+    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    public void setStore(Store mailStore) {
+        this.mailStore = mailStore;
+    }
+    
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public void setDNSService(DNSService dnsService) {
+        this.dnsServer = dnsService;
+    }
+    
     
     /**
      * Initializes all arguments based on configuration values specified in the
@@ -343,10 +356,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (Exception e) {
             log("Invalid maxRetries setting: " + getInitParameter("maxRetries"));
         }
-
-        ServiceManager compMgr = (ServiceManager) getMailetContext()
-                .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-        
         // Get the path for the 'Outgoing' repository. This is the place on the
         // file system where Mail objects will be saved during the 'delivery'
         // processing. This can be changed to a repository on a database (e.g.
@@ -357,14 +366,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
 
         try {
-            // Instantiate a MailRepository for mails to be processed.
-            Store mailstore = (Store) compMgr.lookup(Store.ROLE);
-
             DefaultConfigurationBuilder spoolConf = new DefaultConfigurationBuilder();
             spoolConf.addProperty("[@destinationURL]", workRepositoryPath);
             spoolConf.addProperty("[@type]", "SPOOL");
-            workRepository = (SpoolRepository) mailstore.select(spoolConf);
-        } catch (ServiceException cnfe) {
+            workRepository = (SpoolRepository) mailStore.select(spoolConf);
+        } catch (Exception cnfe) {
             log("Failed to retrieve Store component:" + cnfe.getMessage());
             throw new MessagingException("Failed to retrieve Store component",
                     cnfe);
@@ -423,13 +429,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             authPass = getInitParameter("gatewayPassword");
         }
 
-        // Instantiate the DNSService for DNS queries lookup
-        try {
-            dnsServer = (DNSService) compMgr.lookup(DNSService.ROLE);
-        } catch (ServiceException e1) {
-            log("Failed to retrieve DNSService" + e1.getMessage());
-        }
-
         bindAddress = getInitParameter("bind");
         isBindUsed = bindAddress != null;
         try {
@@ -439,9 +438,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
 
         // deal with <mail.*> attributes, passing them to javamail
-        Iterator i = getInitParameterNames();
+        Iterator<String> i = getInitParameterNames();
         while (i.hasNext()) {
-            String name = (String) i.next();
+            String name = i.next();
             if (name.startsWith("mail.")) {
                 defprops.put(name,getInitParameter(name));
             }
@@ -624,14 +623,14 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         if (isDebug) {
             log("Remotely delivering mail " + mail.getName());
         }
-        Collection recipients = mail.getRecipients();
+        Collection<MailAddress> recipients = mail.getRecipients();
 
         if (gatewayServer == null) {
             // Must first organize the recipients into distinct servers (name made case insensitive)
             Hashtable<String, Collection<MailAddress>> targets = new Hashtable<String, Collection<MailAddress>>();
-            for (Iterator i = recipients.iterator(); i.hasNext();) {
-                MailAddress target = (MailAddress)i.next();
-                String targetServer = target.getHost().toLowerCase(Locale.US);
+            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext();) {
+                MailAddress target = i.next();
+                String targetServer = target.getDomain().toLowerCase(Locale.US);
                 Collection<MailAddress> temp = targets.get(targetServer);
                 if (temp == null) {
                     temp = new ArrayList<MailAddress>();
@@ -645,8 +644,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             // Store the new message containers, organized by server, in the outgoing mail repository
             String name = mail.getName();
-            for (Iterator i = targets.keySet().iterator(); i.hasNext(); ) {
-                String host = (String) i.next();
+            for (Iterator<String> i = targets.keySet().iterator(); i.hasNext(); ) {
+                String host = i.next();
                 Collection<MailAddress> rec = targets.get(host);
                 if (isDebug) {
                     StringBuilder logMessageBuffer =
@@ -857,11 +856,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             MimeMessage message = mail.getMessage();
 
             //Create an array of the recipients as InternetAddress objects
-            Collection recipients = mail.getRecipients();
+            Collection<MailAddress> recipients = mail.getRecipients();
             InternetAddress addr[] = new InternetAddress[recipients.size()];
             int j = 0;
-            for (Iterator i = recipients.iterator(); i.hasNext(); j++) {
-                MailAddress rcpt = (MailAddress)i.next();
+            for (Iterator<MailAddress> i = recipients.iterator(); i.hasNext(); j++) {
+                MailAddress rcpt = i.next();
                 addr[j] = rcpt.toInternetAddress();
             }
 
@@ -875,7 +874,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             Iterator<HostAddress> targetServers = null;
             if (gatewayServer == null) {
                 MailAddress rcpt = (MailAddress) recipients.iterator().next();
-                String host = rcpt.getHost();
+                String host = rcpt.getDomain();
 
                 //Lookup the possible targets
                 try {
@@ -1115,7 +1114,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         } catch (SendFailedException sfe) {
         logSendFailedException(sfe);
 
-            Collection recipients = mail.getRecipients();
+            Collection<MailAddress> recipients = mail.getRecipients();
 
             boolean deleteMessage = false;
 
@@ -1517,7 +1516,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         out.println("I include the list of recipients and the reason why I was unable to deliver");
         out.println("your message.");
         out.println();
-        for (Iterator i = mail.getRecipients().iterator(); i.hasNext(); ) {
+        for (Iterator<MailAddress> i = mail.getRecipients().iterator(); i.hasNext(); ) {
             out.println(i.next());
         }
         if (ex instanceof MessagingException) {
@@ -1645,12 +1644,5 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             }
         };
     }
-    
-    /**
-     * Setter for the dnsserver service
-     * @param dnsServer dns service
-     */
-    protected synchronized void setDNSServer(DNSService dnsServer) {
-        this.dnsServer = dnsServer;
-    }
+  
 }

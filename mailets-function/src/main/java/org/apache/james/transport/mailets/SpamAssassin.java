@@ -88,11 +88,11 @@ public class SpamAssassin extends GenericMailet {
                     spamdPort);
             sa.scanMail(message);
 
-            Iterator headers = sa.getHeadersAsAttribute().keySet().iterator();
+            Iterator<String> headers = sa.getHeadersAsAttribute().keySet().iterator();
 
             // Add headers as attribute to mail object
             while (headers.hasNext()) {
-                String key = headers.next().toString();
+                String key = headers.next();
                 mail.setAttribute(key, (String) sa.getHeadersAsAttribute().get(key));
             }
 
