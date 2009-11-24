@@ -41,7 +41,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;

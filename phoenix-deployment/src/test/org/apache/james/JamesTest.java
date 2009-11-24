@@ -21,52 +21,58 @@
 
 package org.apache.james;
 
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.domainlist.DomainList;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
-import org.apache.james.services.FileSystem;
-import org.apache.james.services.MailServer;
-import org.apache.james.services.MailServerTestAllImplementations;
-import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.test.mock.james.InMemorySpoolRepository;
-import org.apache.james.test.mock.james.MockUsersStore;
-import org.apache.james.userrepository.MockUsersRepository;
-
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.IOException;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.james.api.dnsservice.AbstractDNSServer;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.domainlist.DomainList;
+import org.apache.james.services.FileSystem;
+import org.apache.james.services.MailServer;
+import org.apache.james.services.MailServerTestAllImplementations;
+import org.apache.james.test.mock.avalon.MockStore;
+import org.apache.james.test.mock.james.InMemorySpoolRepository;
+import org.apache.james.test.mock.james.MockUsersStore;
+import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.util.ConfigurationAdapter;
+import org.apache.mailet.MailetContext;
+
 public class JamesTest extends MailServerTestAllImplementations {
     
-    private File tempContextFile = null;
-    private InMemorySpoolRepository mockMailRepository;
-
+    protected File tempContextFile = null;
+    protected InMemorySpoolRepository mockMailRepository;
+    protected MockUsersRepository mockUsersRepository;
+    protected MockUsersStore usersStore;
+    protected FileSystem fs;
+    protected DomainList domList;
+    protected MockStore mockStore;
+    protected DNSService dns;
+    
     public MailServer createMailServer() throws Exception {
         James james = new James();
-        james.service(setUpServiceManager());
-        MockLogger mockLogger = new MockLogger();
-        mockLogger.disableDebug();
-        ContainerUtil.enableLogging(james, mockLogger);
+        james.setDNSService(dns);
+        james.setDomainList(domList);
+        james.setFileSystem(fs);
+        james.setSpoolRepository(mockMailRepository);
+        james.setStore(mockStore);
+        james.setUsersRepository(mockUsersRepository);
+        james.setLogger(new SimpleLog("JamesLog"));
+        james.setMailetLogger(new SimpleLog("MailetLog"));
         try {
             JamesTestConfiguration conf = new JamesTestConfiguration();
             conf.init();
-            ContainerUtil.configure(james, conf);
-            ContainerUtil.initialize(james);
+            james.setConfiguration(new ConfigurationAdapter(conf));
+            james.init();
         } catch (Exception e) {
             e.printStackTrace();
             fail("James.initialize() failed");
@@ -74,30 +80,16 @@ public class JamesTest extends MailServerTestAllImplementations {
         return james;
     }
     
-    
-
-    protected void tearDown() throws Exception {
-        if (tempContextFile != null) {
-            tempContextFile.delete();
-        }
-        if (mockMailRepository != null) {
-            ContainerUtil.dispose(mockMailRepository);
-        }
-        super.tearDown();
-    }
-
-
-
-    private MockServiceManager setUpServiceManager() throws Exception {
-        MockServiceManager serviceManager = new MockServiceManager();
-        MockUsersRepository mockUsersRepository = new MockUsersRepository();
+    protected void setUp() throws Exception{
+        super.setUp();
+        mockUsersRepository = new MockUsersRepository();
         mockUsersRepository.setLogger(new SimpleLog("MockLog"));
         mockUsersRepository.setConfiguration(new DefaultConfigurationBuilder());
         mockUsersRepository.init();
         
-        serviceManager.put(UsersRepository.ROLE, mockUsersRepository);
-        serviceManager.put(UsersStore.ROLE, new MockUsersStore(mockUsersRepository));
-        serviceManager.put(FileSystem.ROLE, new FileSystem() {
+        usersStore = new MockUsersStore(mockUsersRepository);
+        
+        fs = new FileSystem() {
 
             public File getBasedir() throws FileNotFoundException {
                 return new File(".");
@@ -111,8 +103,9 @@ public class JamesTest extends MailServerTestAllImplementations {
                 return new File("./conf/");
             }
             
-        });
-        serviceManager.put(DomainList.ROLE, new DomainList() {
+        };
+        
+        domList = new DomainList() {
 
             public List<String> getDomains() {
                 ArrayList<String> d = new ArrayList<String>();
@@ -127,18 +120,14 @@ public class JamesTest extends MailServerTestAllImplementations {
         public void setAutoDetect(boolean autodetect) {}
 
         public void setAutoDetectIP(boolean autodetectIP) {}            
-        });
-        MockStore mockStore = new MockStore();
+        };
+        
+        mockStore = new MockStore();
         
         mockMailRepository = new InMemorySpoolRepository();
         mockStore.add(EXISTING_USER_NAME, mockMailRepository);
-        serviceManager.put(Store.ROLE, mockStore);
-        serviceManager.put(DNSService.ROLE, setUpDNSServer());
-        return serviceManager;
-    }
-    
-    private DNSService setUpDNSServer() {
-        DNSService dns = new AbstractDNSServer() {
+        
+        dns = new AbstractDNSServer() {
             public String getHostName(InetAddress addr) {
                 return "localhost";
             }
@@ -147,7 +136,17 @@ public class JamesTest extends MailServerTestAllImplementations {
                 throw new UnknownHostException("Unknown");
             }
         };
-        return dns;
+    }
+    
+
+    protected void tearDown() throws Exception {
+        if (tempContextFile != null) {
+            tempContextFile.delete();
+        }
+        if (mockMailRepository != null) {
+            ContainerUtil.dispose(mockMailRepository);
+        }
+        super.tearDown();
     }
 
     public boolean allowsPasswordlessUser() {
@@ -159,6 +158,6 @@ public class JamesTest extends MailServerTestAllImplementations {
     }
 
     public boolean isUserExisting(MailServer mailServerImpl, String username) {
-        return ((James)mailServerImpl).isLocalUser(username);
+        return ((MailetContext)mailServerImpl).isLocalUser(username);
     }
 }

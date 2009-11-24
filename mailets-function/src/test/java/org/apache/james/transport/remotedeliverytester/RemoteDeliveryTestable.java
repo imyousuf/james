@@ -35,7 +35,7 @@ import javax.mail.MessagingException;
 public interface RemoteDeliveryTestable {
     
     void setRemoteDeliveryTester(Tester tester);
-    void setDNSServer(DNSService dnsServer);
+    void setDNSService(DNSService dnsServer);
     void setStore(Store store);
     void init() throws MessagingException;
     void init(MailetConfig newConfig) throws MessagingException;

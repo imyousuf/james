@@ -22,26 +22,20 @@
 package org.apache.james;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.service.DefaultServiceManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+
 import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.configuration.CombinedConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.impl.jamesuser.JamesUsersRepository;
@@ -51,13 +45,15 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.transport.MailetConfigImpl;
 import org.apache.james.transport.mailets.LocalDelivery;
-import org.apache.james.util.ConfigurationAdapter;
+import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.base.RFC2822Headers;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -93,9 +89,9 @@ import java.util.Vector;
  * @version This is $Revision$
 
  */
+@SuppressWarnings("unchecked")
 public class James
-    extends AbstractLogEnabled
-    implements Serviceable, Configurable, Initializable, MailServer, MailetContext {
+    implements MailServer, MailetContext {
 
     /**
      * The software name and version
@@ -103,19 +99,14 @@ public class James
     private final static String SOFTWARE_NAME_VERSION = Constants.SOFTWARE_NAME + " " + Constants.SOFTWARE_VERSION;
 
     /**
-     * The component manager used both internally by James and by Mailets.
-     */
-    private DefaultServiceManager compMgr; //Components shared
-
-    /**
      * The top level configuration object for this server.
      */
-    private Configuration conf = null;
+    private HierarchicalConfiguration conf = null;
 
     /**
      * The logger used by the Mailet API.
      */
-    private Logger mailetLogger = null;
+    private Log mailetLogger = null;
 
     /**
      * The mail store containing the inbox repository and the spool.
@@ -142,7 +133,7 @@ public class James
      * The collection of domain/server names for which this instance of James
      * will receive and process mail.
      */
-    private Collection serverNames;
+    private Collection<String> serverNames;
 
     /**
      * The number of mails generated.  Access needs to be synchronized for
@@ -160,13 +151,14 @@ public class James
      * A map used to store mailboxes and reduce the cost of lookup of individual
      * mailboxes.
      */
-    private Map mailboxes; //Not to be shared!
+    private Map<String,MailRepository> mailboxes = new ReferenceMap();
+
 
     /**
      * A hash table of server attributes
      * These are the MailetContext attributes
      */
-    private Hashtable attributes = new Hashtable();
+    private Hashtable<String,Object> attributes = new Hashtable<String,Object>();
 
     /**
      * Currently used by storeMail to avoid code duplication (we moved store logic to that mailet).
@@ -184,66 +176,79 @@ public class James
     
     private String helloName = null;
 
+    private Log logger;
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager comp) throws ServiceException {
-        compMgr = new DefaultServiceManager(comp);
-        mailboxes = new ReferenceMap();
-        setFileSystem((FileSystem) comp.lookup(FileSystem.ROLE));
-        domains = (DomainList) comp.lookup(DomainList.ROLE);
-    }
+    private DNSService dns;
+
 
     /**
      * Sets the fileSystem service
      * 
      * @param system the new service
      */
-    private void setFileSystem(FileSystem system) {
+    @Resource(name="org.apache.james.services.FileSystem")
+    public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
-
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration conf) {
-        this.conf = conf;
+    
+    @Resource(name="org.apache.james.api.domainlist.DomainList")
+    public void setDomainList(DomainList domains) {
+        this.domains = domains;
     }
+    
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public void setDNSService(DNSService dns) {
+        this.dns = dns;
+    }
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public final void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public final void setConfiguration(HierarchicalConfiguration config) {
+        this.conf = config;
+    }
+    
+    
+    @Resource(name="org.apache.commons.logging.Log@MailetLog")
+    public final void setMailetLogger(Log mailetLogger) {
+        this.mailetLogger = mailetLogger;
+    }
+    
+    
+    @PostConstruct
+    public void init() throws Exception {
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
-
-        final Logger logger = getLogger();
         logger.info("JAMES init...");
 
         initializeServices();
 
-        Configuration userNamesConf = conf.getChild("usernames");
-        if (userNamesConf != null) {
+        if (conf.getKeys("usernames").hasNext()) {
+            HierarchicalConfiguration userNamesConf = conf.configurationAt("usernames");
+
             if (localusers instanceof JamesUsersRepository) {
                 logger.warn("<usernames> parameter in James block is deprecated. Please configure this data in UsersRepository block: configuration injected for backward compatibility");
-                ((JamesUsersRepository) localusers).setIgnoreCase(userNamesConf.getAttributeAsBoolean("ignoreCase", false));
-                ((JamesUsersRepository) localusers).setEnableAliases(userNamesConf.getAttributeAsBoolean("enableAliases", false));
-                ((JamesUsersRepository) localusers).setEnableForwarding(userNamesConf.getAttributeAsBoolean("enableForwarding", false));
+                ((JamesUsersRepository) localusers).setIgnoreCase(userNamesConf.getBoolean("[@ignoreCase]", false));
+                ((JamesUsersRepository) localusers).setEnableAliases(userNamesConf.getBoolean("[@enableAliases]", false));
+                ((JamesUsersRepository) localusers).setEnableForwarding(userNamesConf.getBoolean("[@enableForwarding]", false));
             } else {
                 logger.error("<usernames> parameter is no more supported. Backward compatibility is provided when using an AbstractUsersRepository but this repository is a "+localusers.getClass().toString());
             }
         }
         
-        Configuration serverConf = conf.getChild("servernames");
-        if (serverConf != null) {
+        if (conf.getKeys("servernames").hasNext()) {
+            HierarchicalConfiguration serverConf = conf.configurationAt("servernames");
             if (domains instanceof ManageableDomainList) {
                 logger.warn("<servernames> parameter in James block is deprecated. Please configure this data in domainlist block: configuration injected for backward compatibility");
                 ManageableDomainList dom = (ManageableDomainList) domains;
-                dom.setAutoDetect(serverConf.getAttributeAsBoolean("autodetect",true));    
-                dom.setAutoDetectIP(serverConf.getAttributeAsBoolean("autodetectIP", true));
+                dom.setAutoDetect(serverConf.getBoolean("[@autodetect]",true));    
+                dom.setAutoDetectIP(serverConf.getBoolean("[@autodetectIP]", true));
             
-                Configuration[] serverNameConfs = serverConf.getChildren( "servername" );
-                for ( int i = 0; i < serverNameConfs.length; i++ ) {
-                    dom.addDomain( serverNameConfs[i].getValue().toLowerCase(Locale.US));
+                List<String> serverNameConfs = serverConf.getList( "servername" );
+                for ( int i = 0; i < serverNameConfs.size(); i++ ) {
+                    dom.addDomain( serverNameConfs.get(i).toLowerCase(Locale.US));
                 }
             } else {
                 logger.error("<servernames> parameter is no more supported. Backward compatibility is provided when using an XMLDomainList");
@@ -257,70 +262,48 @@ public class James
         // compMgr.put( UsersRepository.ROLE, localusers);
         // getLogger().info("Local users repository opened");
 
-        inboxRootURL = conf.getChild("inboxRepository").getChild("repository").getAttribute("destinationURL");
+        inboxRootURL = conf.configurationAt("inboxRepository.repository").getString("[@destinationURL]");
 
         logger.info("Private Repository LocalInbox opened");
         
-        Configuration virtualHostingConfig = conf.getChild("enableVirtualHosting");
-        if (virtualHostingConfig != null ) {
-            virtualHosting = virtualHostingConfig.getValueAsBoolean(false);
-        }
-        
+        virtualHosting = conf.getBoolean("enableVirtualHosting", false);
+
         logger.info("VirtualHosting supported: " + virtualHosting);
         
-        Configuration defaultDomainConfig = conf.getChild("defaultDomain");
-        if (defaultDomainConfig != null ) {
-            defaultDomain = defaultDomainConfig.getValue(null);
-        } else if (virtualHosting) {
+        defaultDomain = conf.getString("defaultDomain",null);
+        if (defaultDomain == null && virtualHosting) {
             throw new ConfigurationException("Please configure a defaultDomain if using VirtualHosting");
         }
         
         logger.info("Defaultdomain: " + defaultDomain);
         
-        Configuration helloNameConfig = conf.getChild("helloName");
+        HierarchicalConfiguration helloNameConfig = conf.configurationAt("helloName");
         if (helloNameConfig != null) {
-            boolean autodetect = helloNameConfig.getAttributeAsBoolean("autodetect", true);
+            boolean autodetect = helloNameConfig.getBoolean("[@autodetect]", true);
             if (autodetect) {
                 try {
-                    helloName = lookupDNSServer().getHostName(lookupDNSServer().getLocalHost());
+                    helloName = dns.getHostName(dns.getLocalHost());
                 } catch (UnknownHostException e) {
                     helloName = "localhost";
                 }
             } else {
                 // Should we use the defaultdomain here ?
-                helloName = helloNameConfig.getValue(defaultDomain);
+                helloName = conf.getString("helloName",defaultDomain);
             }
             attributes.put(Constants.HELLO_NAME, helloName);
         }
 
-        // Add this to comp
-        compMgr.put( MailServer.ROLE, this);
-
-        // For mailet engine provide MailetContext
-        //compMgr.put("org.apache.mailet.MailetContext", this);
-        // For AVALON aware mailets and matchers, we put the Component object as
-        // an attribute
-        attributes.put(Constants.AVALON_COMPONENT_MANAGER, compMgr);
-
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
-        String confDir;
-        try {
-            confDir = conf.getChild("configuration-directory").getValue();
-        } catch (ConfigurationException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to read configuration directory configuration. Will continue using default.");
-            }
-            logger.debug("Failed to read configuration directory configuration", e);
-            confDir = null;
-        }
+        String confDir = conf.getString("configuration-directory", null);
+        
         // defaults to the old behaviour
         if (confDir == null) confDir = "file://conf/";
         java.io.File configDir = fileSystem.getFile(confDir);
         attributes.put("confDir", configDir.getCanonicalPath());
 
         try {
-            attributes.put(Constants.HOSTADDRESS, lookupDNSServer().getLocalHost().getHostAddress());
-            attributes.put(Constants.HOSTNAME, lookupDNSServer().getLocalHost().getHostName());
+            attributes.put(Constants.HOSTADDRESS, dns.getLocalHost().getHostAddress());
+            attributes.put(Constants.HOSTNAME, dns.getLocalHost().getHostName());
         } catch (java.net.UnknownHostException _) {
             attributes.put(Constants.HOSTADDRESS, "127.0.0.1");
             attributes.put(Constants.HOSTNAME, "localhost");
@@ -336,29 +319,26 @@ public class James
         // TODO: This should retrieve a more specific named thread pool from
         // Context that is set up in server.xml
         try {
-            Store store = (Store) compMgr.lookup( Store.ROLE );
-            setStore(store);
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Using Store: " + store.toString());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Using Store: " + store.toString());
             }
         } catch (Exception e) {
-            if (getLogger().isWarnEnabled()) {
-                getLogger().warn("Can't get Store: " + e);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Can't get Store: " + e);
             }
         }
 
         try {
-            SpoolRepository spool = (SpoolRepository) compMgr.lookup(SpoolRepository.ROLE);
-            setSpool(spool);
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Using SpoolRepository: " + spool.toString());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Using SpoolRepository: " + spool.toString());
             }
         } catch (Exception e) {
-            if (getLogger().isWarnEnabled()) {
-                getLogger().warn("Can't get spoolRepository: " + e);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Can't get spoolRepository: " + e);
             }
         }
 
+        /*
         try {
             // lookup the usersStore.
             // This is not used by James itself, but we check we received it here
@@ -372,17 +352,10 @@ public class James
                 getLogger().warn("Can't get Store: " + e);
             }
         }
-
-        try {
-            UsersRepository localusers = (UsersRepository) compMgr.lookup(UsersRepository.ROLE);
-            setLocalusers(localusers);
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Using LocalUsersRepository: " + localusers.toString());
-            }
-        } catch (Exception e) {
-            getLogger().error("Cannot open private UserRepository");
-            throw e;
-        }
+        */
+        if (logger.isDebugEnabled()) {
+            logger.debug("Using LocalUsersRepository: " + localusers.toString());
+        }    
     }
 
     private void initializeServernamesAndPostmaster() throws ConfigurationException, ParseException {
@@ -404,16 +377,16 @@ public class James
         attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
 
         // Get postmaster
-        String postMasterAddress = conf.getChild("postmaster").getValue("postmaster").toLowerCase(Locale.US);
+        String postMasterAddress = conf.getString("postmaster","postmaster").toLowerCase(Locale.US);
         // if there is no @domain part, then add the first one from the
         // list of supported domains that isn't localhost.  If that
         // doesn't work, use the hostname, even if it is localhost.
         if (postMasterAddress.indexOf('@') < 0) {
             String domainName = null;    // the domain to use
             // loop through candidate domains until we find one or exhaust the list
-            Iterator i = serverNames.iterator();
+            Iterator<String> i = serverNames.iterator();
             while (i.hasNext()) {
-                String serverName = i.next().toString().toLowerCase(Locale.US);
+                String serverName = i.next().toLowerCase(Locale.US);
                 if (!("localhost".equals(serverName))) {
                     domainName = serverName; // ok, not localhost, so use it
                     continue;
@@ -424,27 +397,23 @@ public class James
         }
         this.postmaster = new MailAddress( postMasterAddress );
 
-        if (!isLocalServer(postmaster.getHost())) {
+        if (!isLocalServer(postmaster.getDomain())) {
             StringBuffer warnBuffer
                     = new StringBuffer(320)
                     .append("The specified postmaster address ( ")
                     .append(postmaster)
                     .append(" ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
-            getLogger().warn(warnBuffer.toString());
+            logger.warn(warnBuffer.toString());
         }
     }
 
     private void initializeLocalDeliveryMailet() throws MessagingException {
         // We can safely remove this and the localDeliveryField when we 
         // remove the storeMail method from James and from the MailetContext
-        DefaultConfiguration conf = new DefaultConfiguration("mailet", "generated:James.initialize()");
+        DefaultConfigurationBuilder conf = new DefaultConfigurationBuilder();
         MailetConfigImpl configImpl = new MailetConfigImpl();
         configImpl.setMailetName("LocalDelivery");
-        try {
-            configImpl.setConfiguration(new ConfigurationAdapter(conf));
-        } catch (org.apache.commons.configuration.ConfigurationException e) {
-            throw new MessagingException(e.getMessage());
-        }
+        configImpl.setConfiguration(conf);
         configImpl.setMailetContext(this);
         localDeliveryMailet = new LocalDelivery();
         localDeliveryMailet.init(configImpl);
@@ -455,6 +424,7 @@ public class James
      * 
      * @param store the Store to use
      */
+    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
     public void setStore(Store store) {
         this.store = store;
     }
@@ -464,7 +434,8 @@ public class James
      * 
      * @param spool the SpoleRepository to use
      */
-    public void setSpool(SpoolRepository spool) {
+    @Resource(name="org.apache.james.services.SpoolRepository")
+    public void setSpoolRepository(SpoolRepository spool) {
         this.spool = spool;
     }
 
@@ -473,7 +444,8 @@ public class James
      * 
      * @param localusers the UserRepository to use
      */
-    public void setLocalusers(UsersRepository localusers) {
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }
 
@@ -487,7 +459,7 @@ public class James
      */
     public void sendMail(MimeMessage message) throws MessagingException {
         MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
-        Collection recipients = new HashSet();
+        Collection<MailAddress> recipients = new HashSet<MailAddress>();
         Address addresses[] = message.getAllRecipients();
         if (addresses != null) {
             for (int i = 0; i < addresses.length; i++) {
@@ -546,21 +518,21 @@ public class James
         try {
             spool.store(mail);
         } catch (Exception e) {
-            getLogger().error("Error storing message: " + e.getMessage(),e);
+            logger.error("Error storing message: " + e.getMessage(),e);
             try {
                 spool.remove(mail);
             } catch (Exception ignored) {
-                getLogger().error("Error removing message after an error storing it: " + e.getMessage(),e);
+                logger.error("Error removing message after an error storing it: " + e.getMessage(),e);
             }
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
         }
-        if (getLogger().isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             StringBuffer logBuffer =
                 new StringBuffer(64)
                         .append("Mail ")
                         .append(mail.getName())
                         .append(" pushed in spool");
-            getLogger().debug(logBuffer.toString());
+            logger.debug(logBuffer.toString());
         }
     }
 
@@ -589,8 +561,8 @@ public class James
 //            throw new RuntimeException("Error in getUserInbox.");
         } else {
             // need mailbox object
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Retrieving and caching inbox for " + userName );
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieving and caching inbox for " + userName );
             }
 
             StringBuffer destinationBuffer = new StringBuffer(192);
@@ -607,17 +579,17 @@ public class James
             String destination = destinationBuffer.toString();
             try {
                 // Copy the inboxRepository configuration and modify the destinationURL
-                DefaultConfiguration mboxConf = new DefaultConfiguration(conf
-                        .getChild("inboxRepository").getChild("repository"));
-                mboxConf.setAttribute("destinationURL", destination);
+                CombinedConfiguration mboxConf = new CombinedConfiguration();
+                mboxConf.addConfiguration(conf.configurationAt("inboxRepository.repository"));
+                mboxConf.setProperty("[@destinationURL]", destination);
 
-                userInbox = (MailRepository) store.select(new ConfigurationAdapter(mboxConf));
+                userInbox = (MailRepository) store.select(mboxConf);
                 if (userInbox!=null) {
                     mailboxes.put(userName, userInbox);
                 }
             } catch (Exception e) {
-                if (getLogger().isErrorEnabled()) {
-                    getLogger().error("Cannot open user Mailbox",e);
+                if (logger.isErrorEnabled()) {
+                    logger.error("Cannot open user Mailbox",e);
                 }
                 throw new RuntimeException("Error in getUserInbox.",e);
             }
@@ -684,12 +656,12 @@ public class James
     /**
      * @see org.apache.mailet.MailetContext#getMailServers(String)
      */
-    public Collection getMailServers(String host) {
+    public Collection<String> getMailServers(String host) {
         try {
-            return lookupDNSServer().findMXRecords(host);
+            return dns.findMXRecords(host);
         } catch (TemporaryResolutionException e) {
             //TODO: We only do this to not break backward compatiblity. Should fixed later
-            return Collections.unmodifiableCollection(new ArrayList(0));
+            return Collections.unmodifiableCollection(new ArrayList<String>(0));
         }
     }
 
@@ -717,10 +689,10 @@ public class James
     /**
      * @see org.apache.mailet.MailetContext#getAttributeNames()
      */
-    public Iterator getAttributeNames() {
-        Vector names = new Vector();
+    public Iterator<String> getAttributeNames() {
+        Vector<String> names = new Vector<String>();
         for (Enumeration e = attributes.keys(); e.hasMoreElements(); ) {
-            names.add(e.nextElement());
+            names.add(e.nextElement().toString());
         }
         return names.iterator();
     }
@@ -765,13 +737,13 @@ public class James
 
     public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
         if (mail.getSender() == null) {
-            if (getLogger().isInfoEnabled())
-                getLogger().info("Mail to be bounced contains a null (<>) reverse path.  No bounce will be sent.");
+            if (logger.isInfoEnabled())
+                logger.info("Mail to be bounced contains a null (<>) reverse path.  No bounce will be sent.");
             return;
         } else {
             // Bounce message goes to the reverse path, not to the Reply-To address
-            if (getLogger().isInfoEnabled())
-                getLogger().info("Processing a bounce request for a message with a reverse path of " + mail.getSender().toString());
+            if (logger.isInfoEnabled())
+                logger.info("Processing a bounce request for a message with a reverse path of " + mail.getSender().toString());
         }
 
         MailImpl reply = rawBounce(mail,message);
@@ -799,7 +771,7 @@ public class James
         MimeMessage reply = (MimeMessage) original.reply(false);
         reply.setSubject("Re: " + original.getSubject());
         reply.setSentDate(new Date());
-        Collection recipients = new HashSet();
+        Collection<MailAddress> recipients = new HashSet<MailAddress>();
         recipients.add(mail.getSender());
         InternetAddress addr[] = { new InternetAddress(mail.getSender().toString())};
         reply.setRecipients(Message.RecipientType.TO, addr);
@@ -837,11 +809,11 @@ public class James
      */
     public boolean isLocalEmail(MailAddress mailAddress) {
     String userName = mailAddress.toString();
-        if (!isLocalServer(mailAddress.getHost())) {
+        if (!isLocalServer(mailAddress.getDomain())) {
             return false;
         }
         if (virtualHosting == false) {
-            userName = mailAddress.getUser();
+            userName = mailAddress.getLocalPart();
         }
         return localusers.contains(userName);
     }
@@ -894,10 +866,7 @@ public class James
      *
      * @return the logger for the Mailet API
      */
-    private Logger getMailetLogger() {
-        if (mailetLogger == null) {
-            mailetLogger = getLogger().getChildLogger("Mailet");
-        }
+    private Log getMailetLogger() {
         return mailetLogger;
     }
 
@@ -948,24 +917,13 @@ public class James
      * @param domainName - the domain for which to find mail servers
      * @return an Iterator over HostAddress instances, sorted by priority
      */
-    public Iterator getSMTPHostAddresses(String domainName) {
+    public Iterator<HostAddress> getSMTPHostAddresses(String domainName) {
         try {
-            return lookupDNSServer().getSMTPHostAddresses(domainName);
+            return dns.getSMTPHostAddresses(domainName);
         } catch (TemporaryResolutionException e) {
             //TODO: We only do this to not break backward compatiblity. Should fixed later
-            return Collections.unmodifiableCollection(new ArrayList(0)).iterator();
+            return Collections.unmodifiableCollection(new ArrayList<HostAddress>(0)).iterator();
         }
-    }
-
-    protected DNSService lookupDNSServer() {
-        DNSService dnsServer;
-        try {
-            dnsServer = (DNSService) compMgr.lookup( DNSService.ROLE );
-        } catch ( final ServiceException cme ) {
-            getLogger().error("Fatal configuration error - DNS Servers lost!", cme );
-            throw new RuntimeException("Fatal configuration error - DNS Servers lost!");
-        }
-        return dnsServer;
     }
 
     /**
@@ -984,7 +942,7 @@ public class James
         if (msg == null) {
             throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
         }
-        Collection recipients = new HashSet();
+        Collection<MailAddress> recipients = new HashSet<MailAddress>();
         recipients.add(recipient);
         MailImpl m = new MailImpl(getId(),sender,recipients,msg);
         localDeliveryMailet.service(m);
@@ -1003,7 +961,7 @@ public class James
      */
     public String getDefaultDomain() {
         if (defaultDomain == null) {
-            List domainList = domains.getDomains();
+            List<String> domainList = domains.getDomains();
             if (domainList == null || domainList.isEmpty()) {
                 return "localhost";
             } else {
