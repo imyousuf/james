@@ -23,19 +23,19 @@ package org.apache.james.fetchmail;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.services.MailServer;
 
 /**
  *  A class to instantiate and schedule a set of mail fetching tasks
@@ -43,19 +43,13 @@ import org.apache.avalon.framework.service.Serviceable;
  * $Id$
  *
  */
-public class FetchScheduler
-    extends AbstractLogEnabled
-    implements Serviceable, Configurable, Initializable, Disposable, FetchSchedulerMBean {
+public class FetchScheduler implements FetchSchedulerMBean {
 
     /**
      * Configuration object for this service
      */
-    private Configuration conf;
+    private HierarchicalConfiguration conf;
 
-    /**
-     * The service manager that allows access to the system services
-     */
-    private ServiceManager m_manager;
 
     /**
      * The scheduler service that is used to trigger fetch tasks.
@@ -69,51 +63,70 @@ public class FetchScheduler
 
     private ArrayList<String> theFetchTaskNames = new ArrayList<String>();
 
-    public void setScheduler(TimeScheduler scheduler) {
+
+    private DNSService dns;
+
+
+    private MailServer mailserver;
+
+
+    private UsersRepository urepos;
+
+
+    private Log logger;
+
+    @Resource(name="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler")
+    public void setTimeScheduler(TimeScheduler scheduler) {
         this.scheduler = scheduler;
     }
 
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service( ServiceManager )
-     */
-    public void service(ServiceManager comp) throws ServiceException
-    {
-        m_manager = comp;
+    
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public void setDNSService(DNSService dns) {
+        this.dns = dns;
     }
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(Configuration conf) throws ConfigurationException
-    {
-        this.conf = conf;
-    }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception
+    @Resource(name="org.apache.james.services.MailServer")
+    public void setMailServer(MailServer mailserver) {
+        this.mailserver = mailserver;
+    }
+   
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository urepos) {
+        this.urepos = urepos;
+    }
+    
+    @Resource(name="org.apache.commons.logging.Log")
+    public final void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @PostConstruct
+    public void init() throws Exception
     {
-        enabled = conf.getAttributeAsBoolean("enabled", false);
+        enabled = conf.getBoolean("[@enabled]", false);
         if (enabled)
         {
-            TimeScheduler scheduler = (TimeScheduler) m_manager.lookup(TimeScheduler.ROLE);
-            setScheduler(scheduler);
 
-            Configuration[] fetchConfs = conf.getChildren("fetch");
-            for (int i = 0; i < fetchConfs.length; i++)
+            List<HierarchicalConfiguration> fetchConfs = conf.configurationsAt("fetch");
+            for (int i = 0; i < fetchConfs.size(); i++)
             {
                 // read configuration
-                Configuration fetchConf = fetchConfs[i];
-                String fetchTaskName = fetchConf.getAttribute("name");
-                Integer interval = new Integer(fetchConf.getChild("interval").getValue());
+                HierarchicalConfiguration fetchConf = fetchConfs.get(i);
+                String fetchTaskName = fetchConf.getString("[@name]");
+                Integer interval = new Integer(fetchConf.getInt("interval"));
 
                 FetchMail fetcher = new FetchMail();
-                
+                fetcher.setConfiguration(fetchConf);
+                fetcher.setDNSService(dns);
+                fetcher.setMailServer(mailserver);
+                fetcher.setUsersRepository(urepos);
+                fetcher.setLogger(logger);
                 // avalon specific initialization
-                ContainerUtil.enableLogging(fetcher,getLogger().getChildLogger(fetchTaskName));
-                ContainerUtil.service(fetcher,m_manager);
-                ContainerUtil.configure(fetcher,fetchConf);
+               // ContainerUtil.enableLogging(fetcher,getLogger().getChildLogger(fetchTaskName));
+
 
                 // initialize scheduling
                 PeriodicTimeTrigger fetchTrigger =
@@ -122,30 +135,28 @@ public class FetchScheduler
                 theFetchTaskNames.add(fetchTaskName);
             }
 
-            if (getLogger().isInfoEnabled()) getLogger().info("FetchMail Started");
+            if (logger.isInfoEnabled()) logger.info("FetchMail Started");
             System.out.println("FetchMail Started");
         }
         else
         {
-            if (getLogger().isInfoEnabled()) getLogger().info("FetchMail Disabled");
+            if (logger.isInfoEnabled()) logger.info("FetchMail Disabled");
             System.out.println("FetchMail Disabled");
         }
     }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
-     */
+    @PreDestroy
     public void dispose()
     {
         if (enabled)
         {
-            getLogger().info("FetchMail dispose...");
+            logger.info("FetchMail dispose...");
             Iterator<String> nameIterator = theFetchTaskNames.iterator();
             while (nameIterator.hasNext())
             {
                 scheduler.removeTrigger(nameIterator.next());
             }
-            getLogger().info("FetchMail ...dispose end");
+            logger.info("FetchMail ...dispose end");
         }
     }
     

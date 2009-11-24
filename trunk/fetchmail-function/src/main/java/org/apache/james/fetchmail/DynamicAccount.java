@@ -23,7 +23,7 @@ package org.apache.james.fetchmail;
 
 import javax.mail.Session;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConfigurationException;
 
 public class DynamicAccount extends Account
 {
