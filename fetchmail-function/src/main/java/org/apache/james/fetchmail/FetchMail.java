@@ -30,17 +30,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 
 import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
@@ -74,8 +72,7 @@ import org.apache.james.services.MailServer;
  * <p>Creation Date: 24-May-03</p>
  * 
  */
-public class FetchMail extends AbstractLogEnabled implements Configurable, Target, Serviceable
-{
+public class FetchMail implements Target {
     /**
      * Key fields for DynamicAccounts.
      */
@@ -197,19 +194,19 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
          */
         public ParsedDynamicAccountParameters(
             int sequenceNumber,
-            Configuration configuration)
+            org.apache.commons.configuration.Configuration configuration)
             throws ConfigurationException
         {
             this();
             setSequenceNumber(sequenceNumber);
-            setUserPrefix(configuration.getAttribute("userprefix", ""));
-            setUserSuffix(configuration.getAttribute("usersuffix", ""));
-            setRecipientPrefix(configuration.getAttribute("recipientprefix", ""));
-            setRecipientSuffix(configuration.getAttribute("recipientsuffix", ""));
-            setPassword(configuration.getAttribute("password"));
+            setUserPrefix(configuration.getString("[@userprefix]", ""));
+            setUserSuffix(configuration.getString("[@usersuffix]", ""));
+            setRecipientPrefix(configuration.getString("[@recipientprefix]", ""));
+            setRecipientSuffix(configuration.getString("[@recipientsuffix]", ""));
+            setPassword(configuration.getString("[@password]"));
             setIgnoreRecipientHeader(
-                configuration.getAttributeAsBoolean("ignorercpt-header"));
-            setCustomRecipientHeader(configuration.getAttribute("customrcpt-header", ""));
+                configuration.getBoolean("[@ignorercpt-header]"));
+            setCustomRecipientHeader(configuration.getString("[@customrcpt-header]", ""));
         }                       
 
         /**
@@ -403,6 +400,10 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * The DNSService
      */
     private DNSService dnsServer;
+
+    private Log logger;
+
+    private HierarchicalConfiguration config;
     
     /**
      * Constructor for POP3mail.
@@ -420,7 +421,8 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * 
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
-    public void configure(Configuration configuration)
+    @SuppressWarnings("unchecked")
+    protected void configure(HierarchicalConfiguration configuration)
         throws ConfigurationException
     {
         // Set any Session parameters passed in the Configuration
@@ -430,30 +432,33 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         ParsedConfiguration parsedConfiguration =
             new ParsedConfiguration(
                 configuration,
-                getLogger(),
+                logger,
                 getServer(),
                 getLocalUsers(),
-                getDNSServer());
-        setConfiguration(parsedConfiguration);
+                getDNSService());
+        setParsedConfiguration(parsedConfiguration);
 
         // Setup the Accounts
-        Configuration[] allAccounts = configuration.getChildren("accounts");
-        if (allAccounts.length < 1)
+        List<HierarchicalConfiguration> allAccounts = configuration.configurationsAt("accounts");
+        if (allAccounts.size() < 1)
             throw new ConfigurationException("Missing <accounts> section.");
-        if (allAccounts.length > 1)
+        if (allAccounts.size() > 1)
             throw new ConfigurationException("Too many <accounts> sections, there must be exactly one");
-        Configuration accounts = allAccounts[0];
+        HierarchicalConfiguration accounts = allAccounts.get(0);
 
-        // Create an Account for every configured account
-        Configuration[] accountsChildren = accounts.getChildren();
-        if (accountsChildren.length < 1)
+    
+        if (accounts.getKeys().hasNext() == false)
             throw new ConfigurationException("Missing <account> section.");
 
-        for (int i = 0; i < accountsChildren.length; i++)
-        {
-            Configuration accountsChild = accountsChildren[i];
+        // Create an Account for every configured account
+        Iterator<String> accountsChildren = accounts.getKeys();
+        
+        int i = 0;
+        while (accountsChildren.hasNext()){
+            String accountsChildName = accountsChildren.next();
 
-            if ("alllocal".equals(accountsChild.getName()))
+            HierarchicalConfiguration accountsChild = accounts.configurationAt(accountsChildName);
+            if ("alllocal".equals(accountsChildName))
             {
                 // <allLocal> is dynamic, save the parameters for accounts to
                 // be created when the task is triggered
@@ -462,7 +467,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 continue;
             }
 
-            if ("account".equals(accountsChild.getName()))
+            if ("account".equals(accountsChildName))
             {
                 // Create an Account for the named user and
                 // add it to the list of static accounts
@@ -470,21 +475,27 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                     new Account(
                         i,
                         parsedConfiguration,
-                        accountsChild.getAttribute("user"),
-                        accountsChild.getAttribute("password"),
-                        accountsChild.getAttribute("recipient"),
-                        accountsChild.getAttributeAsBoolean(
-                            "ignorercpt-header"),
-                        accountsChild.getAttribute("customrcpt-header",""),
+                        accountsChild.getString("[@user]"),
+                        accountsChild.getString("[@password]"),
+                        accountsChild.getString("[@recipient]"),
+                        accountsChild.getBoolean(
+                            "[@ignorercpt-header]"),
+                        accountsChild.getString("[@customrcpt-header]",""),
                         getSession()));
                 continue;
             }
 
             throw new ConfigurationException(
                 "Illegal token: <"
-                    + accountsChild.getName()
+                    + accountsChildName
                     + "> in <accounts>");
         }
+        i++;
+    }
+    
+    @PostConstruct
+    public void init() throws Exception{
+        configure(config);
     }
 
     /**
@@ -497,7 +508,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         // if we are already fetching then just return
         if (isFetching())
         {
-            getLogger().info(
+            logger.info(
                 "Triggered fetch cancelled. A fetch is already in progress.");
             return;
         }
@@ -506,7 +517,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         try
         {
             setFetching(true);
-            getLogger().info("Fetcher starting fetches");
+            logger.info("Fetcher starting fetches");
 
             logJavaMailProperties();
 
@@ -528,7 +539,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
             logMessage.append(" static accounts and ");
             logMessage.append(getDynamicAccounts().size());
             logMessage.append(" dynamic accounts.");
-            getLogger().info(logMessage.toString());
+            logger.info(logMessage.toString());
 
             // Fetch each account
             Iterator<Account> accounts = mergedAccounts.iterator();
@@ -540,7 +551,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 }
                 catch (MessagingException ex)
                 {
-                    getLogger().error(
+                    logger.error(
                         "A MessagingException has terminated processing of this Account",
                         ex);
                 }
@@ -548,11 +559,11 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         }
         catch (Exception ex)
         {
-            getLogger().error("An Exception has terminated this fetch.", ex);
+            logger.error("An Exception has terminated this fetch.", ex);
         }
         finally
         {
-            getLogger().info("Fetcher completed fetches");
+            logger.info("Fetcher completed fetches");
 
             // Exit Fetching State
             setFetching(false);
@@ -563,9 +574,9 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     private void logJavaMailProperties() {
         // if debugging, list the JavaMail property key/value pairs
         // for this Session
-        if (getLogger().isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            getLogger().debug("Session properties:");
+            logger.debug("Session properties:");
             Properties properties = getSession().getProperties();
             Enumeration e = properties.keys();
             while (e.hasMoreElements())
@@ -576,7 +587,7 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
                 {
                     val = val.substring(0, 37) + "...";
                 }
-                getLogger().debug(key + "=" + val);
+                logger.debug(key + "=" + val);
 
             }
         }
@@ -590,36 +601,6 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
     {
         return fieldFetching;
     }
-
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(final ServiceManager manager) throws ServiceException
-    {
-        try
-        {
-            setServer((MailServer) manager.lookup(MailServer.ROLE));
-        }
-        catch (ClassCastException cce)
-        {
-            StringBuilder errorBuffer =
-                new StringBuilder(128).append("Component ").append(
-                    MailServer.ROLE).append(
-                    "does not implement the required interface.");
-            throw new ServiceException("", errorBuffer.toString());
-        }
-        
-        DNSService dnsServer = (DNSService) manager.lookup(DNSService.ROLE);
-        setDNSServer(dnsServer);
-        
-        UsersRepository usersRepository =
-            (UsersRepository) manager.lookup(UsersRepository.ROLE);
-        setLocalUsers(usersRepository);
-    }
-
-
-
-            
 
 
     /**
@@ -653,20 +634,12 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * Sets the configuration.
      * @param configuration The configuration to set
      */
-    protected void setConfiguration(ParsedConfiguration configuration)
+    protected void setParsedConfiguration(ParsedConfiguration configuration)
     {
         fieldConfiguration = configuration;
     }
 
-    /**
-     * Sets the server.
-     * @param server The server to set
-     */
-    protected void setServer(MailServer server)
-    {
-        fieldServer = server;
-    }
-    
+   
     /**
      * Returns the localUsers.
      * @return UsersRepository
@@ -676,33 +649,44 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
         return fieldLocalUsers;
     }
     
-    /**
-     * Sets the localUsers.
-     * @param localUsers The localUsers to set
-     */
-    protected void setLocalUsers(UsersRepository localUsers)
-    {
-        fieldLocalUsers = localUsers;
-    }
+    
     
     /**
      * Returns the DNSService.
      * @return DNSService 
      */
-    protected DNSService getDNSServer()
+    protected DNSService getDNSService()
     {
         return dnsServer;
     }
     
-    /**
-     * Sets the DNSService.
-     * @param dnsServer The DNSService to set
-     */
-    protected void setDNSServer(DNSService dnsServer)
-    {
-        this.dnsServer = dnsServer;
+    
+    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    public void setDNSService(DNSService dns) {
+        this.dnsServer = dns;
     }
 
+
+    @Resource(name="org.apache.james.services.MailServer")
+    public void setMailServer(MailServer mailserver) {
+        this.fieldServer = mailserver;
+    }
+   
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository urepos) {
+        this.fieldLocalUsers = urepos;
+    }
+
+    @Resource(name="org.apache.commons.logging.Log")
+    public final void setLogger(Log logger) {
+        this.logger = logger;
+    }
+    
+
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public final void setConfiguration(HierarchicalConfiguration config) {
+        this.config = config;
+    }
 
     /**
      * Returns the accounts. Initializes if required.
@@ -986,30 +970,31 @@ public class FetchMail extends AbstractLogEnabled implements Configurable, Targe
      * @param configuration The configuration containing the parameters
      * @throws ConfigurationException
      */
-    protected void setSessionParameters(Configuration configuration)
+    @SuppressWarnings("unchecked")
+    protected void setSessionParameters(HierarchicalConfiguration configuration)
         throws ConfigurationException
     {
-        Configuration javaMailProperties =
-            configuration.getChild("javaMailProperties", false);
-        if (null != javaMailProperties)
+        
+        if (configuration.getKeys("javaMailProperties.property").hasNext())
         {
             Properties properties = getSession().getProperties();
-            Configuration[] allProperties =
-                javaMailProperties.getChildren("property");
-            for (int i = 0; i < allProperties.length; i++)
+            List<HierarchicalConfiguration> allProperties =
+                configuration.configurationsAt("javaMailProperties.property");
+            for (int i = 0; i < allProperties.size(); i++)
             {
+                HierarchicalConfiguration propConf = allProperties.get(i);
                 properties.setProperty(
-                    allProperties[i].getAttribute("name"),
-                    allProperties[i].getAttribute("value"));
-                if (getLogger().isDebugEnabled())
+                        propConf.getString("[@name]"),
+                        propConf.getString("[@value]"));
+                if (logger.isDebugEnabled())
                 {
                     StringBuilder messageBuffer =
                         new StringBuilder("Set property name: ");
-                    messageBuffer.append(allProperties[i].getAttribute("name"));
+                    messageBuffer.append(propConf.getString("[@name]"));
                     messageBuffer.append(" to: ");
                     messageBuffer.append(
-                        allProperties[i].getAttribute("value"));
-                    getLogger().debug(messageBuffer.toString());
+                        propConf.getString("[@value]"));
+                    logger.debug(messageBuffer.toString());
                 }
             }
         }

@@ -227,7 +227,7 @@
   </block>
 
   <!-- FetchMail Service -->
-  <block name="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" >
+  <block name="fetchmail" class="org.apache.james.fetchmail.AvalonFetchScheduler" >
     <provide name="scheduler"
              role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/> 
     <provide name="James" role="org.apache.james.services.MailServer"/>      

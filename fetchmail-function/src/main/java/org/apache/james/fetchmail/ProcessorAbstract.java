@@ -27,7 +27,7 @@ import java.util.Set;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
@@ -152,7 +152,7 @@ abstract public class ProcessorAbstract
      * Returns the logger.
      * @return Logger
      */
-    protected Logger getLogger()
+    protected Log getLogger()
     {
         return getConfiguration().getLogger();
     }

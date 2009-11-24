@@ -28,9 +28,9 @@ import java.util.StringTokenizer;
 
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.MailServer;
@@ -48,7 +48,7 @@ class ParsedConfiguration
     /**
      * The logger.
      */
-    private Logger fieldLogger;
+    private Log fieldLogger;
     
     /**
      * The name of the folder to fetch from the javamail provider
@@ -327,7 +327,7 @@ class ParsedConfiguration
      * @param dnsServer
      * @throws ConfigurationException
      */
-    public ParsedConfiguration(Configuration configuration, Logger logger, MailServer server, UsersRepository localUsers,DNSService dnsServer) throws ConfigurationException
+    public ParsedConfiguration(HierarchicalConfiguration configuration, Log logger, MailServer server, UsersRepository localUsers,DNSService dnsServer) throws ConfigurationException
     {
         this();
         setLogger(logger);
@@ -337,90 +337,87 @@ class ParsedConfiguration
         configure(configuration);
     }
     
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    protected void configure(Configuration conf) throws ConfigurationException
+    
+    protected void configure(HierarchicalConfiguration conf) throws ConfigurationException
     {
-        setHost(conf.getChild("host").getValue());
+        setHost(conf.getString("host"));
 
-        setFetchTaskName(conf.getAttribute("name"));
+        setFetchTaskName(conf.getString("[@name]"));
         setJavaMailProviderName(
-            conf.getChild("javaMailProviderName").getValue());
-        setJavaMailFolderName(conf.getChild("javaMailFolderName").getValue());
-        setRecurse(conf.getChild("recursesubfolders").getValueAsBoolean());
+            conf.getString("javaMailProviderName"));
+        setJavaMailFolderName(conf.getString("javaMailFolderName"));
+        setRecurse(conf.getBoolean("recursesubfolders"));
 
-        Configuration recipientNotFound = conf.getChild("recipientnotfound");
+        HierarchicalConfiguration recipientNotFound = conf.configurationAt("recipientnotfound");
         setDeferRecipientNotFound(
-            recipientNotFound.getAttributeAsBoolean("defer"));
+            recipientNotFound.getBoolean("[@defer]"));
         setRejectRecipientNotFound(
-            recipientNotFound.getAttributeAsBoolean("reject"));
+            recipientNotFound.getBoolean("[@reject]"));
         setLeaveRecipientNotFound(
-            recipientNotFound.getAttributeAsBoolean("leaveonserver"));
+            recipientNotFound.getBoolean("[@leaveonserver]"));
         setMarkRecipientNotFoundSeen(
-            recipientNotFound.getAttributeAsBoolean("markseen"));
+            recipientNotFound.getBoolean("[@markseen]"));
+        setDefaultDomainName(conf.getString("defaultdomain"));
 
-        Configuration defaultDomainName = conf.getChild("defaultdomain", false);
-        if (null != defaultDomainName)
-            setDefaultDomainName(defaultDomainName.getValue());
+        setFetchAll(conf.getBoolean("fetchall"));
 
-        setFetchAll(conf.getChild("fetchall").getValueAsBoolean());
+        HierarchicalConfiguration fetched = conf.configurationAt("fetched");
+        setLeave(fetched.getBoolean("[@leaveonserver]"));
+        setMarkSeen(fetched.getBoolean("[@markseen]"));
 
-        Configuration fetched = conf.getChild("fetched");
-        setLeave(fetched.getAttributeAsBoolean("leaveonserver"));
-        setMarkSeen(fetched.getAttributeAsBoolean("markseen"));
-
-        Configuration remoterecipient = conf.getChild("remoterecipient");
+        HierarchicalConfiguration remoterecipient = conf.configurationAt("remoterecipient");
         setRejectRemoteRecipient(
-            remoterecipient.getAttributeAsBoolean("reject"));
+            remoterecipient.getBoolean("[@reject]"));
         setLeaveRemoteRecipient(
-            remoterecipient.getAttributeAsBoolean("leaveonserver"));
+            remoterecipient.getBoolean("[@leaveonserver]"));
         setMarkRemoteRecipientSeen(
-            remoterecipient.getAttributeAsBoolean("markseen"));
+            remoterecipient.getBoolean("[@markseen]"));
 
-        Configuration blacklist = conf.getChild("blacklist");
-        setBlacklist(blacklist.getValue(""));
-        setRejectBlacklisted(blacklist.getAttributeAsBoolean("reject"));
-        setLeaveBlacklisted(blacklist.getAttributeAsBoolean("leaveonserver"));
-        setMarkBlacklistedSeen(blacklist.getAttributeAsBoolean("markseen"));
+        HierarchicalConfiguration blacklist = conf.configurationAt("blacklist");
+        setBlacklist(conf.getString("blacklist",""));
+        setRejectBlacklisted(blacklist.getBoolean("[@reject]"));
+        setLeaveBlacklisted(blacklist.getBoolean("[@leaveonserver]"));
+        setMarkBlacklistedSeen(blacklist.getBoolean("[@markseen]"));
 
-        Configuration userundefined = conf.getChild("userundefined");
-        setRejectUserUndefined(userundefined.getAttributeAsBoolean("reject"));
+        HierarchicalConfiguration userundefined = conf.configurationAt("userundefined");
+        setRejectUserUndefined(userundefined.getBoolean("[@reject]"));
         setLeaveUserUndefined(
-            userundefined.getAttributeAsBoolean("leaveonserver"));
+            userundefined.getBoolean("[@leaveonserver]"));
         setMarkUserUndefinedSeen(
-            userundefined.getAttributeAsBoolean("markseen"));
+            userundefined.getBoolean("[@markseen]"));
 
-        Configuration undeliverable = conf.getChild("undeliverable");
+        HierarchicalConfiguration undeliverable = conf.configurationAt("undeliverable");
         setLeaveUndeliverable(
-            undeliverable.getAttributeAsBoolean("leaveonserver"));
+            undeliverable.getBoolean("[@leaveonserver]"));
         setMarkUndeliverableSeen(
-            undeliverable.getAttributeAsBoolean("markseen"));
+            undeliverable.getBoolean("[@markseen]"));
 
-        Configuration remotereceivedheader = conf.getChild("remotereceivedheader", false);
-        if (null != remotereceivedheader)
+        if (conf.getKeys("remotereceivedheader").hasNext())
         {
+            HierarchicalConfiguration remotereceivedheader = conf.configurationAt("remotereceivedheader");
+
             setRemoteReceivedHeaderIndex(
-                remotereceivedheader.getAttributeAsInteger("index"));
+                remotereceivedheader.getInt("[@index]"));
             setRejectRemoteReceivedHeaderInvalid(
-                remotereceivedheader.getAttributeAsBoolean("reject"));
+                remotereceivedheader.getBoolean("[@reject]"));
             setLeaveRemoteReceivedHeaderInvalid(
-                remotereceivedheader.getAttributeAsBoolean("leaveonserver"));
+                remotereceivedheader.getBoolean("[@leaveonserver]"));
             setMarkRemoteReceivedHeaderInvalidSeen(
-                remotereceivedheader.getAttributeAsBoolean("markseen"));
+                remotereceivedheader.getBoolean("[@markseen]"));
         }            
 
-        Configuration maxmessagesize = conf.getChild("maxmessagesize", false);
-        if (null != maxmessagesize)
+        if (conf.getKeys("maxmessagesize").hasNext())
         {
+            HierarchicalConfiguration maxmessagesize = conf.configurationAt("maxmessagesize");
+
             setMaxMessageSizeLimit(
-                maxmessagesize.getAttributeAsInteger("limit") * 1024);
+                maxmessagesize.getInt("[@limit]") * 1024);
             setRejectMaxMessageSizeExceeded(
-                maxmessagesize.getAttributeAsBoolean("reject"));
+                maxmessagesize.getBoolean("[@reject]"));
             setLeaveMaxMessageSizeExceeded(
-                maxmessagesize.getAttributeAsBoolean("leaveonserver"));
+                maxmessagesize.getBoolean("[@leaveonserver]"));
             setMarkMaxMessageSizeExceededSeen(
-                maxmessagesize.getAttributeAsBoolean("markseen"));
+                maxmessagesize.getBoolean("[@markseen]"));
         }
 
         if (getLogger().isDebugEnabled())
@@ -589,7 +586,7 @@ class ParsedConfiguration
      * Returns the logger.
      * @return Logger
      */
-    public Logger getLogger()
+    public Log getLogger()
     {
         return fieldLogger;
     }
@@ -598,7 +595,7 @@ class ParsedConfiguration
      * Sets the logger.
      * @param logger The logger to set
      */
-    protected void setLogger(Logger logger)
+    protected void setLogger(Log logger)
     {
         fieldLogger = logger;
     }
