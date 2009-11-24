@@ -27,6 +27,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.SpoolRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
 import org.apache.james.userrepository.MockUsersRepository;
@@ -53,15 +54,13 @@ public class AvalonJamesTest extends JamesTest{
     
 
     private MockServiceManager setUpServiceManager() throws Exception {
-        MockServiceManager serviceManager = new MockServiceManager();
-        MockUsersRepository mockUsersRepository = new MockUsersRepository();
-       
+        MockServiceManager serviceManager = new MockServiceManager();       
         
         serviceManager.put(UsersRepository.ROLE, mockUsersRepository);
         serviceManager.put(UsersStore.ROLE, usersStore);
         serviceManager.put(FileSystem.ROLE, fs);
         serviceManager.put(DomainList.ROLE, domList);
-
+        serviceManager.put(SpoolRepository.ROLE, mockMailRepository);
         serviceManager.put(Store.ROLE, mockStore);
         serviceManager.put(DNSService.ROLE, dns);
         return serviceManager;

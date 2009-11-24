@@ -277,8 +277,8 @@ public class James
         
         logger.info("Defaultdomain: " + defaultDomain);
         
-        HierarchicalConfiguration helloNameConfig = conf.configurationAt("helloName");
-        if (helloNameConfig != null) {
+        if (conf.getKeys("helloName").hasNext()) {
+            HierarchicalConfiguration helloNameConfig = conf.configurationAt("helloName");
             boolean autodetect = helloNameConfig.getBoolean("[@autodetect]", true);
             if (autodetect) {
                 try {

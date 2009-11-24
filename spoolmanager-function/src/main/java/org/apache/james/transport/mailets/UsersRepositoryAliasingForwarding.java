@@ -24,12 +24,10 @@ package org.apache.james.transport.mailets;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.ErrorMappingException;
@@ -58,6 +56,7 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
      * inboxes on this server.
      */
     private UsersRepository usersRepository;
+    private UsersStore usersStore;
 
     /**
      * Return a string describing this mailet.
@@ -68,6 +67,16 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
         return "Local User Aliasing and Forwarding Mailet";
     }
 
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository usersRepository) {
+        this.usersRepository = usersRepository;
+    }
+    
+    @Resource(name="org.apache.james.api.user.UsersStore")
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
+    
     /**
      * Return null when the mail should be GHOSTed, the username string when it
      * should be changed due to the ignoreUser configuration.
@@ -77,7 +86,7 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
      * @param message
      * @throws MessagingException
      */
-    public Collection processMail(MailAddress sender, MailAddress recipient,
+    public Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient,
             MimeMessage message) throws MessagingException {
         if (recipient == null) {
             throw new IllegalArgumentException(
@@ -91,7 +100,7 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
         if (usersRepository instanceof VirtualUserTable) {
             Collection<String> mappings;
             try {
-                mappings = ((VirtualUserTable) usersRepository).getMappings(recipient.getUser(), recipient.getHost());
+                mappings = ((VirtualUserTable) usersRepository).getMappings(recipient.getLocalPart(), recipient.getDomain());
             } catch (ErrorMappingException e) {
                 StringBuilder errorBuffer = new StringBuilder(128)
                     .append("A problem as occoured trying to alias and forward user ")
@@ -111,43 +120,27 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
                 .append(" does not implement VirtualUserTable interface).");
             getMailetContext().log(errorBuffer.toString());
         }
-        String realName = usersRepository.getRealName(recipient.getUser());
+        String realName = usersRepository.getRealName(recipient.getLocalPart());
+      
+        ArrayList<MailAddress> ret = new ArrayList<MailAddress>();
         if (realName != null) {
-            ArrayList ret = new ArrayList();
-            ret.add(new MailAddress(realName, recipient.getHost()));
+            ret.add(new MailAddress(realName, recipient.getDomain()));
             return ret;
         } else {
-            ArrayList ret = new ArrayList();
             ret.add(recipient);
             return ret;
         }
     }
 
+    
     /**
      * @see org.apache.mailet.GenericMailet#init()
      */
     public void init() throws MessagingException {
         super.init();
-        ServiceManager compMgr = (ServiceManager) getMailetContext()
-                .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-
-        try {
-            String userRep = getInitParameter("usersRepository");
-            if (userRep == null || userRep.length() == 0) {
-                try {
-                    usersRepository = (UsersRepository) compMgr
-                            .lookup(UsersRepository.ROLE);
-                } catch (ServiceException e) {
-                    log("Failed to retrieve UsersRepository component:"
-                            + e.getMessage());
-                }
-            } else {
-                UsersStore usersStore = (UsersStore) compMgr.lookup(UsersStore.ROLE);
-                usersRepository = usersStore.getRepository(userRep);
-            }
-
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve UsersStore component:" + cnfe.getMessage());
+        String userRep = getInitParameter("usersRepository");
+        if (userRep != null && userRep.length() > 0) {
+            usersRepository = usersStore.getRepository(userRep);
         }
 
     }

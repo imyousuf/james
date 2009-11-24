@@ -105,9 +105,9 @@ public class LocalDelivery extends GenericMailet {
             /**
              * @see org.apache.mailet.MailetConfig#getInitParameterNames()
              */
-            public Iterator getInitParameterNames() {
+            public Iterator<String> getInitParameterNames() {
                 IteratorChain c = new IteratorChain();
-                Collection h = new ArrayList();
+                Collection<String> h = new ArrayList<String>();
                 h.add("addDeliveryHeader");
                 h.add("resetReturnPath");
                 c.addIterator(getMailetConfig().getInitParameterNames());
