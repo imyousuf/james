@@ -232,6 +232,7 @@ public class AvalonJames implements MailServer, MailetContext, Serviceable, Conf
                 bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
                 bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
                 bind(SpoolRepository.class).annotatedWith(Names.named("org.apache.james.services.SpoolRepository")).toInstance(spoolRepos);
+                bind(DomainList.class).annotatedWith(Names.named("org.apache.james.api.domainlist.DomainList")).toInstance(domainList);
             }
             
         }).getInstance(James.class);
