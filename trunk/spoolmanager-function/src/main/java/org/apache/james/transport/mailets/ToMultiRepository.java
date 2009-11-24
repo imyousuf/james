@@ -22,10 +22,7 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
@@ -34,6 +31,7 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.RFC2822Headers;
 
+import javax.annotation.Resource;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
@@ -114,6 +112,12 @@ public class ToMultiRepository extends GenericMailet {
      */
     private boolean resetReturnPath;
 
+    
+    @Resource(name="org.apache.james.services.MailServer")
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
     /**
      * Delivers a mail to a local mailbox.
      * 
@@ -261,17 +265,7 @@ public class ToMultiRepository extends GenericMailet {
      */
     public void init() throws MessagingException {
         super.init();
-        ServiceManager compMgr = (ServiceManager) getMailetContext()
-                .getAttribute(Constants.AVALON_COMPONENT_MANAGER);
-
-        try {
-            // Instantiate the a MailRepository for outgoing mails
-            store = (Store) compMgr.lookup(Store.ROLE);
-        } catch (ServiceException cnfe) {
-            log("Failed to retrieve Store component:" + cnfe.getMessage());
-        } catch (Exception e) {
-            log("Failed to retrieve Store component:" + e.getMessage());
-        }
+   
 
         repositoryUrl = getInitParameter("repositoryUrl");
         if (repositoryUrl != null) {
@@ -286,17 +280,6 @@ public class ToMultiRepository extends GenericMailet {
             if (!SELECTOR_LOCALPART.equals(repositorySelector) && !SELECTOR_FULL.equals(repositorySelector)) {
                 throw new MessagingException("repositorySelector valid options are "+SELECTOR_FULL+" or "+SELECTOR_LOCALPART);
             }
-        } else {
-
-            try {
-                // Instantiate the a MailRepository for outgoing mails
-                mailServer = (MailServer) compMgr.lookup(MailServer.ROLE);
-            } catch (ServiceException cnfe) {
-                log("Failed to retrieve MailServer component:" + cnfe.getMessage());
-            } catch (Exception e) {
-                log("Failed to retrieve MailServer component:" + e.getMessage());
-            }
-            
         }
 
         deliveryHeader = getInitParameter("addDeliveryHeader");
@@ -325,10 +308,9 @@ public class ToMultiRepository extends GenericMailet {
             StringBuffer destinationBuffer = new StringBuffer(192).append(
             repositoryUrl).append(userName).append("/");
             String destination = destinationBuffer.toString();
-            DefaultConfiguration mboxConf = new DefaultConfiguration(
-                    "repository", "generated:ToMultiRepository.getUserInbox()");
-            mboxConf.setAttribute("destinationURL", destination);
-            mboxConf.setAttribute("type", repositoryType);
+            DefaultConfigurationBuilder mboxConf = new DefaultConfigurationBuilder();
+            mboxConf.addProperty("[@destinationURL]", destination);
+            mboxConf.addProperty("[@type]", repositoryType);
             try {
                 userInbox = (MailRepository) store.select(mboxConf);
             } catch (Exception e) {

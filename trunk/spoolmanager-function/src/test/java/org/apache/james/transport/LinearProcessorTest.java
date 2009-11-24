@@ -20,8 +20,6 @@
 package org.apache.james.transport;
 
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.ConsoleLogger;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
@@ -237,8 +235,7 @@ public class LinearProcessorTest extends TestCase {
         }
         mimeMessage = new MimeMessageCopyOnWriteProxy(mmis);
         linearProcessor = new LinearProcessor();
-        Logger l = new ConsoleLogger();
-        ContainerUtil.enableLogging(linearProcessor, l);
+        linearProcessor.setLogger(new SimpleLog("Logger"));
     }
 
     public void tearDown() throws Exception {

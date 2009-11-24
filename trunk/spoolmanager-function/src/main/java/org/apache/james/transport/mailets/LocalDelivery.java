@@ -22,11 +22,15 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.commons.collections.iterators.IteratorChain;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.user.UsersStore;
+import org.apache.james.services.MailServer;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.util.ArrayList;
@@ -53,6 +57,29 @@ public class LocalDelivery extends GenericMailet {
      */
     private ToMultiRepository deliveryMailet;
 
+    private UsersRepository usersRepository;
+
+    private UsersStore usersStore;
+
+    private MailServer mailServer;
+
+
+    @Resource(name="org.apache.james.api.user.UsersRepository")
+    public void setUsersRepository(UsersRepository usersRepository) {
+        this.usersRepository = usersRepository;
+    }
+    
+    @Resource(name="org.apache.james.api.user.UsersStore")
+    public void setUsersStore(UsersStore usersStore) {
+        this.usersStore = usersStore;
+    }
+    
+    @Resource(name="org.apache.james.services.MailServer")
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
+    
     /**
      * Delivers a mail to a local mailbox.
      * 
@@ -85,8 +112,11 @@ public class LocalDelivery extends GenericMailet {
         super.init();
         
         aliasingMailet = new UsersRepositoryAliasingForwarding();
+        aliasingMailet.setUsersRepository(usersRepository);
+        aliasingMailet.setUsersStore(usersStore);
         aliasingMailet.init(getMailetConfig());
         deliveryMailet = new ToMultiRepository();
+        deliveryMailet.setMailServer(mailServer);
         MailetConfig m = new MailetConfig() {
 
             /**

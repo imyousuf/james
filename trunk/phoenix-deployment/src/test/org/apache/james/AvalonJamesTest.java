@@ -30,7 +30,6 @@ import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.james.userrepository.MockUsersRepository;
 
 public class AvalonJamesTest extends JamesTest{
 
