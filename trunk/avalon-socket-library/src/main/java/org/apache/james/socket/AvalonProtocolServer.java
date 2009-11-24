@@ -49,8 +49,7 @@ import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.avalon.framework.logger.CommonsLogger;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.avalon.framework.service.DefaultServiceManager;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -218,8 +217,8 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
     private SocketManager socketManager;
 
     private Log logger;
-
-    private ServiceManager serviceManager;
+    
+    private DefaultServiceManager serviceManager = new DefaultServiceManager();
 	
     /**
      * Gets the DNS Service.
@@ -281,15 +280,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
     public void setSocketManager(SocketManager socketManager) {
         this.socketManager = socketManager;
     }
-    
-    
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager comp) throws ServiceException {
-        super.service( comp );
-        serviceManager = comp;
-    }
+   
 
     /**
      * Subclasses should override this method todo any configuration tasks
@@ -536,6 +527,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         
         getLog().debug(protocolHandlerFactory.getServiceType() + " init...");
 
+        ContainerUtil.service(this, serviceManager);
         // parse configuration
         configure();
 

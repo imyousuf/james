@@ -55,7 +55,6 @@ public class AvalonPOP3Server implements GuiceInjected, Initializable, Serviceab
     private DNSService dns;
     private Log logger;
     private org.apache.commons.configuration.HierarchicalConfiguration config;
-    private Injector injector;
     private UsersRepository userRepos;
     private JamesConnectionManager connectionManager;
     private SocketManager socketManager;
@@ -100,17 +99,13 @@ public class AvalonPOP3Server implements GuiceInjected, Initializable, Serviceab
         socketManager = (SocketManager) manager.lookup(SocketManager.ROLE);
         connectionManager = (JamesConnectionManager) manager.lookup(JamesConnectionManager.ROLE);     
         threadManager = (ThreadManager) manager.lookup(ThreadManager.ROLE);
-        
-        // thats needed because of used excalibur socket components
-        pop3server.service(manager);
     }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        injector = Guice.createInjector(new POP3ServerModule(), new Jsr250Module());
-        injector.injectMembers(pop3server);
+        pop3server = Guice.createInjector(new POP3ServerModule(), new Jsr250Module()).getInstance(POP3Server.class);
     }
                  
     /**
