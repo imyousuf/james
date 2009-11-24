@@ -56,7 +56,6 @@ public class AvalonNNTPServer implements GuiceInjected, Initializable, Serviceab
     private DNSService dns;
     private Log logger;
     private org.apache.commons.configuration.HierarchicalConfiguration config;
-    private Injector injector;
     private UsersRepository userRepos;
     private JamesConnectionManager connectionManager;
     private SocketManager socketManager;
@@ -103,16 +102,13 @@ public class AvalonNNTPServer implements GuiceInjected, Initializable, Serviceab
         connectionManager = (JamesConnectionManager) manager.lookup(JamesConnectionManager.ROLE);     
         threadManager = (ThreadManager) manager.lookup(ThreadManager.ROLE);
         nntpRepos = (NNTPRepository) manager.lookup(NNTPRepository.ROLE);
-        // thats needed because of used excalibur socket components
-        nntpserver.service(manager);
     }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        injector = Guice.createInjector(new NNTPServerModule(), new Jsr250Module());
-        injector.injectMembers(nntpserver);
+        nntpserver = Guice.createInjector(new NNTPServerModule(), new Jsr250Module()).getInstance(NNTPServer.class);
     }
                  
     /**

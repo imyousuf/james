@@ -61,7 +61,6 @@ public class AvalonRemoteManager implements GuiceInjected, Initializable, Servic
     private DNSService dns;
     private Log logger;
     private org.apache.commons.configuration.HierarchicalConfiguration config;
-    private Injector injector;
     private JamesConnectionManager connectionManager;
     private SocketManager socketManager;
     private RemoteManager server = new RemoteManager();
@@ -118,16 +117,13 @@ public class AvalonRemoteManager implements GuiceInjected, Initializable, Servic
         usersStore = (UsersStore) manager.lookup(UsersStore.ROLE);
         processorService = (ProcessorManagementService) manager.lookup(ProcessorManagementService.ROLE);
         store = (Store) manager.lookup(Store.ROLE);
-        // thats needed because of used excalibur socket components
-        server.service(manager);
     }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        injector = Guice.createInjector(new RemoteManagerModule(), new Jsr250Module());
-        injector.injectMembers(server);
+        server = Guice.createInjector(new RemoteManagerModule(), new Jsr250Module()).getInstance(RemoteManager.class);
     }
                  
     /**

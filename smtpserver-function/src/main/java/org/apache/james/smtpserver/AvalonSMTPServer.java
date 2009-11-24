@@ -60,14 +60,13 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
     private MailetContext context;
     private Log logger;
     private org.apache.commons.configuration.HierarchicalConfiguration config;
-    private Injector injector;
     private UsersRepository userRepos;
     private DataSourceSelector dselector;
     private VirtualUserTableStore vutStore;
     private org.apache.james.smtpserver.protocol.DNSService dnsServiceAdapter;
     private JamesConnectionManager connectionManager;
     private SocketManager socketManager;
-    private SMTPServer smtpserver = new SMTPServer();
+    private SMTPServer smtpserver;
     private ThreadManager threadManager;
     
     public String getNetworkInterface() {
@@ -112,17 +111,13 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
         socketManager = (SocketManager) manager.lookup(SocketManager.ROLE);
         connectionManager = (JamesConnectionManager) manager.lookup(JamesConnectionManager.ROLE);     
         threadManager = (ThreadManager) manager.lookup(ThreadManager.ROLE);
-        
-        // thats needed because of used excalibur socket components
-        smtpserver.service(manager);
     }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        injector = Guice.createInjector(new SMTPServerModule(), new Jsr250Module());
-        injector.injectMembers(smtpserver);
+        smtpserver = Guice.createInjector(new SMTPServerModule(), new Jsr250Module()).getInstance(SMTPServer.class);
     }
                  
     /**
