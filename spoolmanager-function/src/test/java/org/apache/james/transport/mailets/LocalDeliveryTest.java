@@ -19,30 +19,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.Constants;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.core.MailImpl;
-import org.apache.james.impl.user.DefaultJamesUser;
-import org.apache.james.services.MailRepository;
-import org.apache.james.services.MailServer;
-import org.apache.james.test.mock.avalon.MockServiceManager;
-import org.apache.james.test.mock.james.InMemorySpoolRepository;
-import org.apache.james.test.mock.james.MockMailServer;
-import org.apache.mailet.base.test.FakeMimeMessage;
-import org.apache.mailet.base.test.FakeMail;
-import org.apache.mailet.base.test.FakeMailContext;
-import org.apache.mailet.base.test.FakeMailetConfig;
-import org.apache.mailet.base.test.MailUtil;
-import org.apache.james.userrepository.MockUsersRepository;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.Mailet;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,7 +27,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
+
 import junit.framework.TestCase;
+
+import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.core.MailImpl;
+import org.apache.james.impl.user.DefaultJamesUser;
+import org.apache.james.services.MailRepository;
+import org.apache.james.test.mock.james.InMemorySpoolRepository;
+import org.apache.james.test.mock.james.MockMailServer;
+import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.base.test.FakeMail;
+import org.apache.mailet.base.test.FakeMailContext;
+import org.apache.mailet.base.test.FakeMailetConfig;
+import org.apache.mailet.base.test.FakeMimeMessage;
+import org.apache.mailet.base.test.MailUtil;
 
 /**
  * Test LocalDelivery Mailet
@@ -60,7 +56,6 @@ public class LocalDeliveryTest extends TestCase {
 
     private HashMap mailboxes;
     private FakeMailContext mockMailetContext;
-    private MockServiceManager mockServiceManager;
     private MockMailServer mockMailServer;
     private MockUsersRepository mockUsersRepository;
 
@@ -242,7 +237,6 @@ public class LocalDeliveryTest extends TestCase {
      * 
      */
     public void setUp() throws ParseException {
-        mockServiceManager = new MockServiceManager();
         mockUsersRepository = new MockUsersRepository();
         mockUsersRepository.setForceUseJamesUser();
         mockUsersRepository.addUser("localuser", "password");
@@ -268,7 +262,6 @@ public class LocalDeliveryTest extends TestCase {
         u = (DefaultJamesUser) mockUsersRepository.getUserByName("forwardToLocal");
         u.setForwarding(true);
         u.setForwardingDestination(new MailAddress("localuser@ignoreddomain"));
-        mockServiceManager.put(UsersRepository.ROLE,mockUsersRepository);
         mockMailServer = new MockMailServer(mockUsersRepository);
         mailboxes = new HashMap();
         mailboxes.put("localuser", new InMemorySpoolRepository());
@@ -279,7 +272,6 @@ public class LocalDeliveryTest extends TestCase {
             String mboxName = (String) mbi.next();
             mockMailServer.setUserInbox(mboxName, (MailRepository) mailboxes.get(mboxName));
         }
-        mockServiceManager.put(MailServer.ROLE, mockMailServer);
 
         mockMailetContext = new FakeMailContext() {
 
@@ -306,13 +298,11 @@ public class LocalDeliveryTest extends TestCase {
         mockUsersRepository.setEnableAliases(false);
         mockUsersRepository.setEnableForwarding(false);
         mockUsersRepository.setIgnoreCase(false);
-        mockMailetContext.setAttribute(Constants.AVALON_COMPONENT_MANAGER, mockServiceManager);
     }
     
     public void tearDown() {
         mockMailetContext = null;
         mailboxes = null;
-        mockServiceManager = null;
     }
 
     /**
@@ -400,7 +390,9 @@ public class LocalDeliveryTest extends TestCase {
     
     public Mailet getMailet(Properties p) throws MessagingException {
         FakeMailetConfig mockMailetConfig = new FakeMailetConfig("TestedLocalDelivery", mockMailetContext, p);
-        Mailet m = new LocalDelivery();
+        LocalDelivery m = new LocalDelivery();
+        m.setUsersRepository(mockUsersRepository);
+        m.setMailServer(mockMailServer);
         m.init(mockMailetConfig);
         return m;
     }
