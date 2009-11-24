@@ -59,7 +59,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
      * Sets the virtual user table.
      * @param vut the vut to set
      */
-    @Resource(name="defaultvirtualusertable")
+    @Resource(name="org.apache.james.api.vut.VirtualUserTable")
     public final void setVut(org.apache.james.api.vut.VirtualUserTable vut) {
         this.vut = vut;
     }
@@ -76,7 +76,7 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
      * Sets the virtual table store.
      * @param vutStore the vutStore to set, possibly null
      */
-    @Resource(name="virtualusertable-store")
+    @Resource(name="org.apache.james.api.vut.VirtualUserTable")
     public final void setVutStore(VirtualUserTableStore vutStore) {
         this.vutStore = vutStore;
     }

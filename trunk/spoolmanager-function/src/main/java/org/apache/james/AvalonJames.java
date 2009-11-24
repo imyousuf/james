@@ -227,7 +227,7 @@ public class AvalonJames implements MailServer, MailetContext, Serviceable, Conf
                 bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
                 bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log@MailetLogger")).toInstance(mailetLogger);
+                bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log@MailetLog")).toInstance(mailetLogger);
                 bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(store);
                 bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
                 bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
