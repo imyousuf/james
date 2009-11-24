@@ -53,7 +53,7 @@ public class StandardRemoteDeliveryTestable extends RemoteDelivery implements Re
         if (logEnabled) super.log(message);
     }
     
-    public void setDNSServer(DNSService dnsServer) {
+    public void setDNSService(DNSService dnsServer) {
         super.setDNSService(dnsServer);
     }
 

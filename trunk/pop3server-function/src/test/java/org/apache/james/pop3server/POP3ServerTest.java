@@ -417,7 +417,7 @@ public class POP3ServerTest extends TestCase {
     }
 
     private void setupTestMails(MailRepository mailRep) throws MessagingException {
-        ArrayList recipients = new ArrayList();
+        ArrayList<MailAddress> recipients = new ArrayList<MailAddress>();
         recipients.add(new MailAddress("recipient@test.com"));
         InputStream mw = new SharedByteArrayInputStream(
                                 ("Return-path: return@test.com\r\n"+

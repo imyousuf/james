@@ -128,7 +128,7 @@ public class Tester {
         
     public void init(Store store, Properties mailetConfigProperties) throws MessagingException {
         mailetConfig = new TesterMailetConfig(this, mailetConfigProperties);
-        remoteDelivery.setDNSServer(dnsServer);
+        remoteDelivery.setDNSService(dnsServer);
         remoteDelivery.setStore(store);
         
         remoteDelivery.init(mailetConfig);
