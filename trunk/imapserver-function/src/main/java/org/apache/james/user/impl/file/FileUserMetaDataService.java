@@ -21,40 +21,50 @@ package org.apache.james.user.impl.file;
 
 import java.io.Serializable;
 
-import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.UserMetaDataRespository;
 import org.apache.james.api.user.UserRepositoryException;
-import org.apache.james.user.impl.file.FileUserMetaDataRepository;
 
-public class FileUserMetaDataService extends AbstractLogEnabled 
-        implements UserMetaDataRespository, Configurable, Initializable {
+public class FileUserMetaDataService implements UserMetaDataRespository {
 
     private UserMetaDataRespository repository;
-    private String baseDirectory;
+    private HierarchicalConfiguration configuration;
     
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    /**
+     * @see org.apache.james.api.user.UserMetaDataRespository#clear(java.lang.String)
+     */
     public void clear(String username) throws UserRepositoryException {
         repository.clear(username);
     }
 
+    /**
+     * @see org.apache.james.api.user.UserMetaDataRespository#getAttribute(java.lang.String, java.lang.String)
+     */
     public Serializable getAttribute(String username, String key)
             throws UserRepositoryException {
         return repository.getAttribute(username, key);
     }
 
+    /**
+     * @see org.apache.james.api.user.UserMetaDataRespository#setAttribute(java.lang.String, java.io.Serializable, java.lang.String)
+     */
     public void setAttribute(String username, Serializable value, String key)
             throws UserRepositoryException {
         repository.setAttribute(username, value, key);
     }
 
-    public void configure(final Configuration configuration) throws ConfigurationException {
-        baseDirectory = configuration.getAttribute("baseDir");
-    }
+    @PostConstruct
+    public void init() throws Exception {
+        String baseDirectory = configuration.getString("[@baseDir]");
 
-    public void initialize() throws Exception {
         repository = new FileUserMetaDataRepository(baseDirectory);
     }
 
