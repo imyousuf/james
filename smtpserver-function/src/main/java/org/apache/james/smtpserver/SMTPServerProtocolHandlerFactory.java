@@ -31,8 +31,8 @@ import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.integration.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
-import org.apache.james.socket.api.AbstractSupportLoaderProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolHandler;
+import org.apache.james.socket.shared.AbstractSupportLoaderProtocolHandlerFactory;
 import org.apache.mailet.MailetContext;
 
 /**

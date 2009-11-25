@@ -1,4 +1,4 @@
-package org.apache.james.socket.api;
+package org.apache.james.socket.shared;
 
 import javax.annotation.Resource;
 
@@ -6,7 +6,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.api.protocol.ProtocolHandlerChain;
-import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
+import org.apache.james.socket.api.AbstractProtocolHandlerFactory;
 
 /**
  * Abstract base class which ProtocolHandlerFactory implementations should extend when they use a HandlerChain
