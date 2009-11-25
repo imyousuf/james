@@ -29,8 +29,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.api.AbstractProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolHandler;
+import org.apache.james.socket.shared.AbstractProtocolHandlerFactory;
 
 /**
  * NNTP Server

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.socket.api;
+package org.apache.james.socket.shared;
 
 import java.net.UnknownHostException;
 
@@ -27,6 +27,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.socket.api.ProtocolHandlerFactory;
 
 /**
  * Abstract base class which ProtocolHandlerFactory implementation should extend

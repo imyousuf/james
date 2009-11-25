@@ -38,8 +38,8 @@ import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.services.FileSystem;
-import org.apache.james.socket.api.AbstractProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolHandler;
+import org.apache.james.socket.shared.AbstractProtocolHandlerFactory;
 import org.apache.jsieve.mailet.Poster;
 
 /**
