@@ -26,12 +26,10 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.AbstractProtocolServer;
+import org.apache.james.socket.api.AbstractSupportLoaderProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolHandler;
-import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
 
 /**
  * <p>Accepts POP3 connections on a server socket and dispatches them to POP3Handlers.</p>
@@ -40,13 +38,7 @@ import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
  *
  * @version 1.0.0, 24/04/1999
  */
-public class POP3Server extends AbstractProtocolServer implements POP3ServerMBean {
-
-    /**
-     * The handler chain - POP3handlers can lookup handlerchain to obtain
-     * Command handlers , Message handlers and connection handlers
-     */
-    private ProtocolHandlerChainImpl handlerChain;
+public class POP3ServerProtocolServerHandlerFactory extends AbstractSupportLoaderProtocolHandlerFactory {
 
     /**
      * The internal mail server service
@@ -68,30 +60,13 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
         = new POP3HandlerConfigurationDataImpl();
 
 
-    private LoaderService loader;
+    private boolean useStartTLS;
 
-    private HierarchicalConfiguration handlerConfiguration;
+
 
     @Resource(name="org.apache.james.services.MailServer")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
-    }
-
-    /**
-     * Gets the current instance loader.
-     * @return the loader
-     */
-    public final LoaderService getLoader() {
-        return loader;
-    }
-
-    /**
-     * Sets the loader to be used for instances.
-     * @param loader the loader to set, not null
-     */
-    @Resource(name="org.apache.james.LoaderService")
-    public final void setLoader(LoaderService loader) {
-        this.loader = loader;
     }
 
     @PostConstruct
@@ -102,36 +77,16 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
     
     @Override
     protected void onConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
-        if (isEnabled()) {
-            HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
-            lengthReset = handlerConfiguration.getInteger("lengthReset",lengthReset);
-            if (getLog().isInfoEnabled()) {
-                getLog().info("The idle timeout will be reset every " + lengthReset + " bytes.");
-            }
-            
-            this.handlerConfiguration = handlerConfiguration;
+        super.onConfigure(configuration);
+        HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
+        lengthReset = handlerConfiguration.getInteger("lengthReset", lengthReset);
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
         }
-    }
-    
-    private void prepareHandlerChain() throws Exception {
-
-        handlerChain = loader.load(ProtocolHandlerChainImpl.class);
         
-        //set the logger
-        handlerChain.setLog(getLog());
-        
-        //read from the XML configuration and create and configure each of the handlers
-        HierarchicalConfiguration jamesConfiguration = handlerConfiguration.configurationAt("handlerchain");
-        if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
-            jamesConfiguration.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
-        handlerChain.configure(jamesConfiguration);
+        // TODO: does this belong here ?
+        useStartTLS = configuration.getBoolean("startTLS.[@enable]", false);
     }
-
-    @Override
-    protected void prepareInit() throws Exception {
-        prepareHandlerChain();
-    }
-
     /**
      * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()
      */
@@ -152,7 +107,7 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
      */
     public ProtocolHandler newProtocolHandlerInstance() {
         //pass the handler chain to every POP3handler
-        POP3Handler protocolHandler = new POP3Handler(theConfigData, handlerChain);
+        POP3Handler protocolHandler = new POP3Handler(theConfigData, getProtocolHandlerChain());
         return protocolHandler;
     }
 
@@ -165,10 +120,10 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (POP3Server.this.getHelloName() == null) {
-                return POP3Server.this.mailServer.getHelloName();
+            if (POP3ServerProtocolServerHandlerFactory.this.getHelloName() == null) {
+                return POP3ServerProtocolServerHandlerFactory.this.mailServer.getHelloName();
             } else {
-                return POP3Server.this.getHelloName();
+                return POP3ServerProtocolServerHandlerFactory.this.getHelloName();
             }
         }
 
@@ -176,7 +131,7 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getResetLength()
          */
         public int getResetLength() {
-            return POP3Server.this.lengthReset;
+            return POP3ServerProtocolServerHandlerFactory.this.lengthReset;
         }
 
 
@@ -184,7 +139,12 @@ public class POP3Server extends AbstractProtocolServer implements POP3ServerMBea
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#isStartTLSSupported()
          */
 		public boolean isStartTLSSupported() {
-			return POP3Server.this.useStartTLS();
+			return POP3ServerProtocolServerHandlerFactory.this.useStartTLS;
 		}
+    }
+
+    @Override
+    protected Class<?> getHandlersPackage() {
+        return CoreCmdHandlerLoader.class;
     }
 }

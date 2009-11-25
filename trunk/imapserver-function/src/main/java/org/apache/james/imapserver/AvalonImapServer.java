@@ -38,8 +38,10 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
+import org.apache.james.socket.api.ProtocolServer;
 import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.bridge.GuiceInjected;
 import org.apache.jsieve.mailet.Poster;
@@ -48,8 +50,6 @@ import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
 public class AvalonImapServer implements GuiceInjected, Poster, Initializable, Serviceable, Configurable, LogEnabled {
@@ -58,11 +58,10 @@ public class AvalonImapServer implements GuiceInjected, Poster, Initializable, S
     private DNSService dns;
     private Log logger;
     private org.apache.commons.configuration.HierarchicalConfiguration config;
-    private Injector injector;
     private UsersRepository userRepos;
     private JamesConnectionManager connectionManager;
     private SocketManager socketManager;
-    private ImapServer imapserver = new ImapServer();
+    private Poster poster;
     private ThreadManager threadManager;
 
 
@@ -88,16 +87,13 @@ public class AvalonImapServer implements GuiceInjected, Poster, Initializable, S
         socketManager = (SocketManager) manager.lookup(SocketManager.ROLE);
         connectionManager = (JamesConnectionManager) manager.lookup(JamesConnectionManager.ROLE);     
         threadManager = (ThreadManager) manager.lookup(ThreadManager.ROLE);
-        // thats needed because of used excalibur socket components
-        imapserver.service(manager);
     }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        injector = Guice.createInjector(new IMAPServerModule(), new Jsr250Module());
-        injector.injectMembers(imapserver);
+        poster = Guice.createInjector(new IMAPServerModule(), new Jsr250Module()).getInstance(ImapServerProtocolHandlerFactory.class);
     }
                  
     /**
@@ -117,13 +113,8 @@ public class AvalonImapServer implements GuiceInjected, Poster, Initializable, S
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
             bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(filesystem);
             bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
-            bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).toProvider(new Provider<ProtocolHandlerFactory>() {
-
-                public ProtocolHandlerFactory get() {
-                    return imapserver;
-                }
-                
-            });
+            bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).to(ImapServerProtocolHandlerFactory.class);
+            bind(ProtocolServer.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolServer")).to(AvalonProtocolServer.class);
             bind(SocketManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.sockets.SocketManager")).toInstance(socketManager);
             bind(JamesConnectionManager.class).annotatedWith(Names.named("org.apache.james.socket.JamesConnectionManager")).toInstance(connectionManager);
             bind(ThreadManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.threads.ThreadManager")).toInstance(threadManager);
@@ -132,7 +123,7 @@ public class AvalonImapServer implements GuiceInjected, Poster, Initializable, S
     }
 
     public void post(String url, MimeMessage mail) throws MessagingException {
-        imapserver.post(url, mail);
+        poster.post(url, mail);
     }
 
 }

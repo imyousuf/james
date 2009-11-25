@@ -48,6 +48,7 @@ import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -153,7 +154,9 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
     private int m_smtpListenerPort = Util.getNonPrivilegedPort();
     private MockMailServer m_mailServer;
     private SMTPTestConfiguration m_testConfiguration;
-    private SMTPServer m_smtpServer;
+    private SMTPServerProtocolHandlerFactory m_smtpServer;
+    private AvalonProtocolServer protoserver;
+    
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private SimpleConnectionManager connectionManager;
     private FakeMailContext mailetContext;
@@ -184,20 +187,25 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
     }
     
     protected void setUp() throws Exception {
-        m_smtpServer = new SMTPServer();
+        m_smtpServer = new SMTPServerProtocolHandlerFactory();
         ContainerUtil.enableLogging(m_smtpServer,new MockLogger());
         m_serviceManager = setUpServiceManager();
         ContainerUtil.service(m_smtpServer, m_serviceManager);
         m_smtpServer.setLoader(m_serviceManager);
-        m_smtpServer.setConnectionManager(connectionManager);
         m_smtpServer.setDNSService(m_dnsServer);
-        m_smtpServer.setFileSystem(new MockFileSystem());
         m_smtpServer.setLog(new SimpleLog("Test"));
         m_smtpServer.setMailServer(m_mailServer);
         m_smtpServer.setMailetContext(mailetContext);
-        m_smtpServer.setProtocolHandlerFactory(m_smtpServer);
-        m_smtpServer.setSocketManager(socketManager);
-        m_smtpServer.setThreadManager(threadManager);
+        
+        protoserver = new AvalonProtocolServer();
+        protoserver.setConnectionManager(connectionManager);
+        protoserver.setFileSystem(new MockFileSystem());
+        protoserver.setProtocolHandlerFactory(m_smtpServer);
+        protoserver.setSocketManager(socketManager);
+        protoserver.setThreadManager(threadManager);
+        protoserver.setDNSService(m_dnsServer);
+        protoserver.setLog(new SimpleLog("Test"));
+
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
@@ -208,8 +216,12 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
 
     private void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        m_smtpServer.setConfiguration(new ConfigurationAdapter(testConfiguration));
+        ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
+        m_smtpServer.setConfiguration(conf);
         m_smtpServer.init();
+        
+        protoserver.setConfiguration(conf);
+        protoserver.init();
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
     }
 

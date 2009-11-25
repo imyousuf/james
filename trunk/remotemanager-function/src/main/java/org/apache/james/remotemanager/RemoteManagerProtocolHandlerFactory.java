@@ -30,19 +30,17 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.AbstractProtocolServer;
+import org.apache.james.socket.api.AbstractSupportLoaderProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolHandler;
-import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
 
 /**
  * Provides a really rude network interface to administer James.
  */
-public class RemoteManager
-    extends AbstractProtocolServer implements RemoteManagerMBean {
+public class RemoteManagerProtocolHandlerFactory extends AbstractSupportLoaderProtocolHandlerFactory {
 
+    
     /**
      * A Map of (user id, passwords) for James administrators
      */
@@ -54,109 +52,48 @@ public class RemoteManager
      */
     private String prompt = "";
 
-    /**
-     * The reference to the internal MailServer service
-     */
-    private MailServer mailServer;
 
-
-    /**
-     * Set the MailServer 
-     * 
-     * @param mailServer the MailServer
-     */
+    
     @Resource(name="org.apache.james.services.MailServer")
-    public void setMailServer(MailServer mailServer) {
+    public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
 
+    
     /**
      * The configuration data to be passed to the handler
      */
     private RemoteManagerHandlerConfigurationData theConfigData
         = new RemoteManagerHandlerConfigurationDataImpl();
 
+    private MailServer mailServer;
 
-    /**
-     * The chain to use
-     */
-    private ProtocolHandlerChainImpl handlerChain;
-
-
-    /**
-     * The loader
-     */
-    private LoaderService loader;
-
-
-    /**
-     * The configuration
-     */
-    private HierarchicalConfiguration handlerConfiguration;
     
-    /**
-     * Gets the current instance loader.
-     * @return the loader
-     */
-    public final LoaderService getLoader() {
-        return loader;
-    }
-
-    /**
-     * Sets the loader to be used for instances.
-     * @param loader the loader to set, not null
-     */
-    @Resource(name="org.apache.james.LoaderService")
-    public final void setLoader(LoaderService loader) {
-        this.loader = loader;
-    }
-
-
-    @Override
     @PostConstruct
     public void init() throws Exception {
         super.init();
     }
 
     @SuppressWarnings("unchecked")
-    public void onConfigure( final HierarchicalConfiguration configuration )
+    public void onConfigure(HierarchicalConfiguration configuration)
         throws ConfigurationException {
-        if (isEnabled()) {
-            HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
-            List<HierarchicalConfiguration> accounts = handlerConfiguration.configurationsAt( "administrator_accounts.account" );
-            for ( int i = 0; i < accounts.size(); i++ ) {
-                adminAccounts.put( accounts.get(i).getString("[@login]" ),
-                                   accounts.get(i).getString( "[@password]" ) );
-            }
-            prompt =handlerConfiguration.getString("prompt", null);
-            
-            if (prompt == null) prompt = ""; 
-            else if (!prompt.equals("") && !prompt.endsWith(" ")) prompt += " "; 
-           
-            this.handlerConfiguration = handlerConfiguration;
+        super.onConfigure(configuration);
+        HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
+        List<HierarchicalConfiguration> accounts = handlerConfiguration.configurationsAt("administrator_accounts.account");
+        for (int i = 0; i < accounts.size(); i++) {
+            adminAccounts.put(accounts.get(i).getString("[@login]"), accounts.get(i).getString("[@password]"));
         }
-    }
-    
-    private void prepareHandlerChain() throws Exception {
+        prompt = handlerConfiguration.getString("prompt", null);
 
-        handlerChain = loader.load(ProtocolHandlerChainImpl.class);
-        
-        //set the logger
-        handlerChain.setLog(getLog());
-        
-        //read from the XML configuration and create and configure each of the handlers
-        HierarchicalConfiguration jamesConfiguration = handlerConfiguration.configurationAt("handlerchain");
-        if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
-            jamesConfiguration.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
-        handlerChain.configure(jamesConfiguration);
+        if (prompt == null)
+            prompt = "";
+        else if (!prompt.equals("") && !prompt.endsWith(" "))
+            prompt += " ";
+                
     }
     
 
-    @Override
-    protected void prepareInit() throws Exception {
-        prepareHandlerChain();
-    }
-    
+
     /**
      * @see org.apache.james.socket.AbstractProtocolServer#getDefaultPort()
      */
@@ -175,7 +112,7 @@ public class RemoteManager
      * @see org.apache.james.socket.AbstractProtocolServer#newProtocolHandlerInstance()
      */
     public ProtocolHandler newProtocolHandlerInstance() {
-        return new RemoteManagerHandler(theConfigData, handlerChain);
+        return new RemoteManagerHandler(theConfigData, getProtocolHandlerChain());
     }
 
     /**
@@ -188,10 +125,10 @@ public class RemoteManager
          * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (RemoteManager.this.getHelloName() == null) {
-                return RemoteManager.this.mailServer.getHelloName();
+            if (getHelloName() == null) {
+                return RemoteManagerProtocolHandlerFactory.this.mailServer.getHelloName();
             } else {
-                return RemoteManager.this.getHelloName();
+                return RemoteManagerProtocolHandlerFactory.this.getHelloName();
             }
         }
         
@@ -199,15 +136,20 @@ public class RemoteManager
          * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getAdministrativeAccountData()
          */
         public Map<String,String> getAdministrativeAccountData() {
-            return RemoteManager.this.adminAccounts;
+            return RemoteManagerProtocolHandlerFactory.this.adminAccounts;
         }
 
         /**
          * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getPrompt()
          */
         public String getPrompt() {
-            return RemoteManager.this.prompt;
+            return RemoteManagerProtocolHandlerFactory.this.prompt;
         }
         
+    }
+
+    @Override
+    protected Class<?> getHandlersPackage() {
+        return CoreCmdHandlerLoader.class;
     }
 }
