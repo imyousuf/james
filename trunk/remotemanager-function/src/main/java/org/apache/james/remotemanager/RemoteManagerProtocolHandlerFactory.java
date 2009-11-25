@@ -32,8 +32,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.api.AbstractSupportLoaderProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolHandler;
+import org.apache.james.socket.shared.AbstractSupportLoaderProtocolHandlerFactory;
 
 /**
  * Provides a really rude network interface to administer James.
