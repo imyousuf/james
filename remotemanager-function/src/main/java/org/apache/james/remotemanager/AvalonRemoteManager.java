@@ -43,8 +43,10 @@ import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
+import org.apache.james.socket.api.ProtocolServer;
 import org.apache.james.util.ConfigurationAdapter;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
@@ -63,7 +65,7 @@ public class AvalonRemoteManager implements GuiceInjected, Initializable, Servic
     private org.apache.commons.configuration.HierarchicalConfiguration config;
     private JamesConnectionManager connectionManager;
     private SocketManager socketManager;
-    private RemoteManager server = new RemoteManager();
+    private RemoteManagerMBean mbean;
     private ThreadManager threadManager;
     private SpoolManagementService spoolService;
     private BayesianAnalyzerManagementService bayesianServer;
@@ -74,19 +76,19 @@ public class AvalonRemoteManager implements GuiceInjected, Initializable, Servic
     private Store store;
     
     public String getNetworkInterface() {
-        return server.getNetworkInterface();
+        return mbean.getNetworkInterface();
     }
 
     public int getPort() {
-        return server.getPort();
+        return mbean.getPort();
     }
 
     public String getSocketType() {
-        return server.getSocketType();
+        return mbean.getSocketType();
     }
 
     public boolean isEnabled() {
-        return server.isEnabled();
+        return mbean.isEnabled();
     }
 
     /**
@@ -123,7 +125,8 @@ public class AvalonRemoteManager implements GuiceInjected, Initializable, Servic
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        server = Guice.createInjector(new RemoteManagerModule(), new Jsr250Module()).getInstance(RemoteManager.class);
+        Injector injector = Guice.createInjector(new RemoteManagerModule(), new Jsr250Module());
+        mbean = injector.getInstance(RemoteManagerMBeanImpl.class);
     }
                  
     /**
@@ -142,13 +145,6 @@ public class AvalonRemoteManager implements GuiceInjected, Initializable, Servic
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
             bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(filesystem);
-            bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).toProvider(new Provider<ProtocolHandlerFactory>() {
-
-                public ProtocolHandlerFactory get() {
-                    return server;
-                }
-                
-            });
             bind(SocketManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.sockets.SocketManager")).toInstance(socketManager);
             bind(JamesConnectionManager.class).annotatedWith(Names.named("org.apache.james.socket.JamesConnectionManager")).toInstance(connectionManager);
             bind(ThreadManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.threads.ThreadManager")).toInstance(threadManager);
@@ -159,6 +155,9 @@ public class AvalonRemoteManager implements GuiceInjected, Initializable, Servic
             bind(VirtualUserTableManagementService.class).annotatedWith(Names.named("org.apache.james.api.vut.management.VirtualUserTableManagementService")).toInstance(vutService);
             bind(DomainListManagementService.class).annotatedWith(Names.named("org.apache.james.management.DomainListManagementService")).toInstance(domainService);
             bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(store);
+            
+            bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).to(RemoteManagerProtocolHandlerFactory.class);
+            bind(ProtocolServer.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolServer")).to(AvalonProtocolServer.class);
             // we bind the LoaderService to an Provider to get sure everything is there when the SMTPLoaderService get created.
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
 

@@ -17,35 +17,50 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket.api;
 
-/**
- * Each socket provider implements this interface. A ProtocolHandlerFactory can
- * retrieve transport informations using this interface
- */
-public interface ProtocolServer {
+package org.apache.james.pop3server;
 
-    public boolean isEnabled();
+import javax.annotation.Resource;
+
+import org.apache.james.socket.api.ProtocolServer;
+
+public class POP3ServerMBeanImpl implements POP3ServerMBean{
+
+
+    private ProtocolServer server;
+
+    @Resource(name="org.apache.james.socket.api.ProtocolServer")
+    public void setProtocolServer(ProtocolServer server) {
+        this.server = server;
+    }
+    
+    /**
+     * @see org.apache.james.remotemanager.RemoteManagerMBean#getNetworkInterface()
+     */
+    public String getNetworkInterface() {
+        return server.getNetworkInterface();
+    }
 
     /**
-     * Returns the server socket type, plain or SSL
-     * 
-     * @return String The socket type, plain or SSL
+     * @see org.apache.james.remotemanager.RemoteManagerMBean#getPort()
      */
-    public String getSocketType();
+    public int getPort() {
+        return server.getPort();
+    }
 
     /**
-     * Returns the port that the service is bound to
-     * 
-     * @return int The port number
+     * @see org.apache.james.remotemanager.RemoteManagerMBean#getSocketType()
      */
-    public int getPort();
+    public String getSocketType() {
+        return server.getSocketType();
+    }
 
     /**
-     * Returns the address if the network interface the socket is bound to
-     * 
-     * @return String The network interface name
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.RemoteManagerMBean#isEnabled()
      */
-    public String getNetworkInterface();
+    public boolean isEnabled() {
+        return server.isEnabled();
+    }
 
 }

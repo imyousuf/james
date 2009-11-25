@@ -38,8 +38,10 @@ import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
+import org.apache.james.socket.api.ProtocolServer;
 import org.apache.james.util.ConfigurationAdapter;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
@@ -59,24 +61,24 @@ public class AvalonNNTPServer implements GuiceInjected, Initializable, Serviceab
     private UsersRepository userRepos;
     private JamesConnectionManager connectionManager;
     private SocketManager socketManager;
-    private NNTPServer nntpserver = new NNTPServer();
+    private NNTPServerMBean mbean;
     private NNTPRepository nntpRepos;
     private ThreadManager threadManager;
     
     public String getNetworkInterface() {
-        return nntpserver.getNetworkInterface();
+        return mbean.getNetworkInterface();
     }
 
     public int getPort() {
-        return nntpserver.getPort();
+        return mbean.getPort();
     }
 
     public String getSocketType() {
-        return nntpserver.getSocketType();
+        return mbean.getSocketType();
     }
 
     public boolean isEnabled() {
-        return nntpserver.isEnabled();
+        return mbean.isEnabled();
     }
 
     /**
@@ -108,7 +110,7 @@ public class AvalonNNTPServer implements GuiceInjected, Initializable, Serviceab
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        nntpserver = Guice.createInjector(new NNTPServerModule(), new Jsr250Module()).getInstance(NNTPServer.class);
+        mbean = Guice.createInjector(new NNTPServerModule(), new Jsr250Module()).getInstance(NNTPServerMBeanImpl.class);
     }
                  
     /**
@@ -128,17 +130,12 @@ public class AvalonNNTPServer implements GuiceInjected, Initializable, Serviceab
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
             bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(filesystem);
             bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
-            bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).toProvider(new Provider<ProtocolHandlerFactory>() {
-
-                public ProtocolHandlerFactory get() {
-                    return nntpserver;
-                }
-                
-            });
+            bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).to(NNTPServerProtocolHandlerFactory.class);
             bind(SocketManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.sockets.SocketManager")).toInstance(socketManager);
             bind(JamesConnectionManager.class).annotatedWith(Names.named("org.apache.james.socket.JamesConnectionManager")).toInstance(connectionManager);
             bind(ThreadManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.threads.ThreadManager")).toInstance(threadManager);
             bind(NNTPRepository.class).annotatedWith(Names.named("org.apache.james.nntpserver.repository.NNTPRepository")).toInstance(nntpRepos);
+            bind(ProtocolServer.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolServer")).to(AvalonProtocolServer.class);
             // we bind the LoaderService to an Provider to get sure everything is there when the SMTPLoaderService get created.
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
 

@@ -34,6 +34,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockSocketManager;
@@ -71,8 +72,9 @@ public class POP3ServerTest extends TestCase {
 
     protected POP3TestConfiguration m_testConfiguration;
 
-    private POP3Server m_pop3Server;
-
+    private POP3ServerProtocolServerHandlerFactory m_pop3Server;
+    private AvalonProtocolServer protoserver;
+    
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private POP3Client m_pop3Protocol = null;
 
@@ -95,28 +97,35 @@ public class POP3ServerTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        m_pop3Server = new POP3Server();
+        m_pop3Server = new POP3ServerProtocolServerHandlerFactory();
         setUpServiceManager();
         
-        ContainerUtil.service(m_pop3Server, serviceManager);
-        ContainerUtil.enableLogging(m_pop3Server, new MockLogger());
         m_pop3Server.setLoader(serviceManager);
-        m_pop3Server.setConnectionManager(connectionManager);
         m_pop3Server.setDNSService(dnsservice);
-        m_pop3Server.setFileSystem(fSystem);
         m_pop3Server.setMailServer(m_mailServer);
-        m_pop3Server.setProtocolHandlerFactory(m_pop3Server);
-        m_pop3Server.setSocketManager(socketManager);
-        m_pop3Server.setThreadManager(threadManager);
         m_pop3Server.setLog(new SimpleLog("MockLog"));
+        
+        protoserver = new AvalonProtocolServer();
+        protoserver.setConnectionManager(connectionManager);
+        protoserver.setFileSystem(fSystem);
+        protoserver.setProtocolHandlerFactory(m_pop3Server);
+        protoserver.setSocketManager(socketManager);
+        protoserver.setThreadManager(threadManager);
+        protoserver.setLog(new SimpleLog("MockLog"));
+        protoserver.setDNSService(dnsservice);
+
         m_testConfiguration = new POP3TestConfiguration(m_pop3ListenerPort);
     }
 
     protected void finishSetUp(POP3TestConfiguration testConfiguration)
             throws Exception {
         testConfiguration.init();
-        m_pop3Server.setConfiguration(new ConfigurationAdapter(testConfiguration));
+        ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
+        m_pop3Server.setConfiguration(conf);
         m_pop3Server.init();
+        
+        protoserver.setConfiguration(conf);
+        protoserver.init();
     }
 
     protected void setUpServiceManager() throws ServiceException {

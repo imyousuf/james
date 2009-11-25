@@ -29,14 +29,14 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.nntpserver.repository.NNTPRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.AbstractProtocolServer;
+import org.apache.james.socket.api.AbstractProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolHandler;
 
 /**
  * NNTP Server
  *
  */
-public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBean {
+public class NNTPServerProtocolHandlerFactory extends AbstractProtocolHandlerFactory {
 
     /**
      * Whether authentication is required to access this NNTP server
@@ -95,16 +95,15 @@ public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBea
     }
 
     protected void onConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
-        if (isEnabled()) {
-            authRequired = configuration.getBoolean("handler.authRequired", false);
-            if (getLog().isDebugEnabled()) {
-                if (authRequired) {
-                    getLog().debug("NNTP Server requires authentication.");
-                } else {
-                    getLog().debug("NNTP Server doesn't require authentication.");
-                }
+        authRequired = configuration.getBoolean("handler.authRequired", false);
+        if (getLogger().isDebugEnabled()) {
+            if (authRequired) {
+                getLogger().debug("NNTP Server requires authentication.");
+            } else {
+                getLogger().debug("NNTP Server doesn't require authentication.");
             }
         }
+
     }
 
     /**
@@ -139,10 +138,10 @@ public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBea
          * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (NNTPServer.this.getHelloName() == null) {
-                return NNTPServer.this.mailServer.getHelloName();
+            if (NNTPServerProtocolHandlerFactory.this.getHelloName() == null) {
+                return NNTPServerProtocolHandlerFactory.this.mailServer.getHelloName();
             } else {
-                return NNTPServer.this.getHelloName();
+                return NNTPServerProtocolHandlerFactory.this.getHelloName();
             }
         }
 
@@ -150,22 +149,21 @@ public class NNTPServer extends AbstractProtocolServer implements NNTPServerMBea
          * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#isAuthRequired()
          */
         public boolean isAuthRequired() {
-            return NNTPServer.this.authRequired;
+            return NNTPServerProtocolHandlerFactory.this.authRequired;
         }
 
         /**
          * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#getUsersRepository()
          */
         public UsersRepository getUsersRepository() {
-            return NNTPServer.this.userRepository;
+            return NNTPServerProtocolHandlerFactory.this.userRepository;
         }
 
         /**
          * @see org.apache.james.nntpserver.NNTPHandlerConfigurationData#getNNTPRepository()
          */
         public NNTPRepository getNNTPRepository() {
-            return NNTPServer.this.nntpRepository;
+            return NNTPServerProtocolHandlerFactory.this.nntpRepository;
         }
-
     }
 }

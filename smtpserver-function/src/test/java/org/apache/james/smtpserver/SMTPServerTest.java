@@ -53,6 +53,7 @@ import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
+import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.DummyDataSourceSelector;
@@ -158,7 +159,7 @@ public class SMTPServerTest extends TestCase {
     protected MockMailServer m_mailServer;
     protected SMTPTestConfiguration m_testConfiguration;
     protected JamesConnectionManager connectionManager;
-    protected SMTPServer m_smtpServer;
+    protected SMTPServerProtocolHandlerFactory m_smtpServer;
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
     protected FakeLoader m_serviceManager;
     protected AlterableDNSServer m_dnsServer;
@@ -168,7 +169,8 @@ public class SMTPServerTest extends TestCase {
     protected MockStore store;
     protected MockFileSystem fileSystem;
     protected SMTPServerDNSServiceAdapter dnsAdapter;
-    
+    protected AvalonProtocolServer protoServer = new AvalonProtocolServer();
+
     public SMTPServerTest() {
         super("SMTPServerTest");
         m_smtpListenerPort = Util.getNonPrivilegedPort();
@@ -193,18 +195,25 @@ public class SMTPServerTest extends TestCase {
     }
     
     protected void setUp() throws Exception {
-        m_smtpServer = new SMTPServer();
-        m_smtpServer.setLog(new SimpleLog("MockLog"));
         m_serviceManager = setUpServiceManager();
+
+        m_smtpServer = new SMTPServerProtocolHandlerFactory();
+        m_smtpServer.setLog(new SimpleLog("MockLog"));
         m_smtpServer.setLoader(m_serviceManager);
-        m_smtpServer.setConnectionManager(connectionManager);
         m_smtpServer.setDNSService(m_dnsServer);
         m_smtpServer.setMailetContext(mailetContext);
-        m_smtpServer.setFileSystem(fileSystem);
         m_smtpServer.setMailServer(m_mailServer);
-        m_smtpServer.setProtocolHandlerFactory(m_smtpServer);
-        m_smtpServer.setSocketManager(socketManager);
-        m_smtpServer.setThreadManager(threadManager);
+
+        
+        
+        protoServer = new AvalonProtocolServer();
+        protoServer.setLog(new SimpleLog("MockLog"));
+        protoServer.setProtocolHandlerFactory(m_smtpServer);
+        protoServer.setSocketManager(socketManager);
+        protoServer.setThreadManager(threadManager);
+        protoServer.setConnectionManager(connectionManager);
+        protoServer.setFileSystem(fileSystem);
+        protoServer.setDNSService(m_dnsServer);
         
         ContainerUtil.service(m_smtpServer, m_serviceManager);
         
@@ -221,6 +230,10 @@ public class SMTPServerTest extends TestCase {
         ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
         m_smtpServer.setConfiguration(conf);
         m_smtpServer.init();
+        
+        protoServer.setConfiguration(conf);
+        protoServer.init();
+        
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
     }
 

@@ -37,7 +37,8 @@ import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.main.ImapRequestHandler;
-import org.apache.james.socket.AbstractProtocolServer;
+import org.apache.james.services.FileSystem;
+import org.apache.james.socket.api.AbstractProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.jsieve.mailet.Poster;
 
@@ -49,7 +50,7 @@ import org.apache.jsieve.mailet.Poster;
  *
  * <p>Also responsible for loading and parsing IMAP specific configuration.</p>
  */
-public class ImapServer extends AbstractProtocolServer implements ImapConstants, Poster
+public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFactory implements ImapConstants, Poster
 {
     private static final String softwaretype = "JAMES "+VERSION+" Server " + Constants.SOFTWARE_VERSION;
      
@@ -60,10 +61,18 @@ public class ImapServer extends AbstractProtocolServer implements ImapConstants,
     private UsersRepository usersRepos;
     private HierarchicalConfiguration configuration;
 
+    private FileSystem fSystem;
+
     @Resource(name="org.apache.james.api.user.UsersRepository")
     public void setUsersRepository(UsersRepository usersRepos) {
         this.usersRepos = usersRepos;
     }
+    
+    @Resource(name="org.apache.james.services.FileSystem")
+    public void setFileSystem(FileSystem fSystem) {
+        this.fSystem = fSystem;
+    }
+    
 
     @PostConstruct
     @Override
@@ -72,9 +81,9 @@ public class ImapServer extends AbstractProtocolServer implements ImapConstants,
     }
 
     @Override
-    public  void doInit() throws Exception {
-        getLog().debug("Initialising...");
-        factory = new DefaultImapFactory(getFileSystem(), usersRepos, getLog());
+    public  void onInit() throws Exception {
+        getLogger().debug("Initialising...");
+        factory = new DefaultImapFactory(fSystem, usersRepos, getLogger());
         factory.configure(configuration);
 
         factory.init();
@@ -110,7 +119,7 @@ public class ImapServer extends AbstractProtocolServer implements ImapConstants,
     {  
         final ImapRequestHandler handler = factory.createHandler();
         final ImapHandler imapHandler = new ImapHandler(handler, hello); 
-        getLog().debug("Create handler instance");
+        getLogger().debug("Create handler instance");
         return imapHandler;
     }
     
@@ -146,7 +155,7 @@ public class ImapServer extends AbstractProtocolServer implements ImapConstants,
                             urlPath = url.substring(endOfHost, length);
                         }
                         final MailboxManager mailboxManager = factory.getMailbox();
-                        final MailboxSession session = mailboxManager.createSystemSession(user, getLog());
+                        final MailboxSession session = mailboxManager.createSystemSession(user, getLogger());
                         // This allows Sieve scripts to use a standard delimiter regardless of mailbox implementation
                         final String mailbox = urlPath.replace('/', session.getPersonalSpace().getDeliminator());
                         postToMailbox(user, mail, mailbox, session, mailboxManager);

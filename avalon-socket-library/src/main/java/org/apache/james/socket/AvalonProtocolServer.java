@@ -91,10 +91,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
      */
     private static final String BACKLOG_NAME = "connectionBacklog";
 
-    /**
-     * The name of the parameter defining the service hello name.
-     */
-    private static final String HELLO_NAME = "helloName";
 
     /**
      * The ConnectionManager that spawns and manages service connections.
@@ -156,11 +152,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
      * The connection backlog.
      */
     private int backlog;
-
-    /**
-     * The hello name for the service.
-     */
-    private String helloName;
 
     /**
      * Whether this service is enabled.
@@ -368,8 +359,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
             throw new ConfigurationException( "Malformed bind parameter in configuration of service " + protocolHandlerFactory.getServiceType(), unhe );
         }
 
-        configureHelloName(handlerConfiguration);
-
         timeout = handlerConfiguration.getInteger(TIMEOUT_NAME, DEFAULT_TIMEOUT);
 
         infoBuffer =
@@ -486,42 +475,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         this.streamDumpDir = streamdumpDir;
     }
     
-    private void configureHelloName(HierarchicalConfiguration handlerConfiguration) {
-        StringBuilder infoBuffer;
-        String hostName = null;
-        try {
-            hostName = dnsService.getHostName(dnsService.getLocalHost());
-        } catch (UnknownHostException ue) {
-            hostName = "localhost";
-        }
-
-        infoBuffer =
-            new StringBuilder(64)
-                    .append(protocolHandlerFactory.getServiceType())
-                    .append(" is running on: ")
-                    .append(hostName);
-        getLog().info(infoBuffer.toString());
-
-        
- 
-        if (handlerConfiguration.getKeys(HELLO_NAME).hasNext()) {
-            boolean autodetect = handlerConfiguration.getBoolean(HELLO_NAME +".[@autodetect]", true);
-            if (autodetect) {
-                helloName = hostName;
-            } else {
-                // Should we use the defaultdomain here ?
-                helloName = handlerConfiguration.getString(HELLO_NAME, "localhost");
-            }
-        } else {
-            helloName = null;
-        }
-        infoBuffer =
-            new StringBuilder(64)
-                    .append(protocolHandlerFactory.getServiceType())
-                    .append(" handler hello name is: ")
-                    .append(helloName);
-        getLog().info(infoBuffer.toString());
-    }
 
 
     @Override
@@ -540,16 +493,18 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         if (serviceManager == null) {
             serviceManager = new DefaultServiceManager();
         }
-        ContainerUtil.service(this, serviceManager);
+       
         // parse configuration
         configure();
 
+
+        
         if (!isEnabled()) {
             getLog().info(protocolHandlerFactory.getServiceType() + " Disabled");
             return;
         }      
         
-        protocolHandlerFactory.prepare(this);
+        service(serviceManager);
 
         if (useStartTLS) {
         	initStartTLS();
@@ -568,9 +523,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         ContainerUtil.initialize(theHandlerPool);
 
         theWatchdogFactory = getWatchdogFactory();
-
-        // Allow subclasses to perform initialisation
-        protocolHandlerFactory.doInit();
     }
     
     private void initStartTLS() throws Exception {
@@ -850,7 +802,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
     * 
     * @return String The network interface name     
     */  
-    public String  getNetworkInterface() {
+    public String getNetworkInterface() {
         if (bindTo == null) {
             return "All";
         } else {
@@ -859,10 +811,8 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
     }
     
     /**
-    * Returns the server socket type, plain or SSL 
-    * 
-    * @return String The socket type, plain or SSL     
-    */  
+     * @see org.apache.james.socket.api.ProtocolServer#getSocketType()
+     */
     public String  getSocketType() {
         return serverSocketType;
     }
@@ -916,15 +866,5 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
     public Class getCreatedClass() {
         return JamesConnectionBridge.class;
     }
-
-
-    public boolean useStartTLS() {
-    	return useStartTLS;
-    }
-    
-    public String getHelloName() {
-        return helloName;
-    }
-
 }
 

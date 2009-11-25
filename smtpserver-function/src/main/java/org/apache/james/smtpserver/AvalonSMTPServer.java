@@ -40,8 +40,10 @@ import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.SMTPServerMBean;
+import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
+import org.apache.james.socket.api.ProtocolServer;
 import org.apache.james.util.ConfigurationAdapter;
 import org.apache.mailet.MailetContext;
 import org.guiceyfruit.jsr250.Jsr250Module;
@@ -52,7 +54,7 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
-public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceable, Configurable, LogEnabled, SMTPServerMBean{
+public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceable, Configurable, LogEnabled, SMTPServerMBean {
     
     private FileSystem filesystem;
     private MailServer mailserver;
@@ -66,23 +68,23 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
     private org.apache.james.smtpserver.protocol.DNSService dnsServiceAdapter;
     private JamesConnectionManager connectionManager;
     private SocketManager socketManager;
-    private SMTPServer smtpserver;
     private ThreadManager threadManager;
+    private SMTPServerMBean mbean;
     
     public String getNetworkInterface() {
-        return smtpserver.getNetworkInterface();
+        return mbean.getNetworkInterface();
     }
 
     public int getPort() {
-        return smtpserver.getPort();
+        return mbean.getPort();
     }
 
     public String getSocketType() {
-        return smtpserver.getSocketType();
+        return mbean.getSocketType();
     }
 
     public boolean isEnabled() {
-        return smtpserver.isEnabled();
+        return mbean.isEnabled();
     }
 
     /**
@@ -117,7 +119,7 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        smtpserver = Guice.createInjector(new SMTPServerModule(), new Jsr250Module()).getInstance(SMTPServer.class);
+        mbean = Guice.createInjector(new SMTPServerModule(), new Jsr250Module()).getInstance(SMTPServerMBeanImpl.class);
     }
                  
     /**
@@ -141,13 +143,8 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
             bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
             bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(dselector);
             bind(VirtualUserTableStore.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTableStore")).toInstance(vutStore);
-            bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).toProvider(new Provider<ProtocolHandlerFactory>() {
-
-                public ProtocolHandlerFactory get() {
-                    return smtpserver;
-                }
-                
-            });
+            bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).to(SMTPServerProtocolHandlerFactory.class);
+            bind(ProtocolServer.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolServer")).to(AvalonProtocolServer.class);
             bind(SocketManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.sockets.SocketManager")).toInstance(socketManager);
             bind(JamesConnectionManager.class).annotatedWith(Names.named("org.apache.james.socket.JamesConnectionManager")).toInstance(connectionManager);
             bind(ThreadManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.threads.ThreadManager")).toInstance(threadManager);

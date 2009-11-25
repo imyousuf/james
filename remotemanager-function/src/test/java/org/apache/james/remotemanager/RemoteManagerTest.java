@@ -45,6 +45,7 @@ import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.avalon.MockLogger;
@@ -88,7 +89,9 @@ import junit.framework.TestCase;
 public class RemoteManagerTest extends TestCase {
     
     protected int m_remoteManagerListenerPort = Util.getNonPrivilegedPort();
-    protected RemoteManager m_remoteManager;
+    protected RemoteManagerProtocolHandlerFactory handlerFactory;
+    protected AvalonProtocolServer server;
+    
     protected RemoteManagerTestConfiguration m_testConfiguration;
     protected String m_host = "127.0.0.1";
     protected BufferedReader m_reader;
@@ -104,20 +107,26 @@ public class RemoteManagerTest extends TestCase {
     private DNSService dnsservice;
     private MockFileSystem filesystem;
     private MockVirtualUserTableManagementService vutManagement;
-
+    private AvalonProtocolServer protoserver;
+    
     protected void setUp() throws Exception {
-        m_remoteManager = new RemoteManager();
+        handlerFactory = new RemoteManagerProtocolHandlerFactory();
         setUpServiceManager();
-        m_remoteManager.setLoader(serviceManager);
-        m_remoteManager.setConnectionManager(connectionManager);
-        m_remoteManager.setFileSystem(filesystem);
-        m_remoteManager.setDNSService(dnsservice);
-        m_remoteManager.setLog(new SimpleLog("MockLog"));
-        m_remoteManager.setMailServer(mailServer);
-        m_remoteManager.setProtocolHandlerFactory(m_remoteManager);
-        m_remoteManager.setSocketManager(socketManager);
-        m_remoteManager.setThreadManager(threadManager);
-        ContainerUtil.service(m_remoteManager, serviceManager);
+        
+        handlerFactory.setLoader(serviceManager);
+        handlerFactory.setLog(new SimpleLog("MockLog"));
+        handlerFactory.setMailServer(mailServer);
+        handlerFactory.setDNSService(dnsservice);
+        
+        protoserver = new AvalonProtocolServer();
+        protoserver.setLog(new SimpleLog("ProtoServerLog"));
+        protoserver.setConnectionManager(connectionManager);
+        protoserver.setFileSystem(filesystem);
+        protoserver.setDNSService(dnsservice);
+        protoserver.setProtocolHandlerFactory(handlerFactory);
+        protoserver.setSocketManager(socketManager);
+        protoserver.setThreadManager(threadManager);
+        //ContainerUtil.service(m_remoteManager, serviceManager);
         m_testConfiguration = new RemoteManagerTestConfiguration(m_remoteManagerListenerPort);
     }
 
@@ -129,8 +138,12 @@ public class RemoteManagerTest extends TestCase {
     protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
         try {
-            m_remoteManager.setConfiguration(new ConfigurationAdapter(testConfiguration));
-            m_remoteManager.init();
+            ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
+            protoserver.setConfiguration(conf);
+            handlerFactory.setConfiguration(conf);
+            handlerFactory.init();
+            protoserver.init();
+            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

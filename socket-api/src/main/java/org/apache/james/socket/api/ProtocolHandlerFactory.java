@@ -55,21 +55,4 @@ public interface ProtocolHandlerFactory {
      */
     ProtocolHandler newProtocolHandlerInstance();
 
-    /**
-     * Hook for protocol factories to perform an required initialisation before
-     * the socket handler has been initialised. Called before the socket handler
-     * has completed it's initialisation.
-     * 
-     * @throws Exception
-     */
-    void prepare(ProtocolServer server) throws Exception;
-
-    /**
-     * Hook for protocol factories to perform the initialisation after the
-     * socket handler has been initialized TODO maybe this is not required
-     * 
-     * @throws Exception
-     */
-    void doInit() throws Exception;
-
 }
