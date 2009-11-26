@@ -22,27 +22,25 @@
 package org.apache.james.socket;
 import java.net.ServerSocket;
 import java.util.HashMap;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.avalon.framework.service.Serviceable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
 /**
  * An implementation of ConnectionManager that supports configurable
  * idle timeouts and a configurable value for the maximum number of
  * client connections to a particular port.
  *
  */
-public class SimpleConnectionManager
-    extends AbstractLogEnabled
-    implements JamesConnectionManager, Serviceable, Configurable, Disposable {
+public class SimpleConnectionManager implements JamesConnectionManager {
     /**
      * The default value for client socket idle timeouts.  The
      * Java default is 0, meaning no timeout.  That's dangerous
@@ -89,18 +87,32 @@ public class SimpleConnectionManager
      * Whether the SimpleConnectionManager has been disposed.
      */
     private volatile boolean disposed = false;
+    private Log logger;
+    private HierarchicalConfiguration configuration;
 
+    @Resource(name="org.apache.avalon.cornerstone.services.threads.ThreadManager")
     public void setThreadManager(ThreadManager threadManager) {
         this.threadManager = threadManager;
     }
+    
 
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    public void configure(final Configuration configuration) throws ConfigurationException {
-        timeout = configuration.getChild("idle-timeout").getValueAsInteger(DEFAULT_SOCKET_TIMEOUT);
-        maxOpenConn = configuration.getChild("max-connections").getValueAsInteger(DEFAULT_MAX_CONNECTIONS);
-        maxOpenConnPerIP = configuration.getChild("max-connections-per-ip").getValueAsInteger(DEFAULT_MAX_CONNECTIONS_PER_IP);
+    @Resource(name="org.apache.commons.logging.Log")
+    public void setLog(Log logger) {
+        this.logger = logger;
+    }
+   
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public void setConfiguration(HierarchicalConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+
+    @PostConstruct
+    public void init() throws Exception {
+        timeout = configuration.getInt("idle-timeout", DEFAULT_SOCKET_TIMEOUT);
+        maxOpenConn = configuration.getInt("max-connections", DEFAULT_MAX_CONNECTIONS);
+        maxOpenConnPerIP = configuration.getInt("max-connections-per-ip", DEFAULT_MAX_CONNECTIONS_PER_IP);
         if (timeout < 0) {
             StringBuilder exceptionBuffer =
                 new StringBuilder(128).append("Specified socket timeout value of ").append(timeout).append(
@@ -121,43 +133,38 @@ public class SimpleConnectionManager
                     " is not a legal value.");
             throw new ConfigurationException(exceptionBuffer.toString());
         }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug(
+        if (logger.isDebugEnabled()) {
+            logger.debug(
                 "Connection timeout is " + (timeout == 0 ? "unlimited" : Long.toString(timeout)));
-            getLogger().debug(
+            logger.debug(
                 "The maximum number of simultaneously open connections is "
                     + (maxOpenConn == 0 ? "unlimited" : Integer.toString(maxOpenConn)));
         }
-    }
-    /**
-     * @see org.apache.avalon.framework.service.Serviceable#service(ServiceManager)
-     */
-    public void service(ServiceManager componentManager) throws ServiceException {
-        setThreadManager((ThreadManager)componentManager.lookup(ThreadManager.ROLE));
     }
     
     
     /**
      * Disconnects all the underlying ServerConnections
      */
+    @PreDestroy
     public void dispose() {
         disposed = true;
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Starting SimpleConnectionManager dispose...");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Starting SimpleConnectionManager dispose...");
         }
         final String[] names = (String[])connectionMap.keySet().toArray(new String[0]);
         for (int i = 0; i < names.length; i++) {
             try {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Disconnecting ServerConnection " + names[i]);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Disconnecting ServerConnection " + names[i]);
                 }
                 disconnect(names[i], true);
             } catch (final Exception e) {
-                getLogger().warn("Error disconnecting " + names[i], e);
+                logger.warn("Error disconnecting " + names[i], e);
             }
         }
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Finishing SimpleConnectionManager dispose...");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Finishing SimpleConnectionManager dispose...");
         }
     }
     
@@ -196,9 +203,8 @@ public class SimpleConnectionManager
             throw new IllegalArgumentException("The maximum number of client connections (per IP) per server socket cannot be less that zero.");
         }
         ServerConnection runner =
-            new ServerConnection(socket, handlerFactory, threadPool, timeout, maxOpenConnections, maxOpenConnectionsPerIP);
-        setupLogger(runner);
-        ContainerUtil.initialize(runner);
+            new ServerConnection(socket, handlerFactory, threadPool, logger, timeout, maxOpenConnections, maxOpenConnectionsPerIP);
+        runner.init();
         connectionMap.put(name, runner);
         threadPool.execute(runner);
     }

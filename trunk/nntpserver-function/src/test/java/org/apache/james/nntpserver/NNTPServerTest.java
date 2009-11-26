@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.nntp.NNTPClient;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
@@ -46,7 +46,6 @@ import org.apache.james.services.MailServer;
 import org.apache.james.socket.AvalonProtocolServer;
 import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.MockFileSystem;
@@ -116,7 +115,7 @@ public class NNTPServerTest extends TestCase {
 		protoserver.init();
 	}
 
-    protected void setUpServiceManager() throws ServiceException {
+    protected void setUpServiceManager() throws Exception {
 		serviceManager = new FakeLoader();
 		m_usersRepository = new MockUsersRepository();
 		m_mailServer = new MockMailServer(m_usersRepository);
@@ -140,10 +139,7 @@ public class NNTPServerTest extends TestCase {
         
 		m_nntpRepos.setFileSystem(fs);
 
-		connectionManager = new SimpleConnectionManager();
-		ContainerUtil.enableLogging(connectionManager, new MockLogger());
-		
-		serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
+
 
 		serviceManager.put(MailServer.ROLE, m_mailServer);
 		serviceManager.put(UsersRepository.ROLE, m_usersRepository);
@@ -153,6 +149,15 @@ public class NNTPServerTest extends TestCase {
 		
 		threadManager = new MockThreadManager();
 		serviceManager.put(ThreadManager.ROLE, threadManager);
+	      
+		connectionManager = new SimpleConnectionManager();
+	    connectionManager.setThreadManager(threadManager);
+	    connectionManager.setLog(new SimpleLog("CM"));
+	    connectionManager.setConfiguration(new DefaultConfigurationBuilder());
+	    connectionManager.init();
+	                
+	    serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
+	        
 		nntpRepos = new MockNNTPRepository();
 		serviceManager.put(NNTPRepository.ROLE, nntpRepos);
 		

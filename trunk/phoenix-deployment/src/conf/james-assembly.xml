@@ -77,6 +77,9 @@
     <provide name="defaultvirtualusertable"
              role="org.apache.james.api.vut.VirtualUserTable" />
     <provide name="virtualusertable-store" role="org.apache.james.api.vut.VirtualUserTableStore"/>
+    <provide name="imapserver" role="org.apache.jsieve.mailet.Poster"/>
+    <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/>
+    <provide name="users-store" role="org.apache.james.api.user.UsersStore"/>  
     <proxy disable='true'/>
   </block>
 
@@ -90,6 +93,9 @@
     <provide name="defaultvirtualusertable"
              role="org.apache.james.api.vut.VirtualUserTable" />
     <provide name="virtualusertable-store" role="org.apache.james.api.vut.VirtualUserTableStore"/>
+    <provide name="imapserver" role="org.apache.jsieve.mailet.Poster"/>
+    <provide name="mailstore" role="org.apache.avalon.cornerstone.services.store.Store"/> 
+    <provide name="users-store" role="org.apache.james.api.user.UsersStore"/>
     <proxy disable='true'/>
   </block>
 
@@ -372,7 +378,7 @@
 
   <!-- The Connection Manager block -->
   <block name="connections"
-         class="org.apache.james.socket.SimpleConnectionManager" >
+         class="org.apache.james.socket.AvalonSimpleConnectionManager" >
     <provide name="thread-manager"
              role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
     <proxy disable='true'/>

@@ -582,7 +582,7 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
     @SuppressWarnings("unchecked")
     protected void configure(HierarchicalConfiguration processorConf) throws ConfigurationException {
         openProcessorList();
-        
+                
         final List<HierarchicalConfiguration> mailetConfs
             = processorConf.configurationsAt( "mailet" );
         // Loop through the mailet configuration, load
@@ -591,6 +591,8 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
         for ( int j = 0; j < mailetConfs.size(); j++ )
         {
             HierarchicalConfiguration c = mailetConfs.get(j);
+            
+            // We need to set this because of correctly parsing comma 
             String mailetClassName = c.getString("[@class]");
             String matcherName = c.getString("[@match]",null);
             String invertedMatcherName = c.getString("[@notmatch]",null);

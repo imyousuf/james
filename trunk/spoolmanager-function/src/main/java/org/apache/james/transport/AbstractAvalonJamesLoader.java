@@ -21,6 +21,7 @@
 package org.apache.james.transport;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
@@ -35,6 +36,8 @@ import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.user.UsersStore;
+import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.services.MailServer;
@@ -62,6 +65,9 @@ public abstract class AbstractAvalonJamesLoader implements Configurable, Service
     private UsersRepository userRepos;
     private DataSourceSelector dselector;
     private VirtualUserTableStore vutStore;
+    private Store store;
+    private VirtualUserTable vut;
+    private UsersStore usersStore;
 
     /**
      * @see org.apache.avalon.framework.configuration.Configurable#configure(org.apache.avalon.framework.configuration.Configuration)
@@ -83,7 +89,10 @@ public abstract class AbstractAvalonJamesLoader implements Configurable, Service
         userRepos = (UsersRepository) manager.lookup(UsersRepository.ROLE);
         dselector = (DataSourceSelector) manager.lookup(DataSourceSelector.ROLE);
         vutStore = (VirtualUserTableStore) manager.lookup(VirtualUserTableStore.ROLE);
-        
+        store = (Store) manager.lookup(Store.ROLE);
+        vut = (VirtualUserTable) manager.lookup(VirtualUserTable.ROLE);
+        usersStore = (UsersStore) manager.lookup(UsersStore.ROLE);
+          
     }
 
 
@@ -107,7 +116,10 @@ public abstract class AbstractAvalonJamesLoader implements Configurable, Service
             bind(MailServer.class).annotatedWith(Names.named("org.apache.james.services.MailServer")).toInstance(mailserver);
             bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
             bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(dselector);
+            bind(VirtualUserTable.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTable")).toInstance(vut);
             bind(VirtualUserTableStore.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTableStore")).toInstance(vutStore);
+            bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(store);
+            bind(UsersStore.class).annotatedWith(Names.named("org.apache.james.api.user.UsersStore")).toInstance(usersStore);
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
 
                 public LoaderService get() {

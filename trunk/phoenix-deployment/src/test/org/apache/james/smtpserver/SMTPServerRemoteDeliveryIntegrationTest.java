@@ -41,6 +41,7 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
@@ -227,9 +228,7 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
 
     private FakeLoader setUpServiceManager() throws Exception {
         m_serviceManager = new FakeLoader();
-        connectionManager = new SimpleConnectionManager();
-        ContainerUtil.enableLogging(connectionManager, new MockLogger());
-        m_serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
+
         mailetContext = new FakeMailContext();
         m_serviceManager.put(MailetContext.class.getName(), mailetContext);
         m_mailServer = new MockMailServer(new MockUsersRepository());
@@ -243,6 +242,14 @@ public class SMTPServerRemoteDeliveryIntegrationTest extends TestCase {
         m_serviceManager.put(SocketManager.ROLE, socketManager);
         threadManager = new MockThreadManager();
         m_serviceManager.put(ThreadManager.ROLE,threadManager );
+        
+        connectionManager = new SimpleConnectionManager();
+        connectionManager.setThreadManager(threadManager);
+        connectionManager.setLog(new SimpleLog("CM"));
+        connectionManager.setConfiguration(new DefaultConfigurationBuilder());
+        connectionManager.init();
+        m_serviceManager.put(SimpleConnectionManager.ROLE, connectionManager);
+        
         m_dnsServer = new AlterableDNSServer();
         m_serviceManager.put(DNSService.ROLE, m_dnsServer);
         m_serviceManager.put("dnsserver", m_dnsServer);

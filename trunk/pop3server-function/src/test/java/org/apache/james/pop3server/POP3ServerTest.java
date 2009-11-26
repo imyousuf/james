@@ -19,10 +19,23 @@
 
 package org.apache.james.pop3server;
 
+import java.io.InputStream;
+import java.io.Reader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.mail.MessagingException;
+import javax.mail.util.SharedByteArrayInputStream;
+
+import junit.framework.TestCase;
+
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
@@ -35,8 +48,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AvalonProtocolServer;
-import org.apache.james.socket.JamesConnectionManager;
-import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
@@ -46,21 +58,7 @@ import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.util.POP3BeforeSMTPHelper;
-import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.mailet.MailAddress;
-
-import javax.mail.MessagingException;
-import javax.mail.util.SharedByteArrayInputStream;
-
-import java.io.InputStream;
-import java.io.Reader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import junit.framework.TestCase;
 
 /**
  * Tests the org.apache.james.smtpserver.SMTPServer unit
@@ -128,11 +126,9 @@ public class POP3ServerTest extends TestCase {
         protoserver.init();
     }
 
-    protected void setUpServiceManager() throws ServiceException {
+    protected void setUpServiceManager() throws Exception {
         serviceManager = new FakeLoader();
-        connectionManager = new SimpleConnectionManager();
-        ContainerUtil.enableLogging(connectionManager, new MockLogger());
-        serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
+
         m_mailServer = new MockMailServer(m_usersRepository);
         serviceManager.put(MailServer.ROLE, m_mailServer);
         serviceManager.put(UsersRepository.ROLE,
@@ -141,6 +137,14 @@ public class POP3ServerTest extends TestCase {
         serviceManager.put(SocketManager.ROLE, socketManager);
         threadManager = new MockThreadManager();
         serviceManager.put(ThreadManager.ROLE, threadManager);
+        
+        connectionManager = new SimpleConnectionManager();
+        connectionManager.setThreadManager(threadManager);
+        connectionManager.setLog(new SimpleLog("CM"));
+        connectionManager.setConfiguration(new DefaultConfigurationBuilder());
+        connectionManager.init();
+        serviceManager.put(SimpleConnectionManager.ROLE, connectionManager);
+
         dnsservice = setUpDNSServer();
         serviceManager.put(DNSService.ROLE, setUpDNSServer());
         fSystem = new MockFileSystem();
