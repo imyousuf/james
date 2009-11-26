@@ -43,6 +43,7 @@ import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
@@ -54,11 +55,9 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.socket.AvalonProtocolServer;
-import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
 import org.apache.james.test.mock.DummyDataSourceSelector;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.avalon.MockThreadManager;
@@ -158,7 +157,7 @@ public class SMTPServerTest extends TestCase {
     protected final int m_smtpListenerPort;
     protected MockMailServer m_mailServer;
     protected SMTPTestConfiguration m_testConfiguration;
-    protected JamesConnectionManager connectionManager;
+    protected SimpleConnectionManager connectionManager;
     protected SMTPServerProtocolHandlerFactory m_smtpServer;
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
     protected FakeLoader m_serviceManager;
@@ -239,10 +238,6 @@ public class SMTPServerTest extends TestCase {
 
     protected FakeLoader setUpServiceManager() throws Exception {
         m_serviceManager = new FakeLoader();
-        connectionManager = new SimpleConnectionManager();
-        ContainerUtil.enableLogging(connectionManager, new MockLogger());
-        
-        m_serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         mailetContext = new FakeMailContext();
         m_serviceManager.put(MailetContext.class.getName(),mailetContext);
         m_mailServer = new MockMailServer(new MockUsersRepository());    
@@ -254,6 +249,15 @@ public class SMTPServerTest extends TestCase {
         
         threadManager = new MockThreadManager();
         m_serviceManager.put(ThreadManager.ROLE, threadManager);
+        
+        
+        connectionManager = new SimpleConnectionManager();
+        connectionManager.setThreadManager(threadManager);
+        connectionManager.setLog(new SimpleLog("CM"));
+        connectionManager.setConfiguration(new DefaultConfigurationBuilder());
+        connectionManager.init();
+        m_serviceManager.put(SimpleConnectionManager.ROLE, connectionManager);
+
         m_dnsServer = new AlterableDNSServer();
         m_serviceManager.put(DNSService.ROLE, m_dnsServer);
         

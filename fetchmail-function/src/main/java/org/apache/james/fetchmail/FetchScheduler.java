@@ -102,6 +102,13 @@ public class FetchScheduler implements FetchSchedulerMBean {
         this.logger = logger;
     }
     
+    
+    @Resource(name="org.apache.commons.configuration.Configuration")
+    public final void setConfiguration(HierarchicalConfiguration config) {
+        this.conf = config;
+    }
+    
+    
     @SuppressWarnings("unchecked")
     @PostConstruct
     public void init() throws Exception

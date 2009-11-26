@@ -21,10 +21,25 @@
 
 package org.apache.james.remotemanager;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.mail.MessagingException;
+
+import junit.framework.TestCase;
+
 import org.apache.avalon.cornerstone.services.sockets.SocketManager;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
@@ -46,38 +61,17 @@ import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.AvalonProtocolServer;
-import org.apache.james.socket.JamesConnectionManager;
 import org.apache.james.socket.SimpleConnectionManager;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.james.MockUsersStore;
-import org.apache.james.test.mock.james.MockVirtualUserTableManagementImpl;
-import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.util.InternetPrintWriter;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.mail.MessagingException;
-
-import junit.framework.TestCase;
 
 /**
  * Tests the org.apache.james.remotemanager.RemoteManager
@@ -209,11 +203,8 @@ public class RemoteManagerTest extends TestCase {
         readAnswer(3);
     }
 
-    protected void setUpServiceManager() throws ServiceException {
+    protected void setUpServiceManager() throws Exception {
         serviceManager = new FakeLoader();
-        connectionManager = new SimpleConnectionManager();
-        ContainerUtil.enableLogging(connectionManager, new MockLogger());
-        serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
         
         m_mockUsersRepository = new MockUsersRepository();
        
@@ -231,6 +222,14 @@ public class RemoteManagerTest extends TestCase {
         serviceManager.put(SocketManager.ROLE, socketManager);
         threadManager = new MockThreadManager();
         serviceManager.put(ThreadManager.ROLE, threadManager);
+        
+        
+        connectionManager = new SimpleConnectionManager();
+        connectionManager.setThreadManager(threadManager);
+        connectionManager.setLog(new SimpleLog("CM"));
+        connectionManager.setConfiguration(new DefaultConfigurationBuilder());
+        connectionManager.init();
+        serviceManager.put(SimpleConnectionManager.ROLE, connectionManager);
         
         dnsservice = setUpDNSServer();
         serviceManager.put(DNSService.ROLE, dnsservice);

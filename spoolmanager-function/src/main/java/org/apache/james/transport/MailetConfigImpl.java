@@ -25,7 +25,9 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Implements the configuration object for a Mailet.
@@ -77,7 +79,15 @@ public class MailetConfigImpl implements MailetConfig {
      */
     @SuppressWarnings("unchecked")
     public Iterator<String> getInitParameterNames() {
-        return configuration.getKeys();
+        Iterator<String> it = configuration.getKeys();
+        List<String> params = new ArrayList<String>();
+        while (it.hasNext()) {
+            String param = it.next();
+            if ((param.startsWith("[@") && param.endsWith("]")) == false) {
+                params.add(param);
+            }
+        }
+        return params.iterator();
     }
 
     /**

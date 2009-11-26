@@ -60,6 +60,9 @@
     <dependency>
       <service name="org.apache.james.services.MailServer" version="1.0"/>
     </dependency>
+    <dependency>
+      <service name="org.apache.jsieve.mailet.Poster" version="1.0"/>
+    </dependency>
   </dependencies>  
 
 </blockinfo>

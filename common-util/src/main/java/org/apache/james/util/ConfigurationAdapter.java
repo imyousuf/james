@@ -34,9 +34,11 @@ public class ConfigurationAdapter extends XMLConfiguration {
 
 	public ConfigurationAdapter(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
 		String config = ConfigurationUtil.toString(avalonConfig);
+	      // thats needed because of our configuration style and needs to get applied before loading the config
+        setDelimiterParsingDisabled(false);
+        
 		load(new ByteArrayInputStream(config.getBytes()));        
-		// thats needed because of our configuration style
-		setDelimiterParsingDisabled(false);
+
 
 	}
 }

@@ -29,6 +29,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandler;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.avalon.excalibur.pool.HardResourceLimitingPool;
@@ -36,9 +38,9 @@ import org.apache.avalon.excalibur.pool.ObjectFactory;
 import org.apache.avalon.excalibur.pool.Pool;
 import org.apache.avalon.excalibur.pool.Poolable;
 import org.apache.excalibur.thread.ThreadPool ;
-import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.logger.AbstractLogEnabled;
+import org.apache.avalon.framework.logger.CommonsLogger;
+import org.apache.commons.logging.Log;
 
 
 /**
@@ -47,8 +49,8 @@ import org.apache.avalon.framework.logger.AbstractLogEnabled;
  * server socket that the connection manager is managing.
  *
  */
-public class ServerConnection extends AbstractLogEnabled
-    implements Initializable, Runnable {
+public class ServerConnection
+    implements Runnable {
 
     /**
      * This is a hack to deal with the fact that there appears to be
@@ -120,6 +122,8 @@ public class ServerConnection extends AbstractLogEnabled
      */
     private Thread serverConnectionThread;
 
+    private Log logger;
+
     /**
      * The sole constructor for a ServerConnection.
      *
@@ -135,7 +139,7 @@ public class ServerConnection extends AbstractLogEnabled
      */
     public ServerConnection(ServerSocket serverSocket,
                             ConnectionHandlerFactory handlerFactory,
-                            ThreadPool threadPool,
+                            ThreadPool threadPool, Log logger,
                             int timeout,
                             int maxOpenConn, int maxOpenConnPerIP) {
         this.serverSocket = serverSocket;
@@ -144,15 +148,14 @@ public class ServerConnection extends AbstractLogEnabled
         socketTimeout = timeout;
         this.maxOpenConn = maxOpenConn;
         this.maxOpenConnPerIP = maxOpenConnPerIP;
+        this.logger = logger;
     }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    public void initialize() throws Exception {
+    @PostConstruct
+    public void init() throws Exception {
         runnerPool = new HardResourceLimitingPool(theRunnerFactory, 5, maxOpenConn);
         connPerIpMap = new ConnectionPerIpMap();
-        ContainerUtil.enableLogging(runnerPool,getLogger());
+        ContainerUtil.enableLogging(runnerPool,new CommonsLogger(logger,"Pool"));
         ContainerUtil.initialize(runnerPool);
     }
 
@@ -162,8 +165,8 @@ public class ServerConnection extends AbstractLogEnabled
      * everything to finish.
      */
     public void dispose() {
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Disposing server connection..." + this.toString());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Disposing server connection..." + this.toString());
         }
         synchronized( this ) {
             if( null != serverConnectionThread ) {
@@ -200,7 +203,7 @@ public class ServerConnection extends AbstractLogEnabled
             runnerPool = null;
         }
 
-        getLogger().debug("Closed server connection - cleaning up clients - " + this.toString());
+        logger.debug("Closed server connection - cleaning up clients - " + this.toString());
 
         synchronized (clientConnectionRunners) {
             Iterator<ClientConnectionRunner> runnerIterator = clientConnectionRunners.iterator();
@@ -214,7 +217,7 @@ public class ServerConnection extends AbstractLogEnabled
             
         }
 
-        getLogger().debug("Cleaned up clients - " + this.toString());
+        logger.debug("Cleaned up clients - " + this.toString());
 
     }
 
@@ -227,8 +230,8 @@ public class ServerConnection extends AbstractLogEnabled
         synchronized (clientConnectionRunners) {
             ClientConnectionRunner clientConnectionRunner = (ClientConnectionRunner)runnerPool.get();
             clientConnectionRunners.add(clientConnectionRunner);
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Adding one connection for a total of " + clientConnectionRunners.size());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Adding one connection for a total of " + clientConnectionRunners.size());
             }
             return clientConnectionRunner;
         }
@@ -248,14 +251,14 @@ public class ServerConnection extends AbstractLogEnabled
         * this situation will result in a dead-lock on 'clientConnectionRunners'
         */
         if( runnerPool == null ) {
-            getLogger().info("ServerConnection.removeClientConnectionRunner - dispose has been called - so just return : " + clientConnectionRunner );
+            logger.info("ServerConnection.removeClientConnectionRunner - dispose has been called - so just return : " + clientConnectionRunner );
             return;
         }
         
         synchronized (clientConnectionRunners) {
             if (clientConnectionRunners.remove(clientConnectionRunner)) {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Releasing one connection, leaving a total of " + clientConnectionRunners.size());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Releasing one connection, leaving a total of " + clientConnectionRunners.size());
                 }
                 runnerPool.put(clientConnectionRunner);
             }
@@ -280,21 +283,21 @@ public class ServerConnection extends AbstractLogEnabled
             // Ignored - for the moment
         }
 
-        if ((getLogger().isDebugEnabled()) && (serverConnectionThread != null)) {
+        if ((logger.isDebugEnabled()) && (serverConnectionThread != null)) {
             StringBuilder debugBuffer =
                 new StringBuilder(128)
                     .append(serverConnectionThread.getName())
                     .append(" is listening on ")
                     .append(serverSocket.toString());
-            getLogger().debug(debugBuffer.toString());
+            logger.debug(debugBuffer.toString());
         }
         while( !Thread.interrupted() && null != serverConnectionThread ) {
             try {
                 Socket clientSocket = null;
                 try {
                     while (maxOpenConn > 0 && clientConnectionRunners.size() >= maxOpenConn) {
-                        if (getLogger().isInfoEnabled()) {
-                            getLogger().info("Maximum number of open connections (" +  clientConnectionRunners.size() + ") in use.");
+                        if (logger.isInfoEnabled()) {
+                            logger.info("Maximum number of open connections (" +  clientConnectionRunners.size() + ") in use.");
                         }
                         synchronized (this) { wait(10000); }
                     }
@@ -307,25 +310,25 @@ public class ServerConnection extends AbstractLogEnabled
                     continue;
                 } catch( IOException se ) {
                     if (ioExceptionCount > 0) {
-                        getLogger().error( "Fatal exception while listening on server socket.  Terminating connection.", se );
+                        logger.error( "Fatal exception while listening on server socket.  Terminating connection.", se );
                         break;
                     } else {
                         continue;
                     }
                 } catch( SecurityException se ) {
-                    getLogger().error( "Fatal exception while listening on server socket.  Terminating connection.", se );
+                    logger.error( "Fatal exception while listening on server socket.  Terminating connection.", se );
                     break;
                 }
                 ClientConnectionRunner runner = null;
                 synchronized (clientConnectionRunners) {
                     if ((maxOpenConn > 0) && (clientConnectionRunners.size() >= maxOpenConn)) {
-                        if (getLogger().isWarnEnabled()) {
-                           getLogger().warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + clientConnectionRunners.size());
-                           if (getLogger().isInfoEnabled()) {
+                        if (logger.isWarnEnabled()) {
+                           logger.warn("Maximum number of open connections exceeded - refusing connection.  Current number of connections is " + clientConnectionRunners.size());
+                           if (logger.isInfoEnabled()) {
                                Iterator<ClientConnectionRunner> runnerIterator = clientConnectionRunners.iterator();
-                               getLogger().info("Connections: ");
+                               logger.info("Connections: ");
                                while( runnerIterator.hasNext() ) {
-                                   getLogger().info("    " + runnerIterator.next());
+                                   logger.info("    " + runnerIterator.next());
                                }
                            }
                         }
@@ -336,8 +339,8 @@ public class ServerConnection extends AbstractLogEnabled
                         }
                         continue;
                     } else if ((maxOpenConnPerIP > 0) && (connPerIpMap.getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()) >= maxOpenConnPerIP)) {
-                        if (getLogger().isWarnEnabled()) {
-                            getLogger().warn("Maximum number of open connections per IP exceeded - refusing connection.  Current number of connections for " + clientSocket.getInetAddress().getHostAddress() + " is " + connPerIpMap.getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()));
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Maximum number of open connections per IP exceeded - refusing connection.  Current number of connections for " + clientSocket.getInetAddress().getHostAddress() + " is " + connPerIpMap.getConnectionPerIP(clientSocket.getInetAddress().getHostAddress()));
                         }
                         try {
                             clientSocket.close();
@@ -354,14 +357,13 @@ public class ServerConnection extends AbstractLogEnabled
                         
                     }
                 }
-                setupLogger( runner );
                 try {
                     connThreadPool.execute( runner );
                 } catch (Exception e) {
                     // This error indicates that the underlying thread pool
                     // is out of threads.  For robustness, we catch this and
                     // cleanup
-                    getLogger().error("Internal error - insufficient threads available to service request.  " +
+                    logger.error("Internal error - insufficient threads available to service request.  " +
                                       Thread.activeCount() + " threads in service request pool.", e);
                     try {
                     connPerIpMap.removeConnectionPerIP(clientSocket.getInetAddress().getHostAddress());
@@ -374,9 +376,9 @@ public class ServerConnection extends AbstractLogEnabled
                     removeClientConnectionRunner(runner);
                 }
             } catch( IOException ioe ) {
-                getLogger().error( "Exception accepting connection", ioe );
+                logger.error( "Exception accepting connection", ioe );
             } catch( Throwable e ) {
-                getLogger().error( "Exception executing client connection runner: " + e.getMessage(), e );
+                logger.error( "Exception executing client connection runner: " + e.getMessage(), e );
             }
         }
         synchronized( this ) {
@@ -391,7 +393,7 @@ public class ServerConnection extends AbstractLogEnabled
      * that occurs upon a client connection.
      *
      */
-    class ClientConnectionRunner extends AbstractLogEnabled
+    class ClientConnectionRunner
         implements Poolable, Runnable  {
 
         /**
@@ -458,21 +460,21 @@ public class ServerConnection extends AbstractLogEnabled
 
                 handler = ServerConnection.this.handlerFactory.createConnectionHandler();
                 String connectionString = null;
-                if( getLogger().isDebugEnabled() ) {
+                if( logger.isDebugEnabled() ) {
                     connectionString = getConnectionString();
                     String message = "Starting " + connectionString;
-                    getLogger().debug( message );
+                    logger.debug( message );
                 }
 
                 handler.handleConnection(clientSocket);
 
-                if( getLogger().isDebugEnabled() ) {
+                if( logger.isDebugEnabled() ) {
                     String message = "Ending " + connectionString;
-                    getLogger().debug( message );
+                    logger.debug( message );
                 }
 
             } catch( Throwable e ) {
-                getLogger().error( "Error handling connection", e );
+                logger.error( "Error handling connection", e );
             } finally {
 
                 // remove this connection from map!
@@ -484,7 +486,7 @@ public class ServerConnection extends AbstractLogEnabled
                         clientSocket.close();
                     }
                 } catch( IOException ioe ) {
-                    getLogger().warn( "Error shutting down connection", ioe );
+                    logger.warn( "Error shutting down connection", ioe );
                 }
 
                 clientSocket = null;
