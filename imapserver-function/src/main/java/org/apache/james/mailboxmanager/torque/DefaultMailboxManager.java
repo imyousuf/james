@@ -83,7 +83,7 @@ public class DefaultMailboxManager extends TorqueMailboxManager {
                 SqlResources sqlResources = new SqlResources();
                 sqlResources.init(fileSystem.getResource(configFile),
                         DefaultMailboxManager.class.getName(), conn,
-                        new HashMap());
+                        new HashMap<String,String>());
 
                 DatabaseMetaData dbMetaData = conn.getMetaData();
 

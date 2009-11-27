@@ -50,6 +50,8 @@ import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 
 public class AvalonImapServer implements GuiceInjected, Poster, Initializable, Serviceable, Configurable, LogEnabled {
@@ -93,7 +95,10 @@ public class AvalonImapServer implements GuiceInjected, Poster, Initializable, S
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     public void initialize() throws Exception {
-        poster = Guice.createInjector(new IMAPServerModule(), new Jsr250Module()).getInstance(ImapServerProtocolHandlerFactory.class);
+        Injector injector = Guice.createInjector(new IMAPServerModule(), new Jsr250Module());
+        injector.getInstance(AvalonProtocolServer.class);
+        poster = injector.getInstance(Poster.class);
+        //poster = injector.getInstance(ImapServerProtocolHandlerFactory.class);
     }
                  
     /**
@@ -113,12 +118,14 @@ public class AvalonImapServer implements GuiceInjected, Poster, Initializable, S
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
             bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(filesystem);
             bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
+            bind(ImapServerProtocolHandlerFactory.class).in(Singleton.class);
+            bind(Poster.class).to(ImapServerProtocolHandlerFactory.class);
             bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).to(ImapServerProtocolHandlerFactory.class);
-            bind(ProtocolServer.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolServer")).to(AvalonProtocolServer.class);
+            bind(ProtocolServer.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolServer")).to(AvalonProtocolServer.class).in(Singleton.class);
             bind(SocketManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.sockets.SocketManager")).toInstance(socketManager);
             bind(JamesConnectionManager.class).annotatedWith(Names.named("org.apache.james.socket.JamesConnectionManager")).toInstance(connectionManager);
             bind(ThreadManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.threads.ThreadManager")).toInstance(threadManager);
-
+           
         }
     }
 
