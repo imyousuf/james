@@ -66,13 +66,18 @@ public class SieveMailet extends SieveMailboxMailet {
     }
    
     /**
-     * Return the username to use for sieve processing for the given MailAddress
+     * Return the username to use for sieve processing for the given MailAddress. If virtualhosting
+     * is supported use the full emailaddrees as username
      * 
      * @param m
      * @return username
      */
     protected String getUsername(MailAddress m) {
-        return m.toString();
+        if (mailServer.supportVirtualHosting()) {
+            return m.toString();
+        } else {
+            return super.getUsername(m);
+        }
     }
     
 }
