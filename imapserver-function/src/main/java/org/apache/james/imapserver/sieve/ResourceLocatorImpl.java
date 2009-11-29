@@ -32,9 +32,24 @@ import org.apache.jsieve.mailet.ResourceLocator;
  */
 public class ResourceLocatorImpl implements ResourceLocator {
 
+    private boolean virtualHosting;
+
+    public ResourceLocatorImpl(boolean virtualHosting) {
+        this.virtualHosting = virtualHosting;
+    }
+    
     public InputStream get(String uri) throws IOException {
         // This is a toy implementation
-        String username = uri.substring(2, uri.indexOf('@'));
+        
+        // Use the complete emailaddress for finding the sieve file
+        uri = uri.substring(2);
+        
+        String username;
+        if (virtualHosting) {
+            username = uri.substring(0,uri.indexOf("/"));
+        } else {
+            username = uri.substring(0,uri.indexOf("@"));
+        }
         String sieveFileName = "../apps/james/var/sieve/"+username+".sieve";
         return new FileInputStream(sieveFileName);
     }
