@@ -38,6 +38,7 @@ import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.services.FileSystem;
+import org.apache.james.services.MailServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.shared.AbstractProtocolHandlerFactory;
 import org.apache.jsieve.mailet.Poster;
@@ -63,6 +64,8 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
 
     private FileSystem fSystem;
 
+    private MailServer mailServer;
+
     @Resource(name="org.apache.james.api.user.UsersRepository")
     public void setUsersRepository(UsersRepository usersRepos) {
         this.usersRepos = usersRepos;
@@ -71,6 +74,11 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
     @Resource(name="org.apache.james.services.FileSystem")
     public void setFileSystem(FileSystem fSystem) {
         this.fSystem = fSystem;
+    }
+    
+    @Resource(name="org.apache.james.services.MailServer")
+    public void setMailSerer(MailServer mailServer) {
+        this.mailServer = mailServer;
     }
     
 
@@ -139,11 +147,12 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
                     // TODO: when user missing, append to a default location
                     throw new MessagingException("Shared mailbox is not supported");
                 } else {
-                    final String user = url.substring(startOfUser, endOfUser);
+                    String user = url.substring(startOfUser, endOfUser);
                     final int startOfHost = endOfUser + 1;
                     final int endOfHost  = url.indexOf('/', startOfHost);
                     final String host = url.substring(startOfHost, endOfHost);
-                    if (!"localhost".equals(host)) {
+                    //if (!"localhost".equals(host)) {
+                    if (mailServer.isLocalServer(host) == false) {
                         //TODO: possible support for clustering?
                         throw new MessagingException("Only local mailboxes are supported");
                     } else {
@@ -154,6 +163,12 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
                         } else {
                             urlPath = url.substring(endOfHost, length);
                         }
+                        
+                        // check if we should use the full emailaddress as username
+                        if (mailServer.supportVirtualHosting()) {
+                            user = user + "@" + host;
+                        } 
+                        
                         final MailboxManager mailboxManager = factory.getMailbox();
                         final MailboxSession session = mailboxManager.createSystemSession(user, getLogger());
                         // This allows Sieve scripts to use a standard delimiter regardless of mailbox implementation

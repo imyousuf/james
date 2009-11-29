@@ -1242,17 +1242,6 @@ Regards, Postmaster XXX.YYY
    <!-- The Mailstore block -->
    <mailstore>
       <repositories>
-        <repository class="org.apache.james.mailboxmanager.repository.MailboxManagerMailRepository">
-            <protocols>
-               <protocol>mailboxmanager</protocol>
-            </protocols>
-            <types>
-               <type>MAIL</type>
-            </types>
-            <config>
-               <sqlFile>file://conf/mailboxManagerSqlResources.xml</sqlFile>
-            </config>
-         </repository>
          <!-- File based repositories.  These repositories store all message data -->
          <!-- in the file system. -->
          <repository class="org.apache.james.mailrepository.FileMailRepository">

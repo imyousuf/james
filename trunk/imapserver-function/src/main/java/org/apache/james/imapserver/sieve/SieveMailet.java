@@ -20,25 +20,59 @@
 package org.apache.james.imapserver.sieve;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
 
+import org.apache.james.services.MailServer;
 import org.apache.jsieve.mailet.Poster;
 import org.apache.jsieve.mailet.SieveMailboxMailet;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetConfig;
 
 /**
  * Contains resource bindings.
  */
 public class SieveMailet extends SieveMailboxMailet {
 
+    private MailServer mailServer;
+
+    @Resource(name="org.apache.james.services.MailServer")
+    public void setMailSerer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
+
+
+
+    @Override
+    public void init(MailetConfig config) throws MessagingException {
+        // ATM Fixed implementation
+        setLocator(new ResourceLocatorImpl(mailServer.supportVirtualHosting()));
+        
+        super.init(config);
+    }
+
+
+
+
     public SieveMailet() {
         super();
-        // ATM Fixed implementation
-        setLocator(new ResourceLocatorImpl());
+
     }
 
     @Resource(name="org.apache.jsieve.mailet.Poster")
     @Override
     public void setPoster(Poster poster) {
         super.setPoster(poster);
+    }
+   
+    /**
+     * Return the username to use for sieve processing for the given MailAddress
+     * 
+     * @param m
+     * @return username
+     */
+    protected String getUsername(MailAddress m) {
+        return m.toString();
     }
     
 }
