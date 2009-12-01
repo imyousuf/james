@@ -58,21 +58,35 @@ public class AuthCmdHandler
     implements CommandHandler, EhloExtension, ExtensibleHandler, MailParametersHook {
 
     private abstract class AbstractSMTPLineHandler implements LineHandler {
-        
+
         public void onLine(SMTPSession session, byte[] line) {
             try {
                 String l = new String(line, "US-ASCII");
-                SMTPResponse res = onCommand(session,l);
+                SMTPResponse res = handleCommand(session, l);
                 session.popLineHandler();
                 session.writeSMTPResponse(res);
             } catch (UnsupportedEncodingException e) {
-                // This should never happen, anyway return a error message and disconnect is prolly the best thing todo here
-                session.getLogger().error("Unable to parse line",e);
-                //end the session
+                // This should never happen, anyway return a error message and
+                // disconnect is prolly the best thing todo here
+                session.getLogger().error("Unable to parse line", e);
+                // end the session
                 SMTPResponse resp = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to parse line.");
                 resp.setEndSession(true);
                 session.writeSMTPResponse(resp);
             }
+        }
+
+        private SMTPResponse handleCommand(SMTPSession session, String line) {
+            // See JAMES-939
+            
+            // According to RFC2554:
+            // "If the client wishes to cancel an authentication exchange, it issues a line with a single "*".
+            // If the server receives such an answer, it MUST reject the AUTH
+            // command by sending a 501 reply."
+            if (line.equals("*\r\n")) {
+                return new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " Authentication aborted");
+            }
+            return onCommand(session, line);
         }
 
         protected abstract SMTPResponse onCommand(SMTPSession session, String l);
