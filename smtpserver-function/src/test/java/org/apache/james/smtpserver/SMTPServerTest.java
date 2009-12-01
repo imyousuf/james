@@ -196,8 +196,10 @@ public class SMTPServerTest extends TestCase {
     protected void setUp() throws Exception {
         m_serviceManager = setUpServiceManager();
 
+        SimpleLog smtpLog = new SimpleLog("MockLog");
+        smtpLog.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         m_smtpServer = new SMTPServerProtocolHandlerFactory();
-        m_smtpServer.setLog(new SimpleLog("MockLog"));
+        m_smtpServer.setLog(smtpLog);
         m_smtpServer.setLoader(m_serviceManager);
         m_smtpServer.setDNSService(m_dnsServer);
         m_smtpServer.setMailetContext(mailetContext);
@@ -846,6 +848,31 @@ public class SMTPServerTest extends TestCase {
         smtpProtocol1.quit();
     }
 
+    public void testAuthCancel() throws Exception {
+        m_testConfiguration.setAuthorizedAddresses("127.0.0.1/8");
+        m_testConfiguration.setAuthorizingAnnounce();
+        finishSetUp(m_testConfiguration);
+
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+
+        smtpProtocol.sendCommand("ehlo", InetAddress.getLocalHost().toString());
+
+        String sender ="test_user_smtp@localhost";
+      
+        smtpProtocol.sendCommand("AUTH PLAIN");
+
+        assertEquals("start auth.", 334, smtpProtocol.getReplyCode());
+
+        smtpProtocol.sendCommand("*");
+
+        assertEquals("cancel auth.", 501, smtpProtocol.getReplyCode());
+
+        smtpProtocol.quit();
+
+    }
+    
+    // Test for JAMES-939
     public void testAuth() throws Exception {
         m_testConfiguration.setAuthorizedAddresses("128.0.0.1/8");
         m_testConfiguration.setAuthorizingAnnounce();
