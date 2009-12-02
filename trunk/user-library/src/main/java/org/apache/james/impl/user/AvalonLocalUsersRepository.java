@@ -28,34 +28,30 @@ import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.bridge.GuiceInjected;
-import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.name.Names;
 
 public class AvalonLocalUsersRepository implements GuiceInjected, Initializable,Serviceable,UsersRepository{
 
-    private UsersStore usersStore;
+    protected UsersStore usersStore;
     protected LocalUsersRepository repos;
     
     public void initialize() throws Exception {
-        repos = Guice.createInjector(new Jsr250Module(), new LocalUsersRepositoryModule()).getInstance(LocalUsersRepository.class);
+        repos = Guice.createInjector(new LocalUsersRepositoryModule(), new AbstractModule() {
+
+            @Override
+            protected void configure() {
+                bind(UsersStore.class).toInstance(usersStore);
+            }
+            
+        }).getInstance(LocalUsersRepository.class);
     }
 
     public void service(ServiceManager manager) throws ServiceException {
         usersStore = (UsersStore) manager.lookup(UsersStore.ROLE);
     }
     
-    public class LocalUsersRepositoryModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UsersStore.class).annotatedWith(Names.named("org.apache.james.api.user.UsersStore")).toInstance(usersStore);
-        }
-        
-    }
-
     public boolean addUser(User user) {
         return repos.addUser(user);
     }

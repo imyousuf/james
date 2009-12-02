@@ -28,16 +28,14 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
+import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementMBean;
 import org.apache.james.management.SpoolManagementService;
-import org.apache.james.bridge.GuiceInjected;
-import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.name.Names;
 
 public class AvalonSpoolManagement  implements GuiceInjected, Serviceable, Initializable, SpoolManagementService, SpoolManagementMBean{
 
@@ -81,11 +79,11 @@ public class AvalonSpoolManagement  implements GuiceInjected, Serviceable, Initi
     }
 
     public void initialize() throws Exception {
-        mgmt = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
+        mgmt = Guice.createInjector(new SpoolManagementModule(), new AbstractModule() {
 
             @Override
             protected void configure() {
-                bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(mailStore);
+                bind(Store.class).toInstance(mailStore);
             }
             
         }).getInstance(SpoolManagement.class);

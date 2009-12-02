@@ -39,11 +39,8 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.bridge.GuiceInjected;
 
-import org.guiceyfruit.jsr250.Jsr250Module;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.name.Names;
 
 public class AvalonBayesianAnalyzerManagement implements GuiceInjected, BayesianAnalyzerManagementMBean, BayesianAnalyzerManagementService, Serviceable, Initializable, Configurable, LogEnabled{
 
@@ -59,14 +56,14 @@ public class AvalonBayesianAnalyzerManagement implements GuiceInjected, Bayesian
     }
 
     public void initialize() throws Exception {
-        mgmt = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
+        mgmt = Guice.createInjector( new BayesianAnalyzerManagementModule(), new AbstractModule() {
 
             @Override
             protected void configure() {
-                bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-                bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);     
-                bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(selector);
+                bind(org.apache.commons.configuration.HierarchicalConfiguration.class).toInstance(config);
+                bind(Log.class).toInstance(logger);
+                bind(FileSystem.class).toInstance(fs);     
+                bind(DataSourceSelector.class).toInstance(selector);
 
             }
             
