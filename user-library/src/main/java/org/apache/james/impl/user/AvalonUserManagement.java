@@ -29,11 +29,10 @@ import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.user.management.UserManagementException;
 import org.apache.james.api.user.management.UserManagementMBean;
 import org.apache.james.bridge.GuiceInjected;
-import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.name.Names;
+
 
 public class AvalonUserManagement implements UserManagementMBean, GuiceInjected, Serviceable, Initializable {
 
@@ -99,17 +98,16 @@ public class AvalonUserManagement implements UserManagementMBean, GuiceInjected,
     }
 
     public void initialize() throws Exception {
-        bean = Guice.createInjector(new Jsr250Module(), new UserManagementModule()).getInstance(UserManagement.class);
+        bean = Guice.createInjector(new UserManagementModule(), new AbstractModule() {
+			
+			@Override
+			protected void configure() {
+				bind(UsersStore.class).toInstance(store);
+				bind(UsersRepository.class).toInstance(repos);
+			}
+		}).getInstance(UserManagement.class);
     }
     
-    private class UserManagementModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UsersStore.class).annotatedWith(Names.named("org.apache.james.api.user.UsersStore")).toInstance(store);
-            bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(repos);
-        }
-        
-    }
+   
 
 }

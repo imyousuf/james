@@ -23,26 +23,17 @@ package org.apache.james.management.impl;
 import java.util.List;
 
 import org.apache.avalon.framework.activity.Initializable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.logger.LogEnabled;
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
 import org.apache.james.api.domainlist.DomainList;
+import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.DomainListManagementMBean;
 import org.apache.james.management.DomainListManagementService;
-import org.apache.james.bridge.GuiceInjected;
-
-import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 
 public class AvalonDomainListManagement implements GuiceInjected, DomainListManagementService,DomainListManagementMBean, Serviceable, Initializable {
     private DomainList dList;
@@ -52,11 +43,11 @@ public class AvalonDomainListManagement implements GuiceInjected, DomainListMana
     }
 
     public void initialize() throws Exception {
-        mgmt = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
+        mgmt = Guice.createInjector(new DomainListManagementModule(), new AbstractModule() {
 
             @Override
             protected void configure() {
-                bind(DomainList.class).annotatedWith(Names.named("org.apache.james.api.domainlist.DomainList")).toInstance(dList);
+                bind(DomainList.class).toInstance(dList);
             }
             
         }).getInstance(DomainListManagement.class);

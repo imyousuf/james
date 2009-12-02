@@ -27,6 +27,40 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-management-library</artifactId>
   <name>Apache JAMES Server Management Library</name>
+   
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>  
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive> 
+        </configuration>
+      </plugin>  
+      <plugin>    
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>    
+              <goal>manifest</goal>
+            </goals>   
+          </execution>
+        </executions>
+        <configuration>
+          <instructions>
+            <Export-Package>org.apache.james.management,org.apache.james.management.*</Export-Package>
+            <Private-Package>org.apache.james.*</Private-Package>
+            <Bundle-Activator>org.apache.james.osgi.ManagementLibraryActivator</Bundle-Activator>
+          </instructions>
+        </configuration>
+      </plugin>  
+    </plugins>
+  </build>
+  
   <dependencies>
   
     <dependency>
@@ -117,5 +151,13 @@
       <artifactId>spring-aopalliance</artifactId>
       <scope>runtime</scope>
     </dependency>
+     <dependency>
+      <groupId>org.ops4j</groupId>
+      <artifactId>peaberry</artifactId>
+    </dependency> 
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi</artifactId>
+    </dependency> 
   </dependencies>
 </project>

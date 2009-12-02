@@ -82,6 +82,10 @@
   </scm>
   <build>
     <plugins>
+      <plugin>    
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+      </plugin>  
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
@@ -180,7 +184,22 @@
       </snapshots>
     </repository>
      -->
+    <!-- enable central that is otherwise disabled by the parent pom. -->
+    <repository>
+      <id>central</id>
+      <url>http://repo1.maven.org/maven2</url>
+      <releases>
+         <enabled>true</enabled>
+      </releases>
+    </repository>
   </repositories>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.osgi</groupId>
+  		<artifactId>org.osgi</artifactId>
+  		<version>3.0.0</version>
+  	</dependency>
+  </dependencies>
   <reporting>
     <plugins>
     <!--
@@ -1150,11 +1169,26 @@
       <version>2.0</version>
     </dependency>
     <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>     
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>spring-aopalliance</groupId>
       <artifactId>spring-aopalliance</artifactId>
       <version>1.0</version>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.ops4j</groupId>
+      <artifactId>peaberry</artifactId>
+      <version>1.1.1</version>
+    </dependency> 
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi</artifactId>
+      <version>3.0.0</version>
+    </dependency> 
   </dependencies>
   </dependencyManagement>
 

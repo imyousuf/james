@@ -400,10 +400,18 @@
       <artifactId>guiceyfruit-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>spring-aopalliance</groupId>
       <artifactId>spring-aopalliance</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.ops4j</groupId>
+      <artifactId>peaberry</artifactId>
+    </dependency> 
   </dependencies>
   
   <build>
