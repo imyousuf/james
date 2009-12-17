@@ -22,13 +22,16 @@ import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.avalon.framework.service.ServiceManager;
 import org.apache.avalon.framework.service.Serviceable;
-import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.management.ProcessorManagementMBean;
 import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.services.SpoolManager;
+import org.apache.james.bridge.GuiceInjected;
+
+import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.name.Names;
 
 public class AvalonProcessorManagement implements GuiceInjected, Serviceable, Initializable, ProcessorManagementService, ProcessorManagementMBean {
 
@@ -41,11 +44,11 @@ public class AvalonProcessorManagement implements GuiceInjected, Serviceable, In
     }
 
     public void initialize() throws Exception {
-        mgmt = Guice.createInjector(new ProcessorManagementModule(), new AbstractModule() {
+        mgmt = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
 
             @Override
             protected void configure() {
-                bind(SpoolManager.class).toInstance(smanager);
+                bind(SpoolManager.class).annotatedWith(Names.named("org.apache.james.services.SpoolManager")).toInstance(smanager);
             }
             
         }).getInstance(ProcessorManagement.class);

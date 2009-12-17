@@ -21,24 +21,16 @@ package org.apache.james.impl.jamesuser;
 
 import java.util.Collection;
 
-import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.impl.user.AvalonLocalUsersRepository;
+import org.guiceyfruit.jsr250.Jsr250Module;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 
 public class AvalonLocalJamesUsersRepository extends AvalonLocalUsersRepository implements JamesUsersRepository{
     
     public void initialize() throws Exception {
-        repos = Guice.createInjector(new LocalJamesUsersRepositoryModule(), new AbstractModule() {
-
-            @Override
-            protected void configure() {
-                bind(UsersStore.class).toInstance(usersStore);
-            }
-            
-        }).getInstance(LocalJamesUsersRepository.class);
+        repos = Guice.createInjector(new Jsr250Module(), new LocalUsersRepositoryModule()).getInstance(LocalJamesUsersRepository.class);
     }
     
     public void setEnableAliases(boolean enableAliases) {

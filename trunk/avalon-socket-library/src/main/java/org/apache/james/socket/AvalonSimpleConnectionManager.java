@@ -36,9 +36,11 @@ import org.apache.commons.logging.impl.AvalonLogger;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.bridge.GuiceInjected;
 import org.apache.james.util.ConfigurationAdapter;
+import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.name.Names;
 
 public class AvalonSimpleConnectionManager  implements LogEnabled, Initializable, GuiceInjected, Serviceable, Configurable, JamesConnectionManager {
 
@@ -118,13 +120,13 @@ public class AvalonSimpleConnectionManager  implements LogEnabled, Initializable
 
 
     public void initialize() throws Exception {
-        manager = Guice.createInjector(new SimpleConnectionManagerModule() , new AbstractModule() {
+        manager = Guice.createInjector(new Jsr250Module() , new AbstractModule() {
 
             @Override
             protected void configure() {
-                bind(ThreadManager.class).toInstance(threadManager);
-                bind(org.apache.commons.configuration.HierarchicalConfiguration.class).toInstance(config);
-                bind(Log.class).toInstance(logger);
+                bind(ThreadManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.threads.ThreadManager")).toInstance(threadManager);
+                bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
+                bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
             }
             
         }).getInstance(SimpleConnectionManager.class);
