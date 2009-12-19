@@ -66,17 +66,17 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
 
     private MailServer mailServer;
 
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository usersRepos) {
         this.usersRepos = usersRepos;
     }
     
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem fSystem) {
         this.fSystem = fSystem;
     }
     
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public void setMailSerer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

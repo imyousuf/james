@@ -69,8 +69,8 @@ public class AvalonMailStore implements GuiceInjected, Serviceable, Configurable
             protected void configure() {
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
                 bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-                bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
-                bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(selector);
+                bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fs);
+                bind(DataSourceSelector.class).annotatedWith(Names.named("database-connections")).toInstance(selector);
             }
         }).getInstance(GuiceMailStore.class);
     }

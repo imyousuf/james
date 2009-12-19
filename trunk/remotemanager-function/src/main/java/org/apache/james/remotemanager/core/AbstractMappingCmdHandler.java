@@ -31,7 +31,7 @@ public abstract class AbstractMappingCmdHandler implements CommandHandler {
     protected final static String REMOVE_MAPPING_ACTION = "REMOVEMAPPING";
     protected VirtualUserTableManagementService vutManagement;
 
-    @Resource(name = "org.apache.james.api.vut.management.VirtualUserTableManagementService")
+    @Resource(name = "virtualusertablemanagement")
     public final void setVirtualUserTableManagementService(VirtualUserTableManagementService vutManagement) {
         this.vutManagement = vutManagement;
     }

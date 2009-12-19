@@ -58,7 +58,7 @@ public class InSpammerBlacklist extends GenericMatcher {
 
   
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public void setDNSService(DNSService dnsService) {
         this.dnsServer = dnsService;
     }

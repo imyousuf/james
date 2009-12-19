@@ -56,7 +56,7 @@ public class AvalonDomainListManagement implements GuiceInjected, DomainListMana
 
             @Override
             protected void configure() {
-                bind(DomainList.class).annotatedWith(Names.named("org.apache.james.api.domainlist.DomainList")).toInstance(dList);
+                bind(DomainList.class).annotatedWith(Names.named("domainlist")).toInstance(dList);
             }
             
         }).getInstance(DomainListManagement.class);

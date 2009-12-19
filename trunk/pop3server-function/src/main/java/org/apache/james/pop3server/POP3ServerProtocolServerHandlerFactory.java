@@ -64,7 +64,7 @@ public class POP3ServerProtocolServerHandlerFactory extends AbstractSupportLoade
 
 
 
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

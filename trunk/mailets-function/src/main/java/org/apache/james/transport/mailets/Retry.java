@@ -235,7 +235,7 @@ public class Retry extends GenericMailet implements Runnable {
     private Store mailStore;
 
     
-    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    @Resource(name="mailstore")
     public void setStore(Store mailStore) {
         this.mailStore = mailStore;
     }

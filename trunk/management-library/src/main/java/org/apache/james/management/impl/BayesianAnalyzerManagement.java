@@ -72,7 +72,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
      * 
      * @param system new service
      */
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
@@ -122,7 +122,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
      * 
      * @param selector The DataSourceSelector
      */
-    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    @Resource(name="database-connections")
     public void setDataSourceSelector (DataSourceSelector selector) {
         this.selector = selector;
     }

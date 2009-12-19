@@ -45,8 +45,8 @@ public class AvalonJDBCDomainList extends AbstractAvalonDomainList{
             @Override
             protected void configure() {
                 super.configure();
-                bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
-                bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(datasources);
+                bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fs);
+                bind(DataSourceSelector.class).annotatedWith(Names.named("database-connections")).toInstance(datasources);
             }
             
         }).getInstance(JDBCDomainList.class);

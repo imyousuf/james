@@ -123,7 +123,7 @@ public class NNTPSpooler {
      *
      * @param repo the repository to be used
      */
-    @Resource(name="org.apache.james.nntpserver.repository.NNTPRepository")
+    @Resource(name="nntp-repository")
     void setNNTPRepository(NNTPRepository nntpRepos) {
         this.nntpRepos = nntpRepos;
     }
@@ -339,7 +339,7 @@ public class NNTPSpooler {
      * 
      * @param fileSystem fs
      */
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }

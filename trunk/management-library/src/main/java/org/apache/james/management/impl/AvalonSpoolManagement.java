@@ -85,7 +85,7 @@ public class AvalonSpoolManagement  implements GuiceInjected, Serviceable, Initi
 
             @Override
             protected void configure() {
-                bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(mailStore);
+                bind(Store.class).annotatedWith(Names.named("mailstore")).toInstance(mailStore);
             }
             
         }).getInstance(SpoolManagement.class);

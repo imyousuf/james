@@ -24,6 +24,7 @@
       1.  This service is EXPERIMENTAL! 
       2.  Before enabling, uncomment jms in assembly.xml 
           and environment.xml.
+      3.  Additionally, uncomment &jmsConfig; in config.xml
 -->
 <jms enabled="true">
 

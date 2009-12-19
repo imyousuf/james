@@ -71,7 +71,7 @@ public class UsersFileRepository
      * 
      * @param store the Store
      */
-    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    @Resource(name="mailstore")
     public void setStore(Store store) {
         this.store = store;
     }

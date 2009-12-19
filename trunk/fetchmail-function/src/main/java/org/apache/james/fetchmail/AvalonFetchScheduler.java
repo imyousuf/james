@@ -74,12 +74,12 @@ public class AvalonFetchScheduler implements Serviceable, Configurable, Initiali
 
             @Override
             protected void configure() {
-                bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
+                bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
                 bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                bind(TimeScheduler.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.scheduler.TimeScheduler")).toInstance(tscheduler);
-                bind(MailServer.class).annotatedWith(Names.named("org.apache.james.services.MailServer")).toInstance(mailserver);
-                bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
+                bind(TimeScheduler.class).annotatedWith(Names.named("scheduler")).toInstance(tscheduler);
+                bind(MailServer.class).annotatedWith(Names.named("James")).toInstance(mailserver);
+                bind(UsersRepository.class).annotatedWith(Names.named("localusersrepository")).toInstance(userRepos);
             }
             
         }).getInstance(FetchScheduler.class);

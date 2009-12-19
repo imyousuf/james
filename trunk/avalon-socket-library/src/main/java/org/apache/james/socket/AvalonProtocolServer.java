@@ -225,7 +225,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
      * Sets the DNS service.
      * @param dnsServer the dnsServer to set
      */
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public final void setDNSService(DNSService dnsServer) {
         this.dnsService = dnsServer;
     }
@@ -235,7 +235,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         this.connectionManager = connectionManager;
     }
     
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem fSystem) {
     	this.fSystem = fSystem;
     }
@@ -264,12 +264,12 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         this.configuration = configuration;
     }
     
-    @Resource(name="org.apache.avalon.cornerstone.services.threads.ThreadManager")
+    @Resource(name="thread-manager")
     public void setThreadManager(ThreadManager threadManager) {
         this.threadManager = threadManager;
     }
     
-    @Resource(name="org.apache.avalon.cornerstone.services.sockets.SocketManager")
+    @Resource(name="sockets")
     public void setSocketManager(SocketManager socketManager) {
         this.socketManager = socketManager;
     }

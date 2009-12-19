@@ -104,12 +104,12 @@ public class SMTPServerProtocolHandlerFactory extends AbstractSupportLoaderProto
 
     private boolean addressBracketsEnforcement = true;
    
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
 
-    @Resource(name="org.apache.mailet.MailetContext")
+    @Resource(name="James")
     public final void setMailetContext(MailetContext mailetcontext) {
         this.mailetcontext = mailetcontext;
     }

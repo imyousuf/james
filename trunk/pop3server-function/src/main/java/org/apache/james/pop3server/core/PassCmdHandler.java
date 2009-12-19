@@ -49,7 +49,7 @@ public class PassCmdHandler implements CommandHandler {
      * Sets the users repository.
      * @param users the users to set
      */
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public final void setUsers(UsersRepository users) {
         this.users = users;
     }
@@ -58,7 +58,7 @@ public class PassCmdHandler implements CommandHandler {
      * Sets the mail server.
      * @param mailServer the mailServer to set
      */
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

@@ -67,12 +67,12 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
         return "Local User Aliasing and Forwarding Mailet";
     }
 
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }
     
-    @Resource(name="org.apache.james.api.user.UsersStore")
+    @Resource(name="users-store")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

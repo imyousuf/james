@@ -60,7 +60,7 @@ public class NNTPServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
      * 
      * @param userRepository the UserRepository
      */
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public void setUserRepository(UsersRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -70,12 +70,12 @@ public class NNTPServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
      * 
      * @param nntpRepository the NNTPRepository
      */
-    @Resource(name="org.apache.james.nntpserver.repository.NNTPRepository")
+    @Resource(name="nntp-repository")
     public void setNNTPRepository(NNTPRepository nntpRepository) {
         this.nntpRepository = nntpRepository;
     }
     
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

@@ -64,7 +64,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     private HierarchicalConfiguration config;
     private Log logger;
 
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }

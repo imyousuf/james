@@ -186,17 +186,17 @@ public class James
      * 
      * @param system the new service
      */
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
     
-    @Resource(name="org.apache.james.api.domainlist.DomainList")
+    @Resource(name="domainlist")
     public void setDomainList(DomainList domains) {
         this.domains = domains;
     }
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
@@ -424,7 +424,7 @@ public class James
      * 
      * @param store the Store to use
      */
-    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    @Resource(name="mailstore")
     public void setStore(Store store) {
         this.store = store;
     }
@@ -434,7 +434,7 @@ public class James
      * 
      * @param spool the SpoleRepository to use
      */
-    @Resource(name="org.apache.james.services.SpoolRepository")
+    @Resource(name="spoolrepository")
     public void setSpoolRepository(SpoolRepository spool) {
         this.spool = spool;
     }
@@ -444,7 +444,7 @@ public class James
      * 
      * @param localusers the UserRepository to use
      */
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }

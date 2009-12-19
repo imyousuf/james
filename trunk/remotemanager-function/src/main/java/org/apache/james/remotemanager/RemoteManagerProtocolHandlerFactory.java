@@ -54,7 +54,7 @@ public class RemoteManagerProtocolHandlerFactory extends AbstractSupportLoaderPr
 
 
     
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

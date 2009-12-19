@@ -43,7 +43,7 @@ public abstract class AbstractDomainList implements  ManageableDomainList {
     private boolean autoDetectIP = true;
     private Log logger;
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }

@@ -47,7 +47,7 @@ public class AddSpamCmdHandler implements CommandHandler{
      * 
      * @param bayesianAnalyzerManagement the BayesianAnalyzerManagementService
      */
-    @Resource(name="org.apache.james.management.BayesianAnalyzerManagementService")
+    @Resource(name="bayesiananalyzermanagement")
     public final void setBayesianAnalyzerManagement(BayesianAnalyzerManagementService bayesianAnalyzerManagement) {
         this.bayesianAnalyzerManagement = bayesianAnalyzerManagement;
     }

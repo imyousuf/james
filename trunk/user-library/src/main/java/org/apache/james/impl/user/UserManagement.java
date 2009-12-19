@@ -46,12 +46,12 @@ public class UserManagement implements UserManagementMBean {
     private UsersRepository localUsers;
     private UsersStore usersStore;
 
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository localUsers) {
         this.localUsers = localUsers;
     }
     
-    @Resource(name="org.apache.james.api.user.UsersStore")
+    @Resource(name="users-store")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

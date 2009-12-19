@@ -125,7 +125,7 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
      *
      * @throws IllegalArgumentException when the spool passed in is null
      */
-    @Resource(name="org.apache.james.services.SpoolRepository")
+    @Resource(name="spoolrepository")
     public void setSpoolRepository(SpoolRepository spool) {
         if (spool == null) {
             throw new IllegalArgumentException("The spool cannot be null");
@@ -138,7 +138,7 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
      * 
      * @param mailetLoader the MailetLoader
      */
-    @Resource(name="org.apache.james.transport.MailetLoader")
+    @Resource(name="mailetpackages")
     public void setMailetLoader(MailetLoader mailetLoader) {
         this.mailetLoader = mailetLoader;
     }
@@ -148,7 +148,7 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
      * 
      * @param matchLoader the MatcherLoader
      */
-    @Resource(name="org.apache.james.transport.MatcherLoader")
+    @Resource(name="matcherpackages")
     public void setMatchLoader(MatcherLoader matchLoader) {
         this.matchLoader = matchLoader;
     }

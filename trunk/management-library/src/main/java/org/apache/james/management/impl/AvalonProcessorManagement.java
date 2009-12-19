@@ -48,7 +48,7 @@ public class AvalonProcessorManagement implements GuiceInjected, Serviceable, In
 
             @Override
             protected void configure() {
-                bind(SpoolManager.class).annotatedWith(Names.named("org.apache.james.services.SpoolManager")).toInstance(smanager);
+                bind(SpoolManager.class).annotatedWith(Names.named("spoolmanager")).toInstance(smanager);
             }
             
         }).getInstance(ProcessorManagement.class);

@@ -75,24 +75,24 @@ public class FetchScheduler implements FetchSchedulerMBean {
 
     private Log logger;
 
-    @Resource(name="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler")
+    @Resource(name="scheduler")
     public void setTimeScheduler(TimeScheduler scheduler) {
         this.scheduler = scheduler;
     }
 
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
 
 
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public void setMailServer(MailServer mailserver) {
         this.mailserver = mailserver;
     }
    
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository urepos) {
         this.urepos = urepos;
     }

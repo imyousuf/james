@@ -43,12 +43,12 @@ public class VirtualUserTableManagement implements VirtualUserTableManagementSer
     private VirtualUserTableStore store;
     private org.apache.james.api.vut.management.VirtualUserTableManagement defaultVUT;    
 
-    @Resource(name="org.apache.james.api.vut.VirtualUserTableStore")
+    @Resource(name="virtualusertable-store")
     public void setVirtualUserTableStore(VirtualUserTableStore store) {
         this.store = store;
     }
     
-    @Resource(name="org.apache.james.api.vut.management.VirtualUserTableManagement")
+    @Resource(name="virtualusertablemanagement")
     public void setVirtualUserTableManagement(org.apache.james.api.vut.management.VirtualUserTableManagement defaultVUT) {
         this.defaultVUT = defaultVUT;
     }

@@ -42,7 +42,7 @@ public class ListDomainsCmdHandler implements CommandHandler{
 
     private DomainListManagementService domService;
 
-    @Resource(name="org.apache.james.management.DomainListManagementService")
+    @Resource(name="domainlistmanagement")
     public final void setDomainListManagement(DomainListManagementService domService) {
         this.domService = domService;
     }

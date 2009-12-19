@@ -74,7 +74,7 @@ public class AvalonMailStoreSpoolRepository implements GuiceInjected, Serviceabl
             protected void configure() {
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
                 bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-                bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(store);
+                bind(Store.class).annotatedWith(Names.named("mailstore")).toInstance(store);
             }
         }).getInstance(MailStoreSpoolRepository.class);
     }

@@ -661,18 +661,18 @@ public class FetchMail implements Target {
     }
     
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public void setDNSService(DNSService dns) {
         this.dnsServer = dns;
     }
 
 
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public void setMailServer(MailServer mailserver) {
         this.fieldServer = mailserver;
     }
    
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository urepos) {
         this.fieldLocalUsers = urepos;
     }

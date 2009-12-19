@@ -113,7 +113,7 @@ public class ToMultiRepository extends GenericMailet {
     private boolean resetReturnPath;
 
     
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

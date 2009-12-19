@@ -51,12 +51,12 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
 
     private MailServer mailServer;
 
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
     
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }

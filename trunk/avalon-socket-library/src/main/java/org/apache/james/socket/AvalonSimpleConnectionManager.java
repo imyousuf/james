@@ -124,7 +124,7 @@ public class AvalonSimpleConnectionManager  implements LogEnabled, Initializable
 
             @Override
             protected void configure() {
-                bind(ThreadManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.threads.ThreadManager")).toInstance(threadManager);
+                bind(ThreadManager.class).annotatedWith(Names.named("thread-manager")).toInstance(threadManager);
                 bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
             }

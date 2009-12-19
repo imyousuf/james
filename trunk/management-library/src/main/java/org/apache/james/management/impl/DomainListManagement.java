@@ -37,7 +37,7 @@ import org.apache.james.management.DomainListManagementService;
 public class DomainListManagement implements DomainListManagementService,DomainListManagementMBean {
     private DomainList domList;
     
-    @Resource(name="org.apache.james.api.domainlist.DomainList")
+    @Resource(name="domainlist")
     public void setDomainList(DomainList domList) {
         this.domList = domList;
     }

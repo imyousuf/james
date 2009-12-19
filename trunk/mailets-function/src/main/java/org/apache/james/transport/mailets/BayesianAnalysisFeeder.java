@@ -155,7 +155,7 @@ extends GenericMailet {
     }
 
     
-    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    @Resource(name="database-connections")
     public void setDataSourceSelector(DataSourceSelector selector) {
         this.selector = selector;
     }

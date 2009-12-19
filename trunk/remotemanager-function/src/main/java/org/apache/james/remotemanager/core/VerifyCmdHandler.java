@@ -47,7 +47,7 @@ public class VerifyCmdHandler implements CommandHandler{
      * @param users
      *            the users to set
      */
-    @Resource(name = "org.apache.james.api.user.UsersStore")
+    @Resource(name = "users-store")
     public final void setUsers(UsersStore uStore) {
         this.uStore = uStore;
     }

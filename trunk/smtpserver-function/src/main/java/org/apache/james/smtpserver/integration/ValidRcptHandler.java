@@ -73,7 +73,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	 * @param users
 	 *            the users to set
 	 */
-	@Resource(name = "org.apache.james.api.user.UsersRepository")
+	@Resource(name = "localusersrepository")
 	public final void setUsers(UsersRepository users) {
 		this.users = users;
 	}
@@ -93,7 +93,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	 * @param tableStore
 	 *            the tableStore to set
 	 */
-	@Resource(name = "org.apache.james.api.vut.VirtualUserTableStore")
+	@Resource(name = "virtualusertable-store")
 	public final void setTableStore(VirtualUserTableStore tableStore) {
 		this.tableStore = tableStore;
 	}

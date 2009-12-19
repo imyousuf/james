@@ -83,17 +83,17 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
         this.config = config;
     }
     
-    @Resource(name="org.apache.james.transport.MailetLoader")
+    @Resource(name="mailetpackages")
     public final void setMailetLoader(MailetLoader mailetLoader) {
         this.mailetLoader = mailetLoader;
     }
     
-    @Resource(name="org.apache.james.transport.MatcherLoader")
+    @Resource(name="matcherpackages")
     public final void setMatcherLoader(MatcherLoader matcherLoader) {
         this.matcherLoader = matcherLoader;
     }
 
-    @Resource(name="org.apache.james.services.SpoolRepository")
+    @Resource(name="spoolrepository")
     public final void setSpoolRepository(SpoolRepository spoolRepos) {
         this.spoolRepos = spoolRepos;
     }
@@ -119,9 +119,9 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
                     protected void configure() {
                         bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(processorConf);
                         bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                        bind(MailetLoader.class).annotatedWith(Names.named("org.apache.james.transport.MailetLoader")).toInstance(mailetLoader);
-                        bind(MatcherLoader.class).annotatedWith(Names.named("org.apache.james.transport.MatcherLoader")).toInstance(matcherLoader);
-                        bind(SpoolRepository.class).annotatedWith(Names.named("org.apache.james.services.SpoolRepository")).toInstance(spoolRepos);
+                        bind(MailetLoader.class).annotatedWith(Names.named("mailetpackages")).toInstance(mailetLoader);
+                        bind(MatcherLoader.class).annotatedWith(Names.named("matcherpackages")).toInstance(matcherLoader);
+                        bind(SpoolRepository.class).annotatedWith(Names.named("spoolrepository")).toInstance(spoolRepos);
                     }
                     
                 }).getInstance(cObj);

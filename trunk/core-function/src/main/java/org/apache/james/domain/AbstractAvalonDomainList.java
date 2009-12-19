@@ -94,7 +94,7 @@ public abstract class AbstractAvalonDomainList implements Initializable, LogEnab
         protected void configure() {
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
             bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-            bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
+            bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
         }
         
     }

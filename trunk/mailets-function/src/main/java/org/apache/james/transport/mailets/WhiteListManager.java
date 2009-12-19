@@ -160,12 +160,12 @@ public class WhiteListManager extends GenericMailet {
 
     private DataSourceSelector selector;
 
-    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    @Resource(name="database-connections")
     public void setDataSourceSelector(DataSourceSelector selector) {
         this.selector = selector;
     }
     
-    @Resource(name="org.apache.james.api.user.UsersRepository")
+    @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }
