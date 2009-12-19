@@ -106,8 +106,8 @@ public class AvalonUserManagement implements UserManagementMBean, GuiceInjected,
 
         @Override
         protected void configure() {
-            bind(UsersStore.class).annotatedWith(Names.named("org.apache.james.api.user.UsersStore")).toInstance(store);
-            bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(repos);
+            bind(UsersStore.class).annotatedWith(Names.named("users-store")).toInstance(store);
+            bind(UsersRepository.class).annotatedWith(Names.named("localusersrepository")).toInstance(repos);
         }
         
     }

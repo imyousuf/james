@@ -102,8 +102,8 @@ public class AvalonVirtualUserTableManagement implements Serviceable, Initializa
 
         @Override
         protected void configure() {
-            bind(VirtualUserTableStore.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTableStore")).toInstance(store);
-            bind(org.apache.james.api.vut.management.VirtualUserTableManagement.class).annotatedWith(Names.named("org.apache.james.api.vut.management.VirtualUserTableManagement")).toInstance(vManage);
+            bind(VirtualUserTableStore.class).annotatedWith(Names.named("virtualusertable-store")).toInstance(store);
+            bind(org.apache.james.api.vut.management.VirtualUserTableManagement.class).annotatedWith(Names.named("virtualusertablemanagement")).toInstance(vManage);
         }
         
     }

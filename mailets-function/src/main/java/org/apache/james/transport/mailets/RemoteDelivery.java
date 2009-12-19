@@ -264,12 +264,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private Store mailStore;
     
     
-    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    @Resource(name="mailstore")
     public void setStore(Store mailStore) {
         this.mailStore = mailStore;
     }
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public void setDNSService(DNSService dnsService) {
         this.dnsServer = dnsService;
     }

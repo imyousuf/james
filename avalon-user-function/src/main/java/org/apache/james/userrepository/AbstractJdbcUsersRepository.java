@@ -231,7 +231,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * @param datasources
      *            the DataSourceSelector
      */
-    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    @Resource(name="database-connections")
     void setDatasources(DataSourceSelector datasources) {
         m_datasources = datasources;
     }
@@ -241,7 +241,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * @param system
      *            the new service
      */
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }

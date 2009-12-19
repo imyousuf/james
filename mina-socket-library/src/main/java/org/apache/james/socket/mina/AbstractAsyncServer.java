@@ -139,22 +139,22 @@ public abstract class AbstractAsyncServer {
         this.loader = loader;
     }
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public final void setDNSService(DNSService dns) {
         this.dns = dns;
     }
     
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public final void setFileSystem(FileSystem filesystem) {
         this.fileSystem = filesystem;
     }
     
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
     
-    @Resource(name="org.apache.mailet.MailetContext")
+    @Resource(name="James")
     public final void setMailetContext(MailetContext mailetcontext) {
         this.mailetcontext = mailetcontext;
     }

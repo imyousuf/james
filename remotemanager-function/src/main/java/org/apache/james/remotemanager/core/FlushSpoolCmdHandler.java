@@ -48,7 +48,7 @@ import org.apache.james.remotemanager.RemoteManagerSession;
      * @param spoolManagement
      *            the SpoolManagementService
      */
-    @Resource(name = "org.apache.james.management.SpoolManagementService")
+    @Resource(name = "spoolmanagement")
     public final void setSpoolManagement(SpoolManagementService spoolManagement) {
         this.spoolManagement = spoolManagement;
     }

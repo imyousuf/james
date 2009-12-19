@@ -146,7 +146,7 @@ public abstract class AbstractAvalonVirtualUserTable implements Serviceable, Ini
 
         @Override
         protected void configure() {
-            bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
+            bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
             bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(log);
         }

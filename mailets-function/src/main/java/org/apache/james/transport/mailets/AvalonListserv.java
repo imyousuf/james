@@ -100,7 +100,7 @@ public class AvalonListserv extends GenericListserv {
 
     private UsersStore usersStore;
 
-    @Resource(name="org.apache.james.api.user.UsersStore")
+    @Resource(name="users-store")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

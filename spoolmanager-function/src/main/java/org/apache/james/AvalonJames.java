@@ -224,15 +224,15 @@ public class AvalonJames implements MailServer, MailetContext, Serviceable, Conf
 
             @Override
             protected void configure() {
-                bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
+                bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
                 bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
                 bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log@MailetLog")).toInstance(mailetLogger);
-                bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(store);
-                bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
-                bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
-                bind(SpoolRepository.class).annotatedWith(Names.named("org.apache.james.services.SpoolRepository")).toInstance(spoolRepos);
-                bind(DomainList.class).annotatedWith(Names.named("org.apache.james.api.domainlist.DomainList")).toInstance(domainList);
+                bind(Store.class).annotatedWith(Names.named("mailstore")).toInstance(store);
+                bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fs);
+                bind(UsersRepository.class).annotatedWith(Names.named("localusersrepository")).toInstance(userRepos);
+                bind(SpoolRepository.class).annotatedWith(Names.named("spoolrepository")).toInstance(spoolRepos);
+                bind(DomainList.class).annotatedWith(Names.named("domainlist")).toInstance(domainList);
             }
             
         }).getInstance(James.class);

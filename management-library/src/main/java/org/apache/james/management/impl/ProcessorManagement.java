@@ -108,7 +108,7 @@ public class ProcessorManagement implements ProcessorManagementService, Processo
         }
     }
 
-    @Resource(name="org.apache.james.services.SpoolManager")
+    @Resource(name="spoolmanager")
     public void setProcessorManager(SpoolManager processorManager) {
         this.processorManager = processorManager;
     }

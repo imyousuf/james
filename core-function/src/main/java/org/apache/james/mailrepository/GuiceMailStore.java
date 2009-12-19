@@ -79,7 +79,7 @@ public class GuiceMailStore
 
     private DataSourceSelector datasources;
     
-    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    @Resource(name="database-connections")
     public void setDatasources(DataSourceSelector datasources) {
         this.datasources = datasources;
     }
@@ -104,7 +104,7 @@ public class GuiceMailStore
      * 
      * @param store the Store
      */
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem fs) {
         this.fs = fs;
     }
@@ -285,9 +285,9 @@ public class GuiceMailStore
                     protected void configure() {
                         bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
                         bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-                        bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
-                        bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(datasources);
-                        bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(new Store() {
+                        bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fs);
+                        bind(DataSourceSelector.class).annotatedWith(Names.named("database-connections")).toInstance(datasources);
+                        bind(Store.class).annotatedWith(Names.named("mailstore")).toInstance(new Store() {
 
                             public Object select(Object arg0) throws ServiceException {
                                 return GuiceMailStore.this.select(arg0);

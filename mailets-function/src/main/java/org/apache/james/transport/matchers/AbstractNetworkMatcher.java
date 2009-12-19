@@ -97,7 +97,7 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.base.Gene
     }
     
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public void setDNSService(DNSService dnsService) {
         this.dnsServer = dnsService;
     }

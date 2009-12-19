@@ -157,7 +157,7 @@ public class NNTPRepositoryImpl implements NNTPRepository {
      * 
      * @param system filesystem service
      */
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
@@ -476,9 +476,9 @@ public class NNTPRepositoryImpl implements NNTPRepository {
                 protected void configure() {
                     bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(spoolerConfiguration.configurationAt("configuration"));
                     bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                    bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fileSystem);
+                    bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fileSystem);
                     bind(ArticleIDRepository.class).annotatedWith(Names.named("org.apache.james.nntpserver.repository.ArticleIDRepository")).toInstance(articleIDRepo);
-                    bind(NNTPRepository.class).annotatedWith(Names.named("org.apache.james.nntpserver.repository.NNTPRepository")).toInstance(new NNTPRepository() {
+                    bind(NNTPRepository.class).annotatedWith(Names.named("nntp-repository")).toInstance(new NNTPRepository() {
 
                         public void createArticle(InputStream in) {
                             NNTPRepositoryImpl.this.createArticle(in);

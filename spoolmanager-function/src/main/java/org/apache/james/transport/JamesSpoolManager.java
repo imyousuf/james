@@ -109,7 +109,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager {
      * 
      * @param spool the SpoolRepository
      */
-    @Resource(name="org.apache.james.services.SpoolRepository")
+    @Resource(name="spoolrepository")
     public void setSpoolRepository(SpoolRepository spool) {
         this.spool = spool;
     }

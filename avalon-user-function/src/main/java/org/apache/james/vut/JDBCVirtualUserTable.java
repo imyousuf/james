@@ -223,12 +223,12 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         this.dataSourceComponent = dataSourceComponent;
     }
     
-    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    @Resource(name="database-connections")
     public void setDataSourceSelector(DataSourceSelector datasources) {
         this.datasources = datasources;
     }
 
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }

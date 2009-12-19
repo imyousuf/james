@@ -123,7 +123,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * 
      * @param system The filesystem service
      */
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
@@ -141,7 +141,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @param datasources
      *            The datasources
      */
-    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    @Resource(name="database-connections")
     public void setDataSources(DataSourceSelector datasources) {
         this.datasources = datasources;
     }
@@ -189,7 +189,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
         setUnseenLifeTime(TimeConverter.getMilliSeconds(unseenLifeTime));
     }
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }

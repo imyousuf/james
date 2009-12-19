@@ -107,7 +107,7 @@ public class AvalonDefaultVirtualUserTable implements GuiceInjected, Serviceable
 
         @Override
         protected void configure() {
-            bind(VirtualUserTableStore.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTableStore")).toInstance(store);
+            bind(VirtualUserTableStore.class).annotatedWith(Names.named("virtualusertable-store")).toInstance(store);
         }
         
     }

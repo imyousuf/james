@@ -87,7 +87,7 @@ public abstract class AbstractLoader {
      * 
      * @param mailetContext the MailetContext
      */
-    @Resource(name="org.apache.mailet.MailetContext") 
+    @Resource(name="James") 
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }

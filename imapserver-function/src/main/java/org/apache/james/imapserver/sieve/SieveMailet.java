@@ -35,7 +35,7 @@ public class SieveMailet extends SieveMailboxMailet {
 
     private MailServer mailServer;
 
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public void setMailSerer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

@@ -104,9 +104,9 @@ public class AvalonJamesSpoolManager implements Initializable, LogEnabled, Servi
         protected void configure() {
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-            bind(SpoolRepository.class).annotatedWith(Names.named("org.apache.james.services.SpoolRepository")).toInstance(repos);
-            bind(MailetLoader.class).annotatedWith(Names.named("org.apache.james.transport.MailetLoader")).toInstance(mailetLoader);
-            bind(MatcherLoader.class).annotatedWith(Names.named("org.apache.james.transport.MatcherLoader")).toInstance(matcherLoader);
+            bind(SpoolRepository.class).annotatedWith(Names.named("spoolrepository")).toInstance(repos);
+            bind(MailetLoader.class).annotatedWith(Names.named("mailetpackages")).toInstance(mailetLoader);
+            bind(MatcherLoader.class).annotatedWith(Names.named("matcherpackages")).toInstance(matcherLoader);
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
 
                 public LoaderService get() {

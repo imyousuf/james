@@ -102,7 +102,7 @@ public class AvalonNNTPRepository implements NNTPRepository, GuiceInjected, Conf
         protected void configure() {
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-            bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(fs);
+            bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fs);
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
 
                 public LoaderService get() {

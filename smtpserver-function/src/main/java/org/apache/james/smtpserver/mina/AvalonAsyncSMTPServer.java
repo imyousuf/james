@@ -118,16 +118,16 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
         @Override
         protected void configure() {
             bind(AsyncSMTPServer.class).in(Singleton.class);
-            bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
+            bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
             bind(org.apache.james.smtpserver.protocol.DNSService.class).annotatedWith(Names.named("org.apache.james.smtpserver.protocol.DNSService")).toInstance(dnsServiceAdapter);
-            bind(MailServer.class).annotatedWith(Names.named("org.apache.james.services.MailServer")).toInstance(mailserver);
+            bind(MailServer.class).annotatedWith(Names.named("James")).toInstance(mailserver);
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-            bind(MailetContext.class).annotatedWith(Names.named("org.apache.mailet.MailetContext")).toInstance(context);
-            bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(filesystem);
-            bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
-            bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(dselector);
-            bind(VirtualUserTableStore.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTableStore")).toInstance(vutStore);
+            bind(MailetContext.class).annotatedWith(Names.named("James")).toInstance(context);
+            bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(filesystem);
+            bind(UsersRepository.class).annotatedWith(Names.named("localusersrepository")).toInstance(userRepos);
+            bind(DataSourceSelector.class).annotatedWith(Names.named("database-connections")).toInstance(dselector);
+            bind(VirtualUserTableStore.class).annotatedWith(Names.named("virtualusertable-store")).toInstance(vutStore);
 
             // we bind the LoaderService to an Provider to get sure everything is there when the SMTPLoaderService get created.
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
@@ -138,7 +138,7 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
 				
 				// Mimic the loaderservice
 				class SMTPLoaderService implements LoaderService {
-					Injector injector = Guice.createInjector(new LoaderServiceModule(), new SMTPServerModule(), new Jsr250Module());
+					Injector injector = Guice.createInjector(new SMTPServerModule(), new Jsr250Module());
 
 					public <T> T load(Class<T> type) {
 						return injector.getInstance(type);
@@ -150,25 +150,7 @@ public class AvalonAsyncSMTPServer implements LogEnabled, Configurable, Servicea
 
         }   
     }
-    
-    /**
-     * This Module mimic the current implementation of LoaderService. It use the name of the block to find the right thing to inject
-     *
-     */
-    private final class LoaderServiceModule extends AbstractModule {
 
-        @Override
-        protected void configure() {
-            bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
-            bind(MailServer.class).annotatedWith(Names.named("James")).toInstance(mailserver);
-            bind(MailetContext.class).annotatedWith(Names.named("James")).toInstance(context);
-            bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(filesystem);
-            bind(DataSourceSelector.class).annotatedWith(Names.named("database-connections")).toInstance(dselector);
-            bind(UsersRepository.class).annotatedWith(Names.named("localusersrepository")).toInstance(userRepos);
-            bind(VirtualUserTableStore.class).annotatedWith(Names.named("virtualusertable-store")).toInstance(vutStore);
-
-        }   
-    }
 
     /**
      * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#getNetworkInterface()

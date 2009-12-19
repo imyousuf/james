@@ -52,7 +52,7 @@ public abstract class AbstractProtocolHandlerFactory implements ProtocolHandlerF
      * Sets the DNS service.
      * @param dnsServer the dnsServer to set
      */
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public final void setDNSService(DNSService dnsServer) {
         this.dnsService = dnsServer;
     }

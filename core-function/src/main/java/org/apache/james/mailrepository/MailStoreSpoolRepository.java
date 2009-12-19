@@ -76,7 +76,7 @@ public class MailStoreSpoolRepository implements SpoolRepository {
         this.configuration = configuration;
     }
     
-    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    @Resource(name="mailstore")
     public void setStore(Store store) {
         mailStore = store;
     }

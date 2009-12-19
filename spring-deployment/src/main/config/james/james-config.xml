@@ -41,7 +41,7 @@
 <!-- For production use you will probably need to make more extensive changes, see -->
 <!-- http://james.apache.org/server/2.3.0/ -->
 
-<!-- $Revision: 724137 $ Committed on $Date: 2008-12-07 14:40:42 +0000 (Sun, 07 Dec 2008) $ by: $Author: rdonkin $ -->
+<!-- $Revision: 885240 $ Committed on $Date: 2009-11-29 16:15:13 +0100 (So, 29 Nov 2009) $ by: $Author: norman $ -->
 
 <config>
    <James>
@@ -344,10 +344,6 @@ Regards, Postmaster XXX.YYY
             </mapping>
          </mailet>
          -->
-         
-        <!-- Deliver To IMAP mailboxes, applying a Sieve script if the user has one
-        <mailet match="All" class="SieveMailet"/>
-        -->
 
          <!-- Anti-spam processing -->
          <!-- The following two entries avoid double anti-spam analysis -->
@@ -544,6 +540,16 @@ Regards, Postmaster XXX.YYY
          </mailet>
          -->
 
+
+         <mailet match="All" class="VirtualUserTable">
+             <virtualusertable>DefaultVirtualUserTable</virtualusertable>
+         </mailet>
+
+         
+         <!-- Deliver To IMAP mailboxes, applying a Sieve script if the user has one
+         <mailet match="All" class="SieveMailet"/>
+         -->
+        
          <!-- Is the recipient is for a local account, deliver it locally -->
          <mailet match="RecipientIsLocal" class="LocalDelivery"/>
 
@@ -891,6 +897,11 @@ Regards, Postmaster XXX.YYY
          <!-- 
          <prompt>james&gt;</prompt>
          -->
+         <handlerchain>
+             <!-- This loads the core CommandHandlers. Only remove this if you really -->
+             <!-- know what you are doing -->
+             <handler class="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
+         </handlerchain>
       </handler>
    </remotemanager>
       
@@ -918,6 +929,19 @@ Regards, Postmaster XXX.YYY
            For example, Uncomment this if you want to use 
            BouncyCastle JCE (http://www.bouncycastle.org)
       <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
+      
+      <!-- Set enable to true to support STARTTLS.
+           To use this you need to copy sunjce_provider.jar to /path/james/lib directory.
+      -->
+      <startTLS enable="false">
+        <!-- To create a new keystore execute:
+        keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore
+         -->
+        <keystore>file://conf/keystore</keystore>
+        <secret>yoursecret</secret>
+        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+      </startTLS>
+      
       <handler>
          <!-- This is the name used by the server to identify itself in the POP3 -->
          <!-- protocol.  If autodetect is TRUE, the server will discover its -->
@@ -928,6 +952,12 @@ Regards, Postmaster XXX.YYY
          <helloName autodetect="true">myMailServer</helloName>
          -->
          <connectiontimeout>120000</connectiontimeout>
+      
+         <handlerchain>
+             <!-- This loads the core CommandHandlers. Only remove this if you really -->
+             <!-- know what you are doing -->
+             <handler class="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
+         </handlerchain>
       </handler>
    </pop3server>
 
@@ -935,7 +965,10 @@ Regards, Postmaster XXX.YYY
     <!-- Disabling blocks will stop them from listening, -->
     <!-- but does not free as many resources as removing them would -->
    <smtpserver enabled="true">
-      <!-- port 25 is the well-known/IANA registered port for SMTP -->
+      <!-- 
+            Port 25 is the well-known/IANA registered port for SMTP. 
+            Port 465 is the well-known/IANA registered port for SMTP over TLS.
+            -->
       <port>25</port>
 
       <!-- Uncomment this if you want to bind to a specific inetaddress -->
@@ -944,19 +977,37 @@ Regards, Postmaster XXX.YYY
       <!--
       <bind> </bind>
       -->
-      <!-- JAMES TLS uses JSSE. This means that for many Sun JVMs,
+      <!-- 
+           JAMES TLS uses JSSE. This means that for many Sun JVMs,
            the sunjce_provider.jar must be copied from $JAVA_HOME/lib/ext
            into $JAMES_HOME/lib. It may also be necessary to download and
-           install unlimited strength policies. -->
+           install unlimited strength policies. 
+           
+           The standard port for SMTP over TLS is 465.
+           -->
       <!--
       <useTLS>true</useTLS>
       -->
+      
       <!-- Use provider elements to specify additional JCE providers.
          The jars should be put into $JAMES_HOME/lib.
            For example, Uncomment this if you want to use 
            BouncyCastle JCE (http://www.bouncycastle.org)
       <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider> -->
 
+      <!-- Set enable to true to support STARTTLS.
+           To use this you need to copy sunjce_provider.jar to /path/james/lib directory.
+       -->
+      <startTLS enable="false">
+      
+        <!-- To create a new keystore execute:
+        keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore
+         -->
+        <keystore>file://conf/keystore</keystore>
+        <secret>yoursecret</secret>
+        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+      </startTLS>
+      
       <handler>
          <!-- This is the name used by the server to identify itself in the SMTP -->
          <!-- protocol.  If autodetect is TRUE, the server will discover its -->
@@ -1160,7 +1211,7 @@ Regards, Postmaster XXX.YYY
          <newsgroup>org.apache.avalon.user</newsgroup>
       </newsgroups>
 
-      <spool>
+      <spool class="org.apache.james.nntpserver.repository.NNTPSpooler">
          <configuration>
             <spoolPath>file://var/nntp/spool</spoolPath>
             <!-- The number of threads that process spooler related tasks. -->
@@ -1192,20 +1243,9 @@ Regards, Postmaster XXX.YYY
    <!-- The Mailstore block -->
    <mailstore>
       <repositories>
-        <repository class="org.apache.james.mailboxmanager.repository.MailboxManagerMailRepository">
-            <protocols>
-               <protocol>mailboxmanager</protocol>
-            </protocols>
-            <types>
-               <type>MAIL</type>
-            </types>
-            <config>
-               <sqlFile>file://conf/mailboxManagerSqlResources.xml</sqlFile>
-            </config>
-         </repository>
          <!-- File based repositories.  These repositories store all message data -->
          <!-- in the file system. -->
-         <repository class="org.apache.james.mailrepository.AvalonMailRepository">
+         <repository class="org.apache.james.mailrepository.FileMailRepository">
             <protocols>
                <protocol>file</protocol>
             </protocols>
@@ -1215,7 +1255,7 @@ Regards, Postmaster XXX.YYY
             <!-- Set if the messages should be listed sorted. False by default -->
             <config FIFO="false"/> 
          </repository>
-         <repository class="org.apache.james.mailrepository.AvalonSpoolRepository">
+         <repository class="org.apache.james.mailrepository.FileSpoolRepository">
             <protocols>
                <protocol>file</protocol>
             </protocols>
@@ -1636,5 +1676,4 @@ Regards, Postmaster XXX.YYY
          <min-spare-threads>20</min-spare-threads>
       </thread-group>
    </thread-manager>
-
 </config>

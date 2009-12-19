@@ -36,7 +36,7 @@ public class LocalUsersRepository implements UsersRepository {
     private UsersStore usersStore;
     protected UsersRepository users;
 
-    @Resource(name="org.apache.james.api.user.UsersStore")
+    @Resource(name="users-store")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

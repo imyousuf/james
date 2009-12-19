@@ -140,21 +140,21 @@ public class AvalonRemoteManager implements GuiceInjected, Initializable, Servic
 
         @Override
         protected void configure() {
-            bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
-            bind(MailServer.class).annotatedWith(Names.named("org.apache.james.services.MailServer")).toInstance(mailserver);
+            bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
+            bind(MailServer.class).annotatedWith(Names.named("James")).toInstance(mailserver);
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-            bind(FileSystem.class).annotatedWith(Names.named("org.apache.james.services.FileSystem")).toInstance(filesystem);
-            bind(SocketManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.sockets.SocketManager")).toInstance(socketManager);
+            bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(filesystem);
+            bind(SocketManager.class).annotatedWith(Names.named("sockets")).toInstance(socketManager);
             bind(JamesConnectionManager.class).annotatedWith(Names.named("org.apache.james.socket.JamesConnectionManager")).toInstance(connectionManager);
-            bind(ThreadManager.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.threads.ThreadManager")).toInstance(threadManager);
-            bind(SpoolManagementService.class).annotatedWith(Names.named("org.apache.james.management.SpoolManagementService")).toInstance(spoolService);
-            bind(BayesianAnalyzerManagementService.class).annotatedWith(Names.named("org.apache.james.management.BayesianAnalyzerManagementService")).toInstance(bayesianServer);
-            bind(UsersStore.class).annotatedWith(Names.named("org.apache.james.api.user.UsersStore")).toInstance(usersStore);
-            bind(ProcessorManagementService.class).annotatedWith(Names.named("org.apache.james.management.ProcessorManagementService")).toInstance(processorService);
-            bind(VirtualUserTableManagementService.class).annotatedWith(Names.named("org.apache.james.api.vut.management.VirtualUserTableManagementService")).toInstance(vutService);
-            bind(DomainListManagementService.class).annotatedWith(Names.named("org.apache.james.management.DomainListManagementService")).toInstance(domainService);
-            bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(store);
+            bind(ThreadManager.class).annotatedWith(Names.named("thread-manager")).toInstance(threadManager);
+            bind(SpoolManagementService.class).annotatedWith(Names.named("spoolmanagement")).toInstance(spoolService);
+            bind(BayesianAnalyzerManagementService.class).annotatedWith(Names.named("bayesiananalyzermanagement")).toInstance(bayesianServer);
+            bind(UsersStore.class).annotatedWith(Names.named("users-store")).toInstance(usersStore);
+            bind(ProcessorManagementService.class).annotatedWith(Names.named("processormanagement")).toInstance(processorService);
+            bind(VirtualUserTableManagementService.class).annotatedWith(Names.named("virtualusertablemanagement")).toInstance(vutService);
+            bind(DomainListManagementService.class).annotatedWith(Names.named("domainlistmanagement")).toInstance(domainService);
+            bind(Store.class).annotatedWith(Names.named("mailstore")).toInstance(store);
             
             bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).to(RemoteManagerProtocolHandlerFactory.class);
             bind(ProtocolServer.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolServer")).to(AvalonProtocolServer.class);

@@ -41,7 +41,7 @@ public class DefaultVirtualUserTable implements VirtualUserTableManagement {
     
     VirtualUserTableStore store = null;
     
-    @Resource(name="org.apache.james.api.vut.VirtualUserTableStore")
+    @Resource(name="virtualusertable-store")
     public void setVirtualUserTableStore(VirtualUserTableStore store) {
         this.store = store;
     }

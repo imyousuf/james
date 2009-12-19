@@ -79,7 +79,7 @@ public abstract class AbstractFileRepository
     }
     
     
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }

@@ -38,7 +38,7 @@ public class SMTPServerDNSServiceAdapter implements DNSService{
     
     }
     
-    @Resource(name="org.apache.james.api.dnsservice.DNSService")
+    @Resource(name="dnsserver")
     public void setDNSService(org.apache.james.api.dnsservice.DNSService dns) {
         this.dns = dns;
     }

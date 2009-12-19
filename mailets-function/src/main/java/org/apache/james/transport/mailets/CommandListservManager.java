@@ -334,7 +334,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
         xmlResources = initXMLResources(new String[]{"List Manager"})[0];
     }
     
-    @Resource(name="org.apache.james.api.user.UsersStore")
+    @Resource(name="users-store")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

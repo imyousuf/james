@@ -61,7 +61,7 @@ public class JDBCAlias extends GenericMailet {
     private DataSourceSelector selector;
 
 
-    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    @Resource(name="database-connections")
     public void setDataSourceSelector(DataSourceSelector selector) {
         this.selector = selector;
     }

@@ -49,7 +49,7 @@ public class MoveMailsCmdHandler implements CommandHandler {
      * @param spoolManagement
      *            the SpoolManagementService
      */
-    @Resource(name = "org.apache.james.management.SpoolManagementService")
+    @Resource(name = "spoolmanagement")
     public final void setSpoolManagement(SpoolManagementService spoolManagement) {
         this.spoolManagement = spoolManagement;
     }

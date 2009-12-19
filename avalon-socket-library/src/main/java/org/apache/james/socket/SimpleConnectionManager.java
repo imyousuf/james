@@ -90,7 +90,7 @@ public class SimpleConnectionManager implements JamesConnectionManager {
     private Log logger;
     private HierarchicalConfiguration configuration;
 
-    @Resource(name="org.apache.avalon.cornerstone.services.threads.ThreadManager")
+    @Resource(name="thread-manager")
     public void setThreadManager(ThreadManager threadManager) {
         this.threadManager = threadManager;
     }

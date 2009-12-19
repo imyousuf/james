@@ -108,18 +108,18 @@ public abstract class AbstractAvalonJamesLoader implements Configurable, Service
 
         @Override
         protected void configure() {
-            bind(DNSService.class).annotatedWith(Names.named("org.apache.james.api.dnsservice.DNSService")).toInstance(dns);
+            bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
             bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-            bind(MailetContext.class).annotatedWith(Names.named("org.apache.mailet.MailetContext")).toInstance(context);
+            bind(MailetContext.class).annotatedWith(Names.named("James")).toInstance(context);
             bind(Poster.class).annotatedWith(Names.named("org.apache.jsieve.mailet.Poster")).toInstance(poster);
-            bind(MailServer.class).annotatedWith(Names.named("org.apache.james.services.MailServer")).toInstance(mailserver);
-            bind(UsersRepository.class).annotatedWith(Names.named("org.apache.james.api.user.UsersRepository")).toInstance(userRepos);
-            bind(DataSourceSelector.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")).toInstance(dselector);
-            bind(VirtualUserTable.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTable")).toInstance(vut);
-            bind(VirtualUserTableStore.class).annotatedWith(Names.named("org.apache.james.api.vut.VirtualUserTableStore")).toInstance(vutStore);
-            bind(Store.class).annotatedWith(Names.named("org.apache.avalon.cornerstone.services.store.Store")).toInstance(store);
-            bind(UsersStore.class).annotatedWith(Names.named("org.apache.james.api.user.UsersStore")).toInstance(usersStore);
+            bind(MailServer.class).annotatedWith(Names.named("James")).toInstance(mailserver);
+            bind(UsersRepository.class).annotatedWith(Names.named("localusersrepository")).toInstance(userRepos);
+            bind(DataSourceSelector.class).annotatedWith(Names.named("database-connections")).toInstance(dselector);
+            bind(VirtualUserTable.class).annotatedWith(Names.named("defaultvirtualusertable")).toInstance(vut);
+            bind(VirtualUserTableStore.class).annotatedWith(Names.named("virtualusertable-store")).toInstance(vutStore);
+            bind(Store.class).annotatedWith(Names.named("mailstore")).toInstance(store);
+            bind(UsersStore.class).annotatedWith(Names.named("users-store")).toInstance(usersStore);
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {
 
                 public LoaderService get() {

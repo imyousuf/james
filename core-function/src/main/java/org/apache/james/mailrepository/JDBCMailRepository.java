@@ -139,13 +139,13 @@ public class JDBCMailRepository
 
     private FileSystem fileSystem;
 
-    @Resource(name="org.apache.avalon.cornerstone.services.datasources.DataSourceSelector")
+    @Resource(name="database-connections")
     public void setDatasources(DataSourceSelector datasources) {
         this.datasources = datasources;
     }
 
 
-    @Resource(name="org.apache.james.services.FileSystem")
+    @Resource(name="filesystem")
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }

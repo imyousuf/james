@@ -40,7 +40,7 @@ public interface DNSService {
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.api.dnsservice.DNSService";
+     String ROLE = "org.apache.james.smtpserver.protocol.DNSService";
 
     /**
      * <p>Return a prioritized unmodifiable list of host handling mail

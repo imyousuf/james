@@ -58,7 +58,7 @@ public class ToRepository extends GenericMailet {
     private Store mailStore;
 
     
-    @Resource(name="org.apache.avalon.cornerstone.services.store.Store")
+    @Resource(name="mailstore")
     public void setStore(Store mailStore) {
         this.mailStore = mailStore;
     }

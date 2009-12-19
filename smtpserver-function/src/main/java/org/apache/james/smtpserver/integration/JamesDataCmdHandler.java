@@ -56,7 +56,7 @@ public class JamesDataCmdHandler extends DataCmdHandler {
      * Sets the mail server.
      * @param mailServer the mailServer to set
      */
-    @Resource(name="org.apache.james.services.MailServer")
+    @Resource(name="James")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

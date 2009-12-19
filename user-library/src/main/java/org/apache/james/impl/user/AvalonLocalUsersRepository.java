@@ -51,7 +51,7 @@ public class AvalonLocalUsersRepository implements GuiceInjected, Initializable,
 
         @Override
         protected void configure() {
-            bind(UsersStore.class).annotatedWith(Names.named("org.apache.james.api.user.UsersStore")).toInstance(usersStore);
+            bind(UsersStore.class).annotatedWith(Names.named("users-store")).toInstance(usersStore);
         }
         
     }
