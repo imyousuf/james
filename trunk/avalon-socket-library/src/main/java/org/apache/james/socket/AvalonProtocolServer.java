@@ -230,7 +230,7 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         this.dnsService = dnsServer;
     }
 
-    @Resource(name="org.apache.james.socket.JamesConnectionManager")
+    @Resource(name="connections")
     public void setConnectionManager(JamesConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }

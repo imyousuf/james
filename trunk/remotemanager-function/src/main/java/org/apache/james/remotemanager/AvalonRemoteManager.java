@@ -146,7 +146,7 @@ public class AvalonRemoteManager implements GuiceInjected, Initializable, Servic
             bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
             bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(filesystem);
             bind(SocketManager.class).annotatedWith(Names.named("sockets")).toInstance(socketManager);
-            bind(JamesConnectionManager.class).annotatedWith(Names.named("org.apache.james.socket.JamesConnectionManager")).toInstance(connectionManager);
+            bind(JamesConnectionManager.class).annotatedWith(Names.named("connections")).toInstance(connectionManager);
             bind(ThreadManager.class).annotatedWith(Names.named("thread-manager")).toInstance(threadManager);
             bind(SpoolManagementService.class).annotatedWith(Names.named("spoolmanagement")).toInstance(spoolService);
             bind(BayesianAnalyzerManagementService.class).annotatedWith(Names.named("bayesiananalyzermanagement")).toInstance(bayesianServer);
