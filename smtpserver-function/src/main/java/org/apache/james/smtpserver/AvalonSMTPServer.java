@@ -146,7 +146,7 @@ public class AvalonSMTPServer implements GuiceInjected, Initializable, Serviceab
             bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).to(SMTPServerProtocolHandlerFactory.class);
             bind(ProtocolServer.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolServer")).to(AvalonProtocolServer.class);
             bind(SocketManager.class).annotatedWith(Names.named("sockets")).toInstance(socketManager);
-            bind(JamesConnectionManager.class).annotatedWith(Names.named("org.apache.james.socket.JamesConnectionManager")).toInstance(connectionManager);
+            bind(JamesConnectionManager.class).annotatedWith(Names.named("connections")).toInstance(connectionManager);
             bind(ThreadManager.class).annotatedWith(Names.named("thread-manager")).toInstance(threadManager);
             // we bind the LoaderService to an Provider to get sure everything is there when the SMTPLoaderService get created.
             bind(LoaderService.class).annotatedWith(Names.named("org.apache.james.LoaderService")).toProvider(new Provider<LoaderService>() {

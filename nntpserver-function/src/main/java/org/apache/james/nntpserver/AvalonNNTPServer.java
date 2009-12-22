@@ -132,7 +132,7 @@ public class AvalonNNTPServer implements GuiceInjected, Initializable, Serviceab
             bind(UsersRepository.class).annotatedWith(Names.named("localusersrepository")).toInstance(userRepos);
             bind(ProtocolHandlerFactory.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolHandlerFactory")).to(NNTPServerProtocolHandlerFactory.class);
             bind(SocketManager.class).annotatedWith(Names.named("sockets")).toInstance(socketManager);
-            bind(JamesConnectionManager.class).annotatedWith(Names.named("org.apache.james.socket.JamesConnectionManager")).toInstance(connectionManager);
+            bind(JamesConnectionManager.class).annotatedWith(Names.named("connections")).toInstance(connectionManager);
             bind(ThreadManager.class).annotatedWith(Names.named("thread-manager")).toInstance(threadManager);
             bind(NNTPRepository.class).annotatedWith(Names.named("nntp-repository")).toInstance(nntpRepos);
             bind(ProtocolServer.class).annotatedWith(Names.named("org.apache.james.socket.api.ProtocolServer")).to(AvalonProtocolServer.class);
