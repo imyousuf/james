@@ -52,5 +52,14 @@
       <artifactId>avalon-framework-impl</artifactId>
       <scope>test</scope>
     </dependency>
+    
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
   </dependencies>
 </project>

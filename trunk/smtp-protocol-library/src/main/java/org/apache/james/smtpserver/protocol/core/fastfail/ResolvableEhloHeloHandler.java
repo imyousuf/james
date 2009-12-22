@@ -25,8 +25,8 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.james.api.protocol.Configurable;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -67,7 +67,7 @@ public class ResolvableEhloHeloHandler implements RcptHook, HeloHook,Configurabl
 
     /**
      * (non-Javadoc)
-     * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     public void configure(Configuration handlerConfiguration)
             throws ConfigurationException {

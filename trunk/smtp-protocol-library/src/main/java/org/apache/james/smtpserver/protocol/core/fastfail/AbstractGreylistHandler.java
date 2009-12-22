@@ -24,8 +24,8 @@ import java.util.Iterator;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.protocol.Configurable;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;

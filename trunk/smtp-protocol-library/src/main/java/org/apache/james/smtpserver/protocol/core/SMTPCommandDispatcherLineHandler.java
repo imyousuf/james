@@ -28,7 +28,7 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
-import org.apache.james.api.protocol.LogEnabled;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.smtpserver.protocol.CommandHandler;
 import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPRequest;
@@ -148,7 +148,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
     }
 
     /**
-     * @see org.apache.james.api.protocol.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
     public void setLog(Log log) {
         this.serviceLog = log;

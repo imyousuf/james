@@ -28,11 +28,11 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.james.api.protocol.Configurable;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.AbstractValidRcptHandler;
 import org.apache.mailet.MailAddress;
@@ -104,7 +104,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	}
 
 	/**
-	 * @see org.apache.james.api.protocol.Configurable#configure(org.apache.commons.configuration.Configuration)
+	 * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
 	 */
 	@SuppressWarnings("unchecked")
 	public void configure(Configuration config) throws ConfigurationException {
