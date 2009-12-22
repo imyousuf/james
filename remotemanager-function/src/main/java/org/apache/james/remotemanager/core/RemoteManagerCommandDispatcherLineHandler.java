@@ -26,7 +26,7 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
-import org.apache.james.api.protocol.LogEnabled;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerResponse;
@@ -84,7 +84,7 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
         return mList;
     }
     /**
-     * @see org.apache.james.api.protocol.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
     public void setLog(Log log) {
         this.serviceLog = log;

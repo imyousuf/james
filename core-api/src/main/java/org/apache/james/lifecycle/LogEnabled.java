@@ -17,24 +17,21 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.lifecycle;
 
-package org.apache.james.api.protocol;
-
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.logging.Log;
 
 /**
- * Classes which needs to access the configuration should implement this
- *
+ * Indicates that a services requires general logging.
+ * Note that this log should only be used for general service operations.
+ * A context sensitive log should be preferred where that is available 
+ * within the context of a call.
  */
-public interface Configurable {
+public interface LogEnabled {
 
-	/**
-	 * Configure
-	 * 
-	 * @param config
-	 * @throws ConfigurationException
-	 */
-	public void configure(Configuration config) throws ConfigurationException;
-	
+    /**
+     * Sets the service log.
+     * @param log not null
+     */
+    public void setLog(Log log);
 }

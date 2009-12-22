@@ -27,7 +27,7 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
-import org.apache.james.api.protocol.LogEnabled;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.pop3server.CommandHandler;
 import org.apache.james.pop3server.LineHandler;
 import org.apache.james.pop3server.POP3Response;
@@ -139,7 +139,7 @@ public class POP3CommandDispatcherLineHandler extends
     }
 
     /**
-     * @see org.apache.james.api.protocol.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
     public void setLog(Log log) {
         this.serviceLog = log;
