@@ -58,6 +58,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.excalibur.thread.ThreadPool;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
 import org.apache.james.socket.api.ProtocolServer;
@@ -69,7 +71,7 @@ import org.apache.james.socket.api.Watchdog;
  * create using the ProtocolHandlerFactory.
  */
 public class AvalonProtocolServer extends AbstractHandlerFactory
-    implements ConnectionHandlerFactory, ObjectFactory, ProtocolServer {
+    implements ConnectionHandlerFactory, ObjectFactory, ProtocolServer, Configurable, LogEnabled {
 
     /**
      * The default value for the connection timeout.
@@ -244,7 +246,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         return fSystem;
     }
     
-    @Resource(name="org.apache.commons.logging.Log")
     public void setLog(Log logger) {
         this.logger = logger;
         setupLogger(this, new CommonsLogger(logger, getClass().getName()));
@@ -259,32 +260,8 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
         this.protocolHandlerFactory = protocolHandlerFactory;
     }
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
-    }
-    
-    @Resource(name="thread-manager")
-    public void setThreadManager(ThreadManager threadManager) {
-        this.threadManager = threadManager;
-    }
-    
-    @Resource(name="sockets")
-    public void setSocketManager(SocketManager socketManager) {
-        this.socketManager = socketManager;
-    }
-   
-
-    /**
-     * Subclasses should override this method todo any configuration tasks
-     * @throws ConfigurationException 
-     */
-    protected void onConfigure(HierarchicalConfiguration config) throws ConfigurationException {
-        
-    }
-
-    
-    private final void configure() throws ConfigurationException {
         enabled = configuration.getBoolean("[@enabled]", true);
         final Log logger = getLog();
         if (!enabled) {
@@ -431,7 +408,29 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
 				loadJCEProviders(configuration.configurationAt("startTLS"), getLog());
        		}
        	onConfigure(configuration);
+    
     }
+    
+    @Resource(name="thread-manager")
+    public void setThreadManager(ThreadManager threadManager) {
+        this.threadManager = threadManager;
+    }
+    
+    @Resource(name="sockets")
+    public void setSocketManager(SocketManager socketManager) {
+        this.socketManager = socketManager;
+    }
+   
+
+    /**
+     * Subclasses should override this method todo any configuration tasks
+     * @throws ConfigurationException 
+     */
+    protected void onConfigure(HierarchicalConfiguration config) throws ConfigurationException {
+        
+    }
+
+          
 
     protected Log getLog() {
         return logger;
@@ -494,9 +493,6 @@ public class AvalonProtocolServer extends AbstractHandlerFactory
             serviceManager = new DefaultServiceManager();
         }
        
-        // parse configuration
-        configure();
-
 
         
         if (!isEnabled()) {

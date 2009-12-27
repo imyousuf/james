@@ -34,15 +34,10 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
     private static final String DISPLAY_NAME = "matcher";
     private final String MATCHER_PACKAGE = "matcherpackage";
 
-    
-    @PostConstruct
-    public void init() throws Exception {
-        super.init();
-    }
-    
-    
-    /**
-     * @see org.apache.james.transport.AbstractLoader#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration conf) throws ConfigurationException {
            getPackages(conf,MATCHER_PACKAGE);

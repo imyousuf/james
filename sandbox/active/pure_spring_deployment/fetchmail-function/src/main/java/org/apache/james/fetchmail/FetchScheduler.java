@@ -31,10 +31,13 @@ import javax.annotation.Resource;
 
 import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
 import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
 
 /**
@@ -43,7 +46,7 @@ import org.apache.james.services.MailServer;
  * $Id$
  *
  */
-public class FetchScheduler implements FetchSchedulerMBean {
+public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configurable {
 
     /**
      * Configuration object for this service
@@ -97,14 +100,12 @@ public class FetchScheduler implements FetchSchedulerMBean {
         this.urepos = urepos;
     }
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public final void setLogger(Log logger) {
+    public final void setLog(Log logger) {
         this.logger = logger;
     }
     
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public final void setConfiguration(HierarchicalConfiguration config) {
+    public final void configure(HierarchicalConfiguration config) throws ConfigurationException{
         this.conf = config;
     }
     
@@ -126,11 +127,11 @@ public class FetchScheduler implements FetchSchedulerMBean {
                 Integer interval = new Integer(fetchConf.getInt("interval"));
 
                 FetchMail fetcher = new FetchMail();
-                fetcher.setConfiguration(fetchConf);
+                fetcher.setLog(logger);
+                fetcher.configure(fetchConf);
                 fetcher.setDNSService(dns);
                 fetcher.setMailServer(mailserver);
                 fetcher.setUsersRepository(urepos);
-                fetcher.setLogger(logger);
                 // avalon specific initialization
                // ContainerUtil.enableLogging(fetcher,getLogger().getChildLogger(fetchTaskName));
 

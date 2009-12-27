@@ -39,6 +39,8 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.impl.jamesuser.JamesUsersRepository;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
@@ -91,7 +93,7 @@ import java.util.Vector;
  */
 @SuppressWarnings("unchecked")
 public class James
-    implements MailServer, MailetContext {
+    implements MailServer, MailetContext, LogEnabled, Configurable {
 
     /**
      * The software name and version
@@ -106,7 +108,7 @@ public class James
     /**
      * The logger used by the Mailet API.
      */
-    private Log mailetLogger = null;
+    //private Log mailetLogger = null;
 
     /**
      * The mail store containing the inbox repository and the spool.
@@ -201,22 +203,15 @@ public class James
         this.dns = dns;
     }
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public final void setLogger(Log logger) {
+    public final void setLog(Log logger) {
         this.logger = logger;
     }
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public final void setConfiguration(HierarchicalConfiguration config) {
-        this.conf = config;
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        this.conf = (HierarchicalConfiguration)config;
     }
     
-    
-    @Resource(name="org.apache.commons.logging.Log@MailetLog")
-    public final void setMailetLogger(Log mailetLogger) {
-        this.mailetLogger = mailetLogger;
-    }
-    
+  
     
     @PostConstruct
     public void init() throws Exception {
@@ -867,7 +862,7 @@ public class James
      * @return the logger for the Mailet API
      */
     private Log getMailetLogger() {
-        return mailetLogger;
+        return logger;
     }
 
     /**

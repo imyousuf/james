@@ -30,39 +30,32 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.lifecycle.Configurable;
 
 
 /**
  * Mimic the old behavoir of JAMES
  */
-public class XMLDomainList extends AbstractDomainList {
+public class XMLDomainList extends AbstractDomainList implements Configurable{
     
     private List<String> domainNames = null;
     
     private boolean managementDisabled = false;
-
-    private HierarchicalConfiguration configuration;
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
-        this.configuration = configuration;
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+		List<String> serverNameConfs = config.getList( "domainnames.domainname" );
+        for ( int i = 0; i < serverNameConfs.size(); i++ ) {
+            addDomainInternal( serverNameConfs.get(i));
+        }
+        setAutoDetect(config.getBoolean("autodetect", true));    
+        setAutoDetectIP(config.getBoolean("autodetectIP", true));    
     }
-    
-    
-    @PostConstruct
-    public void init() throws Exception {
-        configure();
-    }
-    
-    @SuppressWarnings("unchecked")
-    protected void configure() throws ConfigurationException {
-         List<String> serverNameConfs = configuration.getList( "domainnames.domainname" );
-         for ( int i = 0; i < serverNameConfs.size(); i++ ) {
-             addDomainInternal( serverNameConfs.get(i));
-         }
-         setAutoDetect(configuration.getBoolean("autodetect", true));    
-         setAutoDetectIP(configuration.getBoolean("autodetectIP", true));    
-    }
+   
+   
     
     
     /**

@@ -26,9 +26,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,7 +73,7 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
     /** Loads instances */
     private LoaderService loader;
 
-    protected Configuration commonsConf;
+    protected HierarchicalConfiguration commonsConf;
     
     
     /**
@@ -125,7 +124,7 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
      * @throws ConfigurationException Get thrown on error
      */
     protected void loadClass(ClassLoader classLoader, String className,
-            org.apache.commons.configuration.Configuration config) throws Exception {
+            org.apache.commons.configuration.HierarchicalConfiguration config) throws Exception {
         final Class<?> handlerClass = classLoader.loadClass(className);
         Object handler = loader.load(handlerClass);
 
@@ -148,7 +147,7 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
             for (Iterator<String> i = c.iterator(); i.hasNext(); ) {
                 String cName = i.next();
 
-                Configuration cmdConf = addHandler(cName);
+                HierarchicalConfiguration cmdConf = addHandler(cName);
 
                 loadClass(classLoader, cName, cmdConf);
             }
@@ -171,8 +170,8 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
      * @return DefaultConfiguration
      * @throws ConfigurationException 
      */
-    protected Configuration addHandler(String className) throws ConfigurationException {
-        Configuration hConf = new BaseConfiguration();
+    protected HierarchicalConfiguration addHandler(String className) throws ConfigurationException {
+    	HierarchicalConfiguration hConf = new DefaultConfigurationBuilder();
         hConf.addProperty("handler/@class", className);
         return hConf;
     }
@@ -203,7 +202,7 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
     protected void loadHandlers() throws Exception {
         if (commonsConf != null && commonsConf instanceof HierarchicalConfiguration) {
             
-            List<org.apache.commons.configuration.Configuration> children = ((HierarchicalConfiguration) commonsConf).configurationsAt("handler");
+            List<org.apache.commons.configuration.HierarchicalConfiguration> children = ((HierarchicalConfiguration) commonsConf).configurationsAt("handler");
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
             String coreCmdName = commonsConf.getString("[@coreHandlersPackage]");
@@ -215,7 +214,7 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
             if (children != null && children.isEmpty() == false) {
 
                 for (int i = 0; i < children.size(); i++) {
-                    org.apache.commons.configuration.Configuration hConf = children.get(i);
+                    org.apache.commons.configuration.HierarchicalConfiguration hConf = children.get(i);
                     String className = hConf.getString("[@class]");
 
                     if (className != null) {
@@ -237,7 +236,7 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
      * 
      * @param commonsConf
      */
-    public void configure(Configuration commonsConf) throws ConfigurationException {
+    public void configure(HierarchicalConfiguration commonsConf) throws ConfigurationException {
         this.commonsConf =  commonsConf;
         try {
             loadHandlers();

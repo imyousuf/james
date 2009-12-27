@@ -93,8 +93,6 @@ public class UsersFileRepository
     @PostConstruct
     public void init()
         throws Exception {
-        super.init();
-
         try {
             //TODO Check how to remove this!
             //prepare Configurations for object and stream repositories

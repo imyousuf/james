@@ -46,10 +46,10 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
         MockStore mockStore = new MockStore();
         File_Persistent_Stream_Repository file_Persistent_Stream_Repository = new File_Persistent_Stream_Repository();
         file_Persistent_Stream_Repository.setFileSystem(fs);
-        file_Persistent_Stream_Repository.setLogger(new SimpleLog("MockLog"));
+        file_Persistent_Stream_Repository.setLog(new SimpleLog("MockLog"));
         DefaultConfigurationBuilder defaultConfiguration2 = new DefaultConfigurationBuilder();
         defaultConfiguration2.addProperty("[@destinationURL]", "file://target/var/mr/testrepo");
-        file_Persistent_Stream_Repository.setConfiguration(defaultConfiguration2);
+        file_Persistent_Stream_Repository.configure(defaultConfiguration2);
         file_Persistent_Stream_Repository.init();
         mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
         
@@ -60,8 +60,8 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
         mr.setFileSystem(fs);
         mr.setStore(mockStore);
         mr.setDatasources(selector);
-        mr.setLogger(new SimpleLog("MockLog"));
-        mr.setConfiguration(defaultConfiguration);
+        mr.setLog(new SimpleLog("MockLog"));
+        mr.configure(defaultConfiguration);
         mr.init();
         return mr;
     }

@@ -66,12 +66,11 @@ public class JamesTest extends MailServerTestAllImplementations {
         james.setSpoolRepository(mockMailRepository);
         james.setStore(mockStore);
         james.setUsersRepository(mockUsersRepository);
-        james.setLogger(new SimpleLog("JamesLog"));
-        james.setMailetLogger(new SimpleLog("MailetLog"));
+        james.setLog(new SimpleLog("JamesLog"));
         try {
             JamesTestConfiguration conf = new JamesTestConfiguration();
             conf.init();
-            james.setConfiguration(new ConfigurationAdapter(conf));
+            james.configure(new ConfigurationAdapter(conf));
             james.init();
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,9 +82,8 @@ public class JamesTest extends MailServerTestAllImplementations {
     protected void setUp() throws Exception{
         super.setUp();
         mockUsersRepository = new MockUsersRepository();
-        mockUsersRepository.setLogger(new SimpleLog("MockLog"));
-        mockUsersRepository.setConfiguration(new DefaultConfigurationBuilder());
-        mockUsersRepository.init();
+        mockUsersRepository.setLog(new SimpleLog("MockLog"));
+        mockUsersRepository.configure(new DefaultConfigurationBuilder());
         
         usersStore = new MockUsersStore(mockUsersRepository);
         

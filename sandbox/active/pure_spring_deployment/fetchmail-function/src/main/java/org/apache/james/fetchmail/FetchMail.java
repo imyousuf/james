@@ -41,6 +41,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
 
 /**
@@ -72,7 +74,7 @@ import org.apache.james.services.MailServer;
  * <p>Creation Date: 24-May-03</p>
  * 
  */
-public class FetchMail implements Target {
+public class FetchMail implements Target, LogEnabled, Configurable {
     /**
      * Key fields for DynamicAccounts.
      */
@@ -422,7 +424,7 @@ public class FetchMail implements Target {
      * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     @SuppressWarnings("unchecked")
-    protected void configure(HierarchicalConfiguration configuration)
+    public void configure(HierarchicalConfiguration configuration)
         throws ConfigurationException
     {
         // Set any Session parameters passed in the Configuration
@@ -493,10 +495,6 @@ public class FetchMail implements Target {
         i++;
     }
     
-    @PostConstruct
-    public void init() throws Exception{
-        configure(config);
-    }
 
     /**
      * Method target triggered fetches mail for each configured account.
@@ -677,16 +675,10 @@ public class FetchMail implements Target {
         this.fieldLocalUsers = urepos;
     }
 
-    @Resource(name="org.apache.commons.logging.Log")
-    public final void setLogger(Log logger) {
+    public final void setLog(Log logger) {
         this.logger = logger;
     }
     
-
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public final void setConfiguration(HierarchicalConfiguration config) {
-        this.config = config;
-    }
 
     /**
      * Returns the accounts. Initializes if required.

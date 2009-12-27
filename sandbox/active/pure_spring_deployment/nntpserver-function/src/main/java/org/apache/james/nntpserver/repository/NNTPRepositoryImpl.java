@@ -24,6 +24,8 @@ package org.apache.james.nntpserver.repository;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.james.services.FileSystem;
@@ -53,7 +55,7 @@ import javax.annotation.Resource;
 /**
  * NNTP Repository implementation.
  */
-public class NNTPRepositoryImpl implements NNTPRepository {
+public class NNTPRepositoryImpl implements NNTPRepository, Configurable, LogEnabled {
 
     /**
      * The configuration employed by this repository
@@ -142,31 +144,8 @@ public class NNTPRepositoryImpl implements NNTPRepository {
 
     private Log logger;
 
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
-    }
-    
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
-        this.logger = logger;
-    }
-
-    /**
-     * Setter for the FileSystem dependency
-     * 
-     * @param system filesystem service
-     */
-    @Resource(name="filesystem")
-    public void setFileSystem(FileSystem system) {
-        this.fileSystem = system;
-    }
-    
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    @SuppressWarnings("unchecked")
-    private void configure() throws ConfigurationException {
         readOnly = configuration.getBoolean("readOnly", false);
         articleIDDomainSuffix = configuration.getString("articleIDDomainSuffix", "foo.bar.sho.boo");
         rootPathString = configuration.getString("rootPath", null);
@@ -204,12 +183,26 @@ public class NNTPRepositoryImpl implements NNTPRepository {
         }
         logger.debug("Repository configuration done");
     }
+    
+    public void setLog(Log logger) {
+        this.logger = logger;
+    }
+
+    /**
+     * Setter for the FileSystem dependency
+     * 
+     * @param system filesystem service
+     */
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
+    }
+    
 
     @PostConstruct
     public void init() throws Exception {
 
         logger.debug("Starting initialize");
-        configure();
         File articleIDPath = null;
 
         try {

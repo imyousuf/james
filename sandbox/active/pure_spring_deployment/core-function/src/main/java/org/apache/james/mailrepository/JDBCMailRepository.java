@@ -263,9 +263,7 @@ public class JDBCMailRepository
      * @throws Exception if an error occurs
      */
     @PostConstruct
-    public void init() throws Exception {
-        super.init();
-        
+    public void init() throws Exception {        
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".initialize()");

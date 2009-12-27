@@ -66,12 +66,6 @@ public class GuiceUsersStore
         this.store = store;
     }
     
-    // TODO: REMOVE ME!!
-    @PostConstruct
-    @Override
-    public void init() throws Exception {
-        super.init();
-    }
 
     /** 
      * Get the repository, if any, whose name corresponds to

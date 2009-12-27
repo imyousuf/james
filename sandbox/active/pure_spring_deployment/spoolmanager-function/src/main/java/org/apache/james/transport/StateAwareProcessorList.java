@@ -22,8 +22,11 @@
 package org.apache.james.transport;
 
 
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
@@ -47,9 +50,8 @@ import java.util.Map;
  * This class is responsible for creating a set of named processors and
  * directing messages to the appropriate processor (given the State of the mail)
  *
- * @version CVS $Revision: 405882 $ $Date: 2006-05-12 23:30:04 +0200 (ven, 12 mag 2006) $
  */
-public class StateAwareProcessorList implements MailProcessor, ProcessorList {
+public class StateAwareProcessorList implements MailProcessor, ProcessorList, LogEnabled, Configurable {
 
     /**
      * The map of processor names to processors
@@ -72,17 +74,11 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
     }
 
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public final void setLogger(Log logger) {
+    public final void setLog(Log logger) {
         this.logger = logger;
     }
     
-    
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public final void setConfiguration(HierarchicalConfiguration config) {
-        this.config = config;
-    }
-    
+
     @Resource(name="mailetpackages")
     public final void setMailetLoader(MailetLoader mailetLoader) {
         this.mailetLoader = mailetLoader;
@@ -275,5 +271,11 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
     public MailProcessor getProcessor(String name) {
         return (MailProcessor) processors.get(name);
     }
+
+
+	public void configure(HierarchicalConfiguration config)
+			throws org.apache.commons.configuration.ConfigurationException {
+		this.config = config;
+	}
 
 }

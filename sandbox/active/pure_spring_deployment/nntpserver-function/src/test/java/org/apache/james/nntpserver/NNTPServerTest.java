@@ -108,10 +108,10 @@ public class NNTPServerTest extends TestCase {
 			throws Exception {
 		testConfiguration.init();
 		ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
-		m_nntpServer.setConfiguration(conf);
+		m_nntpServer.configure(conf);
 		m_nntpServer.init();
 		
-		protoserver.setConfiguration(conf);
+		protoserver.configure(conf);
 		protoserver.init();
 	}
 
@@ -153,8 +153,7 @@ public class NNTPServerTest extends TestCase {
 		connectionManager = new SimpleConnectionManager();
 	    connectionManager.setThreadManager(threadManager);
 	    connectionManager.setLog(new SimpleLog("CM"));
-	    connectionManager.setConfiguration(new DefaultConfigurationBuilder());
-	    connectionManager.init();
+	    connectionManager.configure(new DefaultConfigurationBuilder());
 	                
 	    serviceManager.put(JamesConnectionManager.ROLE, connectionManager);
 	        

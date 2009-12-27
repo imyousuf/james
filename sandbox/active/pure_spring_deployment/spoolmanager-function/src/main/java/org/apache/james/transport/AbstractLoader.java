@@ -30,13 +30,15 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
 
 /**
  * Common services for loaders.
  */
-public abstract class AbstractLoader {
+public abstract class AbstractLoader implements LogEnabled, Configurable{
 
     /**
      * The list of packages that may contain Mailets or matchers
@@ -51,8 +53,6 @@ public abstract class AbstractLoader {
     private LoaderService loaderService;
 
     private Log logger;
-
-    private HierarchicalConfiguration config;
 
     
     /**
@@ -72,16 +72,10 @@ public abstract class AbstractLoader {
         this.loaderService = loaderService;
     }
 
-    @Resource(name="org.apache.commons.logging.Log")
-    public final void setLogger(Log logger) {
+    public final void setLog(Log logger) {
         this.logger = logger;
     }
     
-
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public final void setConfiguration(HierarchicalConfiguration config) {
-        this.config = config;
-    }
     /**
      * Set the MailetContext
      * 
@@ -115,13 +109,7 @@ public abstract class AbstractLoader {
         }
     }
     
-    @PostConstruct
-    public void init() throws Exception {
-        configure(config);
-    }
-        
-    protected abstract void configure(HierarchicalConfiguration arg0) throws ConfigurationException;
-    
+            
     /**
      * Gets a human readable description of the loader.
      * Used for messages.

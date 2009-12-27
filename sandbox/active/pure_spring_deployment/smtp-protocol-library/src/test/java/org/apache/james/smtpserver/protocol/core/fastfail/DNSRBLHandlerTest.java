@@ -20,24 +20,20 @@
 
 package org.apache.james.smtpserver.protocol.core.fastfail;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.mail.internet.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.smtpserver.protocol.BaseFakeDNSService;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.DNSService;
@@ -246,176 +242,7 @@ public class DNSRBLHandlerTest extends TestCase {
         boolean exception = false;
         DNSRBLHandler rbl = new DNSRBLHandler();
         try {
-            rbl.configure(new Configuration() {
-				
-				public Configuration subset(String prefix) {
-					return null;
-				}
-				
-				public void setProperty(String key, Object value) {
-					
-				}
-				
-				public boolean isEmpty() {
-					return true;
-				}
-				
-				public String[] getStringArray(String key) {
-					return null;
-				}
-				
-				public String getString(String key, String defaultValue) {
-					return null;
-				}
-				
-				public String getString(String key) {
-					return null;
-				}
-				
-				public Short getShort(String key, Short defaultValue) {
-					return null;
-				}
-				
-				public short getShort(String key, short defaultValue) {
-					return 0;
-				}
-				
-				public short getShort(String key) {
-					return 0;
-				}
-				
-				public Object getProperty(String key) {
-					return null;
-				}
-				
-				public Properties getProperties(String key) {
-					return null;
-				}
-				
-				public Long getLong(String key, Long defaultValue) {
-					return null;
-				}
-				
-				public long getLong(String key, long defaultValue) {
-					return 0;
-				}
-				
-				public long getLong(String key) {
-					return 0;
-				}
-				
-				@SuppressWarnings("unchecked")
-                public List getList(String key, List defaultValue) {
-					return null;
-				}
-				
-				@SuppressWarnings("unchecked")
-                public List getList(String key) {
-					return null;
-				}
-				
-				@SuppressWarnings("unchecked")
-                public Iterator getKeys(String prefix) {
-					return null;
-				}
-				
-				@SuppressWarnings("unchecked")
-                public Iterator getKeys() {
-					return null;
-				}
-				
-				public Integer getInteger(String key, Integer defaultValue) {
-					return null;
-				}
-				
-				public int getInt(String key, int defaultValue) {
-					return 0;
-				}
-				
-				public int getInt(String key) {
-					return 0;
-				}
-				
-				public Float getFloat(String key, Float defaultValue) {
-					return null;
-				}
-				
-				public float getFloat(String key, float defaultValue) {
-					return 0;
-				}
-				
-				public float getFloat(String key) {
-					return 0;
-				}
-				
-				public Double getDouble(String key, Double defaultValue) {
-					return null;
-				}
-				
-				public double getDouble(String key, double defaultValue) {
-					return 0;
-				}
-				
-				public double getDouble(String key) {
-					return 0;
-				}
-				
-				public Byte getByte(String key, Byte defaultValue) {
-					return null;
-				}
-				
-				public byte getByte(String key, byte defaultValue) {
-					return 0;
-				}
-				
-				public byte getByte(String key) {
-					return 0;
-				}
-				
-				public Boolean getBoolean(String key, Boolean defaultValue) {
-					return null;
-				}
-				
-				public boolean getBoolean(String key, boolean defaultValue) {
-					return false;
-				}
-				
-				public boolean getBoolean(String key) {
-					return false;
-				}
-				
-				public BigInteger getBigInteger(String key, BigInteger defaultValue) {
-					return null;
-				}
-				
-				public BigInteger getBigInteger(String key) {
-					return null;
-				}
-				
-				public BigDecimal getBigDecimal(String key, BigDecimal defaultValue) {
-					return null;
-				}
-				
-				public BigDecimal getBigDecimal(String key) {
-					return null;
-				}
-				
-				public boolean containsKey(String key) {
-					return false;
-				}
-				
-				public void clearProperty(String key) {
-					
-				}
-				
-				public void clear() {
-					
-				}
-				
-				public void addProperty(String key, Object value) {
-					
-				}
-			});
+            rbl.configure(new DefaultConfigurationBuilder()); 
         } catch (ConfigurationException e) {
             exception = true;
         }

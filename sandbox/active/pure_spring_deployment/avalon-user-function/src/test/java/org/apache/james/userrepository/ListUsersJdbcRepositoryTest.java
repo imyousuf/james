@@ -72,8 +72,8 @@ public class ListUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         DefaultConfiguration configuration = new DefaultConfiguration("test");
         configuration.setAttribute("destinationURL", "db://maildb/"+tableString);
         configuration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
-        res.setLogger(new SimpleLog("MockLog"));
-        res.setConfiguration(new ConfigurationAdapter(configuration));
+        res.setLog(new SimpleLog("MockLog"));
+        res.configure(new ConfigurationAdapter(configuration));
         
         res.init();
     }

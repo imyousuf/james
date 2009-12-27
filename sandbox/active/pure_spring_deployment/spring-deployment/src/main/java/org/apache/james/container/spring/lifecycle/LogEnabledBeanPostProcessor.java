@@ -16,25 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.container.spring.lifecycle;
 
+import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.james.lifecycle.LogEnabled;
 
-package org.apache.james.lifecycle;
+public class LogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<LogEnabled> {
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+	@Override
+	protected void executeLifecycleMethod(LogEnabled bean, String beanname,
+			String lifecyclename) throws Exception {
+		bean.setLog(new Log4JLogger(lifecyclename));
+	}
 
-/**
- * Classes which needs to access the configuration should implement this
- *
- */
-public interface Configurable {
-
-	/**
-	 * Configure
-	 * 
-	 * @param config
-	 * @throws ConfigurationException
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.core.Ordered#getOrder()
 	 */
-	public void configure(HierarchicalConfiguration config) throws ConfigurationException;
-	
+	public int getOrder() {
+		return 1;
+	}
+
+	@Override
+	protected Class<LogEnabled> getLifeCycleInterface() {
+		return LogEnabled.class;
+	}	
 }

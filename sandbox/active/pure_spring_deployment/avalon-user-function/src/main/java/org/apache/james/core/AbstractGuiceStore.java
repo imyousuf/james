@@ -25,8 +25,11 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
 import com.google.inject.AbstractModule;
@@ -39,7 +42,7 @@ import com.google.inject.name.Names;
  *
  * @param <Type>
  */
-public abstract class AbstractGuiceStore<Type> {
+public abstract class AbstractGuiceStore<Type> implements LogEnabled, Configurable{
 
     private HashMap<String,Type> objects;
     
@@ -47,8 +50,7 @@ public abstract class AbstractGuiceStore<Type> {
 
     protected HierarchicalConfiguration config;
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     
@@ -56,8 +58,7 @@ public abstract class AbstractGuiceStore<Type> {
         return logger;
     }
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration config) {
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException{
         this.config = config;
     }   
 

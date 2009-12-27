@@ -260,9 +260,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     @PostConstruct
-    public void init() throws Exception {
-        super.init();
-        
+    public void init() throws Exception {        
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             logBuffer = new StringBuffer(128).append(this.getClass().getName())

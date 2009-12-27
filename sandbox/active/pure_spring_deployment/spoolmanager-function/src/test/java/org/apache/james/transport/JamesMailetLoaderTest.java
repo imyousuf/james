@@ -67,10 +67,9 @@ public class JamesMailetLoaderTest extends TestCase {
 
     private void setUpLoader() throws Exception {
         m_conf.init();
-        m_jamesMailetLoader.setLogger(new SimpleLog("Test"));
-        m_jamesMailetLoader.setConfiguration(new ConfigurationAdapter(m_conf));
+        m_jamesMailetLoader.setLog(new SimpleLog("Test"));
+        m_jamesMailetLoader.configure(new ConfigurationAdapter(m_conf));
         m_jamesMailetLoader.setLoaderService(new FakeLoaderService());
-        m_jamesMailetLoader.init();
     }
 
     private void assetIsNullMailet(Mailet mailet) {

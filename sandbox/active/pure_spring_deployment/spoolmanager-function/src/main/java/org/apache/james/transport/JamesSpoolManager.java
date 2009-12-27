@@ -35,6 +35,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.SpoolManager;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
@@ -49,7 +51,7 @@ import org.apache.mailet.MatcherConfig;
  *
  * @version CVS $Revision$ $Date$
  */
-public class JamesSpoolManager implements Runnable, SpoolManager {
+public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Configurable {
 
     /**
      * The spool that this manager will process
@@ -120,18 +122,13 @@ public class JamesSpoolManager implements Runnable, SpoolManager {
         this.loaderService = service;
     }
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public final void setLogger(Log logger) {
+    public final void setLog(Log logger) {
         this.logger = logger;
     }
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public final void setConfiguration(HierarchicalConfiguration config) {
-        this.config = config;
-    }
     
     
-    protected void configure(HierarchicalConfiguration config) throws ConfigurationException {
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         numThreads = config.getInt("threads",1);
 
         String processorClass = config.getString("processorClass","org.apache.james.transport.StateAwareProcessorList");
@@ -151,7 +148,6 @@ public class JamesSpoolManager implements Runnable, SpoolManager {
     @PostConstruct
     public void init() throws Exception {
         logger.info("JamesSpoolManager init...");
-        configure(config);
         ContainerUtil.initialize(processorList);
 
         if (logger.isInfoEnabled()) {

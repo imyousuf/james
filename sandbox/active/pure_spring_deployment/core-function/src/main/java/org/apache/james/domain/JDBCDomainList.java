@@ -37,6 +37,7 @@ import javax.annotation.Resource;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.services.FileSystem;
@@ -69,9 +70,8 @@ public class JDBCDomainList extends AbstractDomainList {
     
     private HierarchicalConfiguration configuration;
 
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
-        this.configuration = configuration;
+    public void configure(Configuration configuration) throws ConfigurationException{
+        this.configuration = (HierarchicalConfiguration)configuration;
     }
 
     public void setDataSourceComponent(DataSourceComponent dataSourceComponent) {

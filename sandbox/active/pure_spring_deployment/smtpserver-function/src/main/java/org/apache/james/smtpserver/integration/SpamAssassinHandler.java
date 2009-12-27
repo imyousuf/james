@@ -25,8 +25,8 @@ import java.util.Iterator;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -70,10 +70,11 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
 
     private boolean checkAuthNetworks = false;
 
-    /**
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(Configuration config) throws ConfigurationException {
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         setSpamdHost(config.getString("spamdHost","localhost"));
         setSpamdPort(config.getInt("spamdPort",783));
         setSpamdRejectionHits(config.getDouble("spamdRejectionHits", 0.0));

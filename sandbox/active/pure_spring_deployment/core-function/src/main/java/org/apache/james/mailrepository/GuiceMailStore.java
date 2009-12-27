@@ -30,12 +30,14 @@ import javax.annotation.Resource;
 
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.configuration.CombinedConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.guiceyfruit.jsr250.Jsr250Module;
 
@@ -49,7 +51,7 @@ import com.google.inject.name.Names;
  *
  */
 public class GuiceMailStore
-    implements Store {
+    implements Store, LogEnabled, Configurable {
 
     // Prefix for repository names
     private static final String REPOSITORY_NAME = "Repository";
@@ -85,8 +87,7 @@ public class GuiceMailStore
     }
 
 
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     
@@ -94,8 +95,7 @@ public class GuiceMailStore
         return logger;
     }
       
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
     }
     

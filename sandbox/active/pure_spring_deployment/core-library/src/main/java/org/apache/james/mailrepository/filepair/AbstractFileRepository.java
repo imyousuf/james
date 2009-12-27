@@ -26,6 +26,8 @@ import org.apache.avalon.cornerstone.services.store.Repository;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.io.ExtensionFileFilter;
 
@@ -49,7 +51,7 @@ import javax.annotation.Resource;
  *
  */
 public abstract class AbstractFileRepository
-    implements Repository {
+    implements Repository, Configurable, LogEnabled {
     protected static final boolean DEBUG = false;
 
     protected static final String HANDLED_URL = "file://";
@@ -69,13 +71,13 @@ public abstract class AbstractFileRepository
     private FileSystem fileSystem;
 
     private Log logger;
-
-    private HierarchicalConfiguration configuration;
-
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
-        this.configuration = configuration;
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{        
+        if( null == m_destination )
+        {
+            final String destination = configuration.getString( "[@destinationURL]" );
+            setDestination( destination );
+        }
     }
     
     
@@ -85,8 +87,7 @@ public abstract class AbstractFileRepository
     }
     
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     
@@ -98,24 +99,12 @@ public abstract class AbstractFileRepository
     protected abstract String getExtensionDecorator();
 
 
-
-    protected void doConfigure( final HierarchicalConfiguration configuration )
-        throws ConfigurationException
-    {
-        if( null == m_destination )
-        {
-            final String destination = configuration.getString( "[@destinationURL]" );
-            setDestination( destination );
-        }
-    }
-
     @PostConstruct
     public void init()
         throws Exception
     {
         getLogger().info( "Init " + getClass().getName() + " Store" );
 
-        doConfigure(configuration);
         try {
             m_baseDirectory = fileSystem.getBasedir();
         } catch (FileNotFoundException e) {
@@ -243,7 +232,7 @@ public abstract class AbstractFileRepository
         }
 
         child.setFileSystem(fileSystem);
-        child.setLogger(logger);
+        child.setLog(logger);
 
         try
         {

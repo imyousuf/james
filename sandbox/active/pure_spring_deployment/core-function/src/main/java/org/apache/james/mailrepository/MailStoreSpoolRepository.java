@@ -22,8 +22,11 @@
 package org.apache.james.mailrepository;
 
 import org.apache.avalon.cornerstone.services.store.Store;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
@@ -46,7 +49,7 @@ import java.util.Iterator;
  *
  * @version This is $Revision: 165416 $
  */
-public class MailStoreSpoolRepository implements SpoolRepository {
+public class MailStoreSpoolRepository implements SpoolRepository, LogEnabled, Configurable {
 
     /**
      * The wrapped spoolRepository
@@ -66,13 +69,11 @@ public class MailStoreSpoolRepository implements SpoolRepository {
     private Log logger;
 
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
     }
     

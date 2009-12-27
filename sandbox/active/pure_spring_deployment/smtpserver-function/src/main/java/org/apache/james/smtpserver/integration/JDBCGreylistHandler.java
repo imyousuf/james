@@ -38,8 +38,8 @@ import javax.annotation.Resource;
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
@@ -208,7 +208,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#configure(org.apache.commons.configuration.Configuration)
      */
     @SuppressWarnings("unchecked")
-	public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+	public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
 	    try {
             setTempBlockTime(handlerConfiguration.getString("tempBlockTime"));
         } catch (NumberFormatException e) {

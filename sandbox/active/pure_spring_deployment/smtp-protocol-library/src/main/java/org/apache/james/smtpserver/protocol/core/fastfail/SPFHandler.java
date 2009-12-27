@@ -21,8 +21,8 @@
 
 package org.apache.james.smtpserver.protocol.core.fastfail;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.dsn.DSNStatus;
@@ -92,10 +92,12 @@ public class SPFHandler implements LogEnabled, MailHook, RcptHook, Configurable 
         this.serviceLog = log;
     }
 
-    /**
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(Configuration handlerConfiguration)
+    public void configure(HierarchicalConfiguration handlerConfiguration)
             throws ConfigurationException {
         setBlockSoftFail(handlerConfiguration.getBoolean( "blockSoftFail", false));
         setBlockPermError(handlerConfiguration.getBoolean("blockPermError", true));
