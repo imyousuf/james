@@ -34,7 +34,7 @@ public class AvalonLogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPost
 	@Override
 	protected void executeLifecycleMethodBeforeInit(LogEnabled bean,
 			String beanname, String lifecyclename) throws Exception {
-		bean.enableLogging(new CommonsLogger(provider.getComponentLog(lifecyclename),lifecyclename));
+		bean.enableLogging(new CommonsLogger(provider.getLogForComponent(lifecyclename),lifecyclename));
 	}
 
 	@Override
