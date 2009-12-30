@@ -19,44 +19,23 @@
 package org.apache.james.container.spring.lifecycle;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.james.container.spring.ConfigurationProvider;
 import org.apache.james.lifecycle.Configurable;
-import org.springframework.context.ResourceLoaderAware;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 
-public class ConfigurationBeanPostProcessor extends
-		AbstractLifeCycleBeanPostProcessor<Configurable> implements
-		ResourceLoaderAware {
+/**
+ * Inject Commons Configuration to beans which implement the Configurable interface
+ * 
+ *
+ */
+public class CommonsConfigurableBeanPostProcessor extends
+		AbstractLifeCycleBeanPostProcessor<Configurable> {
 
-	private XMLConfiguration config;
-	private String configFile;
-	private ResourceLoader loader;
-
-	public void setConfigFile(String configFile) {
-		this.configFile = configFile;
-	}
-
-	public void init() {
-		Resource resource = loader.getResource(configFile);
-		if (!resource.exists()) {
-			throw new RuntimeException("could not locate configuration file "
-					+ configFile);
-		}
-		try {
-			config = new XMLConfiguration();
-			config.setDelimiterParsingDisabled(true);
-			config.load(resource.getFile());
-		} catch (Exception e1) {
-			throw new RuntimeException("could not open configuration file "
-					+ configFile, e1);
-		}
-	}
-
+	private ConfigurationProvider provider;
+	
 	@Override
-	protected void executeLifecycleMethod(Configurable bean, String beanname,
+	protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname,
 			String lifecyclename) throws Exception {
-		HierarchicalConfiguration beanConfig = config.configurationAt(lifecyclename);
+		HierarchicalConfiguration beanConfig = provider.getConfigurationForComponent(lifecyclename);
 		bean.configure(beanConfig);
 	}
 
@@ -69,15 +48,9 @@ public class ConfigurationBeanPostProcessor extends
 		return 2;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.context.ResourceLoaderAware#setResourceLoader(org
-	 * .springframework.core.io.ResourceLoader)
-	 */
-	public void setResourceLoader(ResourceLoader loader) {
-		this.loader = loader;
+
+	public void setConfigurationProvider(ConfigurationProvider provider) {
+		this.provider = provider;
 	}
 
 	@Override

@@ -18,7 +18,8 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
-import org.apache.james.container.spring.beanfactory.JamesApplicationContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Bootstraps James using a Spring container
@@ -26,7 +27,11 @@ import org.apache.james.container.spring.beanfactory.JamesApplicationContext;
 public class Main {    
 
     public static void main(String[] args) {
-        JamesApplicationContext.newJamesApplicationContext();
+        //JamesApplicationContext.newJamesApplicationContext();
+    	
+    	ApplicationContext context = new ClassPathXmlApplicationContext(
+    	        new String[] {"spring-beans.xml"});
+
     }
 
 }

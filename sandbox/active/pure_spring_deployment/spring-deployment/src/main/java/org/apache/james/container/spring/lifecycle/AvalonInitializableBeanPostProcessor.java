@@ -16,29 +16,31 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.pop3server;
+package org.apache.james.container.spring.lifecycle;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.avalon.framework.activity.Initializable;
 
-public class AvalonPOP3ServerTest extends POP3ServerTest{
+/**
+ * Init bean which implement Avalon Initilizable
+ * 
+ *
+ */
+public class AvalonInitializableBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<Initializable>{
 
-    private AvalonPOP3Server m_pop3Server;
-    @Override
-    protected void setUp() throws Exception {
-        m_pop3Server = new AvalonPOP3Server();
-        setUpServiceManager();
-        ContainerUtil.enableLogging(m_pop3Server, new MockLogger());
-        ContainerUtil.service(m_pop3Server, serviceManager);
-        m_testConfiguration = new POP3TestConfiguration(m_pop3ListenerPort);
-    }
 
-    @Override
-    protected void finishSetUp(POP3TestConfiguration testConfiguration)
-            throws Exception {
-        testConfiguration.init();
-        ContainerUtil.configure(m_pop3Server, testConfiguration);
-        ContainerUtil.initialize(m_pop3Server);
-    }
+	@Override
+	protected void executeLifecycleMethodAfterInit(Initializable bean,
+			String beanname, String lifecyclename) throws Exception {
+		bean.initialize();
+	}
+
+	@Override
+	protected Class<Initializable> getLifeCycleInterface() {
+		return Initializable.class;
+	}
+
+	public int getOrder() {
+		return 4;
+	}
 
 }

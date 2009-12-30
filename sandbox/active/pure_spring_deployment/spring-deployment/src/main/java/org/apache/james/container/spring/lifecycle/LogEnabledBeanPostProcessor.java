@@ -18,15 +18,22 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
-import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.james.container.spring.LogProvider;
 import org.apache.james.lifecycle.LogEnabled;
 
+/**
+ * Inject Commons Log to beans which implement LogEnabled
+ * 
+ *
+ */
 public class LogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<LogEnabled> {
 
+	private LogProvider provider;
+
 	@Override
-	protected void executeLifecycleMethod(LogEnabled bean, String beanname,
+	protected void executeLifecycleMethodBeforeInit(LogEnabled bean, String beanname,
 			String lifecyclename) throws Exception {
-		bean.setLog(new Log4JLogger(lifecyclename));
+		bean.setLog(provider.getLogForComponent(lifecyclename));
 	}
 
 	/*
@@ -41,4 +48,8 @@ public class LogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProces
 	protected Class<LogEnabled> getLifeCycleInterface() {
 		return LogEnabled.class;
 	}	
+	
+	public void setLogProvider(LogProvider provider) {
+		this.provider = provider;
+	}
 }

@@ -16,35 +16,24 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver;
+package org.apache.james.container.spring;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.kernel.mock.FakeLoader;
-import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 
-public class AvalonSMTPServerTest extends SMTPServerTest{
+/**
+ * Provide Configuration for Components
+ * 
+ *
+ */
+public interface ConfigurationProvider {
 
-    private AvalonSMTPServer smtpserver; 
-    
-    @Override
-    protected void finishSetUp(SMTPTestConfiguration testConfiguration)
-            throws Exception {
-        testConfiguration.init();
-        ContainerUtil.configure(smtpserver, testConfiguration);
-        ContainerUtil.initialize(smtpserver);
-        m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
-
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        FakeLoader loader = setUpServiceManager();
-        smtpserver = new AvalonSMTPServer();
-        ContainerUtil.enableLogging(smtpserver, new MockLogger());
-        ContainerUtil.service(smtpserver, loader);
-        m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
-
-    }
-    
-
+	/**
+	 * Return the Configuration of the Component with the given name
+	 * 
+	 * @param name the name of the Component
+	 * @return config the Configuration for the Component
+	 * @throws ConfigurationException 
+	 */
+	public HierarchicalConfiguration getConfigurationForComponent(String name) throws ConfigurationException;
 }

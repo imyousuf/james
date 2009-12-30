@@ -16,28 +16,22 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.remotemanager;
+package org.apache.james.container.spring;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.commons.logging.Log;
 
-public class AvalonRemoteManagerTest extends RemoteManagerTest{
+/**
+ * Provide a Log for a Component
+ * 
+ *
+ */
+public interface LogProvider {
 
-    private AvalonRemoteManager server;
-    @Override
-    protected void setUp() throws Exception {
-        server = new AvalonRemoteManager();
-        setUpServiceManager();
-        ContainerUtil.enableLogging(server, new MockLogger());
-        ContainerUtil.service(server, serviceManager);
-        m_testConfiguration = new RemoteManagerTestConfiguration(m_remoteManagerListenerPort);
-    }
-
-    @Override
-    protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration)
-            throws Exception {
-        testConfiguration.init();
-        ContainerUtil.configure(server, testConfiguration);
-        ContainerUtil.initialize(server);
-    }
+	/**
+	 * Return the Log object which should get used for the Component with the given name
+	 * 
+	 * @param componentname
+	 * @return log
+	 */
+	public Log getLogForComponent(String componentname);
 }

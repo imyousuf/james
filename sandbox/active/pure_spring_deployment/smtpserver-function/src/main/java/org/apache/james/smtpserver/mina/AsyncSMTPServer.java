@@ -107,13 +107,6 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 
     private boolean addressBracketsEnforcement = true;
 
-
-    // this is only needed because of an bug in guiceyfruit
-    // http://code.google.com/p/guiceyfruit/issues/detail?id=28
-    @PostConstruct
-    public void init() throws Exception {
-        super.init();
-    }
     
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {

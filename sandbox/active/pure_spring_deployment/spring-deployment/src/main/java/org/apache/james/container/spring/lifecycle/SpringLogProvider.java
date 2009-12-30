@@ -16,36 +16,25 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver;
+package org.apache.james.container.spring.lifecycle;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.api.kernel.mock.FakeLoader;
-import org.apache.james.smtpserver.mina.AvalonAsyncSMTPServer;
-import org.apache.james.test.mock.avalon.MockLogger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.james.container.spring.LogProvider;
 
-public class AvalonAsyncSMTPServerTest extends AsyncSMTPServerTest{
+/**
+ * Provide a Log object for components
+ * 
+ *
+ */
+public class SpringLogProvider implements LogProvider{
 
-    private AvalonAsyncSMTPServer smtpserver; 
-    
-    @Override
-    protected void finishSetUp(SMTPTestConfiguration testConfiguration)
-            throws Exception {
-        testConfiguration.init();
-        ContainerUtil.configure(smtpserver, testConfiguration);
-        ContainerUtil.initialize(smtpserver);
-        m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.container.spring.LogProvider#getLogForComponent(java.lang.String)
+	 */
+	public Log getLogForComponent(String componentname) {
+		return new Log4JLogger(componentname);
+	}
 
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        FakeLoader loader = setUpServiceManager();
-        smtpserver = new AvalonAsyncSMTPServer();
-        ContainerUtil.enableLogging(smtpserver, new MockLogger());
-        ContainerUtil.service(smtpserver, loader);
-        m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
-
-    }
-    
-    
 }

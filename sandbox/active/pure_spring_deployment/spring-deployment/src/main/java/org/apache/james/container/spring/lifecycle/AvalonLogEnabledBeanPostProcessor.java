@@ -1,3 +1,9 @@
+package org.apache.james.container.spring.lifecycle;
+
+import org.apache.avalon.framework.logger.CommonsLogger;
+import org.apache.avalon.framework.logger.LogEnabled;
+import org.apache.james.container.spring.LogProvider;
+
 /****************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one   *
  * or more contributor license agreements.  See the NOTICE file *
@@ -16,38 +22,31 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.nntpserver;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.james.test.mock.avalon.MockLogger;
+/**
+ * Inject Avalon Logger to beans which implement LogEnabled interface
+ */
+public class AvalonLogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<LogEnabled>{
 
-public class AvalonNNTPServerTest extends NNTPServerTest{
+	
+	private LogProvider provider;
 
-    private AvalonNNTPServer server;
-    @Override
-    protected void setUp() throws Exception {
-        server = new AvalonNNTPServer();
-        setUpServiceManager();
-        ContainerUtil.enableLogging(server, new MockLogger());
-        ContainerUtil.service(server, serviceManager);
-        m_testConfiguration = new NNTPTestConfiguration(m_nntpListenerPort);
-    }
+	@Override
+	protected void executeLifecycleMethodBeforeInit(LogEnabled bean,
+			String beanname, String lifecyclename) throws Exception {
+		bean.enableLogging(new CommonsLogger(provider.getComponentLog(lifecyclename),lifecyclename));
+	}
 
-    @Override
-    protected void finishSetUp(NNTPTestConfiguration testConfiguration)
-            throws Exception {
-        testConfiguration.init();
-        ContainerUtil.configure(server, testConfiguration);
-        ContainerUtil.initialize(server);
-    }
-    
-    protected void tearDown() throws Exception {
-        if (m_nntpProtocol != null) {
-            m_nntpProtocol.sendCommand("quit");
-            m_nntpProtocol.disconnect();
-        }
-        
-        ContainerUtil.dispose(m_mailServer);
-    }
+	@Override
+	protected Class<LogEnabled> getLifeCycleInterface() {
+		return LogEnabled.class;
+	}
 
+	public int getOrder() {
+		return 1;
+	}
+
+	public void setLogProvider(LogProvider provider) {
+		this.provider = provider;
+	}
 }
