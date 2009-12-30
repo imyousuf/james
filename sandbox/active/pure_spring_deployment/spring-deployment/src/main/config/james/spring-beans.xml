@@ -117,7 +117,6 @@
 
 	<bean
 		class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
-		<property name="order" value="4" />
 	</bean>
 
 	<bean
