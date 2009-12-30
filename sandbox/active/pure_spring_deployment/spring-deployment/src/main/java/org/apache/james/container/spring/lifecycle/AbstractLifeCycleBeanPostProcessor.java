@@ -25,6 +25,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
 
 /**
  * Abstract base class which BeanPostProcessors should extend if they provide an LifeCycle handling
@@ -32,9 +33,10 @@ import org.springframework.core.Ordered;
  *
  * @param <T>
  */
-public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostProcessor, Ordered{
+public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostProcessor, PriorityOrdered{
 
 	private Map<String, String> mappings = new HashMap<String, String>();
+	private int order = Ordered.HIGHEST_PRECEDENCE;
 
 	public void setMappings(Map<String,String> mappings) {
 		this.mappings = mappings;
@@ -107,6 +109,19 @@ public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostP
 		String newname = mappings.get(name);
 		if (newname == null) newname = name;
 		return newname;
+	}
+	
+	
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.core.Ordered#getOrder()
+	 */
+	public int getOrder() {
+		return order;
 	}
 	
 }

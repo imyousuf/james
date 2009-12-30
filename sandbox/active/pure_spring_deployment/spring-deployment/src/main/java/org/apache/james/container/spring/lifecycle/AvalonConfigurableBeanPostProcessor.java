@@ -22,10 +22,8 @@ import java.io.ByteArrayInputStream;
 
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.configuration.ConfigurationUtils;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.container.spring.ConfigurationProvider;
+
+import org.apache.james.container.spring.AvalonConfigurationProvider;
 
 /**
  * Inject Avalon Configuration to beans which implement Configurable 
@@ -33,15 +31,12 @@ import org.apache.james.container.spring.ConfigurationProvider;
  */
 public class AvalonConfigurableBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<Configurable>{
 
-	private ConfigurationProvider provider;
+	private AvalonConfigurationProvider provider;
 
 	@Override
 	protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname,
 			String lifecyclename) throws Exception {
-		HierarchicalConfiguration config = provider.getConfigurationForComponent(lifecyclename);
-		DefaultConfigurationBuilder confBuilder = new DefaultConfigurationBuilder();
-		
-		Configuration avalonConf = confBuilder.build(new ByteArrayInputStream(ConfigurationUtils.toString(config).getBytes()));
+		Configuration avalonConf = provider.getAvalonConfigurationForComponent(lifecyclename);
 		bean.configure(avalonConf);
 	}
 
@@ -49,12 +44,9 @@ public class AvalonConfigurableBeanPostProcessor extends AbstractLifeCycleBeanPo
 	protected Class<Configurable> getLifeCycleInterface() {
 		return Configurable.class;
 	}
-
-	public int getOrder() {
-		return 2;
-	}
-
-	public void setConfigurationProvider(ConfigurationProvider provider) {
+	
+	public void setConfigurationProvider(AvalonConfigurationProvider provider) {
 		this.provider = provider;
 	}
+
 }

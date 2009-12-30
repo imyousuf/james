@@ -42,9 +42,6 @@ public class AvalonLogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPost
 		return LogEnabled.class;
 	}
 
-	public int getOrder() {
-		return 1;
-	}
 
 	public void setLogProvider(LogProvider provider) {
 		this.provider = provider;

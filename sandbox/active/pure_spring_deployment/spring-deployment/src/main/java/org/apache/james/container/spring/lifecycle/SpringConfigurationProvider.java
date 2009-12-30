@@ -18,9 +18,12 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.james.container.spring.AvalonConfigurationProvider;
 import org.apache.james.container.spring.ConfigurationProvider;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
@@ -31,12 +34,13 @@ import org.springframework.core.io.ResourceLoader;
  * 
  *
  */
-public class SpringConfigurationProvider implements ConfigurationProvider, ResourceLoaderAware{
+public class SpringConfigurationProvider implements ConfigurationProvider, AvalonConfigurationProvider, ResourceLoaderAware{
 
 	private ResourceLoader loader;
 	private String configFile;
 	private XMLConfiguration config;
-
+	private Configuration avalonConfig;
+	
 	public void setConfigurationResource(String configFile) {
 		this.configFile = configFile;
 	}
@@ -51,6 +55,8 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
 			config = new XMLConfiguration();
 			config.setDelimiterParsingDisabled(true);
 			config.load(resource.getFile());
+			
+			avalonConfig = new DefaultConfigurationBuilder().buildFromFile(resource.getFile());
 		} catch (Exception e1) {
 			throw new RuntimeException("could not open configuration file "
 					+ configFile, e1);
@@ -73,6 +79,15 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
 	 */
 	public void setResourceLoader(ResourceLoader loader) {
 		this.loader = loader;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.container.spring.AvalonConfigurationProvider#getAvalonConfigurationForComponent(java.lang.String)
+	 */
+	public Configuration getAvalonConfigurationForComponent(String name)
+			throws org.apache.avalon.framework.configuration.ConfigurationException {
+		return avalonConfig.getChild(name);
 	}
 
 }

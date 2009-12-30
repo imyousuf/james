@@ -33,15 +33,8 @@ public class LogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProces
 	@Override
 	protected void executeLifecycleMethodBeforeInit(LogEnabled bean, String beanname,
 			String lifecyclename) throws Exception {
+		System.out.println("comp=" + lifecyclename + " log=" + provider.getLogForComponent(lifecyclename));
 		bean.setLog(provider.getLogForComponent(lifecyclename));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.core.Ordered#getOrder()
-	 */
-	public int getOrder() {
-		return 1;
 	}
 
 	@Override

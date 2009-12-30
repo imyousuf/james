@@ -39,14 +39,6 @@ public class CommonsConfigurableBeanPostProcessor extends
 		bean.configure(beanConfig);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.springframework.core.Ordered#getOrder()
-	 */
-	public int getOrder() {
-		return 2;
-	}
 
 
 	public void setConfigurationProvider(ConfigurationProvider provider) {

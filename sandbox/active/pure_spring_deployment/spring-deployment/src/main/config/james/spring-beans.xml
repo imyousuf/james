@@ -115,50 +115,62 @@
 
 
 
-	<bean
-		class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
+	<bean class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
+		<property name="order" value="2" />
+		<property name="beanRoleMap">
+    		<map>
+        		<entry>
+            		<key>
+                		<value>org.apache.avalon.cornerstone.services.threads.ThreadManager</value>
+            		</key>
+            		<value>thread-manager</value>
+        		</entry>
+    		</map>
+  		</property>	
 	</bean>
 
-	<bean
-		class="org.apache.james.container.spring.lifecycle.AvalonInitializableBeanPostProcessor">
+	<bean class="org.apache.james.container.spring.lifecycle.AvalonInitializableBeanPostProcessor">
+		<property name="order" value="4" />
 	</bean>
 
-	<bean
-		class="org.apache.james.container.spring.lifecycle.AvalonConfigurableBeanPostProcessor">
+	<bean class="org.apache.james.container.spring.lifecycle.AvalonConfigurableBeanPostProcessor">
 		<property name="configurationProvider" ref="configurationProvider" />
+		<property name="order" value="1" />	
 	</bean>
 
 	<bean
 		class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
 		<property name="configurationProvider" ref="configurationProvider" />
+		<property name="order" value="1" />	
 	</bean>
 
-	<bean id="configurationProvider"
-		class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider"
-		init-method="init">
+	<bean id="configurationProvider" class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider" init-method="init">
 		<property name="configurationResource" value="classpath:james-config.xml" />
 	</bean>
 
 	<bean
 		class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
 		<property name="logProvider" ref="logProvider" />
+		<property name="order" value="0" />	
 	</bean>
 
 	<bean
 		class="org.apache.james.container.spring.lifecycle.AvalonLogEnabledBeanPostProcessor">
 		<property name="logProvider" ref="logProvider" />
+		<property name="order" value="0" />	
 	</bean>
 
-	<bean id="logProvider"
-		class="org.apache.james.container.spring.lifecycle.SpringLogProvider" />
+	<bean id="logProvider" class="org.apache.james.container.spring.lifecycle.SpringLogProvider" />
+	
 
-	<bean
-		class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
+	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" >
+		<property name="order" value="3" />	
+	</bean>
 
 	<bean id="James" class="org.apache.james.James" />
 
 	<!-- The James Spool Manager block  -->
-	<bean id="spoolmanager" class="org.apache.james.transport.AvalonJamesSpoolManager" />
+	<bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" />
 
 	<bean id="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" />
 
@@ -209,14 +221,14 @@
 	<bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 
 	<!-- The High Level Storage block -->
-	<bean id="mailstore" class="org.apache.james.mailrepository.MailStore" />
+	<bean id="mailstore" class="org.apache.james.mailrepository.GuiceMailStore" />
 
 	<!-- The main SpoolRepository -->
 	<bean id="spoolrepository"
 		class="org.apache.james.mailrepository.MailStoreSpoolRepository" />
 
 	<!-- The User Storage block -->
-	<bean id="users-store" class="org.apache.james.core.UsersStore" />
+	<bean id="users-store" class="org.apache.james.core.GuiceUsersStore" />
 
 	<!--
 		This is needed to link the smtpserver to the local user repository
@@ -243,21 +255,21 @@
 	<bean id="virtualusertablemanagement" class="org.apache.james.impl.vut.VirtualUserTableManagement" />
 
 	<!-- VirtualUserTable Store -->
-	<bean id="virtualusertable-store" class="org.apache.james.core.VirtualUserTableStore" />
+	<bean id="virtualusertable-store" class="org.apache.james.core.GuiceVirtualUserTableStore" />
 
 
-	<bean id="defaultvirtualusertable" class="org.apache.james.impl.vut.AvalonDefaultVirtualUserTable" />
+	<bean id="defaultvirtualusertable" class="org.apache.james.impl.vut.DefaultVirtualUserTable" />
 
 	<!--
 		########################################################################
 	-->
 	<!-- The context domainlist implementation -->
-	<bean id="domainlist" class="org.apache.james.domain.AvalonXMLDomainList" />
+	<bean id="domainlist" class="org.apache.james.domain.XMLDomainList" />
 
 	<!--  JDBC implementation of the domainlist service-->
 	<!--
 		<bean id="domainlist"
-		class="org.apache.james.domain.AvalonJDBCDomainList" />
+		class="org.apache.james.domain.JDBCDomainList" />
 	-->
 
 	<!-- JDBC VirtualUserTable implementation of the domainlist service -->
@@ -269,7 +281,7 @@
 	<!-- XML VirtualUserTable implementation of the domainlist service -->
 	<!--
 		<bean id="domainlist"
-		class="org.apache.james.vut.AvalonXMLVirtualUserTable" />
+		class="org.apache.james.vut.XMLVirtualUserTable" />
 	-->
 
 	<!-- IMAP server -->

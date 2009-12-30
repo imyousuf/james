@@ -130,16 +130,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
     
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         numThreads = config.getInt("threads",1);
-
-        String processorClass = config.getString("processorClass","org.apache.james.transport.StateAwareProcessorList");
-        try {
-            Class<?> cObj = Thread.currentThread().getContextClassLoader().loadClass(processorClass);
-            processorList = (MailProcessor) loaderService.load(cObj);
-        } catch (Exception e1) {
-            logger.error("Unable to instantiate spoolmanager processor: "+processorClass, e1);
-            throw new ConfigurationException("Instantiation exception: "+processorClass, e1);
-        }
-
+        this.config = config;
     }
 
     /**
@@ -148,6 +139,16 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
     @PostConstruct
     public void init() throws Exception {
         logger.info("JamesSpoolManager init...");
+        
+        String processorClass = config.getString("processorClass","org.apache.james.transport.StateAwareProcessorList");
+        try {
+            Class<?> cObj = Thread.currentThread().getContextClassLoader().loadClass(processorClass);
+            processorList = (MailProcessor) loaderService.load(cObj);
+        } catch (Exception e1) {
+            logger.error("Unable to instantiate spoolmanager processor: "+processorClass, e1);
+            throw new ConfigurationException("Instantiation exception: "+processorClass, e1);
+        }
+        
         ContainerUtil.initialize(processorList);
 
         if (logger.isInfoEnabled()) {
