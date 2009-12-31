@@ -29,7 +29,7 @@ public class Main {
     public static void main(String[] args) {
         //JamesApplicationContext.newJamesApplicationContext();
     	
-    	ApplicationContext context = new ClassPathXmlApplicationContext(
+    	ApplicationContext context = new JamesServerApplicationContext(
     	        new String[] {"spring-beans.xml"});
 
     }
