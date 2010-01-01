@@ -36,21 +36,17 @@ import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
-import org.guiceyfruit.jsr250.Jsr250Module;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.name.Names;
 
 /**
  * Provides a registry of mail repositories. A mail repository is uniquely
  * identified by its destinationURL, type and model.
  *
  */
-public class GuiceMailStore
+public class MailStore
     implements Store, LogEnabled, Configurable {
 
     // Prefix for repository names
@@ -80,6 +76,8 @@ public class GuiceMailStore
     private FileSystem fs;
 
     private DataSourceSelector datasources;
+
+	private LoaderService loader;
     
     @Resource(name="database-connections")
     public void setDatasources(DataSourceSelector datasources) {
@@ -109,6 +107,10 @@ public class GuiceMailStore
         this.fs = fs;
     }
 
+    @Resource(name="org.apache.james.LoaderService")
+    public void setLoaderService(LoaderService loader) {
+    	this.loader = loader;
+    }
 
     @PostConstruct
     @SuppressWarnings("unchecked")
@@ -278,32 +280,8 @@ public class GuiceMailStore
             }
 
             try {
-                Class<?> objectClass = Thread.currentThread().getContextClassLoader().loadClass(repClass);
-                reply = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
-                        
-                    @Override
-                    protected void configure() {
-                        bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                        bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(config);
-                        bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fs);
-                        bind(DataSourceSelector.class).annotatedWith(Names.named("database-connections")).toInstance(datasources);
-                        bind(Store.class).annotatedWith(Names.named("mailstore")).toInstance(new Store() {
-
-                            public Object select(Object arg0) throws ServiceException {
-                                return GuiceMailStore.this.select(arg0);
-                            }
-
-                            public boolean isSelectable(Object arg0) {
-                                return GuiceMailStore.this.isSelectable(arg0);                            
-                            }
-
-                            public void release(Object arg0) {
-                                GuiceMailStore.this.release(arg0);
-                            }
-                            
-                        });
-                    }
-                }).getInstance(objectClass);
+                reply = Thread.currentThread().getContextClassLoader().loadClass(repClass).newInstance();
+                loader.injectDependenciesWithLifecycle(reply, logger, config);
 
                 repositories.put(repID, reply);
                 if (getLogger().isInfoEnabled()) {
@@ -338,7 +316,7 @@ public class GuiceMailStore
      * @return a new repository name
      */
     public static final String getName() {
-        synchronized (GuiceMailStore.class) {
+        synchronized (MailStore.class) {
             return REPOSITORY_NAME + id++;
         }
     }

@@ -18,11 +18,8 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
-import java.io.ByteArrayInputStream;
-
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
-
 import org.apache.james.container.spring.AvalonConfigurationProvider;
 
 /**

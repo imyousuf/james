@@ -21,104 +21,73 @@
 
 package org.apache.james.core;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
 import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.vut.VirtualUserTable;
-import org.apache.james.api.vut.VirtualUserTableStore;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.user.UsersStore;
 import org.apache.james.services.FileSystem;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 /**
- * Provides a registry of VirtualUserTables
+ * Provides a registry of user repositories.
  *
  */
-public class GuiceVirtualUserTableStore
-    extends AbstractGuiceStore<VirtualUserTable>
-    implements VirtualUserTableStore {
-
-    private FileSystem fs;
-    private DNSService dns;
-    private DataSourceSelector selector;
-
-
-    // TODO: REMOVE ME!!
-    @PostConstruct
-    @Override
-    public void init() throws Exception {
-        super.init();
-    }
-
-    @Resource(name="database-connections")
-    public void setDataSourceSelector(DataSourceSelector selector) {
-        this.selector = selector;
-    }
+public class UsersStoreImpl
+    extends AbstractStore<UsersRepository>
+    implements UsersStore {
     
-    
-    @Resource(name="filesystem")
-    public void setFileSystem(FileSystem fs) {
-        this.fs = fs;
-    }
-    
-    @Resource(name="dnsserver")
-    public void setDNSService(DNSService dns) {
-        this.dns = dns;
-    }
-    
+
     /** 
      * Get the repository, if any, whose name corresponds to
      * the argument parameter
      *
      * @param name the name of the desired repository
      *
-     * @return the VirtualUserTable corresponding to the name parameter
+     * @return the UsersRepository corresponding to the name parameter
      */
-    public VirtualUserTable getTable(String name) {
-        VirtualUserTable response = getObject(name);
+    public UsersRepository getRepository(String name) {
+        UsersRepository response = getObject(name);
         if ((response == null) && (getLogger().isWarnEnabled())) {
-            getLogger().warn("No virtualUserTable called: " + name);
+            getLogger().warn("No users repository called: " + name);
         }
         return response;
+    }
+
+    /** 
+     * Yield an <code>Iterator</code> over the set of repository
+     * names managed internally by this store.
+     *
+     * @return an Iterator over the set of repository names
+     *         for this store
+     */
+    public Iterator<String> getRepositoryNames() {
+        return getObjectNames();
     }
 
     /**
      * @see org.apache.james.core.AbstractAvalonStore#getStoreName()
      */
     public String getStoreName() {
-        return "AvalonVirtualUserTableStore";
+        return "UsersStoreImpl";
     }
 
-
     /**
-     * @see org.apache.james.core.AbstractGuiceStore#getConfigurations(org.apache.commons.configuration.HierarchicalConfiguration)
+     * @see org.apache.james.core.AbstractStore#getConfigurations(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     public List<HierarchicalConfiguration> getConfigurations(
             HierarchicalConfiguration config) {
-        return config.configurationsAt("table");
-    }
-
-
-    @Override
-    protected Module getModule() {
-        return new AbstractModule() {
-            
-            @Override
-            protected void configure() {
-                bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                bind(DataSourceSelector.class).annotatedWith(Names.named("database-connections")).toInstance(selector);
-                bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fs);
-                bind(DNSService.class).annotatedWith(Names.named("dnsserver")).toInstance(dns);
-            }
-        };
+        return config.configurationsAt("repository");
     }
 }

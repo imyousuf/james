@@ -133,7 +133,6 @@ public class NNTPSpooler {
      *
      * @param articleIDRepo the article id repository to be used
      */
-    @Resource(name="org.apache.james.nntpserver.repository.ArticleIDRepository")
     void setArticleIDRepository(ArticleIDRepository idRepos) {
         this.idRepos = idRepos;
     }

@@ -24,6 +24,7 @@ package org.apache.james.nntpserver.repository;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.nntpserver.DateSinceFileFilter;
@@ -32,11 +33,7 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.util.io.AndFileFilter;
 import org.apache.james.util.io.DirectoryFileFilter;
 import org.apache.oro.io.GlobFilenameFilter;
-import org.guiceyfruit.jsr250.Jsr250Module;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.name.Names;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -144,6 +141,8 @@ public class NNTPRepositoryImpl implements NNTPRepository, Configurable, LogEnab
 
     private Log logger;
 
+	private LoaderService loader;
+
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
         readOnly = configuration.getBoolean("readOnly", false);
@@ -188,6 +187,11 @@ public class NNTPRepositoryImpl implements NNTPRepository, Configurable, LogEnab
         this.logger = logger;
     }
 
+    @Resource(name="org.apache.james.LoaderService")
+    public void setLoaderService(LoaderService loader) {
+    	this.loader = loader;
+    }
+    
     /**
      * Setter for the FileSystem dependency
      * 
@@ -462,54 +466,11 @@ public class NNTPRepositoryImpl implements NNTPRepository, Configurable, LogEnab
         	className = NNTPSpooler.class.getName();
         }
         try {
-            Class<?> myClass = Thread.currentThread().getContextClassLoader().loadClass(className);
-            Object obj = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
+            NNTPSpooler obj = (NNTPSpooler) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+            obj.setArticleIDRepository(articleIDRepo);
+            loader.injectDependenciesWithLifecycle(obj, logger, spoolerConfiguration.configurationAt("configuration"));
 
-                @Override
-                protected void configure() {
-                    bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(spoolerConfiguration.configurationAt("configuration"));
-                    bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                    bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fileSystem);
-                    bind(ArticleIDRepository.class).annotatedWith(Names.named("org.apache.james.nntpserver.repository.ArticleIDRepository")).toInstance(articleIDRepo);
-                    bind(NNTPRepository.class).annotatedWith(Names.named("nntp-repository")).toInstance(new NNTPRepository() {
-
-                        public void createArticle(InputStream in) {
-                            NNTPRepositoryImpl.this.createArticle(in);
-                        }
-
-                        public NNTPArticle getArticleFromID(String id) {
-                            return NNTPRepositoryImpl.this.getArticleFromID(id);
-                        }
-
-                        public Iterator<NNTPArticle> getArticlesSince(Date dt) {
-                            return NNTPRepositoryImpl.this.getArticlesSince(dt);
-                        }
-
-                        public NNTPGroup getGroup(String groupName) {
-                            return NNTPRepositoryImpl.this.getGroup(groupName);
-                        }
-
-                        public Iterator<NNTPGroup> getGroupsSince(Date dt) {
-                            return NNTPRepositoryImpl.this.getGroupsSince(dt);
-                        }
-
-                        public Iterator<NNTPGroup> getMatchedGroups(String wildmat) {
-                            return NNTPRepositoryImpl.this.getMatchedGroups(wildmat);
-                        }
-
-                        public String[] getOverviewFormat() {
-                            return NNTPRepositoryImpl.this.getOverviewFormat();
-                        }
-
-                        public boolean isReadOnly() {
-                            return NNTPRepositoryImpl.this.isReadOnly();
-                        }
-                        
-                    });
-                }
-                
-            }).getInstance(myClass);
-            return (NNTPSpooler)obj;
+            return obj;
         } catch(ClassCastException cce) {
             StringBuffer errorBuffer =
                 new StringBuffer(128)

@@ -32,8 +32,12 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.phoenix.ApplicationEvent;
 import org.apache.avalon.phoenix.ApplicationListener;
 import org.apache.avalon.phoenix.BlockEvent;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.bridge.GuiceInjected;
+import org.apache.james.lifecycle.Configurable;
 
 public class PhoenixLoader implements LoaderService, ApplicationListener, LogEnabled {
 
@@ -214,21 +218,24 @@ public class PhoenixLoader implements LoaderService, ApplicationListener, LogEna
         this.logger = logger;
     }
 
-    public <T> T load(Class<T> type) {
-        try {
-            // TODO: Use Guice to load type
-            final T base = type.newInstance();
-            injectResources(base);
-            return base;
-        } catch (InstantiationException e) {
-            logger.warn("Cannot instantiate type", e);
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            logger.warn("Cannot instantiate type", e);
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            logger.warn("Cannot instantiate type", e);
-            throw new RuntimeException(e);
+
+    public void injectDependencies(Object obj) {    
+        injectResources(obj);
+
+    }
+
+    public void injectDependenciesWithLifecycle(Object obj, Log logger,
+            HierarchicalConfiguration config) {
+        if (obj instanceof LogEnabled) {
+            ((org.apache.james.lifecycle.LogEnabled) obj).setLog(logger);
         }
+        if (obj instanceof Configurable) {
+            try {
+            ((Configurable) obj).configure(config);
+            } catch (ConfigurationException ex) {
+                throw new RuntimeException("Unable to configure object " + obj, ex);
+            }
+        }
+        injectDependencies(obj);        
     }
 }

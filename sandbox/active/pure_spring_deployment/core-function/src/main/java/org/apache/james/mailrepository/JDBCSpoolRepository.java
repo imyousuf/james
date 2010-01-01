@@ -32,8 +32,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Implementation of a SpoolRepository on a database.
  *
@@ -119,12 +117,6 @@ public class JDBCSpoolRepository extends JDBCMailRepository implements SpoolRepo
         super.doConfigure(conf);
         maxPendingMessages = conf.getInt("config.maxcache",1000);
     }
-
-    @PostConstruct
-    public void init() throws Exception {
-        super.init();
-    }
-    
     
     /**
      * @see org.apache.james.services.SpoolRepository#accept()

@@ -26,7 +26,12 @@ import javax.annotation.Resource;
 
 import org.apache.avalon.framework.activity.Initializable;
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
@@ -115,4 +120,23 @@ public class InitializationPropagator extends AbstractPropagator implements Bean
             throw new RuntimeException(e);
         } 
     }
+
+	public void injectDependencies(Object obj) {
+		injectResources(obj);
+	}
+
+	public void injectDependenciesWithLifecycle(Object obj, Log logger,
+			HierarchicalConfiguration config) {
+		if (obj instanceof LogEnabled) {
+			((LogEnabled) obj).setLog(logger);
+		}
+		if (obj instanceof Configurable) {
+			try {
+			((Configurable) obj).configure(config);
+			} catch (ConfigurationException ex) {
+				throw new RuntimeException("Unable to configure object " + obj, ex);
+			}
+		}
+		injectDependencies(obj);
+	}
 }

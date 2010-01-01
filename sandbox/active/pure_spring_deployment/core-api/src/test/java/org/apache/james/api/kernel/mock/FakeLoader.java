@@ -24,10 +24,16 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 
 public class FakeLoader implements LoaderService, org.apache.avalon.framework.service.ServiceManager{
 
@@ -68,7 +74,6 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
     public Object get(String name) { 
         Object service = servicesByName.get(mapName(name));
         
-        System.out.println("KEYS="+servicesByName.keySet().toString());
         return service;
     }
     
@@ -77,7 +82,6 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
         if(newName == null) {
             newName = name;
         }
-        System.out.println("NEW=" + newName);
         return newName;
     }
     private void injectResources(Object resource) {
@@ -110,16 +114,6 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
             }
         }
     }
-    
-    public <T> T load(Class<T> type) {
-        try {
-            final T newInstance = type.newInstance();
-            injectResources(newInstance);
-            return newInstance;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 
     public boolean hasService(String name) {
@@ -136,4 +130,45 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
     public void put(String role, Object service) {
         servicesByName.put(role, service);
     }
+
+
+	public void injectDependencies(Object obj) {
+        injectResources(obj);	
+        try {
+        	postConstruct(obj);
+        } catch (Exception e) {
+        	throw new RuntimeException(e);
+        }
+	}
+
+
+	public void injectDependenciesWithLifecycle(Object obj, Log logger,
+			HierarchicalConfiguration config) {
+		if (obj instanceof LogEnabled) {
+			((LogEnabled)obj).setLog(logger);
+		}
+		if (obj instanceof Configurable) {
+			try {
+				((Configurable) obj).configure(config);
+			} catch (ConfigurationException e) {
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			}		
+		}
+		injectDependencies(obj);
+	}
+	
+	private void postConstruct(Object resource) throws IllegalAccessException,
+			InvocationTargetException {
+		Method[] methods = resource.getClass().getMethods();
+		for (Method method : methods) {
+			PostConstruct postConstructAnnotation = method
+					.getAnnotation(PostConstruct.class);
+			if (postConstructAnnotation != null) {
+				Object[] args = {};
+				method.invoke(resource, args);
+
+			}
+		}
+	}
 }

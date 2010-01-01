@@ -28,27 +28,24 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.guiceyfruit.jsr250.Jsr250Module;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Module;
-import com.google.inject.name.Names;
 
 /**
- * Abstract base class for Stores which use Guice to load stuff
+ * Abstract base class for Stores 
  *
  * @param <Type>
  */
-public abstract class AbstractGuiceStore<Type> implements LogEnabled, Configurable{
+public abstract class AbstractStore<Type> implements LogEnabled, Configurable{
 
     private HashMap<String,Type> objects;
     
     protected Log logger;
 
     protected HierarchicalConfiguration config;
+
+	private LoaderService loader;
     
     public void setLog(Log logger) {
         this.logger = logger;
@@ -61,6 +58,11 @@ public abstract class AbstractGuiceStore<Type> implements LogEnabled, Configurab
     public void configure(HierarchicalConfiguration config) throws ConfigurationException{
         this.config = config;
     }   
+    
+    @Resource(name="org.apache.james.LoaderService")
+    public void setLoaderService(LoaderService loader) {
+    	this.loader = loader;
+    }
 
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
@@ -86,16 +88,10 @@ public abstract class AbstractGuiceStore<Type> implements LogEnabled, Configurab
             }
             if (theClassLoader == null) {
                 theClassLoader = Thread.currentThread().getContextClassLoader();
-            }            
-            Type object = (Type) Guice.createInjector(getModule(),new Jsr250Module(), new AbstractModule() {
+            }         
+            Type object = (Type)theClassLoader.loadClass(repClass).newInstance();
+            loader.injectDependenciesWithLifecycle(object, getLogger(), repConf);
 
-                @Override
-                protected void configure() {
-                    bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(repConf);
-                }
-                
-            }).getInstance(theClassLoader.loadClass(repClass));
-            
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Load instance " + object);
             }
@@ -151,12 +147,5 @@ public abstract class AbstractGuiceStore<Type> implements LogEnabled, Configurab
      * @return the name
      */
     public abstract String getStoreName();
-    
-    /**
-     * Return the Module to use for Injecting
-     * 
-     * @return module
-     */
-    protected abstract Module getModule();
     
 }

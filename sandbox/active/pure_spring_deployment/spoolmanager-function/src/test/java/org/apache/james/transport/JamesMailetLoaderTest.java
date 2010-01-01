@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.test.util.Util;
 import org.apache.james.transport.mailets.MailetLoaderTestMailet;
 import org.apache.james.util.ConfigurationAdapter;
@@ -69,7 +70,7 @@ public class JamesMailetLoaderTest extends TestCase {
         m_conf.init();
         m_jamesMailetLoader.setLog(new SimpleLog("Test"));
         m_jamesMailetLoader.configure(new ConfigurationAdapter(m_conf));
-        m_jamesMailetLoader.setLoaderService(new FakeLoaderService());
+        m_jamesMailetLoader.setLoaderService(new FakeLoader());
     }
 
     private void assetIsNullMailet(Mailet mailet) {

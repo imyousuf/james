@@ -33,7 +33,6 @@ public class LogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProces
 	@Override
 	protected void executeLifecycleMethodBeforeInit(LogEnabled bean, String beanname,
 			String lifecyclename) throws Exception {
-		System.out.println("comp=" + lifecyclename + " log=" + provider.getLogForComponent(lifecyclename));
 		bean.setLog(provider.getLogForComponent(lifecyclename));
 	}
 

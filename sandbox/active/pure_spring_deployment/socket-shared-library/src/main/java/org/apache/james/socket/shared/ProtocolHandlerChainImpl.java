@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -126,18 +127,10 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
     protected void loadClass(ClassLoader classLoader, String className,
             org.apache.commons.configuration.HierarchicalConfiguration config) throws Exception {
         final Class<?> handlerClass = classLoader.loadClass(className);
-        Object handler = loader.load(handlerClass);
-
-        // enable logging
-        if (handler instanceof LogEnabled) {
-            ((LogEnabled) handler).setLog(getLog());
-        }
-
-        // configure the handler
-        if (handler instanceof org.apache.james.lifecycle.Configurable) {
-            org.apache.james.lifecycle.Configurable configurableHandler = (org.apache.james.lifecycle.Configurable) handler;
-            configurableHandler.configure(config);
-        }
+        
+        Object handler = handlerClass.newInstance();
+        System.out.println("LOADER=" + loader);
+        loader.injectDependenciesWithLifecycle(handler, getLog(), config);
 
         // if it is a commands handler add it to the map with key as command
         // name
@@ -238,12 +231,12 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
      */
     public void configure(HierarchicalConfiguration commonsConf) throws ConfigurationException {
         this.commonsConf =  commonsConf;
-        try {
-            loadHandlers();
-            wireExtensibleHandlers();
-        } catch (Exception e) {
-            throw new ConfigurationException(e.getMessage(), e);
-        }    
+    }
+    
+    @PostConstruct
+    public void init() throws Exception {
+         loadHandlers();
+         wireExtensibleHandlers();
     }
     
 }

@@ -37,17 +37,15 @@ public abstract class AbstractSupportLoaderProtocolHandlerFactory extends Abstra
     }
     
     private void prepareHandlerChain() throws Exception {
-
-        handlerChain = loader.load(ProtocolHandlerChainImpl.class);
-        
-        //set the logger
-        handlerChain.setLog(getLogger());
-        
+    	
         //read from the XML configuration and create and configure each of the handlers
         HierarchicalConfiguration jamesConfiguration = configuration.configurationAt("handler.handlerchain");
         if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
             jamesConfiguration.addProperty("[@coreHandlersPackage]", getHandlersPackage().getName());
-        handlerChain.configure(jamesConfiguration);
+        
+        System.out.println("jamesConfiguration="+jamesConfiguration);
+    	handlerChain = new ProtocolHandlerChainImpl();
+        loader.injectDependenciesWithLifecycle(handlerChain, getLogger(), jamesConfiguration);
     }
 
     @Override

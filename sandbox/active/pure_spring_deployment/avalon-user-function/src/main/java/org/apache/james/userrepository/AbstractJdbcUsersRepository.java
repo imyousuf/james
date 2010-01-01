@@ -233,6 +233,7 @@ public abstract class AbstractJdbcUsersRepository extends
      */
     @Resource(name="database-connections")
     void setDatasources(DataSourceSelector datasources) {
+    	System.out.println("database-connections" + datasources);
         m_datasources = datasources;
     }
     /**

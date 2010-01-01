@@ -90,8 +90,18 @@ public abstract class AbstractLoader implements LogEnabled, Configurable{
         return logger;
     }
     protected Object load(String className) throws ClassNotFoundException {
-        final Object newInstance = loaderService.load(Thread.currentThread().getContextClassLoader().loadClass(className));
-        return newInstance;
+        Object newInstance;
+		try {
+			newInstance = Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+			loaderService.injectDependencies(newInstance);
+	        return newInstance;
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Unable to load class " + className, e);			
+
+		} catch (InstantiationException e) {
+			throw new RuntimeException("Unable to load class " + className, e);			
+		}
+        
     }
 
     @SuppressWarnings("unchecked")

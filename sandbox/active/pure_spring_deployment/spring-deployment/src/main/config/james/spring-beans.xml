@@ -163,7 +163,7 @@
 	<bean id="logProvider" class="org.apache.james.container.spring.lifecycle.SpringLogProvider" />
 	
 
-	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" >
+	<bean id="jsr250" class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" >
 		<property name="order" value="3" />	
 	</bean>
 
@@ -221,14 +221,14 @@
 	<bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 
 	<!-- The High Level Storage block -->
-	<bean id="mailstore" class="org.apache.james.mailrepository.GuiceMailStore" />
+	<bean id="mailstore" class="org.apache.james.mailrepository.MailStore" />
 
 	<!-- The main SpoolRepository -->
 	<bean id="spoolrepository"
 		class="org.apache.james.mailrepository.MailStoreSpoolRepository" />
 
 	<!-- The User Storage block -->
-	<bean id="users-store" class="org.apache.james.core.GuiceUsersStore" />
+	<bean id="users-store" class="org.apache.james.core.UsersStoreImpl" />
 
 	<!--
 		This is needed to link the smtpserver to the local user repository
@@ -255,7 +255,7 @@
 	<bean id="virtualusertablemanagement" class="org.apache.james.impl.vut.VirtualUserTableManagement" />
 
 	<!-- VirtualUserTable Store -->
-	<bean id="virtualusertable-store" class="org.apache.james.core.GuiceVirtualUserTableStore" />
+	<bean id="virtualusertable-store" class="org.apache.james.core.VirtualUserTableStoreImpl" />
 
 
 	<bean id="defaultvirtualusertable" class="org.apache.james.impl.vut.DefaultVirtualUserTable" />

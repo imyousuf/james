@@ -189,7 +189,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
      * @throws Exception
      */
     private void prepareHandlerChain() throws Exception {
-        handlerChain = getLoader().load(ProtocolHandlerChainImpl.class);
+    	handlerChain = new ProtocolHandlerChainImpl();
                       
         //set the logger
         handlerChain.setLog(getLogger());
@@ -199,6 +199,9 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         if (handlerchainConfig.getString("[@coreHandlersPackage]") == null)
             handlerchainConfig.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
         handlerChain.configure(handlerchainConfig);
+        
+        getLoader().injectDependencies(handlerChain);
+
     }
 
 

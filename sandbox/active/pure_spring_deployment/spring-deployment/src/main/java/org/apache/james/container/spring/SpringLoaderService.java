@@ -18,11 +18,15 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -37,22 +41,6 @@ public class SpringLoaderService implements LoaderService, ApplicationContextAwa
 
 	private ConfigurableApplicationContext context;
 	
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.kernel.LoaderService#load(java.lang.Class)
-	 */
-	public <T> T load(Class<T> type) {
-		String beanName = type.getName();
-		
-		// Check if we have a bean with the name already registered if not register it
-		if (context.containsBean(beanName) == false) {
-			DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) context.getBeanFactory();
-			beanFactory.registerBeanDefinition(beanName, BeanDefinitionBuilder.rootBeanDefinition(type).getBeanDefinition());
-		}
-		return (T) context.getBean(beanName);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
@@ -64,5 +52,32 @@ public class SpringLoaderService implements LoaderService, ApplicationContextAwa
 		} else {
 			throw new FatalBeanException("Application needs to be a instance of ConfigurableApplicationContext");
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.api.kernel.LoaderService#injectDependencies(java.lang.Object)
+	 */
+	public void injectDependencies(Object obj) {
+		((BeanPostProcessor) context.getBean("jsr250")).postProcessAfterInitialization(obj, obj.getClass().getName());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.api.kernel.LoaderService#injectDependenciesWithLifecycle(java.lang.Object, org.apache.commons.logging.Log, org.apache.commons.configuration.HierarchicalConfiguration)
+	 */
+	public void injectDependenciesWithLifecycle(Object obj, Log logger,
+			HierarchicalConfiguration config) {
+		if (obj instanceof LogEnabled) {
+			((LogEnabled) obj).setLog(logger);
+		}
+		if (obj instanceof Configurable) {
+			try {
+			((Configurable) obj).configure(config);
+			} catch (ConfigurationException ex) {
+				throw new RuntimeException("Unable to configure object " + obj, ex);
+			}
+		}
+		injectDependencies(obj);
 	}
 }

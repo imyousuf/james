@@ -26,8 +26,13 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.avalon.framework.logger.LogEnabled;
 import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.lifecycle.Configurable;
 
 public class FakeLoader implements LoaderService, org.apache.avalon.framework.service.ServiceManager{
 
@@ -73,14 +78,26 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
         }
     }
     
-    public <T> T load(Class<T> type) {
-        try {
-            final T newInstance = type.newInstance();
-            injectResources(newInstance);
-            return newInstance;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+
+
+    public void injectDependencies(Object obj) {    
+        injectResources(obj);
+
+    }
+
+    public void injectDependenciesWithLifecycle(Object obj, Log logger,
+            HierarchicalConfiguration config) {
+        if (obj instanceof LogEnabled) {
+            ((org.apache.james.lifecycle.LogEnabled) obj).setLog(logger);
         }
+        if (obj instanceof Configurable) {
+            try {
+            ((Configurable) obj).configure(config);
+            } catch (ConfigurationException ex) {
+                throw new RuntimeException("Unable to configure object " + obj, ex);
+            }
+        }
+        injectDependencies(obj);        
     }
 
 

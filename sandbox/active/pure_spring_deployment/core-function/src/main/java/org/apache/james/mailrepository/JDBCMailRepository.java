@@ -139,6 +139,10 @@ public class JDBCMailRepository
 
     private FileSystem fileSystem;
 
+	private String filestore;
+
+	private String destination;
+
     @Resource(name="database-connections")
     public void setDatasources(DataSourceSelector datasources) {
         this.datasources = datasources;
@@ -155,7 +159,7 @@ public class JDBCMailRepository
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".configure()");
         }
-        String destination = configuration.getString("[@destinationURL]");
+        destination = configuration.getString("[@destinationURL]");
 
         // normalize the destination, to simplify processing.
         if ( ! destination.endsWith("/") ) {
@@ -216,38 +220,9 @@ public class JDBCMailRepository
         
         inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", 409600000); 
 
-        String filestore = configuration.getString("filestore", null);
+        filestore = configuration.getString("filestore", null);
         sqlFileName = configuration.getString("sqlFile");
-        try {
-            if (filestore != null) {
-                
-                //prepare Configurations for stream repositories
-                DefaultConfigurationBuilder streamConfiguration
-                    = new DefaultConfigurationBuilder();
-
-                streamConfiguration.addProperty( "[@destinationURL]", filestore );
-                streamConfiguration.addProperty( "[@type]", "STREAM" );
-                streamConfiguration.addProperty( "[@model]", "SYNCHRONOUS" );
-                sr = (StreamRepository) store.select(streamConfiguration);
-
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
-                }
-            }
-
-            if (getLogger().isDebugEnabled()) {
-                StringBuffer logBuffer =
-                    new StringBuffer(128)
-                            .append(this.getClass().getName())
-                            .append(" created according to ")
-                            .append(destination);
-                getLogger().debug(logBuffer.toString());
-            }
-        } catch (Exception e) {
-            final String message = "Failed to retrieve Store component:" + e.getMessage();
-            getLogger().error(message, e);
-            throw new ConfigurationException(message, e);
-        } 
+      
         
     }
 
@@ -268,6 +243,37 @@ public class JDBCMailRepository
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".initialize()");
         }
+        
+        try {
+            if (filestore != null) {
+                
+                //prepare Configurations for stream repositories
+                DefaultConfigurationBuilder streamConfiguration
+                    = new DefaultConfigurationBuilder();
+
+                streamConfiguration.addProperty( "[@destinationURL]", filestore );
+                streamConfiguration.addProperty( "[@type]", "STREAM" );
+                streamConfiguration.addProperty( "[@model]", "SYNCHRONOUS" );
+                sr = (StreamRepository) store.select(streamConfiguration);
+
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
+                }
+            }
+
+            if (getLogger().isDebugEnabled()) {
+                StringBuffer logBuf =
+                    new StringBuffer(128)
+                            .append(this.getClass().getName())
+                            .append(" created according to ")
+                            .append(destination);
+                getLogger().debug(logBuf.toString());
+            }
+        } catch (Exception e) {
+            final String message = "Failed to retrieve Store component:" + e.getMessage();
+            getLogger().error(message, e);
+            throw new ConfigurationException(message, e);
+        } 
 
         theJDBCUtil =
             new JDBCUtil() {
