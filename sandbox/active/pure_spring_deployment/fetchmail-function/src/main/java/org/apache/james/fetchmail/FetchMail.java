@@ -936,7 +936,10 @@ public class FetchMail implements Target, LogEnabled, Configurable {
      */
     protected Session computeSession()
     {
-        return Session.getInstance(System.getProperties());
+        // Make separate properties instance so the
+        // fetchmail.xml <javaMailProperties> can override the
+         // property values without interfering with other fetchmail instances
+        return Session.getInstance( new Properties( System.getProperties()) );     
     }
     
     /**
