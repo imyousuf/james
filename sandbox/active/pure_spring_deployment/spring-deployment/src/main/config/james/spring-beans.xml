@@ -115,56 +115,74 @@
 
 
 
-	<bean class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
+	<bean
+		class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
 		<property name="order" value="2" />
 		<property name="beanRoleMap">
-    		<map>
-        		<entry>
-            		<key>
-                		<value>org.apache.avalon.cornerstone.services.threads.ThreadManager</value>
-            		</key>
-            		<value>thread-manager</value>
-        		</entry>
-    		</map>
-  		</property>	
+			<map>
+				<entry
+					key="org.apache.avalon.cornerstone.services.threads.ThreadManager"
+					value="thread-manager" />
+			</map>
+		</property>
 	</bean>
 
-	<bean class="org.apache.james.container.spring.lifecycle.AvalonInitializableBeanPostProcessor">
+	<bean
+		class="org.apache.james.container.spring.lifecycle.AvalonInitializableBeanPostProcessor">
 		<property name="order" value="4" />
 	</bean>
 
-	<bean class="org.apache.james.container.spring.lifecycle.AvalonConfigurableBeanPostProcessor">
+	<bean
+		class="org.apache.james.container.spring.lifecycle.AvalonConfigurableBeanPostProcessor">
 		<property name="configurationProvider" ref="configurationProvider" />
-		<property name="order" value="1" />	
+		<property name="order" value="1" />
 	</bean>
 
 	<bean
 		class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
 		<property name="configurationProvider" ref="configurationProvider" />
-		<property name="order" value="1" />	
+		<property name="order" value="1" />
+		<property name="mappings">
+			<map>
+				<entry key="pop3server.protocolserver" value="pop3server" />
+				<entry key="pop3server.protocolhandlerfactory" value="pop3server" />
+				<entry key="smtpserver.protocolserver" value="smtpserver" />
+				<entry key="smtpserver.protocolhandlerfactory" value="smtpserver" />
+				<entry key="nntpserver.protocolserver" value="nntpserver" />
+				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
+				<entry key="imapserver.protocolserver" value="imapserver" />
+				<entry key="imapserver.protocolhandlerfactory" value="imapserver" />
+				<entry key="remotemanager.protocolserver" value="remotemanager" />
+				<entry key="remotemanager.protocolhandlerfactory" value="remotemanager" />
+			</map>
+		</property>
 	</bean>
 
-	<bean id="configurationProvider" class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider" init-method="init">
+	<bean id="configurationProvider"
+		class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider"
+		init-method="init">
 		<property name="configurationResource" value="classpath:james-config.xml" />
 	</bean>
 
 	<bean
 		class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
 		<property name="logProvider" ref="logProvider" />
-		<property name="order" value="0" />	
+		<property name="order" value="0" />
 	</bean>
 
 	<bean
 		class="org.apache.james.container.spring.lifecycle.AvalonLogEnabledBeanPostProcessor">
 		<property name="logProvider" ref="logProvider" />
-		<property name="order" value="0" />	
+		<property name="order" value="0" />
 	</bean>
 
-	<bean id="logProvider" class="org.apache.james.container.spring.lifecycle.SpringLogProvider" />
-	
+	<bean id="logProvider"
+		class="org.apache.james.container.spring.lifecycle.SpringLogProvider" />
 
-	<bean id="jsr250" class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" >
-		<property name="order" value="3" />	
+
+	<bean id="jsr250"
+		class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor">
+		<property name="order" value="3" />
 	</bean>
 
 	<bean id="James" class="org.apache.james.James" />
@@ -187,16 +205,32 @@
 	<bean id="bayesiananalyzermanagement"
 		class="org.apache.james.management.impl.BayesianAnalyzerManagement" />
 
-	<bean id="remotemanager" class="org.apache.james.remotemanager.RemoteManager" />
+	<!-- RemoteManager Beans-->
+	<bean id="remotemanager.protocolhandlerfactory"
+		class="org.apache.james.remotemanager.RemoteManagerProtocolHandlerFactory" />
+
+	<bean id="remotemanager.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="remotemanager.protocolhandlerfactory" />
+	</bean>
 
 	<!-- The User Management block  -->
 	<bean id="usermanagement" class="org.apache.james.impl.user.UserManagement" />
 
-	<!-- POP3 Server -->
-	<bean id="pop3server" class="org.apache.james.pop3server.POP3Server" />
+	<!-- POP3 Server Beans-->
+	<bean id="pop3server.protocolhandlerfactory"
+		class="org.apache.james.pop3server.POP3ServerProtocolServerHandlerFactory" />
 
-	<!-- SMTP Server -->
-	<bean id="smtpserver" class="org.apache.james.smtpserver.SMTPServer" />
+	<bean id="pop3server.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="pop3server.protocolhandlerfactory" />
+	</bean>
+
+	<!-- SMTP Server Beans-->
+	<bean id="smtpserver.protocolhandlerfactory"
+		class="org.apache.james.smtpserver.SMTPServerProtocolHandlerFactory" />
+
+	<bean id="smtpserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="smtpserver.protocolhandlerfactory" />
+	</bean>
 
 
 	<!-- Async SMTP Server -->
@@ -209,12 +243,18 @@
 	<bean id="org.apache.james.smtpserver.protocol.DNSService"
 		class="org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter" />
 
-	<!-- NNTP Server -->
-	<bean id="nntpserver" class="org.apache.james.nntpserver.NNTPServer" />
+	<!-- NNTP Server Beans-->
+	<bean id="nntpserver.protocolhandlerfactory"
+		class="org.apache.james.nntpserver.NNTPServerProtocolHandlerFactory" />
+
+	<bean id="nntpserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="nntpserver.protocolhandlerfactory" />
+	</bean>
 
 
 	<!-- NNTP Repository -->
-	<bean id="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepository" />
+	<bean id="nntp-repository"
+		class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
 
 
 	<!-- FetchMail Service -->
@@ -252,13 +292,17 @@
 		class="org.apache.james.container.spring.adaptor.FileSystemBridge" />
 
 	<!-- The VirtualUserTable Management block  -->
-	<bean id="virtualusertablemanagement" class="org.apache.james.impl.vut.VirtualUserTableManagement" />
+	<!--
+		<bean id="virtualusertablemanagement"
+		class="org.apache.james.impl.vut.VirtualUserTableManagementService" />
+	-->
 
 	<!-- VirtualUserTable Store -->
 	<bean id="virtualusertable-store" class="org.apache.james.core.VirtualUserTableStoreImpl" />
 
 
-	<bean id="defaultvirtualusertable" class="org.apache.james.impl.vut.DefaultVirtualUserTable" />
+	<bean id="defaultvirtualusertable" name="virtualusertablemanagement"
+		class="org.apache.james.impl.vut.DefaultVirtualUserTable" />
 
 	<!--
 		########################################################################
@@ -268,8 +312,8 @@
 
 	<!--  JDBC implementation of the domainlist service-->
 	<!--
-		<bean id="domainlist"
-		class="org.apache.james.domain.JDBCDomainList" />
+		<bean id="domainlist" class="org.apache.james.domain.JDBCDomainList"
+		/>
 	-->
 
 	<!-- JDBC VirtualUserTable implementation of the domainlist service -->
@@ -280,12 +324,17 @@
 
 	<!-- XML VirtualUserTable implementation of the domainlist service -->
 	<!--
-		<bean id="domainlist"
-		class="org.apache.james.vut.XMLVirtualUserTable" />
+		<bean id="domainlist" class="org.apache.james.vut.XMLVirtualUserTable"
+		/>
 	-->
 
-	<!-- IMAP server -->
-	<bean id="imapserver" class="org.apache.james.imapserver.ImapServer" />
+	<!-- IMAP server Beans -->
+	<bean id="imapserver.protocolhandlerfactory"
+		class="org.apache.james.imapserver.ImapServerProtocolHandlerFactory" />
+
+	<bean id="imapserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="imapserver.protocolhandlerfactory" />
+	</bean>
 
 	<!--
 		####################################################################
