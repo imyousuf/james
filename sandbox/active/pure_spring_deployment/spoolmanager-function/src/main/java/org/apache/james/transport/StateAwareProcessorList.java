@@ -34,16 +34,12 @@ import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
-import org.guiceyfruit.jsr250.Jsr250Module;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.name.Names;
 
 /**
  * This class is responsible for creating a set of named processors and
@@ -66,6 +62,8 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList, Lo
     private MatcherLoader matcherLoader;
 
     private SpoolRepository spoolRepos;
+
+    private LoaderService loader;
     
     public StateAwareProcessorList() {
         super();
@@ -93,6 +91,10 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList, Lo
         this.spoolRepos = spoolRepos;
     }
     
+    @Resource(name="org.apache.james.LoaderService")
+    public final void setLoaderService(LoaderService loader) {
+        this.loader = loader;
+    }
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
@@ -107,19 +109,10 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList, Lo
             String processorClass = processorConf.getString("[@class]","org.apache.james.transport.LinearProcessor");
 
             try {
-                Class<MailProcessor> cObj = (Class<MailProcessor>) Thread.currentThread().getContextClassLoader().loadClass(processorClass);
-                MailProcessor processor = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
-
-                    @Override
-                    protected void configure() {
-                        bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(processorConf);
-                        bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                        bind(MailetLoader.class).annotatedWith(Names.named("mailetpackages")).toInstance(mailetLoader);
-                        bind(MatcherLoader.class).annotatedWith(Names.named("matcherpackages")).toInstance(matcherLoader);
-                        bind(SpoolRepository.class).annotatedWith(Names.named("spoolrepository")).toInstance(spoolRepos);
-                    }
-                    
-                }).getInstance(cObj);
+               
+                MailProcessor processor = (MailProcessor) Thread.currentThread().getContextClassLoader().loadClass(processorClass).newInstance();
+                loader.injectDependenciesWithLifecycle(processor, logger, processorConf);
+              
                 processors.put(processorName, processor);
                 
                 //setupLogger(processor, processorName);

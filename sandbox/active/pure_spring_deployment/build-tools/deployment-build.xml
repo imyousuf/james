@@ -66,7 +66,6 @@ Template build for deployment modules
 				<classpathentry combineaccessrules="false" kind="src" path="/imapserver-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/jcr-store"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/nntpserver-function"/> 
-				<classpathentry combineaccessrules="false" kind="src" path="/phoenix-deployment"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/pop3server-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/remotemanager-function"/> 
 				<classpathentry combineaccessrules="false" kind="src" path="/smtpserver-function"/> 

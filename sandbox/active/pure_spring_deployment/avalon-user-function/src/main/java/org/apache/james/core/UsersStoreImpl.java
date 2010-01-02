@@ -21,23 +21,12 @@
 
 package org.apache.james.core;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
-import org.apache.james.services.FileSystem;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
-import com.google.inject.name.Names;
-
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.api.user.UsersStore;
 
 /**
  * Provides a registry of user repositories.
