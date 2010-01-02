@@ -45,7 +45,6 @@
     <module>core-library</module>
     <module>management-library</module>
     <module>smtp-protocol-library</module>
-    <module>avalon-spring-bridge-library</module>
     <module>avalon-socket-library</module>
     <module>core-function</module>
     <module>imapserver-function</module>
@@ -397,11 +396,6 @@
       <artifactId>james-server-user-library</artifactId>
       <version>3.0-M1</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-spring-bridge-library</artifactId>
-      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -1072,23 +1066,7 @@
       <artifactId>jcr</artifactId>
       <version>1.0</version>
     </dependency>
-    <dependency>
-      <groupId>avalon-phoenix</groupId>
-      <artifactId>avalon-phoenix-client</artifactId>
-      <version>4.2-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <groupId>avalon-framework</groupId>
-          <artifactId>avalon-framework</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <!-- phoenix runtime -->
-    <dependency>
-      <groupId>spice</groupId>
-      <artifactId>spice-configkit</artifactId>
-      <version>1.1.2</version>
-    </dependency>
+   
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>

@@ -29,12 +29,13 @@ import org.apache.james.container.spring.LogProvider;
  */
 public class SpringLogProvider implements LogProvider{
 
+    private final static String PREFIX = "james.";
 	/*
 	 * (non-Javadoc)
 	 * @see org.apache.james.container.spring.LogProvider#getLogForComponent(java.lang.String)
 	 */
 	public Log getLogForComponent(String componentname) {
-		return new Log4JLogger(componentname);
+		return new Log4JLogger(PREFIX + componentname);
 	}
 
 }

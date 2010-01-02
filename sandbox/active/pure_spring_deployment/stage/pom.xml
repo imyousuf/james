@@ -324,16 +324,6 @@
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
     </dependency>
-    <dependency>
-      <groupId>avalon-phoenix</groupId>
-      <artifactId>avalon-phoenix-client</artifactId>
-    </dependency>
-
-    <!-- phoenix-runtime -->
-    <dependency>
-      <groupId>spice</groupId>
-      <artifactId>spice-configkit</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>

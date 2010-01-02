@@ -41,7 +41,7 @@ public class AvalonWebApplicationContext extends AbstractRefreshableWebApplicati
         if (springBeanLocations.size() != 1) throw new RuntimeException("can only load one Spring bean definition file");
         Resource springBeanResource = getResourceByPath((String) springBeanLocations.get(0));
         Resource jamesAssemblyResource = (Resource) jamesAssemblyResources.get(0);
-        AvalonApplicationContext.loadAvalonBasedBeanDefinitions(defaultListableBeanFactory, springBeanResource, jamesAssemblyResource);
+        //AvalonApplicationContext.loadAvalonBasedBeanDefinitions(defaultListableBeanFactory, springBeanResource, jamesAssemblyResource);
     }
 
     public void setConfigLocations(String[] locationStrings) {
