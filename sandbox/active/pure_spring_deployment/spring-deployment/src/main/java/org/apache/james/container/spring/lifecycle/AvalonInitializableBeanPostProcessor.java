@@ -31,7 +31,6 @@ public class AvalonInitializableBeanPostProcessor extends AbstractLifeCycleBeanP
 	@Override
 	protected void executeLifecycleMethodAfterInit(Initializable bean,
 			String beanname, String lifecyclename) throws Exception {
-	    System.out.println("BEAN=" + beanname + ".initialize()");
 		bean.initialize();
 	}
 

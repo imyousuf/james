@@ -129,6 +129,20 @@
 		class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
 		<property name="logProvider" ref="logProvider" />
 		<property name="order" value="0" />
+		<property name="mappings">
+			<map>
+				<entry key="pop3server.protocolserver" value="pop3server" />
+				<entry key="pop3server.protocolhandlerfactory" value="pop3server" />
+				<entry key="smtpserver.protocolserver" value="smtpserver" />
+				<entry key="smtpserver.protocolhandlerfactory" value="smtpserver" />
+				<entry key="nntpserver.protocolserver" value="nntpserver" />
+				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
+				<entry key="imapserver.protocolserver" value="imapserver" />
+				<entry key="imapserver.protocolhandlerfactory" value="imapserver" />
+				<entry key="remotemanager.protocolserver" value="remotemanager" />
+				<entry key="remotemanager.protocolhandlerfactory" value="remotemanager" />
+			</map>
+		</property>
 	</bean>
 
 	<bean

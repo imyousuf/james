@@ -50,13 +50,6 @@ public class AvalonServiceableBeanPostProcessor extends AbstractLifeCycleBeanPos
 		return Serviceable.class;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.core.Ordered#getOrder()
-	 */
-	public int getOrder() {
-		return 4;
-	}
 
 	/**
 	 * Set mappings for role names to bean names
