@@ -73,16 +73,7 @@ public class MailStore
 
     private Log logger;
 
-    private FileSystem fs;
-
-    private DataSourceSelector datasources;
-
 	private LoaderService loader;
-    
-    @Resource(name="database-connections")
-    public void setDatasources(DataSourceSelector datasources) {
-        this.datasources = datasources;
-    }
 
 
     public void setLog(Log logger) {
@@ -96,17 +87,9 @@ public class MailStore
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
     }
-    
-    /**
-     * Set the Store to use
-     * 
-     * @param store the Store
-     */
-    @Resource(name="filesystem")
-    public void setFileSystem(FileSystem fs) {
-        this.fs = fs;
-    }
 
+
+    
     @Resource(name="org.apache.james.LoaderService")
     public void setLoaderService(LoaderService loader) {
     	this.loader = loader;

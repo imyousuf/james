@@ -80,7 +80,7 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
         mockStore.add("OBJECT.users", file_Persistent_Object_Repository);
         res.setStore(mockStore);
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder("test");
-        configuration.addProperty("destination/[@URL]", "file://target/var/users");
+        configuration.addProperty("destination.[@URL]", "file://target/var/users");
         res.setLog(new SimpleLog("MockLog"));
         res.configure(configuration);
         res.init();

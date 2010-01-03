@@ -24,6 +24,8 @@ package org.apache.james.nntpserver.repository;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.Lock;
 import org.apache.james.util.io.IOUtil;
@@ -45,7 +47,7 @@ import java.util.StringTokenizer;
  * Eats up inappropriate entries.
  *
  */
-public class NNTPSpooler {
+public class NNTPSpooler implements LogEnabled, Configurable{
 
     private ArticleIDRepository idRepos;
     
@@ -345,12 +347,10 @@ public class NNTPSpooler {
 
     
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
     public void configure(HierarchicalConfiguration config) {
         this.config = config;
     }
 
-    @Resource(name="org.apache.commons.logging.Log")
     public void setLog(Log log) {
         this.logger = log;
     }

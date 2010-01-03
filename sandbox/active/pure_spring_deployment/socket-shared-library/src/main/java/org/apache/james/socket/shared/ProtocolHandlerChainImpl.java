@@ -129,7 +129,6 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
         final Class<?> handlerClass = classLoader.loadClass(className);
         
         Object handler = handlerClass.newInstance();
-        System.out.println("LOADER=" + loader);
         loader.injectDependenciesWithLifecycle(handler, getLog(), config);
 
         // if it is a commands handler add it to the map with key as command

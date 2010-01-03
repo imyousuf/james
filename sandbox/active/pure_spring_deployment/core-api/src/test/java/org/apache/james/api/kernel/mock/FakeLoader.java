@@ -55,7 +55,8 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
         mappings.put("scheduler", "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
         mappings.put("database-connections", "org.apache.avalon.cornerstone.services.datasources.DataSourceSelector");
         mappings.put("defaultvirtualusertable", "org.apache.james.api.vut.VirtualUserTable");
-   
+        mappings.put("virtualusertablemanagement", "org.apache.james.api.vut.management.VirtualUserTableManagement");
+
         mappings.put("spoolmanager", "org.apache.james.services.SpoolManager");
         mappings.put("matcherpackages", "org.apache.james.transport.MatcherLoader");
         mappings.put("mailetpackages", "org.apache.james.transport.MailetLoader");
@@ -65,7 +66,7 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
         mappings.put("spoolmanagement", "org.apache.james.management.SpoolManagementService");
         mappings.put("bayesiananalyzermanagement", "org.apache.james.management.BayesianAnalyzerManagementService");
         mappings.put("processormanagement", "org.apache.james.management.ProcessorManagementService");
-        mappings.put("virtualusertablemanagement", "org.apache.james.api.vut.management.VirtualUserTableManagementService");
+        mappings.put("virtualusertablemanagementservice", "org.apache.james.api.vut.management.VirtualUserTableManagementService");
         mappings.put("domainlistmanagement", "org.apache.james.management.DomainListManagementService");
         mappings.put("nntp-repository", "org.apache.james.nntpserver.repository.NNTPRepository");
     }
@@ -96,7 +97,6 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
                     // Name indicates a service
                     final Object service = get(name);
                     
-                    System.out.println("SERVICE=" + service);
                     if (service == null) {
                    } else {
                         try {

@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -116,6 +117,8 @@ public class LinearProcessor implements  MailProcessor, MailetContainer, LogEnab
     private MatcherLoader matchLoader;
 
     private Log logger;
+
+    private HierarchicalConfiguration processorConf;
 
     /**
      * Set the spool to be used by this LinearProcessor.
@@ -566,10 +569,15 @@ public class LinearProcessor implements  MailProcessor, MailetContainer, LogEnab
         mailets = new ArrayList<Mailet>();
     }
 
-    @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration processorConf) throws ConfigurationException {
+        this.processorConf = processorConf;
+    }
+
+    @SuppressWarnings("unchecked")
+    @PostConstruct
+    public void init() throws Exception {
         openProcessorList();
-                
+        
         final List<HierarchicalConfiguration> mailetConfs
             = processorConf.configurationsAt( "mailet" );
         // Loop through the mailet configuration, load
@@ -670,7 +678,6 @@ public class LinearProcessor implements  MailProcessor, MailetContainer, LogEnab
         // able to service mails until this call is made.
         closeProcessorLists();
     }
-
     /**
      * @see org.apache.james.transport.MailetContainer#getMailetConfigs()
      */

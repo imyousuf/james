@@ -36,7 +36,9 @@ public class CommonsConfigurableBeanPostProcessor extends
 	protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname,
 			String lifecyclename) throws Exception {
 		HierarchicalConfiguration beanConfig = provider.getConfigurationForComponent(lifecyclename);
-		bean.configure(beanConfig);
+		if(beanConfig != null) {
+		    bean.configure(beanConfig);
+		}
 	}
 
 

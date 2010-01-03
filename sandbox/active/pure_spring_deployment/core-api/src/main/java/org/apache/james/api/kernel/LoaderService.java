@@ -27,6 +27,14 @@ import org.apache.commons.logging.Log;
  */
 public interface LoaderService {
 
+    /**
+     * Inject dependencies to the given object using jsr250. Before the injection is done set the Log and config 
+     * to the object if the right LifeCycle methods are implement and Log / Config is not null
+     * 
+     * @param obj
+     * @param logger
+     * @param config
+     */
     public void injectDependenciesWithLifecycle(Object obj, Log logger, HierarchicalConfiguration config);
     
     

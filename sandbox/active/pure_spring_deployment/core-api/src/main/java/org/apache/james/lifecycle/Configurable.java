@@ -30,7 +30,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 public interface Configurable {
 
 	/**
-	 * Configure
+	 * Configure the object. Be aware that no services are injected when this is called. If you need
+	 * to access injected stuff do it in a method annotated with @PostConstruct
 	 * 
 	 * @param config
 	 * @throws ConfigurationException

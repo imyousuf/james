@@ -19,22 +19,6 @@
 
 <beans>
 
-
-
-	<!--
-		Logging to log4j <bean id="logger"
-		class="org.apache.james.container.spring.logging.log4j.LoggerToComponentMapper"
-		init-method="init"> <property name="configurationResource"
-		value="log4j.properties"/> </bean> Logging to System.out
-	-->
-	<!--
-		<bean name="logWorker"
-		class="org.apache.james.container.spring.logging.SystemConsoleLogWorker"
-		/> <bean name="logger, loggerMap"
-		class="org.apache.james.container.spring.adaptor.LoggingBridge" >
-		<property name="logWorker" ref="logWorker" /> </bean>
-	-->
-
 	<!--
 		replaces strings in configuration values <bean
 		id="stringRemapperConfigurationInterceptor"
@@ -91,29 +75,6 @@
 		value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver"
 		/> </bean>
 	-->
-
-	<!--
-		beans managing bootstrapping and component lifecycle <bean
-		id="loggerPropagator"
-		class="org.apache.james.container.spring.lifecycle.LoggerPropagator" >
-		<property name="loggerFactory" ref="logger"/> </bean> <bean
-		id="contextPropagator"
-		class="org.apache.james.container.spring.lifecycle.ContextPropagator"
-		> <property name="context" ref="avalonContext"/> </bean> <bean
-		id="servicePropagator"
-		class="org.apache.james.container.spring.lifecycle.ServicePropagator"
-		> <property name="serviceManagerFactory" ref="serviceManager"/>
-		</bean> <bean id="configurationManager"
-		class="org.apache.james.container.spring.lifecycle.ConfigurationPropagator"
-		> <property name="configurationProvider" ref="configurationProvider"/>
-		</bean> <bean id="initializationManager"
-		class="org.apache.james.container.spring.lifecycle.InitializationPropagator"
-		/>
-	-->
-
-
-
-
 
 	<bean
 		class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
@@ -291,10 +252,8 @@
 		class="org.apache.james.container.spring.adaptor.FileSystemBridge" />
 
 	<!-- The VirtualUserTable Management block  -->
-	<!--
-		<bean id="virtualusertablemanagement"
-		class="org.apache.james.impl.vut.VirtualUserTableManagementService" />
-	-->
+	<bean id="virtualusertablemanagementservice"
+		class="org.apache.james.impl.vut.VirtualUserTableManagement" />
 
 	<!-- VirtualUserTable Store -->
 	<bean id="virtualusertable-store" class="org.apache.james.core.VirtualUserTableStoreImpl" />

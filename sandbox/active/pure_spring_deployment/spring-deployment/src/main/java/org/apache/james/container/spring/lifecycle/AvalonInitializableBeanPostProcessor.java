@@ -31,16 +31,13 @@ public class AvalonInitializableBeanPostProcessor extends AbstractLifeCycleBeanP
 	@Override
 	protected void executeLifecycleMethodAfterInit(Initializable bean,
 			String beanname, String lifecyclename) throws Exception {
+	    System.out.println("BEAN=" + beanname + ".initialize()");
 		bean.initialize();
 	}
 
 	@Override
 	protected Class<Initializable> getLifeCycleInterface() {
 		return Initializable.class;
-	}
-
-	public int getOrder() {
-		return 4;
 	}
 
 }

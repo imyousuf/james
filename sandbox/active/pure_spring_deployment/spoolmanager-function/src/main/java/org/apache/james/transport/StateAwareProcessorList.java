@@ -37,7 +37,6 @@ import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
 
@@ -57,12 +56,6 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList, Lo
 
     private HierarchicalConfiguration config;
 
-    private MailetLoader mailetLoader;
-
-    private MatcherLoader matcherLoader;
-
-    private SpoolRepository spoolRepos;
-
     private LoaderService loader;
     
     public StateAwareProcessorList() {
@@ -75,26 +68,12 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList, Lo
         this.logger = logger;
     }
     
-
-    @Resource(name="mailetpackages")
-    public final void setMailetLoader(MailetLoader mailetLoader) {
-        this.mailetLoader = mailetLoader;
-    }
-    
-    @Resource(name="matcherpackages")
-    public final void setMatcherLoader(MatcherLoader matcherLoader) {
-        this.matcherLoader = matcherLoader;
-    }
-
-    @Resource(name="spoolrepository")
-    public final void setSpoolRepository(SpoolRepository spoolRepos) {
-        this.spoolRepos = spoolRepos;
-    }
     
     @Resource(name="org.apache.james.LoaderService")
     public final void setLoaderService(LoaderService loader) {
         this.loader = loader;
     }
+    
     /**
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
@@ -115,10 +94,7 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList, Lo
               
                 processors.put(processorName, processor);
                 
-                //setupLogger(processor, processorName);
-                //ContainerUtil.service(processor, compMgr);
-                //ContainerUtil.configure(processor, processorConf);
-                
+               
                 if (logger.isInfoEnabled()) {
                     StringBuffer infoBuffer =
                         new StringBuffer(64)
