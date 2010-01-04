@@ -329,14 +329,14 @@
 
 	<!-- The Time Scheduler block -->
 	<bean id="scheduler"
-		class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" />
+		class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" destroy-method="dispose" />
 
 	<!-- The DataSourceSelector block -->
 	<bean id="database-connections"
-		class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" />
+		class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" destroy-method="dispose" />
 
 	<!-- The ThreadManager block -->
 	<bean id="thread-manager"
-		class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" />
+		class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" destroy-method="dispose" />
 
 </beans>
