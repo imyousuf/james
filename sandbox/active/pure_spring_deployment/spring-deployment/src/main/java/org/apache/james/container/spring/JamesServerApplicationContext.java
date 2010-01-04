@@ -28,6 +28,8 @@ import org.springframework.core.io.Resource;
 public class JamesServerApplicationContext extends ClassPathXmlApplicationContext{
 
     private static final String FILE_PROTOCOL = "file://";
+    private static final String FILE_PROTOCOL_ABSOLUTE = "file:///";
+
     private static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
     private static final String FILE_PROTOCOL_AND_VAR = "file://var/";
     
@@ -46,8 +48,11 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
                 file = new File("../conf/" + fileURL.substring(FILE_PROTOCOL_AND_CONF.length()));
             } else if (fileURL.startsWith(FILE_PROTOCOL_AND_VAR)) {
                 file = new File("../var/" + fileURL.substring(FILE_PROTOCOL_AND_VAR.length()));
+            } else if (fileURL.startsWith(FILE_PROTOCOL_ABSOLUTE)) {
+            	file = new File("/" + fileURL.substring(FILE_PROTOCOL.length()));
             } else {
-                file = new File("./" + fileURL.substring(FILE_PROTOCOL.length()));
+            	// move to the root folder of the spring deployment
+                file = new File("../" + fileURL.substring(FILE_PROTOCOL.length()));
             }
             r = new FileSystemResource(file);
         } else {
