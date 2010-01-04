@@ -108,8 +108,7 @@
 	</bean>
 
 	<bean id="configurationProvider"
-		class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider"
-		init-method="init">
+		class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider">
 		<property name="configurationResource" value="classpath:james-config.xml" />
 	</bean>
 

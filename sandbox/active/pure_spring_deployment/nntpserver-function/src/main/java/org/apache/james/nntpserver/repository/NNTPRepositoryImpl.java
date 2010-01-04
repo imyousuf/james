@@ -24,7 +24,6 @@ package org.apache.james.nntpserver.repository;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.nntpserver.DateSinceFileFilter;
@@ -141,8 +140,6 @@ public class NNTPRepositoryImpl implements NNTPRepository, Configurable, LogEnab
 
     private Log logger;
 
-	private LoaderService loader;
-
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
         readOnly = configuration.getBoolean("readOnly", false);
@@ -185,11 +182,6 @@ public class NNTPRepositoryImpl implements NNTPRepository, Configurable, LogEnab
     
     public void setLog(Log logger) {
         this.logger = logger;
-    }
-
-    @Resource(name="org.apache.james.LoaderService")
-    public void setLoaderService(LoaderService loader) {
-    	this.loader = loader;
     }
     
     /**
@@ -467,8 +459,11 @@ public class NNTPRepositoryImpl implements NNTPRepository, Configurable, LogEnab
         }
         try {
             NNTPSpooler obj = (NNTPSpooler) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+            obj.configure(spoolerConfiguration.configurationAt("configuration"));
             obj.setArticleIDRepository(articleIDRepo);
-            loader.injectDependenciesWithLifecycle(obj, logger, spoolerConfiguration.configurationAt("configuration"));
+            obj.setFileSystem(fileSystem);
+            obj.setLog(logger);
+            obj.init();
 
             return obj;
         } catch(ClassCastException cce) {

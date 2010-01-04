@@ -142,8 +142,8 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
         
         String processorClass = config.getString("processorClass","org.apache.james.transport.StateAwareProcessorList");
         try {
-            processorList = (MailProcessor) Thread.currentThread().getContextClassLoader().loadClass(processorClass).newInstance();;
-            loaderService.injectDependenciesWithLifecycle(processorList, logger, config);
+             Class<MailProcessor> mClass = (Class<MailProcessor>) Thread.currentThread().getContextClassLoader().loadClass(processorClass);
+             processorList = loaderService.load(mClass, logger, config);
         } catch (Exception e1) {
             logger.error("Unable to instantiate spoolmanager processor: "+processorClass, e1);
             throw new ConfigurationException("Instantiation exception: "+processorClass, e1);

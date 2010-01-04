@@ -88,9 +88,9 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList, Lo
             String processorClass = processorConf.getString("[@class]","org.apache.james.transport.LinearProcessor");
 
             try {
-               
-                MailProcessor processor = (MailProcessor) Thread.currentThread().getContextClassLoader().loadClass(processorClass).newInstance();
-                loader.injectDependenciesWithLifecycle(processor, logger, processorConf);
+                Class<MailProcessor> mClass = (Class<MailProcessor>)Thread.currentThread().getContextClassLoader().loadClass(processorClass);
+                 
+                MailProcessor processor = loader.load(mClass, logger, processorConf);
               
                 processors.put(processorName, processor);
                 

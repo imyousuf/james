@@ -25,6 +25,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.james.container.spring.AvalonConfigurationProvider;
 import org.apache.james.container.spring.ConfigurationProvider;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -34,7 +35,7 @@ import org.springframework.core.io.ResourceLoader;
  * 
  *
  */
-public class SpringConfigurationProvider implements ConfigurationProvider, AvalonConfigurationProvider, ResourceLoaderAware{
+public class SpringConfigurationProvider implements ConfigurationProvider, AvalonConfigurationProvider, ResourceLoaderAware, InitializingBean{
 
 	private ResourceLoader loader;
 	private String configFile;
@@ -43,24 +44,6 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Avalo
 	
 	public void setConfigurationResource(String configFile) {
 		this.configFile = configFile;
-	}
-
-	public void init() {
-		Resource resource = loader.getResource(configFile);
-		if (!resource.exists()) {
-			throw new RuntimeException("could not locate configuration file "
-					+ configFile);
-		}
-		try {
-			config = new XMLConfiguration();
-			config.setDelimiterParsingDisabled(true);
-			config.load(resource.getFile());
-			
-			avalonConfig = new DefaultConfigurationBuilder().buildFromFile(resource.getFile());
-		} catch (Exception e1) {
-			throw new RuntimeException("could not open configuration file "
-					+ configFile, e1);
-		}
 	}
 
 	/*
@@ -89,5 +72,23 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Avalo
 			throws org.apache.avalon.framework.configuration.ConfigurationException {
 		return avalonConfig.getChild(name);
 	}
+
+    public void afterPropertiesSet() throws Exception {
+        Resource resource = loader.getResource(configFile);
+        if (!resource.exists()) {
+            throw new RuntimeException("could not locate configuration file "
+                    + configFile);
+        }
+        try {
+            config = new XMLConfiguration();
+            config.setDelimiterParsingDisabled(true);
+            config.load(resource.getFile());
+            
+            avalonConfig = new DefaultConfigurationBuilder().buildFromFile(resource.getFile());
+        } catch (Exception e1) {
+            throw new RuntimeException("could not open configuration file "
+                    + configFile, e1);
+        }
+    }
 
 }

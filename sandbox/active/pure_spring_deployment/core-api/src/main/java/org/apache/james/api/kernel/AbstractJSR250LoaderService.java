@@ -20,8 +20,11 @@ package org.apache.james.api.kernel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -37,21 +40,66 @@ import org.apache.james.lifecycle.LogEnabled;
  */
 public abstract class AbstractJSR250LoaderService implements LoaderService{
 
-	 /*
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.kernel.LoaderService#injectDependencies(java.lang.Object)
-	 */
-	public void injectDependencies(Object obj) {
-        try {
-            injectResources(obj);
-            postConstruct(obj);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Unable to handle dependency injection of object " + obj, e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("Unable to handle dependency injection of object " + obj, e);
-        }
+    private List<Object> loaderRegistry = new ArrayList<Object>();
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.kernel.LoaderService#load(java.lang.Class)
+     */
+    public <T>T load(Class<T> type) {
+        return load(type, null, null);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.kernel.LoaderService#load(java.lang.Class, org.apache.commons.logging.Log, org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    public <T>T load(Class<T> type, Log logger, HierarchicalConfiguration config) {
+        try {
+            T obj = type.newInstance();
+            if (obj instanceof LogEnabled && logger != null) {
+                ((LogEnabled) obj).setLog(logger);
+            }
+            if (obj instanceof Configurable && config != null) {
+                try {
+                ((Configurable) obj).configure(config);
+                } catch (ConfigurationException ex) {
+                    throw new RuntimeException("Unable to configure object " + obj, ex);
+                }
+            }
+            
+            injectResources(obj);
+            postConstruct(obj);
+            synchronized (this) {
+                loaderRegistry.add(obj);
+            }
+            return obj;
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Unable to load instance of class " + type, e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Unable to load instance of class " + type, e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException("Unable to load instance of class " + type, e);
+        }
+            
+    }
+    
+    /**
+     * Dispose all loaded instances by calling the method of the instances which is annotated
+     * with @PreDestroy
+     */
+    public synchronized void dispose() {
+        for (int i = 0; i < loaderRegistry.size(); i++) {
+            try {
+                preDestroy(loaderRegistry.get(i));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        loaderRegistry.clear();
+    }
 	   
     private void postConstruct(Object resource) throws IllegalAccessException,
             InvocationTargetException {
@@ -66,6 +114,19 @@ public abstract class AbstractJSR250LoaderService implements LoaderService{
             }
         }
     }
+    
+    private void preDestroy(Object resource) throws IllegalAccessException, InvocationTargetException {
+        Method[] methods = resource.getClass().getMethods();
+        for (Method method : methods) {
+            PreDestroy preDestroyAnnotation = method.getAnnotation(PreDestroy.class);
+            if (preDestroyAnnotation != null) {
+                Object[] args = {};
+                method.invoke(resource, args);
+
+            }
+        }
+    }
+
     
     private void injectResources(Object resource) {
         final Method[] methods = resource.getClass().getMethods();
@@ -98,24 +159,6 @@ public abstract class AbstractJSR250LoaderService implements LoaderService{
         }
     }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.kernel.LoaderService#injectDependenciesWithLifecycle(java.lang.Object, org.apache.commons.logging.Log, org.apache.commons.configuration.HierarchicalConfiguration)
-	 */
-	public void injectDependenciesWithLifecycle(Object obj, Log logger,
-			HierarchicalConfiguration config) {
-		if (obj instanceof LogEnabled) {
-			((LogEnabled) obj).setLog(logger);
-		}
-		if (obj instanceof Configurable) {
-			try {
-			((Configurable) obj).configure(config);
-			} catch (ConfigurationException ex) {
-				throw new RuntimeException("Unable to configure object " + obj, ex);
-			}
-		}
-		injectDependencies(obj);
-	}
 	
 	/**
 	 * Return the Object which should be injected for given name

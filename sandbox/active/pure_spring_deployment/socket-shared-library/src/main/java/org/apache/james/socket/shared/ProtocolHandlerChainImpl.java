@@ -128,8 +128,8 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
             org.apache.commons.configuration.HierarchicalConfiguration config) throws Exception {
         final Class<?> handlerClass = classLoader.loadClass(className);
         
-        Object handler = handlerClass.newInstance();
-        loader.injectDependenciesWithLifecycle(handler, getLog(), config);
+       
+        Object handler =loader.load(handlerClass, getLog(), config);
 
         // if it is a commands handler add it to the map with key as command
         // name

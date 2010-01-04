@@ -43,9 +43,7 @@ public abstract class AbstractSupportLoaderProtocolHandlerFactory extends Abstra
         if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
             jamesConfiguration.addProperty("[@coreHandlersPackage]", getHandlersPackage().getName());
         
-        System.out.println("jamesConfiguration="+jamesConfiguration);
-    	handlerChain = new ProtocolHandlerChainImpl();
-        loader.injectDependenciesWithLifecycle(handlerChain, getLogger(), jamesConfiguration);
+    	handlerChain = loader.load(ProtocolHandlerChainImpl.class, getLogger(), jamesConfiguration);
     }
 
     @Override

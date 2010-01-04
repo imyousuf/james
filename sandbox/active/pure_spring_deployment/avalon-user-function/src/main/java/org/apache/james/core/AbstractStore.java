@@ -89,8 +89,9 @@ public abstract class AbstractStore<Type> implements LogEnabled, Configurable{
             if (theClassLoader == null) {
                 theClassLoader = Thread.currentThread().getContextClassLoader();
             }         
-            Type object = (Type)theClassLoader.loadClass(repClass).newInstance();
-            loader.injectDependenciesWithLifecycle(object, getLogger(), repConf);
+            Class<Type> objectClass = (Class<Type>)theClassLoader.loadClass(repClass);
+            
+            Type object = loader.load(objectClass, getLogger(), repConf);
 
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("Load instance " + object);

@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.collections.map.ReferenceMap;
@@ -39,7 +38,6 @@ import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.services.FileSystem;
 
 /**
  * Provides a registry of mail repositories. A mail repository is uniquely
@@ -263,8 +261,8 @@ public class MailStore
             }
 
             try {
-                reply = Thread.currentThread().getContextClassLoader().loadClass(repClass).newInstance();
-                loader.injectDependenciesWithLifecycle(reply, logger, config);
+                Class<?> replyClass = Thread.currentThread().getContextClassLoader().loadClass(repClass);
+                reply = loader.load(replyClass, logger, config);
 
                 repositories.put(repID, reply);
                 if (getLogger().isInfoEnabled()) {

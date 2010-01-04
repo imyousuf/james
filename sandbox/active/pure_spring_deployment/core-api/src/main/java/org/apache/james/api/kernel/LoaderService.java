@@ -28,20 +28,26 @@ import org.apache.commons.logging.Log;
 public interface LoaderService {
 
     /**
-     * Inject dependencies to the given object using jsr250. Before the injection is done set the Log and config 
-     * to the object if the right LifeCycle methods are implement and Log / Config is not null
-     * 
-     * @param obj
-     * @param logger
-     * @param config
+     * Loads an instance of the given class.
+     * The load may elect to return a new instance
+     * and use the logger and config for the lifecycle.
+     * Instances should - where appropriate - have dependencies injected.
+     * @param <T> 
+     * @param type may be interface or concrete, not null
+     * @return an instance of the type
      */
-    public void injectDependenciesWithLifecycle(Object obj, Log logger, HierarchicalConfiguration config);
+
+    public <T>T load(Class<T> type, Log logger, HierarchicalConfiguration config);
     
     
     /**
-     * Inject dependencies to the given object using jsr250
-     * 
-     * @param obj
+     * Loads an instance of the given class.
+     * The load return a new instance
+     * Instances should - where appropriate - have dependencies injected.
+     * @param <T> 
+     * @param type may be interface or concrete, not null
+     * @return an instance of the type
      */
-    public void injectDependencies(Object obj);
+
+    public <T>T load(Class<T> type);
 }

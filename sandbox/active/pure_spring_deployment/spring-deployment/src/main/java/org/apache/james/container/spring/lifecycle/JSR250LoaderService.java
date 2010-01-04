@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.AbstractJSR250LoaderService;
 import org.apache.james.api.kernel.LoaderService;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -35,26 +36,9 @@ import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
  *
  */
 @SuppressWarnings("serial")
-public class JSR250LoaderService extends CommonAnnotationBeanPostProcessor implements LoaderService, ApplicationContextAware {
+public class JSR250LoaderService extends CommonAnnotationBeanPostProcessor implements LoaderService, ApplicationContextAware, DisposableBean {
 
 	private SpringJSR250LoaderService loader;
-	
-    /*
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.kernel.LoaderService#injectDependencies(java.lang.Object)
-	 */
-	public void injectDependencies(Object obj) {
-        loader.injectDependencies(obj);
-    }
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.kernel.LoaderService#injectDependenciesWithLifecycle(java.lang.Object, org.apache.commons.logging.Log, org.apache.commons.configuration.HierarchicalConfiguration)
-	 */
-	public void injectDependenciesWithLifecycle(Object obj, Log logger,
-			HierarchicalConfiguration config) {
-		loader.injectDependenciesWithLifecycle(obj, logger, config);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -62,6 +46,32 @@ public class JSR250LoaderService extends CommonAnnotationBeanPostProcessor imple
 	 */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         loader = new SpringJSR250LoaderService(applicationContext);
+    }
+    
+
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.beans.factory.DisposableBean#destroy()
+     */
+    public void destroy() throws Exception {
+        loader.dispose();
+    }
+  
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.kernel.LoaderService#load(java.lang.Class, org.apache.commons.logging.Log, org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    public <T> T load(Class<T> type, Log logger, HierarchicalConfiguration config) {
+        return loader.load(type, logger, config);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.kernel.LoaderService#load(java.lang.Class)
+     */
+    public <T> T load(Class<T> type) {
+        return loader.load(type);
     }
     
     private final class SpringJSR250LoaderService extends AbstractJSR250LoaderService {
@@ -77,4 +87,5 @@ public class JSR250LoaderService extends CommonAnnotationBeanPostProcessor imple
 		}
     	
     }
+
 }
