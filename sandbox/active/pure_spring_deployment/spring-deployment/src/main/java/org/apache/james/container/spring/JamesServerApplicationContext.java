@@ -49,7 +49,7 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
             } else if (fileURL.startsWith(FILE_PROTOCOL_AND_VAR)) {
                 file = new File("../var/" + fileURL.substring(FILE_PROTOCOL_AND_VAR.length()));
             } else if (fileURL.startsWith(FILE_PROTOCOL_ABSOLUTE)) {
-            	file = new File("/" + fileURL.substring(FILE_PROTOCOL.length()));
+            	file = new File("/" + fileURL.substring(FILE_PROTOCOL_ABSOLUTE.length()));
             } else {
             	// move to the root folder of the spring deployment
                 file = new File("../" + fileURL.substring(FILE_PROTOCOL.length()));
