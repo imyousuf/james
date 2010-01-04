@@ -135,6 +135,9 @@
         <include name="${jackrabbit-rmi.jar}"/>
         <include name="${jcr.jar}"/>
         <include name="${jsr250.jar}"/>
+        <include name="${spring.jar}"/>
+        <include name="${log4j.jar}"/>
+
         <!-- Protocols should be coupled by deployment only -->
         <include name='${path.lib.james}/apache-james-imap*.jar'/>
         <include name='${path.lib.james}/${jarname.mailet.crypto}'/>  
@@ -146,8 +149,6 @@
     <path id="classpath.james.target">
         <fileset refid='main.jars'/>
         <fileset refid="james.jars"/> 
-        <!--<pathelement path="${java.class.path}" />-->
-        <!--<pathelement path="${build.classes}" />-->
     </path>
 
     <fileset id='excalibur.jars' dir="${lib.dir}">
@@ -163,42 +164,9 @@
     <path id="classpath.phoenix.implementations">
         <fileset refid='excalibur.jars'/>
     </path>
-    
-    <fileset id='spring.jars' dir="${basedir}/lib/spring">
-    <!-- TODO: remove from commons lists non-spring required libs --> 
-        <include name="commons-attributes-api.jar"/>
-        <include name="commons-attributes-compiler.jar"/>
-        <include name="commons-beanutils.jar"/>
-        <include name="commons-codec.jar"/>
-<!--            <include name="${basedir}/lib/commons-digester.jar"/>
-        <include name="${basedir}/lib/commons-lang.jar"/>
-        <include name="${basedir}/lib/commons-logging.jar"/>-->
-        <include name="commons-discovery.jar"/>
-        <include name="commons-fileupload.jar"/>
-        <include name="commons-httpclient.jar"/>
-        <include name="commons-io.jar"/>
-        <include name="commons-javaflow.jar"/>
-        <include name="commons-validator.jar"/>
-        <include name="spring.jar"/>
-    </fileset>
-	
-    <path id="classpath.spring">
-        <fileset refid='spring.jars'/>
-    </path>
-
-    <fileset id='misc.jars' dir="${basedir}/lib/log4j">
-        <include name="log4j-1.2.15.jar"/>
-    </fileset>
-	
-    <path id="classpath.misc">
-        <fileset refid='misc.jars'/>
-    </path>
 
     <path id="classpath.all.libs">
-        <path refid="classpath.phoenix.implementations" />
         <path refid="classpath.james.target" />
-        <path refid="classpath.spring" />
-        <path refid="classpath.misc" />
     </path>
 
     <path id="runclasspath">
@@ -312,12 +280,6 @@
                 <include name="**/LICENSE*" />
             </fileset>
         </copy>
-    	<!--
-        <echo>${phoenix-deployment.build.lib.jar}</echo>
-        <copy todir="${spring-deployment.target.lib.dir}" >
-            <fileset file="${phoenix-deployment.build.lib.jar}" />
-        </copy>
-        -->
     </target>
     
     <target name="package-aquire-config-files" >
@@ -420,9 +382,12 @@ case $1 in
 esac   
 ]]></echo>
         <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${spring-deployment.target.lib.dir}" value="../lib" />
-        <replace file="${spring-deployment.target.bin.dir}/run.sh" token=";" value=":" />
+
+    	<replace file="${spring-deployment.target.bin.dir}/run.sh" token=";" value=":" />
         <replace file="${spring-deployment.target.bin.dir}/run.sh" token="@@SEMI_COLON@@" value=';'/>  
-        <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
+
+    	<chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
+
 
         <!-- create windows startup script-->
 		<pathconvert property="spring-deployment.target.lib.dir.windows" targetos="windows">
@@ -431,6 +396,7 @@ esac
         <echo file="${spring-deployment.target.bin.dir}/run.bat" append="false">
 java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main             
         </echo>
+        <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir}" value="../lib" />
         <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir.windows}" value="../lib" />
         <replace file="${spring-deployment.target.bin.dir}/run.bat" token=":" value=";" />
     </target>
