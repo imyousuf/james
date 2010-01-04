@@ -18,18 +18,10 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.api.kernel.AbstractJSR250LoaderService;
 import org.apache.james.api.kernel.LoaderService;
-import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LogEnabled;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -45,66 +37,14 @@ import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 @SuppressWarnings("serial")
 public class JSR250LoaderService extends CommonAnnotationBeanPostProcessor implements LoaderService, ApplicationContextAware {
 
-	private ConfigurableApplicationContext applicationContext;
-
+	private SpringJSR250LoaderService loader;
+	
     /*
 	 * (non-Javadoc)
 	 * @see org.apache.james.api.kernel.LoaderService#injectDependencies(java.lang.Object)
 	 */
 	public void injectDependencies(Object obj) {
-        try {
-            injectResources(obj);
-            postConstruct(obj);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Unable to handle dependency injection of object " + obj, e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("Unable to handle dependency injection of object " + obj, e);
-        }
-    }
-
-	   
-    private void postConstruct(Object resource) throws IllegalAccessException,
-            InvocationTargetException {
-        Method[] methods = resource.getClass().getMethods();
-        for (Method method : methods) {
-            PostConstruct postConstructAnnotation = method
-                    .getAnnotation(PostConstruct.class);
-            if (postConstructAnnotation != null) {
-                Object[] args = {};
-                method.invoke(resource, args);
-
-            }
-        }
-    }
-    
-    private void injectResources(Object resource) {
-        final Method[] methods = resource.getClass().getMethods();
-        for (Method method : methods) {
-            final Resource resourceAnnotation = method.getAnnotation(Resource.class);
-            if (resourceAnnotation != null) {
-                final String name = resourceAnnotation.name();
-                if (name == null) {
-                    // Unsupported
-                } else {
-                    // Name indicates a service
-                    final Object service = applicationContext.getBean(name);
-                    
-                    if (service == null) {
-                   } else {
-                        try {
-                            Object[] args = {service};
-                            method.invoke(resource, args);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException("Injection failed for object " + resource + " on method " + method + " with resource " + service, e);
-                        } catch (IllegalArgumentException e) {
-                            throw new RuntimeException("Injection failed for object " + resource + " on method " + method + " with resource " + service, e);
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException("Injection failed for object " + resource + " on method " + method + " with resource " + service, e);
-                        }
-                    }
-                }
-            }
-        }
+        loader.injectDependencies(obj);
     }
 
 	/*
@@ -113,20 +53,28 @@ public class JSR250LoaderService extends CommonAnnotationBeanPostProcessor imple
 	 */
 	public void injectDependenciesWithLifecycle(Object obj, Log logger,
 			HierarchicalConfiguration config) {
-		if (obj instanceof LogEnabled) {
-			((LogEnabled) obj).setLog(logger);
-		}
-		if (obj instanceof Configurable) {
-			try {
-			((Configurable) obj).configure(config);
-			} catch (ConfigurationException ex) {
-				throw new RuntimeException("Unable to configure object " + obj, ex);
-			}
-		}
-		injectDependencies(obj);
+		loader.injectDependenciesWithLifecycle(obj, logger, config);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
+	 */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = (ConfigurableApplicationContext) applicationContext;
+        loader = new SpringJSR250LoaderService(applicationContext);
+    }
+    
+    private final class SpringJSR250LoaderService extends AbstractJSR250LoaderService {
+
+    	private ApplicationContext context;
+    	
+		public SpringJSR250LoaderService(ApplicationContext context) {
+    		this.context = context;
+    	}
+		@Override
+		protected Object getObjectForName(String name) {
+			return context.getBean(name);
+		}
+    	
     }
 }

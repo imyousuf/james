@@ -19,23 +19,13 @@
 
 package org.apache.james.api.kernel.mock;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.james.api.kernel.LoaderService;
-import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.api.kernel.AbstractJSR250LoaderService;
 
-public class FakeLoader implements LoaderService, org.apache.avalon.framework.service.ServiceManager{
+public class FakeLoader extends AbstractJSR250LoaderService implements org.apache.avalon.framework.service.ServiceManager{
 
     private final Map<String, Object> servicesByName;
     private final Map<String, String> mappings = new HashMap<String, String>();
@@ -71,7 +61,7 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
         mappings.put("nntp-repository", "org.apache.james.nntpserver.repository.NNTPRepository");
     }
     
-    
+
     public Object get(String name) { 
         Object service = servicesByName.get(mapName(name));
         
@@ -85,45 +75,29 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
         }
         return newName;
     }
-    private void injectResources(Object resource) {
-        final Method[] methods = resource.getClass().getMethods();
-        for (Method method : methods) {
-            final Resource resourceAnnotation = method.getAnnotation(Resource.class);
-            if (resourceAnnotation != null) {
-                final String name = resourceAnnotation.name();
-                if (name == null) {
-                    // Unsupported
-                } else {
-                    // Name indicates a service
-                    final Object service = get(name);
-                    
-                    if (service == null) {
-                   } else {
-                        try {
-                            Object[] args = {service};
-                            method.invoke(resource, args);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException("Injection failed", e);
-                        } catch (IllegalArgumentException e) {
-                            throw new RuntimeException("Injection failed", e);
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException("Injection failed", e);
-                        }
-                    }
-                }
-            }
-        }
-    }
+   
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.avalon.framework.service.ServiceManager#hasService(java.lang.String)
+     */
     public boolean hasService(String name) {
         return servicesByName.containsKey(name);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.avalon.framework.service.ServiceManager#lookup(java.lang.String)
+     */
     public Object lookup(String name) throws ServiceException {
         return servicesByName.get(name);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.avalon.framework.service.ServiceManager#release(java.lang.Object)
+     */
     public void release(Object service) {
     }
 
@@ -132,43 +106,8 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
     }
 
 
-	public void injectDependencies(Object obj) {
-        injectResources(obj);	
-        try {
-        	postConstruct(obj);
-        } catch (Exception e) {
-        	throw new RuntimeException(e);
-        }
-	}
-
-
-	public void injectDependenciesWithLifecycle(Object obj, Log logger,
-			HierarchicalConfiguration config) {
-		if (obj instanceof LogEnabled) {
-			((LogEnabled)obj).setLog(logger);
-		}
-		if (obj instanceof Configurable) {
-			try {
-				((Configurable) obj).configure(config);
-			} catch (ConfigurationException e) {
-				e.printStackTrace();
-				throw new RuntimeException(e);
-			}		
-		}
-		injectDependencies(obj);
-	}
-	
-	private void postConstruct(Object resource) throws IllegalAccessException,
-			InvocationTargetException {
-		Method[] methods = resource.getClass().getMethods();
-		for (Method method : methods) {
-			PostConstruct postConstructAnnotation = method
-					.getAnnotation(PostConstruct.class);
-			if (postConstructAnnotation != null) {
-				Object[] args = {};
-				method.invoke(resource, args);
-
-			}
-		}
+	@Override
+	protected Object getObjectForName(String name) {
+		return get(name);
 	}
 }
