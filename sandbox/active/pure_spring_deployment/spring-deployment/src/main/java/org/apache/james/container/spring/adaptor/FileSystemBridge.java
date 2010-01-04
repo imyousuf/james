@@ -30,7 +30,7 @@ import java.io.InputStream;
 public class FileSystemBridge implements FileSystem, ResourceLoaderAware {
 
     public File getBasedir() throws FileNotFoundException {
-        return new File(".");
+        return new File("./../");
     }
     
     private ResourceLoader resourceLoader = null;

@@ -109,17 +109,41 @@ public abstract class AbstractFileRepository
             m_baseDirectory = fileSystem.getBasedir();
         } catch (FileNotFoundException e) {
             getLogger().error("Cannot find the base directory of the application",e);
-            throw new FileNotFoundException("Cannot find the base directory of the application");
+            throw new ConfigurationException("Cannot find the base directory of the application");
         }
         
+        File directory;
 
+        // Check for absolute path
+        if( m_path.startsWith( "/" ) )
+        {
+            directory = new File( m_path );
+        }
+        else
+        {
+            directory = new File( m_baseDirectory, m_path );
+        }
+
+        try
+        {
+            directory = directory.getCanonicalFile();
+        }
+        catch( final IOException ioe )
+        {
+            throw new ConfigurationException( "Unable to form canonical representation of " +
+                                              directory );
+        }
+
+        m_path = directory.toString();
+
+        
+       
         m_name = "Repository";
         String m_postfix = getExtensionDecorator();
         m_extension = "." + m_name + m_postfix;
         m_filter = new ExtensionFileFilter(m_extension);
         //m_filter = new NumberedRepositoryFileFilter(getExtensionDecorator());
 
-        final File directory = new File( m_path );
         directory.mkdirs();
 
         getLogger().info( getClass().getName() + " opened in " + m_path );
@@ -173,33 +197,10 @@ public abstract class AbstractFileRepository
             throw new ConfigurationException( "cannot handle destination " + destination );
         }
 
+        
         m_path = destination.substring( HANDLED_URL.length() );
-
-        File directory;
-
-        // Check for absolute path
-        if( m_path.startsWith( "/" ) )
-        {
-            directory = new File( m_path );
-        }
-        else
-        {
-            directory = new File( m_baseDirectory, m_path );
-        }
-
-        try
-        {
-            directory = directory.getCanonicalFile();
-        }
-        catch( final IOException ioe )
-        {
-            throw new ConfigurationException( "Unable to form canonical representation of " +
-                                              directory );
-        }
-
-        m_path = directory.toString();
-
         m_destination = destination;
+
     }
 
     /**
