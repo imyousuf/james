@@ -108,16 +108,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>bin</descriptorRef>
-            <descriptorRef>src</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-      </plugin>
+      </plugin>     
     </plugins>
   </build>
   <repositories>
@@ -994,14 +985,7 @@
       <version>2.0.2</version>
       <scope>provided</scope>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.6.2</version>
-      <scope>provided</scope>
-    </dependency>
-     -->
+
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
@@ -1055,6 +1039,7 @@
       <artifactId>activemq-core</artifactId>
       <version>4.1.1</version>
     </dependency>
+    
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
@@ -1068,7 +1053,17 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
+      <artifactId>spring-core</artifactId>
+      <version>2.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>2.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
       <version>2.5.6</version>
     </dependency>
     <dependency>
@@ -1105,6 +1100,7 @@
       <scope>test</scope>
     </dependency>
    
+
   </dependencies>
   </dependencyManagement>
 

@@ -135,7 +135,9 @@
         <include name="${jackrabbit-rmi.jar}"/>
         <include name="${jcr.jar}"/>
         <include name="${jsr250.jar}"/>
-        <include name="${spring.jar}"/>
+        <include name="${spring-core.jar}"/>
+        <include name="${spring-context.jar}"/>
+        <include name="${spring-beans.jar}"/>
         <include name="${log4j.jar}"/>
 
         <!-- Protocols should be coupled by deployment only -->
