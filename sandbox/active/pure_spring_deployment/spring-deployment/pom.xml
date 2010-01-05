@@ -50,7 +50,7 @@
           <repositoryLayout>flat</repositoryLayout>
 		  <repositoryName>lib</repositoryName>
           <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
-          <!-- Generate bin scripts for windows and unix pr default -->
+          <!-- Generate bin scripts for windows and unix per default -->
           <platforms>
             <platform>windows</platform>
             <platform>unix</platform>
@@ -58,6 +58,7 @@
           <programs>
             <program>
               <mainClass>org.apache.james.container.spring.Main</mainClass>
+              <!-- call it only run because appassemble will add .bat by default on windows -->              
               <name>run</name>
               <!-- Only generate windows bat script for this application -->
               <platforms>
@@ -84,6 +85,29 @@
           </execution>
         </executions>
       </plugin>
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+
+              <tasks>
+          		<!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
+          			 from the lib dir to make windows happy again -->
+                <replace file="${project.build.directory}/appassembler/bin/run.bat" token="%BASEDIR%\lib" value="..\lib"/>
+              </tasks>
+
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
 	  <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.2-beta-2</version>
