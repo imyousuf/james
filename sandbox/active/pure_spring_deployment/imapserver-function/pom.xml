@@ -47,17 +47,14 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-library</artifactId>
+      <artifactId>james-server-socket-api</artifactId>
     </dependency>
         
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-jsieve</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jsieve-mailet</artifactId>
@@ -67,10 +64,6 @@
        <artifactId>geronimo-annotation_1.0_spec</artifactId>
     </dependency>
     
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-socket-library</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-socket-shared-library</artifactId>
@@ -103,11 +96,7 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-seda</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.framework</groupId>
-      <artifactId>avalon-framework-api</artifactId>
-    </dependency>
-    
+ 
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>

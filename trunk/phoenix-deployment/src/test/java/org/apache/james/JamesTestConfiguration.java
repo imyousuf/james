@@ -17,16 +17,37 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.remotemanager.core;
 
-import org.apache.james.remotemanager.ConnectHandler;
-import org.apache.james.remotemanager.RemoteManagerResponse;
-import org.apache.james.remotemanager.RemoteManagerSession;
 
-public class WelcomeHandler implements ConnectHandler{
+package org.apache.james;
 
-    public void onConnect(RemoteManagerSession session) {
-        session.writeRemoteManagerResponse(new RemoteManagerResponse("JAMES Remote Administration Tool "));// + Constants.SOFTWARE_VERSION));
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.james.test.util.Util;
+
+@SuppressWarnings("serial")
+public class JamesTestConfiguration extends DefaultConfiguration {
+    
+    public JamesTestConfiguration() {
+        super("James");
+    }
+
+    public void init() {
+
+        //setAttribute("enabled", true);
+
+        DefaultConfiguration serverNamesConfig = new DefaultConfiguration("servernames");
+        serverNamesConfig.setAttribute("autodetect", false);
+        serverNamesConfig.addChild(Util.getValuedConfiguration("servername", "localhost"));
+        addChild(serverNamesConfig);
+
+        DefaultConfiguration inboxRepositoryConfig = new DefaultConfiguration("inboxRepository");
+
+        DefaultConfiguration repositoryConfig = new DefaultConfiguration("repository");
+        repositoryConfig.setAttribute("destinationURL", "db://maildb/inbox/");
+        repositoryConfig.setAttribute("type", "MAIL");
+        inboxRepositoryConfig.addChild(repositoryConfig);
+
+        addChild(inboxRepositoryConfig);
     }
 
 }
