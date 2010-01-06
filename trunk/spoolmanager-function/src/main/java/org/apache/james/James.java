@@ -182,6 +182,8 @@ public class James
 
     private DNSService dns;
 
+    private Log mailetLog;
+
 
     /**
      * Sets the fileSystem service
@@ -212,6 +214,14 @@ public class James
     }
     
   
+    /**
+     * This only needed till MailetContext get factored out of this class
+     * 
+     * @param mailetLog
+     */
+    public void setMailetLog(Log mailetLog) {
+        this.mailetLog = mailetLog;
+    }
     
     @PostConstruct
     public void init() throws Exception {
@@ -862,7 +872,10 @@ public class James
      * @return the logger for the Mailet API
      */
     private Log getMailetLogger() {
-        return logger;
+        if (mailetLog == null) {
+            return logger;
+        }
+        return mailetLog;
     }
 
     /**
