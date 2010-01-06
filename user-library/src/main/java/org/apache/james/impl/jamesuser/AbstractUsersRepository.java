@@ -28,6 +28,8 @@ import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.User;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.impl.user.DefaultUser;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +43,7 @@ import javax.annotation.Resource;
  * implementations, and makes it easier to create new User repositories.</p>
  *
  */
-public abstract class AbstractUsersRepository implements JamesUsersRepository {
+public abstract class AbstractUsersRepository implements JamesUsersRepository, LogEnabled, Configurable {
 
     /**
      * Ignore case in usernames
@@ -58,26 +60,14 @@ public abstract class AbstractUsersRepository implements JamesUsersRepository {
      */
     protected boolean enableForwarding;
 
-    private HierarchicalConfiguration configuration;
 
     private Log logger;
 
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
-        this.configuration = configuration;
-    }
-    
-    @PostConstruct
-    public void init() throws Exception{
-        configure();
-    }
-    
-    private void configure() throws ConfigurationException {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         setIgnoreCase(configuration.getBoolean("usernames", false));
         setEnableAliases(configuration.getBoolean("enableAliases", false));
         setEnableForwarding(configuration.getBoolean("enableForwarding", false));

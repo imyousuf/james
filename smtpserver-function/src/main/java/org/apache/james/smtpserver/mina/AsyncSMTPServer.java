@@ -107,13 +107,6 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 
     private boolean addressBracketsEnforcement = true;
 
-
-    // this is only needed because of an bug in guiceyfruit
-    // http://code.google.com/p/guiceyfruit/issues/detail?id=28
-    @PostConstruct
-    public void init() throws Exception {
-        super.init();
-    }
     
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
@@ -196,16 +189,14 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
      * @throws Exception
      */
     private void prepareHandlerChain() throws Exception {
-        handlerChain = getLoader().load(ProtocolHandlerChainImpl.class);
-                      
-        //set the logger
-        handlerChain.setLog(getLogger());
-        
         //read from the XML configuration and create and configure each of the handlers
         HierarchicalConfiguration handlerchainConfig = handlerConfiguration.configurationAt("handlerchain");
         if (handlerchainConfig.getString("[@coreHandlersPackage]") == null)
             handlerchainConfig.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
+        
+        handlerChain = getLoader().load(ProtocolHandlerChainImpl.class, getLogger(), handlerConfiguration);
         handlerChain.configure(handlerchainConfig);
+        
     }
 
 

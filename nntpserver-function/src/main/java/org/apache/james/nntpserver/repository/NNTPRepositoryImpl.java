@@ -24,17 +24,15 @@ package org.apache.james.nntpserver.repository;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.nntpserver.DateSinceFileFilter;
 import org.apache.james.nntpserver.NNTPException;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.io.AndFileFilter;
 import org.apache.james.util.io.DirectoryFileFilter;
 import org.apache.oro.io.GlobFilenameFilter;
-import org.guiceyfruit.jsr250.Jsr250Module;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.name.Names;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -53,7 +51,7 @@ import javax.annotation.Resource;
 /**
  * NNTP Repository implementation.
  */
-public class NNTPRepositoryImpl implements NNTPRepository {
+public class NNTPRepositoryImpl implements NNTPRepository, Configurable, LogEnabled {
 
     /**
      * The configuration employed by this repository
@@ -142,31 +140,8 @@ public class NNTPRepositoryImpl implements NNTPRepository {
 
     private Log logger;
 
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
-    }
-    
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
-        this.logger = logger;
-    }
-
-    /**
-     * Setter for the FileSystem dependency
-     * 
-     * @param system filesystem service
-     */
-    @Resource(name="filesystem")
-    public void setFileSystem(FileSystem system) {
-        this.fileSystem = system;
-    }
-    
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    @SuppressWarnings("unchecked")
-    private void configure() throws ConfigurationException {
         readOnly = configuration.getBoolean("readOnly", false);
         articleIDDomainSuffix = configuration.getString("articleIDDomainSuffix", "foo.bar.sho.boo");
         rootPathString = configuration.getString("rootPath", null);
@@ -204,12 +179,26 @@ public class NNTPRepositoryImpl implements NNTPRepository {
         }
         logger.debug("Repository configuration done");
     }
+    
+    public void setLog(Log logger) {
+        this.logger = logger;
+    }
+    
+    /**
+     * Setter for the FileSystem dependency
+     * 
+     * @param system filesystem service
+     */
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem system) {
+        this.fileSystem = system;
+    }
+    
 
     @PostConstruct
     public void init() throws Exception {
 
         logger.debug("Starting initialize");
-        configure();
         File articleIDPath = null;
 
         try {
@@ -469,54 +458,14 @@ public class NNTPRepositoryImpl implements NNTPRepository {
         	className = NNTPSpooler.class.getName();
         }
         try {
-            Class<?> myClass = Thread.currentThread().getContextClassLoader().loadClass(className);
-            Object obj = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
+            NNTPSpooler obj = (NNTPSpooler) Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+            obj.configure(spoolerConfiguration.configurationAt("configuration"));
+            obj.setArticleIDRepository(articleIDRepo);
+            obj.setFileSystem(fileSystem);
+            obj.setLog(logger);
+            obj.init();
 
-                @Override
-                protected void configure() {
-                    bind(HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(spoolerConfiguration.configurationAt("configuration"));
-                    bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                    bind(FileSystem.class).annotatedWith(Names.named("filesystem")).toInstance(fileSystem);
-                    bind(ArticleIDRepository.class).annotatedWith(Names.named("org.apache.james.nntpserver.repository.ArticleIDRepository")).toInstance(articleIDRepo);
-                    bind(NNTPRepository.class).annotatedWith(Names.named("nntp-repository")).toInstance(new NNTPRepository() {
-
-                        public void createArticle(InputStream in) {
-                            NNTPRepositoryImpl.this.createArticle(in);
-                        }
-
-                        public NNTPArticle getArticleFromID(String id) {
-                            return NNTPRepositoryImpl.this.getArticleFromID(id);
-                        }
-
-                        public Iterator<NNTPArticle> getArticlesSince(Date dt) {
-                            return NNTPRepositoryImpl.this.getArticlesSince(dt);
-                        }
-
-                        public NNTPGroup getGroup(String groupName) {
-                            return NNTPRepositoryImpl.this.getGroup(groupName);
-                        }
-
-                        public Iterator<NNTPGroup> getGroupsSince(Date dt) {
-                            return NNTPRepositoryImpl.this.getGroupsSince(dt);
-                        }
-
-                        public Iterator<NNTPGroup> getMatchedGroups(String wildmat) {
-                            return NNTPRepositoryImpl.this.getMatchedGroups(wildmat);
-                        }
-
-                        public String[] getOverviewFormat() {
-                            return NNTPRepositoryImpl.this.getOverviewFormat();
-                        }
-
-                        public boolean isReadOnly() {
-                            return NNTPRepositoryImpl.this.isReadOnly();
-                        }
-                        
-                    });
-                }
-                
-            }).getInstance(myClass);
-            return (NNTPSpooler)obj;
+            return obj;
         } catch(ClassCastException cce) {
             StringBuffer errorBuffer =
                 new StringBuffer(128)

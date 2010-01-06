@@ -26,6 +26,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.mailet.HostAddress;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Cache;
@@ -62,7 +64,7 @@ import javax.annotation.Resource;
  * Provides DNS client functionality to services running
  * inside James
  */
-public class DNSServer implements DNSService, DNSServerMBean {
+public class DNSServer implements DNSService, DNSServerMBean, LogEnabled, Configurable {
 
     /**
      * A resolver instance used to retrieve DNS records.  This
@@ -125,19 +127,11 @@ public class DNSServer implements DNSService, DNSServerMBean {
     private Log logger;
     
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
-        this.configuration = configuration;
-    }
-    
-    @SuppressWarnings("unchecked")
-    public void configure()
-        throws ConfigurationException {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
 
         final boolean autodiscover =
             configuration.getBoolean( "autodiscover", true );
@@ -204,14 +198,12 @@ public class DNSServer implements DNSService, DNSServerMBean {
     }
     
     
+    
 
     @PostConstruct
     public void init()
         throws Exception {
-        logger.debug("DNSService init...");
-
-        configure();
-        
+        logger.debug("DNSService init...");        
 
         // If no DNS servers were configured, default to local host
         if (dnsServers.isEmpty()) {

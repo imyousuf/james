@@ -43,6 +43,7 @@ import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementMBean;
 import org.apache.james.management.BayesianAnalyzerManagementService;
@@ -55,7 +56,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 /**
  * Management for BayesianAnalyzer
  */
-public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementService, BayesianAnalyzerManagementMBean {
+public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementService, BayesianAnalyzerManagementMBean, Configurable {
 
     private final static String HAM = "HAM";
     private final static String SPAM = "SPAM";
@@ -64,8 +65,6 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     private String repos;
     private String sqlFileUrl;
     private FileSystem fileSystem;
-    private Log logger;
-    private HierarchicalConfiguration configuration;
     
     /**
      * Sets the file system service
@@ -80,26 +79,14 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
 
     @PostConstruct
     public void init() throws Exception {
-        configure();
         if (repos != null) {
             setDataSourceComponent((DataSourceComponent) selector.select(repos));
             File sqlFile = fileSystem.getFile(sqlFileUrl);
             analyzer.initSqlQueries(component.getConnection(), sqlFile.getAbsolutePath());
         }
     }
-    
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLog(Log logger) {
-        this.logger = logger;
-    }
-    
 
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
-        this.configuration = configuration;
-    }
-
-    private void configure() throws ConfigurationException {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{        
         String reposPath = configuration.getString("repositoryPath",null);
         if (reposPath != null) {
             setRepositoryPath(reposPath);

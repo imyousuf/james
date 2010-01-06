@@ -232,7 +232,7 @@ public abstract class AbstractJdbcUsersRepository extends
      *            the DataSourceSelector
      */
     @Resource(name="database-connections")
-    void setDatasources(DataSourceSelector datasources) {
+    public void setDatasources(DataSourceSelector datasources) {
         m_datasources = datasources;
     }
     /**
@@ -242,7 +242,7 @@ public abstract class AbstractJdbcUsersRepository extends
      *            the new service
      */
     @Resource(name="filesystem")
-    void setFileSystem(FileSystem system) {
+    public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
 
@@ -260,9 +260,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * @see org.apache.avalon.framework.activity.Initializable#initialize()
      */
     @PostConstruct
-    public void init() throws Exception {
-        super.init();
-        
+    public void init() throws Exception {        
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             logBuffer = new StringBuffer(128).append(this.getClass().getName())

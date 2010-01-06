@@ -136,7 +136,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
     @PostConstruct
     public void init() throws Exception {
-        super.init();
         setDataSourceComponent((DataSourceComponent) datasources.select(dataSourceName));
     
         StringBuffer logBuffer = null;

@@ -19,7 +19,6 @@
 
 package org.apache.james.remotemanager.core;
 
-import org.apache.james.Constants;
 import org.apache.james.remotemanager.ConnectHandler;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
@@ -27,7 +26,7 @@ import org.apache.james.remotemanager.RemoteManagerSession;
 public class WelcomeHandler implements ConnectHandler{
 
     public void onConnect(RemoteManagerSession session) {
-        session.writeRemoteManagerResponse(new RemoteManagerResponse("JAMES Remote Administration Tool " + Constants.SOFTWARE_VERSION));
+        session.writeRemoteManagerResponse(new RemoteManagerResponse("JAMES Remote Administration Tool "));// + Constants.SOFTWARE_VERSION));
     }
 
 }

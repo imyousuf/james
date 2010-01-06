@@ -92,7 +92,6 @@ public class FileMailRepository
     @PostConstruct
     public void init()
             throws Exception {
-        super.init();
         try {
             objectRepository = (ObjectRepository) selectRepository(store, "OBJECT");
             streamRepository = (StreamRepository) selectRepository(store, "STREAM");

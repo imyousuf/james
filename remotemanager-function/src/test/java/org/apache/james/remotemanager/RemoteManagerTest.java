@@ -133,8 +133,8 @@ public class RemoteManagerTest extends TestCase {
         testConfiguration.init();
         try {
             ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
-            protoserver.setConfiguration(conf);
-            handlerFactory.setConfiguration(conf);
+            protoserver.configure(conf);
+            handlerFactory.configure(conf);
             handlerFactory.init();
             protoserver.init();
             
@@ -227,8 +227,7 @@ public class RemoteManagerTest extends TestCase {
         connectionManager = new SimpleConnectionManager();
         connectionManager.setThreadManager(threadManager);
         connectionManager.setLog(new SimpleLog("CM"));
-        connectionManager.setConfiguration(new DefaultConfigurationBuilder());
-        connectionManager.init();
+        connectionManager.configure(new DefaultConfigurationBuilder());
         serviceManager.put(SimpleConnectionManager.ROLE, connectionManager);
         
         dnsservice = setUpDNSServer();

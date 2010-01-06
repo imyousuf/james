@@ -28,6 +28,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
@@ -107,7 +108,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	 * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
 	 */
 	@SuppressWarnings("unchecked")
-	public void configure(Configuration config) throws ConfigurationException {
+	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
 		setValidRecipients(config.getList("validRecipients"));
 		setValidDomains(config.getList("validDomains"));
 		try {

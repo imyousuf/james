@@ -42,12 +42,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     private List<String> domains;
     
     private final static String WILDCARD = "*";
-    
-    // TODO: REMOVE ME!
-    public void init() throws Exception {
-        super.init();
-    }
-    
 
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)

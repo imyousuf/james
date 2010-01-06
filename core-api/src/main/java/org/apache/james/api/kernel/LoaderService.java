@@ -19,19 +19,35 @@
 
 package org.apache.james.api.kernel;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+
 /**
  * Loads instances of given types.
  */
 public interface LoaderService {
-    
+
     /**
      * Loads an instance of the given class.
      * The load may elect to return a new instance
-     * or reuse an existing one, as appropriate for the type.
+     * and use the logger and config for the lifecycle.
      * Instances should - where appropriate - have dependencies injected.
      * @param <T> 
      * @param type may be interface or concrete, not null
      * @return an instance of the type
      */
+
+    public <T>T load(Class<T> type, Log logger, HierarchicalConfiguration config);
+    
+    
+    /**
+     * Loads an instance of the given class.
+     * The load return a new instance
+     * Instances should - where appropriate - have dependencies injected.
+     * @param <T> 
+     * @param type may be interface or concrete, not null
+     * @return an instance of the type
+     */
+
     public <T>T load(Class<T> type);
 }

@@ -111,8 +111,8 @@ public class DNSServerTest extends TestCase {
         DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();
 
         db.load(new ByteArrayInputStream("<dnsserver><autodiscover>true</autodiscover><authoritative>false</authoritative></dnsserver>".getBytes()));
-        dnsServer.setLogger(new SimpleLog("MockLog"));
-        dnsServer.setConfiguration(db);
+        dnsServer.setLog(new SimpleLog("MockLog"));
+        dnsServer.configure(db);
         dnsServer.init();
         
         

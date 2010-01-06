@@ -53,13 +53,6 @@ public class Constants {
     public static final String HELLO_NAME = "HELLO_NAME";
 
     /**
-     * Key used to store the component manager for
-     * this James instance in a way accessible by
-     * Avalon aware Mailets.
-     */
-    public static final String AVALON_COMPONENT_MANAGER = "AVALON_COMP_MGR";
-    
-    /**
      * Key used to store the hostaddress of the localhost
      */
     public static final String HOSTADDRESS = "LOCAL_HOSTADDRESS";

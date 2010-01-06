@@ -36,8 +36,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimePart;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
@@ -100,11 +100,11 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
     
     
 
-    
-    /**
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(Configuration config) throws ConfigurationException {
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         String[] servers = config.getStringArray("uriRblServers/server");
         Collection<String> serverCollection = new ArrayList<String>();
         for ( int i = 0 ; i < servers.length ; i++ ) {

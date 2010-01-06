@@ -40,6 +40,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -85,7 +87,7 @@ import org.apache.mailet.base.MatcherInverter;
  * <P>CVS $Id$</P>
  * @version 2.2.0
  */
-public class LinearProcessor implements  MailProcessor, MailetContainer {
+public class LinearProcessor implements  MailProcessor, MailetContainer, LogEnabled, Configurable {
 
     /**
      *  The name of the matcher used to terminate the matcher chain.  The
@@ -116,7 +118,7 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
 
     private Log logger;
 
-    private HierarchicalConfiguration config;
+    private HierarchicalConfiguration processorConf;
 
     /**
      * Set the spool to be used by this LinearProcessor.
@@ -154,16 +156,9 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
     }
     
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public final void setLogger(Log logger) {
+    public final void setLog(Log logger) {
         this.logger = logger;
     }
-    
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public final void setConfiguration(HierarchicalConfiguration config) {
-        this.config = config;
-    }
-    
 
     /**
      * <p>The dispose operation is called at the end of a components lifecycle.
@@ -574,15 +569,15 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
         mailets = new ArrayList<Mailet>();
     }
 
-    @PostConstruct
-    public void init() throws Exception {
-        configure(config);
+    public void configure(HierarchicalConfiguration processorConf) throws ConfigurationException {
+        this.processorConf = processorConf;
     }
 
     @SuppressWarnings("unchecked")
-    protected void configure(HierarchicalConfiguration processorConf) throws ConfigurationException {
+    @PostConstruct
+    public void init() throws Exception {
         openProcessorList();
-                
+        
         final List<HierarchicalConfiguration> mailetConfs
             = processorConf.configurationsAt( "mailet" );
         // Loop through the mailet configuration, load
@@ -683,7 +678,6 @@ public class LinearProcessor implements  MailProcessor, MailetContainer {
         // able to service mails until this call is made.
         closeProcessorLists();
     }
-
     /**
      * @see org.apache.james.transport.MailetContainer#getMailetConfigs()
      */

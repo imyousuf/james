@@ -27,8 +27,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
@@ -93,7 +93,7 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     @SuppressWarnings("unchecked")
-	public void configure(Configuration config) throws ConfigurationException {
+	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
 
         List<String> networks = config.getList("invalidMXNetworks");
 

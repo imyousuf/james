@@ -40,7 +40,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     protected AbstractVirtualUserTable getVirtalUserTable() throws Exception {
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
         mr.setDNSService(setUpDNSServer());
-        mr.setLogger(new SimpleLog("MockLog"));
+        mr.setLog(new SimpleLog("MockLog"));
        
         return mr;
     }
@@ -77,8 +77,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         }
     
         try {
-            virtualUserTable.setConfiguration(new ConfigurationAdapter(defaultConfiguration));
-            virtualUserTable.init();        
+            virtualUserTable.configure(new ConfigurationAdapter(defaultConfiguration));
             } catch (Exception e) {
             if (mappings.size() > 0) {
                 return false;
@@ -119,8 +118,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         } 
     
         try {
-            virtualUserTable.setConfiguration(new ConfigurationAdapter(defaultConfiguration));
-            virtualUserTable.init();        
+            virtualUserTable.configure(new ConfigurationAdapter(defaultConfiguration));
             } catch (Exception e) {
            if (mappings.size() > 0) {
                return false;

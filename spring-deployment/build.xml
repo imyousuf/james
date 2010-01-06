@@ -135,6 +135,11 @@
         <include name="${jackrabbit-rmi.jar}"/>
         <include name="${jcr.jar}"/>
         <include name="${jsr250.jar}"/>
+        <include name="${spring-core.jar}"/>
+        <include name="${spring-context.jar}"/>
+        <include name="${spring-beans.jar}"/>
+        <include name="${log4j.jar}"/>
+
         <!-- Protocols should be coupled by deployment only -->
         <include name='${path.lib.james}/apache-james-imap*.jar'/>
         <include name='${path.lib.james}/${jarname.mailet.crypto}'/>  
@@ -146,8 +151,6 @@
     <path id="classpath.james.target">
         <fileset refid='main.jars'/>
         <fileset refid="james.jars"/> 
-        <!--<pathelement path="${java.class.path}" />-->
-        <!--<pathelement path="${build.classes}" />-->
     </path>
 
     <fileset id='excalibur.jars' dir="${lib.dir}">
@@ -163,42 +166,9 @@
     <path id="classpath.phoenix.implementations">
         <fileset refid='excalibur.jars'/>
     </path>
-    
-    <fileset id='spring.jars' dir="${basedir}/lib/spring">
-    <!-- TODO: remove from commons lists non-spring required libs --> 
-        <include name="commons-attributes-api.jar"/>
-        <include name="commons-attributes-compiler.jar"/>
-        <include name="commons-beanutils.jar"/>
-        <include name="commons-codec.jar"/>
-<!--            <include name="${basedir}/lib/commons-digester.jar"/>
-        <include name="${basedir}/lib/commons-lang.jar"/>
-        <include name="${basedir}/lib/commons-logging.jar"/>-->
-        <include name="commons-discovery.jar"/>
-        <include name="commons-fileupload.jar"/>
-        <include name="commons-httpclient.jar"/>
-        <include name="commons-io.jar"/>
-        <include name="commons-javaflow.jar"/>
-        <include name="commons-validator.jar"/>
-        <include name="spring.jar"/>
-    </fileset>
-	
-    <path id="classpath.spring">
-        <fileset refid='spring.jars'/>
-    </path>
-
-    <fileset id='misc.jars' dir="${basedir}/lib/log4j">
-        <include name="log4j-1.2.15.jar"/>
-    </fileset>
-	
-    <path id="classpath.misc">
-        <fileset refid='misc.jars'/>
-    </path>
 
     <path id="classpath.all.libs">
-        <path refid="classpath.phoenix.implementations" />
         <path refid="classpath.james.target" />
-        <path refid="classpath.spring" />
-        <path refid="classpath.misc" />
     </path>
 
     <path id="runclasspath">
@@ -312,10 +282,6 @@
                 <include name="**/LICENSE*" />
             </fileset>
         </copy>
-        <echo>${phoenix-deployment.build.lib.jar}</echo>
-        <copy todir="${spring-deployment.target.lib.dir}" >
-            <fileset file="${phoenix-deployment.build.lib.jar}" />
-        </copy>
     </target>
     
     <target name="package-aquire-config-files" >
@@ -344,83 +310,8 @@
 
         <mkdir dir="${spring-deployment.target.bin.dir}" />
 
-        <!-- create unix startup script-->
-        <echo file="${spring-deployment.target.bin.dir}/run.sh" append="false"><![CDATA[#! /bin/sh
-################################################################
-# Licensed to the Apache Software Foundation (ASF) under one   #
-# or more contributor license agreements.  See the NOTICE file #
-# distributed with this work for additional information        #
-# regarding copyright ownership.  The ASF licenses this file   #
-# to you under the Apache License, Version 2.0 (the            #
-# "License"); you may not use this file except in compliance   #
-# with the License.  You may obtain a copy of the License at   #
-#                                                              #
-#   http://www.apache.org/licenses/LICENSE-2.0                 #
-#                                                              #
-# Unless required by applicable law or agreed to in writing,   #
-# software distributed under the License is distributed on an  #
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       #
-# KIND, either express or implied.  See the License for the    #
-# specific language governing permissions and limitations      #
-# under the License.                                           #
-################################################################
-
-# Uncomment to get enable remote debugging
-# DEBUG="-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"   
-JAMES_CONSOLE=james.console
-JAMES_PID=james.pid
-JAMES_CMD="java $DEBUG -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main"             
-            
-case $1 in
- start)
-  echo 'Booting James'
-  if [ -f $JAMES_PID ]
-  then
-    if ps -p `cat $JAMES_PID ` >/dev/null 2>/dev/null
-      then
-        echo "Already Running!!"
-        exit 1
-    fi
-  fi
-   
-  echo "START `date`" >> $JAMES_CONSOLE
-  nohup sh -c "exec $JAMES_CMD >>$JAMES_CONSOLE 2>&1" >/dev/null &
-  echo $! > $JAMES_PID
-  echo "James pid="`cat $JAMES_PID`
-  @@SEMI_COLON@@@@SEMI_COLON@@
-  
- restart)
-  $0 stop $*
-  sleep 5
-  $0 start $*
-  @@SEMI_COLON@@@@SEMI_COLON@@
-
- stop)
-  PID=`cat $JAMES_PID 2>/dev/null`
-  echo "Shutting down James: $PID"
-  kill $PID 2>/dev/null
-  sleep 5
-  kill -9 $PID 2>/dev/null
-  rm -f $JAMES_PID
-  echo "STOPPED `date`" >>$JAMES_CONSOLE
-  @@SEMI_COLON@@@@SEMI_COLON@@
-
- *)
-  echo 'Booting James'
-  if [ -f $JAMES_PID ]
-  then
-    echo "James is already running"
-      exit 1
-  fi
-  exec $JAMES_CMD
-  @@SEMI_COLON@@@@SEMI_COLON@@
-
-esac   
-]]></echo>
-        <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${spring-deployment.target.lib.dir}" value="../lib" />
-        <replace file="${spring-deployment.target.bin.dir}/run.sh" token=";" value=":" />
-        <replace file="${spring-deployment.target.bin.dir}/run.sh" token="@@SEMI_COLON@@" value=';'/>  
-        <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
+        <copy todir="${spring-deployment.target.bin.dir}" file="${basedir}/src/main/bin/run.sh" />
+    	<chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
 
         <!-- create windows startup script-->
 		<pathconvert property="spring-deployment.target.lib.dir.windows" targetos="windows">
@@ -429,6 +320,7 @@ esac
         <echo file="${spring-deployment.target.bin.dir}/run.bat" append="false">
 java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main             
         </echo>
+        <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir}" value="../lib" />
         <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir.windows}" value="../lib" />
         <replace file="${spring-deployment.target.bin.dir}/run.bat" token=":" value=";" />
     </target>
@@ -507,7 +399,6 @@ java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main
         <classpathentry combineaccessrules="false" kind="src" path="/imapserver-function"/>
         <classpathentry combineaccessrules="false" kind="src" path="/jcr-store"/>
         <classpathentry combineaccessrules="false" kind="src" path="/nntpserver-function"/>
-        <classpathentry combineaccessrules="false" kind="src" path="/phoenix-deployment"/>
         <classpathentry combineaccessrules="false" kind="src" path="/pop3server-function"/>
         <classpathentry combineaccessrules="false" kind="src" path="/remotemanager-function"/>
         <classpathentry combineaccessrules="false" kind="src" path="/core-function"/>

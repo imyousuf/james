@@ -124,7 +124,7 @@ public class LinearProcessorTest extends TestCase {
 
     public void testCopyOnWrite() throws IOException, MessagingException {
         linearProcessor.setSpoolRepository(new InMemorySpoolRepository());
-        linearProcessor.setLogger(new SimpleLog("Test"));
+        linearProcessor.setLog(new SimpleLog("Test"));
         Matcher recipientIs = new RecipientIs();
         recipientIs.init(new DummyMatcherConfig("rec1@domain.com"));
 
@@ -180,7 +180,7 @@ public class LinearProcessorTest extends TestCase {
                 super.store(mc);
             }
         });
-        linearProcessor.setLogger(new SimpleLog("Test"));
+        linearProcessor.setLog(new SimpleLog("Test"));
 
 
         Matcher recipientIs = new RecipientIs();
@@ -235,7 +235,7 @@ public class LinearProcessorTest extends TestCase {
         }
         mimeMessage = new MimeMessageCopyOnWriteProxy(mmis);
         linearProcessor = new LinearProcessor();
-        linearProcessor.setLogger(new SimpleLog("Logger"));
+        linearProcessor.setLog(new SimpleLog("Logger"));
     }
 
     public void tearDown() throws Exception {

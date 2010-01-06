@@ -28,9 +28,8 @@ import java.util.StringTokenizer;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConfigurationUtils;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.dsn.DSNStatus;
@@ -88,8 +87,12 @@ public class DNSRBLHandler implements  ConnectHandler, RcptHook, Configurable{
         this.dnsService = dnsService;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
     @SuppressWarnings("unchecked")
-	public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+	public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
         boolean validConfig = false;
 
         ArrayList<String> rblserverCollection = new ArrayList<String>();

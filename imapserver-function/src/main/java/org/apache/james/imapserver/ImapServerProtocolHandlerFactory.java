@@ -30,7 +30,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.Constants;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.mailbox.Mailbox;
@@ -53,7 +52,7 @@ import org.apache.jsieve.mailet.Poster;
  */
 public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFactory implements ImapConstants, Poster
 {
-    private static final String softwaretype = "JAMES "+VERSION+" Server " + Constants.SOFTWARE_VERSION;
+    private static final String softwaretype = "JAMES "+VERSION+" Server "; //+ Constants.SOFTWARE_VERSION;
      
     private ImapFactory factory;
     

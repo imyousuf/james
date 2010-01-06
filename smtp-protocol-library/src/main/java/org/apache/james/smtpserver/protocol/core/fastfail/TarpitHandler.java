@@ -22,8 +22,8 @@
 package org.apache.james.smtpserver.protocol.core.fastfail;
 
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
@@ -41,10 +41,12 @@ public class TarpitHandler implements RcptHook, Configurable {
 
     private long tarpitSleepTime = 5000;
 
-    /**
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(Configuration handlerConfiguration)
+    public void configure(HierarchicalConfiguration handlerConfiguration)
             throws ConfigurationException {
         setTarpitRcptCount(handlerConfiguration.getInt("tarpitRcptCount", 0));
 

@@ -229,10 +229,10 @@ public class SMTPServerTest extends TestCase {
     protected void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
         ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
-        m_smtpServer.setConfiguration(conf);
+        m_smtpServer.configure(conf);
         m_smtpServer.init();
         
-        protoServer.setConfiguration(conf);
+        protoServer.configure(conf);
         protoServer.init();
         
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
@@ -256,8 +256,7 @@ public class SMTPServerTest extends TestCase {
         connectionManager = new SimpleConnectionManager();
         connectionManager.setThreadManager(threadManager);
         connectionManager.setLog(new SimpleLog("CM"));
-        connectionManager.setConfiguration(new DefaultConfigurationBuilder());
-        connectionManager.init();
+        connectionManager.configure(new DefaultConfigurationBuilder());
         m_serviceManager.put(SimpleConnectionManager.ROLE, connectionManager);
 
         m_dnsServer = new AlterableDNSServer();
