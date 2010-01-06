@@ -28,7 +28,7 @@
   <groupId>org.apache.james</groupId>
   <artifactId>apache-james-mpt-project</artifactId>
   <name>Apache JAMES MPT Project</name>
-  <version>0.1</version>
+  <version>0.2-SNAPSHOT</version>
   <description>Functional test framework specialised for the ASCII line-base protocols common in mail.</description>
   <url>http://james.apache.org/mpt/</url>
   <issueManagement>
@@ -40,12 +40,14 @@
     <module>main</module>
     <module>antlib</module>
     <module>app</module>
-    <module>assemble</module>
+    <module>assemble</module>  
+    <module>mavenplugin</module>  
   </modules>
+  
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/james/mpt/tags/apache-james-mpt-0.1</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/james/mpt/tags/apache-james-mpt-0.1</developerConnection>
-    <url>http://svn.apache.org/viewcvs.cgi/james/mpt/trunk/tags/apache-james-mpt-0.1?root=Apache-SVN</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/james/mpt/trunk</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/james/mpt/trunk</developerConnection>
+    <url>http://svn.apache.org/viewcvs.cgi/james/mpt/trunk?root=Apache-SVN</url>
   </scm>
   <build>
     <plugins>
@@ -275,13 +277,42 @@
     <dependencies>
 
     <dependency>
-<!-- TODO: FIXME
-       My maven foo is weak!
-       Can't seem to be able to pick up this version from the antlib module :-/ 
-     --> 
       <groupId>${project.groupId}</groupId>
-      <artifactId>apache-james-mpt</artifactId>
+      <artifactId>apache-james-mpt-antlib</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apache-james-mpt-antlib</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apache-james-mpt-app</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apache-james-mpt-app</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apache-james-mpt-main</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>apache-james-mpt-main</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
     </dependency>
 
     <dependency>    
@@ -307,6 +338,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
