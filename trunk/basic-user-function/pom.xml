@@ -42,10 +42,6 @@
       <scope>compile</scope>
     </dependency>
 
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
     
     <!-- Needed by the UsersLDAPRepository -->
     <dependency>
