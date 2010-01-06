@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
@@ -48,12 +48,13 @@ public class SpamTrapHandler implements RcptHook, Configurable {
     
     /** Default blocktime 12 hours */
     private long blockTime = 4320000; 
-
-    /**
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
-	public void configure(Configuration config) throws ConfigurationException {
+	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         List<String> rcpts= config.getList("spamTrapRecip");
     
         if (rcpts.isEmpty() == false ) {

@@ -43,6 +43,8 @@ import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.api.vut.management.VirtualUserTableManagement;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;
@@ -50,7 +52,7 @@ import org.apache.oro.text.regex.Perl5Compiler;
 /**
  * 
  */
-public abstract class AbstractVirtualUserTable implements VirtualUserTable, VirtualUserTableManagement, DomainList {
+public abstract class AbstractVirtualUserTable implements VirtualUserTable, VirtualUserTableManagement, DomainList, LogEnabled, Configurable {
     
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
@@ -69,18 +71,8 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         this.dns = dns;
     }
 
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration config) {
-        this.config = config;
-    }
-
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
-        this.logger = logger;
-    }
-    
-    private void configure() throws ConfigurationException {
-        setRecursiveMapping(config.getBoolean("recursiveMapping", true));
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+    	setRecursiveMapping(config.getBoolean("recursiveMapping", true));
         try {
             setMappingLimit(config.getInt("mappingLimit",10));
         } catch (IllegalArgumentException e) {
@@ -88,6 +80,11 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         }
         doConfigure(config);
     }
+
+    public void setLog(Log logger) {
+        this.logger = logger;
+    }
+    
     
     protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
         
@@ -97,10 +94,6 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         this.recursive = recursive;
     }
     
-    @PostConstruct
-    public void init() throws Exception {
-        configure();
-    }
     
     /**
      * Set the mappingLimit

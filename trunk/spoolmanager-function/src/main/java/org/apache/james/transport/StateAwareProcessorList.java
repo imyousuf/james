@@ -22,34 +22,30 @@
 package org.apache.james.transport;
 
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.james.services.SpoolRepository;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailetException;
-import org.guiceyfruit.jsr250.Jsr250Module;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.name.Names;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailetException;
 
 /**
  * This class is responsible for creating a set of named processors and
  * directing messages to the appropriate processor (given the State of the mail)
  *
- * @version CVS $Revision: 405882 $ $Date: 2006-05-12 23:30:04 +0200 (ven, 12 mag 2006) $
  */
-public class StateAwareProcessorList implements MailProcessor, ProcessorList {
+public class StateAwareProcessorList implements MailProcessor, ProcessorList, LogEnabled, Configurable {
 
     /**
      * The map of processor names to processors
@@ -60,11 +56,7 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
 
     private HierarchicalConfiguration config;
 
-    private MailetLoader mailetLoader;
-
-    private MatcherLoader matcherLoader;
-
-    private SpoolRepository spoolRepos;
+    private LoaderService loader;
     
     public StateAwareProcessorList() {
         super();
@@ -72,30 +64,14 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
     }
 
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public final void setLogger(Log logger) {
+    public final void setLog(Log logger) {
         this.logger = logger;
     }
     
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public final void setConfiguration(HierarchicalConfiguration config) {
-        this.config = config;
-    }
-    
-    @Resource(name="mailetpackages")
-    public final void setMailetLoader(MailetLoader mailetLoader) {
-        this.mailetLoader = mailetLoader;
-    }
-    
-    @Resource(name="matcherpackages")
-    public final void setMatcherLoader(MatcherLoader matcherLoader) {
-        this.matcherLoader = matcherLoader;
-    }
-
-    @Resource(name="spoolrepository")
-    public final void setSpoolRepository(SpoolRepository spoolRepos) {
-        this.spoolRepos = spoolRepos;
+    @Resource(name="org.apache.james.LoaderService")
+    public final void setLoaderService(LoaderService loader) {
+        this.loader = loader;
     }
     
     /**
@@ -112,25 +88,13 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
             String processorClass = processorConf.getString("[@class]","org.apache.james.transport.LinearProcessor");
 
             try {
-                Class<MailProcessor> cObj = (Class<MailProcessor>) Thread.currentThread().getContextClassLoader().loadClass(processorClass);
-                MailProcessor processor = Guice.createInjector(new Jsr250Module(), new AbstractModule() {
-
-                    @Override
-                    protected void configure() {
-                        bind(org.apache.commons.configuration.HierarchicalConfiguration.class).annotatedWith(Names.named("org.apache.commons.configuration.Configuration")).toInstance(processorConf);
-                        bind(Log.class).annotatedWith(Names.named("org.apache.commons.logging.Log")).toInstance(logger);
-                        bind(MailetLoader.class).annotatedWith(Names.named("mailetpackages")).toInstance(mailetLoader);
-                        bind(MatcherLoader.class).annotatedWith(Names.named("matcherpackages")).toInstance(matcherLoader);
-                        bind(SpoolRepository.class).annotatedWith(Names.named("spoolrepository")).toInstance(spoolRepos);
-                    }
-                    
-                }).getInstance(cObj);
+                Class<MailProcessor> mClass = (Class<MailProcessor>)Thread.currentThread().getContextClassLoader().loadClass(processorClass);
+                 
+                MailProcessor processor = loader.load(mClass, logger, processorConf);
+              
                 processors.put(processorName, processor);
                 
-                //setupLogger(processor, processorName);
-                //ContainerUtil.service(processor, compMgr);
-                //ContainerUtil.configure(processor, processorConf);
-                
+               
                 if (logger.isInfoEnabled()) {
                     StringBuffer infoBuffer =
                         new StringBuffer(64)
@@ -275,5 +239,11 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList {
     public MailProcessor getProcessor(String name) {
         return (MailProcessor) processors.get(name);
     }
+
+
+	public void configure(HierarchicalConfiguration config)
+			throws org.apache.commons.configuration.ConfigurationException {
+		this.config = config;
+	}
 
 }

@@ -1140,7 +1140,7 @@ Regards, Postmaster XXX.YYY
                   value="org.apache.derby.jdbc.EmbeddedDriver"/>
         <property
                   name="torque.dsfactory.mailboxmanager.connection.url"
-                  value="jdbc:derby:../apps/james/var/mailboxmanager-derbydb;create=true"/>
+                  value="jdbc:derby:../var/mailboxmanager-derbydb;create=true"/>
         <property
                   name="torque.dsfactory.mailboxmanager.connection.user"
                   value="app"/>
@@ -1499,7 +1499,7 @@ Regards, Postmaster XXX.YYY
       <!-- -->
       <data-source name="maildb" class="org.apache.james.util.dbcp.JdbcDataSource">
          <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
-         <dburl>jdbc:derby:../apps/james/var/derbydb;create=true</dburl>
+         <dburl>jdbc:derby:../var/derbydb;create=true</dburl>
          <user></user>
          <password></password>
          <poolPreparedStatements>true</poolPreparedStatements>

@@ -71,11 +71,10 @@ public class XMLDomainListTest extends TestCase {
         domains.add("domain2.");
     
         XMLDomainList dom = new XMLDomainList();
-        dom.setLogger(new SimpleLog("MockLog"));
+        dom.setLog(new SimpleLog("MockLog"));
+        dom.configure(setUpConfiguration(false,false,domains));
         dom.setDNSService(setUpDNSServer("localhost"));
-        dom.setConfiguration(setUpConfiguration(false,false,domains));
-        dom.init();
-
+        
         assertTrue("Two domain found",dom.getDomains().size() ==2);
     }
     
@@ -84,10 +83,10 @@ public class XMLDomainListTest extends TestCase {
         domains.add("domain1.");
     
         XMLDomainList dom = new XMLDomainList();
-        dom.setLogger(new SimpleLog("MockLog"));
+        dom.setLog(new SimpleLog("MockLog"));
+        dom.configure(setUpConfiguration(true,false,domains));
+
         dom.setDNSService(setUpDNSServer("local"));
-        dom.setConfiguration(setUpConfiguration(true,false,domains));
-        dom.init();
         assertEquals("Two domains found",dom.getDomains().size(), 2);
     }
     
@@ -96,10 +95,10 @@ public class XMLDomainListTest extends TestCase {
         domains.add("domain1.");
     
         XMLDomainList dom = new XMLDomainList();
-        dom.setLogger(new SimpleLog("MockLog"));
+        dom.setLog(new SimpleLog("MockLog"));
+        dom.configure(setUpConfiguration(true,false,domains));
+
         dom.setDNSService(setUpDNSServer("localhost"));
-        dom.setConfiguration(setUpConfiguration(true,false,domains));
-        dom.init();
         
         assertEquals("One domain found",dom.getDomains().size(), 1);
     }

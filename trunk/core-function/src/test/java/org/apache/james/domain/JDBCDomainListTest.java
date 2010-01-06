@@ -124,8 +124,8 @@ public class JDBCDomainListTest  extends TestCase {
         dom.setDNSService(setUpDNSServer("localhost"));
         dom.setFileSystem(new MockFileSystem());
         dom.setDataSourceSelector(dataSource);
-        dom.setConfiguration(setUpConfiguration(repos + table));
-        dom.setLogger(new SimpleLog("MockLog"));
+        dom.setLog(new SimpleLog("MockLog"));
+        dom.configure(setUpConfiguration(repos + table));
         dom.init();
         dom.addDomain("domain1.");
 
@@ -143,8 +143,8 @@ public class JDBCDomainListTest  extends TestCase {
         dom.setDNSService(setUpDNSServer("localhost"));
         dom.setFileSystem(new MockFileSystem());
         dom.setDataSourceSelector(dataSource);
-        dom.setConfiguration(new DefaultConfigurationBuilder());
-        dom.setLogger(new SimpleLog("MockLog"));
+        dom.setLog(new SimpleLog("MockLog"));
+        dom.configure(new DefaultConfigurationBuilder());
         try {
             dom.init();
         } catch (ConfigurationException e) {

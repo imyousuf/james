@@ -51,6 +51,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
 import org.apache.oro.text.regex.MalformedPatternException;
@@ -111,7 +113,7 @@ import java.util.Properties;
  */
 
 
-public class MBoxMailRepository implements MailRepository {
+public class MBoxMailRepository implements MailRepository, LogEnabled, Configurable {
 
 
     static final SimpleDateFormat dy = new SimpleDateFormat("EE MMM dd HH:mm:ss yyyy", Locale.US);
@@ -161,14 +163,36 @@ public class MBoxMailRepository implements MailRepository {
     private Log logger;
 
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
+        String destination;
+        this.mList = null;
+        BUFFERING = configuration.getBoolean("[@BUFFERING]", true);
+        fifo = configuration.getBoolean("[@FIFO]", false);
+        destination = configuration.getString("[@destinationURL]");
+        if (destination.charAt(destination.length() - 1) == '/') {
+            // Remove the trailing / as well as the protocol marker
+            mboxFile = destination.substring("mbox://".length(), destination.lastIndexOf("/"));
+        } else {
+            mboxFile = destination.substring("mbox://".length());
+        }
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("MBoxMailRepository.destinationURL: " + destination);
+        }
+
+        String checkType = configuration.getString("[@type]");
+        if (!(checkType.equals("MAIL") || checkType.equals("SPOOL"))) {
+            String exceptionString = "Attempt to configure MboxMailRepository as " + checkType;
+            if (getLogger().isWarnEnabled()) {
+                getLogger().warn(exceptionString);
+            }
+            throw new ConfigurationException(exceptionString);
+        }
     }
 
     protected Log getLogger() {
@@ -797,40 +821,5 @@ public class MBoxMailRepository implements MailRepository {
      */
     public boolean unlock(String key) {
         return false;
-    }
-
-    /**
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
-     */
-    protected void configure(HierarchicalConfiguration conf) throws ConfigurationException {
-        String destination;
-        this.mList = null;
-        BUFFERING = conf.getBoolean("[@BUFFERING]", true);
-        fifo = conf.getBoolean("[@FIFO]", false);
-        destination = conf.getString("[@destinationURL]");
-        if (destination.charAt(destination.length() - 1) == '/') {
-            // Remove the trailing / as well as the protocol marker
-            mboxFile = destination.substring("mbox://".length(), destination.lastIndexOf("/"));
-        } else {
-            mboxFile = destination.substring("mbox://".length());
-        }
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("MBoxMailRepository.destinationURL: " + destination);
-        }
-
-        String checkType = conf.getString("[@type]");
-        if (!(checkType.equals("MAIL") || checkType.equals("SPOOL"))) {
-            String exceptionString = "Attempt to configure MboxMailRepository as " + checkType;
-            if (getLogger().isWarnEnabled()) {
-                getLogger().warn(exceptionString);
-            }
-            throw new ConfigurationException(exceptionString);
-        }
-    }
-
-    @PostConstruct
-    public void init() throws Exception {
-        configure(configuration);
     }
 }

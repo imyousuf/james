@@ -35,15 +35,11 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
     private static final String DISPLAY_NAME = "mailet";
     
     private final String MAILET_PACKAGE = "mailetpackage";
-    
 
-    @PostConstruct
-    public void init() throws Exception {
-        super.init();
-    }
     
-    /**
-     * @see org.apache.james.transport.AbstractLoader#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration conf) throws ConfigurationException {
         getPackages(conf,MAILET_PACKAGE);

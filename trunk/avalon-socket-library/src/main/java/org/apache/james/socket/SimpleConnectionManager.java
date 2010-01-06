@@ -23,7 +23,6 @@ package org.apache.james.socket;
 import java.net.ServerSocket;
 import java.util.HashMap;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
@@ -31,16 +30,17 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.excalibur.thread.ThreadPool;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.avalon.cornerstone.services.connection.ConnectionHandlerFactory;
 import org.apache.avalon.cornerstone.services.threads.ThreadManager;
-import org.apache.avalon.framework.container.ContainerUtil;
 /**
  * An implementation of ConnectionManager that supports configurable
  * idle timeouts and a configurable value for the maximum number of
  * client connections to a particular port.
  *
  */
-public class SimpleConnectionManager implements JamesConnectionManager {
+public class SimpleConnectionManager implements JamesConnectionManager, LogEnabled, Configurable {
     /**
      * The default value for client socket idle timeouts.  The
      * Java default is 0, meaning no timeout.  That's dangerous
@@ -88,28 +88,17 @@ public class SimpleConnectionManager implements JamesConnectionManager {
      */
     private volatile boolean disposed = false;
     private Log logger;
-    private HierarchicalConfiguration configuration;
-
+    
     @Resource(name="thread-manager")
     public void setThreadManager(ThreadManager threadManager) {
         this.threadManager = threadManager;
     }
     
-
-    @Resource(name="org.apache.commons.logging.Log")
     public void setLog(Log logger) {
         this.logger = logger;
     }
    
-    
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
-        this.configuration = configuration;
-    }
-    
-
-    @PostConstruct
-    public void init() throws Exception {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         timeout = configuration.getInt("idle-timeout", DEFAULT_SOCKET_TIMEOUT);
         maxOpenConn = configuration.getInt("max-connections", DEFAULT_MAX_CONNECTIONS);
         maxOpenConnPerIP = configuration.getInt("max-connections-per-ip", DEFAULT_MAX_CONNECTIONS_PER_IP);
@@ -139,9 +128,10 @@ public class SimpleConnectionManager implements JamesConnectionManager {
             logger.debug(
                 "The maximum number of simultaneously open connections is "
                     + (maxOpenConn == 0 ? "unlimited" : Integer.toString(maxOpenConn)));
-        }
+        }    
     }
     
+
     
     /**
      * Disconnects all the underlying ServerConnections

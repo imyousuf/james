@@ -286,10 +286,12 @@
       <groupId>mstor</groupId>
       <artifactId>mstor</artifactId>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
     </dependency>
+    -->
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
@@ -297,6 +299,11 @@
     <dependency>
       <groupId>mx4j</groupId>
       <artifactId>mx4j-jmx</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
     </dependency>
     
     <dependency>
@@ -324,20 +331,18 @@
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
     </dependency>
-    <dependency>
-      <groupId>avalon-phoenix</groupId>
-      <artifactId>avalon-phoenix-client</artifactId>
-    </dependency>
-
-    <!-- phoenix-runtime -->
-    <dependency>
-      <groupId>spice</groupId>
-      <artifactId>spice-configkit</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -390,20 +395,7 @@
       <artifactId>slf4j-log4j12</artifactId>
       <scope>test</scope>
     </dependency>
-    
-    <dependency>
-      <groupId>com.google.code.guice</groupId>
-      <artifactId>guice</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.guiceyfruit</groupId>
-      <artifactId>guiceyfruit-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>spring-aopalliance</groupId>
-      <artifactId>spring-aopalliance</artifactId>
-      <scope>runtime</scope>
-    </dependency>
+   
   </dependencies>
   
   <build>

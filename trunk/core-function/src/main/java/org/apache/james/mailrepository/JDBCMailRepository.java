@@ -139,6 +139,10 @@ public class JDBCMailRepository
 
     private FileSystem fileSystem;
 
+	private String filestore;
+
+	private String destination;
+
     @Resource(name="database-connections")
     public void setDatasources(DataSourceSelector datasources) {
         this.datasources = datasources;
@@ -155,7 +159,7 @@ public class JDBCMailRepository
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".configure()");
         }
-        String destination = configuration.getString("[@destinationURL]");
+        destination = configuration.getString("[@destinationURL]");
 
         // normalize the destination, to simplify processing.
         if ( ! destination.endsWith("/") ) {
@@ -216,8 +220,30 @@ public class JDBCMailRepository
         
         inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", 409600000); 
 
-        String filestore = configuration.getString("filestore", null);
+        filestore = configuration.getString("filestore", null);
         sqlFileName = configuration.getString("sqlFile");
+      
+        
+    }
+
+
+    /**
+     * Initialises the JDBC repository.
+     * 1) Tests the connection to the database.
+     * 2) Loads SQL strings from the SQL definition file,
+     *     choosing the appropriate SQL for this connection,
+     *     and performing paramter substitution,
+     * 3) Initialises the database with the required tables, if necessary.
+     *
+     * @throws Exception if an error occurs
+     */
+    @PostConstruct
+    public void init() throws Exception {        
+        StringBuffer logBuffer = null;
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug(this.getClass().getName() + ".initialize()");
+        }
+        
         try {
             if (filestore != null) {
                 
@@ -236,40 +262,18 @@ public class JDBCMailRepository
             }
 
             if (getLogger().isDebugEnabled()) {
-                StringBuffer logBuffer =
+                StringBuffer logBuf =
                     new StringBuffer(128)
                             .append(this.getClass().getName())
                             .append(" created according to ")
                             .append(destination);
-                getLogger().debug(logBuffer.toString());
+                getLogger().debug(logBuf.toString());
             }
         } catch (Exception e) {
             final String message = "Failed to retrieve Store component:" + e.getMessage();
             getLogger().error(message, e);
             throw new ConfigurationException(message, e);
         } 
-        
-    }
-
-
-    /**
-     * Initialises the JDBC repository.
-     * 1) Tests the connection to the database.
-     * 2) Loads SQL strings from the SQL definition file,
-     *     choosing the appropriate SQL for this connection,
-     *     and performing paramter substitution,
-     * 3) Initialises the database with the required tables, if necessary.
-     *
-     * @throws Exception if an error occurs
-     */
-    @PostConstruct
-    public void init() throws Exception {
-        super.init();
-        
-        StringBuffer logBuffer = null;
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug(this.getClass().getName() + ".initialize()");
-        }
 
         theJDBCUtil =
             new JDBCUtil() {

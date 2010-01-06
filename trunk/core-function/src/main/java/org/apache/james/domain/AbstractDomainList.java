@@ -33,11 +33,12 @@ import javax.annotation.Resource;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.ManageableDomainList;
+import org.apache.james.lifecycle.LogEnabled;
 
 /**
  * All implementations of the DomainList interface should extends this abstract class
  */
-public abstract class AbstractDomainList implements  ManageableDomainList {
+public abstract class AbstractDomainList implements  ManageableDomainList, LogEnabled {
     private DNSService dns;
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
@@ -49,8 +50,7 @@ public abstract class AbstractDomainList implements  ManageableDomainList {
     }
     
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     

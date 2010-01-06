@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -67,12 +66,6 @@ public class RemoteManagerProtocolHandlerFactory extends AbstractSupportLoaderPr
         = new RemoteManagerHandlerConfigurationDataImpl();
 
     private MailServer mailServer;
-
-    
-    @PostConstruct
-    public void init() throws Exception {
-        super.init();
-    }
 
     @SuppressWarnings("unchecked")
     public void onConfigure(HierarchicalConfiguration configuration)

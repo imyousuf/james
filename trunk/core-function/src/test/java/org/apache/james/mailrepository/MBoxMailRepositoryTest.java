@@ -50,9 +50,9 @@ public class MBoxMailRepositoryTest extends TestCase {
         
         defaultConfiguration.addProperty("[@destinationURL]",mboxPath);
         defaultConfiguration.addProperty("[@type]","MAIL");
-        mr.setConfiguration(defaultConfiguration);
-        mr.setLogger(new SimpleLog("MockLog"));;
-        mr.init();
+        mr.setLog(new SimpleLog("MockLog"));;
+        mr.configure(defaultConfiguration);
+
         return mr;
     }
 

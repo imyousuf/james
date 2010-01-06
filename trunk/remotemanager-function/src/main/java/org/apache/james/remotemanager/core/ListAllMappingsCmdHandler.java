@@ -41,7 +41,7 @@ public class ListAllMappingsCmdHandler implements CommandHandler {
 
     protected VirtualUserTableManagementService vutManagement;
 
-    @Resource(name = "virtualusertablemanagement")
+    @Resource(name = "virtualusertablemanagementservice")
     public final void setVirtualUserTableManagementService(VirtualUserTableManagementService vutManagement) {
         this.vutManagement = vutManagement;
     }

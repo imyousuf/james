@@ -91,23 +91,7 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-guice-bridge-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.guice</groupId>
-      <artifactId>guice</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.guiceyfruit</groupId>
-      <artifactId>guiceyfruit-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>spring-aopalliance</groupId>
-      <artifactId>spring-aopalliance</artifactId>
-      <scope>runtime</scope>
-    </dependency>
+   
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -122,12 +106,12 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
-      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>

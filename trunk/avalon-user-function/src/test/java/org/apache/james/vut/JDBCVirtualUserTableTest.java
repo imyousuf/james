@@ -39,14 +39,14 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
      */
     protected AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception {
         JDBCVirtualUserTable mr = new JDBCVirtualUserTable();
-        mr.setLogger(new SimpleLog("MockLog"));
+        mr.setLog(new SimpleLog("MockLog"));
         mr.setDataSourceSelector(Util.getDataSourceSelector());
         mr.setDNSService(setUpDNSServer());
         mr.setFileSystem(new MockFileSystem());
         DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
         defaultConfiguration.setAttribute("destinationURL","db://maildb/VirtualUserTable");
         defaultConfiguration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
-        mr.setConfiguration(new ConfigurationAdapter(defaultConfiguration));
+        mr.configure(new ConfigurationAdapter(defaultConfiguration));
         mr.init();
         return mr;
     }    

@@ -45,7 +45,6 @@
     <module>core-library</module>
     <module>management-library</module>
     <module>smtp-protocol-library</module>
-    <module>avalon-spring-bridge-library</module>
     <module>avalon-socket-library</module>
     <module>core-function</module>
     <module>imapserver-function</module>
@@ -60,11 +59,9 @@
     <module>fetchmail-function</module>
     <module>experimental-activemq-function</module>
     <module>jcr-store</module>
-    <module>phoenix-deployment</module>
     <module>spring-deployment</module>
     <module>socket-shared-library</module>
     <module>mina-socket-library</module>
-    <module>avalon-guice-bridge-api</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -111,16 +108,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>bin</descriptorRef>
-            <descriptorRef>src</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-      </plugin>
+      </plugin>     
     </plugins>
   </build>
   <repositories>
@@ -270,11 +258,7 @@
       <artifactId>james-server-socket-shared-library</artifactId>
       <version>3.0-M1</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-guice-bridge-api</artifactId>
-      <version>3.0-M1</version>
-    </dependency>
+   
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
@@ -403,11 +387,6 @@
       <artifactId>james-server-user-library</artifactId>
       <version>3.0-M1</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-spring-bridge-library</artifactId>
-      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -558,12 +537,6 @@
         <artifactId>h2</artifactId>
         <version>1.1.102</version>
         <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-phoenix-deployment</artifactId>
-      <version>3.0-M1</version>
     </dependency>
 
     <dependency>
@@ -1012,14 +985,7 @@
       <version>2.0.2</version>
       <scope>provided</scope>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.6.2</version>
-      <scope>provided</scope>
-    </dependency>
-     -->
+
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
@@ -1073,28 +1039,13 @@
       <artifactId>activemq-core</artifactId>
       <version>4.1.1</version>
     </dependency>
+    
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
       <version>1.0</version>
     </dependency>
-    <dependency>
-      <groupId>avalon-phoenix</groupId>
-      <artifactId>avalon-phoenix-client</artifactId>
-      <version>4.2-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <groupId>avalon-framework</groupId>
-          <artifactId>avalon-framework</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <!-- phoenix runtime -->
-    <dependency>
-      <groupId>spice</groupId>
-      <artifactId>spice-configkit</artifactId>
-      <version>1.1.2</version>
-    </dependency>
+   
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
@@ -1102,8 +1053,18 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-      <version>2.0</version>
+      <artifactId>spring-core</artifactId>
+      <version>2.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>2.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>2.5.6</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -1138,23 +1099,8 @@
       <version>1.4.6</version>
       <scope>test</scope>
     </dependency>
-    
-    <dependency>
-      <groupId>com.google.code.guice</groupId>
-      <artifactId>guice</artifactId>
-      <version>2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.guiceyfruit</groupId>
-      <artifactId>guiceyfruit-core</artifactId>
-      <version>2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>spring-aopalliance</groupId>
-      <artifactId>spring-aopalliance</artifactId>
-      <version>1.0</version>
-      <scope>runtime</scope>
-    </dependency>
+   
+
   </dependencies>
   </dependencyManagement>
 

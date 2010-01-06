@@ -27,17 +27,18 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.socket.api.ProtocolHandlerFactory;
 
 /**
  * Abstract base class which ProtocolHandlerFactory implementation should extend
  *
  */
-public abstract class AbstractProtocolHandlerFactory implements ProtocolHandlerFactory{
+public abstract class AbstractProtocolHandlerFactory implements ProtocolHandlerFactory, LogEnabled, Configurable{
     
     
     private DNSService dnsService;
-    private HierarchicalConfiguration configuration;
     private Log log;
     
 
@@ -61,27 +62,20 @@ public abstract class AbstractProtocolHandlerFactory implements ProtocolHandlerF
         return dnsService;
     }
     
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
-        this.configuration = configuration;
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
+
+        configureHelloName(configuration.configurationAt("handler"));
+        onConfigure(configuration);
     }
     
     
-    @Resource(name="org.apache.commons.logging.Log")
     public void setLog(Log logger) {
         this.log = logger;
     }
     
     @PostConstruct
     public void init() throws Exception {
-        configure();
         onInit();
-    }
-
-    
-    private void configure() throws ConfigurationException {
-        configureHelloName(configuration.configurationAt("handler"));
-        onConfigure(configuration);
     }
 
     

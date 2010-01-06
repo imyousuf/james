@@ -25,6 +25,8 @@ import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailRepository;
 import org.apache.james.util.Lock;
 import org.apache.mailet.Mail;
@@ -40,7 +42,7 @@ import java.util.Iterator;
 /**
  * This class represent an AbstractMailRepository. All MailRepositories should extend this class. 
  */
-public abstract class AbstractMailRepository implements MailRepository {
+public abstract class AbstractMailRepository implements MailRepository, LogEnabled, Configurable {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -57,10 +59,8 @@ public abstract class AbstractMailRepository implements MailRepository {
     
     private Log logger;
 
-    private HierarchicalConfiguration configuration;
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     
@@ -68,9 +68,8 @@ public abstract class AbstractMailRepository implements MailRepository {
         return logger;
     }
       
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
-        this.configuration = configuration;
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
+        doConfigure(configuration);
     }
     
     /**
@@ -172,10 +171,6 @@ public abstract class AbstractMailRepository implements MailRepository {
         }
     }
 
-    @PostConstruct
-    public void init() throws Exception {
-        doConfigure(configuration);
-    }
 
     /**
      * @see #store(Mail)

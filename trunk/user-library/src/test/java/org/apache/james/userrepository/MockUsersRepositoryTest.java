@@ -49,9 +49,8 @@ public class MockUsersRepositoryTest extends TestCase {
      */
     protected UsersRepository getUsersRepository() throws Exception {
         MockUsersRepository repos = new MockUsersRepository();
-        repos.setLogger(new SimpleLog("MockLog"));
-        repos.setConfiguration(new DefaultConfigurationBuilder());
-        repos.init();
+        repos.setLog(new SimpleLog("MockLog"));
+        repos.configure(new DefaultConfigurationBuilder());
         return repos;
     }
 

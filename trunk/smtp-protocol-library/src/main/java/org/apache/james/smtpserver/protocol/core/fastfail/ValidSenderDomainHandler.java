@@ -22,8 +22,8 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.DNSService;
@@ -62,10 +62,11 @@ public class ValidSenderDomainHandler implements MailHook, Configurable {
     }
     
     
-    /**
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(Configuration handlerConfiguration) throws ConfigurationException {
+    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
     	setCheckAuthNetworks(handlerConfiguration.getBoolean("checkAuthNetworks",false));
     }
         

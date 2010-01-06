@@ -39,6 +39,8 @@ import javax.mail.URLName;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
@@ -51,7 +53,7 @@ import org.apache.mailet.Mail;
  * TODO examine for thread-safety
  */
 
-public abstract class AbstractJavamailStoreMailRepository implements MailRepository, StoreGateKeeperAware, FolderAdapterFactory {
+public abstract class AbstractJavamailStoreMailRepository implements MailRepository, StoreGateKeeperAware, FolderAdapterFactory, LogEnabled, Configurable {
 
     /**
      * Whether 'deep debugging' is turned on.
@@ -113,8 +115,7 @@ public abstract class AbstractJavamailStoreMailRepository implements MailReposit
     }
     
     
-    @Resource(name="org.apache.commons.logging.Log")
-    public void setLogger(Log logger) {
+    public void setLog(Log logger) {
         this.logger = logger;
     }
     
@@ -122,26 +123,16 @@ public abstract class AbstractJavamailStoreMailRepository implements MailReposit
         return logger;
     }
       
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public void setConfiguration(HierarchicalConfiguration configuration) {
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
-    }
-    
-    
-    /**
-     * builds destination from attributes destinationURL and postfix.
-     * at the moment james does not hand over additional parameters like postfix.
-     * 
-     * 
-     */
-    protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
+        
         log.debug("JavamailStoreMailRepository configure");
-        destination = conf.getString("[@destinationURL]");
+        destination = configuration.getString("[@destinationURL]");
         log.debug("JavamailStoreMailRepository.destinationURL: " + destination);
         if (!destination.endsWith("/")) {
             destination += "/";
         }
-        String postfix = conf.getString("[@postfix]", "");
+        String postfix = configuration.getString("[@postfix]", "");
         if (postfix.length() > 0) {
             if (postfix.startsWith("/")) {
                 postfix = postfix.substring(1);
@@ -195,7 +186,7 @@ public abstract class AbstractJavamailStoreMailRepository implements MailReposit
                     + destination, e);
         }
 
-        String checkType = conf.getString("[@type]");
+        String checkType = configuration.getString("[@type]");
         if (!checkType.equals(TYPE)) {
             String exceptionString = "Attempt to configure JavaMailStoreMailRepository as "
                     + checkType;
@@ -203,13 +194,25 @@ public abstract class AbstractJavamailStoreMailRepository implements MailReposit
             throw new ConfigurationException(exceptionString);
         }
         log.debug("JavaMailStoreMailRepository configured");
+        
+        doConfigure(configuration);
+    }
+    
+    
+    /**
+     * builds destination from attributes destinationURL and postfix.
+     * at the moment james does not hand over additional parameters like postfix.
+     * 
+     * 
+     */
+    protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
+      
     }
 
     @PostConstruct
     public void init() throws Exception {
         log.debug("JavaMailStoreMailRepository initialized");
         
-        doConfigure(configuration);
         try {
             home = fileSystem.getBasedir();
         } catch (FileNotFoundException e) {

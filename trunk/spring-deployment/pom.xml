@@ -28,6 +28,7 @@
   <artifactId>james-server-spring-deployment</artifactId>
   <name>Apache JAMES Server Spring Deployment</name>
   <build>
+  
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -37,24 +38,338 @@
           <target>1.5</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <!-- Include etc/ in the beginning of the classpath declaration in the bin scripts -->
+          <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+          <configurationDirectory>conf</configurationDirectory>
+          <target>${project.build.directory}/appassembler</target>
+          <repositoryLayout>flat</repositoryLayout>
+		  <repositoryName>lib</repositoryName>
+          <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+          <!-- Generate bin scripts for windows and unix per default -->
+          <platforms>
+            <platform>windows</platform>
+            <platform>unix</platform>
+          </platforms>
+          <programs>
+            <program>
+              <mainClass>org.apache.james.container.spring.Main</mainClass>
+              <!-- call it only run because appassemble will add .bat by default on windows -->              
+              <name>run</name>
+              <!-- Only generate windows bat script for this application -->
+              <platforms>
+                <platform>windows</platform>
+              </platforms>
+            </program>
+            <program>
+              <mainClass>org.apache.james.container.spring.Main</mainClass>
+              <name>run.sh</name>
+              <!-- Only generate unix shell script for this application -->
+              <platforms>
+                <platform>unix</platform>
+              </platforms>
+            </program>
+          </programs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-appassemble</id>
+            <phase>package</phase>
+            <goals>
+              <goal>assemble</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+
+              <tasks>
+          		<!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
+          			 from the lib dir to make windows happy again -->
+                <replace file="${project.build.directory}/appassembler/bin/run.bat" token="%BASEDIR%\lib" value="..\lib"/>
+              </tasks>
+
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+	  <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-2</version>
+        <configuration>
+          <descriptorSourceDirectory>src/assemble/</descriptorSourceDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-spring-bridge-library</artifactId>
-    </dependency> 
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avalon.framework</groupId>
+      <artifactId>avalon-framework-impl</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
+    </dependency>
+	<dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mina-socket-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-socket-shared-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+ 
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-javamail-util</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-common-util</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-api</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-socket-api</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-api</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-management-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-avalon-socket-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-smtp-protocol-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+   
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-avalon-user-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-basic-user-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-smtpserver-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-imapserver-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-pop3server-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-nntpserver-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-fetchmail-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-spoolmanager-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailets-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-remotemanager-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-experimental-activemq-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-jcr-store</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
+      <artifactId>cornerstone-datasources-impl</artifactId>
+      <scope>runtime</scope>
+	</dependency> 
+	<dependency>
+      <groupId>org.apache.avalon.cornerstone.threads</groupId>
+      <artifactId>cornerstone-threads-impl</artifactId>
+      <scope>runtime</scope>
+    </dependency> 
+    	<dependency>
+      <groupId>org.apache.avalon.cornerstone.threads</groupId>
+      <artifactId>cornerstone-threads-impl</artifactId>
+      <scope>runtime</scope>
+    </dependency> 
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
+      <artifactId>cornerstone-sockets-impl</artifactId>
+      <scope>runtime</scope>
+    </dependency> 
+        <dependency>
+      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
+      <artifactId>cornerstone-sockets-impl</artifactId>
+      <scope>runtime</scope>
+    </dependency> 
+    <dependency>
+      <groupId>org.apache.avalon.cornerstone.scheduler</groupId>
+      <artifactId>cornerstone-scheduler-impl</artifactId>
+      <scope>runtime</scope>
+    </dependency> 
+	<dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-library</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mailet-base</artifactId>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-smtpserver-function</artifactId>
+      <version>3.0-M1</version>
+      <type>test-jar</type>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

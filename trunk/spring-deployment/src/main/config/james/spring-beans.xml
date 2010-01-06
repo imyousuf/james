@@ -1,164 +1,342 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
 
-<!--
- ! Licensed to the Apache Software Foundation (ASF) under one   !
- ! or more contributor license agreements.  See the NOTICE file !
- ! distributed with this work for additional information        !
- ! regarding copyright ownership.  The ASF licenses this file   !
- ! to you under the Apache License, Version 2.0 (the            !
- ! "License"); you may not use this file except in compliance   !
- ! with the License.  You may obtain a copy of the License at   !
- !                                                              !
- !   http://www.apache.org/licenses/LICENSE-2.0                 !
- !                                                              !
- ! Unless required by applicable law or agreed to in writing,   !
- ! software distributed under the License is distributed on an  !
- ! "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       !
- ! KIND, either express or implied.  See the License for the    !
- ! specific language governing permissions and limitations      !
- ! under the License.                                           !
- -->
+	<!--
+		! Licensed to the Apache Software Foundation (ASF) under one ! ! or
+		more contributor license agreements. See the NOTICE file ! !
+		distributed with this work for additional information ! ! regarding
+		copyright ownership. The ASF licenses this file ! ! to you under the
+		Apache License, Version 2.0 (the ! ! "License"); you may not use this
+		file except in compliance ! ! with the License. You may obtain a copy
+		of the License at ! ! ! ! http://www.apache.org/licenses/LICENSE-2.0 !
+		! ! ! Unless required by applicable law or agreed to in writing, ! !
+		software distributed under the License is distributed on an ! ! "AS
+		IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY ! ! KIND, either
+		express or implied. See the License for the ! ! specific language
+		governing permissions and limitations ! ! under the License. !
+	-->
 
 
 <beans>
 
-    <!--
-         beans which replace Avalon specific container logic
-    -->
-    <bean id="fileSystemOverride" class="org.apache.james.container.spring.adaptor.FileSystemBridge" />
-         
-    <bean id="serviceManager" class="org.apache.james.container.spring.adaptor.DefaultServiceManagerFactory" >
-        <property name="replacements">
-            <!-- replacement map. 
-                 key must point to an avalon service from james-assembly.xml
-                 value must point to a bean
-            -->
-            <map>
-                <entry key="filesystem" value="fileSystemOverride" />
-            </map>
-        </property>
-    </bean>
+	<!--
+		** JMX part ** to enable exposure of JMX, activate the following beans
 
-    <!--
-        Logging to log4j
-    -->
-    <bean id="logger" class="org.apache.james.container.spring.logging.log4j.LoggerToComponentMapper" init-method="init">
-        <property name="configurationResource" value="log4j.properties"/>
-    </bean>
-    
-    <!--
-        Logging to System.out
-    -->
-    <!--
-    <bean name="logWorker" class="org.apache.james.container.spring.logging.SystemConsoleLogWorker" />
+		NOTE: if you are running JDK < 1.5, you'd have to make a MBeanServer
+		implementation available on the classpath, for example mx4j
+	-->
 
-    <bean name="logger, loggerMap" class="org.apache.james.container.spring.adaptor.LoggingBridge" >
-        <property name="logWorker" ref="logWorker" />
-    </bean>
-    -->
+	<!--
+		<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false"> 
+			<property name="autodetect" value="true" /> 
+			<property name="namingStrategy" ref="namingStrategy" /> 
+		</bean> 
+		<bean id="namingStrategy" class="org.springframework.jmx.export.naming.KeyNamingStrategy" >
+			<property name="mappings" >
+				<props> 
+					<prop key="fetchmail"> bean:name=fetchmail</prop> 
+					<prop key="smtpserver">bean:name=smtpserver</prop> 
+					<prop key="James" >bean:name=James</prop>
+					<prop key="dnsserver" >bean:name=dnsserver</prop> 
+					<prop key="remotemanager" >bean:name=remotemanager</prop> 
+					<prop key="pop3server" >bean:name=pop3server</prop> 
+					<prop key="nntpserver">bean:name=nntpserver</prop> 
+					<prop key="virtualusertablemanagement">bean:name=virtualusertablemanagement</prop> 
+					<prop key="spoolmanagement" >bean:name=spoolmanagement</prop> 
+					<prop key="domainlistmanagement" >bean:name=domainlistmanagement</prop>
+					<prop key="processormanagement" >bean:name=processormanagement</prop>
+					<prop key="bayesiananalyzermanagement">bean:name=bayesiananalyzermanagement</prop> 
+					<prop key="usermanagement" >bean:name=usermanagement</prop> 
+					<prop key="serverConnector" >bean:name=serverConnector</prop>
+				</props>
+			</property> 
+		</bean> 
+		
+		<bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
 
-    <!-- 
-         maps the default standard ports for SMTP, POP3, IMAP, NNTP to non-privileged ports in the
-         9000's range (must be activated in "configurationProvider"-bean)
-    -->
-    <bean id="privilegedPortsConfigurationInterceptor" class="org.apache.james.container.spring.examples.configuration.UnprivilegedPortConfigurationInterceptor" />
-    
-    <!--
-         replaces strings in configuration values
-    -->
-    <bean id="stringRemapperConfigurationInterceptor" class="org.apache.james.container.spring.examples.configuration.StringRemapperConfigurationInterceptor">
-        <property name="mappings">
-            <map>
-                <!-- avoid having folders be generated outside the working directory -->
-                <entry key="../apps/" value="../var/"/>
-            </map>
-        </property>
-    </bean>
+		<bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+			<property name="port" value="1099" /> 
+		</bean> 
+		
+		<bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry"> 
+			<property name="objectName" value="connector:name=rmi" /> 
+			<property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" /> 
+		</bean>
+	-->
+
+	<bean
+		class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
+		<property name="order" value="2" />
+		<property name="beanRoleMap">
+			<map>
+				<entry
+					key="org.apache.avalon.cornerstone.services.threads.ThreadManager"
+					value="thread-manager" />
+			</map>
+		</property>
+	</bean>
+
+	<bean
+		class="org.apache.james.container.spring.lifecycle.AvalonInitializableBeanPostProcessor">
+		<property name="order" value="4" />
+	</bean>
+
+	<bean
+		class="org.apache.james.container.spring.lifecycle.AvalonConfigurableBeanPostProcessor">
+		<property name="configurationProvider" ref="configurationProvider" />
+		<property name="order" value="1" />
+	</bean>
+
+	<bean
+		class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
+		<property name="configurationProvider" ref="configurationProvider" />
+		<property name="order" value="1" />
+		<property name="mappings">
+			<map>
+				<entry key="pop3server.protocolserver" value="pop3server" />
+				<entry key="pop3server.protocolhandlerfactory" value="pop3server" />
+				<entry key="smtpserver.protocolserver" value="smtpserver" />
+				<entry key="smtpserver.protocolhandlerfactory" value="smtpserver" />
+				<entry key="nntpserver.protocolserver" value="nntpserver" />
+				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
+				<entry key="imapserver.protocolserver" value="imapserver" />
+				<entry key="imapserver.protocolhandlerfactory" value="imapserver" />
+				<entry key="remotemanager.protocolserver" value="remotemanager" />
+				<entry key="remotemanager.protocolhandlerfactory" value="remotemanager" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="configurationProvider"
+		class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider">
+		<property name="configurationResource" value="classpath:james-config.xml" />
+	</bean>
+
+	<bean
+		class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
+		<property name="logProvider" ref="logProvider" />
+		<property name="order" value="0" />
+		<property name="mappings">
+			<map>
+				<entry key="pop3server.protocolserver" value="pop3server" />
+				<entry key="pop3server.protocolhandlerfactory" value="pop3server" />
+				<entry key="smtpserver.protocolserver" value="smtpserver" />
+				<entry key="smtpserver.protocolhandlerfactory" value="smtpserver" />
+				<entry key="nntpserver.protocolserver" value="nntpserver" />
+				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
+				<entry key="imapserver.protocolserver" value="imapserver" />
+				<entry key="imapserver.protocolhandlerfactory" value="imapserver" />
+				<entry key="remotemanager.protocolserver" value="remotemanager" />
+				<entry key="remotemanager.protocolhandlerfactory" value="remotemanager" />
+			</map>
+		</property>
+	</bean>
+
+	<bean
+		class="org.apache.james.container.spring.lifecycle.AvalonLogEnabledBeanPostProcessor">
+		<property name="logProvider" ref="logProvider" />
+		<property name="order" value="0" />
+	</bean>
+
+	<bean id="logProvider"
+		class="org.apache.james.container.spring.lifecycle.SpringLogProvider" />
 
 
-    <bean id="configurationProvider" class="org.apache.james.container.spring.adaptor.AvalonConfigurationFileProvider" >
-        <property name="configurationResource" value="classpath:james-config.xml" />
-        <property name="configurationInterceptors">
-            <list>
-                <ref bean="stringRemapperConfigurationInterceptor" />
-                <!--<ref bean="privilegedPortsConfigurationInterceptor" />-->
-            </list>
-        </property>
-    </bean>
-    
-    <bean id="avalonContext" class="org.apache.james.container.spring.adaptor.AvalonContext" >
-        <property name="applicationHome" value="data" />
-        <property name="applicationName" value="Apache JAMES Server" />
-    </bean>
+	<bean id="org.apache.james.LoaderService" class="org.apache.james.container.spring.lifecycle.JSR250LoaderService">
+		<property name="order" value="3" />
+	</bean>
 
-    <!--
-        **  JMX part **
-        
-        to enable exposure of JMX, activate the following beans
-        
-        NOTE: if you are running JDK < 1.5, you'd have to make a MBeanServer implementation available on the
-        classpath, for example mx4j
-     -->
+	<bean id="James" class="org.apache.james.James" />
 
-    <!--
-    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false" >
-        <property name="autodetect" value="true" />
-        <property name="namingStrategy" ref="namingStrategy" />
-    </bean>
+	<!-- The James Spool Manager block  -->
+	<bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" />
 
-    <bean id="namingStrategy" class="org.springframework.jmx.export.naming.KeyNamingStrategy" >
-        <property name="mappings" ><props>
-            <prop key="fetchmail" >bean:name=fetchmail</prop>
-            <prop key="smtpserver" >bean:name=smtpserver</prop>
-            <prop key="James" >bean:name=James</prop>
-            <prop key="dnsserver" >bean:name=dnsserver</prop>
-            <prop key="remotemanager" >bean:name=remotemanager</prop>
-            <prop key="pop3server" >bean:name=pop3server</prop>
-            <prop key="nntpserver" >bean:name=nntpserver</prop>
-            <prop key="virtualusertablemanagement" >bean:name=virtualusertablemanagement</prop>
-            <prop key="spoolmanagement" >bean:name=spoolmanagement</prop>
-            <prop key="domainlistmanagement" >bean:name=domainlistmanagement</prop>
-            <prop key="processormanagement" >bean:name=processormanagement</prop>
-            <prop key="bayesiananalyzermanagement" >bean:name=bayesiananalyzermanagement</prop>
-            <prop key="usermanagement" >bean:name=usermanagement</prop>
-            
-            <prop key="serverConnector" >bean:name=serverConnector</prop>
-        </props></property>
-    </bean>
-    
+	<bean id="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" />
 
-    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
+	<bean id="mailetpackages" class="org.apache.james.transport.JamesMailetLoader" />
 
-    <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
-        <property name="port" value="1099" />
-    </bean>
-    
-    <bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry">
-        <property name="objectName" value="connector:name=rmi" />
-        <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" />    
-    </bean>
-    -->
-    
-    <!--
-         beans managing bootstrapping and component lifecycle
-    -->
-    <bean id="loggerPropagator" class="org.apache.james.container.spring.lifecycle.LoggerPropagator" >
-        <property name="loggerFactory" ref="logger"/>
-    </bean>
+	<bean id="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
 
-    <bean id="contextPropagator" class="org.apache.james.container.spring.lifecycle.ContextPropagator" >
-        <property name="context" ref="avalonContext"/>
-    </bean>
+	<!-- The Spool Management block  -->
+	<bean id="spoolmanagement" class="org.apache.james.management.impl.SpoolManagement" />
 
-    <bean id="servicePropagator" class="org.apache.james.container.spring.lifecycle.ServicePropagator" >
-        <property name="serviceManagerFactory" ref="serviceManager"/>
-    </bean>
+	<bean id="processormanagement" class="org.apache.james.management.impl.ProcessorManagement" />
 
-    <bean id="configurationManager" class="org.apache.james.container.spring.lifecycle.ConfigurationPropagator" >
-        <property name="configurationProvider" ref="configurationProvider"/>
-    </bean>
+	<bean id="bayesiananalyzermanagement"
+		class="org.apache.james.management.impl.BayesianAnalyzerManagement" />
 
-    <bean id="initializationManager" class="org.apache.james.container.spring.lifecycle.InitializationPropagator" />
+	<!-- RemoteManager Beans-->
+	<bean id="remotemanager.protocolhandlerfactory"
+		class="org.apache.james.remotemanager.RemoteManagerProtocolHandlerFactory" />
+
+	<bean id="remotemanager.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="remotemanager.protocolhandlerfactory" />
+	</bean>
+
+	<bean id="remotemanager" class="org.apache.james.remotemanager.RemoteManagerMBeanImpl">
+		<property name="protocolServer" ref="remotemanager.protocolserver" />
+	</bean>
+	
+	<!-- The User Management block  -->
+	<bean id="usermanagement" class="org.apache.james.impl.user.UserManagement" />
+
+	<!-- POP3 Server Beans-->
+	<bean id="pop3server.protocolhandlerfactory"
+		class="org.apache.james.pop3server.POP3ServerProtocolServerHandlerFactory" />
+
+	<bean id="pop3server.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="pop3server.protocolhandlerfactory" />
+	</bean>
+
+	<bean id="pop3server" class="org.apache.james.pop3server.POP3ServerMBeanImpl">
+		<property name="protocolServer" ref="pop3server.protocolserver" />
+	</bean>
+	
+	<!-- SMTP Server Beans-->
+	<bean id="smtpserver.protocolhandlerfactory"
+		class="org.apache.james.smtpserver.SMTPServerProtocolHandlerFactory" />
+
+	<bean id="smtpserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="smtpserver.protocolhandlerfactory" />
+	</bean>
+	
+	<bean id="smtpserver" class="org.apache.james.smtpserver.SMTPServerMBeanImpl">
+		<property name="protocolServer" ref="smtpserver.protocolserver" />
+	</bean>
+
+	<!-- Async SMTP Server -->
+	<!-- enable this to use the MINA based SMTP Server which uses NIO -->
+	<!--
+		<bean id="smtpserver"
+		class="org.apache.james.smtpserver.mina.AsyncSMTPServer" />
+	-->
+
+	<bean id="org.apache.james.smtpserver.protocol.DNSService"
+		class="org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter" />
+
+	<!-- NNTP Server Beans-->
+	<bean id="nntpserver.protocolhandlerfactory"
+		class="org.apache.james.nntpserver.NNTPServerProtocolHandlerFactory" />
+
+	<bean id="nntpserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="nntpserver.protocolhandlerfactory" />
+	</bean>
+
+	<bean id="nntpserver" class="org.apache.james.nntpserver.NNTPServerMBeanImpl">
+		<property name="protocolServer" ref="nntpserver.protocolserver" />
+	</bean>
+
+	<!-- NNTP Repository -->
+	<bean id="nntp-repository"
+		class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
+
+
+	<!-- FetchMail Service -->
+	<bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
+
+	<!-- The High Level Storage block -->
+	<bean id="mailstore" class="org.apache.james.mailrepository.MailStore" />
+
+	<!-- The main SpoolRepository -->
+	<bean id="spoolrepository"
+		class="org.apache.james.mailrepository.MailStoreSpoolRepository" />
+
+	<!-- The User Storage block -->
+	<bean id="users-store" class="org.apache.james.core.UsersStoreImpl" />
+
+	<!--
+		This is needed to link the smtpserver to the local user repository
+	-->
+	<!--
+		LocalJamesUsersRepository is used for backward compatibility with
+		James 2.3.0
+	-->
+	<!-- This is needed to support <usernames> configuraion inside James -->
+	<!--
+		If backward compatibility is not need the LocalUsersRepository
+		implementaion
+	-->
+	<!-- could be safely used -->
+	<bean id="localusersrepository"
+		class="org.apache.james.impl.jamesuser.LocalJamesUsersRepository" />
+
+
+	<!-- The context FileSystem implementation -->
+	<bean id="filesystem"
+		class="org.apache.james.container.spring.adaptor.FileSystemBridge" />
+
+	<!-- The VirtualUserTable Management block  -->
+	<bean id="virtualusertablemanagementservice"
+		class="org.apache.james.impl.vut.VirtualUserTableManagement" />
+
+	<!-- VirtualUserTable Store -->
+	<bean id="virtualusertable-store" class="org.apache.james.core.VirtualUserTableStoreImpl" />
+
+
+	<bean id="defaultvirtualusertable" name="virtualusertablemanagement"
+		class="org.apache.james.impl.vut.DefaultVirtualUserTable" />
+
+	<!--
+		########################################################################
+	-->
+	<!-- The context domainlist implementation -->
+	<bean id="domainlist" class="org.apache.james.domain.XMLDomainList" />
+
+	<!--  JDBC implementation of the domainlist service-->
+	<!--
+		<bean id="domainlist" class="org.apache.james.domain.JDBCDomainList"
+		/>
+	-->
+
+	<!-- JDBC VirtualUserTable implementation of the domainlist service -->
+	<!--
+		<bean id="domainlist"
+		class="org.apache.james.vut.JDBCVirtualUserTable" />
+	-->
+
+	<!-- XML VirtualUserTable implementation of the domainlist service -->
+	<!--
+		<bean id="domainlist" class="org.apache.james.vut.XMLVirtualUserTable"
+		/>
+	-->
+
+	<!-- IMAP server Beans -->
+	<bean id="imapserver.protocolhandlerfactory" name="org.apache.jsieve.mailet.Poster"
+		class="org.apache.james.imapserver.ImapServerProtocolHandlerFactory" />
+
+	<bean id="imapserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
+		<property name="protocolHandlerFactory" ref="imapserver.protocolhandlerfactory" />
+	</bean>
+	
+	<!--
+		####################################################################
+	-->
+
+	<bean id="domainlistmanagement" class="org.apache.james.management.impl.DomainListManagement" />
+
+
+	<!--
+		Configuration for Cornerstone Blocks only after here NOTHING BELOW
+		THIS SHOULD NEED CHANGING, (unless you want secure sockets (TLS))
+	-->
+
+	<!-- The Connection Manager block -->
+	<bean id="connections" class="org.apache.james.socket.SimpleConnectionManager" />
+
+	<!-- The Socket Manager block -->
+	<bean id="sockets"
+		class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketManager" />
+
+	<!-- The Time Scheduler block -->
+	<bean id="scheduler"
+		class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" destroy-method="dispose" />
+
+	<!-- The DataSourceSelector block -->
+	<bean id="database-connections"
+		class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" destroy-method="dispose" />
+
+	<!-- The ThreadManager block -->
+	<bean id="thread-manager"
+		class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" destroy-method="dispose" />
 
 </beans>

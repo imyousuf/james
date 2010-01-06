@@ -19,17 +19,13 @@
 
 package org.apache.james.api.kernel.mock;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.apache.avalon.framework.service.ServiceException;
-import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.api.kernel.AbstractJSR250LoaderService;
 
-public class FakeLoader implements LoaderService, org.apache.avalon.framework.service.ServiceManager{
+public class FakeLoader extends AbstractJSR250LoaderService implements org.apache.avalon.framework.service.ServiceManager{
 
     private final Map<String, Object> servicesByName;
     private final Map<String, String> mappings = new HashMap<String, String>();
@@ -49,7 +45,8 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
         mappings.put("scheduler", "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
         mappings.put("database-connections", "org.apache.avalon.cornerstone.services.datasources.DataSourceSelector");
         mappings.put("defaultvirtualusertable", "org.apache.james.api.vut.VirtualUserTable");
-   
+        mappings.put("virtualusertablemanagement", "org.apache.james.api.vut.management.VirtualUserTableManagement");
+
         mappings.put("spoolmanager", "org.apache.james.services.SpoolManager");
         mappings.put("matcherpackages", "org.apache.james.transport.MatcherLoader");
         mappings.put("mailetpackages", "org.apache.james.transport.MailetLoader");
@@ -59,16 +56,15 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
         mappings.put("spoolmanagement", "org.apache.james.management.SpoolManagementService");
         mappings.put("bayesiananalyzermanagement", "org.apache.james.management.BayesianAnalyzerManagementService");
         mappings.put("processormanagement", "org.apache.james.management.ProcessorManagementService");
-        mappings.put("virtualusertablemanagement", "org.apache.james.api.vut.management.VirtualUserTableManagementService");
+        mappings.put("virtualusertablemanagementservice", "org.apache.james.api.vut.management.VirtualUserTableManagementService");
         mappings.put("domainlistmanagement", "org.apache.james.management.DomainListManagementService");
         mappings.put("nntp-repository", "org.apache.james.nntpserver.repository.NNTPRepository");
     }
     
-    
+
     public Object get(String name) { 
         Object service = servicesByName.get(mapName(name));
         
-        System.out.println("KEYS="+servicesByName.keySet().toString());
         return service;
     }
     
@@ -77,63 +73,41 @@ public class FakeLoader implements LoaderService, org.apache.avalon.framework.se
         if(newName == null) {
             newName = name;
         }
-        System.out.println("NEW=" + newName);
         return newName;
     }
-    private void injectResources(Object resource) {
-        final Method[] methods = resource.getClass().getMethods();
-        for (Method method : methods) {
-            final Resource resourceAnnotation = method.getAnnotation(Resource.class);
-            if (resourceAnnotation != null) {
-                final String name = resourceAnnotation.name();
-                if (name == null) {
-                    // Unsupported
-                } else {
-                    // Name indicates a service
-                    final Object service = get(name);
-                    
-                    System.out.println("SERVICE=" + service);
-                    if (service == null) {
-                   } else {
-                        try {
-                            Object[] args = {service};
-                            method.invoke(resource, args);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException("Injection failed", e);
-                        } catch (IllegalArgumentException e) {
-                            throw new RuntimeException("Injection failed", e);
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException("Injection failed", e);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    public <T> T load(Class<T> type) {
-        try {
-            final T newInstance = type.newInstance();
-            injectResources(newInstance);
-            return newInstance;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+   
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.avalon.framework.service.ServiceManager#hasService(java.lang.String)
+     */
     public boolean hasService(String name) {
         return servicesByName.containsKey(name);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.avalon.framework.service.ServiceManager#lookup(java.lang.String)
+     */
     public Object lookup(String name) throws ServiceException {
         return servicesByName.get(name);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.avalon.framework.service.ServiceManager#release(java.lang.Object)
+     */
     public void release(Object service) {
     }
 
     public void put(String role, Object service) {
         servicesByName.put(role, service);
     }
+
+
+	@Override
+	protected Object getObjectForName(String name) {
+		return get(name);
+	}
 }

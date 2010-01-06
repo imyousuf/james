@@ -32,30 +32,34 @@ public class SMTPServerMBeanImpl implements SMTPServerMBean{
         this.server = server;
     }
     
-    /**
-     * @see org.apache.james.remotemanager.RemoteManagerMBean#getNetworkInterface()
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#getNetworkInterface()
      */
     public String getNetworkInterface() {
         return server.getNetworkInterface();
     }
 
-    /**
-     * @see org.apache.james.remotemanager.RemoteManagerMBean#getPort()
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#getPort()
      */
     public int getPort() {
         return server.getPort();
     }
 
-    /**
-     * @see org.apache.james.remotemanager.RemoteManagerMBean#getSocketType()
+ 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#getSocketType()
      */
     public String getSocketType() {
         return server.getSocketType();
     }
 
-    /**
+    /*
      * (non-Javadoc)
-     * @see org.apache.james.remotemanager.RemoteManagerMBean#isEnabled()
+     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#isEnabled()
      */
     public boolean isEnabled() {
         return server.isEnabled();

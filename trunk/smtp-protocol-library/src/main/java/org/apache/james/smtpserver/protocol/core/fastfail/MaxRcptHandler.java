@@ -22,8 +22,8 @@
 package org.apache.james.smtpserver.protocol.core.fastfail;
 
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
@@ -37,10 +37,11 @@ public class MaxRcptHandler implements RcptHook, Configurable {
 
     private int maxRcpt = 0;
 
-    /**
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(Configuration handlerConfiguration)
+    public void configure(HierarchicalConfiguration handlerConfiguration)
             throws ConfigurationException {
         int maxRcpt = handlerConfiguration.getInt("maxRcpt", 0);
         setMaxRcpt(maxRcpt);

@@ -31,6 +31,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.mina.filter.ConnectionFilter;
@@ -50,7 +52,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
  * Abstract base class for Servers which want to use async io
  *
  */
-public abstract class AbstractAsyncServer {
+public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     /**
      * The default value for the connection backlog.
      */
@@ -159,90 +161,15 @@ public abstract class AbstractAsyncServer {
         this.mailetcontext = mailetcontext;
     }
 
-    @Resource(name="org.apache.commons.logging.Log")
     public final void setLog(Log logger) {
        this.logger = logger;
     }
 
-    @Resource(name="org.apache.commons.configuration.Configuration")
-    public final void setConfiguration(HierarchicalConfiguration config) {
-        this.config = config;
-    }
-    
-    
-    @PostConstruct
-    public void init() throws Exception {
-        configure(config);
-        doConfigure(config);
-        if (isEnabled()) {
-            preInit();
-            buildSSLContextFactory();
-            SocketAcceptor acceptor = new NioSocketAcceptor();  
-            acceptor.setFilterChainBuilder(createIoFilterChainBuilder());
-            acceptor.setBacklog(backlog);
-            acceptor.setReuseAddress(true);
-            acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, timeout );
-            acceptor.setHandler(createIoHandler());
-            acceptor.bind(new InetSocketAddress(bindTo,port));
-        }
-    }
+    public final void configure(HierarchicalConfiguration config) throws ConfigurationException{
+        
+        Configuration handlerConfiguration = ((HierarchicalConfiguration)config).configurationAt("handler");
 
-    /**
-     * This method is called on init of the Server. Subclasses should override this method to init stuff
-     *
-     * @throws Exception 
-     */
-    protected void preInit() throws Exception {
-        // override me
-    }
-    
-    protected void doConfigure(HierarchicalConfiguration config) throws Exception {
-        // override me
-    }
-
-    /**
-     * Return the DNSService
-     * 
-     * @return dns
-     */
-    protected DNSService getDNSService() {
-        return dns;
-    }
-    
-    /**
-     * Return the MailServer
-     * 
-     * @return mailServer
-     */
-    protected MailServer getMailServer() {
-        return mailServer;
-    }
-    
-    /**
-     * Return the MailetContext
-     * 
-     * @return mailetContext
-     */
-    protected MailetContext getMailetContext() {
-        return mailetcontext;
-    }
-    
-    /**
-     * Return the FileSystem
-     * 
-     * @return fileSystem
-     */
-    protected FileSystem getFileSystem() {
-        return fileSystem;
-    }
-    
-
-    private void configure(Configuration configuration) throws ConfigurationException {
-        if ((configuration instanceof HierarchicalConfiguration) == false) throw new ConfigurationException("Configuration must extend HierarchicalConfiguration");
-       
-        Configuration handlerConfiguration = ((HierarchicalConfiguration)configuration).configurationAt("handler");
-
-        enabled = configuration.getBoolean("[@enabled]", true);
+        enabled = config.getBoolean("[@enabled]", true);
         
         final Log logger = getLogger();
         if (!enabled) {
@@ -257,7 +184,7 @@ public abstract class AbstractAsyncServer {
         setStreamDumpDir(streamdumpDir);
         */
 
-        port = configuration.getInt("port",getDefaultPort());
+        port = config.getInt("port",getDefaultPort());
 
      
 
@@ -265,7 +192,7 @@ public abstract class AbstractAsyncServer {
         
 
         try {
-            final String bindAddress = configuration.getString("bind",null);
+            final String bindAddress = config.getString("bind",null);
             if( null != bindAddress ) {
                 bindTo = InetAddress.getByName(bindAddress);
                 infoBuffer =
@@ -291,7 +218,7 @@ public abstract class AbstractAsyncServer {
                     .append(timeout);
         logger.info(infoBuffer.toString());
 
-        backlog = configuration.getInt(BACKLOG_NAME,DEFAULT_BACKLOG);
+        backlog = config.getInt(BACKLOG_NAME,DEFAULT_BACKLOG);
 
         infoBuffer =
                     new StringBuilder(64)
@@ -301,7 +228,7 @@ public abstract class AbstractAsyncServer {
         logger.info(infoBuffer.toString());
 
         
-        String connectionLimitString = configuration.getString("connectionLimit",null);
+        String connectionLimitString = config.getString("connectionLimit",null);
         if (connectionLimitString != null) {
             try {
                 connectionLimit = new Integer(connectionLimitString);
@@ -342,18 +269,85 @@ public abstract class AbstractAsyncServer {
         }
        
 
-        useStartTLS = configuration.getBoolean("startTLS.[@enable]", false);
+        useStartTLS = config.getBoolean("startTLS.[@enable]", false);
 
         if (useStartTLS) {
-            keystore = configuration.getString("startTLS.keystore", null);
+            keystore = config.getString("startTLS.keystore", null);
             if (keystore == null) {
                 throw new ConfigurationException("keystore needs to get configured");
             }
-            secret = configuration.getString("startTLS.secret","");
+            secret = config.getString("startTLS.secret","");
         }
              
+        doConfigure(config);
+
+    }
+    
+    
+    @PostConstruct
+    public void init() throws Exception {
+        if (isEnabled()) {
+            preInit();
+            buildSSLContextFactory();
+            SocketAcceptor acceptor = new NioSocketAcceptor();  
+            acceptor.setFilterChainBuilder(createIoFilterChainBuilder());
+            acceptor.setBacklog(backlog);
+            acceptor.setReuseAddress(true);
+            acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, timeout );
+            acceptor.setHandler(createIoHandler());
+            acceptor.bind(new InetSocketAddress(bindTo,port));
+        }
     }
 
+    /**
+     * This method is called on init of the Server. Subclasses should override this method to init stuff
+     *
+     * @throws Exception 
+     */
+    protected void preInit() throws Exception {
+        // override me
+    }
+    
+    protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
+        // override me
+    }
+
+    /**
+     * Return the DNSService
+     * 
+     * @return dns
+     */
+    protected DNSService getDNSService() {
+        return dns;
+    }
+    
+    /**
+     * Return the MailServer
+     * 
+     * @return mailServer
+     */
+    protected MailServer getMailServer() {
+        return mailServer;
+    }
+    
+    /**
+     * Return the MailetContext
+     * 
+     * @return mailetContext
+     */
+    protected MailetContext getMailetContext() {
+        return mailetcontext;
+    }
+    
+    /**
+     * Return the FileSystem
+     * 
+     * @return fileSystem
+     */
+    protected FileSystem getFileSystem() {
+        return fileSystem;
+    }
+   
     
     /**
      * Configure the helloName for the given Configuration
