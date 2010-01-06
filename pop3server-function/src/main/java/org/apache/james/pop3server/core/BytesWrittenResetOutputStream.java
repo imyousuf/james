@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.socket;
+package org.apache.james.pop3server.core;
 
 import java.io.IOException;
 import java.io.OutputStream;
