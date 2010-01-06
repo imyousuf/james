@@ -124,6 +124,11 @@
           </execution>
         </executions>
       </plugin>
+       <plugin>
+        <groupId>org.apache.james</groupId>
+        <artifactId>apache-james-mpt-mavenplugin</artifactId>
+        <version>0.2-SNAPSHOT</version>
+      </plugin>
     </plugins>
   </build>
   
