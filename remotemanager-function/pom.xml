@@ -38,10 +38,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-common-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
     </dependency>
     <dependency>
@@ -60,10 +56,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -86,10 +78,6 @@
        <artifactId>geronimo-annotation_1.0_spec</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.store</groupId>
-      <artifactId>cornerstone-store-api</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apache.avalon.cornerstone.threads</groupId>
       <artifactId>cornerstone-threads-api</artifactId>
@@ -123,6 +111,11 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
       <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
