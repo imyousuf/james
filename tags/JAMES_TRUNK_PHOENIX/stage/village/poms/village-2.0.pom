@@ -1,0 +1,160 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>village</groupId>
+  <artifactId>village</artifactId>
+  <name>village</name>
+  <version>2.0</version>
+  <description>Village is a 100% Pure Java API that sits on top of the JDBC API. The purpose
+    of this API is to make it easier to interact with a JDBC compliant relational
+    database. By using Village, it is possible to execute and manage
+    select/insert/update/delete SQL statements without having to actually write
+    a single line of SQL. Village can use any valid JDBC Connection object, so it
+    is possible to use Village with a JDBC Connection pool.</description>
+  <url>http://share.whichever.com/index.php?SCREEN=village</url>
+  <issueManagement>
+    <url>https://svn.softwareforge.de/trac/newticket?component=Village</url>
+  </issueManagement>
+  <inceptionYear></inceptionYear>
+  <mailingLists>
+    <mailingList>
+      <name>Torque User List</name>
+      <subscribe>torque-user-subscribe@db.apache.org</subscribe>
+      <unsubscribe>torque-user-unsubscribe@db.apache.org</unsubscribe>
+      <archive>http://mail-archives.apache.org/mod_mbox/db-torque-user/</archive>
+    </mailingList>
+    <mailingList>
+      <name>Torque Developer List</name>
+      <subscribe>torque-dev-subscribe@db.apache.org</subscribe>
+      <unsubscribe>torque-dev-unsubscribe@db.apache.org</unsubscribe>
+      <archive>http://mail-archives.apache.org/mod_mbox/db-torque-dev/</archive>
+    </mailingList>
+  </mailingLists>
+  <developers>
+    <developer>
+      <id>jmcnally</id>
+      <name>John McNally</name>
+      <email>jmcnally@collab.net</email>
+      <url></url>
+      <organization>CollabNet, Inc.</organization>
+      <timezone></timezone>
+    </developer>
+    <developer>
+      <id>dlr</id>
+      <name>Daniel Rall</name>
+      <email>dlr@finemaltcoding.com</email>
+      <url></url>
+      <organization>CollabNet, Inc.</organization>
+      <timezone></timezone>
+    </developer>
+    <developer>
+      <id>henning</id>
+      <name>Henning P. Schmiedehausen</name>
+      <email>hps@intermeta.de</email>
+      <url></url>
+      <organization>INTERMETA - Gesellschaft fuer Mehrwertdienste mbH</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>2</timezone>
+    </developer>
+    <developer>
+      <id>jon</id>
+      <name>Jon Scott Stevens</name>
+      <email>jon@latchkey.com</email>
+      <url></url>
+      <organization>CollabNet, Inc.</organization>
+      <timezone></timezone>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>The Working-Dogs.com License, Version 1.1</name>
+      <url></url>
+      <comments></comments>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:svn:http://svn.softwareforge.de/svn/opensource/village/trunk</connection>
+    <developerConnection>scm:svn:https://svn.softwareforge.de/svn/opensource/village/trunk</developerConnection>
+    <url>https://svn.softwareforge.de/trac/browser/village/trunk/</url>
+  </scm>
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-ant-plugin</artifactId>
+        <version>1.9</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-artifact-plugin</artifactId>
+        <version>1.5.2</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-changelog-plugin</artifactId>
+        <version>1.8.2</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-developer-activity-plugin</artifactId>
+        <version>1.5.2</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-file-activity-plugin</artifactId>
+        <version>1.5.2</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <groupId>maven-plugins</groupId>
+        <artifactId>maven-findbugs-plugin</artifactId>
+        <version>0.9.1</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>1.7</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>1.6</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-scm-plugin</artifactId>
+        <version>1.5</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>1.6.1</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-tasklist-plugin</artifactId>
+        <version>2.4</version>
+        <configuration />
+      </plugin>
+      <plugin>
+        <artifactId>maven-xdoc-plugin</artifactId>
+        <version>1.9.2</version>
+        <configuration />
+      </plugin>
+    </plugins>
+  </build>
+  <distributionManagement>
+    <repository>
+      <id>default</id>
+      <name>Default Repository</name>
+      <url>www.softwareforge.de//releases</url>
+    </repository>
+    <site>
+      <id>default</id>
+      <name>Default Site</name>
+      <url>scp://www.softwareforge.de//webserver/www.softwareforge.de/html/projects/village</url>
+    </site>
+  </distributionManagement>
+</project>
