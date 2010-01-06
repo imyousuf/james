@@ -116,6 +116,21 @@
       <artifactId>apache-mime4j</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mpt-antlib</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mpt-main</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mpt-mavenplugin</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>${javax.mail.groupId}</groupId>
       <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
