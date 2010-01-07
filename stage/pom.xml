@@ -127,7 +127,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mpt-mavenplugin</artifactId>
+      <artifactId>maven-mpt-plugin</artifactId>
       <version>0.2-SNAPSHOT</version>
     </dependency>
     <dependency>

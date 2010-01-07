@@ -124,11 +124,74 @@
           </execution>
         </executions>
       </plugin>
+      <!--  be sure to start up james before run it -->
        <plugin>
         <groupId>org.apache.james</groupId>
-        <artifactId>apache-james-mpt-mavenplugin</artifactId>
+        <artifactId>maven-mpt-plugin</artifactId>
         <version>0.2-SNAPSHOT</version>
+         <configuration>
+          <mailProtocolTests>
+            <mailProtocolTest>
+              <host>127.0.0.1</host>
+              <port>110</port>
+              <scriptFile>src/mpt/pop3.mpt</scriptFile>
+              <addUsers>
+                <addUser>
+                  <host>127.0.0.1</host>
+                  <port>4555</port>
+                  <scriptFile>src/mpt/adduser.mpt</scriptFile>
+                  <user>root</user>
+                  <passwd>root</passwd>
+                </addUser>
+              </addUsers>
+            </mailProtocolTest>
+            <mailProtocolTest>
+              <host>127.0.0.1</host>
+              <port>143</port>
+              <scriptFile>src/mpt/imap.mpt</scriptFile>
+              <addUsers>
+                <addUser>
+                  <host>127.0.0.1</host>
+                  <port>4555</port>
+                  <scriptFile>src/mpt/adduser.mpt</scriptFile>
+                  <user>root</user>
+                  <passwd>root</passwd>
+                </addUser>
+              </addUsers>
+            </mailProtocolTest>
+            <mailProtocolTest>
+              <host>127.0.0.1</host>
+              <port>25</port>
+              <scriptFile>src/mpt/smtp.mpt</scriptFile>
+              <addUsers>
+                <addUser>
+                  <host>127.0.0.1</host>
+                  <port>4555</port>
+                  <scriptFile>src/mpt/adduser.mpt</scriptFile>
+                  <user>root</user>
+                  <passwd>root</passwd>
+                </addUser>
+              </addUsers>
+            </mailProtocolTest>
+            <mailProtocolTest>
+              <host>127.0.0.1</host>
+              <port>119</port>
+              <scriptFile>src/mpt/nntp.mpt</scriptFile>
+              <addUsers>
+                <addUser>
+                  <host>127.0.0.1</host>
+                  <port>4555</port>
+                  <scriptFile>src/mpt/adduser.mpt</scriptFile>
+                  <user>root</user>
+                  <passwd>root</passwd>
+                </addUser>
+              </addUsers>
+            </mailProtocolTest>
+          </mailProtocolTests>
+         
+        </configuration>
       </plugin>
+      -->
     </plugins>
   </build>
   
