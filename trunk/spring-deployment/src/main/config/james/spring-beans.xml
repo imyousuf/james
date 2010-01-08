@@ -101,6 +101,7 @@
 				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
 				<entry key="imapserver.protocolserver" value="imapserver" />
 				<entry key="imapserver.protocolhandlerfactory" value="imapserver" />
+				<entry key="mailboxmanager" value="imapserver" />				
 				<entry key="remotemanager.protocolserver" value="remotemanager" />
 				<entry key="remotemanager.protocolhandlerfactory" value="remotemanager" />
 			</map>
@@ -315,6 +316,17 @@
 		<property name="protocolHandlerFactory" ref="imapserver.protocolhandlerfactory" />
 	</bean>
 	
+	<bean id="imapFactory" class="org.apache.james.imapserver.ImapFactory"/>
+	
+	<bean id="mailboxmanager" class="org.apache.james.mailboxmanager.torque.DefaultMailboxManager">
+		 	<constructor-arg index="0" ref="userManager"/>
+	</bean>
+	
+    <bean id="userManager" class="org.apache.james.mailboxmanager.torque.DefaultUserManager"/>
+	
+	<bean id="userMetaDataRepository" class="org.apache.james.user.impl.file.FileUserMetaDataRepository">
+	 	<constructor-arg index="0" value="var/users"/>
+	 </bean>
 	<!--
 		####################################################################
 	-->

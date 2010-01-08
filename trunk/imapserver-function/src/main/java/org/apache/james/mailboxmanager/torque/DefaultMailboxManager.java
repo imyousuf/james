@@ -28,6 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -35,6 +38,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.MailboxException;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageBodyPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageFlagsPeer;
@@ -47,7 +52,7 @@ import org.apache.torque.TorqueException;
 import org.apache.torque.util.BasePeer;
 import org.apache.torque.util.Transaction;
 
-public class DefaultMailboxManager extends TorqueMailboxManager {
+public class DefaultMailboxManager extends TorqueMailboxManager implements Configurable, LogEnabled{
 
     private static final String[] tableNames = new String[] {
         MailboxRowPeer.TABLE_NAME, MessageRowPeer.TABLE_NAME,
@@ -58,17 +63,20 @@ public class DefaultMailboxManager extends TorqueMailboxManager {
 
     private boolean initialized;
 
-    private final FileSystem fileSystem;
+    private FileSystem fileSystem;
     private String configFile;
     
-    public DefaultMailboxManager(UserManager userManager, FileSystem fileSystem, Log logger) {
-        super(userManager);
-        this.fileSystem = fileSystem;
-        log = logger;
+    public DefaultMailboxManager(UserManager userManager) {
+        super(userManager);       
     }
 
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
     
-    public void initialize() throws Exception {
+    @PostConstruct
+    public void init() throws Exception {
         if (!initialized) {
             if (torqueConf == null) {
                 throw new RuntimeException("must be configured first!");
@@ -179,5 +187,14 @@ public class DefaultMailboxManager extends TorqueMailboxManager {
                 rsTables.close();
             }
         }
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
+    public void setLog(Log log) {
+        this.log = log;
     }
 }
