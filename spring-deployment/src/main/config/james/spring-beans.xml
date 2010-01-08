@@ -319,6 +319,11 @@
 		<property name="protocolHandlerFactory" ref="imapserver.protocolhandlerfactory" />
 	</bean>
 		
+	<bean id="imapProcessor" class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory"
+      	factory-method="createDefaultProcessor">
+      	<constructor-arg ref="mailboxmanager"/>
+    </bean>
+      
     <bean id="imapDecoderFactory" class="org.apache.james.imap.main.DefaultImapDecoderFactory"/>
     <bean id="imapDecoder" factory-bean="imapDecoderFactory"  factory-method="buildImapDecoder"/>
    

@@ -38,7 +38,6 @@ import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.main.ImapRequestHandler;
-import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.shared.AbstractProtocolHandlerFactory;
@@ -76,17 +75,21 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
         this.mailboxManager = mailboxManager;
     }
     
+    @Resource(name="imapDecoder")
     public void setImapDecoder(ImapDecoder decoder) {
         this.decoder = decoder;
     }
     
+    @Resource(name="imapEncoder")
     public void setImapEncoder(ImapEncoder encoder) {
         this.encoder = encoder;
     }
     
-    public void onInit() {
-        processor = DefaultImapProcessorFactory.createDefaultProcessor(mailboxManager);
+    @Resource(name="imapProcessor")
+    public void setImapProcessor(ImapProcessor processor) {
+        this.processor = processor;
     }
+    
 
     @Override
     public void onConfigure( final HierarchicalConfiguration configuration ) throws ConfigurationException {
