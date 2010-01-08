@@ -1126,31 +1126,8 @@ Regards, Postmaster XXX.YYY
       </handler>
       <configFile>file://conf/mailboxManagerSqlResources.xml</configFile>
       
-      <torque-properties>
-        <property name="torque.database.default"
-                  value="mailboxmanager"/>
-        <property
-                  name="torque.database.mailboxmanager.adapter"
-                  value="derby"/>
-        <property
-                  name="torque.dsfactory.mailboxmanager.factory"
-                  value="org.apache.torque.dsfactory.SharedPoolDataSourceFactory"/>
-        <property
-                  name="torque.dsfactory.mailboxmanager.connection.driver"
-                  value="org.apache.derby.jdbc.EmbeddedDriver"/>
-        <property
-                  name="torque.dsfactory.mailboxmanager.connection.url"
-                  value="jdbc:derby:../var/mailboxmanager-derbydb;create=true"/>
-        <property
-                  name="torque.dsfactory.mailboxmanager.connection.user"
-                  value="app"/>
-        <property
-                  name="torque.dsfactory.mailboxmanager.connection.password"
-                  value="app"/>
-        <property
-                  name="torque.dsfactory.mailboxmanager.pool.maxActive"
-                  value="100"/>
-      </torque-properties>
+      <!-- File which holds the torque configuration -->
+      <torqueConfigFile>file://conf/torque.properties</torqueConfigFile>
    </imapserver>
 
     <!-- The NNTP server is enabled by default -->

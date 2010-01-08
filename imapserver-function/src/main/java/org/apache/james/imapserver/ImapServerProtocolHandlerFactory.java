@@ -44,8 +44,6 @@ import org.apache.james.socket.shared.AbstractProtocolHandlerFactory;
 import org.apache.jsieve.mailet.Poster;
 
 /**
- * TODO: this is a quick cut-and-paste hack from POP3Server. Should probably be
- * rewritten from scratch, together with ImapHandler.
  *
  * <p>Accepts IMAP connections on a server socket and dispatches them to IMAPHandlers.</p>
  *
@@ -175,6 +173,16 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
         }
     }
     
+    /**
+     * Post mail to mailbox
+     * 
+     * @param username
+     * @param mail
+     * @param destination
+     * @param session
+     * @param mailboxManager
+     * @throws MessagingException
+     */
     public void postToMailbox(String username, MimeMessage mail, String destination, final MailboxSession session, final MailboxManager mailboxManager) throws MessagingException {
         if (destination == null || "".equals(destination)) {
             destination = "INBOX";
