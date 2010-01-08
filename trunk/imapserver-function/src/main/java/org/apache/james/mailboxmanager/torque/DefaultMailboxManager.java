@@ -19,19 +19,16 @@
 
 package org.apache.james.mailboxmanager.torque;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -59,12 +56,10 @@ public class DefaultMailboxManager extends TorqueMailboxManager implements Confi
         MessageHeaderPeer.TABLE_NAME, MessageBodyPeer.TABLE_NAME,
         MessageFlagsPeer.TABLE_NAME };
     
-    private BaseConfiguration torqueConf;
-
-    private boolean initialized;
-
     private FileSystem fileSystem;
     private String configFile;
+
+    private String torqueFile;
     
     public DefaultMailboxManager(UserManager userManager) {
         super(userManager);       
@@ -77,95 +72,55 @@ public class DefaultMailboxManager extends TorqueMailboxManager implements Confi
     
     @PostConstruct
     public void init() throws Exception {
-        if (!initialized) {
-            if (torqueConf == null) {
-                throw new RuntimeException("must be configured first!");
+        if (Torque.isInit()) {
+            throw new RuntimeException("Torque is already initialized!");
+        } 
+        Connection conn = null;
+        try {
+            Torque.init(new PropertiesConfiguration(fileSystem.getFile(torqueFile)));
+            conn = Transaction.begin(MailboxRowPeer.DATABASE_NAME);
+            SqlResources sqlResources = new SqlResources();
+            sqlResources.init(fileSystem.getResource(configFile),
+                DefaultMailboxManager.class.getName(), conn,
+                new HashMap<String,String>());
+
+            DatabaseMetaData dbMetaData = conn.getMetaData();
+
+            for (int i = 0; i < tableNames.length; i++) {
+                if (!tableExists(dbMetaData, tableNames[i])) {
+                    BasePeer.executeStatement(sqlResources
+                            .getSqlString("createTable_" + tableNames[i]),
+                            conn);
+                    System.out.println("Created table " + tableNames[i]);
+                    getLog().info("Created table " + tableNames[i]);
+                }
             }
-            if (Torque.isInit()) {
-                throw new RuntimeException("Torque is already initialized!");
-            }
-            Connection conn = null;
+
+            Transaction.commit(conn);
+            System.out.println("MailboxManager has been initialized");
+            getLog().info("MailboxManager has been initialized");
+        } catch (Exception e) {
+            Transaction.safeRollback(conn);
             try {
-                Torque.init(torqueConf);
-                conn = Transaction.begin(MailboxRowPeer.DATABASE_NAME);
-                SqlResources sqlResources = new SqlResources();
-                sqlResources.init(fileSystem.getResource(configFile),
-                        DefaultMailboxManager.class.getName(), conn,
-                        new HashMap<String,String>());
-
-                DatabaseMetaData dbMetaData = conn.getMetaData();
-
-                for (int i = 0; i < tableNames.length; i++) {
-                    if (!tableExists(dbMetaData, tableNames[i])) {
-                        BasePeer.executeStatement(sqlResources
-                                .getSqlString("createTable_" + tableNames[i]),
-                                conn);
-                        System.out.println("Created table " + tableNames[i]);
-                        getLog().info("Created table " + tableNames[i]);
-                    }
-                }
-
-                Transaction.commit(conn);
-                initialized = true;
-                System.out.println("MailboxManager has been initialized");
-                getLog().info("MailboxManager has been initialized");
-            } catch (Exception e) {
-                System.err
-                        .println("============================================");
-                e.printStackTrace();
-                System.err
-                        .println("--------------------------------------------");
-                Transaction.safeRollback(conn);
-                try {
-                    Torque.shutdown();
-                } catch (TorqueException e1) {
-
-                }
-                throw new MailboxException(new HumanReadableText("org.apache.james.imap.INIT_FAILED", "Initialisation failed"), e);
+                Torque.shutdown();
+            } catch (TorqueException e1) {
+                // ignore on shutdown
             }
+            throw new MailboxException(new HumanReadableText("org.apache.james.imap.INIT_FAILED", "Initialisation failed"), e);
         }
     }
 
-    public void configureDefaults()
-            throws org.apache.commons.configuration.ConfigurationException {
-        File torqueConfigFile = new File("torque.properties");
-        if (torqueConfigFile.canRead()) {
-            getLog().info("reading torque.properties...");
-            torqueConf = new PropertiesConfiguration(torqueConfigFile);
-        } else {
-            torqueConf = new BaseConfiguration();
-            torqueConf.addProperty("torque.database.default", "mailboxmanager");
-            torqueConf.addProperty("torque.database.mailboxmanager.adapter",
-                    "derby");
-            torqueConf.addProperty("torque.dsfactory.mailboxmanager.factory",
-                    "org.apache.torque.dsfactory.SharedPoolDataSourceFactory");
-            torqueConf.addProperty(
-                    "torque.dsfactory.mailboxmanager.connection.driver",
-                    "org.apache.derby.jdbc.EmbeddedDriver");
-            torqueConf.addProperty(
-                    "torque.dsfactory.mailboxmanager.connection.url",
-                    "jdbc:derby:target/testdb;create=true");
-            torqueConf.addProperty(
-                    "torque.dsfactory.mailboxmanager.connection.user", "app");
-            torqueConf.addProperty(
-                    "torque.dsfactory.mailboxmanager.connection.password",
-                    "app");
-            torqueConf.addProperty(
-                    "torque.dsfactory.mailboxmanager.pool.maxActive", "100");
-        }
-        configFile = "file://conf/mailboxManagerSqlResources.xml";
-    }
 
-    @SuppressWarnings("unchecked")
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
     public void configure(HierarchicalConfiguration conf)
             throws ConfigurationException {
-        torqueConf = new BaseConfiguration();
-        List<HierarchicalConfiguration> tps = conf.configurationsAt("torque-properties.property");
-        for (int i = 0; i < tps.size(); i++) {
-            torqueConf.addProperty(tps.get(i).getString("[@name]"), tps.get(i).getString("[@value]"));
-        }
         configFile = conf.getString("configFile",null);
         if (configFile == null) configFile = "file://conf/mailboxManagerSqlResources.xml";
+        torqueFile = conf.getString("torqueConfigFile",null);
+        if (torqueFile == null) torqueFile = "file://conf/torque.properties";
     }
 
     private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
