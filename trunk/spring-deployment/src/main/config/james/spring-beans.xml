@@ -315,9 +315,7 @@
 	<bean id="imapserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
 		<property name="protocolHandlerFactory" ref="imapserver.protocolhandlerfactory" />
 	</bean>
-	
-	<bean id="imapFactory" class="org.apache.james.imapserver.ImapFactory"/>
-	
+		
 	<bean id="mailboxmanager" class="org.apache.james.mailboxmanager.torque.DefaultMailboxManager">
 		 	<constructor-arg index="0" ref="userManager"/>
 	</bean>

@@ -30,13 +30,17 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.api.ImapConstants;
+import org.apache.james.imap.api.process.ImapProcessor;
+import org.apache.james.imap.decode.ImapDecoder;
+import org.apache.james.imap.encode.ImapEncoder;
+import org.apache.james.imap.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.main.DefaultImapDecoderFactory;
 import org.apache.james.imap.main.ImapRequestHandler;
-import org.apache.james.services.FileSystem;
+import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.shared.AbstractProtocolHandlerFactory;
@@ -53,16 +57,32 @@ import org.apache.jsieve.mailet.Poster;
 public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFactory implements ImapConstants, Poster
 {
     private static final String softwaretype = "JAMES "+VERSION+" Server "; //+ Constants.SOFTWARE_VERSION;
-     
-    private ImapFactory factory;
-    
+         
     private MailServer mailServer;
     
     private String hello;
     
+    private ImapEncoder encoder;
+    private ImapDecoder decoder;
+    private ImapProcessor processor;
+
+    private MailboxManager mailboxManager;
+    
     @Resource(name="James")
     public void setMailSerer(MailServer mailServer) {
         this.mailServer = mailServer;
+    }
+    
+    @Resource(name="mailboxmanager")
+    public void setMailboxManager(MailboxManager mailboxManager) {
+        this.mailboxManager = mailboxManager;
+    }
+    
+    public void onInit() {
+        decoder = new DefaultImapDecoderFactory().buildImapDecoder();
+        encoder = new DefaultImapEncoderFactory().buildImapEncoder();
+        processor = DefaultImapProcessorFactory.createDefaultProcessor(mailboxManager);
+
     }
 
     @Override
@@ -84,18 +104,13 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
         return "IMAP Service";
     }
     
-    @Resource(name="imapFactory")
-    public void setImapFactory(ImapFactory factory) {
-        this.factory = factory;
-    }
-
     /**
      * Producing handlers.
      * @see org.apache.avalon.excalibur.pool.ObjectFactory#newInstance()
      */
     public ProtocolHandler newProtocolHandlerInstance()
     {  
-        final ImapRequestHandler handler = factory.createHandler();
+        final ImapRequestHandler handler = new ImapRequestHandler(decoder, processor, encoder);
         final ImapHandler imapHandler = new ImapHandler(handler, hello); 
         getLogger().debug("Create handler instance");
         return imapHandler;
@@ -139,7 +154,6 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
                             user = user + "@" + host;
                         } 
                         
-                        final MailboxManager mailboxManager = factory.getMailbox();
                         final MailboxSession session = mailboxManager.createSystemSession(user, getLogger());
                         // This allows Sieve scripts to use a standard delimiter regardless of mailbox implementation
                         final String mailbox = urlPath.replace('/', session.getPersonalSpace().getDeliminator());
