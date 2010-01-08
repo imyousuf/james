@@ -34,11 +34,9 @@ import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
-import org.apache.james.imap.encode.main.DefaultImapEncoderFactory;
 import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
-import org.apache.james.imap.main.DefaultImapDecoderFactory;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
 import org.apache.james.services.MailServer;
@@ -78,11 +76,16 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
         this.mailboxManager = mailboxManager;
     }
     
+    public void setImapDecoder(ImapDecoder decoder) {
+        this.decoder = decoder;
+    }
+    
+    public void setImapEncoder(ImapEncoder encoder) {
+        this.encoder = encoder;
+    }
+    
     public void onInit() {
-        decoder = new DefaultImapDecoderFactory().buildImapDecoder();
-        encoder = new DefaultImapEncoderFactory().buildImapEncoder();
         processor = DefaultImapProcessorFactory.createDefaultProcessor(mailboxManager);
-
     }
 
     @Override
