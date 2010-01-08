@@ -19,9 +19,11 @@
 
 package org.apache.james.imapserver;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
@@ -30,28 +32,33 @@ import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.main.DefaultImapDecoderFactory;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imap.processor.main.DefaultImapProcessorFactory;
-import org.apache.james.services.FileSystem;
 
-public abstract class ImapFactory {
+public class ImapFactory {
 
     private final ImapEncoder encoder;
     private final ImapDecoder decoder;
-    private final ImapProcessor processor;
-    private final MailboxManager mailboxManager;
+    private ImapProcessor processor;
+    private MailboxManager mailboxManager;
 
-    public ImapFactory (FileSystem fileSystem, UsersRepository users,
-            final MailboxManager mailboxManager) {
-        super();
+    public ImapFactory () {
         decoder = new DefaultImapDecoderFactory().buildImapDecoder();
         encoder = new DefaultImapEncoderFactory().buildImapEncoder();
-        processor = DefaultImapProcessorFactory.createDefaultProcessor(mailboxManager);
-        this.mailboxManager = mailboxManager;
     } 
+    
+    @Resource(name="mailboxmanager")
+    public void setMailboxManager(MailboxManager mailboxManager) {
+        this.mailboxManager = mailboxManager;
+    }
     
     public ImapRequestHandler createHandler() { 
         return new ImapRequestHandler(decoder, processor, encoder);
     }
 
+    @PostConstruct
+    public void init() {
+        processor = DefaultImapProcessorFactory.createDefaultProcessor(mailboxManager);
+    }
+    
     /**
      * This is required until James supports IoC assembly.
      * @return the mailbox
@@ -59,12 +66,5 @@ public abstract class ImapFactory {
     public final MailboxManager getMailbox() {
         return mailboxManager;
     }
-
-    public void init() throws Exception {
-        // Do nothing
-    }
-
-    public void configure(final HierarchicalConfiguration configuration) throws ConfigurationException {
-        // Do nothing
-    }
+    
 }

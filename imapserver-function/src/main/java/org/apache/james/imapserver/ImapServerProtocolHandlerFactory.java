@@ -56,52 +56,18 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
      
     private ImapFactory factory;
     
-    private String hello = softwaretype;
-
-    private UsersRepository usersRepos;
-    private HierarchicalConfiguration configuration;
-
-    private FileSystem fSystem;
-
     private MailServer mailServer;
-
-    @Resource(name="localusersrepository")
-    public void setUsersRepository(UsersRepository usersRepos) {
-        this.usersRepos = usersRepos;
-    }
     
-    @Resource(name="filesystem")
-    public void setFileSystem(FileSystem fSystem) {
-        this.fSystem = fSystem;
-    }
+    private String hello;
     
     @Resource(name="James")
     public void setMailSerer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
-    
-
-    @PostConstruct
-    @Override
-    public void init() throws Exception {
-        super.init();
-    }
-
-    @Override
-    public  void onInit() throws Exception {
-        getLogger().debug("Initialising...");
-        factory = new DefaultImapFactory(fSystem, usersRepos, getLogger());
-        factory.configure(configuration);
-
-        factory.init();
-    }
-
-
 
     @Override
     public void onConfigure( final HierarchicalConfiguration configuration ) throws ConfigurationException {
         hello  = softwaretype + " Server " + getHelloName() + " is ready.";
-        this.configuration = configuration;
     }
     
     /**
@@ -116,6 +82,11 @@ public class ImapServerProtocolHandlerFactory extends AbstractProtocolHandlerFac
      */
     public String getServiceType() {
         return "IMAP Service";
+    }
+    
+    @Resource(name="imapFactory")
+    public void setImapFactory(ImapFactory factory) {
+        this.factory = factory;
     }
 
     /**

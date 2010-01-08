@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.UserMetaDataRespository;
@@ -42,16 +44,23 @@ public class DefaultUserManager implements UserManager {
     
     private Log log = LogFactory.getLog(DefaultUserManager.class);
     
-    private final UserMetaDataRespository repository;
+    private UserMetaDataRespository repository;
     private final Map userSubscriptionsByUser;
     
-    private final UsersRepository usersRepository;
+    private UsersRepository usersRepository;
     
-    public DefaultUserManager(final UserMetaDataRespository repository, final UsersRepository usersRepository) {
-        super();
-        this.repository = repository;
+    public DefaultUserManager() {
         userSubscriptionsByUser = new HashMap();
+    }
+    
+    @Resource(name="localusersrepository")
+    public void setUsersRepository(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
+    }
+
+    @Resource(name="userMetaDataRepository")
+    public void setUserMetaDataRespository(UserMetaDataRespository repository) {
+        this.repository = repository;
     }
 
     public void subscribe(String user, String mailbox)
