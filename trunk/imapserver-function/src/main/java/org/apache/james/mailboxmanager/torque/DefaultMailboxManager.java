@@ -72,6 +72,10 @@ public class DefaultMailboxManager extends TorqueMailboxManager implements Confi
         this.fileSystem = fileSystem;
     }
     
+    public void setTorqueConfig(String torqueFile) {
+        this.torqueFile = torqueFile;
+    }
+    
     @PostConstruct
     public void init() throws Exception {
         if (Torque.isInit()) {
@@ -121,8 +125,6 @@ public class DefaultMailboxManager extends TorqueMailboxManager implements Confi
             throws ConfigurationException {
         configFile = conf.getString("configFile",null);
         if (configFile == null) configFile = "file://conf/mailboxManagerSqlResources.xml";
-        torqueFile = conf.getString("torqueConfigFile",null);
-        if (torqueFile == null) torqueFile = "file://conf/torque.properties";
     }
 
     private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)

@@ -1125,9 +1125,7 @@ Regards, Postmaster XXX.YYY
             
       </handler>
       <configFile>file://conf/mailboxManagerSqlResources.xml</configFile>
-      
-      <!-- File which holds the torque configuration -->
-      <torqueConfigFile>file://conf/torque.properties</torqueConfigFile>
+
    </imapserver>
 
     <!-- The NNTP server is enabled by default -->

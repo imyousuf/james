@@ -340,8 +340,9 @@
 	 </bean>
 	 
 	 <bean id="mailboxmanager" class="org.apache.james.mailboxmanager.torque.DefaultMailboxManager">
-		 	<constructor-arg index="0" ref="authenticator"/>
-		 	<constructor-arg index="1" ref="subscriper"/>
+         <constructor-arg index="0" ref="authenticator"/>
+         <constructor-arg index="1" ref="subscriper"/>
+         <property name="torqueConfig" value="file://conf/torque.properties" />
 	</bean>
 	
 	<!--  Enable this for JPA implementation -->
