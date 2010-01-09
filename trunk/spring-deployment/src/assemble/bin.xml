@@ -40,10 +40,6 @@
     <fileSet>
       <directory>src/main/config/james</directory>
       <outputDirectory>conf</outputDirectory>
-      <includes>
-        <include>*.xml</include>
-        <include>*.properties</include>
-      </includes>
     </fileSet>
     
     <!--  create empty folders by copy a .dummy file -->
