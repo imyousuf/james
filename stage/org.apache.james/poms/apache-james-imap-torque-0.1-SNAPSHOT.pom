@@ -19,9 +19,10 @@
 -->
 <project>
   <parent>
-    <artifactId>apache-james-imap</artifactId>
+    <artifactId>apache-james-imap-parent</artifactId>
     <groupId>org.apache.james</groupId>
     <version>0.1-SNAPSHOT</version>
+    <relativePath>../parent/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
@@ -40,15 +41,19 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-mailbox</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-store</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mime4j</artifactId>
     </dependency>
     
     <dependency>
-      <groupId>org.apache.db.torque</groupId>
-      <artifactId>runtime</artifactId>
+      <groupId>org.apache.torque</groupId>
+      <artifactId>torque-runtime</artifactId>
     </dependency>
 
     <dependency>
@@ -60,13 +65,10 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
-      <groupId>village</groupId>
+      <groupId>org.apache.torque</groupId>
       <artifactId>village</artifactId>
     </dependency>
-    <dependency>
-      <groupId>concurrent</groupId>
-      <artifactId>concurrent</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
@@ -75,6 +77,13 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-store</artifactId>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
   </dependencies>

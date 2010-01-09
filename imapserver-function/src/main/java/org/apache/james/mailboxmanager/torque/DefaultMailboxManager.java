@@ -35,6 +35,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.MailboxException;
+import org.apache.james.imap.store.Authenticator;
+import org.apache.james.imap.store.Subscriber;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
@@ -61,8 +63,8 @@ public class DefaultMailboxManager extends TorqueMailboxManager implements Confi
 
     private String torqueFile;
     
-    public DefaultMailboxManager(UserManager userManager) {
-        super(userManager);       
+    public DefaultMailboxManager(Authenticator authenticator, Subscriber subscripters) {
+        super(authenticator, subscripters);       
     }
 
     @Resource(name="filesystem")
