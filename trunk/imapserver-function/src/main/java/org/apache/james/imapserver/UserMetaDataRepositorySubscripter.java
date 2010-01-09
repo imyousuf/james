@@ -34,6 +34,9 @@ import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.SubscriptionException;
 import org.apache.james.imap.store.Subscriber;
 
+/**
+ *
+ */
 public class UserMetaDataRepositorySubscripter implements Subscriber {
 
     public static final String META_DATA_KEY = "org.apache.james.IMAP_SUBSCRIPTIONS";
@@ -41,10 +44,10 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
     private Log log = LogFactory.getLog(UserMetaDataRepositorySubscripter.class);
 
     private UserMetaDataRespository repository;
-    private final Map userSubscriptionsByUser;
+    private final Map<String,UserSubscription> userSubscriptionsByUser;
 
     public UserMetaDataRepositorySubscripter() {
-        userSubscriptionsByUser = new HashMap();
+        userSubscriptionsByUser = new HashMap<String, UserSubscription>();
     }
 
     @Resource(name = "userMetaDataRepository")
@@ -120,9 +123,9 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
         public synchronized void subscribe(String mailbox) throws UserRepositoryException {
             final HashSet<String> existingSubscriptions = subscriptions();
             if (!existingSubscriptions.contains(mailbox)) {
-                final HashSet newSubscriptions;
+                final HashSet<String> newSubscriptions;
                 if (existingSubscriptions == null) {
-                    newSubscriptions = new HashSet();
+                    newSubscriptions = new HashSet<String>();
                 } else {
                     existingSubscriptions.add(mailbox);
                     newSubscriptions = existingSubscriptions;
@@ -132,7 +135,7 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
         }
 
         public synchronized void unsubscribe(String mailbox) throws UserRepositoryException {
-            final HashSet subscriptions = subscriptions();
+            final HashSet<String> subscriptions = subscriptions();
             if (subscriptions.remove(mailbox)) {
                 repository.setAttribute(user, subscriptions, META_DATA_KEY);
             }
