@@ -22,7 +22,7 @@
     <artifactId>james-server-root</artifactId>
     <groupId>org.apache.james</groupId>
     <version>1.3RC3-SNAPSHOT</version>
-    <relativePath>stage/org.apache.org/poms/james-server-root-1.2.pom</relativePath>
+    <relativePath>stage/org.apache.james/poms/james-server-root-1.3RC3-SNAPSHOT.pom</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
@@ -571,6 +571,10 @@
           <groupId>log4j</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>dnsjava</artifactId>
+          <groupId>dnsjava</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>commons-cli</artifactId>
           <groupId>commons-cli</groupId>
         </exclusion>
@@ -868,7 +872,7 @@
     <dependency>
       <groupId>dnsjava</groupId>
       <artifactId>dnsjava</artifactId>
-      <version>2.0.5</version>
+      <version>2.0.7</version>
     </dependency>
     <dependency>
       <groupId>org.apache.excalibur.components</groupId>
