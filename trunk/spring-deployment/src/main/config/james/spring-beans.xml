@@ -331,10 +331,13 @@
     <bean id="imapEncoder" factory-bean="imapEncoderFactory"  factory-method="buildImapEncoder"/>
        
 	<bean id="mailboxmanager" class="org.apache.james.mailboxmanager.torque.DefaultMailboxManager">
-		 	<constructor-arg index="0" ref="userManager"/>
+		 	<constructor-arg index="0" ref="authenticator"/>
+		 	<constructor-arg index="1" ref="subscriper"/>
 	</bean>
 	
-    <bean id="userManager" class="org.apache.james.mailboxmanager.torque.DefaultUserManager"/>
+	<bean id="subscriper" class="org.apache.james.imapserver.UserMetaDataRepositorySubscripter"/>
+		
+	<bean id="authenticator" class="org.apache.james.imapserver.UserRepositoryAuthenticator"/>
 	
 	<bean id="userMetaDataRepository" class="org.apache.james.user.impl.file.FileUserMetaDataRepository">
 	 	<constructor-arg index="0" value="var/users"/>

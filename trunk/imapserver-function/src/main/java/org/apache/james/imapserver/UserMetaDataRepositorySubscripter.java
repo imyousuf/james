@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailboxmanager.torque;
+package org.apache.james.imapserver;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,41 +30,33 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.UserMetaDataRespository;
 import org.apache.james.api.user.UserRepositoryException;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.SubscriptionException;
+import org.apache.james.imap.store.Subscriber;
 
-/**
- * Stores subscription data in the user meta-data repository.
- */
-public class DefaultUserManager implements UserManager {
+public class UserMetaDataRepositorySubscripter implements Subscriber {
 
-    public static final String META_DATA_KEY
-        ="org.apache.james.IMAP_SUBSCRIPTIONS";
-    
-    private Log log = LogFactory.getLog(DefaultUserManager.class);
-    
+    public static final String META_DATA_KEY = "org.apache.james.IMAP_SUBSCRIPTIONS";
+
+    private Log log = LogFactory.getLog(UserMetaDataRepositorySubscripter.class);
+
     private UserMetaDataRespository repository;
     private final Map userSubscriptionsByUser;
-    
-    private UsersRepository usersRepository;
-    
-    public DefaultUserManager() {
+
+    public UserMetaDataRepositorySubscripter() {
         userSubscriptionsByUser = new HashMap();
     }
-    
-    @Resource(name="localusersrepository")
-    public void setUsersRepository(UsersRepository usersRepository) {
-        this.usersRepository = usersRepository;
-    }
 
-    @Resource(name="userMetaDataRepository")
+    @Resource(name = "userMetaDataRepository")
     public void setUserMetaDataRespository(UserMetaDataRespository repository) {
         this.repository = repository;
     }
-
-    public void subscribe(String user, String mailbox)
-            throws SubscriptionException {
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.store.Subscriber#subscribe(java.lang.String, java.lang.String)
+     */
+    public void subscribe(String user, String mailbox) throws SubscriptionException {
         try {
             final UserSubscription subscription = getUserSubscription(user);
             subscription.subscribe(mailbox);
@@ -73,6 +65,10 @@ public class DefaultUserManager implements UserManager {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.store.Subscriber#subscriptions(java.lang.String)
+     */
     @SuppressWarnings("unchecked")
     public Collection<String> subscriptions(String user) throws SubscriptionException {
         try {
@@ -84,15 +80,19 @@ public class DefaultUserManager implements UserManager {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.store.Subscriber#unsubscribe(java.lang.String, java.lang.String)
+     */
     public void unsubscribe(String user, String mailbox) throws SubscriptionException {
         try {
             final UserSubscription subscription = getUserSubscription(user);
-            subscription.unsubscribe(mailbox);   
+            subscription.unsubscribe(mailbox);
         } catch (UserRepositoryException e) {
             throw new SubscriptionException(HumanReadableText.GENERIC_UNSUBSCRIPTION_FAILURE, e);
         }
     }
-    
+
     private synchronized UserSubscription getUserSubscription(final String user) {
         UserSubscription subscription = (UserSubscription) userSubscriptionsByUser.get(user);
         if (subscription == null) {
@@ -100,20 +100,18 @@ public class DefaultUserManager implements UserManager {
         }
         return subscription;
     }
-    
+
     /**
-     * Manages subscriptions for a user.
-     * Subscriptions are stored in a single collection.
-     * This class synchronizes access for write operations.
+     * Manages subscriptions for a user. Subscriptions are stored in a single
+     * collection. This class synchronizes access for write operations.
      */
     private static final class UserSubscription {
-        
+
         private final String user;
         private final UserMetaDataRespository repository;
         private Log log;
-        
-        public UserSubscription(final String user, final UserMetaDataRespository repository,
-                Log log) {
+
+        public UserSubscription(final String user, final UserMetaDataRespository repository, Log log) {
             super();
             this.user = user;
             this.repository = repository;
@@ -132,14 +130,14 @@ public class DefaultUserManager implements UserManager {
                 repository.setAttribute(user, newSubscriptions, META_DATA_KEY);
             }
         }
-        
+
         public synchronized void unsubscribe(String mailbox) throws UserRepositoryException {
             final HashSet subscriptions = subscriptions();
             if (subscriptions.remove(mailbox)) {
                 repository.setAttribute(user, subscriptions, META_DATA_KEY);
             }
         }
-        
+
         public HashSet<String> subscriptions() throws UserRepositoryException {
             try {
                 final HashSet<String> storedSubscriptions = (HashSet<String>) repository.getAttribute(user, META_DATA_KEY);
@@ -155,11 +153,7 @@ public class DefaultUserManager implements UserManager {
                 log.debug("HashSet expected but not retrieved.", e);
                 return new HashSet<String>();
             }
-            
         }
     }
 
-    public boolean isAuthentic(String userid, String passwd) {
-        return usersRepository.test(userid, passwd);
-    }
 }

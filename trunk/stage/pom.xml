@@ -93,6 +93,10 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-torque</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-store</artifactId>
+    </dependency>
     <!-- TODO test the updated version
     <dependency>
       <groupId>bouncycastle</groupId>
