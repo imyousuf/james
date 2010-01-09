@@ -454,6 +454,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-jpa</artifactId>
+      <version>0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-store</artifactId>
       <version>0.1-SNAPSHOT</version>
       <exclusions>
@@ -1055,6 +1060,44 @@
       <artifactId>spring-context</artifactId>
       <version>2.5.6</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>2.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>2.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+      <version>2.5.6</version>
+      <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.oracle.toplink</groupId>
+          <artifactId>toplink</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.oracle</groupId>
+          <artifactId>toplink-essentials</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-entitymanager</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-web</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency> 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
