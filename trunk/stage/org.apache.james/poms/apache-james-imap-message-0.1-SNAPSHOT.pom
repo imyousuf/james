@@ -19,9 +19,10 @@
 -->
 <project>
   <parent>
-    <artifactId>apache-james-imap</artifactId>
+    <artifactId>apache-james-imap-parent</artifactId>
     <groupId>org.apache.james</groupId>
     <version>0.1-SNAPSHOT</version>
+    <relativePath>../parent/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
@@ -71,8 +72,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>jmock</groupId>
+      <groupId>org.jmock</groupId>
       <artifactId>jmock</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jmock</groupId>
+      <artifactId>jmock-junit3</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

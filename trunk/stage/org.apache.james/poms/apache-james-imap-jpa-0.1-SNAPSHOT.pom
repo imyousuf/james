@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
+<project>
+  <parent>
+    <artifactId>apache-james-imap-parent</artifactId>
+    <groupId>org.apache.james</groupId>
+    <version>0.1-SNAPSHOT</version>
+    <relativePath>../parent/pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.james</groupId>
+  <artifactId>apache-james-imap-jpa</artifactId>
+  <name>Apache James IMAP JPA Mailbox Manager</name>
+  <dependencies>
+    <dependency>
+      <groupId>${javax.mail.groupId}</groupId>
+      <artifactId>${javax.mail.artifactId}</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${javax.activation.groupId}</groupId>
+      <artifactId>${javax.activation.artifactId}</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-mailbox</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-store</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mime4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.openjpa</groupId>
+      <artifactId>openjpa</artifactId>
+    </dependency> 
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>openjpa-maven-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <includes>org/apache/james/imap/jpa/*/model/*.class</includes>
+          <addDefaultConstructor>true</addDefaultConstructor>
+          <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
+          <toolProperties>
+            <property>
+              <name>log</name>
+              <value>TOOL=TRACE</value>
+            </property>   
+            <property>
+              <name>metaDataFactory</name>
+              <value>jpa(Types=org.apache.james.imap.jpa.mail.model.JPAHeader;org.apache.james.imap.jpa.mail.model.JPAMailbox;org.apache.james.imap.jpa.mail.model.JPAMailboxMembership;org.apache.james.imap.jpa.mail.model.JPAMessage;org.apache.james.imap.jpa.mail.model.JPAProperty;org.apache.james.imap.jpa.user.model.JPASubscription)</value>
+            </property>           
+          </toolProperties>
+        </configuration>
+        
+        <executions>
+          <execution>
+            <id>enhancer</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>enhance</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <dependencies>
+        <!--
+        WORKAROUND 
+         -->
+          <dependency>
+            <groupId>${javax.mail.groupId}</groupId>
+            <artifactId>${javax.mail.artifactId}</artifactId>
+            <version>${version.javax.mail}</version>
+          </dependency>
+          <dependency>
+            <groupId>${javax.activation.groupId}</groupId>
+            <artifactId>${javax.activation.artifactId}</artifactId>
+            <version>${version.activation}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>apache-james-imap-api</artifactId>
+            <version>${pom.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>apache-james-imap-mailbox</artifactId>
+            <version>${pom.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>apache-james-imap-store</artifactId>
+            <version>${pom.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>apache-mime4j</artifactId>
+            <version>${version.apache-mime4j}</version>
+          </dependency>
+
+          <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${version.commons-logging}</version>
+          </dependency>
+          <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${version.commons-lang}</version>
+          </dependency>
+
+          <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>${version.commons-collections}</version>
+          </dependency>
+
+          <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>${version.javax.persistence}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa</artifactId>
+            <version>${version.openjpa}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+</project>
