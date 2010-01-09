@@ -56,6 +56,10 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
         this.baseDirectory = baseDirectory;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.user.UserMetaDataRespository#clear(java.lang.String)
+     */
     public void clear(String username) throws UserRepositoryException {
         final File userDir = userDirectory(username);
         try {
@@ -65,6 +69,10 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.user.UserMetaDataRespository#getAttribute(java.lang.String, java.lang.String)
+     */
     public Serializable getAttribute(String username, String key)
             throws UserRepositoryException {
         final File valueFile = valueFile(username, key);
@@ -88,6 +96,10 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
         return result;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.user.UserMetaDataRespository#setAttribute(java.lang.String, java.io.Serializable, java.lang.String)
+     */
     public void setAttribute(String username, Serializable value, String key)
             throws UserRepositoryException {
 
