@@ -347,7 +347,7 @@
 	
 	<!--  Enable this for JPA implementation -->
 	<!--  
-	<bean id="mailboxmanager" class="org.apache.james.imap.jpa.JPAMailboxManager">
+	<bean id="mailboxmanager" class="org.apache.james.imap.jpa.openjpa.OpenJPAMailboxManager">
         <constructor-arg index="0" ref="authenticator"/>
         <constructor-arg index="1" ref="subscriper"/>
         <constructor-arg index="2" ref="entityManagerFactory"/>
@@ -368,11 +368,6 @@
     <bean id="vendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
         <property name="database" value="DERBY"/>
         <property name="showSql" value="true"/>
-    </bean>
-
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-       <property name="entityManagerFactory" ref="entityManagerFactory"/>
-       <property name="dataSource" ref="dataSource"/>
     </bean>
 	-->
 	<!--
