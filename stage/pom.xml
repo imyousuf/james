@@ -87,14 +87,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-store</artifactId>
     </dependency>
-    <!-- TODO test the updated version
-    <dependency>
-      <groupId>bouncycastle</groupId>
-      <artifactId>bcmail-jdk14</artifactId>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jspf</artifactId>
