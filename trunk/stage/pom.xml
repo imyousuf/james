@@ -33,7 +33,7 @@
         <repository>
             <id>module-local</id>
             <name>Local Repository</name>
-            <url>file://${pom.basedir}/</url>
+            <url>file://.</url>
             <layout>legacy</layout>
             <snapshots>
                 <enabled>true</enabled>
@@ -135,6 +135,11 @@
       <artifactId>apache-mime4j</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>

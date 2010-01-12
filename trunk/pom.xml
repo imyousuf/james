@@ -447,6 +447,13 @@
       <artifactId>james-server-remotemanager-function</artifactId>
       <version>3.0-M1</version>
     </dependency>
+    
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+      <version>1.0.2</version>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-torque</artifactId>
