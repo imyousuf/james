@@ -339,14 +339,15 @@
 	 	<constructor-arg index="0" value="var/users"/>
 	 </bean>
 	 
+	<!--  use this for torque implementation -->
+	<!--  
 	 <bean id="mailboxmanager" class="org.apache.james.mailboxmanager.torque.DefaultMailboxManager">
          <constructor-arg index="0" ref="authenticator"/>
          <constructor-arg index="1" ref="subscriper"/>
          <property name="torqueConfig" value="file://conf/torque.properties" />
 	</bean>
-	
+	-->
 	<!--  Enable this for JPA implementation -->
-	<!--  
 	<bean id="mailboxmanager" class="org.apache.james.imap.jpa.openjpa.OpenJPAMailboxManager">
         <constructor-arg index="0" ref="authenticator"/>
         <constructor-arg index="1" ref="subscriper"/>
@@ -369,7 +370,6 @@
         <property name="database" value="DERBY"/>
         <property name="showSql" value="true"/>
     </bean>
-	-->
 	<!--
 		####################################################################
 	-->
