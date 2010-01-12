@@ -368,7 +368,8 @@
 
     <bean id="vendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
         <property name="database" value="DERBY"/>
-        <property name="showSql" value="true"/>
+        <!-- set this to true for debugging purposes -->
+        <property name="showSql" value="false"/>
     </bean>
 	<!--
 		####################################################################
