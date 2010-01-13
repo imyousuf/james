@@ -21,19 +21,16 @@
 
 package org.apache.james.smtpserver;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.integration.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.socket.api.ProtocolHandler;
 import org.apache.james.socket.shared.AbstractSupportLoaderProtocolHandlerFactory;
-import org.apache.mailet.MailetContext;
 
 /**
  * <p>Accepts SMTP connections on a server socket and dispatches them to SMTPHandlers.</p>
@@ -42,16 +39,7 @@ import org.apache.mailet.MailetContext;
  *
  * @version 1.1.0, 06/02/2001
  */
-/*
- * IMPORTANT: SMTPServer extends AbstractJamesService.  If you implement ANY
- * lifecycle methods, you MUST call super.<method> as well.
- */
 public class SMTPServerProtocolHandlerFactory extends AbstractSupportLoaderProtocolHandlerFactory {
-
-    /**
-     * The mailet context - we access it here to set the hello name for the Mailet API
-     */
-    private MailetContext mailetcontext;
 
     /**
      * The internal mail server service.
@@ -109,19 +97,7 @@ public class SMTPServerProtocolHandlerFactory extends AbstractSupportLoaderProto
         this.mailServer = mailServer;
     }
 
-    @Resource(name="James")
-    public final void setMailetContext(MailetContext mailetcontext) {
-        this.mailetcontext = mailetcontext;
-    }
-
     private boolean useStartTLS;
-    
-    
-    @Override
-    @PostConstruct
-    public void init() throws Exception {
-        super.init();
-    }
     
 
     /**
@@ -129,12 +105,7 @@ public class SMTPServerProtocolHandlerFactory extends AbstractSupportLoaderProto
      */
     protected void onConfigure(HierarchicalConfiguration configuration) throws ConfigurationException {
         super.onConfigure(configuration);
-        String hello = (String) mailetcontext.getAttribute(Constants.HELLO_NAME);
-
-        // TODO Remove this in next not backwards compatible release!
-        if (hello == null)
-            mailetcontext.setAttribute(Constants.HELLO_NAME, getHelloName());
-
+        
         HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
         String authRequiredString = handlerConfiguration.getString("authRequired", "false").trim().toLowerCase();
         if (authRequiredString.equals("true"))
@@ -207,10 +178,6 @@ public class SMTPServerProtocolHandlerFactory extends AbstractSupportLoaderProto
         smtpGreeting = handlerConfiguration.getString("smtpGreeting", null);
 
         addressBracketsEnforcement = handlerConfiguration.getBoolean("addressBracketsEnforcement", true);
-
-        // TODO Remove this in next not backwards compatible release!
-        if (hello == null)
-            mailetcontext.setAttribute(Constants.HELLO_NAME, "localhost");
 
         // TODO: does this belong here ?
         useStartTLS = configuration.getBoolean("startTLS.[@enable]", false);
