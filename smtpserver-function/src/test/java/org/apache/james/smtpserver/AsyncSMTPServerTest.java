@@ -38,7 +38,6 @@ public class AsyncSMTPServerTest extends SMTPServerTest {
         m_smtpServer.setFileSystem(fileSystem);
         m_smtpServer.setLoader(m_serviceManager);
         m_smtpServer.setLog(new SimpleLog("Mock"));
-        m_smtpServer.setMailetContext(mailetContext);
         m_smtpServer.setMailServer(m_mailServer);
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
