@@ -69,8 +69,6 @@ import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.util.codec.Base64;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetContext;
-import org.apache.mailet.base.test.FakeMailContext;
 
 /**
  * Tests the org.apache.james.smtpserver.SMTPServer unit 
@@ -162,7 +160,6 @@ public class SMTPServerTest extends TestCase {
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
     protected FakeLoader m_serviceManager;
     protected AlterableDNSServer m_dnsServer;
-    protected FakeMailContext mailetContext;
     protected MockSocketManager socketManager;
     protected MockThreadManager threadManager;
     protected MockStore store;
@@ -202,7 +199,6 @@ public class SMTPServerTest extends TestCase {
         m_smtpServer.setLog(smtpLog);
         m_smtpServer.setLoader(m_serviceManager);
         m_smtpServer.setDNSService(m_dnsServer);
-        m_smtpServer.setMailetContext(mailetContext);
         m_smtpServer.setMailServer(m_mailServer);
 
         
@@ -240,8 +236,6 @@ public class SMTPServerTest extends TestCase {
 
     protected FakeLoader setUpServiceManager() throws Exception {
         m_serviceManager = new FakeLoader();
-        mailetContext = new FakeMailContext();
-        m_serviceManager.put(MailetContext.class.getName(),mailetContext);
         m_mailServer = new MockMailServer(new MockUsersRepository());    
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
