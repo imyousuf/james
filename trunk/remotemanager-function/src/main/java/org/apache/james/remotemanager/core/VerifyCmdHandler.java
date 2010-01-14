@@ -29,6 +29,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -59,12 +60,13 @@ public class VerifyCmdHandler implements CommandHandler{
         return help;
     }
 
-    /**
-     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters) {
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
         RemoteManagerResponse response = null;
-        String user = parameters;
+        String user = request.getArgument();
         if (user == null || user.equals("")) {
             response = new RemoteManagerResponse("Usage: verify [username]");
             return response;

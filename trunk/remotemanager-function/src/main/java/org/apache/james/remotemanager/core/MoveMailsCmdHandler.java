@@ -29,6 +29,7 @@ import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -61,11 +62,12 @@ public class MoveMailsCmdHandler implements CommandHandler {
         return help;
     }
 
-    /**
-     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession,
-     *      java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters) {
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
+        String parameters = request.getArgument();
         RemoteManagerResponse response;
         String[] args = null;
 

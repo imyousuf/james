@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -32,12 +33,11 @@ public class QuitCmdHandler implements CommandHandler {
     public final static String COMMAND_NAME = "QUIT";
     private CommandHelp help = new CommandHelp("quit","close connection");
 
-
-    /**
-     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession,
-     *      java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters) {
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
         RemoteManagerResponse response = new RemoteManagerResponse("Bye");
         response.setEndSession(true);
         return response;

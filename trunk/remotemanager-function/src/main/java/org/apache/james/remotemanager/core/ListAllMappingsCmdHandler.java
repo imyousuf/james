@@ -31,6 +31,7 @@ import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -46,15 +47,16 @@ public class ListAllMappingsCmdHandler implements CommandHandler {
         this.vutManagement = vutManagement;
     }
 
-    /**
-     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession,
-     *      java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters) {
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
         RemoteManagerResponse response;
         String[] args = null;
         String table = null;
-
+        String parameters = request.getArgument();
+        
         if (parameters != null)
             args = parameters.split(" ");
 

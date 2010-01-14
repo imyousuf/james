@@ -23,6 +23,6 @@ import org.apache.james.api.protocol.CommonCommandHandler;
 
 public interface CommandHandler extends CommonCommandHandler{
 	
-	public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters);
+	public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request);
 	public CommandHelp getHelp();
 }
