@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -42,14 +43,13 @@ public class DeleCmdHandler implements CommandHandler {
      * This command deletes a particular mail message from the
      * mailbox.	 
      * 
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
-    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+    public POP3Response onCommand(POP3Session session, POP3Request request) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             int num = 0;
             try {
-                num = Integer.parseInt(parameters);
+                num = Integer.parseInt(request.getArgument());
             } catch (Exception e) {
                 response = new POP3Response(POP3Response.ERR_RESPONSE,"Usage: DELE [mail number]");
                 return response;

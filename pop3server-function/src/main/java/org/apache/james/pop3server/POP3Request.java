@@ -17,47 +17,47 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-package org.apache.james.pop3server.core;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Request;
-import org.apache.james.pop3server.POP3Response;
-import org.apache.james.pop3server.POP3Session;
-
+package org.apache.james.pop3server;
 
 /**
-  * Default command handler for handling unknown commands
-  */
-public class UnknownCmdHandler implements CommandHandler {
-    /**
-     * The name of the command handled by the command handler
-     */
-    public static final String COMMAND_NAME = "UNKNOWN";
+ * POP3Request object 
+ *
+ */
+public class POP3Request {
 
+	private final String command;
 
+    private final String argument;
+
+    
     /**
-     * Handler method called upon receipt of an unrecognized command.
-     * Returns an error response and logs the command.    
-     *
+     * Return the current POP3 argument. If there is no argument null is returned
+     * 
+     * @return argument
      */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
-        return new POP3Response(POP3Response.ERR_RESPONSE);
+    public String getArgument() {
+        return argument;
     }
 
-
-	/**
-	 * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
-	 */
-    public Collection<String> getImplCommands() {
-        List<String> commands = new ArrayList<String>();
-        commands.add(COMMAND_NAME);
-        return commands;
+    /**
+     * Return the current POP3 command
+     * 
+     * @return command
+     */
+    public String getCommand() {
+        return command;
     }
 
+    public POP3Request(final String command, final String argument) {
+        this.command = command;
+        this.argument = argument;
+    }
+
+    public String toString() {
+        if (argument == null) {
+            return command;
+        } else {
+            return command + " " + argument;
+        }
+    }
 }

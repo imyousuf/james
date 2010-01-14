@@ -47,9 +47,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
 
     private ProtocolContext context;
     
-    private final static byte COMMAND_MODE = 1;
-    private final static byte RESPONSE_MODE = 2;
-    private Map<Object,Object> stateMap = new HashMap<Object,Object>();
+    private Map<String,Object> stateMap = new HashMap<String,Object>();
    
 
     /**
@@ -92,11 +90,6 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
      */
     private boolean sessionEnded = false;
 
-
-    /**
-     * The mode of the current session
-     */
-    private byte mode;
     
     /**
      * If not null every line is sent to this command handler instead
@@ -108,6 +101,8 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
      * Connect Handlers
      */
     private final LinkedList<ConnectHandler> connectHandlers;
+    
+    private int writtenBytes = 0;
     
     public POP3Handler(final POP3HandlerConfigurationData theConfigData, final ProtocolHandlerChain handlerChain) {
         this.theConfigData = theConfigData;
@@ -229,17 +224,6 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
     }
 
     /**
-     * @see org.apache.james.pop3server.POP3Session#writeResponse(java.lang.String)
-     */
-    public void writeResponse(String respString) {
-        context.writeLoggedFlushedResponse(respString);
-        //TODO Explain this well
-        if(mode == COMMAND_MODE) {
-            mode = RESPONSE_MODE;
-        }
-    }
-
-    /**
      * @see org.apache.james.pop3server.POP3Session#getConfigurationData()
      */
     public POP3HandlerConfigurationData getConfigurationData() {
@@ -324,29 +308,56 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
     public void writePOP3Response(POP3Response response) {
         // Write a single-line or multiline response
         if (response != null) {
-            if (response.getRawLine() != null) {
-                context.writeLoggedFlushedResponse(response.getRawLine());
-            } 
-            
+           
             List<CharSequence> responseList = response.getLines();
             if (responseList != null) {
+
                 for (int k = 0; k < responseList.size(); k++) {
-                    final CharSequence line = responseList.get(k);
-                    context.writeLoggedFlushedResponse(line.toString());
+                	StringBuffer respBuff = new StringBuffer(256);
+                    if (k == 0) {
+                    	respBuff.append(response.getRetCode());
+                        respBuff.append(" ");
+                        respBuff.append(response.getLines().get(k));
+                      
+                    } else {
+                        respBuff.append(response.getLines().get(k));
+                    }
+                    context.writeLoggedFlushedResponse(respBuff.toString());
+               
+                    checkWatchDog(respBuff.toString());
+
                 }
             }
-           
+            
             if (response.isEndSession()) {
                 sessionEnded = true;
-            }
+            } 
+            
         }
     }
 
+    private void checkWatchDog(String lines) {
+    	byte[] lineArray = lines.getBytes();
+    	
+    	for(int i = 0; i < lineArray.length; i++) {
+    		writtenBytes += lineArray[i];
+    		
+    		if (writtenBytes > getConfigurationData().getResetLength()) {
+    			getWatchdog().reset();
+    			writtenBytes = 0;
+    		}
+    	}
+    }
     /**
      * @see org.apache.james.pop3server.POP3Session#getState()
      */
-    public Map<Object, Object> getState() {
+    public Map<String, Object> getState() {
         return stateMap;
     }
+
+
+	public void resetState() {
+		stateMap.clear();
+	}
 	
 }

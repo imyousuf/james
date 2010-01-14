@@ -22,13 +22,10 @@
 package org.apache.james.pop3server;
 
 
-import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.james.api.protocol.TLSSupportedSession;
 import org.apache.james.services.MailRepository;
-import org.apache.james.socket.api.Watchdog;
 import org.apache.mailet.Mail;
 
 /**
@@ -63,13 +60,6 @@ public interface POP3Session extends TLSSupportedSession {
      * @return POP3HandlerConfigurationData
      */
     POP3HandlerConfigurationData getConfigurationData();
-
-    /**
-     * Returns Watchdog object used for handling timeout
-     *
-     * @return Watchdog object
-     */
-    Watchdog getWatchdog();
     
     /**
      * Returns the current handler state
@@ -129,32 +119,11 @@ public interface POP3Session extends TLSSupportedSession {
     void setBackupUserMailbox(List<Mail> backupUserMailbox);
 
     /**
-     * Returns the raw output stream
-     *
-     * @return the raw outputstream
-     */
-    OutputStream getOutputStream();
-
-    /**
      * Write the response to the client
      * 
      * @param response
      */
     void writePOP3Response(POP3Response response);
-
-    /**
-     * Write the response to the client
-     * 
-     * @param string
-     */
-    void writeResponse(String string);
-    
-    /**
-     * Map which can be used to store temporary data during the session
-     * 
-     * @return sessionMap
-     */
-    public Map<Object,Object> getState();
 
 }
 

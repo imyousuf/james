@@ -29,6 +29,7 @@ import java.util.List;
 import javax.mail.MessagingException;
 
 import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -44,9 +45,8 @@ public class RsetCmdHandler implements CommandHandler {
      * Handler method called upon receipt of a RSET command.
      * Calls stat() to reset the mailbox.
      *
-  	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
-    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+    public POP3Response onCommand(POP3Session session, POP3Request request) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             stat(session);

@@ -21,29 +21,24 @@
 
 package org.apache.james.pop3server.core;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
-import org.apache.james.pop3server.CommandHandler;
 import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.util.stream.ExtraDotOutputStream;
 import org.apache.mailet.Mail;
 
 /**
   * Handles TOP command
   */
-public class TopCmdHandler implements CommandHandler, CapaCapability {
+public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
 	private final static String COMMAND_NAME = "TOP";
 
 
@@ -55,12 +50,11 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
      * The expected command format is
      *  TOP [mail message number] [number of lines to return]
      *
-	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
     @SuppressWarnings("unchecked")
-    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+    public POP3Response onCommand(POP3Session session, POP3Request request) {
         POP3Response response = null;
-        
+        String parameters = request.getArgument();
         if (parameters == null) {
             response = new POP3Response(POP3Response.ERR_RESPONSE, "Usage: TOP [mail number] [Line number]");
             return response;
@@ -90,24 +84,19 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
 
                 if (mc != dm) {
                     response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
-                    session.writePOP3Response(response);
                     try {
                         for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
-                            session.writeResponse(e.nextElement().toString());
+                        	response.appendLine(e.nextElement().toString());
                         }
-                        session.writeResponse("");
-                        ExtraDotOutputStream edouts =
-                                new ExtraDotOutputStream(session.getOutputStream());
-                        OutputStream nouts = new BytesWrittenResetOutputStream(edouts,
-                                                                  session.getWatchdog(),
-                                                                  session.getConfigurationData().getResetLength());
-                        writeMessageContentTo(mc.getMessage(),nouts,lines);
-                        nouts.flush();
-                        edouts.checkCRLFTerminator();
-                        edouts.flush();
+
+                       	writeMessageContentTo(mc, response, lines);
+                       	
                     } finally {
-                        session.writeResponse(".");
+                    	response.appendLine(".");
                     }
+                    
+                	return response;	
+
                 } else {
                     StringBuilder responseBuffer =
                         new StringBuilder(64)
@@ -134,37 +123,7 @@ public class TopCmdHandler implements CommandHandler, CapaCapability {
         return response;    }
 
 
-    /**
-     * Writes the content of the message, up to a total number of lines, out to 
-     * an OutputStream.
-     *
-     * @param out the OutputStream to which to write the content
-     * @param lines the number of lines to write to the stream
-     *
-     * @throws MessagingException if the MimeMessage is not set for this MailImpl
-     * @throws IOException if an error occurs while reading or writing from the stream
-     */
-    public void writeMessageContentTo(MimeMessage message, OutputStream out, int lines)
-        throws IOException, MessagingException {
-        String line;
-        BufferedReader br;
-        if (message != null) {
-            br = new BufferedReader(new InputStreamReader(message.getRawInputStream()));
-            try {
-                while (lines-- > 0) {
-                    if ((line = br.readLine()) == null) {
-                        break;
-                    }
-                    line += "\r\n";
-                    out.write(line.getBytes());
-                }
-            } finally {
-                br.close();
-            }
-        } else {
-            throw new MessagingException("No message set for this MailImpl.");
-        }
-    }
+   
     
 
    /**

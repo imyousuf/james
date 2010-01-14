@@ -44,10 +44,6 @@ import org.apache.mina.core.service.IoHandler;
  *
  * @version 1.1.0, 06/02/2001
  */
-/*
- * IMPORTANT: AsyncSMTPServer extends AbstractAsyncServer.  If you implement ANY
- * lifecycle methods, you MUST call super.<method> as well.
- */
 public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMBean {
    
     /**

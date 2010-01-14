@@ -200,6 +200,14 @@
 		<property name="protocolServer" ref="pop3server.protocolserver" />
 	</bean>
 	
+	<!-- Async POP3 Server -->
+	<!-- enable this to use the MINA based POP3 Server which uses NIO -->
+	<!--
+		<bean id="pop3server"
+		class="org.apache.james.pop3server.mina.AsyncPOP3Server" />
+	-->
+	
+	
 	<!-- SMTP Server Beans-->
 	<bean id="smtpserver.protocolhandlerfactory"
 		class="org.apache.james.smtpserver.SMTPServerProtocolHandlerFactory" />

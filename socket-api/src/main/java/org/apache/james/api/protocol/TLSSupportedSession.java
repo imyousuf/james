@@ -21,6 +21,7 @@
 package org.apache.james.api.protocol;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Session which supports TLS 
@@ -71,10 +72,22 @@ public interface TLSSupportedSession extends LogEnabledSession{
     boolean isTLSStarted();
 
     /**
-     * Starttls
+     * Start TLS encryption 
      * 
      * @throws IOException
      */
     void startTLS() throws IOException;
+    
+    /**
+     * Return Map which can be used to store objects within a session
+     * 
+     * @return state
+     */
+    public Map<String, Object> getState();
+    
+    /**
+     * Reset the state
+     */
+    public void resetState();
     
 }

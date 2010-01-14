@@ -60,7 +60,8 @@ public class POP3ServerProtocolServerHandlerFactory extends AbstractSupportLoade
         = new POP3HandlerConfigurationDataImpl();
 
 
-    private boolean useStartTLS;
+	private boolean useStartTLS;
+
 
 
 
@@ -69,11 +70,6 @@ public class POP3ServerProtocolServerHandlerFactory extends AbstractSupportLoade
         this.mailServer = mailServer;
     }
 
-    @PostConstruct
-    @Override
-    public void init() throws Exception {
-        super.init();
-    }
     
     @Override
     protected void onConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {

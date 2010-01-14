@@ -29,6 +29,7 @@ import javax.annotation.Resource;
 
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.services.MailRepository;
@@ -68,9 +69,9 @@ public class PassCmdHandler implements CommandHandler {
      * Handler method called upon receipt of a PASS command.
      * Reads in and validates the password.
      *
-  	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
-    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    	String parameters = request.getArgument();
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.AUTHENTICATION_USERSET && parameters != null) {
             String passArg = parameters;

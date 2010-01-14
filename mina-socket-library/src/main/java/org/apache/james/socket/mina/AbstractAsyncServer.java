@@ -21,6 +21,7 @@ package org.apache.james.socket.mina;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -41,6 +42,7 @@ import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.codec.textline.LineDelimiter;
 import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.filter.ssl.BogusTrustManagerFactory;
 import org.apache.mina.filter.ssl.KeyStoreFactory;
@@ -78,12 +80,6 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      */
     public static final String HELLO_NAME = "helloName";
     
-    
-    /**
-     * The mailet context - we access it here to set the hello name for the Mailet API
-     */
-    private MailetContext mailetcontext;
-
     private FileSystem fileSystem;
     
     /**
@@ -122,8 +118,6 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
 
     private SslContextFactory contextFactory;
 
-    private HierarchicalConfiguration config;;
-
     /**
      * Gets the current instance loader.
      * @return the loader
@@ -156,15 +150,18 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
         this.mailServer = mailServer;
     }
     
-    @Resource(name="James")
-    public final void setMailetContext(MailetContext mailetcontext) {
-        this.mailetcontext = mailetcontext;
-    }
-
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
     public final void setLog(Log logger) {
        this.logger = logger;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
     public final void configure(HierarchicalConfiguration config) throws ConfigurationException{
         
         Configuration handlerConfiguration = ((HierarchicalConfiguration)config).configurationAt("handler");
@@ -285,7 +282,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     
     
     @PostConstruct
-    public void init() throws Exception {
+    public final void init() throws Exception {
         if (isEnabled()) {
             preInit();
             buildSSLContextFactory();
@@ -328,15 +325,6 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      */
     protected MailServer getMailServer() {
         return mailServer;
-    }
-    
-    /**
-     * Return the MailetContext
-     * 
-     * @return mailetContext
-     */
-    protected MailetContext getMailetContext() {
-        return mailetcontext;
     }
     
     /**
@@ -478,12 +466,22 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      * @return ioFilterChainBuilder
      */
     protected DefaultIoFilterChainBuilder createIoFilterChainBuilder() {
-        ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory());
+        ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory(getProtocolCharset(), LineDelimiter.CRLF, LineDelimiter.CRLF));
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         builder.addLast("protocolCodecFactory", codecFactory);
         builder.addLast("connectionFilter", new ConnectionFilter(getLogger(), connectionLimit, connPerIP));
         return builder;
     }
+    
+    /**
+     * Return the Charset which will be used to encode / decode the protocol. The default is US-ASCII
+     * 
+     * @return charset
+     */
+    protected Charset getProtocolCharset() {
+        return Charset.forName("US-ASCII");
+    }
+    
     
     /**
      * Return the default port which will get used for this server if non is specify in the configuration
