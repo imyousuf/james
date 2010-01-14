@@ -27,45 +27,44 @@
 	-->
 
 	<!--
-		<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false"> 
-			<property name="autodetect" value="true" /> 
-			<property name="namingStrategy" ref="namingStrategy" /> 
-		</bean> 
-		<bean id="namingStrategy" class="org.springframework.jmx.export.naming.KeyNamingStrategy" >
-			<property name="mappings" >
-				<props> 
-					<prop key="fetchmail"> bean:name=fetchmail</prop> 
-					<prop key="smtpserver">bean:name=smtpserver</prop> 
-					<prop key="James" >bean:name=James</prop>
-					<prop key="dnsserver" >bean:name=dnsserver</prop> 
-					<prop key="remotemanager" >bean:name=remotemanager</prop> 
-					<prop key="pop3server" >bean:name=pop3server</prop> 
-					<prop key="nntpserver">bean:name=nntpserver</prop> 
-					<prop key="virtualusertablemanagement">bean:name=virtualusertablemanagement</prop> 
-					<prop key="spoolmanagement" >bean:name=spoolmanagement</prop> 
-					<prop key="domainlistmanagement" >bean:name=domainlistmanagement</prop>
-					<prop key="processormanagement" >bean:name=processormanagement</prop>
-					<prop key="bayesiananalyzermanagement">bean:name=bayesiananalyzermanagement</prop> 
-					<prop key="usermanagement" >bean:name=usermanagement</prop> 
-					<prop key="serverConnector" >bean:name=serverConnector</prop>
-				</props>
-			</property> 
-		</bean> 
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false"> 
+		<property name="autodetect" value="true" /> 
+		<property name="namingStrategy" ref="namingStrategy" /> 
+	</bean> 
+	<bean id="namingStrategy" class="org.springframework.jmx.export.naming.KeyNamingStrategy" >
+		<property name="mappings" >
+			<props> 
+				<prop key="fetchmail"> bean:name=fetchmail</prop> 
+				<prop key="smtpserver">bean:name=smtpserver</prop> 
+				<prop key="James" >bean:name=James</prop>
+				<prop key="dnsserver" >bean:name=dnsserver</prop> 
+				<prop key="remotemanager" >bean:name=remotemanager</prop> 
+				<prop key="pop3server" >bean:name=pop3server</prop> 
+				<prop key="nntpserver">bean:name=nntpserver</prop> 
+				<prop key="virtualusertablemanagement">bean:name=virtualusertablemanagement</prop> 
+				<prop key="spoolmanagement" >bean:name=spoolmanagement</prop> 
+				<prop key="domainlistmanagement" >bean:name=domainlistmanagement</prop>
+				<prop key="processormanagement" >bean:name=processormanagement</prop>
+				<prop key="bayesiananalyzermanagement">bean:name=bayesiananalyzermanagement</prop> 
+				<prop key="usermanagement" >bean:name=usermanagement</prop> 
+				<prop key="serverConnector" >bean:name=serverConnector</prop>
+			</props>
+		</property> 
+	</bean> 
 		
-		<bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
+	<bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
 
-		<bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
-			<property name="port" value="1099" /> 
-		</bean> 
+	<bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+		<property name="port" value="1099" /> 
+	</bean> 
 		
-		<bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry"> 
-			<property name="objectName" value="connector:name=rmi" /> 
-			<property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" /> 
-		</bean>
+	<bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry"> 
+		<property name="objectName" value="connector:name=rmi" /> 
+		<property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" /> 
+	</bean>
 	-->
 
-	<bean
-		class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
+	<bean class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
 		<property name="order" value="2" />
 		<property name="beanRoleMap">
 			<map>
@@ -76,19 +75,16 @@
 		</property>
 	</bean>
 
-	<bean
-		class="org.apache.james.container.spring.lifecycle.AvalonInitializableBeanPostProcessor">
+	<bean class="org.apache.james.container.spring.lifecycle.AvalonInitializableBeanPostProcessor">
 		<property name="order" value="4" />
 	</bean>
 
-	<bean
-		class="org.apache.james.container.spring.lifecycle.AvalonConfigurableBeanPostProcessor">
+	<bean class="org.apache.james.container.spring.lifecycle.AvalonConfigurableBeanPostProcessor">
 		<property name="configurationProvider" ref="configurationProvider" />
 		<property name="order" value="1" />
 	</bean>
 
-	<bean
-		class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
+	<bean class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
 		<property name="configurationProvider" ref="configurationProvider" />
 		<property name="order" value="1" />
 		<property name="mappings">
@@ -203,14 +199,12 @@
 	<!-- Async POP3 Server -->
 	<!-- enable this to use the MINA based POP3 Server which uses NIO -->
 	<!--
-		<bean id="pop3server"
-		class="org.apache.james.pop3server.mina.AsyncPOP3Server" />
+    <bean id="pop3server"  class="org.apache.james.pop3server.mina.AsyncPOP3Server" />
 	-->
 	
 	
 	<!-- SMTP Server Beans-->
-	<bean id="smtpserver.protocolhandlerfactory"
-		class="org.apache.james.smtpserver.SMTPServerProtocolHandlerFactory" />
+	<bean id="smtpserver.protocolhandlerfactory" class="org.apache.james.smtpserver.SMTPServerProtocolHandlerFactory" />
 
 	<bean id="smtpserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
 		<property name="protocolHandlerFactory" ref="smtpserver.protocolhandlerfactory" />
@@ -223,16 +217,13 @@
 	<!-- Async SMTP Server -->
 	<!-- enable this to use the MINA based SMTP Server which uses NIO -->
 	<!--
-		<bean id="smtpserver"
-		class="org.apache.james.smtpserver.mina.AsyncSMTPServer" />
+	<bean id="smtpserver" class="org.apache.james.smtpserver.mina.AsyncSMTPServer" />
 	-->
 
-	<bean id="org.apache.james.smtpserver.protocol.DNSService"
-		class="org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter" />
+	<bean id="org.apache.james.smtpserver.protocol.DNSService" class="org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter" />
 
 	<!-- NNTP Server Beans-->
-	<bean id="nntpserver.protocolhandlerfactory"
-		class="org.apache.james.nntpserver.NNTPServerProtocolHandlerFactory" />
+	<bean id="nntpserver.protocolhandlerfactory" class="org.apache.james.nntpserver.NNTPServerProtocolHandlerFactory" />
 
 	<bean id="nntpserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
 		<property name="protocolHandlerFactory" ref="nntpserver.protocolhandlerfactory" />
@@ -243,8 +234,7 @@
 	</bean>
 
 	<!-- NNTP Repository -->
-	<bean id="nntp-repository"
-		class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
+	<bean id="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
 
 
 	<!-- FetchMail Service -->
@@ -273,13 +263,11 @@
 		implementaion
 	-->
 	<!-- could be safely used -->
-	<bean id="localusersrepository"
-		class="org.apache.james.impl.jamesuser.LocalJamesUsersRepository" />
+	<bean id="localusersrepository" class="org.apache.james.impl.jamesuser.LocalJamesUsersRepository" />
 
 
 	<!-- The context FileSystem implementation -->
-	<bean id="filesystem"
-		class="org.apache.james.container.spring.adaptor.FileSystemBridge" />
+	<bean id="filesystem" class="org.apache.james.container.spring.adaptor.FileSystemBridge" />
 
 	<!-- The VirtualUserTable Management block  -->
 	<bean id="virtualusertablemanagementservice"
@@ -289,8 +277,7 @@
 	<bean id="virtualusertable-store" class="org.apache.james.core.VirtualUserTableStoreImpl" />
 
 
-	<bean id="defaultvirtualusertable" name="virtualusertablemanagement"
-		class="org.apache.james.impl.vut.DefaultVirtualUserTable" />
+	<bean id="defaultvirtualusertable" name="virtualusertablemanagement" class="org.apache.james.impl.vut.DefaultVirtualUserTable" />
 
 	<!--
 		########################################################################
@@ -300,25 +287,21 @@
 
 	<!--  JDBC implementation of the domainlist service-->
 	<!--
-		<bean id="domainlist" class="org.apache.james.domain.JDBCDomainList"
-		/>
+	<bean id="domainlist" class="org.apache.james.domain.JDBCDomainList"/>
 	-->
 
 	<!-- JDBC VirtualUserTable implementation of the domainlist service -->
 	<!--
-		<bean id="domainlist"
-		class="org.apache.james.vut.JDBCVirtualUserTable" />
+	<bean id="domainlist" class="org.apache.james.vut.JDBCVirtualUserTable" />
 	-->
 
 	<!-- XML VirtualUserTable implementation of the domainlist service -->
 	<!--
-		<bean id="domainlist" class="org.apache.james.vut.XMLVirtualUserTable"
-		/>
+	<bean id="domainlist" class="org.apache.james.vut.XMLVirtualUserTable"/>
 	-->
 
 	<!-- IMAP server Beans -->
-	<bean id="imapserver.protocolhandlerfactory" name="org.apache.jsieve.mailet.Poster"
-		class="org.apache.james.imapserver.ImapServerProtocolHandlerFactory">
+	<bean id="imapserver.protocolhandlerfactory" name="org.apache.jsieve.mailet.Poster" class="org.apache.james.imapserver.ImapServerProtocolHandlerFactory">
 		<property name="imapDecoder" ref="imapDecoder"/>
 		<property name="imapEncoder" ref="imapEncoder"/>	
 	</bean>
@@ -327,8 +310,7 @@
 		<property name="protocolHandlerFactory" ref="imapserver.protocolhandlerfactory" />
 	</bean>
 		
-	<bean id="imapProcessor" class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory"
-      	factory-method="createDefaultProcessor">
+	<bean id="imapProcessor" class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory" factory-method="createDefaultProcessor">
       	<constructor-arg ref="mailboxmanager"/>
     </bean>
       
@@ -395,19 +377,15 @@
 	<bean id="connections" class="org.apache.james.socket.SimpleConnectionManager" />
 
 	<!-- The Socket Manager block -->
-	<bean id="sockets"
-		class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketManager" />
+	<bean id="sockets" class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketManager" />
 
 	<!-- The Time Scheduler block -->
-	<bean id="scheduler"
-		class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" destroy-method="dispose" />
+	<bean id="scheduler" class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" destroy-method="dispose" />
 
 	<!-- The DataSourceSelector block -->
-	<bean id="database-connections"
-		class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" destroy-method="dispose" />
+	<bean id="database-connections" class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" destroy-method="dispose" />
 
 	<!-- The ThreadManager block -->
-	<bean id="thread-manager"
-		class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" destroy-method="dispose" />
+	<bean id="thread-manager" class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" destroy-method="dispose" />
 
 </beans>
