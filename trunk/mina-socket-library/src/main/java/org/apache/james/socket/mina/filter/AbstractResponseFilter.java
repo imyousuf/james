@@ -17,47 +17,30 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.socket.mina.filter;
+
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.write.WriteRequest;
 
 
-package org.apache.james.pop3server.core;
+public abstract class AbstractResponseFilter extends IoFilterAdapter {
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Request;
-import org.apache.james.pop3server.POP3Response;
-import org.apache.james.pop3server.POP3Session;
-
-
-/**
-  * Default command handler for handling unknown commands
-  */
-public class UnknownCmdHandler implements CommandHandler {
-    /**
-     * The name of the command handled by the command handler
-     */
-    public static final String COMMAND_NAME = "UNKNOWN";
-
+    protected abstract String getCloseAttribute();
 
     /**
-     * Handler method called upon receipt of an unrecognized command.
-     * Returns an error response and logs the command.    
-     *
+     * @see org.apache.mina.core.filterchain.IoFilterAdapter#messageSent(org.apache.mina.core.filterchain.IoFilter.NextFilter,
+     *      org.apache.mina.core.session.IoSession,
+     *      org.apache.mina.core.write.WriteRequest)
      */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
-        return new POP3Response(POP3Response.ERR_RESPONSE);
-    }
-
-
-	/**
-	 * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
-	 */
-    public Collection<String> getImplCommands() {
-        List<String> commands = new ArrayList<String>();
-        commands.add(COMMAND_NAME);
-        return commands;
+    public void messageSent(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
+        super.messageSent(nextFilter, session, writeRequest);
+        if (session.containsAttribute(getCloseAttribute())) {
+            // Close the session if no more scheduled writes are there.
+            if (session.getScheduledWriteMessages() == 0) {
+                session.close(true);
+            }
+        }
     }
 
 }

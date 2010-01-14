@@ -66,7 +66,7 @@ import org.apache.mailet.MailAddress;
 public class POP3ServerTest extends TestCase {
     protected int m_pop3ListenerPort = Util.getNonPrivilegedPort();
 
-    private MockMailServer m_mailServer;
+    protected MockMailServer m_mailServer;
 
     protected POP3TestConfiguration m_testConfiguration;
 
@@ -81,15 +81,16 @@ public class POP3ServerTest extends TestCase {
     private MailImpl testMail2;
     protected FakeLoader serviceManager;
 
-    private MockThreadManager threadManager;
+    protected MockThreadManager threadManager;
 
-    private DNSService dnsservice;
+    protected DNSService dnsservice;
 
-    private MockSocketManager socketManager;
+    protected MockSocketManager socketManager;
 
-    private SimpleConnectionManager connectionManager;
+    protected SimpleConnectionManager connectionManager;
 
-    private MockFileSystem fSystem;
+    protected MockFileSystem fSystem;
+    
     public POP3ServerTest() {
         super("POP3ServerTest");
     }
@@ -169,7 +170,6 @@ public class POP3ServerTest extends TestCase {
             m_pop3Protocol.sendCommand("quit");
             m_pop3Protocol.disconnect();
         }
-        //m_pop3Server.dispose();
         ContainerUtil.dispose(m_mailServer);
         if (testMail1 != null) testMail1.dispose();
         if (testMail2 != null) testMail2.dispose();
@@ -377,7 +377,9 @@ public class POP3ServerTest extends TestCase {
         assertEquals(1, m_pop3Protocol.getState());
 
         Reader r = m_pop3Protocol.retrieveMessageTop(entries[0].number, 0);
+
         assertNotNull(r);
+
         r.close();
 
         Reader r2 = m_pop3Protocol.retrieveMessage(entries[0].number);

@@ -29,6 +29,7 @@ import javax.mail.MessagingException;
 
 import org.apache.james.pop3server.CommandHandler;
 import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -48,9 +49,10 @@ public class ListCmdHandler implements CommandHandler {
      * @param argument the first argument parsed by the parseCommand method
      */
 
-    public POP3Response onCommand(POP3Session session, String command,
-            String parameters) {
+    public POP3Response onCommand(POP3Session session, POP3Request request) {
         POP3Response response = null;
+        String parameters = request.getArgument();
+        
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
             Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
 

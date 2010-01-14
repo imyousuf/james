@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.james.api.protocol.ExtensibleHandler;
 import org.apache.james.api.protocol.WiringException;
 import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
@@ -39,10 +40,11 @@ public class CapaCmdHandler implements CommandHandler, ExtensibleHandler, CapaCa
 	private List<CapaCapability> caps;
 
 
-	/**
-	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, org.apache.james.pop3server.POP3Request)
 	 */
-    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+    public POP3Response onCommand(POP3Session session, POP3Request request) {
 	    POP3Response response = new POP3Response(POP3Response.OK_RESPONSE,"Capability list follows");
 		
 		for (int i = 0; i < caps.size(); i++) {

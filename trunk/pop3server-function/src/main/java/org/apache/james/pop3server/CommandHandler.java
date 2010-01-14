@@ -34,6 +34,6 @@ import org.apache.james.api.protocol.CommonCommandHandler;
     /**
      * Handle the command
     **/
-    POP3Response onCommand(POP3Session session, String command, String parameters);
+    POP3Response onCommand(POP3Session session, POP3Request request);
 
 }

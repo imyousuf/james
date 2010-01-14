@@ -17,47 +17,49 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.pop3server.mina.filter;
 
-
-package org.apache.james.pop3server.core;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.james.pop3server.CommandHandler;
+import org.apache.commons.logging.Log;
 import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
-import org.apache.james.pop3server.POP3Session;
-
+import org.apache.james.socket.mina.filter.AbstractValidationFilter;
+import org.apache.mina.core.write.DefaultWriteRequest;
+import org.apache.mina.core.write.WriteRequest;
 
 /**
-  * Default command handler for handling unknown commands
-  */
-public class UnknownCmdHandler implements CommandHandler {
-    /**
-     * The name of the command handled by the command handler
-     */
-    public static final String COMMAND_NAME = "UNKNOWN";
+ * Validation filter which checks if the written objects are valid for POP3
+ * 
+ */
+public class POP3ValidationFilter extends AbstractValidationFilter {
 
-
-    /**
-     * Handler method called upon receipt of an unrecognized command.
-     * Returns an error response and logs the command.    
-     *
-     */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
-        return new POP3Response(POP3Response.ERR_RESPONSE);
+    public POP3ValidationFilter(Log logger) {
+        super(logger);
     }
 
+    @Override
+    protected WriteRequest errorRequest(Object obj) {
+        return new DefaultWriteRequest(POP3Response.ERR_RESPONSE + " Cannot handle message of type " + (obj != null ? obj.getClass() : "NULL"));
+    }
 
-	/**
-	 * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
-	 */
-    public Collection<String> getImplCommands() {
-        List<String> commands = new ArrayList<String>();
-        commands.add(COMMAND_NAME);
-        return commands;
+    @Override
+    protected WriteRequest errorResponse(Object obj) {
+        return null;
+    }
+
+    @Override
+    protected boolean isValidRequest(Object requestObject) {
+        if (requestObject instanceof POP3Request) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected boolean isValidResponse(Object responseObject) {
+        if (responseObject instanceof POP3Response) {
+            return true;
+        }
+        return false;
     }
 
 }

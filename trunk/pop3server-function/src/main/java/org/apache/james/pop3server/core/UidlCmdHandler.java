@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.james.pop3server.CommandHandler;
 import org.apache.james.pop3server.POP3Handler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -41,10 +42,10 @@ public class UidlCmdHandler implements CommandHandler, CapaCapability {
      * Handler method called upon receipt of a UIDL command.
      * Returns a listing of message ids to the client.
      *
-   	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
-    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+    public POP3Response onCommand(POP3Session session, POP3Request request) {
         POP3Response response = null;
+        String parameters = request.getArgument();
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {
             Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
 

@@ -19,8 +19,6 @@
 
 package org.apache.james.smtpserver.mina;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,10 +33,10 @@ import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPSession;
+import org.apache.james.socket.mina.AbstractMINASession;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.ssl.SslFilter;
 
-public class SMTPSessionImpl implements SMTPSession {
+public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession {
 
         private static Random random = new Random();
 
@@ -50,55 +48,28 @@ public class SMTPSessionImpl implements SMTPSession {
 
         private SMTPConfiguration theConfigData;
 
-        private InetSocketAddress socketAddress;
-
-        private String user;
-
-        private IoSession session;
-
         private int lineHandlerCount = 0;
-
-        private Log logger;
-        
-        private SSLContext context;
 
         public SMTPSessionImpl(SMTPConfiguration theConfigData,
                 Log logger, IoSession session, SSLContext context) {
-            this.theConfigData = theConfigData;
-            this.session = session;
+            super(logger, session, context);
+        	this.theConfigData = theConfigData;
             connectionState = new HashMap<String, Object>();
             smtpID = random.nextInt(1024) + "";
 
-            this.socketAddress = (InetSocketAddress) session.getRemoteAddress();
             relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());
             session.setAttribute(FilterLineHandlerAdapter.SMTP_SESSION, this);
-            this.logger = logger;
-            this.context = context;
         }
 
         public SMTPSessionImpl(SMTPConfiguration theConfigData,
                 Log logger, IoSession session) {
-            this(theConfigData,logger,session,null);
+            this(theConfigData, logger, session, null);
         }
         /**
          * @see org.apache.james.smtpserver.protocol.SMTPSession#getConnectionState()
          */
         public Map<String, Object> getConnectionState() {
             return connectionState;
-        }
-
-        /**
-         * @see org.apache.james.api.protocol.TLSSupportedSession#getRemoteHost()
-         */
-        public String getRemoteHost() {
-            return socketAddress.getHostName();
-        }
-
-        /**
-         * @see org.apache.james.api.protocol.TLSSupportedSession#getRemoteIPAddress()
-         */
-        public String getRemoteIPAddress() {
-            return socketAddress.getAddress().getHostAddress();
         }
         
         /**
@@ -123,13 +94,6 @@ public class SMTPSessionImpl implements SMTPSession {
         }
 
         /**
-         * @see org.apache.james.api.protocol.TLSSupportedSession#getUser()
-         */
-        public String getUser() {
-            return user;
-        }
-
-        /**
          * @see org.apache.james.smtpserver.protocol.SMTPSession#isRelayingAllowed()
          */
         public boolean isRelayingAllowed() {
@@ -149,17 +113,6 @@ public class SMTPSessionImpl implements SMTPSession {
             if (currentHeloMode != null) {
                 getState().put(CURRENT_HELO_MODE, currentHeloMode);
             }
-        }
-
-        /**
-         * @see org.apache.james.api.protocol.TLSSupportedSession#setUser(java.lang.String)
-         */
-        public void setUser(String user) {
-            this.user = user;
-        }
-
-        public IoSession getIoSession() {
-            return session;
         }
 
         /**
@@ -264,40 +217,6 @@ public class SMTPSessionImpl implements SMTPSession {
          */
         public boolean useHeloEhloEnforcement() {
             return theConfigData.useHeloEhloEnforcement();
-        }
-
-
-        /**
-         * @see org.apache.james.api.protocol.TLSSupportedSession#isStartTLSSupported()
-         */
-        public boolean isStartTLSSupported() {
-            return context != null;
-        }
-
-        /**
-         * @see org.apache.james.api.protocol.TLSSupportedSession#isTLSStarted()
-         */
-        public boolean isTLSStarted() {
-            return session.getFilterChain().contains("sslFilter");
-        }
-
-        /**
-         * @see org.apache.james.api.protocol.TLSSupportedSession#startTLS()
-         */
-        public void startTLS() throws IOException {
-            session.suspendRead();
-            SslFilter filter = new SslFilter(context);
-            resetState();
-            session.getFilterChain().addFirst("sslFilter", filter);
-            session.resumeRead();
-        }
-
-
-        /**
-         * @see org.apache.james.api.protocol.LogEnabledSession#getLogger()
-         */
-        public Log getLogger() {
-            return logger;
         }
 
 

@@ -30,6 +30,7 @@ import org.apache.james.api.protocol.AbstractCommandDispatcher;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.pop3server.CommandHandler;
 import org.apache.james.pop3server.LineHandler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
@@ -128,7 +129,7 @@ public class POP3CommandDispatcherLineHandler extends
             int count = commandHandlers.size();
             for (int i = 0; i < count; i++) {
                 POP3Response response = commandHandlers.get(i).onCommand(
-                        session, curCommandName, curCommandArgument);
+                        session, new POP3Request(curCommandName, curCommandArgument));
                 if (response != null) {
                     session.writePOP3Response(response);
                     break;

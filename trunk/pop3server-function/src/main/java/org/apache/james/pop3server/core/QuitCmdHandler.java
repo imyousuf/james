@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.commons.collections.ListUtils;
 import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -42,10 +43,9 @@ public class QuitCmdHandler implements CommandHandler {
      * Handler method called upon receipt of a QUIT command.
      * This method handles cleanup of the POP3Handler state.
      *
-	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
     @SuppressWarnings("unchecked")
-    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+    public POP3Response onCommand(POP3Session session, POP3Request request) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.AUTHENTICATION_READY ||  session.getHandlerState() == POP3Session.AUTHENTICATION_USERSET) {
             response = new POP3Response(POP3Response.OK_RESPONSE,"Apache James POP3 Server signing off.");

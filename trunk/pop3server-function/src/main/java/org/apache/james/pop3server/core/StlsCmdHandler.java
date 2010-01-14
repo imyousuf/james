@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
@@ -38,10 +39,11 @@ public class StlsCmdHandler implements CommandHandler, CapaCapability {
     public final static String COMMAND_NAME = "STLS";
 
 
-    /**
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, org.apache.james.pop3server.POP3Request)
      */
-    public POP3Response onCommand(POP3Session session, String command, String parameters) {
+    public POP3Response onCommand(POP3Session session, POP3Request request) {
         POP3Response response;
         // check if starttls is supported, the state is the right one and it was
         // not started before

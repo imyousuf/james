@@ -56,12 +56,14 @@ public class POP3Response {
         if (code == null) throw new IllegalArgumentException("POP3Response code can not be null");
     
         this.setRetCode(code);
-        if (description != null) {
-            this.rawLine = code + " " + description;
-
-        } else {
-            this.rawLine = code;
+        if (description == null) {
+        	description = "";
         }
+        this.rawLine = code + " " + description;
+
+        this.appendLine(description);
+
+        
     }
     
     public POP3Response(String code) {
