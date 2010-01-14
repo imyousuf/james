@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -42,12 +43,13 @@ public class UnknownCmdHandler implements CommandHandler {
         return null;
     }
 
-    /**
-     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession,
-     *      java.lang.String, java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters) {
-        RemoteManagerResponse response = new RemoteManagerResponse("Unknown command " + command);
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
+        RemoteManagerResponse response = new RemoteManagerResponse("Unknown command " + request.getCommand());
         return response;
     }
 

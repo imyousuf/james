@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -45,8 +46,9 @@ public class ShowMailetInfoCmdHandler extends ShowMatcherInfoCmdHandler{
     }
 
     @Override
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String params) {
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
         RemoteManagerResponse response = null;
+        String params = request.getArgument();
         Object[] parameters = extractMailetInfoParameters(session,params, "MAILET");
         if (parameters == null) return response;
         

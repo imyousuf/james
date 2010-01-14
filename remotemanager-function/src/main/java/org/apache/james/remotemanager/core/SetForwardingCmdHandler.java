@@ -13,6 +13,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.mailet.MailAddress;
@@ -49,8 +50,9 @@ public class SetForwardingCmdHandler implements CommandHandler{
     /**
      * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, java.lang.String, java.lang.String)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters) {
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
         RemoteManagerResponse response;
+        String parameters = request.getArgument();
         int breakIndex = -1;
         if ((parameters == null) ||
             (parameters.equals("")) ||

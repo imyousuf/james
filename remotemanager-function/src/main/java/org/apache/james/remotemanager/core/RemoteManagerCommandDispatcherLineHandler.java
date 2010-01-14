@@ -29,6 +29,7 @@ import org.apache.james.api.protocol.AbstractCommandDispatcher;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.LineHandler;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -123,7 +124,7 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
             int count = commandHandlers.size();
             for (int i = 0; i < count; i++) {
                 RemoteManagerResponse response = commandHandlers.get(i).onCommand(
-                        session, curCommandName, curCommandArgument);
+                        session, new RemoteManagerRequest(curCommandName, curCommandArgument));
                 if (response != null) {
                     session.writeRemoteManagerResponse(response);
                     break;

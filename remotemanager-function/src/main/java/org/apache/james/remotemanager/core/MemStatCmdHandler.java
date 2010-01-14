@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -18,17 +19,17 @@ public class MemStatCmdHandler implements CommandHandler {
 
     public final static String COMMAND_NAME = "MEMSTAT";
 
-    /**
-     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession,
-     *      java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters) {
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
         RemoteManagerResponse response = new RemoteManagerResponse("Current memory statistics:");
         response.appendLine("\tFree Memory: " + Runtime.getRuntime().freeMemory());
         response.appendLine("\tTotal Memory: " + Runtime.getRuntime().totalMemory());
         response.appendLine("\tMax Memory: " + Runtime.getRuntime().maxMemory());
 
-        if ("-gc".equalsIgnoreCase(parameters)) {
+        if ("-gc".equalsIgnoreCase(request.getArgument())) {
             System.gc();
             response.appendLine("And after System.gc():");
             response.appendLine("\tFree Memory: " + Runtime.getRuntime().freeMemory());

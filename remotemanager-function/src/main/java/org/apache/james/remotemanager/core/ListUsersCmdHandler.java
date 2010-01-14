@@ -30,6 +30,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.services.MailServer;
@@ -69,8 +70,14 @@ public class ListUsersCmdHandler implements CommandHandler{
     public CommandHelp getHelp() {
         return help;
     }
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String parameters) {
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
+     */
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
         RemoteManagerResponse response;
+        String parameters = request.getArgument();
         UsersRepository users = uStore.getRepository(((String) session.getState().get(RemoteManagerSession.CURRENT_USERREPOSITORY)));
 
         if (parameters == null) {

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.james.remotemanager.CommandHelp;
+import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -45,8 +46,9 @@ public class ListMailetsCmdHandler extends ShowMatcherInfoCmdHandler {
     }
 
     @Override
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, String command, String params) {
+    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
         RemoteManagerResponse response = null;
+        String params = request.getArgument();
         if (params == null || !processorExists(params)) {
             response = new RemoteManagerResponse("Usage: " + getHelp().getSyntax());
             response.appendLine("The list of valid processor names can be retrieved using command LISTPROCESSORS");

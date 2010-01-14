@@ -17,20 +17,44 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.remotemanager.core;
+package org.apache.james.remotemanager;
 
-import org.apache.james.remotemanager.ConnectHandler;
-import org.apache.james.remotemanager.RemoteManagerResponse;
-import org.apache.james.remotemanager.RemoteManagerSession;
+public class RemoteManagerRequest {
 
-public class WelcomeHandler implements ConnectHandler{
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.remotemanager.ConnectHandler#onConnect(org.apache.james.remotemanager.RemoteManagerSession)
+    private final String command;
+
+    private final String argument;
+
+    
+    /**
+     * Return the current RemoteManager argument. If there is no argument null is returned
+     * 
+     * @return argument
      */
-    public void onConnect(RemoteManagerSession session) {
-        session.writeRemoteManagerResponse(new RemoteManagerResponse("JAMES Remote Administration Tool "));// + Constants.SOFTWARE_VERSION));
+    public String getArgument() {
+        return argument;
     }
 
+    /**
+     * Return the current POP3 command
+     * 
+     * @return command
+     */
+    public String getCommand() {
+        return command;
+    }
+
+    public RemoteManagerRequest(final String command, final String argument) {
+        this.command = command;
+        this.argument = argument;
+    }
+
+    public String toString() {
+        if (argument == null) {
+            return command;
+        } else {
+            return command + " " + argument;
+        }
+    }
 }
