@@ -72,10 +72,7 @@
       <groupId>org.apache.avalon.cornerstone.sockets</groupId>
       <artifactId>cornerstone-sockets-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.scheduler</groupId>
-      <artifactId>cornerstone-scheduler-api</artifactId>
-    </dependency>
+   
     <dependency>
       <groupId>org.apache.excalibur.components</groupId>
       <artifactId>excalibur-pool-api</artifactId>

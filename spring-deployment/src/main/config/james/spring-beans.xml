@@ -380,8 +380,10 @@
 	<bean id="sockets" class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketManager" />
 
 	<!-- The Time Scheduler block -->
-	<bean id="scheduler" class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler" destroy-method="dispose" />
-
+	<bean id="scheduler" class="java.util.concurrent.Executors" factory-method="newScheduledThreadPool">
+      	<constructor-arg value="20"/>
+    </bean>
+      
 	<!-- The DataSourceSelector block -->
 	<bean id="database-connections" class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" destroy-method="dispose" />
 

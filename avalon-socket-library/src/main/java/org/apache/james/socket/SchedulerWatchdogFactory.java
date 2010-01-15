@@ -20,9 +20,10 @@
 
 package org.apache.james.socket;
 
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.Target;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.james.socket.api.Watchdog;
 
 /**
@@ -60,7 +61,7 @@ public class SchedulerWatchdogFactory implements WatchdogFactory {
     /**
      * The thread pool used to generate InaccurateTimeoutWatchdogs
      */
-    private TimeScheduler myTimeScheduler;
+    private ScheduledExecutorService myTimeScheduler;
 
     private long timeout = -1;
 
@@ -72,7 +73,7 @@ public class SchedulerWatchdogFactory implements WatchdogFactory {
      *                         for Watchdogs produced by this factory
      * @param timeout the timeout for Watchdogs produced by this factory
      */
-    public SchedulerWatchdogFactory(TimeScheduler theTimeScheduler, long timeout) {
+    public SchedulerWatchdogFactory(ScheduledExecutorService theTimeScheduler, long timeout) {
         this.timeout = timeout;
         myTimeScheduler = theTimeScheduler;
     }
@@ -93,7 +94,7 @@ public class SchedulerWatchdogFactory implements WatchdogFactory {
         /**
          * The in-scheduler identifier for this trigger.
          */
-        private String triggerID = null;
+        private ScheduledFuture<?> future = null;
 
         /**
          * The WatchdogTarget that is passed in when this
@@ -107,24 +108,25 @@ public class SchedulerWatchdogFactory implements WatchdogFactory {
          * @param theTarget the target triggered by this Watchdog
          */
         SchedulerWatchdog(WatchdogTarget theTarget) {
-            // TODO: This should be made more robust then just
-            //       using toString()
-            triggerID = this.toString();
             theWatchdogTarget = theTarget;
+            
+            this.theTarget = new Runnable() {
+
+                public void run() {
+                    theWatchdogTarget.execute();
+                }
+            };
         }
 
+        private Runnable theTarget;
+        
         /**
          * Start this Watchdog, causing it to begin monitoring.  The Watchdog can
          * be stopped and restarted.
          */
-        public void start() {
-            PeriodicTimeTrigger theTrigger = new PeriodicTimeTrigger((int)SchedulerWatchdogFactory.this.timeout, -1);
-            Target theTarget = new Target() {
-                                    public void targetTriggered(String targetID) {
-                                        theWatchdogTarget.execute();
-                                    }
-                               };
-            SchedulerWatchdogFactory.this.myTimeScheduler.addTrigger(triggerID, theTrigger, theTarget);
+        public void start() {            
+            future = SchedulerWatchdogFactory.this.myTimeScheduler.schedule(theTarget, SchedulerWatchdogFactory.this.timeout, TimeUnit.MILLISECONDS);
+
         }
 
         /**
@@ -132,7 +134,8 @@ public class SchedulerWatchdogFactory implements WatchdogFactory {
          * (time to expiration, etc.) to their original values
          */
         public void reset() {
-            SchedulerWatchdogFactory.this.myTimeScheduler.resetTrigger(triggerID);
+            future.cancel(false);
+            future = SchedulerWatchdogFactory.this.myTimeScheduler.schedule(theTarget, SchedulerWatchdogFactory.this.timeout, TimeUnit.MILLISECONDS);
         }
 
         /**
@@ -140,7 +143,7 @@ public class SchedulerWatchdogFactory implements WatchdogFactory {
          * can be restarted with a call to startWatchdog.
          */
         public void stop() {
-            SchedulerWatchdogFactory.this.myTimeScheduler.removeTrigger(triggerID);
+            future.cancel(false);
         }
     }
 

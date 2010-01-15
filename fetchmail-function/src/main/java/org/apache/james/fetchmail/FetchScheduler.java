@@ -24,13 +24,14 @@ package org.apache.james.fetchmail;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
-import org.apache.avalon.cornerstone.services.scheduler.PeriodicTimeTrigger;
-import org.apache.avalon.cornerstone.services.scheduler.TimeScheduler;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
@@ -57,14 +58,14 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
     /**
      * The scheduler service that is used to trigger fetch tasks.
      */
-    private TimeScheduler scheduler;
+    private ScheduledExecutorService scheduler;
 
     /**
      * Whether this service is enabled.
      */
     private volatile boolean enabled = false;
 
-    private ArrayList<String> theFetchTaskNames = new ArrayList<String>();
+    private List<ScheduledFuture<?>> schedulers = new ArrayList<ScheduledFuture<?>>();
 
 
     private DNSService dns;
@@ -79,7 +80,7 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
     private Log logger;
 
     @Resource(name="scheduler")
-    public void setTimeScheduler(TimeScheduler scheduler) {
+    public void setScheduledExecutorService(ScheduledExecutorService scheduler) {
         this.scheduler = scheduler;
     }
 
@@ -123,8 +124,7 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
             {
                 // read configuration
                 HierarchicalConfiguration fetchConf = fetchConfs.get(i);
-                String fetchTaskName = fetchConf.getString("[@name]");
-                Integer interval = new Integer(fetchConf.getInt("interval"));
+                Long interval = fetchConf.getLong("interval");
 
                 FetchMail fetcher = new FetchMail();
                 fetcher.setLog(logger);
@@ -132,15 +132,8 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
                 fetcher.setDNSService(dns);
                 fetcher.setMailServer(mailserver);
                 fetcher.setUsersRepository(urepos);
-                // avalon specific initialization
-               // ContainerUtil.enableLogging(fetcher,getLogger().getChildLogger(fetchTaskName));
-
-
                 // initialize scheduling
-                PeriodicTimeTrigger fetchTrigger =
-                        new PeriodicTimeTrigger(0, interval.intValue());
-                scheduler.addTrigger(fetchTaskName, fetchTrigger, fetcher);
-                theFetchTaskNames.add(fetchTaskName);
+                schedulers.add(scheduler.scheduleWithFixedDelay(fetcher, 0, interval, TimeUnit.MILLISECONDS));
             }
 
             if (logger.isInfoEnabled()) logger.info("FetchMail Started");
@@ -159,10 +152,10 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
         if (enabled)
         {
             logger.info("FetchMail dispose...");
-            Iterator<String> nameIterator = theFetchTaskNames.iterator();
-            while (nameIterator.hasNext())
+            Iterator<ScheduledFuture<?>> schedulersIt = schedulers.iterator();
+            while (schedulersIt.hasNext())
             {
-                scheduler.removeTrigger(nameIterator.next());
+                schedulersIt.next().cancel(false);
             }
             logger.info("FetchMail ...dispose end");
         }

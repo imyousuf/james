@@ -35,7 +35,6 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 
-import org.apache.avalon.cornerstone.services.scheduler.Target;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
@@ -74,7 +73,7 @@ import org.apache.james.services.MailServer;
  * <p>Creation Date: 24-May-03</p>
  * 
  */
-public class FetchMail implements Target, LogEnabled, Configurable {
+public class FetchMail implements Runnable, LogEnabled, Configurable {
     /**
      * Key fields for DynamicAccounts.
      */
@@ -499,9 +498,8 @@ public class FetchMail implements Target, LogEnabled, Configurable {
     /**
      * Method target triggered fetches mail for each configured account.
      * 
-     * @see org.apache.avalon.cornerstone.services.scheduler.Target#targetTriggered(String)
      */
-    public void targetTriggered(String arg0)
+    public void run()
     {
         // if we are already fetching then just return
         if (isFetching())
