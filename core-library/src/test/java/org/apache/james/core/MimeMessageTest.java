@@ -146,6 +146,7 @@ public class MimeMessageTest extends TestCase {
             +"------=_Part_0_XXXXXXXXXXX.XXXXXXXXXXX--\r\n";
     }
     
+    
     protected String getMultipartMessageExpected2() {
         return "Subject: test\r\n"
             +"MIME-Version: 1.0\r\n"
@@ -166,8 +167,13 @@ public class MimeMessageTest extends TestCase {
             +"second part =E8=E8\r\n"
             +"------=_Part_0_XXXXXXXXXXX.XXXXXXXXXXX\r\n"
             +"Subject: test3\r\n"
-            +"Content-Transfer-Encoding: 7bit\r\n"
-            +"Content-Type: text/plain; charset=us-ascii\r\n"
+            
+            // javamail 1.4.3 NOTES:
+            // this headers don't get added by version 1.4.3 
+            //which should be the right behavoir anyway
+            //+"Content-Transfer-Encoding: 7bit\r\n"
+            //+"Content-Type: text/plain; charset=us-ascii\r\n"
+            
             +"\r\n"
             +"second part\r\n"
             +"------=_Part_0_XXXXXXXXXXX.XXXXXXXXXXX--\r\n";
