@@ -40,6 +40,7 @@ public class QuitCmdHandler implements CommandHandler {
     public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
         RemoteManagerResponse response = new RemoteManagerResponse("Bye");
         response.setEndSession(true);
+        
         return response;
     }
 

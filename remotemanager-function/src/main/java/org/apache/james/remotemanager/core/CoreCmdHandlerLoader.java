@@ -67,13 +67,13 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
     private final static String USERCMDHANDLER = UserCmdHandler.class.getName();
     private final static String VERIFYCMDHANDLER = VerifyCmdHandler.class.getName();
     private final static String COMMANDDISPATCHER = RemoteManagerCommandDispatcherLineHandler.class.getName();
-    private final static String WELCOMEMESSAGEHANDLER = WelcomeHandler.class.getName();
+    private final static String AUTHORIZATIONHANDLER = AuthorizationHandler.class.getName();
 
     public CoreCmdHandlerLoader() {
         // Insert the base commands in the Map
-        commands.add(WELCOMEMESSAGEHANDLER);
         commands.add(COMMANDDISPATCHER);
-        
+        commands.add(AUTHORIZATIONHANDLER);
+
         commands.add(ADDDOMAINCMDHANDLER);
         commands.add(ADDHAMCMDHANDLER);
         commands.add(ADDMAPPINGCMDHANDLER);
