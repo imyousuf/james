@@ -53,10 +53,6 @@
       <artifactId>james-server-core-library</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.avalon.cornerstone.scheduler</groupId>
-      <artifactId>cornerstone-scheduler-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency> 

@@ -395,11 +395,7 @@
       <artifactId>cornerstone-sockets-impl</artifactId>
       <scope>runtime</scope>
     </dependency> 
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.scheduler</groupId>
-      <artifactId>cornerstone-scheduler-impl</artifactId>
-      <scope>runtime</scope>
-    </dependency> 
+    
 	<dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
