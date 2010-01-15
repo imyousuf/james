@@ -22,7 +22,6 @@ package org.apache.james.remotemanager;
 import java.util.Map;
 
 import org.apache.james.api.protocol.LogEnabledSession;
-import org.apache.james.socket.api.Watchdog;
 
 public interface RemoteManagerSession extends LogEnabledSession{
 
@@ -30,14 +29,6 @@ public interface RemoteManagerSession extends LogEnabledSession{
     public final static String HEADER_IDENTIFIER = "header=";
     public final static String REGEX_IDENTIFIER = "regex=";
     public final static String KEY_IDENTIFIER = "key=";
-    
-
-    /**
-     * Return state map which should get used to store temporary data 
-     * 
-     * @return stateMap
-     */
-    public Map<Object,Object> getState();
     
     /**
      * Write response to client
@@ -48,9 +39,16 @@ public interface RemoteManagerSession extends LogEnabledSession{
 	
     
     /**
-     * Return the Watchdog
-     * 
-     * @return watchdog
+     * Put a new line handler in the chain
+     * @param overrideCommandHandler
      */
-    public Watchdog getWatchdog();
+    public void pushLineHandler(LineHandler overrideCommandHandler);
+    
+    /**
+     * Pop the last command handler 
+     */
+    public void popLineHandler();
+    
+    
+    public Map<String,String> getAdministrativeAccountData();
 }

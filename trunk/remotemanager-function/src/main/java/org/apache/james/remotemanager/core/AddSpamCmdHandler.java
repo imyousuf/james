@@ -82,7 +82,7 @@ public class AddSpamCmdHandler implements CommandHandler{
         try {
             
             // stop watchdog cause feeding can take some time
-            session.getWatchdog().stop();
+            //session.getWatchdog().stop();
             
             if (args[0].equalsIgnoreCase("DIR")) {
                 count = bayesianAnalyzerManagement.addSpamFromDir(args[1]);
@@ -98,7 +98,7 @@ public class AddSpamCmdHandler implements CommandHandler{
             session.getLogger().error("Error on feeding BayesianAnalysis: " + e);
             response = new RemoteManagerResponse("Error on feeding BayesianAnalysis: " + e);
         } finally {
-            session.getWatchdog().start();
+            //session.getWatchdog().start();
         }
     
         return response;

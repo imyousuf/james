@@ -33,7 +33,6 @@ import org.apache.james.api.protocol.ProtocolHandlerChain;
 import org.apache.james.socket.api.CRLFTerminatedReader;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.api.ProtocolHandler;
-import org.apache.james.socket.api.Watchdog;
 
 
 /**
@@ -49,7 +48,7 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
     private final RemoteManagerHandlerConfigurationData theConfigData;
     private ProtocolContext context;
    
-    private Map<Object,Object> stateMap = new HashMap<Object, Object>();
+    private Map<String,Object> stateMap = new HashMap<String, Object>();
 
     private boolean sessionEnded;
 
@@ -72,6 +71,9 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
     public void handleProtocol(ProtocolContext context) throws IOException {
         this.context = context;
         sessionEnded = false;
+
+        context.getWatchdog().start();
+
         getState().put(RemoteManagerSession.CURRENT_USERREPOSITORY, "LocalUsers");
 
 
@@ -86,37 +88,6 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
             }
         }
 
-        context.writeLoggedResponse("Please enter your login and password");
-        String login = null;
-        String password = null;
-        do {
-            if (login != null) {
-                final String message = "Login failed for " + login;
-                context.writeLoggedFlushedResponse(message);
-            }
-            context.writeLoggedFlushedResponse("Login id:");
-            login = context.getInputReader().readLine().trim();
-            context.writeLoggedFlushedResponse("Password:");
-            password = context.getInputReader().readLine().trim();
-        } while (!password.equals(theConfigData.getAdministrativeAccountData().get(login)) || password.length() == 0);
-
-        StringBuilder messageBuffer =
-            new StringBuilder(64)
-                    .append("Welcome ")
-                    .append(login)
-                    .append(". HELP for a list of commands");
-        context.getOutputWriter().println( messageBuffer.toString() );
-        context.getOutputWriter().flush();
-        if (context.getLogger().isInfoEnabled()) {
-            StringBuilder infoBuffer =
-                new StringBuilder(128)
-                        .append("Login for ")
-                        .append(login)
-                        .append(" successful");
-            context.getLogger().info(infoBuffer.toString());
-        }
-
-        context.getWatchdog().start();
         while(!sessionEnded) {
             String line = null;
             // parse the command
@@ -134,9 +105,8 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
           }
 
           if (lineHandlers.size() > 0) {
-              context.getOutputWriter().print(theConfigData.getPrompt());
-              context.getOutputWriter().flush();
-              
+              //context.getOutputWriter().print(theConfigData.getPrompt());
+              //context.getOutputWriter().flush();
               ((LineHandler) lineHandlers.getLast()).onLine(this, line);
           } else {
               sessionEnded = true;
@@ -145,15 +115,6 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
           
         }
         context.getWatchdog().stop();
-        if (context.getLogger().isInfoEnabled()) {
-            StringBuilder infoBuffer =
-                new StringBuilder(64)
-                        .append("Logout for ")
-                        .append(login)
-                        .append(".");
-            context.getLogger().info(infoBuffer.toString());
-        }
-       
     }
 
     /**
@@ -171,7 +132,7 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
         sessionEnded = true;
         
         // clear the state map
-        getState().clear();
+        resetState();
         
         // empty any previous line handler and add self (command dispatcher)
         // as the default.
@@ -188,20 +149,12 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
         return context.getLogger();
     }
 
-    /**
+    /*
      * (non-Javadoc)
-     * @see org.apache.james.remotemanager.RemoteManagerSession#getState()
+     * @see org.apache.james.api.protocol.LogEnabledSession#getState()
      */
-    public Map<Object, Object> getState() {
+    public Map<String, Object> getState() {
         return stateMap;
-    }
-
-    /**
-     * (non-Javadoc)
-     * @see org.apache.james.remotemanager.RemoteManagerSession#getWatchdog()
-     */
-    public Watchdog getWatchdog() {
-        return context.getWatchdog();
     }
 
     /**
@@ -226,6 +179,44 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
                 sessionEnded = true;
             }
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LogEnabledSession#resetState()
+     */
+    public void resetState() {
+        stateMap.clear();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.RemoteManagerSession#popLineHandler()
+     */
+    public void popLineHandler() {
+        if (lineHandlers != null) {
+            lineHandlers.removeLast();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.RemoteManagerSession#pushLineHandler(org.apache.james.remotemanager.LineHandler)
+     */
+    public void pushLineHandler(LineHandler lineHandler) {
+        if (lineHandlers == null) {
+            lineHandlers = new LinkedList<LineHandler>();
+        }
+        lineHandlers.addLast(lineHandler);
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.remotemanager.RemoteManagerSession#getAdministrativeAccountData()
+     */
+    public Map<String, String> getAdministrativeAccountData() {
+        return theConfigData.getAdministrativeAccountData();
     }
 
 

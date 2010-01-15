@@ -19,6 +19,8 @@
 
 package org.apache.james.api.protocol;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 
 public interface LogEnabledSession {
@@ -27,4 +29,17 @@ public interface LogEnabledSession {
      * @return log, not null
      */
     public Log getLogger();
+    
+    
+    /**
+     * Return Map which can be used to store objects within a session
+     * 
+     * @return state
+     */
+    public Map<String, Object> getState();
+    
+    /**
+     * Reset the state
+     */
+    public void resetState();
 }

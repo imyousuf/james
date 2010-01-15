@@ -108,7 +108,9 @@ public class RemoteManagerTest extends TestCase {
         setUpServiceManager();
         
         handlerFactory.setLoader(serviceManager);
-        handlerFactory.setLog(new SimpleLog("MockLog"));
+        SimpleLog log = new SimpleLog("MockLog");
+        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
+        handlerFactory.setLog(log);
         handlerFactory.setMailServer(mailServer);
         handlerFactory.setDNSService(dnsservice);
         

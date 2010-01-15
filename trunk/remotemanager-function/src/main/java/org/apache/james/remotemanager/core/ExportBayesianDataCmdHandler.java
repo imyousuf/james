@@ -70,7 +70,7 @@ public class ExportBayesianDataCmdHandler  implements CommandHandler{
 
         try {
             // stop watchdog cause feeding can take some time
-            session.getWatchdog().stop();
+            // session.getWatchdog().stop();
             
             bayesianAnalyzerManagement.exportData(parameters);
             response = new RemoteManagerResponse("Exported the BayesianAnalysis data");
@@ -78,7 +78,7 @@ public class ExportBayesianDataCmdHandler  implements CommandHandler{
             session.getLogger().error("Error on exporting BayesianAnalysis data: " + e);
             response = new RemoteManagerResponse("Error on exporting BayesianAnalysis data: " + e);
         } finally {
-            session.getWatchdog().start();
+            //session.getWatchdog().start();
         }
         return response;
     }

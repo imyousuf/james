@@ -64,7 +64,7 @@ public class ResetBayesianDataCmdHandler implements CommandHandler{
         RemoteManagerResponse response;
         try {           
             // stop watchdog cause feeding can take some time
-            session.getWatchdog().stop();
+            //session.getWatchdog().stop();
             
             bayesianAnalyzerManagement.resetData();
             response = new RemoteManagerResponse("Reseted the BayesianAnalysis data");
@@ -73,7 +73,7 @@ public class ResetBayesianDataCmdHandler implements CommandHandler{
             session.getLogger().error("Error on reseting BayesianAnalysis data: " + e);
             response = new RemoteManagerResponse("Error on reseting BayesianAnalysis data: " + e);
         } finally {
-            session.getWatchdog().start();
+            //session.getWatchdog().start();
         }
     
         return response;

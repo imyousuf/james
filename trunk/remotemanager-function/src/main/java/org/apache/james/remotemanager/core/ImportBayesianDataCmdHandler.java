@@ -70,7 +70,7 @@ public class ImportBayesianDataCmdHandler implements CommandHandler{
 
         try {
             // stop watchdog cause feeding can take some time
-            session.getWatchdog().stop();
+            //session.getWatchdog().stop();
             
             bayesianAnalyzerManagement.importData(parameters);
             response = new RemoteManagerResponse("Imported the BayesianAnalysis data");
@@ -79,7 +79,7 @@ public class ImportBayesianDataCmdHandler implements CommandHandler{
             session.getLogger().error("Error on importing BayesianAnalysis data: " + e);
             response = new RemoteManagerResponse("Error on importing BayesianAnalysis data: " + e);
         } finally {
-            session.getWatchdog().start();
+            //session.getWatchdog().start();
         }
     
         return response;
