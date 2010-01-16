@@ -180,6 +180,12 @@
 	<bean id="remotemanager" class="org.apache.james.remotemanager.RemoteManagerMBeanImpl">
 		<property name="protocolServer" ref="remotemanager.protocolserver" />
 	</bean>
+
+	<!-- Async RemoteManager -->
+	<!-- enable this to use the MINA based RemoteManager Server which uses NIO -->
+	<!--
+	<bean id="remotemanager" class="org.apache.james.remotemanager.mina.AsyncRemoteManager" />
+	-->
 	
 	<!-- The User Management block  -->
 	<bean id="usermanagement" class="org.apache.james.impl.user.UserManagement" />
