@@ -125,6 +125,7 @@
         </executions>
       </plugin>
       <!--  be sure to start up james before run it -->
+      <!--  
        <plugin>
         <groupId>org.apache.james</groupId>
         <artifactId>maven-mpt-plugin</artifactId>
@@ -191,6 +192,7 @@
          
         </configuration>
       </plugin>
+      -->
     </plugins>
   </build>
   
