@@ -25,11 +25,14 @@ import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerMBean;
+import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
+import org.apache.james.remotemanager.mina.filter.RemoteManagerResponseFilter;
+import org.apache.james.remotemanager.mina.filter.RemoteManagerValidationFilter;
 import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
+import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 
 public class AsyncRemoteManager extends AbstractAsyncServer implements RemoteManagerMBean{
@@ -64,11 +67,22 @@ public class AsyncRemoteManager extends AbstractAsyncServer implements RemoteMan
         }
     }
 
+    
     @Override
     protected void preInit() throws Exception {
         prepareHandlerChain();
     }
 
+    
+    protected DefaultIoFilterChainBuilder createIoFilterChainBuilder() {
+        DefaultIoFilterChainBuilder builder = super.createIoFilterChainBuilder();
+        
+        // response and validation filter to the chain
+        builder.addLast(RemoteManagerResponseFilter.NAME, new RemoteManagerResponseFilter());
+        builder.addLast("requestValidationFilter", new RemoteManagerValidationFilter(getLogger()));
+        return builder;
+    }
+    
     
     private void prepareHandlerChain() throws Exception {
         
@@ -80,7 +94,7 @@ public class AsyncRemoteManager extends AbstractAsyncServer implements RemoteMan
         handlerChain = getLoader().load(ProtocolHandlerChainImpl.class, getLogger(), jamesConfiguration);
     }
 
-
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.remotemanager.RemoteManagerMBean#getNetworkInterface()

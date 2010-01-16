@@ -92,15 +92,15 @@ public class RemoteManagerTest extends TestCase {
     protected InternetPrintWriter m_writer;
     protected TelnetClient m_telnetClient;
     private MockUsersRepository m_mockUsersRepository;
-    private MockMailServer mailServer;
+    protected MockMailServer mailServer;
     protected FakeLoader serviceManager;
     private SimpleConnectionManager connectionManager;
-    private MockUsersStore usersStore;
+    protected MockUsersStore usersStore;
     private MockSocketManager socketManager;
     private MockThreadManager threadManager;
-    private DNSService dnsservice;
-    private MockFileSystem filesystem;
-    private MockVirtualUserTableManagementService vutManagement;
+    protected DNSService dnsservice;
+    protected MockFileSystem filesystem;
+    protected MockVirtualUserTableManagementService vutManagement;
     private AvalonProtocolServer protoserver;
     
     protected void setUp() throws Exception {

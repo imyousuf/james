@@ -69,7 +69,7 @@ public class DeleteSpoolCmdHandler implements CommandHandler {
      * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
      */
     public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
-        RemoteManagerResponse response;
+        RemoteManagerResponse response = null;
         String[] args = null;
         String parameters = request.getArgument();
         
@@ -106,10 +106,14 @@ public class DeleteSpoolCmdHandler implements CommandHandler {
             } else {
                 count = spoolManagement.removeSpoolItems(url, key, lockingFailures, new SpoolFilter(SpoolFilter.ERROR_STATE, header, regex));
             }
-            response = new RemoteManagerResponse();
             for (Iterator<String> iterator = lockingFailures.iterator(); iterator.hasNext();) {
                 String lockFailureKey = iterator.next();
-                response.appendLine("Error locking the mail with key:  " + lockFailureKey);
+                String errorMsg= "Error locking the mail with key:  " + lockFailureKey;
+                if (response == null) {
+                    response = new RemoteManagerResponse(errorMsg);
+                } else {
+                    response.appendLine(errorMsg);
+                }
             }
 
             response.appendLine("Number of deleted mails: " + count);

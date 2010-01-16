@@ -44,10 +44,7 @@ public class RemoteManagerValidationFilter extends AbstractValidationFilter{
 
     @Override
     protected boolean isValidRequest(Object requestObject) {
-        if (requestObject instanceof RemoteManagerRequest) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     @Override

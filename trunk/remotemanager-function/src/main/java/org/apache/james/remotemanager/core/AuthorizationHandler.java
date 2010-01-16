@@ -24,13 +24,15 @@ import org.apache.james.remotemanager.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
-public class AuthorizationHandler implements ConnectHandler, LineHandler {
+public class AuthorizationHandler implements ConnectHandler {
 
     private final static String AUTHORIZATION_STATE = "AUTHORIZATION_STATE";
     private final static int LOGIN_SUPPLIED = 1;
     private final static int PASSWORD_SUPPLIED = 2;
 
     private final static String USERNAME = "USERNAME";
+    
+    private final LineHandler lineHandler = new AuthorizationLineHandler();
 
     /*
      * (non-Javadoc)
@@ -46,9 +48,11 @@ public class AuthorizationHandler implements ConnectHandler, LineHandler {
         response.appendLine("Login id:");
 
         session.writeRemoteManagerResponse(response);
-
+        session.pushLineHandler(lineHandler);
         session.getState().put(AUTHORIZATION_STATE, LOGIN_SUPPLIED);
     }
+    
+    private final class AuthorizationLineHandler implements LineHandler {
 
     /*
      * (non-Javadoc)
@@ -83,6 +87,7 @@ public class AuthorizationHandler implements ConnectHandler, LineHandler {
             }
             session.getState().remove(USERNAME);
         }
+    }
     }
 
 }
