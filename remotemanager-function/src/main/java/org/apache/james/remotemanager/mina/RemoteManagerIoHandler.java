@@ -27,14 +27,12 @@ import org.apache.james.api.protocol.ProtocolHandlerChain;
 import org.apache.james.remotemanager.ConnectHandler;
 import org.apache.james.remotemanager.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
-import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 
 public class RemoteManagerIoHandler extends IoHandlerAdapter{
-    private final static String REMOTEMANAGER_SESSION = "org.apache.james.remotemanager.mina.RemoteManagerIoHandler.REMOTEMANAGER_SESSION";
     
     private Log logger;
     private ProtocolHandlerChain chain;
@@ -53,13 +51,12 @@ public class RemoteManagerIoHandler extends IoHandlerAdapter{
      */
     public void messageReceived(IoSession session, Object message)
             throws Exception {
-        RemoteManagerSession rSession = (RemoteManagerSession) session.getAttribute(REMOTEMANAGER_SESSION);
+        RemoteManagerSession rSession = (RemoteManagerSession) session.getAttribute(RemoteManagerSessionImpl.REMOTEMANAGER_SESSION);
         LinkedList<LineHandler> lineHandlers = chain.getHandlers(LineHandler.class);
         if (lineHandlers.size() > 0) {
             // thats not really optimal but it allow us to keep things as generic as possible
             // Will prolly get refactored later
-            String line = ((RemoteManagerRequest) message).toString();
-            ((LineHandler) lineHandlers.getLast()).onLine(rSession, line);
+            ((LineHandler) lineHandlers.getLast()).onLine(rSession, (String) message);
         }
     }
 
@@ -80,9 +77,11 @@ public class RemoteManagerIoHandler extends IoHandlerAdapter{
      */
     public void sessionCreated(IoSession session) throws Exception {
         RemoteManagerSession rSession  = new RemoteManagerSessionImpl(config, logger, session);
+        rSession.getState().put(RemoteManagerSession.CURRENT_USERREPOSITORY, "LocalUsers");
 
         // Add attribute
-        session.setAttribute(REMOTEMANAGER_SESSION,rSession);
+        session.setAttribute(RemoteManagerSessionImpl.REMOTEMANAGER_SESSION,rSession);
+
     }
 
     /**
@@ -105,7 +104,7 @@ public class RemoteManagerIoHandler extends IoHandlerAdapter{
         if (connectHandlers != null) {
             for (int i = 0; i < connectHandlers.size(); i++) {
                 connectHandlers.get(i).onConnect(
-                        (RemoteManagerSession) session.getAttribute(REMOTEMANAGER_SESSION));
+                        (RemoteManagerSession) session.getAttribute(RemoteManagerSessionImpl.REMOTEMANAGER_SESSION));
             }
         }    
     }

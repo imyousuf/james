@@ -20,6 +20,7 @@ package org.apache.james.remotemanager.mina.filter;
 
 import org.apache.james.remotemanager.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerSession;
+import org.apache.james.remotemanager.mina.RemoteManagerSessionImpl;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 
@@ -29,8 +30,6 @@ import org.apache.mina.core.session.IoSession;
  * 
  */
 public final class FilterLineHandlerAdapter extends IoFilterAdapter {
-
-    public final static String REMOTEMANAGER_SESSION = "REMOTEMANAGER_SESSION";
 
     private LineHandler lineHandler;
 
@@ -43,7 +42,7 @@ public final class FilterLineHandlerAdapter extends IoFilterAdapter {
      */
     public void messageReceived(NextFilter arg0, IoSession session, Object arg2)
             throws Exception {
-        lineHandler.onLine((RemoteManagerSession) session.getAttribute(REMOTEMANAGER_SESSION),
+        lineHandler.onLine((RemoteManagerSession) session.getAttribute(RemoteManagerSessionImpl.REMOTEMANAGER_SESSION),
                 (((String) arg2)));
     }
 }

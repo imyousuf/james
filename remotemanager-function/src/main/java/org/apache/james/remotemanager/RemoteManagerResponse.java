@@ -41,10 +41,7 @@ public class RemoteManagerResponse {
      */
     public RemoteManagerResponse(CharSequence description) {
         this.rawLine = description.toString();
-    }
-  
-    public RemoteManagerResponse() {
-        
+        appendLine(description.toString());
     }
 
     /**

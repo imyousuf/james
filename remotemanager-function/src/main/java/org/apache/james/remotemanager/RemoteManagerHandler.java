@@ -163,10 +163,6 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
     public void writeRemoteManagerResponse(RemoteManagerResponse response) {
         // Write a single-line or multiline response
         if (response != null) {
-            if (response.getRawLine() != null) {
-                context.writeLoggedFlushedResponse(response.getRawLine());
-            } 
-            
             List<CharSequence> responseList = response.getLines();
             if (responseList != null) {
                 for (int k = 0; k < responseList.size(); k++) {

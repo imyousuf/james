@@ -28,6 +28,7 @@ import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.remotemanager.mina.filter.FilterLineHandlerAdapter;
+import org.apache.james.remotemanager.mina.filter.RemoteManagerResponseFilter;
 import org.apache.mina.core.session.IoSession;
 
 public class RemoteManagerSessionImpl implements RemoteManagerSession {
@@ -37,6 +38,9 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
     private RemoteManagerHandlerConfigurationData config;
     private int lineHandlerCount = 0;
 
+    public final static String REMOTEMANAGER_SESSION = "REMOTEMANAGER_SESSION";
+
+    
     public RemoteManagerSessionImpl(RemoteManagerHandlerConfigurationData config, Log logger, IoSession session) {
         this.logger = logger;
         this.session = session;
@@ -106,6 +110,6 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
      */
     public void pushLineHandler(LineHandler overrideCommandHandler) {
         lineHandlerCount++;
-        session.getFilterChain().addAfter("protocolCodecFactory", "lineHandler" + lineHandlerCount, new FilterLineHandlerAdapter(overrideCommandHandler));
+        session.getFilterChain().addAfter(RemoteManagerResponseFilter.NAME, "lineHandler" + lineHandlerCount, new FilterLineHandlerAdapter(overrideCommandHandler));
     }
 }

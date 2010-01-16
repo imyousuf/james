@@ -102,7 +102,7 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
         int spaceIndex = cmdString.indexOf(" ");
         if (spaceIndex > 0) {
             curCommandName = cmdString.substring(0, spaceIndex);
-            curCommandArgument = cmdString.substring(spaceIndex + 1);
+            curCommandArgument = cmdString.substring(spaceIndex + 1).trim();
         } else {
             curCommandName = cmdString;
         }
