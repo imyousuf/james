@@ -164,7 +164,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
           }
 
           if (lineHandlers.size() > 0) {
-              ((LineHandler) lineHandlers.getLast()).onLine(this, line);
+              ((LineHandler) lineHandlers.getLast()).onLine(this, new String(line,"US-ASCII"));
           } else {
               sessionEnded = true;
           }

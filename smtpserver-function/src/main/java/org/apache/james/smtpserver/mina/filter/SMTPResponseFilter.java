@@ -18,9 +18,6 @@
  ****************************************************************/
 package org.apache.james.smtpserver.mina.filter;
 
-import java.util.Locale;
-
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.socket.mina.filter.AbstractResponseFilter;
 import org.apache.mina.core.session.IoSession;
@@ -36,36 +33,7 @@ public class SMTPResponseFilter extends AbstractResponseFilter {
    
     private static final String SCHEDULE_CLOSE_ATTRIBUTE = SMTPResponseFilter.class.getName() + ".closeAttribute";
 
-    /**
-     * (non-Javadoc)
-     * @see org.apache.mina.core.filterchain.IoFilterAdapter#messageReceived(org.apache.mina.core.filterchain.IoFilter.NextFilter, org.apache.mina.core.session.IoSession, java.lang.Object)
-     */
-    public void messageReceived(NextFilter nextFilter, IoSession session,
-            Object message) throws Exception {
-        if (message instanceof String) {
-            String cmdString = (String) message;
-            if (cmdString != null) {
-                cmdString = cmdString.trim();
-            }
-
-            String curCommandArgument = null;
-            String curCommandName = null;
-            int spaceIndex = cmdString.indexOf(" ");
-            if (spaceIndex > 0) {
-                curCommandName = cmdString.substring(0, spaceIndex);
-                curCommandArgument = cmdString.substring(spaceIndex + 1);
-            } else {
-                curCommandName = cmdString;
-            }
-            curCommandName = curCommandName.toUpperCase(Locale.US);
-
-            nextFilter.messageReceived(session, new SMTPRequest(curCommandName,
-                    curCommandArgument));
-        } else {
-            super.messageReceived(nextFilter, session, message);
-        }
-    }
-
+    public final static String NAME = "smtpResponseFilter";
 
     /**
      * @see org.apache.mina.core.filterchain.IoFilterAdapter#filterWrite(org.apache.mina.core.filterchain.IoFilter.NextFilter, org.apache.mina.core.session.IoSession, org.apache.mina.core.write.WriteRequest)

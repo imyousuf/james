@@ -29,5 +29,5 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
  * being received.
  */
 public interface DataLineFilter {
-    void onLine(SMTPSession session, byte[] line, LineHandler next);
+    void onLine(SMTPSession session, String line, LineHandler next);
 }

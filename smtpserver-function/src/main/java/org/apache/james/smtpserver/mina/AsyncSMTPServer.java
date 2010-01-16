@@ -328,7 +328,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         DefaultIoFilterChainBuilder builder = super.createIoFilterChainBuilder();
         
         // response and validation filter to the chain
-        builder.addLast("smtpResponseFilter", new SMTPResponseFilter());
+        builder.addLast(SMTPResponseFilter.NAME, new SMTPResponseFilter());
         builder.addLast("requestValidationFilter", new SMTPValidationFilter(getLogger()));
         return builder;
     }
