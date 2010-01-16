@@ -40,11 +40,11 @@ public class ReceivedDataLineFilter implements DataLineFilter {
     private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
     private final static String HEADERS_WRITTEN = "HEADERS_WRITTEN";
 
-    /**
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession,
-     *      byte[], org.apache.james.smtpserver.protocol.LineHandler)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String, org.apache.james.smtpserver.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, byte[] line, LineHandler next) {
+    public void onLine(SMTPSession session,  String line, LineHandler next) {
         if (session.getState().containsKey(HEADERS_WRITTEN) == false) {
             addNewReceivedMailHeaders(session, next);
             session.getState().put(HEADERS_WRITTEN, true);
@@ -71,7 +71,7 @@ public class ReceivedDataLineFilter implements DataLineFilter {
 
         headerLineBuffer.append(" ([").append(session.getRemoteIPAddress())
                 .append("])").append("\r\n");
-        next.onLine(session, headerLineBuffer.toString().getBytes());
+        next.onLine(session, headerLineBuffer.toString());
         headerLineBuffer.delete(0, headerLineBuffer.length());
 
         headerLineBuffer.append("          by ").append(session.getHelloName())
@@ -102,7 +102,7 @@ public class ReceivedDataLineFilter implements DataLineFilter {
             // (prevents email address harvesting and large headers in
             // bulk email)
             headerLineBuffer.append("\r\n");
-            next.onLine(session, headerLineBuffer.toString().getBytes());
+            next.onLine(session, headerLineBuffer.toString());
             headerLineBuffer.delete(0, headerLineBuffer.length());
 
             headerLineBuffer.delete(0, headerLineBuffer.length());
@@ -110,7 +110,7 @@ public class ReceivedDataLineFilter implements DataLineFilter {
                     ((List) session.getState().get(SMTPSession.RCPT_LIST)).get(
                             0).toString()).append(">;").append("\r\n");
 
-            next.onLine(session, headerLineBuffer.toString().getBytes());
+            next.onLine(session, headerLineBuffer.toString());
             headerLineBuffer.delete(0, headerLineBuffer.length());
 
             headerLineBuffer.delete(0, headerLineBuffer.length());
@@ -118,11 +118,11 @@ public class ReceivedDataLineFilter implements DataLineFilter {
             // Put the ; on the end of the 'by' line
             headerLineBuffer.append(";");
             headerLineBuffer.append("\r\n");
-            next.onLine(session, headerLineBuffer.toString().getBytes());
+            next.onLine(session, headerLineBuffer.toString());
             headerLineBuffer.delete(0, headerLineBuffer.length());
         }
         headerLineBuffer = null;
         next.onLine(session, ("          "
-                + rfc822DateFormat.format(new Date()) + "\r\n").getBytes());
+                + rfc822DateFormat.format(new Date()) + "\r\n"));
     }
 }

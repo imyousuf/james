@@ -30,6 +30,6 @@ public interface LineHandler {
      * @param session not null
      * @param line not null 
      */
-    void onLine(SMTPSession session, byte[] line);
+    void onLine(SMTPSession session, String line);
     
 }

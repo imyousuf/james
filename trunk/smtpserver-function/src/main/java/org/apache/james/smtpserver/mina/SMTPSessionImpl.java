@@ -28,6 +28,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.smtpserver.mina.filter.FilterLineHandlerAdapter;
+import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.smtpserver.mina.filter.TarpitFilter;
 import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
@@ -38,6 +39,7 @@ import org.apache.mina.core.session.IoSession;
 
 public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession {
 
+        public final static String SMTP_SESSION = "SMTP_SESSION";
         private static Random random = new Random();
 
         private boolean relayingAllowed;
@@ -58,7 +60,6 @@ public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession 
             smtpID = random.nextInt(1024) + "";
 
             relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());
-            session.setAttribute(FilterLineHandlerAdapter.SMTP_SESSION, this);
         }
 
         public SMTPSessionImpl(SMTPConfiguration theConfigData,
@@ -129,7 +130,7 @@ public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession 
          */
         public void pushLineHandler(LineHandler overrideCommandHandler) {
             lineHandlerCount++;
-            getIoSession().getFilterChain().addAfter("protocolCodecFactory",
+            getIoSession().getFilterChain().addAfter(SMTPResponseFilter.NAME,
                     "lineHandler" + lineHandlerCount,
                     new FilterLineHandlerAdapter(overrideCommandHandler));
         }

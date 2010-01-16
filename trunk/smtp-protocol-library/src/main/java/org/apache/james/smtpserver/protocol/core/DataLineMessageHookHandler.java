@@ -54,13 +54,14 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
     
     private List rHooks;
     
-    /**
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.smtpserver.protocol.LineHandler)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String, org.apache.james.smtpserver.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, byte[] line, LineHandler next) {
+    public void onLine(SMTPSession session, String rawLine, LineHandler next) {
         MailEnvelopeImpl env = (MailEnvelopeImpl) session.getState().get(DataCmdHandler.MAILENV);
         OutputStream out = env.getMessageOutputStream();
-        
+        byte[] line = rawLine.getBytes();
         try {
             // 46 is "."
             // Stream terminated

@@ -45,7 +45,8 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
         /**
          * @see org.apache.james.smtpserver.protocol.LineHandler#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[])
          */
-        public void onLine(SMTPSession session, byte[] line) {
+        public void onLine(SMTPSession session, String rawLine) {
+            byte[] line = rawLine.getBytes();
             // Discard everything until the end of DATA session
             if (line.length == 3 && line[0] == 46) {
                 session.popLineHandler();
@@ -62,7 +63,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
             this.filter = filter;
             this.next = next;
         }
-        public void onLine(SMTPSession session, byte[] line) {
+        public void onLine(SMTPSession session, String line) {
             filter.onLine(session, line, next);
         }
                 

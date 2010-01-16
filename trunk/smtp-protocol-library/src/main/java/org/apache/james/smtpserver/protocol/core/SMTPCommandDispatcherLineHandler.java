@@ -19,7 +19,6 @@
 
 package org.apache.james.smtpserver.protocol.core;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,60 +50,52 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
 
 
-    /**
-     * @see org.apache.james.smtpserver.protocol.LineHandler#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[])
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.LineHandler#onLine(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String)
      */
-    public void onLine(SMTPSession session, byte[] line) {
-        String cmdString;
-        try {
-            cmdString = new String(line, "US-ASCII");
-            if (cmdString != null) {
-                cmdString = cmdString.trim();
-            }
-            
-            String curCommandArgument = null;
-            String curCommandName = null;
-            int spaceIndex = cmdString.indexOf(" ");
-            if (spaceIndex > 0) {
-                curCommandName = cmdString.substring(0, spaceIndex);
-                curCommandArgument = cmdString.substring(spaceIndex + 1);
-            } else {
-                curCommandName = cmdString;
-            }
-            curCommandName = curCommandName.toUpperCase(Locale.US);
+    public void onLine(SMTPSession session, String cmdString) {
+        if (cmdString != null) {
+            cmdString = cmdString.trim();
+        }
 
-            List<CommandHandler> commandHandlers = getCommandHandlers(curCommandName, session);
-            //fetch the command handlers registered to the command
-            if(commandHandlers == null) {
-                //end the session
-                SMTPResponse resp = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Local configuration error: unable to find a command handler.");
-                resp.setEndSession(true);
-                session.writeSMTPResponse(resp);
-            } else {
-                int count = commandHandlers.size();
-                for(int i = 0; i < count; i++) {
-                    SMTPResponse response = commandHandlers.get(i).onCommand(session, new SMTPRequest(curCommandName,curCommandArgument));
-                    
-                    session.writeSMTPResponse(response);
-                    
-                    //if the response is received, stop processing of command handlers
-                    if(response != null) {
-                        break;
-                    }
-                    
-                    // NOTE we should never hit this line, otherwise we ended the CommandHandlers with
-                    // no responses.
-                    // (The note is valid for i == count-1) 
-                }
+        String curCommandArgument = null;
+        String curCommandName = null;
+        int spaceIndex = cmdString.indexOf(" ");
+        if (spaceIndex > 0) {
+            curCommandName = cmdString.substring(0, spaceIndex);
+            curCommandArgument = cmdString.substring(spaceIndex + 1);
+        } else {
+            curCommandName = cmdString;
+        }
+        curCommandName = curCommandName.toUpperCase(Locale.US);
 
-            }        
-        } catch (UnsupportedEncodingException e) {
-            // This should never happen, anyway return a error message and disconnect is prolly the best thing todo here
-            session.getLogger().error("Unable to parse line",e);
-            //end the session
-            SMTPResponse resp = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to parse line.");
+        List<CommandHandler> commandHandlers = getCommandHandlers(curCommandName, session);
+        // fetch the command handlers registered to the command
+        if (commandHandlers == null) {
+            // end the session
+            SMTPResponse resp = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Local configuration error: unable to find a command handler.");
             resp.setEndSession(true);
             session.writeSMTPResponse(resp);
+        } else {
+            int count = commandHandlers.size();
+            for (int i = 0; i < count; i++) {
+                SMTPResponse response = commandHandlers.get(i).onCommand(session, new SMTPRequest(curCommandName, curCommandArgument));
+
+                session.writeSMTPResponse(response);
+
+                // if the response is received, stop processing of command
+                // handlers
+                if (response != null) {
+                    break;
+                }
+
+                // NOTE we should never hit this line, otherwise we ended the
+                // CommandHandlers with
+                // no responses.
+                // (The note is valid for i == count-1)
+            }
+
         }
     }
 

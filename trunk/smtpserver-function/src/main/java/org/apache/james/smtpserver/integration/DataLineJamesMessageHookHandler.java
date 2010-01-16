@@ -96,10 +96,11 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     /**
      * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.smtpserver.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, byte[] line, LineHandler next) {
+    public void onLine(SMTPSession session, String rawline, LineHandler next) {
         MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE);
         OutputStream out = (OutputStream)  session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_OUTPUTSTREAM);
         try {
+            byte[] line = rawline.getBytes();
             // 46 is "."
             // Stream terminated
             if (line.length == 3 && line[0] == 46) {

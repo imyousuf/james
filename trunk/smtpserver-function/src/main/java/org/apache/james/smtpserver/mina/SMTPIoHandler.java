@@ -27,7 +27,6 @@ import org.apache.james.api.protocol.ProtocolHandlerChain;
 import org.apache.james.smtpserver.protocol.ConnectHandler;
 import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
@@ -39,9 +38,7 @@ import org.apache.mina.filter.ssl.SslContextFactory;
  * 
  *
  */
-public class SMTPIoHandler extends IoHandlerAdapter{
-    private final static String SMTP_SESSION = "org.apache.james.smtpserver.mina.SMTPIoHandler.SMTP_SESSION";
-    
+public class SMTPIoHandler extends IoHandlerAdapter{    
     private Log logger;
     private ProtocolHandlerChain chain;
     private SMTPConfiguration conf;
@@ -75,13 +72,10 @@ public class SMTPIoHandler extends IoHandlerAdapter{
      */
     public void messageReceived(IoSession session, Object message)
             throws Exception {
-        SMTPSession smtpSession = (SMTPSession) session.getAttribute(SMTP_SESSION);
+        SMTPSession smtpSession = (SMTPSession) session.getAttribute(SMTPSessionImpl.SMTP_SESSION);
         LinkedList<LineHandler> lineHandlers = chain.getHandlers(LineHandler.class);
         if (lineHandlers.size() > 0) {
-            // thats not really optimal but it allow us to keep things as generic as possible
-            // Will prolly get refactored later
-            byte[] line = ((SMTPRequest) message).toString().getBytes("US-ASCII");
-            ((LineHandler) lineHandlers.getLast()).onLine(smtpSession, line);
+            ((LineHandler) lineHandlers.getLast()).onLine(smtpSession, (String) message);
         }
     }
 
@@ -109,7 +103,7 @@ public class SMTPIoHandler extends IoHandlerAdapter{
         }
         // Add attributes
 
-        session.setAttribute(SMTP_SESSION,smtpSession);
+        session.setAttribute(SMTPSessionImpl.SMTP_SESSION,smtpSession);
     }
 
     /**
@@ -132,7 +126,7 @@ public class SMTPIoHandler extends IoHandlerAdapter{
         if (connectHandlers != null) {
             for (int i = 0; i < connectHandlers.size(); i++) {
                 connectHandlers.get(i).onConnect(
-                        (SMTPSession) session.getAttribute(SMTP_SESSION));
+                        (SMTPSession) session.getAttribute(SMTPSessionImpl.SMTP_SESSION));
             }
         }    
     }

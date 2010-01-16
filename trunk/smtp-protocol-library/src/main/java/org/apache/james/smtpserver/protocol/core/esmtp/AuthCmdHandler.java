@@ -21,7 +21,6 @@
 
 package org.apache.james.smtpserver.protocol.core.esmtp;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -59,21 +58,11 @@ public class AuthCmdHandler
 
     private abstract class AbstractSMTPLineHandler implements LineHandler {
 
-        public void onLine(SMTPSession session, byte[] line) {
-            try {
-                String l = new String(line, "US-ASCII");
-                SMTPResponse res = handleCommand(session, l);
-                session.popLineHandler();
-                session.writeSMTPResponse(res);
-            } catch (UnsupportedEncodingException e) {
-                // This should never happen, anyway return a error message and
-                // disconnect is prolly the best thing todo here
-                session.getLogger().error("Unable to parse line", e);
-                // end the session
-                SMTPResponse resp = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to parse line.");
-                resp.setEndSession(true);
-                session.writeSMTPResponse(resp);
-            }
+        public void onLine(SMTPSession session, String l) {
+            SMTPResponse res = handleCommand(session, l);
+            session.popLineHandler();
+            session.writeSMTPResponse(res);
+           
         }
 
         private SMTPResponse handleCommand(SMTPSession session, String line) {

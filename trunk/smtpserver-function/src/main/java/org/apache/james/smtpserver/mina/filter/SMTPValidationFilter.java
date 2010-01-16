@@ -19,7 +19,6 @@
 package org.apache.james.smtpserver.mina.filter;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.socket.mina.filter.AbstractValidationFilter;
@@ -53,10 +52,7 @@ public class SMTPValidationFilter extends AbstractValidationFilter{
      * @see org.apache.james.socket.mina.filter.AbstractValidationFilter#isValidRequest(java.lang.Object)
      */
     protected boolean isValidRequest(Object requestObject) {
-        if (requestObject instanceof SMTPRequest) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**
