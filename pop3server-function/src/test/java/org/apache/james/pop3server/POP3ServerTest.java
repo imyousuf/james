@@ -56,7 +56,6 @@ import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
-import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.mailet.MailAddress;
 
@@ -119,11 +118,10 @@ public class POP3ServerTest extends TestCase {
     protected void finishSetUp(POP3TestConfiguration testConfiguration)
             throws Exception {
         testConfiguration.init();
-        ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
-        m_pop3Server.configure(conf);
+        m_pop3Server.configure(testConfiguration);
         m_pop3Server.init();
         
-        protoserver.configure(conf);
+        protoserver.configure(testConfiguration);
         protoserver.init();
     }
 

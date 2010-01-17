@@ -86,7 +86,7 @@ public class VirtualUserTableTest extends TestCase{
         table.service(mail);
         
         assertEquals(3,mail.getRecipients().size());
-        Iterator it = mail.getRecipients().iterator();
+        Iterator<MailAddress> it = mail.getRecipients().iterator();
         assertEquals("whatever@localhost", ((MailAddress)it.next()).toString());
         assertEquals("blah@localhost", ((MailAddress)it.next()).toString());
         assertEquals("apache@localhost", ((MailAddress)it.next()).toString());

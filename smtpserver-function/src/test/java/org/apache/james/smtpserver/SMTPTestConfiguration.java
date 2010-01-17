@@ -21,18 +21,16 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.smtpserver.integration.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.protocol.core.fastfail.DNSRBLHandler;
 import org.apache.james.smtpserver.protocol.core.fastfail.MaxRcptHandler;
 import org.apache.james.smtpserver.protocol.core.fastfail.ResolvableEhloHeloHandler;
 import org.apache.james.smtpserver.protocol.core.fastfail.ReverseEqualsEhloHeloHandler;
 import org.apache.james.smtpserver.protocol.core.fastfail.ValidSenderDomainHandler;
-import org.apache.james.test.mock.util.AttrValConfiguration;
-import org.apache.james.test.util.Util;
 
-public class SMTPTestConfiguration extends DefaultConfiguration {
+public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
 
     private int m_smtpListenerPort;
     private int m_maxMessageSizeKB = 0;
@@ -55,8 +53,6 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
 
     
     public SMTPTestConfiguration(int smtpListenerPort) {
-        super("smptserver");
-
         m_smtpListenerPort = smtpListenerPort;
     }
     
@@ -147,86 +143,49 @@ public class SMTPTestConfiguration extends DefaultConfiguration {
     }
     public void init() throws ConfigurationException {
 
-        setAttribute("enabled", true);
+        addProperty("[@enabled]", true);
 
-        addChild(Util.getValuedConfiguration("port", "" + m_smtpListenerPort));
-        if (m_connectionLimit != null) addChild(Util.getValuedConfiguration("connectionLimit", "" + m_connectionLimit.intValue()));
-        if (m_connectionBacklog != null) addChild(Util.getValuedConfiguration("connectionBacklog", "" + m_connectionBacklog.intValue()));
+        addProperty("port", m_smtpListenerPort);
+        if (m_connectionLimit != null) addProperty("connectionLimit",  m_connectionLimit.intValue());
+        if (m_connectionBacklog != null) addProperty("connectionBacklog",  m_connectionBacklog.intValue());
         
-        DefaultConfiguration handlerConfig = new DefaultConfiguration("handler");
-        handlerConfig.addChild(Util.getValuedConfiguration("helloName", "myMailServer"));
-        handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout", "360000"));
-        handlerConfig.addChild(Util.getValuedConfiguration("authorizedAddresses", m_authorizedAddresses));
-        handlerConfig.addChild(Util.getValuedConfiguration("maxmessagesize", "" + m_maxMessageSizeKB));
-        handlerConfig.addChild(Util.getValuedConfiguration("authRequired", m_authorizingMode));
-        handlerConfig.addChild(Util.getValuedConfiguration("heloEhloEnforcement", m_heloEhloEnforcement+""));
-        handlerConfig.addChild(Util.getValuedConfiguration("addressBracketsEnforcement", m_addressBracketsEnforcement+""));
+        addProperty("handler.helloName", "myMailServer");
+        addProperty("handler.connectiontimeout", 360000);
+        addProperty("handler.authorizedAddresses", m_authorizedAddresses);
+        addProperty("handler.maxmessagesize",  m_maxMessageSizeKB);
+        addProperty("handler.authRequired", m_authorizingMode);
+        addProperty("handler.heloEhloEnforcement", m_heloEhloEnforcement);
+        addProperty("handler.addressBracketsEnforcement", m_addressBracketsEnforcement);
         
-        DefaultConfiguration tlsConfig = new DefaultConfiguration("startTLS");
-        tlsConfig.setAttribute("enable", m_startTLS);
-        tlsConfig.addChild(new AttrValConfiguration("keystore","file://conf/test_keystore"));
-        tlsConfig.addChild(new AttrValConfiguration("secret", "jamestest"));
-        addChild(tlsConfig);
-        
-        if (m_verifyIdentity) handlerConfig.addChild(Util.getValuedConfiguration("verifyIdentity", "" + m_verifyIdentity));
+        addProperty("startTLS.[@enable]", m_startTLS);
+        addProperty("startTLS.[@keystore]","file://conf/test_keystore");
+        addProperty("startTLS.[@secret]", "jamestest");        
+        if (m_verifyIdentity) addProperty("handler.verifyIdentity", m_verifyIdentity);
  
-        DefaultConfiguration config = new DefaultConfiguration("handlerchain");
-
         // add the rbl handler
         if (m_useRBL) {
-            DefaultConfiguration handler = new DefaultConfiguration("handler");
-            handler.setAttribute("class", DNSRBLHandler.class.getName());
-
-            DefaultConfiguration blacklist = new DefaultConfiguration(
-                    "blacklist");
-            blacklist.setValue("bl.spamcop.net.");
-            DefaultConfiguration rblServers = new DefaultConfiguration(
-                    "rblservers");
-            rblServers.addChild(blacklist);
-
-            handler.addChild(rblServers);
-            config.addChild(handler);
-
+            
+            addProperty("handler.handlerchain.handler.[@class]", DNSRBLHandler.class.getName());
+            addProperty("handler.handlerchain.handler.rblservers.blacklist","bl.spamcop.net.");
         }
         if (m_heloResolv || m_ehloResolv) {
-            DefaultConfiguration d = createHandler(
-                    ResolvableEhloHeloHandler.class.getName());
-            d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
-                    m_checkAuthNetworks + ""));
-            config.addChild(d);
+            addProperty("handler.handlerchain.handler.[@class]", ResolvableEhloHeloHandler.class.getName());
+            addProperty("handler.handlerchain.handler.checkAuthNetworks", m_checkAuthNetworks);
         }
         if (m_reverseEqualsHelo || m_reverseEqualsEhlo) {
-            DefaultConfiguration d = createHandler(
-                    ReverseEqualsEhloHeloHandler.class.getName());
-            d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
-                    m_checkAuthNetworks + ""));
-            config.addChild(d);
+            addProperty("handler.handlerchain.handler.[@class]", ReverseEqualsEhloHeloHandler.class.getName());
+            addProperty("handler.handlerchain.handler.checkAuthNetworks", m_checkAuthNetworks);
         }
         if (m_senderDomainResolv) {
-            DefaultConfiguration d = createHandler(
-                    ValidSenderDomainHandler.class.getName());
-            d.addChild(Util.getValuedConfiguration("checkAuthNetworks",
-                    m_checkAuthNetworks + ""));
-            config.addChild(d);
+            addProperty("handler.handlerchain.handler.[@class]", ValidSenderDomainHandler.class.getName());
+            addProperty("handler.handlerchain.handler.checkAuthNetworks", m_checkAuthNetworks);
         }
         if (m_maxRcpt > 0) {
-            DefaultConfiguration d = createHandler(MaxRcptHandler.class
-                    .getName());
-            d.addChild(Util.getValuedConfiguration("maxRcpt", m_maxRcpt + ""));
-            config.addChild(d);
+            addProperty("handler.handlerchain.handler.[@class]", MaxRcptHandler.class.getName());
+            addProperty("handler.handlerchain.handler.maxRcpt", m_maxRcpt);
         }
        
-        
-        config.addChild(createHandler(CoreCmdHandlerLoader.class.getName()));
-        handlerConfig.addChild(config);
-        addChild(handlerConfig);
-    }
-
-    private DefaultConfiguration createHandler(String className) {
-        DefaultConfiguration d = new DefaultConfiguration("handler");
-       
-        d.setAttribute("class", className);
-        return d;
+        addProperty("handler.handlerchain.handler.[@class]", CoreCmdHandlerLoader.class.getName());
     }
     
 }

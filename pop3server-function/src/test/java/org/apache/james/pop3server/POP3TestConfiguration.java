@@ -19,37 +19,22 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
-import org.apache.james.test.util.Util;
 
-public class POP3TestConfiguration extends DefaultConfiguration {
+public class POP3TestConfiguration extends DefaultConfigurationBuilder {
 
     private int m_pop3ListenerPort;
 
     public POP3TestConfiguration(int pop3ListenerPort) {
-        super("pop3server");
         m_pop3ListenerPort = pop3ListenerPort;
     }
 
     public void init() {
-        setAttribute("enabled", true);
-        addChild(Util.getValuedConfiguration("port", "" + m_pop3ListenerPort));
-        DefaultConfiguration handlerConfig = new DefaultConfiguration("handler");
-        handlerConfig.addChild(Util.getValuedConfiguration("helloName", "myMailServer"));
-        handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout", "360000"));
-       
-        DefaultConfiguration config = new DefaultConfiguration("handlerchain");
-
-        config.addChild(createHandler(CoreCmdHandlerLoader.class.getName()));
-        handlerConfig.addChild(config);
-        addChild(handlerConfig);
-    }
-
-    private DefaultConfiguration createHandler(String className) {
-        DefaultConfiguration d = new DefaultConfiguration("handler");
-       
-        d.setAttribute("class", className);
-        return d;
+        addProperty("[@enabled]", true);
+        addProperty("port", m_pop3ListenerPort);
+        addProperty("handler.helloName", "myMailServer");
+        addProperty("handler.connectiontimeout", "360000");
+        addProperty("handler.handlerchain.handler.[@class]", CoreCmdHandlerLoader.class.getName());
     }
 }

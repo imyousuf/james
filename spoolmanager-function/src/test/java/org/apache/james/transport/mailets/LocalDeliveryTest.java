@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
@@ -54,7 +55,7 @@ import org.apache.mailet.base.test.MailUtil;
  */
 public class LocalDeliveryTest extends TestCase {
 
-    private HashMap mailboxes;
+    private HashMap<String,MailRepository> mailboxes;
     private FakeMailContext mockMailetContext;
     private MockMailServer mockMailServer;
     private MockUsersRepository mockUsersRepository;
@@ -66,7 +67,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"unknownuser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String, String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("errors", new String[] {"unknownuser@ignoreddomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -80,7 +81,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"localuser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("localuser", new String[] {"localuser@ignoreddomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -93,7 +94,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"localUser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("errors", new String[] {"localUser@ignoreddomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -107,7 +108,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"localUser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("localuser", new String[] {"localuser@ignoreddomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -121,7 +122,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"aliasedUser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("localuser", new String[] {"localuser@ignoreddomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -134,7 +135,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"aliasedUser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("aliasedUser", new String[] {"aliasedUser@ignoreddomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -148,7 +149,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"forwardingUser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("errors", new String[] {"forwardingUser@ignoreddomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -163,7 +164,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"forwardingUser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("resent", new String[] {"remoteuser@remotedomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -178,7 +179,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"aliasForwardUser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("resent", new String[] {"remoteuser@remotedomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -192,7 +193,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"aliasForwardUser@ignoreddomain"});
         m.service(mail);
         
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("localuser", new String[] {"localuser@ignoreddomain"});
         
         assertDeliveryWorked(mail, expectedMails);
@@ -226,7 +227,7 @@ public class LocalDeliveryTest extends TestCase {
         Mail mail = createMail(new String[] {"virtual@hosting"});
         m.service(mail);
             
-        HashMap expectedMails = new HashMap();
+        Map<String,String[]> expectedMails = new HashMap<String,String[]>();
         expectedMails.put("virtual@hosting", new String[] {"virtual@hosting"});
            
         assertDeliveryWorked(mail, expectedMails);
@@ -263,22 +264,24 @@ public class LocalDeliveryTest extends TestCase {
         u.setForwarding(true);
         u.setForwardingDestination(new MailAddress("localuser@ignoreddomain"));
         mockMailServer = new MockMailServer(mockUsersRepository);
-        mailboxes = new HashMap();
+        mailboxes = new HashMap<String,MailRepository>();
         mailboxes.put("localuser", new InMemorySpoolRepository());
         mailboxes.put("aliasedUser", new InMemorySpoolRepository());
         mailboxes.put("virtual@hosting",new InMemorySpoolRepository());
-        Iterator mbi = mailboxes.keySet().iterator();
+        Iterator<String> mbi = mailboxes.keySet().iterator();
         while (mbi.hasNext()) {
-            String mboxName = (String) mbi.next();
+            String mboxName = mbi.next();
             mockMailServer.setUserInbox(mboxName, (MailRepository) mailboxes.get(mboxName));
         }
 
         mockMailetContext = new FakeMailContext() {
 
+            @SuppressWarnings("unchecked")
             public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
                 mockMailServer.sendMail(sender, recipients, msg);
             }
 
+            @SuppressWarnings("unchecked")
             public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg, String state) throws MessagingException {
                 MailImpl m = new MailImpl(MailUtil.newId(), sender, recipients, msg);
                 m.setState(state);
@@ -310,11 +313,11 @@ public class LocalDeliveryTest extends TestCase {
      * @param expectedMails
      * @throws MessagingException
      */
-    private void assertDeliveryWorked(Mail mail, HashMap expectedMails) throws MessagingException {
+    private void assertDeliveryWorked(Mail mail, Map<String,String[]> expectedMails) throws MessagingException {
         assertEquals(Mail.GHOST, mail.getState());
-        Iterator mboxes = mailboxes.keySet().iterator();
+        Iterator<String> mboxes = mailboxes.keySet().iterator();
         while (mboxes.hasNext()) {
-            String mboxName = (String) mboxes.next();
+            String mboxName = mboxes.next();
             MailRepository inMemorySpoolRepository = (MailRepository) mailboxes.get(mboxName);
             assertExpectedMailsInRepository(mail, (String[]) expectedMails.get(mboxName), inMemorySpoolRepository);
             
@@ -323,9 +326,9 @@ public class LocalDeliveryTest extends TestCase {
         MailRepository sentMailsRepository = mockMailServer.getSentMailsRepository();
         MailRepository errorsMailRepository = new InMemorySpoolRepository();
         
-        Iterator keys = sentMailsRepository.list();
+        Iterator<String> keys = sentMailsRepository.list();
         while (keys.hasNext()) {
-            String nextKey = (String) keys.next();
+            String nextKey = keys.next();
             Mail m = sentMailsRepository.retrieve(nextKey);
             if (Mail.ERROR.equals(m.getState())) {
                 errorsMailRepository.store(m);
@@ -352,12 +355,12 @@ public class LocalDeliveryTest extends TestCase {
      * @throws MessagingException
      */
     private void assertExpectedMailsInRepository(Mail mail, String[] expectedDeliveries, MailRepository inMemorySpoolRepository) throws MessagingException {
-        List c = expectedDeliveries != null ? new ArrayList(Arrays.asList(expectedDeliveries)) : new ArrayList();
-        Iterator i = inMemorySpoolRepository.list();
+        List<String> c = expectedDeliveries != null ? new ArrayList<String>(Arrays.asList(expectedDeliveries)) : new ArrayList<String>();
+        Iterator<String> i = inMemorySpoolRepository.list();
         System.out.println("check: "+c.size()+"|"+inMemorySpoolRepository);
         for (int j = 0; j < c.size(); j++) {
             assertTrue("No mails have been found in the repository", i.hasNext());
-            String next = (String) i.next();
+            String next = i.next();
             assertNotNull("Mail has not been stored", next);
             Mail storedMail = inMemorySpoolRepository.retrieve(next);
             assertNotNull("Mail cannot be retrieved", storedMail);
@@ -379,7 +382,7 @@ public class LocalDeliveryTest extends TestCase {
      */
     private Mail createMail(String[] recipients) throws MessagingException {
         Mail mail = new FakeMail();
-        ArrayList a = new ArrayList(recipients.length);
+        List<MailAddress> a = new ArrayList<MailAddress>(recipients.length);
         for (int i = 0; i < recipients.length; i++) {
             a.add(new MailAddress(recipients[i]));
         }

@@ -34,7 +34,7 @@ import java.util.Locale;
 
 public class MockUsersRepository extends AbstractUsersRepository {
 
-    private final HashMap m_users = new HashMap();
+    private final HashMap<String,User> m_users = new HashMap<String,User>();
 
     /**
      * force the repository to hold implementations of JamesUser interface, instead of User
@@ -165,17 +165,17 @@ public class MockUsersRepository extends AbstractUsersRepository {
         return m_users.size();
     }
 
-    protected List listUserNames() {
-        Iterator users = m_users.values().iterator();
-        List userNames = new LinkedList();
+    protected List<String> listUserNames() {
+        Iterator<User> users = m_users.values().iterator();
+        List<String> userNames = new LinkedList<String>();
         while ( users.hasNext() ) {
-            User user = (User)users.next();
+            User user = users.next();
             userNames.add(user.getUserName());
         }
 
         return userNames;
     }
-    public Iterator list() {
+    public Iterator<String> list() {
         return listUserNames().iterator(); 
     }
 

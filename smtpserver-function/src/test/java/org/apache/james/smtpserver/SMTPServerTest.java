@@ -224,11 +224,10 @@ public class SMTPServerTest extends TestCase {
 
     protected void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
-        m_smtpServer.configure(conf);
+        m_smtpServer.configure(testConfiguration);
         m_smtpServer.init();
         
-        protoServer.configure(conf);
+        protoServer.configure(testConfiguration);
         protoServer.init();
         
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
