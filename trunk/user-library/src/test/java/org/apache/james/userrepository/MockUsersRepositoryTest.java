@@ -59,6 +59,7 @@ public class MockUsersRepositoryTest extends TestCase {
         assertFalse("users repository not empty", usersRepository.list().hasNext());
     }
     
+    @SuppressWarnings("deprecation")
     public void testAddUserOnce() {
         boolean res = usersRepository.addUser("username", "password");
         assertTrue("User not added", res);
@@ -83,6 +84,7 @@ public class MockUsersRepositoryTest extends TestCase {
         
     }
     
+    @SuppressWarnings("deprecation")
     public void testUserAddedIsFound() {
         boolean res = usersRepository.addUser("username", "password");
         assertTrue("User not added", res);
@@ -105,20 +107,20 @@ public class MockUsersRepositoryTest extends TestCase {
     }
     
     public void testUserListing() {
-        ArrayList keys = new ArrayList(3);
+        ArrayList<String> keys = new ArrayList<String>(3);
         keys.add("username1");
         keys.add("username2");
         keys.add("username3");
-        for (Iterator i = keys.iterator(); i.hasNext(); ) {
-            String username = (String) i.next();
+        for (Iterator<String> i = keys.iterator(); i.hasNext(); ) {
+            String username = i.next();
             boolean res = usersRepository.addUser(username, username);
             assertTrue("User "+username+" not added", res);
         }
         assertEquals("Wrong number of users found", keys.size(), usersRepository.countUsers());
 
         // check list return all and only the expected users
-        ArrayList check = new ArrayList(keys);
-        for (Iterator i = usersRepository.list(); i.hasNext(); ) {
+        ArrayList<String> check = new ArrayList<String>(keys);
+        for (Iterator<String> i = usersRepository.list(); i.hasNext(); ) {
             String username = (String) i.next();
             if (getPasswordsEnabled()) {
                 assertTrue(usersRepository.test(username, username));
@@ -178,6 +180,7 @@ public class MockUsersRepositoryTest extends TestCase {
     }
     
     
+    @SuppressWarnings("deprecation")
     public void testCaseInsensitivesMethods() {
         assertTrue("User not added", usersRepository.addUser("userName", "password"));
         try {

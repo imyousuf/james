@@ -70,7 +70,6 @@ import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
-import org.apache.james.util.ConfigurationAdapter;
 import org.apache.james.util.InternetPrintWriter;
 
 /**
@@ -134,9 +133,8 @@ public class RemoteManagerTest extends TestCase {
     protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
         try {
-            ConfigurationAdapter conf = new ConfigurationAdapter(testConfiguration);
-            protoserver.configure(conf);
-            handlerFactory.configure(conf);
+            protoserver.configure(testConfiguration);
+            handlerFactory.configure(testConfiguration);
             handlerFactory.init();
             protoserver.init();
             

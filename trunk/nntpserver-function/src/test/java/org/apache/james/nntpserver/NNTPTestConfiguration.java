@@ -19,16 +19,14 @@
 
 package org.apache.james.nntpserver;
 
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.james.test.util.Util;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 
-public class NNTPTestConfiguration extends DefaultConfiguration {
+public class NNTPTestConfiguration extends DefaultConfigurationBuilder {
 
 	private int m_nntpListenerPort;
 	private boolean m_authRequired = false;
 
 	public NNTPTestConfiguration(int m_nntpListenerPort) {
-		super("nntpserver");
 		this.m_nntpListenerPort = m_nntpListenerPort;
 	}
 
@@ -37,17 +35,11 @@ public class NNTPTestConfiguration extends DefaultConfiguration {
 	}
 
 	public void init() {
-		setAttribute("enabled", true);
-		addChild(Util.getValuedConfiguration("port", "" + m_nntpListenerPort));
-		DefaultConfiguration handlerConfig = new DefaultConfiguration("handler");
-		handlerConfig.addChild(Util.getValuedConfiguration("helloName",
-				"myMailServer"));
-		handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout",
-				"360000"));
-		handlerConfig.addChild(Util.getValuedConfiguration("authRequired",
-				m_authRequired + ""));
-
-		addChild(handlerConfig);
+		addProperty("[@enabled]", true);
+		addProperty("port", "" + m_nntpListenerPort);
+		addProperty("handler.helloName","myMailServer");
+		addProperty("handler.connectiontimeout",360000);
+		addProperty("handler.authRequired",m_authRequired);
 	}
 
 }

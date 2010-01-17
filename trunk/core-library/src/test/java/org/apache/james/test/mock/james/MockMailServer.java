@@ -39,7 +39,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 
 public class MockMailServer implements MailServer, Disposable {
 
@@ -52,7 +51,7 @@ public class MockMailServer implements MailServer, Disposable {
     private final InMemorySpoolRepository mails = new InMemorySpoolRepository();
     private String lastMailKey = null; 
 
-    private HashMap inboxes;
+    private HashMap<String,MailRepository> inboxes;
     
     private boolean virtualHosting;
 
@@ -60,7 +59,7 @@ public class MockMailServer implements MailServer, Disposable {
         this.m_users = usersRepository;
     }
 
-    public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
+    public void sendMail(MailAddress sender, Collection<MailAddress> recipients, MimeMessage msg) throws MessagingException {
         //        Object[] mailObjects = new Object[]{sender, recipients, new MimeMessageCopyOnWriteProxy(msg)};
 //        mails.add(mailObjects);
 //        
@@ -70,7 +69,7 @@ public class MockMailServer implements MailServer, Disposable {
         m.dispose();
     }
 
-    public void sendMail(MailAddress sender, Collection recipients, InputStream msg) throws MessagingException {
+    public void sendMail(MailAddress sender, Collection<MailAddress> recipients, InputStream msg) throws MessagingException {
 //        Object[] mailObjects = new Object[]{sender, recipients, msg};
 //        mails.add(mailObjects);
         MailImpl m = new MailImpl(MailUtil.newId(), sender, recipients, msg);
@@ -90,7 +89,7 @@ public class MockMailServer implements MailServer, Disposable {
     public void sendMail(MimeMessage message) throws MessagingException {
         // taken from class org.apache.james.James 
         MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
-        Collection recipients = new HashSet();
+        Collection<MailAddress> recipients = new HashSet<MailAddress>();
         Address addresses[] = message.getAllRecipients();
         if (addresses != null) {
             for (int i = 0; i < addresses.length; i++) {
@@ -116,15 +115,10 @@ public class MockMailServer implements MailServer, Disposable {
     
     public void setUserInbox(String userName, MailRepository inbox) {
         if (inboxes == null) {
-            inboxes = new HashMap();
+            inboxes = new HashMap<String,MailRepository>();
         }
         inboxes.put(userName,inbox);
     }
-
-    public Map getRepositoryCounters() {
-        return null; // trivial implementation 
-    }
-
 
     public synchronized String getId() {
         return MailUtil.newId();
@@ -165,9 +159,9 @@ public class MockMailServer implements MailServer, Disposable {
 //        }
         mails.dispose();
         if (inboxes!=null) {
-            Iterator i = inboxes.values().iterator();
+            Iterator<MailRepository> i = inboxes.values().iterator();
             while (i.hasNext()) {
-                MailRepository m = (MailRepository) i.next();
+                MailRepository m = i.next();
                 ContainerUtil.dispose(m);
             }
         }

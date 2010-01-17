@@ -46,6 +46,7 @@ import javax.mail.util.SharedByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -69,7 +70,7 @@ public class LinearProcessorTest extends TestCase {
 
     private class CheckerMailet extends GenericMailet {
 
-        public ArrayList receivedMails = new ArrayList();
+        public List<Mail> receivedMails = new ArrayList<Mail>();
 
         public void service(Mail mail) throws MessagingException {
             Mail m2 = new MailImpl(mail, mail.getName());
@@ -148,14 +149,14 @@ public class LinearProcessorTest extends TestCase {
         linearProcessor.add(all, checkerMailet);
         linearProcessor.closeProcessorLists();
 
-        Collection recipients = new ArrayList();
+        Collection<MailAddress> recipients = new ArrayList<MailAddress>();
         recipients.add(new MailAddress("rec1", "domain.com"));
         recipients.add(new MailAddress("rec2", "domain.com"));
         try {
             MailImpl m = new MailImpl("mail1", new MailAddress("sender",
                     "domain.com"), recipients, mimeMessage);
             linearProcessor.service(m);
-            ArrayList a = checkerMailet.receivedMails;
+            List<Mail> a = checkerMailet.receivedMails;
             assertEquals(2, a.size());
             Mail mail1 = ((Mail) a.get(0));
             Mail mail2 = ((Mail) a.get(1));
@@ -198,7 +199,7 @@ public class LinearProcessorTest extends TestCase {
         linearProcessor.add(all, checkerMailet);
         linearProcessor.closeProcessorLists();
 
-        Collection recipients = new ArrayList();
+        Collection<MailAddress> recipients = new ArrayList<MailAddress>();
         recipients.add(new MailAddress("rec1", "domain.com"));
         recipients.add(new MailAddress("rec2", "domain.com"));
         try {
@@ -206,7 +207,7 @@ public class LinearProcessorTest extends TestCase {
                     "domain.com"), recipients, mimeMessage);
             m.setState("MYSTATE");
             linearProcessor.service(m);
-            ArrayList a = checkerMailet.receivedMails;
+            List<Mail> a = checkerMailet.receivedMails;
             assertEquals(2, a.size());
             Mail mail1 = ((Mail) a.get(0));
             Mail mail2 = ((Mail) a.get(1));

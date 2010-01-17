@@ -21,37 +21,35 @@
 
 package org.apache.james.transport;
 
-import junit.framework.TestCase;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.api.kernel.mock.FakeLoader;
-import org.apache.james.test.util.Util;
-import org.apache.james.transport.mailets.MailetLoaderTestMailet;
-import org.apache.james.util.ConfigurationAdapter;
-import org.apache.mailet.Mailet;
-import org.apache.mailet.MailetConfig;
-
-import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.mail.MessagingException;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.james.api.kernel.mock.FakeLoader;
+import org.apache.james.transport.mailets.MailetLoaderTestMailet;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
 
 public class JamesMailetLoaderTest extends TestCase {
     private JamesMailetLoader m_jamesMailetLoader  = new JamesMailetLoader();
     private JamesMailetLoaderConfiguration m_conf = new JamesMailetLoaderConfiguration();
 
-    private class JamesMailetLoaderConfiguration extends DefaultConfiguration {
+    private class JamesMailetLoaderConfiguration extends DefaultConfigurationBuilder {
         private List<String> m_packageNames = new ArrayList<String>();
         
         public JamesMailetLoaderConfiguration() {
-            super("mailetpackages");
         }
 
         public void init() {
             for (Iterator<String> iterator = m_packageNames.iterator(); iterator.hasNext();) {
                 String packageName = (String) iterator.next();
-                addChild(Util.getValuedConfiguration("mailetpackage", packageName));
+                addProperty("mailetpackage", packageName);
             }
         }
 
@@ -69,7 +67,7 @@ public class JamesMailetLoaderTest extends TestCase {
     private void setUpLoader() throws Exception {
         m_conf.init();
         m_jamesMailetLoader.setLog(new SimpleLog("Test"));
-        m_jamesMailetLoader.configure(new ConfigurationAdapter(m_conf));
+        m_jamesMailetLoader.configure(m_conf);
         m_jamesMailetLoader.setLoaderService(new FakeLoader());
     }
 

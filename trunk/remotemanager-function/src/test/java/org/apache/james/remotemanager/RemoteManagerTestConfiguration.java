@@ -21,11 +21,10 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
-import org.apache.james.test.util.Util;
 
-public class RemoteManagerTestConfiguration extends DefaultConfiguration {
+public class RemoteManagerTestConfiguration extends DefaultConfigurationBuilder {
 
     private int m_remoteManagerListenerPort;
     private Integer m_connectionLimit = null;
@@ -33,8 +32,6 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
     private String m_loginPassword = "testPassword";
     
     public RemoteManagerTestConfiguration(int smtpListenerPort) {
-        super("smptserver");
-
         m_remoteManagerListenerPort = smtpListenerPort;
     }
 
@@ -61,38 +58,18 @@ public class RemoteManagerTestConfiguration extends DefaultConfiguration {
 
     public void init() {
 
-        setAttribute("enabled", true);
+        addProperty("[@enabled]", true);
 
-        addChild(Util.getValuedConfiguration("port", "" + m_remoteManagerListenerPort));
-        if (m_connectionLimit != null) addChild(Util.getValuedConfiguration("connectionLimit", "" + m_connectionLimit.intValue()));
+        addProperty("port",  m_remoteManagerListenerPort);
+        if (m_connectionLimit != null) addProperty("connectionLimit", m_connectionLimit.intValue());
 
-        DefaultConfiguration handlerConfig = new DefaultConfiguration("handler");
-        handlerConfig.addChild(Util.getValuedConfiguration("helloName", "myMailServer"));
-        handlerConfig.addChild(Util.getValuedConfiguration("connectiontimeout", "360000"));
-        
-        DefaultConfiguration adminAccounts = new DefaultConfiguration("administrator_accounts");
-        
-        DefaultConfiguration account = new DefaultConfiguration("account");
-        
-        account.setAttribute("login", m_loginName);
-        account.setAttribute("password", m_loginPassword);
+        addProperty("handler.helloName", "myMailServer");
+        addProperty("handler.connectiontimeout", 360000);
+                
+        addProperty("handler.administrator_accounts.account.[@login]", m_loginName);
+        addProperty("handler.administrator_accounts.account.[@password]", m_loginPassword);
 
-        adminAccounts.addChild(account);
-        handlerConfig.addChild(adminAccounts);
-        DefaultConfiguration config = new DefaultConfiguration("handlerchain");
-
-        config.addChild(createHandler(CoreCmdHandlerLoader.class.getName()));
-        handlerConfig.addChild(config);
-        addChild(handlerConfig);
-    }
-
-    private DefaultConfiguration createHandler(String className) {
-        DefaultConfiguration d = new DefaultConfiguration("handler");
+        addProperty("handler.handlerchain.handler.[@class]", CoreCmdHandlerLoader.class.getName());
        
-        d.setAttribute("class", className);
-        return d;
-    
     }
-
-
 }
