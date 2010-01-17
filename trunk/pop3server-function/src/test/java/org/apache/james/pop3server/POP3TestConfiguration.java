@@ -22,6 +22,7 @@ package org.apache.james.pop3server;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 
+@SuppressWarnings("serial")
 public class POP3TestConfiguration extends DefaultConfigurationBuilder {
 
     private int m_pop3ListenerPort;
