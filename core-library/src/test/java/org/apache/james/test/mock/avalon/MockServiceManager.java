@@ -25,7 +25,7 @@ import java.util.HashMap;
 
 public class MockServiceManager implements org.apache.avalon.framework.service.ServiceManager {
 
-    private HashMap m_serviceMap = new HashMap();
+    private HashMap<String,Object> m_serviceMap = new HashMap<String,Object>();
 
     public Object lookup(String serviceName) throws ServiceException {
         return m_serviceMap.get(serviceName);

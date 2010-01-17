@@ -24,6 +24,7 @@ package org.apache.james.remotemanager;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
 
+@SuppressWarnings("serial")
 public class RemoteManagerTestConfiguration extends DefaultConfigurationBuilder {
 
     private int m_remoteManagerListenerPort;

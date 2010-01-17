@@ -50,19 +50,19 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
-        Map mappings = virtualUserTable.getAllMappings();
+        Map<String,Collection<String>> mappings = virtualUserTable.getAllMappings();
         
         if (mappings != null) {
-            Iterator mappingsIt = virtualUserTable.getAllMappings().keySet().iterator();
+            Iterator<String> mappingsIt = virtualUserTable.getAllMappings().keySet().iterator();
     
     
             while(mappingsIt.hasNext()) {
                 String key = mappingsIt.next().toString();
                 String args[] = key.split("@");
         
-                Collection map = (Collection) mappings.get(key);
+                Collection<String> map = mappings.get(key);
         
-                Iterator mapIt = map.iterator();
+                Iterator<String> mapIt = map.iterator();
         
                 while (mapIt.hasNext()) {
                     try {
@@ -109,11 +109,14 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
                 return InetAddress.getLocalHost();
             }
 
+            
+            @SuppressWarnings("unchecked")
             public Collection findMXRecords(String hostname)
                     throws TemporaryResolutionException {
                 throw new UnsupportedOperationException("Should never be called");
             }
 
+            @SuppressWarnings("unchecked")
             public Collection findTXTRecords(String hostname) {
                 throw new UnsupportedOperationException("Should never be called");
             }
@@ -123,6 +126,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
                 throw new UnsupportedOperationException("Should never be called");
             }
 
+            @SuppressWarnings("unchecked")
             public Iterator getSMTPHostAddresses(String domainName)
                     throws TemporaryResolutionException {
                 throw new UnsupportedOperationException("Should never be called");
@@ -323,7 +327,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Add mapping",addMapping(null, aliasDomain, user2 + "@" + domain, ADDRESS_TYPE));
             assertTrue("Add aliasDomain mapping", addMapping(null, aliasDomain, domain, ALIASDOMAIN_TYPE));
         
-            Iterator mappings = virtualUserTable.getMappings(user, aliasDomain).iterator();
+            Iterator<String> mappings = virtualUserTable.getMappings(user, aliasDomain).iterator();
             assertEquals("Domain mapped as first ", mappings.next(), user + "@" + domain);
             assertEquals("Address mapped as second ", mappings.next(), user2 + "@" + domain);
             
