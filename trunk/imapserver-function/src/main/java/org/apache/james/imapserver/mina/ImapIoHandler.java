@@ -19,18 +19,14 @@
 
 package org.apache.james.imapserver.mina;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.ImapConstants;
-import org.apache.james.imap.encode.ImapResponseComposer;
-import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.stream.StreamIoHandler;
 
@@ -40,13 +36,14 @@ import org.apache.mina.handler.stream.StreamIoHandler;
  */
 public class ImapIoHandler extends StreamIoHandler{
 
-    private Log logger;
+    private final Log logger;
 
-    private String hello;
+    private final String hello;
 
-    private ImapRequestHandler handler;
+    private final ImapRequestHandler handler;
 
     private final static String IMAP_SESSION = "IMAP_SESSION"; 
+    
     public ImapIoHandler(String hello, ImapRequestHandler handler, Log logger) {
         this.logger = logger;
         this.hello = hello;
@@ -56,8 +53,14 @@ public class ImapIoHandler extends StreamIoHandler{
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) {
-        cause.printStackTrace();
-        super.exceptionCaught(session, cause);
+    	logger.error("Error while processing imap request",cause);
+    	
+    	// logout on error not sure if that is the best way to handle it
+        final ImapSessionImpl imapSession = (ImapSessionImpl) session.getAttribute(IMAP_SESSION);     
+        if (imapSession != null) imapSession.logout();
+        session.close(false);
+        
+    	super.exceptionCaught(session, cause);
     }
 
     @Override
@@ -87,15 +90,14 @@ public class ImapIoHandler extends StreamIoHandler{
         // it would prolly make sense to use a thread pool...
         new Thread(new Runnable() {
         
+            public void run() {
+                final ImapSessionImpl imapSession = (ImapSessionImpl) session.getAttribute(IMAP_SESSION);
 
-        public void run() {
-            final ImapSessionImpl imapSession = (ImapSessionImpl) session.getAttribute(IMAP_SESSION);            
-
-            // handle requests in a loop
-            while(handler.handleRequest( in, out, imapSession ));
-            if (imapSession != null) imapSession.logout();
-            session.close(false);
-        }
+                // handle requests in a loop
+                while (handler.handleRequest(in, out, imapSession));
+                if (imapSession != null) imapSession.logout();
+                session.close(false);
+            }
 
         }).start();
 

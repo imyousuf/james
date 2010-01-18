@@ -27,6 +27,8 @@ import org.apache.james.api.protocol.ProtocolHandlerChain;
 import org.apache.james.smtpserver.protocol.ConnectHandler;
 import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
+import org.apache.james.smtpserver.protocol.SMTPResponse;
+import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
@@ -56,16 +58,6 @@ public class SMTPIoHandler extends IoHandlerAdapter{
         this.logger = logger;
         this.contextFactory = contextFactory;
     }
-    
-
-    /**
-     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getLog()
-     */
-    protected Log getLog() {
-        return logger;
-    }
-
-
 
     /**
      * @see org.apache.mina.core.service.IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession, java.lang.Object)
@@ -87,8 +79,8 @@ public class SMTPIoHandler extends IoHandlerAdapter{
             throws Exception {
         logger.error("Caught exception: " + session.getCurrentWriteMessage(),
                 exception);
-        // just close session
-        session.close(true);
+        
+        session.write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
     }
 
     /**

@@ -19,8 +19,6 @@
 
 package org.apache.james.remotemanager.mina.filter;
 
-import java.util.Locale;
-
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.socket.mina.filter.AbstractResponseFilter;
 import org.apache.mina.core.session.IoSession;

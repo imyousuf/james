@@ -165,12 +165,12 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
 
             // we should try to retrieve details
             if (getDetail) {
-                Collection txt = dnsService.findTXTRecords(target+ "." + uRblServer);
+                Collection<String> txt = dnsService.findTXTRecords(target+ "." + uRblServer);
 
                 // Check if we found a txt record
                 if (!txt.isEmpty()) {
                     // Set the detail
-                    detail = txt.iterator().next().toString();
+                    detail = txt.iterator().next();
 
                 }
             }
