@@ -146,8 +146,8 @@ public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
         addProperty("[@enabled]", true);
 
         addProperty("port", m_smtpListenerPort);
-        if (m_connectionLimit != null) addProperty("connectionLimit",  m_connectionLimit.intValue());
-        if (m_connectionBacklog != null) addProperty("connectionBacklog",  m_connectionBacklog.intValue());
+        if (m_connectionLimit != null) addProperty("connectionLimit",  ""+m_connectionLimit.intValue());
+        if (m_connectionBacklog != null) addProperty("connectionBacklog", ""+ m_connectionBacklog.intValue());
         
         addProperty("handler.helloName", "myMailServer");
         addProperty("handler.connectiontimeout", 360000);
