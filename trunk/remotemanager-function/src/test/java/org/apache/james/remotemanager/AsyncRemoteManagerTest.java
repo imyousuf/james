@@ -21,7 +21,6 @@ package org.apache.james.remotemanager;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.remotemanager.mina.AsyncRemoteManager;
-import org.apache.james.util.ConfigurationAdapter;
 
 public class AsyncRemoteManagerTest extends RemoteManagerTest{
 
@@ -44,7 +43,7 @@ public class AsyncRemoteManagerTest extends RemoteManagerTest{
 
     protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        remotemanager.configure(new ConfigurationAdapter(testConfiguration));
+        remotemanager.configure(testConfiguration);
         remotemanager.init();
     }
 

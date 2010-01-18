@@ -21,7 +21,6 @@ package org.apache.james.pop3server;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.pop3server.mina.AsyncPOP3Server;
-import org.apache.james.util.ConfigurationAdapter;
 
 public class AsyncPOP3ServerTest extends POP3ServerTest {
 
@@ -43,7 +42,7 @@ public class AsyncPOP3ServerTest extends POP3ServerTest {
 
     protected void finishSetUp(POP3TestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        m_pop3Server.configure(new ConfigurationAdapter(testConfiguration));
+        m_pop3Server.configure(testConfiguration);
         m_pop3Server.init();
     }
 

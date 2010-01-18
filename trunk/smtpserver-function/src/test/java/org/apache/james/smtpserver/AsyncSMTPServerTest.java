@@ -23,7 +23,6 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.smtpserver.mina.AsyncSMTPServer;
-import org.apache.james.util.ConfigurationAdapter;
 
 public class AsyncSMTPServerTest extends SMTPServerTest {
 
@@ -44,7 +43,7 @@ public class AsyncSMTPServerTest extends SMTPServerTest {
 
     protected void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        m_smtpServer.configure(new ConfigurationAdapter(testConfiguration));
+        m_smtpServer.configure(testConfiguration);
         m_smtpServer.init();
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()*1024);
     }
