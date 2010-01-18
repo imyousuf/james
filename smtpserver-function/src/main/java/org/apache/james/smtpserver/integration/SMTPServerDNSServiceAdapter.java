@@ -92,7 +92,6 @@ public class SMTPServerDNSServiceAdapter implements DNSService{
     /**
      * @see org.apache.james.smtpserver.protocol.DNSService#getSMTPHostAddresses(java.lang.String)
      */
-    @SuppressWarnings("unchecked")
     public Iterator<HostAddress> getSMTPHostAddresses(String domainName) throws TemporaryResolutionException {
         try {
             return dns.getSMTPHostAddresses(domainName);

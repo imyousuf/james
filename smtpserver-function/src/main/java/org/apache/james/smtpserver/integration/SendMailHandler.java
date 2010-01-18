@@ -32,6 +32,7 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 
 /**
@@ -67,7 +68,7 @@ public class SendMailHandler implements JamesMessageHook {
 
         try {
             mailServer.sendMail(mail);
-            Collection theRecipients = mail.getRecipients();
+            Collection<MailAddress> theRecipients = mail.getRecipients();
             String recipientString = "";
             if (theRecipients != null) {
                 recipientString = theRecipients.toString();

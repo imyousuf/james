@@ -57,6 +57,7 @@ public class AsyncRemoteManager extends AbstractAsyncServer implements RemoteMan
         return "plain";
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
         super.doConfigure(config);

@@ -19,16 +19,13 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.commons.configuration.ConfigurationUtils;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.test.mock.james.MockFileSystem;
-import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
-import org.apache.james.util.ConfigurationAdapter;
 
 import java.util.Iterator;
 
@@ -69,11 +66,11 @@ public class ListUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         res.setFileSystem(new MockFileSystem());
         res.setDatasources(Util.getDataSourceSelector());
         
-        DefaultConfiguration configuration = new DefaultConfiguration("test");
-        configuration.setAttribute("destinationURL", "db://maildb/"+tableString);
-        configuration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
+        DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
+        configuration.addProperty("[@destinationURL]", "db://maildb/"+tableString);
+        configuration.addProperty("sqlFile","file://conf/sqlResources.xml");
         res.setLog(new SimpleLog("MockLog"));
-        res.configure(new ConfigurationAdapter(configuration));
+        res.configure(configuration);
         
         res.init();
     }

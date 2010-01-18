@@ -20,7 +20,6 @@
 package org.apache.james.remotemanager.mina.filter;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.socket.mina.filter.AbstractValidationFilter;
 import org.apache.mina.core.write.DefaultWriteRequest;

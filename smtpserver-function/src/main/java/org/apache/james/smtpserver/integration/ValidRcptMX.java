@@ -141,7 +141,7 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
         // Email should be deliver local
         if (!domain.equals(LOCALHOST)) {
  
-            Iterator mx = null;
+            Iterator<String> mx = null;
             try {
                 mx = dnsService.findMXRecords(domain).iterator();
             } catch (TemporaryResolutionException e1) {
@@ -150,7 +150,7 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
 
             if (mx != null && mx.hasNext()) {
                 while (mx.hasNext()) {
-                    String mxRec = mx.next().toString();
+                    String mxRec = mx.next();
 
                      try {
                         String ip = dnsService.getByName(mxRec).getHostAddress();
