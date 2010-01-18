@@ -80,7 +80,8 @@ public class SMTPIoHandler extends IoHandlerAdapter{
         logger.error("Caught exception: " + session.getCurrentWriteMessage(),
                 exception);
         
-        session.write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
+        // write an error to the client if the session is stil connected
+        if (session.isConnected()) session.write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
     }
 
     /**
@@ -93,8 +94,8 @@ public class SMTPIoHandler extends IoHandlerAdapter{
         } else {
             smtpSession= new SMTPSessionImpl(conf, logger, session, contextFactory.newInstance());
         }
-        // Add attributes
-
+        
+        // Add attribute
         session.setAttribute(SMTPSessionImpl.SMTP_SESSION,smtpSession);
     }
 
@@ -105,7 +106,7 @@ public class SMTPIoHandler extends IoHandlerAdapter{
     public void sessionIdle(IoSession session, IdleStatus status)
             throws Exception {
         logger.debug("Connection timed out");
-        session.write("Connection timeout");
+        //session.write("Connection timeout");
     }
 
     /**
