@@ -21,6 +21,7 @@ package org.apache.james.smtpserver.protocol;
 
 import java.util.Map;
 
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.TLSSupportedSession;
 
 /**
@@ -40,20 +41,6 @@ public interface SMTPSession extends TLSSupportedSession{
     public final static String CURRENT_HELO_NAME = "CURRENT_HELO_NAME";
     /** the Session state */
     public final static String SESSION_STATE_MAP = "SESSION_STATE_MAP";
-
-
-    /**
-     * Returns Map that consists of the state of the SMTPSession per mail
-     *
-     * @return map of the current SMTPSession state per mail
-     */
-    Map<String, Object> getState();
-
-    /**
-     * Resets message-specific, but not authenticated user, state.
-     *
-     */
-    void resetState();
 
     /**
      * Returns the service wide hello name
@@ -138,17 +125,12 @@ public interface SMTPSession extends TLSSupportedSession{
      * Put a new line handler in the chain
      * @param overrideCommandHandler
      */
-    void pushLineHandler(LineHandler overrideCommandHandler);
+    void pushLineHandler(LineHandler<SMTPSession> overrideCommandHandler);
     
     /**
      * Pop the last command handler 
      */
     void popLineHandler();
-
-    /**
-     * Write an SMTPResponse to the client
-     */
-    void writeSMTPResponse(SMTPResponse response);
     
     /**
      * Sleep for the given ms 

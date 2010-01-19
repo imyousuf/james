@@ -21,13 +21,13 @@
 
 package org.apache.james.smtpserver.protocol.core;
 
-import org.apache.james.smtpserver.protocol.LineHandler;
-import org.apache.james.smtpserver.protocol.SMTPSession;
+import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.api.protocol.ProtocolSession;
 
 /**
  * DataLineFilter are used to check the Data stream while the message is
  * being received.
  */
-public interface DataLineFilter {
-    void onLine(SMTPSession session, String line, LineHandler next);
+public interface DataLineFilter<Session extends ProtocolSession> {
+    void onLine(Session session, String line, LineHandler<Session> next);
 }

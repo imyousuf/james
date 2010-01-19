@@ -17,33 +17,27 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.api.protocol;
 
-package org.apache.james.pop3server.core;
+/**
+ * Request received from the client
+ * 
+ *
+ */
+public interface Request {
 
-import org.apache.james.Constants;
-import org.apache.james.api.protocol.ConnectHandler;
-import org.apache.james.pop3server.POP3Response;
-import org.apache.james.pop3server.POP3Session;
-
-public class WelcomeMessageHandler implements ConnectHandler<POP3Session>{
-    /** POP3 Server identification string used in POP3 headers */
-    private static final String softwaretype        = "JAMES POP3 Server "
-                                                        + Constants.SOFTWARE_VERSION;
+    
+    /**
+     * Return the current argument. If there is no argument null is returned
+     * 
+     * @return argument
+     */
+    public String getArgument();
 
     /**
-     * @see org.apache.james.pop3server.ConnectHandler#onConnect(org.apache.james.pop3server.POP3Session)
+     * Return the current command
+     * 
+     * @return command
      */
-    public void onConnect(POP3Session session) {
-        StringBuilder responseBuffer = new StringBuilder();
-
-        // Initially greet the connector
-        // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-        responseBuffer.append(session.getConfigurationData().getHelloName())
-                    .append(" POP3 server (")
-                    .append(softwaretype)
-                    .append(") ready ");
-        POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
-        session.writeResponse(response);
-    }
-
+    public String getCommand();
 }

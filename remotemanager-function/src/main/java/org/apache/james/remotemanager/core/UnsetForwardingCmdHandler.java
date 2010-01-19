@@ -25,12 +25,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
-import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -64,9 +65,9 @@ public class UnsetForwardingCmdHandler implements CommandHandler{
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
+     * @see org.apache.james.api.protocol.CommandHandler#onCommand(org.apache.james.api.protocol.LogEnabledSession, org.apache.james.api.protocol.Request)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
+    public Response onCommand(RemoteManagerSession session, Request request) {
         RemoteManagerResponse response;
         String parameters = request.getArgument();
         if ((parameters == null) || (parameters.equals(""))) {

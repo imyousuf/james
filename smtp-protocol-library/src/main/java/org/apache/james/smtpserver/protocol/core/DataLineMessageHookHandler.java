@@ -29,10 +29,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.ExtensibleHandler;
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.WiringException;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.MailEnvelopeImpl;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
@@ -42,7 +42,7 @@ import org.apache.james.smtpserver.protocol.hook.HookResultHook;
 import org.apache.james.smtpserver.protocol.hook.MessageHook;
 import org.apache.mailet.Mail;
 
-public final class DataLineMessageHookHandler implements DataLineFilter, ExtensibleHandler, LogEnabled {
+public final class DataLineMessageHookHandler implements DataLineFilter<SMTPSession>, ExtensibleHandler, LogEnabled {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineMessageHookHandler.class);
@@ -54,11 +54,12 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
     
     private List rHooks;
     
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String, org.apache.james.smtpserver.protocol.LineHandler)
+     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.api.protocol.LogEnabledSession, java.lang.String, org.apache.james.api.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, String rawLine, LineHandler next) {
+    public void onLine(SMTPSession session, String rawLine, LineHandler<SMTPSession> next) {
         MailEnvelopeImpl env = (MailEnvelopeImpl) session.getState().get(DataCmdHandler.MAILENV);
         OutputStream out = env.getMessageOutputStream();
         byte[] line = rawLine.getBytes();
@@ -90,7 +91,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
             
             session.getLogger().error(
                     "Unknown error occurred while processing DATA.", e);
-            session.writeSMTPResponse(response);
+            session.writeResponse(response);
             return;
         }
     }
@@ -120,7 +121,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
                     
                     //if the response is received, stop processing of command handlers
                     if(response != null) {
-                        session.writeSMTPResponse(response);
+                        session.writeResponse(response);
                         break;
                     }
                 }

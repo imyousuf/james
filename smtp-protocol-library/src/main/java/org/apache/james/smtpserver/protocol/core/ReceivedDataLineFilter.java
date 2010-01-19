@@ -22,12 +22,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
 
-public class ReceivedDataLineFilter implements DataLineFilter {
+public class ReceivedDataLineFilter implements DataLineFilter<SMTPSession> {
 
     private final static String SOFTWARE_TYPE = "JAMES SMTP Server ";
 
@@ -42,9 +42,9 @@ public class ReceivedDataLineFilter implements DataLineFilter {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String, org.apache.james.smtpserver.protocol.LineHandler)
+     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.api.protocol.LogEnabledSession, java.lang.String, org.apache.james.api.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session,  String line, LineHandler next) {
+    public void onLine(SMTPSession session,  String line, LineHandler<SMTPSession> next) {
         if (session.getState().containsKey(HEADERS_WRITTEN) == false) {
             addNewReceivedMailHeaders(session, next);
             session.getState().put(HEADERS_WRITTEN, true);
@@ -52,7 +52,7 @@ public class ReceivedDataLineFilter implements DataLineFilter {
         next.onLine(session, line);
     }
 
-    private void addNewReceivedMailHeaders(SMTPSession session, LineHandler next) {
+    private void addNewReceivedMailHeaders(SMTPSession session, LineHandler<SMTPSession> next) {
         StringBuilder headerLineBuffer = new StringBuilder();
 
         String heloMode = (String) session.getConnectionState().get(

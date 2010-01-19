@@ -27,10 +27,11 @@ import java.util.Locale;
 
 import javax.annotation.Resource;
 
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
-import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -61,9 +62,9 @@ public class ShowMatcherInfoCmdHandler implements CommandHandler{
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, org.apache.james.remotemanager.RemoteManagerRequest)
+     * @see org.apache.james.api.protocol.CommandHandler#onCommand(org.apache.james.api.protocol.LogEnabledSession, org.apache.james.api.protocol.Request)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
+    public Response onCommand(RemoteManagerSession session, Request request) {
         RemoteManagerResponse response = null;
         String params = request.getArgument();
         Object[] parameters = extractMailetInfoParameters(session, params, "MATCHER");
@@ -95,12 +96,12 @@ public class ShowMatcherInfoCmdHandler implements CommandHandler{
         String[] argList = argument.split(" ");
         boolean argListOK = argument != null && argList != null && argList.length == 2;
         if (!argListOK) {
-            session.writeRemoteManagerResponse(new RemoteManagerResponse("Usage: " + getHelp().getSyntax()));
+            session.writeResponse(new RemoteManagerResponse("Usage: " + getHelp().getSyntax()));
             return null;
         }
         String processorName = argList[0];
         if (!processorExists(processorName)) {
-            session.writeRemoteManagerResponse(new RemoteManagerResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS"));;
+            session.writeResponse(new RemoteManagerResponse("The list of valid processor names can be retrieved using command LISTPROCESSORS"));;
             return null;
         }
         int index = -1;
@@ -110,7 +111,7 @@ public class ShowMatcherInfoCmdHandler implements CommandHandler{
             // fall thru with -1
         }
         if (index < 0) {
-            session.writeRemoteManagerResponse(new RemoteManagerResponse("The index parameter must be a positive number"));
+            session.writeResponse(new RemoteManagerResponse("The index parameter must be a positive number"));
             return null;
         }
         

@@ -19,19 +19,14 @@
 
 package org.apache.james.smtpserver.mina;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.ProtocolSession;
 import org.apache.james.api.protocol.ProtocolHandlerChain;
-import org.apache.james.smtpserver.protocol.ConnectHandler;
-import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.mina.core.service.IoHandlerAdapter;
-import org.apache.mina.core.session.IdleStatus;
+import org.apache.james.socket.mina.AbstractIoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslContextFactory;
 
@@ -40,9 +35,8 @@ import org.apache.mina.filter.ssl.SslContextFactory;
  * 
  *
  */
-public class SMTPIoHandler extends IoHandlerAdapter{    
+public class SMTPIoHandler extends AbstractIoHandler{    
     private Log logger;
-    private ProtocolHandlerChain chain;
     private SMTPConfiguration conf;
     private SslContextFactory contextFactory;
 
@@ -53,22 +47,10 @@ public class SMTPIoHandler extends IoHandlerAdapter{
     
     public SMTPIoHandler(ProtocolHandlerChain chain,
             SMTPConfiguration conf, Log logger, SslContextFactory contextFactory) {
-        this.chain = chain;
+        super(chain);
         this.conf = conf;
         this.logger = logger;
         this.contextFactory = contextFactory;
-    }
-
-    /**
-     * @see org.apache.mina.core.service.IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession, java.lang.Object)
-     */
-    public void messageReceived(IoSession session, Object message)
-            throws Exception {
-        SMTPSession smtpSession = (SMTPSession) session.getAttribute(SMTPSessionImpl.SMTP_SESSION);
-        LinkedList<LineHandler> lineHandlers = chain.getHandlers(LineHandler.class);
-        if (lineHandlers.size() > 0) {
-            ((LineHandler) lineHandlers.getLast()).onLine(smtpSession, (String) message);
-        }
     }
 
     /**
@@ -80,47 +62,22 @@ public class SMTPIoHandler extends IoHandlerAdapter{
         logger.error("Caught exception: " + session.getCurrentWriteMessage(),
                 exception);
         
-        // write an error to the client if the session is stil connected
-        if (session.isConnected()) session.write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
+        session.write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
     }
 
-    /**
-     * @see org.apache.mina.core.service.IoHandler#sessionCreated(org.apache.mina.core.session.IoSession)
-     */
-    public void sessionCreated(IoSession session) throws Exception {
+    @Override
+    protected ProtocolSession createSession(IoSession session) throws Exception{
         SMTPSession smtpSession;
         if (contextFactory == null) {
             smtpSession= new SMTPSessionImpl(conf, logger, session);
         } else {
             smtpSession= new SMTPSessionImpl(conf, logger, session, contextFactory.newInstance());
-        }
-        
-        // Add attribute
-        session.setAttribute(SMTPSessionImpl.SMTP_SESSION,smtpSession);
+        }        
+        return smtpSession;
     }
 
-    /**
-     * @see org.apache.mina.core.service.IoHandler#sessionIdle(org.apache.mina.core.session.IoSession,
-     *      org.apache.mina.core.session.IdleStatus)
-     */
-    public void sessionIdle(IoSession session, IdleStatus status)
-            throws Exception {
-        logger.debug("Connection timed out");
-        //session.write("Connection timeout");
-    }
-
-    /**
-     * @see org.apache.mina.core.service.IoHandler#sessionOpened(org.apache.mina.core.session.IoSession)
-     */
-    public void sessionOpened(IoSession session) throws Exception {
-        List<ConnectHandler> connectHandlers = chain
-                .getHandlers(ConnectHandler.class);
-      
-        if (connectHandlers != null) {
-            for (int i = 0; i < connectHandlers.size(); i++) {
-                connectHandlers.get(i).onConnect(
-                        (SMTPSession) session.getAttribute(SMTPSessionImpl.SMTP_SESSION));
-            }
-        }    
+    @Override
+    protected String getSessionKey() {
+        return SMTPSessionImpl.SMTP_SESSION;
     }
 }

@@ -204,7 +204,7 @@ public class SMTPServerTest extends TestCase {
         
         
         protoServer = new AvalonProtocolServer();
-        protoServer.setLog(new SimpleLog("MockLog"));
+        protoServer.setLog(smtpLog);
         protoServer.setProtocolHandlerFactory(m_smtpServer);
         protoServer.setSocketManager(socketManager);
         protoServer.setThreadManager(threadManager);

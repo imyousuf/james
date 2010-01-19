@@ -22,7 +22,7 @@ package org.apache.james.smtpserver.protocol.core;
 
 import java.util.Date;
 
-import org.apache.james.smtpserver.protocol.ConnectHandler;
+import org.apache.james.api.protocol.ConnectHandler;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -31,7 +31,7 @@ import org.apache.mailet.base.RFC822DateFormat;
 /**
  * This ConnectHandler print the greeting on connecting
  */
-public class WelcomeMessageHandler implements ConnectHandler {
+public class WelcomeMessageHandler implements ConnectHandler<SMTPSession> {
 
     /**
      * Static RFC822DateFormat used to generate date headers
@@ -59,7 +59,7 @@ public class WelcomeMessageHandler implements ConnectHandler {
         } else {
             welcomeResponse = new SMTPResponse(SMTPRetCode.SERVICE_READY,smtpGreeting);
         }
-        session.writeSMTPResponse(welcomeResponse);
+        session.writeResponse(welcomeResponse);
     }
     
     protected String getProductName() {

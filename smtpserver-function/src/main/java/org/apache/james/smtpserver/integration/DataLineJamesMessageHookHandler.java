@@ -35,6 +35,7 @@ import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.ExtensibleHandler;
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.WiringException;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
@@ -42,7 +43,6 @@ import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.MailEnvelope;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
@@ -60,7 +60,7 @@ import org.apache.mailet.MailAddress;
  * Handles the calling of JamesMessageHooks
  *
  */
-public final class DataLineJamesMessageHookHandler implements DataLineFilter, ExtensibleHandler, LogEnabled {
+public final class DataLineJamesMessageHookHandler implements DataLineFilter<SMTPSession>, ExtensibleHandler, LogEnabled {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineJamesMessageHookHandler.class);
@@ -96,7 +96,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     /**
      * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.smtpserver.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, String rawline, LineHandler next) {
+    public void onLine(SMTPSession session, String rawline, LineHandler<SMTPSession> next) {
         MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE);
         OutputStream out = (OutputStream)  session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_OUTPUTSTREAM);
         try {
@@ -125,7 +125,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                 } catch (MessagingException e) {
                     // TODO probably return a temporary problem
                     session.getLogger().info("Unexpected error handling DATA stream",e);
-                    session.writeSMTPResponse(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream."));
+                    session.writeResponse(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream."));
                 } finally {
                     ContainerUtil.dispose(mimeMessageCopyOnWriteProxy);
                     ContainerUtil.dispose(mmiss);
@@ -151,7 +151,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
             
             session.getLogger().error(
                     "Unknown error occurred while processing DATA.", e);
-            session.writeSMTPResponse(response);
+            session.writeResponse(response);
             return;
         }
     }
@@ -185,7 +185,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 					// if the response is received, stop processing of command
 					// handlers
 					if (response != null) {
-						session.writeSMTPResponse(response);
+						session.writeResponse(response);
 						return;
 					}
 				}
@@ -214,7 +214,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 					// if the response is received, stop processing of command
 					// handlers
 					if (response != null) {
-						session.writeSMTPResponse(response);
+						session.writeResponse(response);
 						break;
 					}
 				}

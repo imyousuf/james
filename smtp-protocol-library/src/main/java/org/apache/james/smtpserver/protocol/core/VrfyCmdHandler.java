@@ -24,9 +24,10 @@ package org.apache.james.smtpserver.protocol.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.CommandHandler;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -34,7 +35,7 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 /**
   * Command handler for handling VRFY command
   */
-public class VrfyCmdHandler implements CommandHandler {
+public class VrfyCmdHandler implements CommandHandler<SMTPSession> {
 
     private final String COMMAND_NAME = "VRFY";
 
@@ -43,9 +44,8 @@ public class VrfyCmdHandler implements CommandHandler {
      * This method informs the client that the command is
      * not implemented.
      *
-     * @see org.apache.james.smtpserver.protocol.CommandHandler#onCommand(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String, java.lang.String) 
-    **/
-    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+     */
+    public Response onCommand(SMTPSession session, Request request) {
         return new SMTPResponse(SMTPRetCode.UNIMPLEMENTED_COMMAND, 
                 DSNStatus.getStatus(DSNStatus.PERMANENT,DSNStatus.SYSTEM_NOT_CAPABLE)+" VRFY is not supported");
     }

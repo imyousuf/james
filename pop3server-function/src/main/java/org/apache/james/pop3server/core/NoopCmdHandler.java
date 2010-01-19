@@ -25,24 +25,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Request;
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
 /**
   * Handles NOOP command
   */
-public class NoopCmdHandler implements CommandHandler {
+public class NoopCmdHandler implements CommandHandler<POP3Session> {
 	private final static String COMMAND_NAME = "NOOP";
 
     /**
      * Handler method called upon receipt of a NOOP command.
      * Like all good NOOPs, does nothing much.
      *
-	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             response = new POP3Response(POP3Response.OK_RESPONSE);

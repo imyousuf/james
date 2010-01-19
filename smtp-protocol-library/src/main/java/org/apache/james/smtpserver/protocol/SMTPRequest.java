@@ -19,7 +19,9 @@
 
 package org.apache.james.smtpserver.protocol;
 
-public final class SMTPRequest {
+import org.apache.james.api.protocol.Request;
+
+public final class SMTPRequest implements Request{
     private final String command;
 
     private final String argument;

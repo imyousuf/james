@@ -17,14 +17,56 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.api.protocol;
 
-package org.apache.james.remotemanager;
+import java.util.Map;
 
+import org.apache.commons.logging.Log;
 
-public interface ConnectHandler {
+/**
+ * Session for a protcol. Every new connection generates a new session
+ * 
+ *
+ */
+public interface ProtocolSession {
+   
     /**
-     * Handle connection
-    **/
-    void onConnect(RemoteManagerSession session);
+     * Gets the context sensitive log for this session.
+     * @return log, not null
+     */
+    public Log getLogger();
+    
+    
+    /**
+     * Return Map which can be used to store objects within a session
+     * 
+     * @return state
+     */
+    public Map<String, Object> getState();
+    
+    /**
+     * Reset the state
+     */
+    public void resetState();
+    
+    /**
+     * Write the response back to the client
+     * 
+     * @param response
+     */
+    public void writeResponse(Response response);
+    
+    /**
+     * Returns host name of the client
+     *
+     * @return hostname of the client
+     */
+    public String getRemoteHost();
 
+    /**
+     * Returns host ip address of the client
+     *
+     * @return host ip address of the client
+     */
+    public String getRemoteIPAddress();
 }

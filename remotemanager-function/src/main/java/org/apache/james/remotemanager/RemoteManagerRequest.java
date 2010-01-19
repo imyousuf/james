@@ -19,7 +19,9 @@
 
 package org.apache.james.remotemanager;
 
-public class RemoteManagerRequest {
+import org.apache.james.api.protocol.Request;
+
+public class RemoteManagerRequest implements Request{
 
 
     private final String command;

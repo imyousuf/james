@@ -6,8 +6,8 @@ package org.apache.james.smtpserver.protocol.core.esmtp;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.MailEnvelope;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -20,7 +20,7 @@ import org.apache.james.smtpserver.protocol.hook.MessageHook;
 /**
  * Handle the ESMTP SIZE extension.
  */
-public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension, DataLineFilter, MessageHook {
+public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension, DataLineFilter<SMTPSession>, MessageHook {
 
     private final static String MESG_SIZE = "MESG_SIZE"; // The size of the
     private final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
@@ -115,11 +115,12 @@ public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension
         return null;
     }
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String, org.apache.james.smtpserver.protocol.LineHandler)
+     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.api.protocol.LogEnabledSession, java.lang.String, org.apache.james.api.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, String rawline, LineHandler next) {
+    public void onLine(SMTPSession session, String rawline, LineHandler<SMTPSession> next) {
         Boolean failed = (Boolean) session.getState().get(MESG_FAILED);
         // If we already defined we failed and sent a reply we should simply
         // wait for a CRLF.CRLF to be sent by the client.

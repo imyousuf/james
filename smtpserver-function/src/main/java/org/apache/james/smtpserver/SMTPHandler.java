@@ -28,9 +28,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.james.api.protocol.ConnectHandler;
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.ProtocolHandlerChain;
-import org.apache.james.smtpserver.protocol.ConnectHandler;
-import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.api.protocol.Response;
+import org.apache.james.api.protocol.RetCodeResponse;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
@@ -73,11 +75,13 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
      * If not null every line is sent to this command handler instead
      * of the default "command parsing -> dipatching" procedure.
      */
+    @SuppressWarnings("unchecked")
     private LinkedList<LineHandler> lineHandlers;
 
     /**
      * Connect Handlers
      */
+    @SuppressWarnings("unchecked")
     private final LinkedList<ConnectHandler> connectHandlers;
 
 	private final SMTPConfiguration theConfigData;
@@ -100,6 +104,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
 	/**
 	 * @see org.apache.james.socket.shared.AbstractProtocolHandler#handleProtocolInternal(org.apache.james.socket.api.ProtocolContext)
 	 */
+    @SuppressWarnings("unchecked")
     public void handleProtocolInternal(ProtocolContext context) throws IOException {
         this.context = context;
         smtpID = Integer.toString(random.nextInt(1024));
@@ -155,9 +160,9 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
           try {
               line = bytebufferHandler.read();
           } catch (CRLFDelimitedByteBuffer.TerminationException e) {
-              writeSMTPResponse(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, "Syntax error at character position " + e.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1."));
+              writeResponse(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_ARGUMENTS, "Syntax error at character position " + e.position() + ". CR and LF must be CRLF paired.  See RFC 2821 #2.7.1."));
           } catch (CRLFDelimitedByteBuffer.LineLengthExceededException e) {
-              writeSMTPResponse(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
+              writeResponse(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
           }
           if (line == null) {
               break;
@@ -175,32 +180,30 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
         context.getLogger().debug("Closing socket.");
     }
 
-    /**
-     * @see org.apache.james.smtpserver.protocol.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.protocol.SMTPResponse)
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LogEnabledSession#writeResponse(org.apache.james.api.protocol.Response)
      */
-    public void writeSMTPResponse(SMTPResponse response) {
+    public void writeResponse(Response response) {
         // Write a single-line or multiline response
         if (response != null) {
-            if (response.getRawLine() != null) {
-                context.writeLoggedFlushedResponse(response.getRawLine());
-            } else {
-                // Iterator i = esmtpextensions.iterator();
-                for (int k = 0; k < response.getLines().size(); k++) {
-                    StringBuilder respBuff = new StringBuilder(256);
-                    respBuff.append(response.getRetCode());
-                    final CharSequence line = response.getLines().get(k);
-                    if (k == response.getLines().size() - 1) {
-                        respBuff.append(" ");
-                        respBuff.append(line);
-                        context.writeLoggedFlushedResponse(respBuff.toString());
-                    } else {
-                        respBuff.append("-");
-                        respBuff.append(line);
-                        context.writeLoggedResponse(respBuff.toString());
-                    }
+            // Iterator i = esmtpextensions.iterator();
+            for (int k = 0; k < response.getLines().size(); k++) {
+                StringBuilder respBuff = new StringBuilder(256);
+                respBuff.append(((RetCodeResponse)response).getRetCode());
+                final CharSequence line = response.getLines().get(k);
+                if (k == response.getLines().size() - 1) {
+                    respBuff.append(" ");
+                    respBuff.append(line);
+                    context.writeLoggedFlushedResponse(respBuff.toString());
+                } else {
+                    respBuff.append("-");
+                    respBuff.append(line);
+                    context.writeLoggedResponse(respBuff.toString());
                 }
             }
-            
+                        
             if (response.isEndSession()) {
                 sessionEnded = true;
             }
@@ -306,7 +309,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
         return count;
     }
     
-    public void resetConnectionState() {
+    private void resetConnectionState() {
         connectionState.clear();
     }
     
@@ -329,6 +332,7 @@ public class SMTPHandler extends AbstractProtocolHandler implements SMTPSession 
     /**
      * @see org.apache.james.smtpserver.protocol.SMTPSession#pushLineHandler(org.apache.james.smtpserver.protocol.LineHandler)
      */
+    @SuppressWarnings("unchecked")
     public void pushLineHandler(LineHandler lineHandler) {
         if (lineHandlers == null) {
             lineHandlers = new LinkedList<LineHandler>();

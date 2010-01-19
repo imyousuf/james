@@ -27,12 +27,12 @@ import java.util.Random;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.smtpserver.mina.filter.FilterLineHandlerAdapter;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.smtpserver.mina.filter.TarpitFilter;
-import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
-import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.socket.mina.AbstractMINASession;
 import org.apache.mina.core.session.IoSession;
@@ -128,17 +128,18 @@ public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession 
         /**
          * @see org.apache.james.smtpserver.protocol.SMTPSession#pushLineHandler(org.apache.james.smtpserver.protocol.LineHandler)
          */
-        public void pushLineHandler(LineHandler overrideCommandHandler) {
+        public void pushLineHandler(LineHandler<SMTPSession> overrideCommandHandler) {
             lineHandlerCount++;
             getIoSession().getFilterChain().addAfter(SMTPResponseFilter.NAME,
                     "lineHandler" + lineHandlerCount,
                     new FilterLineHandlerAdapter(overrideCommandHandler));
         }
 
-        /**
-         * @see org.apache.james.smtpserver.protocol.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.protocol.SMTPResponse)
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.api.protocol.LogEnabledSession#writeResponse(org.apache.james.api.protocol.Response)
          */
-        public void writeSMTPResponse(SMTPResponse response) {
+        public void writeResponse(Response response) {
             getIoSession().write(response);
         }
 

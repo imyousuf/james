@@ -25,8 +25,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Request;
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
@@ -34,7 +35,7 @@ import org.apache.james.pop3server.POP3Session;
 /**
   * Default command handler for handling unknown commands
   */
-public class UnknownCmdHandler implements CommandHandler {
+public class UnknownCmdHandler implements CommandHandler<POP3Session> {
     /**
      * The name of the command handled by the command handler
      */
@@ -46,7 +47,7 @@ public class UnknownCmdHandler implements CommandHandler {
      * Returns an error response and logs the command.    
      *
      */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    public Response onCommand(POP3Session session, Request request) {
         return new POP3Response(POP3Response.ERR_RESPONSE);
     }
 

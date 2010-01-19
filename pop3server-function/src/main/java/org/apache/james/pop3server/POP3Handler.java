@@ -31,7 +31,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.api.protocol.ConnectHandler;
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.ProtocolHandlerChain;
+import org.apache.james.api.protocol.Response;
+import org.apache.james.api.protocol.RetCodeResponse;
 import org.apache.james.services.MailRepository;
 import org.apache.james.socket.api.CRLFTerminatedReader;
 import org.apache.james.socket.api.ProtocolContext;
@@ -95,11 +99,13 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
      * If not null every line is sent to this command handler instead
      * of the default "command parsing -> dipatching" procedure.
      */
+    @SuppressWarnings("unchecked")
     private LinkedList<LineHandler> lineHandlers;
 
     /**
      * Connect Handlers
      */
+    @SuppressWarnings("unchecked")
     private final LinkedList<ConnectHandler> connectHandlers;
     
     private int writtenBytes = 0;
@@ -115,6 +121,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
     /**
      * @see org.apache.james.socket.shared.AbstractProtocolHandler#handleProtocolInternal(org.apache.james.socket.api.ProtocolContext)
      */
+    @SuppressWarnings("unchecked")
     public void handleProtocolInternal(ProtocolContext context) throws IOException {
         this.context = context;
         handlerState = AUTHENTICATION_READY;
@@ -305,7 +312,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
 	/**
 	 * @see org.apache.james.pop3server.POP3Session#writePOP3Response(org.apache.james.pop3server.POP3Response)
 	 */
-    public void writePOP3Response(POP3Response response) {
+    public void writeResponse(Response response) {
         // Write a single-line or multiline response
         if (response != null) {
            
@@ -315,7 +322,7 @@ public class POP3Handler extends AbstractProtocolHandler implements POP3Session 
                 for (int k = 0; k < responseList.size(); k++) {
                 	StringBuffer respBuff = new StringBuffer(256);
                     if (k == 0) {
-                    	respBuff.append(response.getRetCode());
+                    	respBuff.append(((RetCodeResponse)response).getRetCode());
                         respBuff.append(" ");
                         respBuff.append(response.getLines().get(k));
                       

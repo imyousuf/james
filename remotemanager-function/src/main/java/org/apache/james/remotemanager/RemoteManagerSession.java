@@ -21,9 +21,10 @@ package org.apache.james.remotemanager;
 
 import java.util.Map;
 
-import org.apache.james.api.protocol.LogEnabledSession;
+import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.api.protocol.ProtocolSession;
 
-public interface RemoteManagerSession extends LogEnabledSession{
+public interface RemoteManagerSession extends ProtocolSession{
 
     public final static String CURRENT_USERREPOSITORY= "CURRENT_USERREPOSITORY";
     public final static String HEADER_IDENTIFIER = "header=";
@@ -31,18 +32,10 @@ public interface RemoteManagerSession extends LogEnabledSession{
     public final static String KEY_IDENTIFIER = "key=";
     
     /**
-     * Write response to client
-     * 
-     * @param response
-     */
-    public void writeRemoteManagerResponse(RemoteManagerResponse response);
-	
-    
-    /**
      * Put a new line handler in the chain
      * @param overrideCommandHandler
      */
-    public void pushLineHandler(LineHandler overrideCommandHandler);
+    public void pushLineHandler(LineHandler<RemoteManagerSession> overrideCommandHandler);
     
     /**
      * Pop the last command handler 

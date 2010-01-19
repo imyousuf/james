@@ -19,45 +19,23 @@
 
 package org.apache.james.remotemanager.mina;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.ProtocolSession;
 import org.apache.james.api.protocol.ProtocolHandlerChain;
-import org.apache.james.remotemanager.ConnectHandler;
-import org.apache.james.remotemanager.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.mina.core.service.IoHandlerAdapter;
-import org.apache.mina.core.session.IdleStatus;
+import org.apache.james.socket.mina.AbstractIoHandler;
 import org.apache.mina.core.session.IoSession;
 
-public class RemoteManagerIoHandler extends IoHandlerAdapter{
+public class RemoteManagerIoHandler extends AbstractIoHandler{
     
     private Log logger;
-    private ProtocolHandlerChain chain;
-
     private RemoteManagerHandlerConfigurationData config;
 
     public RemoteManagerIoHandler(RemoteManagerHandlerConfigurationData config, ProtocolHandlerChain chain, Log logger) {
-        this.chain = chain;
+        super(chain);
         this.logger = logger;
         this.config = config;
-    }
-   
-
-    /**
-     * @see org.apache.mina.core.service.IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession, java.lang.Object)
-     */
-    public void messageReceived(IoSession session, Object message)
-            throws Exception {
-        RemoteManagerSession rSession = (RemoteManagerSession) session.getAttribute(RemoteManagerSessionImpl.REMOTEMANAGER_SESSION);
-        LinkedList<LineHandler> lineHandlers = chain.getHandlers(LineHandler.class);
-        if (lineHandlers.size() > 0) {
-            // thats not really optimal but it allow us to keep things as generic as possible
-            // Will prolly get refactored later
-            ((LineHandler) lineHandlers.getLast()).onLine(rSession, (String) message);
-        }
     }
 
     /**
@@ -68,44 +46,18 @@ public class RemoteManagerIoHandler extends IoHandlerAdapter{
             throws Exception {
         logger.error("Caught exception: " + session.getCurrentWriteMessage(),
                 exception);
-        // just close session
-        session.close(true);
     }
 
-    /**
-     * @see org.apache.mina.core.service.IoHandler#sessionCreated(org.apache.mina.core.session.IoSession)
-     */
-    public void sessionCreated(IoSession session) throws Exception {
+    @Override
+    protected ProtocolSession createSession(IoSession session) throws Exception {
         RemoteManagerSession rSession  = new RemoteManagerSessionImpl(config, logger, session);
         rSession.getState().put(RemoteManagerSession.CURRENT_USERREPOSITORY, "LocalUsers");
-
-        // Add attribute
-        session.setAttribute(RemoteManagerSessionImpl.REMOTEMANAGER_SESSION,rSession);
-
+        return rSession;
     }
 
-    /**
-     * @see org.apache.mina.core.service.IoHandler#sessionIdle(org.apache.mina.core.session.IoSession,
-     *      org.apache.mina.core.session.IdleStatus)
-     */
-    public void sessionIdle(IoSession session, IdleStatus status)
-            throws Exception {
-        logger.debug("Connection timed out");
-        session.write("Connection timeout");
+    @Override
+    protected String getSessionKey() {
+        return RemoteManagerSessionImpl.REMOTEMANAGER_SESSION;
     }
 
-    /**
-     * @see org.apache.mina.core.service.IoHandler#sessionOpened(org.apache.mina.core.session.IoSession)
-     */
-    public void sessionOpened(IoSession session) throws Exception {
-        List<ConnectHandler> connectHandlers = chain
-                .getHandlers(ConnectHandler.class);
-      
-        if (connectHandlers != null) {
-            for (int i = 0; i < connectHandlers.size(); i++) {
-                connectHandlers.get(i).onConnect(
-                        (RemoteManagerSession) session.getAttribute(RemoteManagerSessionImpl.REMOTEMANAGER_SESSION));
-            }
-        }    
-    }
 }

@@ -33,7 +33,6 @@ import org.apache.mina.core.session.IoSession;
 /**
  * Use this class to set a connection limit
  */
-
 public class ConnectionFilter extends IoFilterAdapter{
 
     private Map<String, Integer> connections = new HashMap<String, Integer>();

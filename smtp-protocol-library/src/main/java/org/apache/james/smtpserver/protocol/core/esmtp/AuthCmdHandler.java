@@ -29,12 +29,13 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.james.api.protocol.CommandHandler;
 import org.apache.james.api.protocol.ExtensibleHandler;
+import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.api.protocol.WiringException;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.CommandHandler;
-import org.apache.james.smtpserver.protocol.LineHandler;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -54,14 +55,14 @@ import org.apache.james.smtpserver.protocol.hook.MailParametersHook;
  * system (simple pluggabilty against external authentication services).
  */
 public class AuthCmdHandler
-    implements CommandHandler, EhloExtension, ExtensibleHandler, MailParametersHook {
+    implements CommandHandler<SMTPSession>, EhloExtension, ExtensibleHandler, MailParametersHook {
 
-    private abstract class AbstractSMTPLineHandler implements LineHandler {
+    private abstract class AbstractSMTPLineHandler implements LineHandler<SMTPSession> {
 
         public void onLine(SMTPSession session, String l) {
             SMTPResponse res = handleCommand(session, l);
             session.popLineHandler();
-            session.writeSMTPResponse(res);
+            session.writeResponse(res);
            
         }
 
@@ -104,7 +105,7 @@ public class AuthCmdHandler
      * handles AUTH command
      *
      */
-    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+    public Response onCommand(SMTPSession session, Request request) {
         return doAUTH(session, request.getArgument());
     }
 
@@ -254,7 +255,7 @@ public class AuthCmdHandler
 
             private String user;
 
-            public LineHandler setUser(String user) {
+            public LineHandler<SMTPSession> setUser(String user) {
                 this.user = user;
                 return this;
             }

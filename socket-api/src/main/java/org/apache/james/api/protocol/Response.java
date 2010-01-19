@@ -17,33 +17,50 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.api.protocol;
 
-package org.apache.james.pop3server.core;
+import java.util.List;
 
-import org.apache.james.Constants;
-import org.apache.james.api.protocol.ConnectHandler;
-import org.apache.james.pop3server.POP3Response;
-import org.apache.james.pop3server.POP3Session;
+/**
+ * Protocol response to send to the client
+ * 
+ *
+ */
+public interface Response {
 
-public class WelcomeMessageHandler implements ConnectHandler<POP3Session>{
-    /** POP3 Server identification string used in POP3 headers */
-    private static final String softwaretype        = "JAMES POP3 Server "
-                                                        + Constants.SOFTWARE_VERSION;
+    
+    /**
+     * Append line to response
+     * 
+     * @param line 
+     */
+    public void appendLine(CharSequence line);
+   
+    /**
+     * Return a List of all response lines stored in this Response
+     * 
+     * @return all responseLines
+     */
+    public List<CharSequence> getLines();
 
     /**
-     * @see org.apache.james.pop3server.ConnectHandler#onConnect(org.apache.james.pop3server.POP3Session)
+     * Return the raw representation of the stored Response
+     * 
+     * @return rawLine the raw Response
      */
-    public void onConnect(POP3Session session) {
-        StringBuilder responseBuffer = new StringBuilder();
+    public String getRawLine();
 
-        // Initially greet the connector
-        // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-        responseBuffer.append(session.getConfigurationData().getHelloName())
-                    .append(" POP3 server (")
-                    .append(softwaretype)
-                    .append(") ready ");
-        POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
-        session.writeResponse(response);
-    }
+    /**
+     * Return true if the session is ended
+     * 
+     * @return true if session is ended
+     */
+    public boolean isEndSession();
+    /**
+     * Set to true to end the session
+     * 
+     * @param endSession
+     */
+    public void setEndSession(boolean endSession);
 
 }

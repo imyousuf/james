@@ -32,9 +32,9 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.api.protocol.ConnectHandler;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.Configurable;
-import org.apache.james.smtpserver.protocol.ConnectHandler;
 import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
@@ -45,7 +45,7 @@ import org.apache.mailet.MailAddress;
 /**
   * Connect handler for DNSRBL processing
   */
-public class DNSRBLHandler implements  ConnectHandler, RcptHook, Configurable{
+public class DNSRBLHandler implements  ConnectHandler<SMTPSession>, RcptHook, Configurable{
     
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DNSRBLHandler.class);
@@ -140,7 +140,6 @@ public class DNSRBLHandler implements  ConnectHandler, RcptHook, Configurable{
     /**
      * check if the remote Ip address is block listed
      *
-     * @see org.apache.james.smtpserver.protocol.ConnectHandler#onConnect(SMTPSession)
     **/
     public void onConnect(SMTPSession session) {
         checkDNSRBL(session, session.getRemoteIPAddress());

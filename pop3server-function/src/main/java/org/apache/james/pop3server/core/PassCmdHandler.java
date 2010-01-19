@@ -27,9 +27,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.services.MailRepository;
@@ -39,7 +40,7 @@ import org.apache.james.util.POP3BeforeSMTPHelper;
 /**
   * Handles PASS command
   */
-public class PassCmdHandler implements CommandHandler {
+public class PassCmdHandler implements CommandHandler<POP3Session> {
 
 	private final static String COMMAND_NAME ="PASS";
 	private UsersRepository users;
@@ -70,7 +71,7 @@ public class PassCmdHandler implements CommandHandler {
      * Reads in and validates the password.
      *
 	 */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    public Response onCommand(POP3Session session, Request request) {
     	String parameters = request.getArgument();
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.AUTHENTICATION_USERSET && parameters != null) {

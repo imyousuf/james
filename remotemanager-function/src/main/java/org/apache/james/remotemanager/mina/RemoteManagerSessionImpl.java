@@ -19,13 +19,14 @@
 
 package org.apache.james.remotemanager.mina;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.remotemanager.LineHandler;
+import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
-import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.remotemanager.mina.filter.FilterLineHandlerAdapter;
 import org.apache.james.remotemanager.mina.filter.RemoteManagerResponseFilter;
@@ -37,6 +38,7 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
     private Map<String, Object> state = new HashMap<String, Object>();
     private RemoteManagerHandlerConfigurationData config;
     private int lineHandlerCount = 0;
+    private InetSocketAddress socketAddress;
 
     public final static String REMOTEMANAGER_SESSION = "REMOTEMANAGER_SESSION";
 
@@ -45,6 +47,7 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
         this.logger = logger;
         this.session = session;
         this.config = config;
+        this.socketAddress = (InetSocketAddress) session.getRemoteAddress();
     }
 
     /*
@@ -54,17 +57,6 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
      */
     public Map<String, Object> getState() {
         return state;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seeorg.apache.james.remotemanager.RemoteManagerSession#
-     * writeRemoteManagerResponse
-     * (org.apache.james.remotemanager.RemoteManagerResponse)
-     */
-    public void writeRemoteManagerResponse(RemoteManagerResponse response) {
-        session.write(response);
     }
 
     /*
@@ -108,8 +100,32 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
      * (non-Javadoc)
      * @see org.apache.james.remotemanager.RemoteManagerSession#pushLineHandler(org.apache.james.remotemanager.LineHandler)
      */
-    public void pushLineHandler(LineHandler overrideCommandHandler) {
+    public void pushLineHandler(LineHandler<RemoteManagerSession> overrideCommandHandler) {
         lineHandlerCount++;
         session.getFilterChain().addAfter(RemoteManagerResponseFilter.NAME, "lineHandler" + lineHandlerCount, new FilterLineHandlerAdapter(overrideCommandHandler));
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LogEnabledSession#getRemoteHost()
+     */
+    public String getRemoteHost() {
+        return socketAddress.getHostName();
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LogEnabledSession#getRemoteIPAddress()
+     */
+    public String getRemoteIPAddress() {
+        return socketAddress.getAddress().getHostAddress();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LogEnabledSession#writeResponse(org.apache.james.api.protocol.Response)
+     */
+    public void writeResponse(Response response) {
+        session.write(response);        
     }
 }

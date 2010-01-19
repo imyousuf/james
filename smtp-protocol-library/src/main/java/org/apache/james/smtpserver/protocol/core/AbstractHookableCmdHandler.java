@@ -22,9 +22,10 @@ package org.apache.james.smtpserver.protocol.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.james.api.protocol.CommandHandler;
 import org.apache.james.api.protocol.ExtensibleHandler;
-import org.apache.james.smtpserver.protocol.CommandHandler;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -36,7 +37,7 @@ import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
  * Abstract class which Handle hooks.
  * 
  */
-public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler, ExtensibleHandler {
+public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler<SMTPSession>, ExtensibleHandler {
 
 
     private List<Hook> hooks;
@@ -48,7 +49,7 @@ public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler
      * @see org.apache.james.smtpserver.protocol.CommandHandler#onCommand(org.apache.james.smtpserver.protocol.SMTPSession,
      *      java.lang.String, java.lang.String)
      */
-    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+    public Response onCommand(SMTPSession session, Request request) {
         String command = request.getCommand();
         String parameters = request.getArgument();
         SMTPResponse response = doFilterChecks(session, command, parameters);

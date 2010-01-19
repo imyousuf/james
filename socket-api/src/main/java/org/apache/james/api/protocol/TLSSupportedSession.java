@@ -27,7 +27,7 @@ import java.io.IOException;
  * 
  *
  */
-public interface TLSSupportedSession extends LogEnabledSession{
+public interface TLSSupportedSession extends ProtocolSession{
     /**
      * Returns the user name associated with this interaction.
      *
@@ -43,19 +43,7 @@ public interface TLSSupportedSession extends LogEnabledSession{
     void setUser(String user);
     
 
-    /**
-     * Returns host name of the client
-     *
-     * @return hostname of the client
-     */
-    String getRemoteHost();
-
-    /**
-     * Returns host ip address of the client
-     *
-     * @return host ip address of the client
-     */
-    String getRemoteIPAddress();
+  
 	/**
 	 * Return true if StartTLS is supported by the configuration
 	 * 
