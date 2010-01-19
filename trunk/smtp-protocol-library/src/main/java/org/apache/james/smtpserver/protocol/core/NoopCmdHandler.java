@@ -24,9 +24,10 @@ package org.apache.james.smtpserver.protocol.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.CommandHandler;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -34,7 +35,7 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 /**
   * Handles NOOP command
   */
-public class NoopCmdHandler implements CommandHandler {
+public class NoopCmdHandler implements CommandHandler<SMTPSession> {
 
     /**
      * The name of the command handled by the command handler
@@ -46,7 +47,7 @@ public class NoopCmdHandler implements CommandHandler {
      * Just sends back an OK and logs the command.
      *
      */
-    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+    public Response onCommand(SMTPSession session, Request request) {
         return new SMTPResponse(SMTPRetCode.MAIL_OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.UNDEFINED_STATUS)+" OK");
     }
     
@@ -59,4 +60,5 @@ public class NoopCmdHandler implements CommandHandler {
         
         return implCommands;
     }
+
 }

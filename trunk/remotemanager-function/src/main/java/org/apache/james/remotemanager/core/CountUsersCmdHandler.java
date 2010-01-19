@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.remotemanager.CommandHelp;
-import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -47,8 +48,7 @@ public class CountUsersCmdHandler extends ListUsersCmdHandler{
     }
     
     @Override
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
-        RemoteManagerResponse response;
+    public Response onCommand(RemoteManagerSession session, Request request) {        RemoteManagerResponse response;
         String parameters = request.getArgument();
         UsersRepository users = uStore.getRepository(((String) session.getState().get(RemoteManagerSession.CURRENT_USERREPOSITORY)));
         if (parameters == null) {

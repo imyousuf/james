@@ -29,7 +29,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.ConnectHandler;
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.ProtocolHandlerChain;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.socket.api.CRLFTerminatedReader;
 import org.apache.james.socket.api.ProtocolContext;
 import org.apache.james.socket.api.ProtocolHandler;
@@ -54,8 +57,10 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
 
     private ProtocolHandlerChain handlerChain;
 
+    @SuppressWarnings("unchecked")
     private LinkedList<ConnectHandler> connectHandlers;
 
+    @SuppressWarnings("unchecked")
     private LinkedList<LineHandler> lineHandlers;
     
     public RemoteManagerHandler(final RemoteManagerHandlerConfigurationData theConfigData, final ProtocolHandlerChain handlerChain) {
@@ -68,6 +73,7 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
     /**
      * @see org.apache.avalon.cornerstone.services.connection.ConnectionHandler#handleConnection(Socket)
      */
+    @SuppressWarnings("unchecked")
     public void handleProtocol(ProtocolContext context) throws IOException {
         this.context = context;
         sessionEnded = false;
@@ -157,10 +163,12 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
         return stateMap;
     }
 
-    /**
-     * @see org.apache.james.remotemanager.RemoteManagerSession#writeRemoteManagerResponse(org.apache.james.remotemanager.RemoteManagerResponse)
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LogEnabledSession#writeResponse(org.apache.james.api.protocol.Response)
      */
-    public void writeRemoteManagerResponse(RemoteManagerResponse response) {
+    public void writeResponse(Response response) {
         // Write a single-line or multiline response
         if (response != null) {
             List<CharSequence> responseList = response.getLines();
@@ -199,7 +207,8 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
      * (non-Javadoc)
      * @see org.apache.james.remotemanager.RemoteManagerSession#pushLineHandler(org.apache.james.remotemanager.LineHandler)
      */
-    public void pushLineHandler(LineHandler lineHandler) {
+    @SuppressWarnings("unchecked")
+    public void pushLineHandler(LineHandler<RemoteManagerSession> lineHandler) {
         if (lineHandlers == null) {
             lineHandlers = new LinkedList<LineHandler>();
         }
@@ -213,6 +222,22 @@ public class RemoteManagerHandler implements ProtocolHandler, RemoteManagerSessi
      */
     public Map<String, String> getAdministrativeAccountData() {
         return theConfigData.getAdministrativeAccountData();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LogEnabledSession#getRemoteHost()
+     */
+    public String getRemoteHost() {
+        return  context.getRemoteHost();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LogEnabledSession#getRemoteIPAddress()
+     */
+    public String getRemoteIPAddress() {
+        return context.getRemoteIP();
     }
 
 

@@ -23,13 +23,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.james.api.protocol.CommandHandler;
 import org.apache.james.api.protocol.ExtensibleHandler;
+import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.api.protocol.WiringException;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.CommandHandler;
-import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.MailEnvelopeImpl;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -39,9 +40,9 @@ import org.apache.mailet.MailAddress;
 /**
   * handles DATA command
  */
-public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
+public class DataCmdHandler implements CommandHandler<SMTPSession>, ExtensibleHandler {
 
-    public final class DataConsumerLineHandler implements LineHandler {
+    public final class DataConsumerLineHandler implements LineHandler<SMTPSession> {
         /**
          * @see org.apache.james.smtpserver.protocol.LineHandler#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[])
          */
@@ -54,12 +55,12 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
         }
     }
 
-    public final class DataLineFilterWrapper implements LineHandler {
+    public final class DataLineFilterWrapper implements LineHandler<SMTPSession> {
 
-        private DataLineFilter filter;
-        private LineHandler next;
+        private DataLineFilter<SMTPSession> filter;
+        private LineHandler<SMTPSession> next;
         
-        public DataLineFilterWrapper(DataLineFilter filter, LineHandler next) {
+        public DataLineFilterWrapper(DataLineFilter<SMTPSession> filter, LineHandler<SMTPSession> next) {
             this.filter = filter;
             this.next = next;
         }
@@ -71,14 +72,13 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
    
     public final static String MAILENV = "MAILENV";
     
-    private LineHandler lineHandler;
+    private LineHandler<SMTPSession> lineHandler;
     
     /**
      * process DATA command
      *
-     * @see org.apache.james.smtpserver.protocol.CommandHandler#onCommand(SMTPSession)
      */
-    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+    public Response onCommand(SMTPSession session, Request request) {
         String parameters = request.getArgument();
         SMTPResponse response = doDATAFilter(session,parameters);
         
@@ -136,7 +136,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (DataLineFilter.class.equals(interfaceName)) {
 
-            LineHandler lineHandler = new DataConsumerLineHandler();
+            LineHandler<SMTPSession> lineHandler = new DataConsumerLineHandler();
             for (int i = extension.size() - 1; i >= 0; i--) {
                 lineHandler = new DataLineFilterWrapper((DataLineFilter) extension.get(i), lineHandler);
             }
@@ -157,7 +157,7 @@ public class DataCmdHandler implements CommandHandler, ExtensibleHandler {
         return null;
     }
     
-    protected LineHandler getLineHandler() {
+    protected LineHandler<SMTPSession> getLineHandler() {
     	return lineHandler;
     }
 

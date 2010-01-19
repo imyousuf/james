@@ -19,12 +19,12 @@
 
 package org.apache.james.remotemanager.core;
 
-import org.apache.james.remotemanager.ConnectHandler;
-import org.apache.james.remotemanager.LineHandler;
+import org.apache.james.api.protocol.ConnectHandler;
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
-public class AuthorizationHandler implements ConnectHandler {
+public class AuthorizationHandler implements ConnectHandler<RemoteManagerSession> {
 
     private final static String AUTHORIZATION_STATE = "AUTHORIZATION_STATE";
     private final static int LOGIN_SUPPLIED = 1;
@@ -32,7 +32,7 @@ public class AuthorizationHandler implements ConnectHandler {
 
     private final static String USERNAME = "USERNAME";
     
-    private final LineHandler lineHandler = new AuthorizationLineHandler();
+    private final LineHandler<RemoteManagerSession> lineHandler = new AuthorizationLineHandler();
 
     /*
      * (non-Javadoc)
@@ -47,47 +47,41 @@ public class AuthorizationHandler implements ConnectHandler {
         response.appendLine("Please enter your login and password");
         response.appendLine("Login id:");
 
-        session.writeRemoteManagerResponse(response);
+        session.writeResponse(response);
         session.pushLineHandler(lineHandler);
         session.getState().put(AUTHORIZATION_STATE, LOGIN_SUPPLIED);
     }
     
-    private final class AuthorizationLineHandler implements LineHandler {
+    private final class AuthorizationLineHandler implements LineHandler<RemoteManagerSession> {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.remotemanager.LineHandler#onLine(org.apache.james
-     * .remotemanager.RemoteManagerSession, java.lang.String)
-     */
-    public void onLine(RemoteManagerSession session, String line) {
-        int state = (Integer) session.getState().get(AUTHORIZATION_STATE);
+        public void onLine(RemoteManagerSession session, String line) {
+            int state = (Integer) session.getState().get(AUTHORIZATION_STATE);
 
-        if (state == LOGIN_SUPPLIED) {
-            session.getState().put(USERNAME, line);
-            session.getState().put(AUTHORIZATION_STATE, PASSWORD_SUPPLIED);
+            if (state == LOGIN_SUPPLIED) {
+                session.getState().put(USERNAME, line);
+                session.getState().put(AUTHORIZATION_STATE, PASSWORD_SUPPLIED);
 
-            session.writeRemoteManagerResponse(new RemoteManagerResponse("Password:"));
-        } else if (state == PASSWORD_SUPPLIED) {
-            String password = line;
-            String username = (String) session.getState().get(USERNAME);
+                session.writeResponse(new RemoteManagerResponse("Password:"));
+            } else if (state == PASSWORD_SUPPLIED) {
+                String password = line;
+                String username = (String) session.getState().get(USERNAME);
 
-            if (!password.equals(session.getAdministrativeAccountData().get(username)) || password.length() == 0) {
-                final String message = "Login failed for " + username;
-                session.writeRemoteManagerResponse(new RemoteManagerResponse(message));
-                session.writeRemoteManagerResponse(new RemoteManagerResponse("Login id:"));
-            } else {
-                StringBuilder messageBuffer = new StringBuilder(64).append("Welcome ").append(username).append(". HELP for a list of commands");
-                session.writeRemoteManagerResponse(new RemoteManagerResponse(messageBuffer.toString()));
-                if (session.getLogger().isInfoEnabled()) {
-                    StringBuilder infoBuffer = new StringBuilder(128).append("Login for ").append(username).append(" successful");
-                    session.getLogger().info(infoBuffer.toString());
+                if (!password.equals(session.getAdministrativeAccountData().get(username)) || password.length() == 0) {
+                    final String message = "Login failed for " + username;
+                    session.writeResponse(new RemoteManagerResponse(message));
+                    session.writeResponse(new RemoteManagerResponse("Login id:"));
+                } else {
+                    StringBuilder messageBuffer = new StringBuilder(64).append("Welcome ").append(username).append(". HELP for a list of commands");
+                    session.writeResponse(new RemoteManagerResponse(messageBuffer.toString()));
+                    if (session.getLogger().isInfoEnabled()) {
+                        StringBuilder infoBuffer = new StringBuilder(128).append("Login for ").append(username).append(" successful");
+                        session.getLogger().info(infoBuffer.toString());
+                    }
+                    session.popLineHandler();
                 }
-                session.popLineHandler();
+                session.getState().remove(USERNAME);
             }
-            session.getState().remove(USERNAME);
         }
-    }
     }
 
 }

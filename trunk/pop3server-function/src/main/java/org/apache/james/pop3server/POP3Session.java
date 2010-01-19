@@ -117,13 +117,5 @@ public interface POP3Session extends TLSSupportedSession {
      * @param backupUserMailbox the mailbox backup
      */
     void setBackupUserMailbox(List<Mail> backupUserMailbox);
-
-    /**
-     * Write the response to the client
-     * 
-     * @param response
-     */
-    void writePOP3Response(POP3Response response);
-
 }
 

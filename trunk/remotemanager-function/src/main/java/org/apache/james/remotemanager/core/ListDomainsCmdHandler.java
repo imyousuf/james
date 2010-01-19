@@ -26,10 +26,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.management.DomainListManagementService;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
-import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
@@ -55,10 +56,11 @@ public class ListDomainsCmdHandler implements CommandHandler{
         return help;
     }
 
-    /**
-     * @see org.apache.james.remotemanager.CommandHandler#onCommand(org.apache.james.remotemanager.RemoteManagerSession, java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.CommandHandler#onCommand(org.apache.james.api.protocol.LogEnabledSession, org.apache.james.api.protocol.Request)
      */
-    public RemoteManagerResponse onCommand(RemoteManagerSession session, RemoteManagerRequest request) {
+    public Response onCommand(RemoteManagerSession session, Request request) {
         RemoteManagerResponse response = null;
         
         Collection<String> domains = domService.getDomains();

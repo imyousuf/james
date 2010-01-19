@@ -17,41 +17,20 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.remotemanager.mina.filter;
 
-import org.apache.commons.logging.Log;
-import org.apache.james.remotemanager.RemoteManagerResponse;
-import org.apache.james.socket.mina.filter.AbstractValidationFilter;
-import org.apache.mina.core.write.DefaultWriteRequest;
-import org.apache.mina.core.write.WriteRequest;
 
-public class RemoteManagerValidationFilter extends AbstractValidationFilter{
+package org.apache.james.api.protocol;
 
-    public RemoteManagerValidationFilter(Log logger) {
-        super(logger);
-    }
-
-    @Override
-    protected WriteRequest errorRequest(Object obj) {
-        return new DefaultWriteRequest("ERROR: Cannot handle message of type " + (obj != null ? obj.getClass() : "NULL"));
-    }
-
-    @Override
-    protected WriteRequest errorResponse(Object obj) {
-        return null;
-    }
-
-    @Override
-    protected boolean isValidRequest(Object requestObject) {
-        return true;
-    }
-
-    @Override
-    protected boolean isValidResponse(Object responseObject) {
-        if (responseObject instanceof RemoteManagerResponse) {
-            return true;
-        }
-        return false;
-    }
+/**
+ * Custom connect handlers must implement this interface
+ * The connect handlers will be server-wide common to all the Handlers ,
+ * therefore the handlers must store all the state information
+ * in the Session object
+ */
+public interface ConnectHandler<Session extends ProtocolSession> {
+    /**
+     * Handle connection
+    **/
+    public void onConnect(Session session);
 
 }

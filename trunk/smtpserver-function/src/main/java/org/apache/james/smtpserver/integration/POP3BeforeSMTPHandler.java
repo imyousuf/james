@@ -20,9 +20,10 @@
 
 package org.apache.james.smtpserver.integration;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.james.smtpserver.protocol.ConnectHandler;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.api.protocol.ConnectHandler;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.TimeConverter;
@@ -30,7 +31,7 @@ import org.apache.james.util.TimeConverter;
 /**
  * This ConnectHandler can be used to activate pop-before-smtp
  */
-public class POP3BeforeSMTPHandler implements ConnectHandler {
+public class POP3BeforeSMTPHandler implements ConnectHandler<SMTPSession>,Configurable{
 
     /**
      * The time after which ipAddresses should be handled as expired
@@ -38,10 +39,10 @@ public class POP3BeforeSMTPHandler implements ConnectHandler {
     private long expireTime = POP3BeforeSMTPHelper.EXPIRE_TIME;
 
 
-    /**
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
+    /*
+     * 
      */
-    public void configure(Configuration config) throws ConfigurationException {
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         try {
             setExpireTime(config.getString("expireTime",null));
         } catch (NumberFormatException e) {

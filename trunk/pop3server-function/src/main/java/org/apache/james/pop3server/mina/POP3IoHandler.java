@@ -19,18 +19,12 @@
 
 package org.apache.james.pop3server.mina;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.ProtocolSession;
 import org.apache.james.api.protocol.ProtocolHandlerChain;
-import org.apache.james.pop3server.ConnectHandler;
-import org.apache.james.pop3server.LineHandler;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
-import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Session;
-
-import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.james.socket.mina.AbstractIoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslContextFactory;
@@ -40,11 +34,9 @@ import org.apache.mina.filter.ssl.SslContextFactory;
  * 
  *
  */
-public class POP3IoHandler extends IoHandlerAdapter{
-    private final static String POP3_SESSION = "org.apache.james.pop3server.mina.POP3IoHandler.POP3_SESSION";
+public class POP3IoHandler extends AbstractIoHandler{
     
     private Log logger;
-    private ProtocolHandlerChain chain;
     private POP3HandlerConfigurationData conf;
     private SslContextFactory contextFactory;
 
@@ -55,52 +47,10 @@ public class POP3IoHandler extends IoHandlerAdapter{
     
     public POP3IoHandler(ProtocolHandlerChain chain,
     		POP3HandlerConfigurationData conf, Log logger, SslContextFactory contextFactory) {
-        this.chain = chain;
+        super(chain);
         this.conf = conf;
         this.logger = logger;
         this.contextFactory = contextFactory;
-    }
-
-    /**
-     * @see org.apache.mina.core.service.IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession, java.lang.Object)
-     */
-    public void messageReceived(IoSession session, Object message)
-            throws Exception {
-        POP3Session pop3Session = (POP3Session) session.getAttribute(POP3_SESSION);
-        LinkedList<LineHandler> lineHandlers = chain.getHandlers(LineHandler.class);
-        if (lineHandlers.size() > 0) {
-            // thats not really optimal but it allow us to keep things as generic as possible
-            // Will prolly get refactored later
-            String line = ((POP3Request) message).toString();
-            ((LineHandler) lineHandlers.getLast()).onLine(pop3Session, line);
-        }
-    }
-
-    /**
-     * @see org.apache.mina.core.service.IoHandler#exceptionCaught(org.apache.mina.core.session.IoSession,
-     *      java.lang.Throwable)
-     */
-    public void exceptionCaught(IoSession session, Throwable exception)
-            throws Exception {
-        logger.error("Caught exception: " + session.getCurrentWriteMessage(),
-                exception);
-        // just close session
-        session.close(true);
-    }
-
-    /**
-     * @see org.apache.mina.core.service.IoHandler#sessionCreated(org.apache.mina.core.session.IoSession)
-     */
-    public void sessionCreated(IoSession session) throws Exception {
-        POP3Session pop3Session;
-        if (contextFactory == null) {
-        	pop3Session = new POP3SessionImpl(conf, logger, session);
-        } else {
-        	pop3Session = new POP3SessionImpl(conf, logger, session, contextFactory.newInstance());
-        }
-        
-        // Add attribute
-        session.setAttribute(POP3_SESSION,pop3Session);
     }
 
     /**
@@ -113,18 +63,21 @@ public class POP3IoHandler extends IoHandlerAdapter{
         session.write("Connection timeout");
     }
 
-    /**
-     * @see org.apache.mina.core.service.IoHandler#sessionOpened(org.apache.mina.core.session.IoSession)
-     */
-    public void sessionOpened(IoSession session) throws Exception {
-        List<ConnectHandler> connectHandlers = chain
-                .getHandlers(ConnectHandler.class);
-      
-        if (connectHandlers != null) {
-            for (int i = 0; i < connectHandlers.size(); i++) {
-                connectHandlers.get(i).onConnect(
-                        (POP3Session) session.getAttribute(POP3_SESSION));
-            }
-        }    
+    @Override
+    protected ProtocolSession createSession(IoSession session) throws Exception {
+        POP3Session pop3Session;
+        if (contextFactory == null) {
+            pop3Session = new POP3SessionImpl(conf, logger, session);
+        } else {
+            pop3Session = new POP3SessionImpl(conf, logger, session, contextFactory.newInstance());
+        }
+        return pop3Session;
     }
+
+    @Override
+    protected String getSessionKey() {
+        return POP3SessionImpl.POP3SESSION;
+    }
+
+   
 }

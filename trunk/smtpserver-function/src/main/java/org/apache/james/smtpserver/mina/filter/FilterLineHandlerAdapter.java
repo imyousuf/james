@@ -18,8 +18,8 @@
  ****************************************************************/
 package org.apache.james.smtpserver.mina.filter;
 
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.smtpserver.mina.SMTPSessionImpl;
-import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
@@ -31,9 +31,9 @@ import org.apache.mina.core.session.IoSession;
  */
 public final class FilterLineHandlerAdapter extends IoFilterAdapter {
 
-    private LineHandler lineHandler;
+    private LineHandler<SMTPSession> lineHandler;
 
-    public FilterLineHandlerAdapter(LineHandler lineHandler) {
+    public FilterLineHandlerAdapter(LineHandler<SMTPSession> lineHandler) {
         this.lineHandler = lineHandler;
     }
 

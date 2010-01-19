@@ -25,9 +25,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.smtpserver.protocol.LineHandler;
+import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
-import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 
 /**
@@ -136,17 +136,19 @@ public class BaseFakeSMTPSession implements SMTPSession {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
-    /**
-     * @see org.apache.james.smtpserver.protocol.SMTPSession#pushLineHandler(org.apache.james.smtpserver.protocol.LineHandler)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.SMTPSession#pushLineHandler(org.apache.james.api.protocol.LineHandler)
      */
-    public void pushLineHandler(LineHandler overrideCommandHandler) {
+    public void pushLineHandler(LineHandler<SMTPSession> overrideCommandHandler) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
-    /**
-     * @see org.apache.james.smtpserver.protocol.SMTPSession#writeSMTPResponse(org.apache.james.smtpserver.protocol.SMTPResponse)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LogEnabledSession#writeResponse(org.apache.james.api.protocol.Response)
      */
-    public void writeSMTPResponse(SMTPResponse response) {
+    public void writeResponse(Response response) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 

@@ -31,13 +31,12 @@ import org.apache.commons.logging.Log;
 /**
  * Abstract base class which CommandDispatcher implementations should extend
  *
- * @param <CommandHandler>
  */
-public abstract class AbstractCommandDispatcher<CommandHandler extends CommonCommandHandler> implements ExtensibleHandler {
+public abstract class AbstractCommandDispatcher<Session extends ProtocolSession> implements ExtensibleHandler {
     /**
      * The list of available command handlers
      */
-    private HashMap<String, List<CommandHandler>> commandHandlerMap = new HashMap<String, List<CommandHandler>>();
+    private HashMap<String, List<CommandHandler<Session>>> commandHandlerMap = new HashMap<String, List<CommandHandler<Session>>>();
 
     /**
      * Add it to map (key as command name, value is an array list of CommandHandlers)
@@ -45,10 +44,10 @@ public abstract class AbstractCommandDispatcher<CommandHandler extends CommonCom
      * @param commandName the command name which will be key
      * @param cmdHandler The CommandHandler object
      */
-    protected void addToMap(String commandName, CommandHandler cmdHandler) {
-        List<CommandHandler> handlers = commandHandlerMap.get(commandName);
+    protected void addToMap(String commandName, CommandHandler<Session> cmdHandler) {
+        List<CommandHandler<Session>> handlers = commandHandlerMap.get(commandName);
         if(handlers == null) {
-            handlers = new ArrayList<CommandHandler>();
+            handlers = new ArrayList<CommandHandler<Session>>();
             commandHandlerMap.put(commandName, handlers);
         }
         handlers.add(cmdHandler);
@@ -62,14 +61,14 @@ public abstract class AbstractCommandDispatcher<CommandHandler extends CommonCom
      * @param session not null
      * @return List of CommandHandlers
      */
-    protected List<CommandHandler> getCommandHandlers(String command, LogEnabledSession session) {
+    protected List<CommandHandler<Session>> getCommandHandlers(String command, ProtocolSession session) {
         if (command == null) {
             return null;
         }
         if (session.getLogger().isDebugEnabled()) {
             session.getLogger().debug("Lookup command handler for command: " + command);
         }
-        List<CommandHandler> handlers =  commandHandlerMap.get(command);
+        List<CommandHandler<Session>> handlers =  commandHandlerMap.get(command);
         if(handlers == null) {
             handlers = commandHandlerMap.get(getUnknownCommandHandlerIdentifier());
         }
@@ -83,7 +82,7 @@ public abstract class AbstractCommandDispatcher<CommandHandler extends CommonCom
      */
     @SuppressWarnings("unchecked")
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
-        this.commandHandlerMap = new HashMap<String, List<CommandHandler>>();
+        this.commandHandlerMap = new HashMap<String, List<CommandHandler<Session>>>();
 
         for (Iterator it = extension.iterator(); it.hasNext(); ) {
             CommandHandler handler = (CommandHandler) it.next();
@@ -159,5 +158,5 @@ public abstract class AbstractCommandDispatcher<CommandHandler extends CommonCom
      * 
      * @return unknownCmdHandler
      */
-    protected abstract CommandHandler getUnknownCommandHandler();
+    protected abstract CommandHandler<Session> getUnknownCommandHandler();
 }

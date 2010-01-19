@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.apache.james.api.protocol.CommandHandler;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.CommandHandler;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -37,7 +37,7 @@ import org.apache.mailet.MailAddress;
  * Handles RCPT command
  */
 public class RcptCmdHandler extends AbstractHookableCmdHandler<RcptHook> implements
-        CommandHandler {
+        CommandHandler<SMTPSession> {
 
     public static final String CURRENT_RECIPIENT = "CURRENT_RECIPIENT"; // Current recipient
 

@@ -22,9 +22,11 @@ package org.apache.james.remotemanager;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.james.api.protocol.Response;
+
 /**
  */
-public class RemoteManagerResponse {
+public class RemoteManagerResponse implements Response{
 
     
     private List<CharSequence> lines = null;

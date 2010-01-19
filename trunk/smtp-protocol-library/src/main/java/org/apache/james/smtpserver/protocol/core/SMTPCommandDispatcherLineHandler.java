@@ -27,16 +27,17 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.smtpserver.protocol.CommandHandler;
-import org.apache.james.smtpserver.protocol.LineHandler;
 import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 
 
-public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<CommandHandler> implements LogEnabled, LineHandler {
+public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<SMTPSession> implements LogEnabled, LineHandler<SMTPSession> {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(SMTPCommandDispatcherLineHandler.class);
@@ -45,7 +46,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
     private Log serviceLog = FALLBACK_LOG;
     
 
-    private final CommandHandler unknownHandler = new UnknownCmdHandler();
+    private final CommandHandler<SMTPSession> unknownHandler = new UnknownCmdHandler();
 
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
 
@@ -70,19 +71,19 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
         }
         curCommandName = curCommandName.toUpperCase(Locale.US);
 
-        List<CommandHandler> commandHandlers = getCommandHandlers(curCommandName, session);
+        List<CommandHandler<SMTPSession>> commandHandlers = getCommandHandlers(curCommandName, session);
         // fetch the command handlers registered to the command
         if (commandHandlers == null) {
             // end the session
             SMTPResponse resp = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Local configuration error: unable to find a command handler.");
             resp.setEndSession(true);
-            session.writeSMTPResponse(resp);
+            session.writeResponse(resp);
         } else {
             int count = commandHandlers.size();
             for (int i = 0; i < count; i++) {
-                SMTPResponse response = commandHandlers.get(i).onCommand(session, new SMTPRequest(curCommandName, curCommandArgument));
+                Response response = commandHandlers.get(i).onCommand(session, new SMTPRequest(curCommandName, curCommandArgument));
 
-                session.writeSMTPResponse(response);
+                session.writeResponse(response);
 
                 // if the response is received, stop processing of command
                 // handlers
@@ -134,7 +135,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
     /**
      * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getUnknownCommandHandler()
      */
-    protected CommandHandler getUnknownCommandHandler() {
+    protected CommandHandler<SMTPSession> getUnknownCommandHandler() {
         return unknownHandler;
     }
 

@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.CommandHandler;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -35,8 +34,7 @@ import org.apache.james.smtpserver.protocol.hook.HookResult;
 /**
  * Handles EHLO command
  */
-public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> implements
-        CommandHandler {
+public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> {
 
     /**
      * The name of the command handled by the command handler
@@ -56,15 +54,12 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
      *            the argument passed in with the command by the SMTP client
      */
     private SMTPResponse doEHLO(SMTPSession session, String argument) {
-        SMTPResponse resp = new SMTPResponse();
-        resp.setRetCode(SMTPRetCode.MAIL_OK);
-
-        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE,
-                COMMAND_NAME);
-
-        resp.appendLine(new StringBuilder(session.getHelloName()).append(" Hello ").append(argument)
+        SMTPResponse resp = new SMTPResponse(SMTPRetCode.MAIL_OK, new StringBuilder(session.getHelloName()).append(" Hello ").append(argument)
                 .append(" (").append(session.getRemoteHost()).append(" [")
                 .append(session.getRemoteIPAddress()).append("])"));
+        
+        session.getConnectionState().put(SMTPSession.CURRENT_HELO_MODE,
+                COMMAND_NAME);
 
         processExtensions(session, resp);
 
@@ -72,6 +67,7 @@ public class EhloCmdHandler extends AbstractHookableCmdHandler<HeloHook> impleme
         resp.appendLine("ENHANCEDSTATUSCODES");
         // see http://issues.apache.org/jira/browse/JAMES-419
         resp.appendLine("8BITMIME");
+ 
         return resp;
 
     }

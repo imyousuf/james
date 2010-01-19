@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.remotemanager.mina.filter;
 
-import org.apache.james.remotemanager.LineHandler;
+import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.remotemanager.mina.RemoteManagerSessionImpl;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
@@ -31,9 +31,9 @@ import org.apache.mina.core.session.IoSession;
  */
 public final class FilterLineHandlerAdapter extends IoFilterAdapter {
 
-    private LineHandler lineHandler;
+    private LineHandler<RemoteManagerSession> lineHandler;
 
-    public FilterLineHandlerAdapter(LineHandler lineHandler) {
+    public FilterLineHandlerAdapter(LineHandler<RemoteManagerSession> lineHandler) {
         this.lineHandler = lineHandler;
     }
 

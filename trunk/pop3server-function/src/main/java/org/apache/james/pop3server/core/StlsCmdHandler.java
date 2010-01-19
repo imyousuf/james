@@ -24,8 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Request;
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
@@ -35,22 +36,22 @@ import org.apache.james.pop3server.POP3Session;
  * 
  * 
  */
-public class StlsCmdHandler implements CommandHandler, CapaCapability {
+public class StlsCmdHandler implements CommandHandler<POP3Session>, CapaCapability {
     public final static String COMMAND_NAME = "STLS";
 
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, org.apache.james.pop3server.POP3Request)
+     * @see org.apache.james.api.protocol.CommandHandler#onCommand(org.apache.james.api.protocol.LogEnabledSession, org.apache.james.api.protocol.Request)
      */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    public Response onCommand(POP3Session session, Request request) {
         POP3Response response;
         // check if starttls is supported, the state is the right one and it was
         // not started before
         if (session.isStartTLSSupported() && session.getHandlerState() == POP3Session.AUTHENTICATION_READY
                 && session.isTLSStarted() == false) {
             response = new POP3Response(POP3Response.OK_RESPONSE,"Begin TLS negotiation");
-            session.writePOP3Response(response);
+            session.writeResponse(response);
             try {
                 session.startTLS();
             } catch (IOException e) {

@@ -22,20 +22,17 @@ package org.apache.james.smtpserver.protocol;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.james.api.protocol.RetCodeResponse;
+
 /**
  * Contains an SMTP result
  */
-public final class SMTPResponse {
+public final class SMTPResponse implements RetCodeResponse {
 
     private String retCode = null;
     private List<CharSequence> lines = null;
     private String rawLine = null;
     private boolean endSession = false;
-    
-
-    public SMTPResponse() {
-        //TODO: Should we remove this constructor to force the developers to specify all needed informations ? 
-    }
     
     /**
      * Construct a new SMTPResponse. The given code and description can not be null, if null an IllegalArgumentException

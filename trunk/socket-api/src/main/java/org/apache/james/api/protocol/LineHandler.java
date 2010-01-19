@@ -17,24 +17,18 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-package org.apache.james.smtpserver.protocol;
-
-import org.apache.james.api.protocol.CommonCommandHandler;
-
+package org.apache.james.api.protocol;
 
 /**
- * Custom command handlers must implement this interface
- * The command handlers will be Server wide common to all the SMTPHandlers,
- * therefore the command handlers must store all the state information
- * in the SMTPSession object
+ * Custom line handlers must implement this interface
  */
- public interface CommandHandler extends CommonCommandHandler{
+public interface LineHandler<Session extends ProtocolSession> {
      
     /**
-     * Handle the command
-    **/
-    SMTPResponse onCommand(SMTPSession session, SMTPRequest request);
- 
+     * Handle the command.
+     * @param session not null
+     * @param line not null 
+     */
+    public void onLine(Session session, String line);
+    
 }

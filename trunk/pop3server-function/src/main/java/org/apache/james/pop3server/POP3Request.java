@@ -19,11 +19,13 @@
 
 package org.apache.james.pop3server;
 
+import org.apache.james.api.protocol.Request;
+
 /**
  * POP3Request object 
  *
  */
-public class POP3Request {
+public class POP3Request implements Request{
 
 	private final String command;
 

@@ -25,9 +25,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Handler;
-import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -35,7 +36,7 @@ import org.apache.mailet.Mail;
 /**
   * Handles UIDL command
   */
-public class UidlCmdHandler implements CommandHandler, CapaCapability {
+public class UidlCmdHandler implements CommandHandler<POP3Session>, CapaCapability {
 	private final static String COMMAND_NAME = "UIDL";
 
 	/**
@@ -43,7 +44,7 @@ public class UidlCmdHandler implements CommandHandler, CapaCapability {
      * Returns a listing of message ids to the client.
      *
 	 */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
         if (session.getHandlerState() == POP3Handler.TRANSACTION) {

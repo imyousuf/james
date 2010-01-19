@@ -21,8 +21,9 @@
 
 package org.apache.james.pop3server.core;
 
-import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Request;
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -40,7 +41,7 @@ import java.util.List;
 /**
   * Handles RETR command
   */
-public class RetrCmdHandler implements CommandHandler {
+public class RetrCmdHandler implements CommandHandler<POP3Session> {
 
 	private final static String COMMAND_NAME = "RETR";
 
@@ -50,9 +51,8 @@ public class RetrCmdHandler implements CommandHandler {
      * This command retrieves a particular mail message from the
      * mailbox.
      *
-	 * @see org.apache.james.pop3server.CommandHandler#onCommand(org.apache.james.pop3server.POP3Session, java.lang.String, java.lang.String)
 	 */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
         if (session.getHandlerState() == POP3Session.TRANSACTION) {

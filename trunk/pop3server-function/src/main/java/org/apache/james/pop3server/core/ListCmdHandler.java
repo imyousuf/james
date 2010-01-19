@@ -27,9 +27,10 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.pop3server.CommandHandler;
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Handler;
-import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -37,7 +38,7 @@ import org.apache.mailet.Mail;
 /**
   * Handles LIST command
   */
-public class ListCmdHandler implements CommandHandler {
+public class ListCmdHandler implements CommandHandler<POP3Session> {
 
 
     /**
@@ -49,7 +50,7 @@ public class ListCmdHandler implements CommandHandler {
      * @param argument the first argument parsed by the parseCommand method
      */
 
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
         

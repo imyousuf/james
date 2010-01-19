@@ -28,8 +28,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
+import org.apache.james.api.protocol.RetCodeResponse;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -48,13 +50,15 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> {
      */
     private Map<String, MailParametersHook> paramHooks;
 
-    /**
-     * @see org.apache.james.smtpserver.protocol.core.AbstractHookableCmdHandler#onCommand(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.james.smtpserver.protocol.SMTPRequest)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.core.AbstractHookableCmdHandler#onCommand(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.james.api.protocol.Request)
      */
-	public SMTPResponse onCommand(SMTPSession session,SMTPRequest request) {
-	    SMTPResponse response =  super.onCommand(session, request);
+	public Response onCommand(SMTPSession session, Request request) {
+	    Response response =  super.onCommand(session, request);
 		// Check if the response was not ok 
-		if (response.getRetCode().equals(SMTPRetCode.MAIL_OK) == false) {
+		if (((RetCodeResponse)response).getRetCode().equals(SMTPRetCode.MAIL_OK) == false) {
 			// cleanup the session
 			session.getState().remove(SMTPSession.SENDER);
 		}

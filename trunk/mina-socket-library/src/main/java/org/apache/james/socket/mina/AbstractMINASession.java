@@ -116,7 +116,7 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
     }
 
     /**
-     * @see org.apache.james.api.protocol.LogEnabledSession#getLogger()
+     * @see org.apache.james.api.protocol.ProtocolSession#getLogger()
      */
     public Log getLogger() {
         return logger;

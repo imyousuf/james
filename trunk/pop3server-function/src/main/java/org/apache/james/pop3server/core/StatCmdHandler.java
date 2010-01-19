@@ -27,8 +27,9 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Request;
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -36,7 +37,7 @@ import org.apache.mailet.Mail;
 /**
   * Handles STAT command
   */
-public class StatCmdHandler implements CommandHandler {
+public class StatCmdHandler implements CommandHandler<POP3Session> {
 	private final static String COMMAND_NAME = "STAT";
 
 	/**
@@ -45,7 +46,7 @@ public class StatCmdHandler implements CommandHandler {
      * aggregate size.
      *
 	 */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             long size = 0;

@@ -22,10 +22,12 @@ package org.apache.james.pop3server;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.james.api.protocol.RetCodeResponse;
+
 /**
  * Contains an SMTP result
  */
-public class POP3Response {
+public class POP3Response implements RetCodeResponse{
 
 
     // POP3 response prefixes

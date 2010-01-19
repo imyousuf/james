@@ -24,9 +24,10 @@ package org.apache.james.smtpserver.protocol.core;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.CommandHandler;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -34,7 +35,7 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 /**
   * Handles RSET command
   */
-public class RsetCmdHandler implements CommandHandler {
+public class RsetCmdHandler implements CommandHandler<SMTPSession> {
     /**
      * The name of the command handled by the command handler
      */
@@ -44,7 +45,7 @@ public class RsetCmdHandler implements CommandHandler {
      * handles RSET command
      *
     **/
-    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+    public Response onCommand(SMTPSession session, Request request) {
         return doRSET(session, request.getArgument());
     }
 

@@ -24,9 +24,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.smtpserver.protocol.CommandHandler;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -34,7 +35,7 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 /**
  * Handles STARTTLS command
  */
-public class StartTlsCmdHandler implements CommandHandler, EhloExtension {
+public class StartTlsCmdHandler implements CommandHandler<SMTPSession>, EhloExtension {
 	/**
 	 * The name of the command handled by the command handler
 	 */
@@ -53,10 +54,8 @@ public class StartTlsCmdHandler implements CommandHandler, EhloExtension {
 	 * Handler method called upon receipt of a STARTTLS command. Resets
 	 * message-specific, but not authenticated user, state.
 	 * 
-	 * @see org.apache.james.smtpserver.protocol.CommandHandler#onCommand(org.apache.james.smtpserver.protocol.SMTPSession,
-	 *      java.lang.String, java.lang.String)
 	 */
-    public SMTPResponse onCommand(SMTPSession session, SMTPRequest request) {
+    public Response onCommand(SMTPSession session, Request request) {
 		SMTPResponse response = null;
 		String command = request.getCommand();
 		String parameters = request.getArgument();
@@ -69,7 +68,7 @@ public class StartTlsCmdHandler implements CommandHandler, EhloExtension {
 				} else {
 					response = new SMTPResponse("501 "+ DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.DELIVERY_INVALID_ARG) + " Syntax error (no parameters allowed) with STARTTLS command");
 				}
-				session.writeSMTPResponse(response);
+				session.writeResponse(response);
 				try {
 					if (!session.isTLSStarted()) {
 						session.startTLS();

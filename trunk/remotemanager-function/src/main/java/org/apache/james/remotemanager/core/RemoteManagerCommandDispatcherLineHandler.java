@@ -26,14 +26,15 @@ import java.util.Locale;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
+import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.remotemanager.CommandHandler;
-import org.apache.james.remotemanager.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
-public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDispatcher<CommandHandler> implements LineHandler, LogEnabled{
+public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDispatcher<RemoteManagerSession> implements LineHandler<RemoteManagerSession>, LogEnabled{
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory
             .getLog(RemoteManagerCommandDispatcherLineHandler.class);
@@ -113,20 +114,20 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
         }
 
         // fetch the command handlers registered to the command
-        List<CommandHandler> commandHandlers = getCommandHandlers(
+        List<org.apache.james.api.protocol.CommandHandler<RemoteManagerSession>> commandHandlers = getCommandHandlers(
                 curCommandName, session);
         if (commandHandlers == null) {
             // end the session
             RemoteManagerResponse resp = new RemoteManagerResponse( "Local configuration error: unable to find a command handler.");
             resp.setEndSession(true);
-            session.writeRemoteManagerResponse(resp);
+            session.writeResponse(resp);
         } else {
             int count = commandHandlers.size();
             for (int i = 0; i < count; i++) {
-                RemoteManagerResponse response = commandHandlers.get(i).onCommand(
+                Response response = commandHandlers.get(i).onCommand(
                         session, new RemoteManagerRequest(curCommandName, curCommandArgument));
                 if (response != null) {
-                    session.writeRemoteManagerResponse(response);
+                    session.writeResponse(response);
                     break;
                 }
             }

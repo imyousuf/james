@@ -25,15 +25,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.james.pop3server.CommandHandler;
-import org.apache.james.pop3server.POP3Request;
+import org.apache.james.api.protocol.CommandHandler;
+import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
 /**
   * Handles NOOP command
   */
-public class UserCmdHandler implements CommandHandler, CapaCapability {
+public class UserCmdHandler implements CommandHandler<POP3Session>, CapaCapability {
 
 	private final static String COMMAND_NAME = "USER";
 
@@ -43,7 +44,7 @@ public class UserCmdHandler implements CommandHandler, CapaCapability {
      * Reads in the user id.
      *
 	 */
-    public POP3Response onCommand(POP3Session session, POP3Request request) {
+    public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
         if (session.getHandlerState() == POP3Session.AUTHENTICATION_READY && parameters != null) {
