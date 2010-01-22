@@ -263,24 +263,30 @@
     <bean id="imapEncoderFactory" class="org.apache.james.imap.encode.main.DefaultImapEncoderFactory"/>
     <bean id="imapEncoder" factory-bean="imapEncoderFactory"  factory-method="buildImapEncoder"/>
        
-	
-	<bean id="subscriper" class="org.apache.james.imapserver.UserMetaDataRepositorySubscripter"/>
-		
 	<bean id="authenticator" class="org.apache.james.imapserver.UserRepositoryAuthenticator"/>
 	
+	
+    <!--  Torque implementation of IMAP Storage-->
+	<!--  
+	<bean id="subscriper" class="org.apache.james.imapserver.UserMetaDataRepositorySubscripter"/>
+			
 	<bean id="userMetaDataRepository" class="org.apache.james.user.impl.file.FileUserMetaDataRepository">
 	 	<constructor-arg index="0" value="var/users"/>
 	 </bean>
 	 
-	<!--  use this for torque implementation -->
-	<!--  
+
 	 <bean id="mailboxmanager" class="org.apache.james.mailboxmanager.torque.DefaultMailboxManager">
          <constructor-arg index="0" ref="authenticator"/>
          <constructor-arg index="1" ref="subscriper"/>
          <property name="torqueConfig" value="file://conf/torque.properties" />
 	</bean>
 	-->
-	<!--  Enable this for JPA implementation -->
+
+	<!-- JPA implementation of IMAP Storage-->
+	<bean id ="subscriper" 	class="org.apache.james.imap.jpa.JPASubscriptionManager">
+      <constructor-arg index="0" ref="entityManagerFactory"/>
+	</bean>
+	
 	<bean id="mailboxmanager" class="org.apache.james.imap.jpa.openjpa.OpenJPAMailboxManager">
         <constructor-arg index="0" ref="authenticator"/>
         <constructor-arg index="1" ref="subscriper"/>
