@@ -31,7 +31,6 @@ import javax.mail.MessagingException;
 
 import org.apache.james.api.protocol.Request;
 import org.apache.james.api.protocol.Response;
-import org.apache.james.pop3server.POP3Handler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -70,7 +69,7 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
             argument1 = parameters.substring(pos+1);
         }
 
-        if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+        if (session.getHandlerState() == POP3Session.TRANSACTION) {
             int num = 0;
             int lines = 0;
             try {
@@ -133,7 +132,7 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
      */
 	public List<String> getImplementedCapabilities(POP3Session session) {
 		List<String> caps = new ArrayList<String>();
-		if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+		if (session.getHandlerState() == POP3Session.TRANSACTION) {
 			caps.add(COMMAND_NAME);
 			return caps;
 		}

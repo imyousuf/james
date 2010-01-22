@@ -74,10 +74,7 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-socket-library</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-socket-shared-library</artifactId>
@@ -100,15 +97,7 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.threads</groupId>
-      <artifactId>cornerstone-threads-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
-      <artifactId>cornerstone-sockets-api</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>

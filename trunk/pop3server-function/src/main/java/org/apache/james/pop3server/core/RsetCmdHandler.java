@@ -70,7 +70,7 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
      *
      */
     @SuppressWarnings("unchecked")
-    public static void stat(POP3Session session) {
+    protected void stat(POP3Session session) {
         ArrayList<Mail> userMailbox = new ArrayList<Mail>();
         Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
 

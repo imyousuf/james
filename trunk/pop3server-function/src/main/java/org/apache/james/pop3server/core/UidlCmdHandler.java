@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.james.api.protocol.CommandHandler;
 import org.apache.james.api.protocol.Request;
 import org.apache.james.api.protocol.Response;
-import org.apache.james.pop3server.POP3Handler;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -47,7 +46,7 @@ public class UidlCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
-        if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+        if (session.getHandlerState() == POP3Session.TRANSACTION) {
             Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
 
             if (parameters == null) {
@@ -114,7 +113,7 @@ public class UidlCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
      */
 	public List<String> getImplementedCapabilities(POP3Session session) {
 		List<String> caps = new ArrayList<String>();
-		if (session.getHandlerState() == POP3Handler.TRANSACTION) {
+		if (session.getHandlerState() == POP3Session.TRANSACTION) {
 			caps.add(COMMAND_NAME);
 			return caps;
 		}

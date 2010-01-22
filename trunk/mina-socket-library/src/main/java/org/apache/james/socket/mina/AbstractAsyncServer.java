@@ -285,8 +285,13 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
         if (isEnabled()) {
             preInit();
             buildSSLContextFactory();
+            
+            // add connectionfilter in the first of the chain
+            DefaultIoFilterChainBuilder builder = createIoFilterChainBuilder();
+            builder.addFirst("connectionFilter", new ConnectionFilter(getLogger(), connectionLimit, connPerIP));
+
             SocketAcceptor acceptor = new NioSocketAcceptor();  
-            acceptor.setFilterChainBuilder(createIoFilterChainBuilder());
+            acceptor.setFilterChainBuilder(builder);
             acceptor.setBacklog(backlog);
             acceptor.setReuseAddress(true);
             acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, timeout );
@@ -468,7 +473,6 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
         ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory(getProtocolCharset(), LineDelimiter.CRLF, LineDelimiter.CRLF));
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         builder.addLast("protocolCodecFactory", codecFactory);
-        builder.addLast("connectionFilter", new ConnectionFilter(getLogger(), connectionLimit, connPerIP));
         return builder;
     }
     

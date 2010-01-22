@@ -27,7 +27,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.protocol.CommandHandler;
 import org.apache.james.api.protocol.Request;
 import org.apache.james.api.protocol.Response;
 import org.apache.james.api.user.UsersRepository;
@@ -40,7 +39,7 @@ import org.apache.james.util.POP3BeforeSMTPHelper;
 /**
   * Handles PASS command
   */
-public class PassCmdHandler implements CommandHandler<POP3Session> {
+public class PassCmdHandler extends RsetCmdHandler {
 
 	private final static String COMMAND_NAME ="PASS";
 	private UsersRepository users;
@@ -83,7 +82,7 @@ public class PassCmdHandler implements CommandHandler<POP3Session> {
                         throw new IllegalStateException("MailServer returned a null inbox for "+session.getUser());
                     }
                     session.setUserInbox(inbox);
-                    RsetCmdHandler.stat(session);
+                    stat(session);
                     
                     // Store the ipAddress to use it later for pop before smtp 
                     POP3BeforeSMTPHelper.addIPAddress(session.getRemoteIPAddress());

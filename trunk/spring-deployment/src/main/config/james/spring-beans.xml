@@ -89,17 +89,9 @@
 		<property name="order" value="1" />
 		<property name="mappings">
 			<map>
-				<entry key="pop3server.protocolserver" value="pop3server" />
-				<entry key="pop3server.protocolhandlerfactory" value="pop3server" />
-				<entry key="smtpserver.protocolserver" value="smtpserver" />
-				<entry key="smtpserver.protocolhandlerfactory" value="smtpserver" />
 				<entry key="nntpserver.protocolserver" value="nntpserver" />
 				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
-				<entry key="imapserver.protocolserver" value="imapserver" />
-				<entry key="imapserver.protocolhandlerfactory" value="imapserver" />
 				<entry key="mailboxmanager" value="imapserver" />				
-				<entry key="remotemanager.protocolserver" value="remotemanager" />
-				<entry key="remotemanager.protocolhandlerfactory" value="remotemanager" />
 			</map>
 		</property>
 	</bean>
@@ -115,16 +107,8 @@
 		<property name="order" value="0" />
 		<property name="mappings">
 			<map>
-				<entry key="pop3server.protocolserver" value="pop3server" />
-				<entry key="pop3server.protocolhandlerfactory" value="pop3server" />
-				<entry key="smtpserver.protocolserver" value="smtpserver" />
-				<entry key="smtpserver.protocolhandlerfactory" value="smtpserver" />
 				<entry key="nntpserver.protocolserver" value="nntpserver" />
 				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
-				<entry key="imapserver.protocolserver" value="imapserver" />
-				<entry key="imapserver.protocolhandlerfactory" value="imapserver" />
-				<entry key="remotemanager.protocolserver" value="remotemanager" />
-				<entry key="remotemanager.protocolhandlerfactory" value="remotemanager" />
 			</map>
 		</property>
 	</bean>
@@ -169,62 +153,19 @@
 	<bean id="bayesiananalyzermanagement"
 		class="org.apache.james.management.impl.BayesianAnalyzerManagement" />
 
-	<!-- RemoteManager Beans-->
-	<bean id="remotemanager.protocolhandlerfactory"
-		class="org.apache.james.remotemanager.RemoteManagerProtocolHandlerFactory" />
-
-	<bean id="remotemanager.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
-		<property name="protocolHandlerFactory" ref="remotemanager.protocolhandlerfactory" />
-	</bean>
-
-	<bean id="remotemanager" class="org.apache.james.remotemanager.RemoteManagerMBeanImpl">
-		<property name="protocolServer" ref="remotemanager.protocolserver" />
-	</bean>
-
 	<!-- Async RemoteManager -->
-	<!-- enable this to use the MINA based RemoteManager Server which uses NIO -->
-	<!--
 	<bean id="remotemanager" class="org.apache.james.remotemanager.mina.AsyncRemoteManager" />
-	-->
 	
 	<!-- The User Management block  -->
 	<bean id="usermanagement" class="org.apache.james.impl.user.UserManagement" />
 
-	<!-- POP3 Server Beans-->
-	<bean id="pop3server.protocolhandlerfactory"
-		class="org.apache.james.pop3server.POP3ServerProtocolServerHandlerFactory" />
-
-	<bean id="pop3server.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
-		<property name="protocolHandlerFactory" ref="pop3server.protocolhandlerfactory" />
-	</bean>
-
-	<bean id="pop3server" class="org.apache.james.pop3server.POP3ServerMBeanImpl">
-		<property name="protocolServer" ref="pop3server.protocolserver" />
-	</bean>
 	
 	<!-- Async POP3 Server -->
-	<!-- enable this to use the MINA based POP3 Server which uses NIO -->
-	<!--
     <bean id="pop3server"  class="org.apache.james.pop3server.mina.AsyncPOP3Server" />
-	-->
 	
 	
-	<!-- SMTP Server Beans-->
-	<bean id="smtpserver.protocolhandlerfactory" class="org.apache.james.smtpserver.SMTPServerProtocolHandlerFactory" />
-
-	<bean id="smtpserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
-		<property name="protocolHandlerFactory" ref="smtpserver.protocolhandlerfactory" />
-	</bean>
-	
-	<bean id="smtpserver" class="org.apache.james.smtpserver.SMTPServerMBeanImpl">
-		<property name="protocolServer" ref="smtpserver.protocolserver" />
-	</bean>
-
 	<!-- Async SMTP Server -->
-	<!-- enable this to use the MINA based SMTP Server which uses NIO -->
-	<!--
 	<bean id="smtpserver" class="org.apache.james.smtpserver.mina.AsyncSMTPServer" />
-	-->
 
 	<bean id="org.apache.james.smtpserver.protocol.DNSService" class="org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter" />
 
@@ -305,23 +246,13 @@
 	<!--
 	<bean id="domainlist" class="org.apache.james.vut.XMLVirtualUserTable"/>
 	-->
-	<!--  
+
+	<!-- IMAP server Beans -->
     <bean id="imapserver" name="org.apache.jsieve.mailet.Poster" class="org.apache.james.imapserver.mina.AsyncImapServer">
 		<property name="imapDecoder" ref="imapDecoder"/>
 		<property name="imapEncoder" ref="imapEncoder"/>	
 	</bean>
-	-->
 
-	<!-- IMAP server Beans -->
-	<bean id="imapserver.protocolhandlerfactory" name="org.apache.jsieve.mailet.Poster" class="org.apache.james.imapserver.ImapServerProtocolHandlerFactory">
-		<property name="imapDecoder" ref="imapDecoder"/>
-		<property name="imapEncoder" ref="imapEncoder"/>	
-	</bean>
-
-	<bean id="imapserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
-		<property name="protocolHandlerFactory" ref="imapserver.protocolhandlerfactory" />
-	</bean>
-		
 	<bean id="imapProcessor" class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory" factory-method="createDefaultProcessor">
       	<constructor-arg ref="mailboxmanager"/>
     </bean>
