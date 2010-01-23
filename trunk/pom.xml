@@ -791,39 +791,7 @@
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.connection</groupId>
-      <artifactId>cornerstone-connection-api</artifactId>
-      <version>2.2.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.connection</groupId>
-      <artifactId>cornerstone-connection-impl</artifactId>
-      <version>2.2.2</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
-      <artifactId>cornerstone-sockets-api</artifactId>
-      <version>2.2.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
-      <artifactId>cornerstone-sockets-impl</artifactId>
-      <version>2.2.2</version>
-      <scope>runtime</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>xml-apis</artifactId>
-          <groupId>xml-apis</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+   
     <dependency>
       <groupId>org.apache.avalon.cornerstone.datasources</groupId>
       <artifactId>cornerstone-datasources-api</artifactId>
@@ -890,44 +858,7 @@
       <artifactId>dnsjava</artifactId>
       <version>2.0.7</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-pool-api</artifactId>
-      <version>2.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-pool-impl</artifactId>
-      <version>2.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.threads</groupId>
-      <artifactId>cornerstone-threads-api</artifactId>
-      <version>2.2.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.threads</groupId>
-      <artifactId>cornerstone-threads-impl</artifactId>
-      <version>2.2.2</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-thread-api</artifactId>
-      <version>2.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-thread-impl</artifactId>
-      <version>2.2.1</version>
-      <scope>runtime</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>junitperf</artifactId>
-          <groupId>junitperf</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -1026,12 +957,6 @@
       <artifactId>cornerstone-datasources-api</artifactId>
       <version>2.2.2</version>
     </dependency>
-    <dependency>
-        <groupId>commons-jxpath</groupId>
-        <artifactId>commons-jxpath</artifactId>
-        <version>1.3</version>
-        <scope>runtime</scope>
-    </dependency> 
     
     <!-- Used by Mime4J -->
     <dependency>
