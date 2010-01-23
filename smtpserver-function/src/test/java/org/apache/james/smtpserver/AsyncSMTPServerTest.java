@@ -54,9 +54,7 @@ import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.smtpserver.mina.AsyncSMTPServer;
 import org.apache.james.test.mock.DummyDataSourceSelector;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
-import org.apache.james.test.mock.avalon.MockSocketManager;
 import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.test.mock.avalon.MockThreadManager;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
@@ -154,8 +152,6 @@ public class AsyncSMTPServerTest extends TestCase {
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
     protected FakeLoader m_serviceManager;
     protected AlterableDNSServer m_dnsServer;
-    protected MockSocketManager socketManager;
-    protected MockThreadManager threadManager;
     protected MockStore store;
     protected MockFileSystem fileSystem;
     protected SMTPServerDNSServiceAdapter dnsAdapter;

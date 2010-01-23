@@ -353,27 +353,7 @@
       <artifactId>cornerstone-datasources-impl</artifactId>
       <scope>runtime</scope>
 	</dependency> 
-	<dependency>
-      <groupId>org.apache.avalon.cornerstone.threads</groupId>
-      <artifactId>cornerstone-threads-impl</artifactId>
-      <scope>runtime</scope>
-    </dependency> 
-    	<dependency>
-      <groupId>org.apache.avalon.cornerstone.threads</groupId>
-      <artifactId>cornerstone-threads-impl</artifactId>
-      <scope>runtime</scope>
-    </dependency> 
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
-      <artifactId>cornerstone-sockets-impl</artifactId>
-      <scope>runtime</scope>
-    </dependency> 
-        <dependency>
-      <groupId>org.apache.avalon.cornerstone.sockets</groupId>
-      <artifactId>cornerstone-sockets-impl</artifactId>
-      <scope>runtime</scope>
-    </dependency> 
-    
+	
 	<dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
