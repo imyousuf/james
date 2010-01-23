@@ -174,20 +174,6 @@
                 </addUser>
               </addUsers>
             </mailProtocolTest>
-            <mailProtocolTest>
-              <host>127.0.0.1</host>
-              <port>119</port>
-              <scriptFile>src/mpt/nntp.mpt</scriptFile>
-              <addUsers>
-                <addUser>
-                  <host>127.0.0.1</host>
-                  <port>4555</port>
-                  <scriptFile>src/mpt/adduser.mpt</scriptFile>
-                  <user>root</user>
-                  <passwd>root</passwd>
-                </addUser>
-              </addUsers>
-            </mailProtocolTest>
           </mailProtocolTests>
          
         </configuration>
@@ -334,11 +320,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-pop3server-function</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-nntpserver-function</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
