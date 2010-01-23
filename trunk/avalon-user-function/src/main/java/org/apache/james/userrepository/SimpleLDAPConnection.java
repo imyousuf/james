@@ -33,7 +33,6 @@ import javax.naming.directory.InitialDirContext;
  * authentication against the LDAP server. 
  * </p>
  * 
- * @author Obi Ezechukwu
  */
 public class SimpleLDAPConnection {
 

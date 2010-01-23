@@ -42,7 +42,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  * @see ReadOnlyUsersLDAPRepository
  * @see ReadOnlyLDAPUser
  * 
- * @author Obi Ezechukwu
  */
 
 public class ReadOnlyLDAPGroupRestriction

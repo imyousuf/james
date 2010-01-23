@@ -127,7 +127,6 @@ import org.apache.james.lifecycle.LogEnabled;
  * @see ReadOnlyLDAPUser
  * @see ReadOnlyLDAPGroupRestriction
  * 
- * @author Obi Ezechukwu
  */
 public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurable, LogEnabled {
 
