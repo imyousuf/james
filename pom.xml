@@ -43,7 +43,6 @@
     <module>core-library</module>
     <module>management-library</module>
     <module>smtp-protocol-library</module>
-    <module>avalon-socket-library</module>
     <module>core-function</module>
     <module>imapserver-function</module>
     <module>smtpserver-function</module>
@@ -369,11 +368,6 @@
       <version>3.0-M1</version>
       <scope>test</scope>
       <type>test-jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-socket-library</artifactId>
-      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
