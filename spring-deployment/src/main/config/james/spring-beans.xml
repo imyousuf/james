@@ -40,7 +40,6 @@
 				<prop key="dnsserver" >bean:name=dnsserver</prop> 
 				<prop key="remotemanager" >bean:name=remotemanager</prop> 
 				<prop key="pop3server" >bean:name=pop3server</prop> 
-				<prop key="nntpserver">bean:name=nntpserver</prop> 
 				<prop key="virtualusertablemanagement">bean:name=virtualusertablemanagement</prop> 
 				<prop key="spoolmanagement" >bean:name=spoolmanagement</prop> 
 				<prop key="domainlistmanagement" >bean:name=domainlistmanagement</prop>
@@ -89,8 +88,6 @@
 		<property name="order" value="1" />
 		<property name="mappings">
 			<map>
-				<entry key="nntpserver.protocolserver" value="nntpserver" />
-				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
 				<entry key="mailboxmanager" value="imapserver" />		
 				<entry key="mailet" value="James"/>		
 			</map>
@@ -108,8 +105,6 @@
 		<property name="order" value="0" />
 		<property name="mappings">
 			<map>
-				<entry key="nntpserver.protocolserver" value="nntpserver" />
-				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
 			</map>
 		</property>
 	</bean>
@@ -164,21 +159,6 @@
 	<bean id="smtpserver" class="org.apache.james.smtpserver.mina.AsyncSMTPServer" />
 
 	<bean id="org.apache.james.smtpserver.protocol.DNSService" class="org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter" />
-
-	<!-- NNTP Server Beans-->
-	<bean id="nntpserver.protocolhandlerfactory" class="org.apache.james.nntpserver.NNTPServerProtocolHandlerFactory" />
-
-	<bean id="nntpserver.protocolserver" class="org.apache.james.socket.AvalonProtocolServer">
-		<property name="protocolHandlerFactory" ref="nntpserver.protocolhandlerfactory" />
-	</bean>
-
-	<bean id="nntpserver" class="org.apache.james.nntpserver.NNTPServerMBeanImpl">
-		<property name="protocolServer" ref="nntpserver.protocolserver" />
-	</bean>
-
-	<!-- NNTP Repository -->
-	<bean id="nntp-repository" class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" />
-
 
 	<!-- FetchMail Service -->
 	<bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
@@ -313,17 +293,6 @@
 	<bean id="domainlistmanagement" class="org.apache.james.management.impl.DomainListManagement" />
 
 
-	<!--
-		Configuration for Cornerstone Blocks only after here NOTHING BELOW
-		THIS SHOULD NEED CHANGING, (unless you want secure sockets (TLS))
-	-->
-
-	<!-- The Connection Manager block -->
-	<bean id="connections" class="org.apache.james.socket.SimpleConnectionManager" />
-
-	<!-- The Socket Manager block -->
-	<bean id="sockets" class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketManager" />
-
 	<!-- The Time Scheduler block -->
 	<bean id="scheduler" class="java.util.concurrent.Executors" factory-method="newScheduledThreadPool">
       	<constructor-arg value="20"/>
@@ -331,8 +300,5 @@
       
 	<!-- The DataSourceSelector block -->
 	<bean id="database-connections" class="org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector" destroy-method="dispose" />
-
-	<!-- The ThreadManager block -->
-	<bean id="thread-manager" class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager" destroy-method="dispose" />
 
 </beans>
