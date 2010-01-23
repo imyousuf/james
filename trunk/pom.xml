@@ -48,7 +48,6 @@
     <module>imapserver-function</module>
     <module>smtpserver-function</module>
     <module>pop3server-function</module>
-    <module>nntpserver-function</module>
     <module>spoolmanager-function</module>
     <module>remotemanager-function</module>
     <module>basic-user-function</module>
@@ -447,11 +446,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-pop3server-function</artifactId>
-      <version>3.0-M1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-nntpserver-function</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
