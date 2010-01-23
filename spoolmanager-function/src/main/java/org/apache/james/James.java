@@ -21,18 +21,32 @@
 
 package org.apache.james;
 
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.container.ContainerUtil;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.net.UnknownHostException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.mail.Address;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.ParseException;
+
+import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.api.user.UsersRepository;
@@ -45,40 +59,9 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.transport.MailetConfigImpl;
-import org.apache.james.transport.mailets.LocalDelivery;
-import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
-import org.apache.mailet.MailetContext;
-import org.apache.mailet.base.RFC2822Headers;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.ParseException;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Vector;
 
 /**
  * Core class for JAMES. Provides three primary services:
@@ -93,7 +76,7 @@ import java.util.Vector;
  */
 @SuppressWarnings("unchecked")
 public class James
-    implements MailServer, MailetContext, LogEnabled, Configurable {
+    implements MailServer, LogEnabled, Configurable {
 
     /**
      * The software name and version
@@ -144,10 +127,6 @@ public class James
     private static int count = 0;
     private static final Object countLock = new Object();
 
-    /**
-     * The address of the postmaster for this server
-     */
-    private MailAddress postmaster;
 
     /**
      * A map used to store mailboxes and reduce the cost of lookup of individual
@@ -160,7 +139,7 @@ public class James
      * A hash table of server attributes
      * These are the MailetContext attributes
      */
-    private Hashtable<String,Object> attributes = new Hashtable<String,Object>();
+    //private Hashtable<String,Object> attributes = new Hashtable<String,Object>();
 
     /**
      * Currently used by storeMail to avoid code duplication (we moved store logic to that mailet).
@@ -182,7 +161,6 @@ public class James
 
     private DNSService dns;
 
-    private Log mailetLog;
 
 
     /**
@@ -213,15 +191,6 @@ public class James
         this.conf = (HierarchicalConfiguration)config;
     }
     
-  
-    /**
-     * This only needed till MailetContext get factored out of this class
-     * 
-     * @param mailetLog
-     */
-    public void setMailetLog(Log mailetLog) {
-        this.mailetLog = mailetLog;
-    }
     
     @PostConstruct
     public void init() throws Exception {
@@ -260,7 +229,7 @@ public class James
             }
         }
 
-        initializeServernamesAndPostmaster();
+        initializeServernames();
 
         // We don't need this. UsersRepository.ROLE is already in the compMgr we received
         // We've just looked up it from the cmpManager
@@ -295,7 +264,7 @@ public class James
                 // Should we use the defaultdomain here ?
                 helloName = conf.getString("helloName",defaultDomain);
             }
-            attributes.put(Constants.HELLO_NAME, helloName);
+            //attributes.put(Constants.HELLO_NAME, helloName);
         }
 
         //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
@@ -304,18 +273,17 @@ public class James
         // defaults to the old behaviour
         if (confDir == null) confDir = "file://conf/";
         java.io.File configDir = fileSystem.getFile(confDir);
-        attributes.put("confDir", configDir.getCanonicalPath());
+        //attributes.put("confDir", configDir.getCanonicalPath());
 
+        /*
         try {
-            attributes.put(Constants.HOSTADDRESS, dns.getLocalHost().getHostAddress());
-            attributes.put(Constants.HOSTNAME, dns.getLocalHost().getHostName());
+            //attributes.put(Constants.HOSTADDRESS, dns.getLocalHost().getHostAddress());
+            //attributes.put(Constants.HOSTNAME, dns.getLocalHost().getHostName());
         } catch (java.net.UnknownHostException _) {
-            attributes.put(Constants.HOSTADDRESS, "127.0.0.1");
-            attributes.put(Constants.HOSTNAME, "localhost");
+            //attributes.put(Constants.HOSTADDRESS, "127.0.0.1");
+            //attributes.put(Constants.HOSTNAME, "localhost");
         }
-        
-        initializeLocalDeliveryMailet();
-
+        */
         System.out.println(SOFTWARE_NAME_VERSION);
         logger.info("JAMES ...init end");
     }
@@ -363,7 +331,7 @@ public class James
         }    
     }
 
-    private void initializeServernamesAndPostmaster() throws ConfigurationException, ParseException {
+    private void initializeServernames() throws ConfigurationException, ParseException {
         String defaultDomain = getDefaultDomain();
         if (domains.containsDomain(defaultDomain) == false) {
             if (domains instanceof ManageableDomainList) {
@@ -378,51 +346,10 @@ public class James
 
         if (serverNames == null || serverNames.size() == 0) throw new ConfigurationException("No domainnames configured");
         
-        // used by RemoteDelivery for HELO
-        attributes.put(Constants.DEFAULT_DOMAIN, defaultDomain);
-
-        // Get postmaster
-        String postMasterAddress = conf.getString("postmaster","postmaster").toLowerCase(Locale.US);
-        // if there is no @domain part, then add the first one from the
-        // list of supported domains that isn't localhost.  If that
-        // doesn't work, use the hostname, even if it is localhost.
-        if (postMasterAddress.indexOf('@') < 0) {
-            String domainName = null;    // the domain to use
-            // loop through candidate domains until we find one or exhaust the list
-            Iterator<String> i = serverNames.iterator();
-            while (i.hasNext()) {
-                String serverName = i.next().toLowerCase(Locale.US);
-                if (!("localhost".equals(serverName))) {
-                    domainName = serverName; // ok, not localhost, so use it
-                    continue;
-                }
-            }
-            // if we found a suitable domain, use it.  Otherwise fallback to the host name.
-            postMasterAddress = postMasterAddress + "@" + (domainName != null ? domainName : defaultDomain);
-        }
-        this.postmaster = new MailAddress( postMasterAddress );
-
-        if (!isLocalServer(postmaster.getDomain())) {
-            StringBuffer warnBuffer
-                    = new StringBuffer(320)
-                    .append("The specified postmaster address ( ")
-                    .append(postmaster)
-                    .append(" ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
-            logger.warn(warnBuffer.toString());
-        }
+       
     }
 
-    private void initializeLocalDeliveryMailet() throws MessagingException {
-        // We can safely remove this and the localDeliveryField when we 
-        // remove the storeMail method from James and from the MailetContext
-        DefaultConfigurationBuilder conf = new DefaultConfigurationBuilder();
-        MailetConfigImpl configImpl = new MailetConfigImpl();
-        configImpl.setMailetName("LocalDelivery");
-        configImpl.setConfiguration(conf);
-        configImpl.setMailetContext(this);
-        localDeliveryMailet = new LocalDelivery();
-        localDeliveryMailet.init(configImpl);
-    }
+    
 
     /**
      * Set Store to use
@@ -483,22 +410,13 @@ public class James
      */
     public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
             throws MessagingException {
-        sendMail(sender, recipients, message, Mail.DEFAULT);
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#sendMail(MailAddress, Collection, MimeMessage, String)
-     */
-    public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state)
-            throws MessagingException {
-        MailImpl mail = new MailImpl(getId(), sender, recipients, message);
         try {
-            mail.setState(state);
-            sendMail(mail);
-        } finally {
-            ContainerUtil.dispose(mail);
+            sendMail(sender, recipients, message.getInputStream());
+        } catch (IOException e) {
+            throw new MessagingException("Unable to send message",e);
         }
     }
+
 
     /**
      * @see org.apache.james.services.MailServer#sendMail(MailAddress, Collection, InputStream)
@@ -656,193 +574,6 @@ public class James
         System.out.println("Please refer to the Readme file to know how to run James.");
     }
 
-    //Methods for MailetContext
-
-    /**
-     * @see org.apache.mailet.MailetContext#getMailServers(String)
-     */
-    public Collection<String> getMailServers(String host) {
-        try {
-            return dns.findMXRecords(host);
-        } catch (TemporaryResolutionException e) {
-            //TODO: We only do this to not break backward compatiblity. Should fixed later
-            return Collections.unmodifiableCollection(new ArrayList<String>(0));
-        }
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#getAttribute(java.lang.String)
-     */
-    public Object getAttribute(String key) {
-        return attributes.get(key);
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#setAttribute(java.lang.String, java.lang.Object)
-     */
-    public void setAttribute(String key, Object object) {
-        attributes.put(key, object);
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#removeAttribute(java.lang.String)
-     */
-    public void removeAttribute(String key) {
-        attributes.remove(key);
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#getAttributeNames()
-     */
-    public Iterator<String> getAttributeNames() {
-        Vector<String> names = new Vector<String>();
-        for (Enumeration e = attributes.keys(); e.hasMoreElements(); ) {
-            names.add(e.nextElement().toString());
-        }
-        return names.iterator();
-    }
-
-    /**
-     * This generates a response to the Return-Path address, or the address of
-     * the message's sender if the Return-Path is not available.  Note that
-     * this is different than a mail-client's reply, which would use the
-     * Reply-To or From header. This will send the bounce with the server's
-     * postmaster as the sender.
-     * 
-     * @see org.apache.mailet.MailetContext#bounce(Mail, String)
-     */
-    public void bounce(Mail mail, String message) throws MessagingException {
-        bounce(mail, message, getPostmaster());
-    }
-
-    /**
-     * This generates a response to the Return-Path address, or the
-     * address of the message's sender if the Return-Path is not
-     * available.  Note that this is different than a mail-client's
-     * reply, which would use the Reply-To or From header.
-     *
-     * Bounced messages are attached in their entirety (headers and
-     * content) and the resulting MIME part type is "message/rfc822".
-     *
-     * The attachment to the subject of the original message (or "No
-     * Subject" if there is no subject in the original message)
-     *
-     * There are outstanding issues with this implementation revolving
-     * around handling of the return-path header.
-     *
-     * MIME layout of the bounce message:
-     *
-     * multipart (mixed)/
-     *     contentPartRoot (body) = mpContent (alternative)/
-     *           part (body) = message
-     *     part (body) = original
-     *
-     * @see org.apache.mailet.MailetContext#bounce(Mail, String, MailAddress) 
-     */
-
-    public void bounce(Mail mail, String message, MailAddress bouncer) throws MessagingException {
-        if (mail.getSender() == null) {
-            if (logger.isInfoEnabled())
-                logger.info("Mail to be bounced contains a null (<>) reverse path.  No bounce will be sent.");
-            return;
-        } else {
-            // Bounce message goes to the reverse path, not to the Reply-To address
-            if (logger.isInfoEnabled())
-                logger.info("Processing a bounce request for a message with a reverse path of " + mail.getSender().toString());
-        }
-
-        MailImpl reply = rawBounce(mail,message);
-        //Change the sender...
-        reply.getMessage().setFrom(bouncer.toInternetAddress());
-        reply.getMessage().saveChanges();
-        //Send it off ... with null reverse-path
-        reply.setSender(null);
-        sendMail(reply);
-        ContainerUtil.dispose(reply);
-    }
-
-    /**
-     * Generates a bounce mail that is a bounce of the original message.
-     *
-     * @param bounceText the text to be prepended to the message to describe the bounce condition
-     *
-     * @return the bounce mail
-     *
-     * @throws MessagingException if the bounce mail could not be created
-     */
-    private MailImpl rawBounce(Mail mail, String bounceText) throws MessagingException {
-        //This sends a message to the james component that is a bounce of the sent message
-        MimeMessage original = mail.getMessage();
-        MimeMessage reply = (MimeMessage) original.reply(false);
-        reply.setSubject("Re: " + original.getSubject());
-        reply.setSentDate(new Date());
-        Collection<MailAddress> recipients = new HashSet<MailAddress>();
-        recipients.add(mail.getSender());
-        InternetAddress addr[] = { new InternetAddress(mail.getSender().toString())};
-        reply.setRecipients(Message.RecipientType.TO, addr);
-        reply.setFrom(new InternetAddress(mail.getRecipients().iterator().next().toString()));
-        reply.setText(bounceText);
-        reply.setHeader(RFC2822Headers.MESSAGE_ID, "replyTo-" + mail.getName());
-        return new MailImpl(
-            "replyTo-" + mail.getName(),
-            new MailAddress(mail.getRecipients().iterator().next().toString()),
-            recipients,
-            reply);
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#isLocalUser(String)
-     */
-    public boolean isLocalUser(String name) {
-        if (name == null) {
-            return false;
-        }
-        try {
-            if (name.indexOf("@") == -1) {
-                return isLocalEmail(new MailAddress(name,"localhost"));
-            } else {
-                return isLocalEmail(new MailAddress(name));
-            }
-        } catch (ParseException e) {
-            log("Error checking isLocalUser for user "+name);
-            return false;
-        }
-    }
-    
-    /**
-     * @see org.apache.mailet.MailetContext#isLocalEmail(org.apache.mailet.MailAddress)
-     */
-    public boolean isLocalEmail(MailAddress mailAddress) {
-    String userName = mailAddress.toString();
-        if (!isLocalServer(mailAddress.getDomain())) {
-            return false;
-        }
-        if (virtualHosting == false) {
-            userName = mailAddress.getLocalPart();
-        }
-        return localusers.contains(userName);
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#getPostmaster()
-     */
-    public MailAddress getPostmaster() {
-        return postmaster;
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#getMajorVersion()
-     */
-    public int getMajorVersion() {
-        return 2;
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#getMinorVersion()
-     */
-    public int getMinorVersion() {
-        return 4;
-    }
 
     /**
      * @see org.apache.james.services.MailServer#isLocalServer(java.lang.String)
@@ -857,39 +588,6 @@ public class James
         } else {
             return false;
         }
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#getServerInfo()
-     */
-    public String getServerInfo() {
-        return "Apache JAMES";
-    }
-
-    /**
-     * Return the logger for the Mailet API
-     *
-     * @return the logger for the Mailet API
-     */
-    private Log getMailetLogger() {
-        if (mailetLog == null) {
-            return logger;
-        }
-        return mailetLog;
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#log(java.lang.String)
-     */
-    public void log(String message) {
-        getMailetLogger().info(message);
-    }
-
-    /**
-     * @see org.apache.mailet.MailetContext#log(java.lang.String, java.lang.Throwable)
-     */
-    public void log(String message, Throwable t) {
-        getMailetLogger().info(message,t);
     }
 
     /**
@@ -909,54 +607,6 @@ public class James
         return localusers.addUser(userName, password);
     }
 
-    /**
-     * Performs DNS lookups as needed to find servers which should or might
-     * support SMTP.
-     * Returns an Iterator over HostAddress, a specialized subclass of
-     * javax.mail.URLName, which provides location information for
-     * servers that are specified as mail handlers for the given
-     * hostname.  This is done using MX records, and the HostAddress
-     * instances are returned sorted by MX priority.  If no host is
-     * found for domainName, the Iterator returned will be empty and the
-     * first call to hasNext() will return false.
-     *
-     * @see org.apache.james.api.dnsservice.DNSService#getSMTPHostAddresses(String)
-     * @since Mailet API v2.2.0a16-unstable
-     * @param domainName - the domain for which to find mail servers
-     * @return an Iterator over HostAddress instances, sorted by priority
-     */
-    public Iterator<HostAddress> getSMTPHostAddresses(String domainName) {
-        try {
-            return dns.getSMTPHostAddresses(domainName);
-        } catch (TemporaryResolutionException e) {
-            //TODO: We only do this to not break backward compatiblity. Should fixed later
-            return Collections.unmodifiableCollection(new ArrayList<HostAddress>(0)).iterator();
-        }
-    }
-
-    /**
-     * This method has been moved to LocalDelivery (the only client of the method).
-     * Now we can safely remove it from the Mailet API and from this implementation of MailetContext.
-     *
-     * The local field localDeliveryMailet will be removed when we remove the storeMail method.
-     * 
-     * @deprecated since 2.2.0 look at the LocalDelivery code to find out how to do the local delivery.
-     * @see org.apache.mailet.MailetContext#storeMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
-     */
-    public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
-        if (recipient == null) {
-            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
-        }
-        if (msg == null) {
-            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
-        }
-        Collection<MailAddress> recipients = new HashSet<MailAddress>();
-        recipients.add(recipient);
-        MailImpl m = new MailImpl(getId(),sender,recipients,msg);
-        localDeliveryMailet.service(m);
-        ContainerUtil.dispose(m);
-    }
-   
     /**
      * @see org.apache.james.services.MailServer#supportVirtualHosting()
      */
@@ -987,12 +637,16 @@ public class James
         if (helloName != null) {
             return helloName;
         } else {
+            return getDefaultDomain();
+            /*
             String hello = (String) getAttribute(Constants.HELLO_NAME);   
+            
             if (hello == null) {
                 return defaultDomain;
             } else {
                 return hello;
             }
+            */
         }
     }
 }
