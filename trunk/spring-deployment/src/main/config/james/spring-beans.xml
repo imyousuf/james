@@ -91,7 +91,8 @@
 			<map>
 				<entry key="nntpserver.protocolserver" value="nntpserver" />
 				<entry key="nntpserver.protocolhandlerfactory" value="nntpserver" />
-				<entry key="mailboxmanager" value="imapserver" />				
+				<entry key="mailboxmanager" value="imapserver" />		
+				<entry key="mailet" value="James"/>		
 			</map>
 		</property>
 	</bean>
@@ -127,14 +128,9 @@
 		<property name="order" value="3" />
 	</bean>
 
-	<bean id="mailetLog" class="org.apache.commons.logging.impl.Log4JLogger">
-        <constructor-arg index="0" value="MAILET"/>
-	</bean>
-
-	<bean id="James" class="org.apache.james.James">
-	    <!-- just a workaround atm -->
-	    <property name="mailetLog" ref="mailetLog"/>
-	</bean>
+	<bean id="James" class="org.apache.james.James"/>
+	
+	<bean id="mailet" class="org.apache.james.JamesMailetContext"/>
 
 	<!-- The James Spool Manager block  -->
 	<bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" />
