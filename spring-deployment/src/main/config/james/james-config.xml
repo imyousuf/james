@@ -903,6 +903,13 @@ Regards, Postmaster XXX.YYY
             <account login="root" password="root"/>
          </administrator_accounts>
          <connectiontimeout> 60000 </connectiontimeout>
+         
+         <!-- Set the maximum simultaneous incoming connections for this service -->
+         <connectionLimit> 0 </connectionLimit>
+         
+         <!-- Set the maximum simultaneous incoming connections per IP for this service -->
+         <connectionLimitPerIP> 0 </connectionLimitPerIP>
+         
          <!-- The prompt directive adds a prompt to every output from RemoteManager -->
          <!-- 
          <prompt>james&gt;</prompt>
@@ -957,6 +964,12 @@ Regards, Postmaster XXX.YYY
          -->
          <connectiontimeout>120000</connectiontimeout>
       
+         <!-- Set the maximum simultaneous incoming connections for this service -->
+         <connectionLimit> 0 </connectionLimit>
+         
+         <!-- Set the maximum simultaneous incoming connections per IP for this service -->
+         <connectionLimitPerIP> 0 </connectionLimitPerIP>
+         
          <handlerchain>
              <!-- This loads the core CommandHandlers. Only remove this if you really -->
              <!-- know what you are doing -->
@@ -1011,6 +1024,12 @@ Regards, Postmaster XXX.YYY
          -->
          <connectiontimeout>360000</connectiontimeout>
 
+         <!-- Set the maximum simultaneous incoming connections for this service -->
+         <connectionLimit> 0 </connectionLimit>
+         
+         <!-- Set the maximum simultaneous incoming connections per IP for this service -->
+         <connectionLimitPerIP> 0 </connectionLimitPerIP>
+         
          <!--  Uncomment this if you want to require SMTP authentication.
 
                supported values:
@@ -1116,6 +1135,12 @@ Regards, Postmaster XXX.YYY
          -->
          <connectiontimeout>360000</connectiontimeout>
             
+         <!-- Set the maximum simultaneous incoming connections for this service -->
+         <connectionLimit> 0 </connectionLimit>
+         
+         <!-- Set the maximum simultaneous incoming connections per IP for this service -->
+         <connectionLimitPerIP> 0 </connectionLimitPerIP>
+         
       </handler>
    </imapserver>
 
