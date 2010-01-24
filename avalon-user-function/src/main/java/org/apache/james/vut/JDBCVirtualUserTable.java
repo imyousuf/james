@@ -36,14 +36,14 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -54,7 +54,7 @@ import org.apache.james.util.sql.SqlResources;
 public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
     private DataSourceSelector datasources = null;
-    private DataSourceComponent dataSourceComponent = null;
+    private DataSource dataSourceComponent = null;
     private String tableName = "VirtualUserTable";
     private String dataSourceName = null;
     
@@ -136,7 +136,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
     @PostConstruct
     public void init() throws Exception {
-        setDataSourceComponent((DataSourceComponent) datasources.select(dataSourceName));
+        setDataSource(datasources.getDataSource(dataSourceName));
     
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
@@ -218,7 +218,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     };
     
     
-    public void setDataSourceComponent(DataSourceComponent dataSourceComponent) {
+    public void setDataSource(DataSource dataSourceComponent) {
         this.dataSourceComponent = dataSourceComponent;
     }
     

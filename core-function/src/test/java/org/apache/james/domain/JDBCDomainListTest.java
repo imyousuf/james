@@ -28,16 +28,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import junit.framework.TestCase;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.sql.JDBCUtil;
@@ -46,11 +47,11 @@ public class JDBCDomainListTest  extends TestCase {
     private String repos = "db://maildb/";
     private String table = "costumTable";
     private DataSourceSelector dataSource;
-    private DataSourceComponent data;
+    private DataSource data;
     
     public void setUp() throws Exception {
         dataSource = Util.getDataSourceSelector();
-        data = (DataSourceComponent) dataSource.select("maildb");
+        data = dataSource.getDataSource("maildb");
     
         sqlQuery("create table " + table + " (domain VARCHAR (255))");
     }

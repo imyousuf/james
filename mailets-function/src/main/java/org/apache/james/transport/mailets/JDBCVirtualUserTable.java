@@ -21,15 +21,15 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -92,7 +92,7 @@ import java.util.Map;
  */
 public class JDBCVirtualUserTable extends AbstractVirtualUserTable
 {
-    protected DataSourceComponent datasource;
+    protected DataSource datasource;
 
     /**
      * The query used by the mailet to get the alias mapping
@@ -134,7 +134,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
 
         try {
             // Get the data-source required.
-            datasource = (DataSourceComponent)selector.select(datasourceName);
+            datasource = selector.getDataSource(datasourceName);
 
             conn = datasource.getConnection();
 

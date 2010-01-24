@@ -34,12 +34,12 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -50,7 +50,7 @@ import org.apache.james.util.sql.SqlResources;
 public class JDBCDomainList extends AbstractDomainList {
 
     private DataSourceSelector datasources;
-    private DataSourceComponent dataSourceComponent;
+    private DataSource dataSourceComponent;
     private FileSystem fileSystem;
     
     private String tableName = null;
@@ -74,7 +74,7 @@ public class JDBCDomainList extends AbstractDomainList {
         this.configuration = (HierarchicalConfiguration)configuration;
     }
 
-    public void setDataSourceComponent(DataSourceComponent dataSourceComponent) {
+    public void setDataSource(DataSource dataSourceComponent) {
         this.dataSourceComponent = dataSourceComponent;
     }
     
@@ -147,7 +147,7 @@ public class JDBCDomainList extends AbstractDomainList {
     public void init() throws Exception {
         configure();
         
-        setDataSourceComponent((DataSourceComponent) datasources.select(dataSourceName));
+        setDataSource(datasources.getDataSource(dataSourceName));
     
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {

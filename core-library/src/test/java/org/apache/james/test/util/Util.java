@@ -19,16 +19,15 @@
 
 package org.apache.james.test.util;
 
-import org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector;
-import org.apache.avalon.excalibur.datasource.JdbcDataSource;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.derby.jdbc.EmbeddedDriver;
-import org.apache.james.test.mock.avalon.MockLogger;
-import org.apache.james.test.mock.util.AttrValConfiguration;
+import org.apache.james.services.DataSourceSelector;
+
 
 import java.io.IOException;
 import java.net.ServerSocket;
+
+import javax.sql.DataSource;
 
 /**
  * some utilities for James unit testing
@@ -83,33 +82,30 @@ public class Util {
         return PORT_LAST_USED;
     }
 
-    public static Configuration getValuedConfiguration(String name, String value) {
-        DefaultConfiguration defaultConfiguration = new DefaultConfiguration(name);
-        defaultConfiguration.setValue(value);
-        return defaultConfiguration;
-    }
 
     /**
      * @return
      * @throws Exception
      */
-    public static DefaultDataSourceSelector getDataSourceSelector() throws Exception {
-        DefaultDataSourceSelector dataSourceSelector = new DefaultDataSourceSelector();
-        dataSourceSelector.enableLogging(new MockLogger());
-        DefaultConfiguration dc = new DefaultConfiguration("database-connections");
-        DefaultConfiguration ds = new DefaultConfiguration("data-source");
-        ds.setAttribute("name","maildb");
-        ds.setAttribute("class",JdbcDataSource.class.getName());
-        
-        ds.addChild(new AttrValConfiguration("driver",EmbeddedDriver.class.getName()));
-        ds.addChild(new AttrValConfiguration("dburl","jdbc:derby:target/testdb;create=true"));
-        ds.addChild(new AttrValConfiguration("user","james"));
-        ds.addChild(new AttrValConfiguration("password","james"));
-    
-        ds.addChild(new AttrValConfiguration("max","20"));
-        dc.addChild(ds);
-        dataSourceSelector.configure(dc);
-        dataSourceSelector.initialize();
+    public static DataSourceSelector getDataSourceSelector() throws Exception {
+        DataSourceSelector dataSourceSelector = new DataSourceSelector() {
+
+            public DataSource getDataSource(String name) {
+                if (name.equals("maildb")) {
+                    BasicDataSource ds = new BasicDataSource();
+                    ds.setDriverClassName(EmbeddedDriver.class.getName());
+                    ds.setUrl("jdbc:derby:target/testdb;create=true");
+                    ds.setUsername("james");
+                    ds.setPassword("james");
+                    return ds;
+                }
+                return null;
+            }
+
+        };
+
         return dataSourceSelector;
     }
+    
+    
 }

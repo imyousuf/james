@@ -38,7 +38,6 @@ import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.logging.impl.SimpleLog;
@@ -52,7 +51,6 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 import org.apache.james.smtpserver.mina.AsyncSMTPServer;
-import org.apache.james.test.mock.DummyDataSourceSelector;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
@@ -225,7 +223,6 @@ public class AsyncSMTPServerTest extends TestCase {
         dnsAdapter.setDNSService(m_dnsServer);
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
         m_serviceManager.put(VirtualUserTableStore.ROLE, new DummyVirtualUserTableStore());
-        m_serviceManager.put(DataSourceSelector.ROLE, new DummyDataSourceSelector());
         SMTPServerDNSServiceAdapter dnsAdapter = new SMTPServerDNSServiceAdapter();
         dnsAdapter.setDNSService(m_dnsServer);
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);

@@ -21,10 +21,9 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.base.GenericMailet;
@@ -41,6 +40,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.sql.DataSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -126,7 +126,7 @@ public class WhiteListManager extends GenericMailet {
     /** The date format object used to generate RFC 822 compliant date headers. */
     private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
-    private DataSourceComponent datasource;
+    private DataSource datasource;
 
     /** The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
@@ -239,7 +239,7 @@ public class WhiteListManager extends GenericMailet {
             // Get the data-source required.
             int stindex =   repositoryPath.indexOf("://") + 3;
             String datasourceName = repositoryPath.substring(stindex);
-            datasource = (DataSourceComponent) selector.select(datasourceName);
+            datasource = selector.getDataSource(datasourceName);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
         }

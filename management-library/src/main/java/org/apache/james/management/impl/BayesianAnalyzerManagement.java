@@ -35,11 +35,10 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 
 import net.fortuna.mstor.data.MboxFile;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
@@ -47,6 +46,7 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementMBean;
 import org.apache.james.management.BayesianAnalyzerManagementService;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
 
@@ -61,7 +61,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     private final static String HAM = "HAM";
     private final static String SPAM = "SPAM";
     private DataSourceSelector selector;
-    private DataSourceComponent component;
+    private DataSource component;
     private String repos;
     private String sqlFileUrl;
     private FileSystem fileSystem;
@@ -80,7 +80,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
     @PostConstruct
     public void init() throws Exception {
         if (repos != null) {
-            setDataSourceComponent((DataSourceComponent) selector.select(repos));
+            setDataSource(selector.getDataSource(repos));
             File sqlFile = fileSystem.getFile(sqlFileUrl);
             analyzer.initSqlQueries(component.getConnection(), sqlFile.getAbsolutePath());
         }
@@ -119,7 +119,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
      * 
      * @param component The DataSourceComponent
      */
-    public void setDataSourceComponent(DataSourceComponent component) {
+    public void setDataSource(DataSource component) {
         this.component = component;
     }
     

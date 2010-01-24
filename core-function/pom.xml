@@ -74,14 +74,7 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-datasource</artifactId>
-    </dependency>
+ 
     <dependency>
       <groupId>org.apache.avalon.cornerstone.store</groupId>
       <artifactId>cornerstone-store-api</artifactId>
@@ -115,11 +108,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-impl</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

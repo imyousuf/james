@@ -348,11 +348,6 @@
       <scope>runtime</scope>
     </dependency>
     
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-impl</artifactId>
-      <scope>runtime</scope>
-	</dependency> 
 	
 	<dependency>
       <groupId>org.apache.derby</groupId>

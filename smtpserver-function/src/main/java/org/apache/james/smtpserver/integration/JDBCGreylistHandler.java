@@ -34,9 +34,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -45,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler;
@@ -69,7 +69,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
 
     private DataSourceSelector datasources = null;
 
-    private DataSourceComponent datasource = null;
+    private DataSource datasource = null;
 
     private FileSystem fileSystem = null;
 
@@ -288,7 +288,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @param datasource
      *            the datasource
      */
-    public void setDataSource(DataSourceComponent datasource) {
+    public void setDataSource(DataSource datasource) {
         this.datasource = datasource;
     }
 
@@ -382,13 +382,13 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @throws ServiceException
      * @throws SQLException
      */
-    private DataSourceComponent initDataSource(String repositoryPath)
+    private DataSource initDataSource(String repositoryPath)
         throws ServiceException, SQLException {
 
         int stindex = repositoryPath.indexOf("://") + 3;
         String datasourceName = repositoryPath.substring(stindex);
 
-        return (DataSourceComponent) datasources.select(datasourceName);
+        return datasources.getDataSource(datasourceName);
     }
 
     /**

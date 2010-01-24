@@ -78,11 +78,6 @@
     </dependency>
     
     <dependency>
-      <groupId>org.apache.excalibur.components</groupId>
-      <artifactId>excalibur-datasource</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>
       <classifier>tests</classifier>
@@ -99,9 +94,10 @@
       <artifactId>james-server-user-api</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-impl</artifactId>
+   
+   <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

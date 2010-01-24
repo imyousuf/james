@@ -21,32 +21,28 @@
 
 package org.apache.james.vut;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.avalon.framework.service.ServiceException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.test.mock.james.MockFileSystem;
-import org.apache.james.test.mock.util.AttrValConfiguration;
 import org.apache.james.test.util.Util;
-import org.apache.james.util.ConfigurationAdapter;
 
 public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTableTest#getVirtalUserTable()
      */
-    protected AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception {
+    protected AbstractVirtualUserTable getVirtalUserTable() throws Exception {
         JDBCVirtualUserTable mr = new JDBCVirtualUserTable();
         mr.setLog(new SimpleLog("MockLog"));
         mr.setDataSourceSelector(Util.getDataSourceSelector());
         mr.setDNSService(setUpDNSServer());
         mr.setFileSystem(new MockFileSystem());
-        DefaultConfiguration defaultConfiguration = new DefaultConfiguration("ReposConf");
-        defaultConfiguration.setAttribute("destinationURL","db://maildb/VirtualUserTable");
-        defaultConfiguration.addChild(new AttrValConfiguration("sqlFile","file://conf/sqlResources.xml"));
-        mr.configure(new ConfigurationAdapter(defaultConfiguration));
+        DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
+        defaultConfiguration.addProperty("[@destinationURL]","db://maildb/VirtualUserTable");
+        defaultConfiguration.addProperty("sqlFile","file://conf/sqlResources.xml");
+        mr.configure(defaultConfiguration);
         mr.init();
         return mr;
     }    
