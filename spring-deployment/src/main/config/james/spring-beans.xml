@@ -89,7 +89,7 @@
 		<property name="mappings">
 			<map>
 				<entry key="mailboxmanager" value="imapserver" />		
-				<entry key="mailet" value="James"/>		
+				<entry key="mailetcontext" value="James"/>		
 			</map>
 		</property>
 	</bean>
@@ -125,7 +125,7 @@
 
 	<bean id="James" class="org.apache.james.James"/>
 	
-	<bean id="mailet" class="org.apache.james.JamesMailetContext"/>
+	<bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
 
 	<!-- The James Spool Manager block  -->
 	<bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" />

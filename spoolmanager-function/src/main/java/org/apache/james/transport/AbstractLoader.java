@@ -81,7 +81,7 @@ public abstract class AbstractLoader implements LogEnabled, Configurable{
      * 
      * @param mailetContext the MailetContext
      */
-    @Resource(name="mailet") 
+    @Resource(name="mailetcontext") 
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }
