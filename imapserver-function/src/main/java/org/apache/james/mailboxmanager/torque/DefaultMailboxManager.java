@@ -29,15 +29,12 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.MailboxException;
 import org.apache.james.imap.store.Authenticator;
 import org.apache.james.imap.store.Subscriber;
-import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.mailboxmanager.torque.om.MailboxRowPeer;
 import org.apache.james.mailboxmanager.torque.om.MessageBodyPeer;
@@ -51,7 +48,7 @@ import org.apache.torque.TorqueException;
 import org.apache.torque.util.BasePeer;
 import org.apache.torque.util.Transaction;
 
-public class DefaultMailboxManager extends TorqueMailboxManager implements Configurable, LogEnabled{
+public class DefaultMailboxManager extends TorqueMailboxManager implements LogEnabled{
 
     private static final String[] tableNames = new String[] {
         MailboxRowPeer.TABLE_NAME, MessageRowPeer.TABLE_NAME,
@@ -74,6 +71,10 @@ public class DefaultMailboxManager extends TorqueMailboxManager implements Confi
     
     public void setTorqueConfig(String torqueFile) {
         this.torqueFile = torqueFile;
+    }
+    
+    public void setSqlFile(String configFile) {
+        this.configFile = configFile;
     }
     
     @PostConstruct
@@ -114,17 +115,6 @@ public class DefaultMailboxManager extends TorqueMailboxManager implements Confi
             }
             throw new MailboxException(new HumanReadableText("org.apache.james.imap.INIT_FAILED", "Initialisation failed"), e);
         }
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration conf)
-            throws ConfigurationException {
-        configFile = conf.getString("configFile",null);
-        if (configFile == null) configFile = "file://conf/mailboxManagerSqlResources.xml";
     }
 
     private boolean tableExists(DatabaseMetaData dbMetaData, String tableName)

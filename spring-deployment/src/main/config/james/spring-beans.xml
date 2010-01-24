@@ -255,6 +255,7 @@
          <constructor-arg index="0" ref="authenticator"/>
          <constructor-arg index="1" ref="subscriper"/>
          <property name="torqueConfig" value="file://conf/torque.properties" />
+         <property name="sqlFile" value="file://conf/mailboxManagerSqlResources.xml"/>
 	</bean>
 	-->
 
