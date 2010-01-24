@@ -46,6 +46,7 @@ import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.filter.ssl.BogusTrustManagerFactory;
 import org.apache.mina.filter.ssl.KeyStoreFactory;
 import org.apache.mina.filter.ssl.SslContextFactory;
+import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
@@ -98,6 +99,8 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     private int connPerIP;
 
     private boolean useStartTLS;
+    private boolean useSSL;
+
 
     private int connectionLimit;
 
@@ -265,14 +268,17 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
         }
        
 
-        useStartTLS = config.getBoolean("startTLS.[@enable]", false);
+        useStartTLS = config.getBoolean("tls.[@startTLS]", false);
+        useSSL = config.getBoolean("tls.[@socketTLS]", false);
 
-        if (useStartTLS) {
-            keystore = config.getString("startTLS.keystore", null);
+        if (useSSL && useStartTLS) throw new ConfigurationException("startTLS is only supported when using plain sockets");
+       
+        if (useStartTLS || useSSL) {
+            keystore = config.getString("tls.keystore", null);
             if (keystore == null) {
                 throw new ConfigurationException("keystore needs to get configured");
             }
-            secret = config.getString("startTLS.secret","");
+            secret = config.getString("tls.secret","");
         }
              
         doConfigure(config);
@@ -289,7 +295,12 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
             // add connectionfilter in the first of the chain
             DefaultIoFilterChainBuilder builder = createIoFilterChainBuilder();
             builder.addFirst("connectionFilter", new ConnectionFilter(getLogger(), connectionLimit, connPerIP));
-
+           
+            // add the sslfilter if needed
+            if (isSSLSocket()) {
+                builder.addFirst( "sslFilter", new SslFilter(contextFactory.newInstance()));
+            }
+            
             SocketAcceptor acceptor = new NioSocketAcceptor();  
             acceptor.setFilterChainBuilder(builder);
             acceptor.setBacklog(backlog);
@@ -422,6 +433,15 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      */
     protected boolean isStartTLSSupported() {
         return useStartTLS;
+    }
+
+    /**
+     * Return if the socket is using SSL
+     * 
+     * @return useSSL
+     */
+    protected boolean isSSLSocket() {
+        return useSSL;
     }
     
     /**

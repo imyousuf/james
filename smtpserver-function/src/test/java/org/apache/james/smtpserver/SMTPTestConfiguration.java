@@ -157,9 +157,9 @@ public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
         addProperty("handler.heloEhloEnforcement", m_heloEhloEnforcement);
         addProperty("handler.addressBracketsEnforcement", m_addressBracketsEnforcement);
         
-        addProperty("startTLS.[@enable]", m_startTLS);
-        addProperty("startTLS.keystore","file://conf/test_keystore");
-        addProperty("startTLS.secret", "jamestest");        
+        addProperty("tls.[@startTLS]", m_startTLS);
+        addProperty("tls.keystore","file://conf/test_keystore");
+        addProperty("tls.secret", "jamestest");        
         if (m_verifyIdentity) addProperty("handler.verifyIdentity", m_verifyIdentity);
  
         // add the rbl handler
