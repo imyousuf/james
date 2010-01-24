@@ -19,12 +19,11 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -45,6 +44,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 
 /**
  * An abstract base class for creating UserRepository implementations
@@ -80,7 +80,7 @@ public abstract class AbstractJdbcUsersRepository extends
 
     private DataSourceSelector m_datasources;
 
-    private DataSourceComponent m_datasource;
+    private DataSource m_datasource;
 
     // Fetches all Users from the db.
     private String m_getUsersSql;
@@ -276,8 +276,7 @@ public abstract class AbstractJdbcUsersRepository extends
         };
 
         // Get the data-source required.
-        m_datasource = (DataSourceComponent) m_datasources
-                .select(m_datasourceName);
+        m_datasource =  m_datasources.getDataSource(m_datasourceName);
 
         // Test the connection to the database, by getting the DatabaseMetaData.
         Connection conn = openConnection();

@@ -21,10 +21,9 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.transport.mailets.WhiteListManager;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -34,6 +33,7 @@ import org.apache.mailet.MailAddress;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.sql.DataSource;
 
 import java.io.File;
 import java.sql.Connection;
@@ -65,7 +65,7 @@ public class IsInWhiteList extends GenericMatcher {
 
     private String selectByPK;
     
-    private DataSourceComponent datasource;
+    private DataSource datasource;
     
     /** The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
@@ -138,7 +138,7 @@ public class IsInWhiteList extends GenericMatcher {
             // Get the data-source required.
             int stindex =   repositoryPath.indexOf("://") + 3;
             String datasourceName = repositoryPath.substring(stindex);
-            datasource = (DataSourceComponent) selector.select(datasourceName);
+            datasource = selector.getDataSource(datasourceName);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
         }

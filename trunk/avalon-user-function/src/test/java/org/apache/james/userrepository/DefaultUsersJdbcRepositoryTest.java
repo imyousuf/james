@@ -19,15 +19,14 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.cornerstone.blocks.datasources.DefaultDataSourceSelector;
 import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.util.Util;
-import org.apache.james.util.ConfigurationAdapter;
 
 import java.util.Iterator;
 
@@ -57,7 +56,7 @@ public class DefaultUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        DefaultDataSourceSelector dataSourceSelector = Util.getDataSourceSelector();  
+        DataSourceSelector dataSourceSelector = Util.getDataSourceSelector();  
         
         res.setDatasources(dataSourceSelector );
         

@@ -31,9 +31,9 @@ import javax.annotation.Resource;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.sql.DataSource;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.Mail;
@@ -124,7 +124,7 @@ extends GenericMailet {
         }
     };
     
-    private DataSourceComponent datasource;
+    private DataSource datasource;
     private String repositoryPath;
     
     private String feedType;
@@ -203,7 +203,7 @@ extends GenericMailet {
             
             String datasourceName = repositoryPath.substring(stindex);
             
-            datasource = (DataSourceComponent) selector.select(datasourceName);
+            datasource = selector.getDataSource(datasourceName);
         } catch (Exception e) {
             throw new MessagingException("Can't get datasource", e);
         }

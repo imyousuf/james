@@ -21,15 +21,14 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
 import org.apache.avalon.cornerstone.services.store.StreamRepository;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -40,6 +39,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.sql.DataSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -110,7 +110,7 @@ public class JDBCMailRepository
     /**
      * The JDBC datasource that provides the JDBC connection
      */
-    protected DataSourceComponent datasource;
+    protected DataSource datasource;
 
     /**
      * The name of the datasource used by this repository
@@ -282,7 +282,7 @@ public class JDBCMailRepository
                 }
             };
         // Get the data-source required.
-        datasource = (DataSourceComponent)datasources.select(datasourceName);
+        datasource = datasources.getDataSource(datasourceName);
 
         // Test the connection to the database, by getting the DatabaseMetaData.
         Connection conn = datasource.getConnection();

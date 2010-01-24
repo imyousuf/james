@@ -21,8 +21,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.datasources.DataSourceSelector;
-import org.apache.avalon.excalibur.datasource.DataSourceComponent;
+import org.apache.james.services.DataSourceSelector;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
@@ -32,6 +31,7 @@ import org.apache.mailet.MailetException;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
+import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -56,7 +56,7 @@ import java.util.Vector;
  */
 public class JDBCAlias extends GenericMailet {
 
-    protected DataSourceComponent datasource;
+    protected DataSource datasource;
     protected String query = null;
     private DataSourceSelector selector;
 
@@ -95,7 +95,7 @@ public class JDBCAlias extends GenericMailet {
         try {
             
             // Get the data-source required.
-            datasource = (DataSourceComponent)selector.select(datasourceName);
+            datasource = selector.getDataSource(datasourceName);
 
             conn = datasource.getConnection();
 
