@@ -101,18 +101,23 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
      * @see org.apache.james.api.protocol.TLSSupportedSession#isTLSStarted()
      */
     public boolean isTLSStarted() {
-        return session.getFilterChain().contains("sslFilter");
+        if (isStartTLSSupported()) {
+            return session.getFilterChain().contains("sslFilter");
+        }
+        return false;
     }
 
     /**
      * @see org.apache.james.api.protocol.TLSSupportedSession#startTLS()
      */
     public void startTLS() throws IOException {
-        session.suspendRead();
-        SslFilter filter = new SslFilter(context);
-        resetState();
-        session.getFilterChain().addFirst("sslFilter", filter);
-        session.resumeRead();
+        if (isStartTLSSupported()) {
+            session.suspendRead();
+            SslFilter filter = new SslFilter(context);
+            resetState();
+            session.getFilterChain().addFirst("sslFilter", filter);
+            session.resumeRead();
+        }
     }
 
     /**

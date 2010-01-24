@@ -168,6 +168,9 @@ public class AsyncPOP3Server extends AbstractAsyncServer implements POP3ServerMB
 	 * @see org.apache.james.pop3server.POP3ServerMBean#getSocketType()
 	 */
 	public String getSocketType() {
+	    if (isSSLSocket()) {
+	        return "secure";
+	    }
 		return "plain";
 	}
 
