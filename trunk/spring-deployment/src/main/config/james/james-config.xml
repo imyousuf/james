@@ -1117,8 +1117,6 @@ Regards, Postmaster XXX.YYY
          <connectiontimeout>360000</connectiontimeout>
             
       </handler>
-      <configFile>file://conf/mailboxManagerSqlResources.xml</configFile>
-
    </imapserver>
 
  
