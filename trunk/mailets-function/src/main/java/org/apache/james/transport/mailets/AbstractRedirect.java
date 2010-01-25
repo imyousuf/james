@@ -1360,7 +1360,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      */
     protected final boolean senderDomainIsValid(Mail mail) throws MessagingException {
         if (getFakeDomainCheck(mail)) {
-            return mail.getSender() == null || getMailetContext().getMailServers(mail.getSender().getHost()).size() != 0;
+            return mail.getSender() == null || getMailetContext().getMailServers(mail.getSender().getDomain()).size() != 0;
         } else return true;
     }
 
@@ -1470,7 +1470,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         Iterator iterator = list.iterator();
         while (iterator.hasNext()) {
             MailAddress mailAddress = (MailAddress) iterator.next();
-            if (!mailAddress.getHost().equalsIgnoreCase("address.marker")) {
+            if (!mailAddress.getDomain().equalsIgnoreCase("address.marker")) {
                 newList.add(mailAddress);
             } else if (mailAddress == SpecialAddress.SENDER || mailAddress == SpecialAddress.FROM) {
                 MailAddress sender = mail.getSender();
@@ -1540,7 +1540,7 @@ public abstract class AbstractRedirect extends GenericMailet {
         while (iterator.hasNext()) {
             InternetAddress internetAddress = (InternetAddress) iterator.next();
             MailAddress mailAddress = new MailAddress(internetAddress);
-            if (!mailAddress.getHost().equalsIgnoreCase("address.marker")) {
+            if (!mailAddress.getDomain().equalsIgnoreCase("address.marker")) {
                 newList.add(internetAddress);
             } else if (internetAddress.equals(SpecialAddress.SENDER.toInternetAddress())) {
                 MailAddress sender = mail.getSender();
