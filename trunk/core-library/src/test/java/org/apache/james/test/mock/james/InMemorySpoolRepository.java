@@ -19,11 +19,12 @@
 
 package org.apache.james.test.mock.james;
 
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
+import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.util.Lock;
 import org.apache.mailet.Mail;
 
@@ -54,12 +55,12 @@ public class InMemorySpoolRepository
      */
     protected final static boolean DEEP_DEBUG = true;
     private Lock lock;
-    private MockLogger logger;
+    private Log logger;
     private Hashtable<String, Mail> spool;
 
-    private MockLogger getLogger() {
+    private Log getLogger() {
         if (logger == null) {
-            logger = new MockLogger();
+            logger = new SimpleLog("Log");
         }
         return logger;
     }
@@ -144,7 +145,7 @@ public class InMemorySpoolRepository
                     // do not use this.remove because this would
                     // also remove a current lock.
                     Object o = spool.remove(key);
-                    ContainerUtil.dispose(o);
+                    LifecycleUtil.dispose(o);
                 }
                 // Clone the mail (so the caller could modify it).
                 MailImpl m = new MailImpl(mc,mc.getName());
@@ -250,7 +251,7 @@ public class InMemorySpoolRepository
             try {
                 if (spool != null) {
                     Object o = spool.remove(key);
-                    ContainerUtil.dispose(o);
+                    LifecycleUtil.dispose(o);
                 }
             } finally {
                 unlock(key);

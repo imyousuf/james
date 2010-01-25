@@ -21,8 +21,8 @@
 
 package org.apache.james.core;
 
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.io.IOUtil;
 
@@ -466,7 +466,7 @@ public class MimeMessageWrapper
             IOUtil.shutdownStream(sourceIn);
         }
         if (source != null) {
-            ContainerUtil.dispose(source);
+            LifecycleUtil.dispose(source);
         }
     }
 

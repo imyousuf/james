@@ -34,9 +34,9 @@ import javax.mail.internet.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
 import org.apache.james.impl.user.DefaultJamesUser;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MailRepository;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockMailServer;
@@ -337,13 +337,13 @@ public class LocalDeliveryTest extends TestCase {
                 assertEquals("Found a mail in outgoing having a state different from ERROR or ROOT", Mail.DEFAULT, m.getState());
             }
             
-            ContainerUtil.dispose(m);
+            LifecycleUtil.dispose(m);
         }
         
         assertExpectedMailsInRepository(mail, (String[]) expectedMails.get("resent"), sentMailsRepository);
         assertExpectedMailsInRepository(mail, (String[]) expectedMails.get("errors"), errorsMailRepository);
         
-        ContainerUtil.dispose(errorsMailRepository);
+        LifecycleUtil.dispose(errorsMailRepository);
     }
 
 

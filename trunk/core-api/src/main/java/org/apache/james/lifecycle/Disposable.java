@@ -17,21 +17,9 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.mock.util;
+package org.apache.james.lifecycle;
 
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+public interface Disposable {
 
-public class AttrValConfiguration extends DefaultConfiguration {
-    
-    public AttrValConfiguration(String name, String value) {
-        super(name);
-        //setName(name+"1");
-        setValue(value);
-    }
-    
-    public AttrValConfiguration(String name, String attrName, String value) {
-        super(name);
-        addChild(new AttrValConfiguration(attrName,value));
-    }
-    
+    public void dispose();
 }

@@ -19,7 +19,6 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
@@ -80,7 +79,7 @@ public class ListUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         while (i.hasNext()) {
             this.usersRepository.removeUser((String) i.next());
         }
-        ContainerUtil.dispose(this.usersRepository);
+        LifecycleUtil.dispose(this.usersRepository);
     }
 
 }

@@ -17,28 +17,13 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.lifecycle;
 
-package org.apache.james.util;
+public class LifecycleUtil {
 
-import java.io.ByteArrayInputStream;
-import org.apache.avalon.framework.configuration.ConfigurationUtil;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.XMLConfiguration;
-
-/**
- * Bridges commons configuration to Avalon.
- */
-public class ConfigurationAdapter extends XMLConfiguration {
-
-	private static final long serialVersionUID = 6920719067623856243L;
-
-	public ConfigurationAdapter(org.apache.avalon.framework.configuration.Configuration avalonConfig) throws ConfigurationException {
-		String config = ConfigurationUtil.toString(avalonConfig);
-	      // thats needed because of our configuration style and needs to get applied before loading the config
-        setDelimiterParsingDisabled(true);
-        
-		load(new ByteArrayInputStream(config.getBytes()));        
-
-
-	}
+    public static void dispose(Object obj) {
+        if (obj instanceof Disposable) {
+            ((Disposable) obj).dispose();
+        }
+    }
 }

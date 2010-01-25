@@ -32,7 +32,6 @@ import javax.mail.util.SharedByteArrayInputStream;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
@@ -42,6 +41,7 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.pop3server.mina.AsyncPOP3Server;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
@@ -126,7 +126,7 @@ public class AsyncPOP3ServerTest extends TestCase {
             m_pop3Protocol.sendCommand("quit");
             m_pop3Protocol.disconnect();
         }
-        ContainerUtil.dispose(m_mailServer);
+        LifecycleUtil.dispose(m_mailServer);
         if (testMail1 != null) testMail1.dispose();
         if (testMail2 != null) testMail2.dispose();
         super.tearDown();
@@ -184,7 +184,7 @@ public class AsyncPOP3ServerTest extends TestCase {
         assertEquals(1, m_pop3Protocol.getState());
         assertNull(p3i);
 
-        ContainerUtil.dispose(mockMailRepository);
+        LifecycleUtil.dispose(mockMailRepository);
     }
 
     // TODO: This currently fails with Async implementation because
@@ -389,7 +389,7 @@ public class AsyncPOP3ServerTest extends TestCase {
         Reader r3 = m_pop3Protocol.retrieveMessageTop(entries[0].number, 0);
         assertNotNull(r3);
         r3.close();
-        ContainerUtil.dispose(mailRep);
+        LifecycleUtil.dispose(mailRep);
     }
 
     private void setupTestMails(MailRepository mailRep) throws MessagingException {
@@ -470,7 +470,7 @@ public class AsyncPOP3ServerTest extends TestCase {
         m_pop3Protocol.login("foo", pass);
         assertEquals(1, m_pop3Protocol.getState());
         assertTrue(POP3BeforeSMTPHelper.isAuthorized("127.0.0.1"));
-        ContainerUtil.dispose(mockMailRepository);
+        LifecycleUtil.dispose(mockMailRepository);
     }
     
     public void testCapa() throws Exception {
@@ -502,7 +502,7 @@ public class AsyncPOP3ServerTest extends TestCase {
          assertTrue("contains UIDL", replies.contains("UIDL"));
          assertTrue("contains TOP", replies.contains("TOP"));
 
-         ContainerUtil.dispose(mockMailRepository);
+         LifecycleUtil.dispose(mockMailRepository);
 
     }
     

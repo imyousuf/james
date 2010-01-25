@@ -24,6 +24,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.DataSourceSelector;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.util.Util;
@@ -80,7 +81,7 @@ public class DefaultUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         while (i.hasNext()) {
             this.usersRepository.removeUser((String) i.next());
         }
-        ContainerUtil.dispose(this.usersRepository);
+        LifecycleUtil.dispose(this.usersRepository);
     }
 
 }

@@ -21,8 +21,8 @@
 
 package org.apache.james.core;
 
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.RFC2822Headers;
@@ -195,7 +195,7 @@ public class MailImpl implements Disposable, Mail {
         try {
             this.setMessage(new MimeMessageCopyOnWriteProxy(source));
         } catch (MessagingException e) {
-            ContainerUtil.dispose(source);
+            LifecycleUtil.dispose(source);
             throw e;
         }
     }
@@ -384,7 +384,7 @@ public class MailImpl implements Disposable, Mail {
             // (discouraged) we have to make sure that the message we remove is
             // correctly unreferenced and disposed, otherwise it will keep locks
             if (this.message != null) {
-                ContainerUtil.dispose(this.message);
+                LifecycleUtil.dispose(this.message);
             }
             this.message = message;
         }
@@ -526,7 +526,7 @@ public class MailImpl implements Disposable, Mail {
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
-        ContainerUtil.dispose(message);
+        LifecycleUtil.dispose(message);
         message = null;
     }
 

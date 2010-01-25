@@ -27,7 +27,7 @@ import javax.mail.MessagingException;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.test.mock.avalon.MockStore;
@@ -59,7 +59,7 @@ public class SpoolManagementTest extends TestCase {
 
     protected void tearDown() throws Exception {
         if (m_mockSpoolRepository != null) {
-            ContainerUtil.dispose(m_mockSpoolRepository);
+            LifecycleUtil.dispose(m_mockSpoolRepository);
         }
         super.tearDown();
     }

@@ -29,14 +29,12 @@ import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.integration.SpamAssassinHandler;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.test.mock.MockMimeMessage;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.util.MockSpamd;
 import org.apache.james.test.util.Util;
@@ -113,7 +111,6 @@ public class SpamAssassinHandlerTest extends TestCase {
 
         SpamAssassinHandler handler = new SpamAssassinHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);
@@ -136,7 +133,6 @@ public class SpamAssassinHandlerTest extends TestCase {
 
         SpamAssassinHandler handler = new SpamAssassinHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(2000.0);
@@ -158,7 +154,6 @@ public class SpamAssassinHandlerTest extends TestCase {
 
         SpamAssassinHandler handler = new SpamAssassinHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setSpamdHost(SPAMD_HOST);
         handler.setSpamdPort(port);
         handler.setSpamdRejectionHits(200.0);

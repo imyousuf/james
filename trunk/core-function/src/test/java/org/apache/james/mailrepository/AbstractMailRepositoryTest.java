@@ -19,10 +19,10 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -74,9 +74,9 @@ public abstract class AbstractMailRepositoryTest extends TestCase {
         for (Iterator<String> i = mailRepository.list(); i.hasNext(); ) {
             mailRepository.remove(i.next());
         }
-        ContainerUtil.dispose(mail);
-        ContainerUtil.dispose(mimeMessage);
-        ContainerUtil.dispose(mailRepository);
+        LifecycleUtil.dispose(mail);
+        LifecycleUtil.dispose(mimeMessage);
+        LifecycleUtil.dispose(mailRepository);
         super.tearDown();
     }
     
@@ -93,8 +93,7 @@ public abstract class AbstractMailRepositoryTest extends TestCase {
         assertEquals("stored and retrieved keys do not match", mail.getName(), m2.getName());
         assertEquals("stored and retrieved states do not match", mail.getState(), m2.getState());
         assertEquals("stored and retrieved attributes do not match", mail.getAttribute("testAttribute"), m2.getAttribute("testAttribute"));
-        
-        ContainerUtil.dispose(m2);
+        LifecycleUtil.dispose(m2);
     }
     
     public void testEmptyRepository() throws MessagingException {
@@ -128,14 +127,14 @@ public abstract class AbstractMailRepositoryTest extends TestCase {
         
         mailRepository.store(m2);
         // ALWAYS remember to dispose mails!
-        ContainerUtil.dispose(m2);
+        LifecycleUtil.dispose(m2);
         
         m2 = mailRepository.retrieve("mail1");
         assertEquals(mail.getMessage().getContent().toString(),m2.getMessage().getContent().toString());
         
-        ContainerUtil.dispose(mail);
+        LifecycleUtil.dispose(mail);
         mail = null;
-        ContainerUtil.dispose(m2);
+        LifecycleUtil.dispose(m2);
         
         mailRepository.remove("mail1");
     }
@@ -152,15 +151,15 @@ public abstract class AbstractMailRepositoryTest extends TestCase {
         
         mailRepository.store(m2);
         // ALWAYS remember to dispose mails!
-        ContainerUtil.dispose(m2);
+        LifecycleUtil.dispose(m2);
         
         m2 = mailRepository.retrieve("mail1");
         assertEquals(mail.getMessage().getContent().toString(),m2.getMessage().getContent().toString());
         
-        ContainerUtil.dispose(mail);
+        LifecycleUtil.dispose(mail);
         mail = null;
         
-        ContainerUtil.dispose(m2);
+        LifecycleUtil.dispose(m2);
         
         mailRepository.remove("mail1");
     }

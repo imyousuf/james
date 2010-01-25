@@ -19,7 +19,7 @@
 
 package org.apache.james.core;
 
-import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.mailet.base.RFC2822Headers;
 
 import javax.mail.MessagingException;
@@ -118,7 +118,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
     }
 
     protected void tearDown() throws Exception {
-        ContainerUtil.dispose(mw);
+        LifecycleUtil.dispose(mw);
     }
 
     
@@ -160,7 +160,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
      */
     public void testMessageCloned() throws MessagingException, IOException, InterruptedException {
         MimeMessageWrapper mmw = new MimeMessageWrapper(mw);
-        ContainerUtil.dispose(mw);
+        LifecycleUtil.dispose(mw);
         mw = null;
         System.gc();
         Thread.sleep(200);
@@ -230,7 +230,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         Enumeration h =  message.getAllHeaderLines();
         assertEquals("Return-Path: <test@test.de>",h.nextElement());
         assertFalse(h.nextElement().toString().startsWith("Return-Path:"));
-        ContainerUtil.dispose(message);
+        LifecycleUtil.dispose(message);
     }
     
     public void testAddReturnPathOnBadMessage() throws Exception {
@@ -243,7 +243,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         // test that return-path is the first line
         Enumeration h =  message.getAllHeaderLines();
         assertEquals("Return-Path: <test@test.de>",h.nextElement());
-        ContainerUtil.dispose(message);
+        LifecycleUtil.dispose(message);
     }
 
 }

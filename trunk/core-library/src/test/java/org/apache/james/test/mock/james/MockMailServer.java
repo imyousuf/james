@@ -19,10 +19,10 @@
 
 package org.apache.james.test.mock.james;
 
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
+import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.base.test.MailUtil;
@@ -162,7 +162,7 @@ public class MockMailServer implements MailServer, Disposable {
             Iterator<MailRepository> i = inboxes.values().iterator();
             while (i.hasNext()) {
                 MailRepository m = i.next();
-                ContainerUtil.dispose(m);
+                LifecycleUtil.dispose(m);
             }
         }
     }

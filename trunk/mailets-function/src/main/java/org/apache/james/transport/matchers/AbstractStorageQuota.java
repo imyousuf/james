@@ -21,9 +21,9 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.Mail;
@@ -98,7 +98,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
                 // It could be deleted while we're looping.
                 log("Exception in getting message size: " + e.getMessage());
             }
-            ContainerUtil.dispose(mc);
+            LifecycleUtil.dispose(mc);
         }
         return size;
     }

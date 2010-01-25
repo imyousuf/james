@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.jspf.core.DNSRequest;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.jspf.core.exceptions.TimeoutException;
@@ -33,7 +32,6 @@ import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.SPFHandler;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -194,8 +192,6 @@ public class SPFHandlerTest extends TestCase {
         setupMockedSMTPSession("192.168.100.1", "spf1.james.apache.org");
         SPFHandler spf = new SPFHandler();
 
-
-        ContainerUtil.enableLogging(spf, new MockLogger());
         
         spf.setDNSService(mockedDnsService);
         
@@ -208,8 +204,6 @@ public class SPFHandlerTest extends TestCase {
     	MailAddress rcpt = new MailAddress("test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf2.james.apache.org");
         SPFHandler spf = new SPFHandler();
-
-        ContainerUtil.enableLogging(spf, new MockLogger());
         
         spf.setDNSService(mockedDnsService);     
 
@@ -222,8 +216,6 @@ public class SPFHandlerTest extends TestCase {
     	MailAddress rcpt = new MailAddress("test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf3.james.apache.org");
         SPFHandler spf = new SPFHandler();
-
-        ContainerUtil.enableLogging(spf, new MockLogger());
         
         spf.setDNSService(mockedDnsService);
         
@@ -237,8 +229,6 @@ public class SPFHandlerTest extends TestCase {
     	
         setupMockedSMTPSession("192.168.100.1", "spf3.james.apache.org");
         SPFHandler spf = new SPFHandler();
-
-        ContainerUtil.enableLogging(spf, new MockLogger());
        
         spf.setDNSService(mockedDnsService);
         
@@ -254,8 +244,6 @@ public class SPFHandlerTest extends TestCase {
     	
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org");
         SPFHandler spf = new SPFHandler();
-
-        ContainerUtil.enableLogging(spf, new MockLogger());
         
         spf.setDNSService(mockedDnsService);
         
@@ -272,8 +260,6 @@ public class SPFHandlerTest extends TestCase {
         setupMockedSMTPSession("192.168.100.1", "spf5.james.apache.org");
         
         SPFHandler spf = new SPFHandler();
-
-        ContainerUtil.enableLogging(spf, new MockLogger());
         
         spf.setDNSService(mockedDnsService);
 
@@ -288,8 +274,6 @@ public class SPFHandlerTest extends TestCase {
         setupMockedSMTPSession("192.168.100.1", "spf6.james.apache.org");
         SPFHandler spf = new SPFHandler();
 
-        ContainerUtil.enableLogging(spf, new MockLogger());
-
         spf.setDNSService(mockedDnsService);
 
         assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
@@ -302,8 +286,6 @@ public class SPFHandlerTest extends TestCase {
     	MailAddress rcpt = new MailAddress("test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org");
         SPFHandler spf = new SPFHandler();
-
-        ContainerUtil.enableLogging(spf, new MockLogger());
         
         spf.setDNSService(mockedDnsService);
         

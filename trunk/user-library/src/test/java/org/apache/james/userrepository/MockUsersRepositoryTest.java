@@ -19,12 +19,12 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.impl.user.DefaultJamesUser;
+import org.apache.james.lifecycle.LifecycleUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -228,7 +228,7 @@ public class MockUsersRepositoryTest extends TestCase {
      */
     protected void disposeUsersRepository() {
         if (usersRepository != null) {
-            ContainerUtil.dispose(this.usersRepository);
+            LifecycleUtil.dispose(this.usersRepository);
         }
     }
 

@@ -22,8 +22,8 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
@@ -128,7 +128,7 @@ public class FromRepository extends GenericMailet {
                     mail.setState(processor);
                     getMailetContext().sendMail(mail);
                     if (delete) processed.add(key);
-                    ContainerUtil.dispose(mail);
+                    LifecycleUtil.dispose(mail);
                 }
             } catch (MessagingException e) {
                 log((new StringBuffer(160).append("Unable to re-spool mail ").append(key).append(" from ").append(repositoryPath)).toString(), e);

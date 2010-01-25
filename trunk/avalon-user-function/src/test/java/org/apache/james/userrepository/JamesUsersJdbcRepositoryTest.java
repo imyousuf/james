@@ -20,13 +20,13 @@
 package org.apache.james.userrepository;
 
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.util.Util;
 import org.apache.mailet.MailAddress;
@@ -82,7 +82,7 @@ public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         while (i.hasNext()) {
             this.usersRepository.removeUser((String) i.next());
         }
-        ContainerUtil.dispose(this.usersRepository);
+        LifecycleUtil.dispose(this.usersRepository);
     }
     
     

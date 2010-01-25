@@ -63,26 +63,6 @@
 	</bean>
 	-->
 
-	<bean class="org.apache.james.container.spring.lifecycle.AvalonServiceableBeanPostProcessor">
-		<property name="order" value="2" />
-		<property name="beanRoleMap">
-			<map>
-				<entry
-					key="org.apache.avalon.cornerstone.services.threads.ThreadManager"
-					value="thread-manager" />
-			</map>
-		</property>
-	</bean>
-
-	<bean class="org.apache.james.container.spring.lifecycle.AvalonInitializableBeanPostProcessor">
-		<property name="order" value="4" />
-	</bean>
-
-	<bean class="org.apache.james.container.spring.lifecycle.AvalonConfigurableBeanPostProcessor">
-		<property name="configurationProvider" ref="configurationProvider" />
-		<property name="order" value="1" />
-	</bean>
-
 	<bean class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
 		<property name="configurationProvider" ref="configurationProvider" />
 		<property name="order" value="1" />
@@ -107,12 +87,6 @@
 			<map>
 			</map>
 		</property>
-	</bean>
-
-	<bean
-		class="org.apache.james.container.spring.lifecycle.AvalonLogEnabledBeanPostProcessor">
-		<property name="logProvider" ref="logProvider" />
-		<property name="order" value="0" />
 	</bean>
 
 	<bean id="logProvider"

@@ -27,12 +27,12 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.test.mock.avalon.MockStore;
@@ -93,7 +93,7 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
             while (i.hasNext()) {
                 this.usersRepository.removeUser((String) i.next());
             }
-            ContainerUtil.dispose(this.usersRepository);
+            LifecycleUtil.dispose(this.usersRepository);
         }
     }
     

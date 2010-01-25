@@ -24,6 +24,8 @@ package org.apache.james.core;
 import javax.mail.MessagingException;
 import javax.mail.util.SharedFileInputStream;
 
+import org.apache.james.lifecycle.Disposable;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,8 +33,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.avalon.framework.activity.Disposable;
 
 /**
  * Takes an input stream and creates a repeatable input stream source
