@@ -147,6 +147,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
             try {
                 String mapping = user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings);
             
+                System.out.println("M=" + mapping);
             
                 if (defaultConfiguration.getProperty(c).toString().equalsIgnoreCase(mapping)){
                     defaultConfiguration.clearProperty(c);
