@@ -23,6 +23,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.util.Util;
 
