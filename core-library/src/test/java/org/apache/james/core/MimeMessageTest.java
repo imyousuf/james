@@ -19,7 +19,7 @@
 
 package org.apache.james.core;
 
-import org.apache.avalon.framework.container.ContainerUtil;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.mailet.base.RFC2822Headers;
 
 import javax.mail.BodyPart;
@@ -89,7 +89,7 @@ public class MimeMessageTest extends TestCase {
     public void testSimpleMessage() throws Exception {
         MimeMessage m = getSimpleMessage();
         assertEquals(getSimpleMessageCleanedSource(), getCleanedMessageSource(m));
-        ContainerUtil.dispose(m);
+        LifecycleUtil.dispose(m);
     }
     
     
@@ -224,7 +224,7 @@ public class MimeMessageTest extends TestCase {
         
         assertEquals(getMultipartMessageExpected3(),getCleanedMessageSource(mm));
         
-        ContainerUtil.dispose(mm);
+        LifecycleUtil.dispose(mm);
         
     }
 
@@ -336,7 +336,7 @@ public class MimeMessageTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception in getLineCount");
         }
-        ContainerUtil.dispose(mm);
+        LifecycleUtil.dispose(mm);
     }
     
     /**
@@ -352,15 +352,15 @@ public class MimeMessageTest extends TestCase {
 
         mm2.setHeader("Subject", "Modified");
         
-        ContainerUtil.dispose(mm2);
+        LifecycleUtil.dispose(mm2);
         System.gc();
         Thread.sleep(200);
         //((Disposable)mail_dup.getMessage()).dispose();
         
         mm.setHeader("Subject", "Modified");
         
-        ContainerUtil.dispose(mm);
-        ContainerUtil.dispose(mmorig);
+        LifecycleUtil.dispose(mm);
+        LifecycleUtil.dispose(mmorig);
     }
     
     /**
@@ -374,7 +374,7 @@ public class MimeMessageTest extends TestCase {
         
         MimeMessage mm2 = new MimeMessageCopyOnWriteProxy(mm);
         
-        ContainerUtil.dispose(mm);
+        LifecycleUtil.dispose(mm);
         mm = null;
         System.gc();
         Thread.sleep(200);
@@ -386,8 +386,8 @@ public class MimeMessageTest extends TestCase {
             fail("Exception while writing the message to output");
         }
         
-        ContainerUtil.dispose(mm2);
-        ContainerUtil.dispose(mmorig);
+        LifecycleUtil.dispose(mm2);
+        LifecycleUtil.dispose(mmorig);
     }
 
     
@@ -405,14 +405,14 @@ public class MimeMessageTest extends TestCase {
         
         assertEquals(getSimpleMessageCleanedSourceHeaderExpected(),getCleanedMessageSource(mm));
 
-        ContainerUtil.dispose(mm);
-        ContainerUtil.dispose(mmorig);
+        LifecycleUtil.dispose(mm);
+        LifecycleUtil.dispose(mmorig);
     }
     
     public void testReturnPath() throws Exception {
         MimeMessage message = getSimpleMessage();
         assertNull(message.getHeader(RFC2822Headers.RETURN_PATH));
-        ContainerUtil.dispose(message);
+        LifecycleUtil.dispose(message);
     }
     
     public void testHeaderOrder() throws Exception {
@@ -421,7 +421,7 @@ public class MimeMessageTest extends TestCase {
         Enumeration h =  message.getAllHeaderLines();
         
         assertEquals(h.nextElement(),"Return-Path: <test@test.de>");
-        ContainerUtil.dispose(message);
+        LifecycleUtil.dispose(message);
     }
     
     

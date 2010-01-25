@@ -19,17 +19,17 @@
 
 package org.apache.james.core;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
+import java.util.ArrayList;
+import java.util.Properties;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
 
-import java.util.ArrayList;
-import java.util.Properties;
+import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
 
@@ -66,9 +66,9 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         // test it is different after a write operation!
         mail.getMessage().setSubject("new Subject");
         assertTrue(!isSameMimeMessage(m2.getMessage(),mail.getMessage()));
-        ContainerUtil.dispose(mail);
-        ContainerUtil.dispose(m2);
-        ContainerUtil.dispose(messageFromSources);
+        LifecycleUtil.dispose(mail);
+        LifecycleUtil.dispose(m2);
+        LifecycleUtil.dispose(messageFromSources);
     }
 
     
@@ -103,15 +103,15 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         MimeMessage mm3 = getWrappedMessage(m2clone.getMessage());
         assertNotNull(mm3);
         // dispose m2 and check that the clone has still a valid message and it is the same!
-        ContainerUtil.dispose(m2);
+        LifecycleUtil.dispose(m2);
         assertEquals(mm3,getWrappedMessage(m2clone.getMessage()));
         // change the message that should be not referenced by m2 that has
         // been disposed, so it should not clone it!
         m2clone.getMessage().setSubject("new Subject 2");
         m2clone.getMessage().setText("new Body 3");
         assertTrue(isSameMimeMessage(m2clone.getMessage(),mm));
-        ContainerUtil.dispose(mail);
-        ContainerUtil.dispose(messageFromSources);
+        LifecycleUtil.dispose(mail);
+        LifecycleUtil.dispose(messageFromSources);
     }
     
     /**
@@ -129,8 +129,8 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         MimeMessage mm = getWrappedMessage(mail.getMessage());
         assertNotSame(mail.getMessage(),mailClone.getMessage());
         // dispose mail and check that the clone has still a valid message and it is the same!
-        ContainerUtil.dispose(mail);
-        ContainerUtil.dispose(messageFromSources);
+        LifecycleUtil.dispose(mail);
+        LifecycleUtil.dispose(messageFromSources);
         // need to add a gc and a wait, because the original mimemessage should be finalized before the test.
         System.gc();
         Thread.sleep(1000);
@@ -141,8 +141,8 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         mailClone.getMessage().setSubject("new Subject 2");
         mailClone.getMessage().setText("new Body 3");
         assertTrue(isSameMimeMessage(mailClone.getMessage(),mm));
-        ContainerUtil.dispose(mailClone);
-        ContainerUtil.dispose(mm);
+        LifecycleUtil.dispose(mailClone);
+        LifecycleUtil.dispose(mm);
     }
 
     
@@ -166,8 +166,8 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         System.gc();
         Thread.sleep(100);
         assertFalse(isSameMimeMessage(m,mail.getMessage()));
-        ContainerUtil.dispose(mail);
-        ContainerUtil.dispose(m);
+        LifecycleUtil.dispose(mail);
+        LifecycleUtil.dispose(m);
     }
 
     
@@ -178,17 +178,17 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         MailImpl mail = new MailImpl("test",new MailAddress("test@test.com"),r,messageFromSources);
         // cloning the message
         MailImpl mailClone = (MailImpl) mail.duplicate();
-        ContainerUtil.dispose(mail);
+        LifecycleUtil.dispose(mail);
 
         assertNotNull(getWrappedMessage(mailClone.getMessage()));
         assertNull(mail.getMessage());
 
-        ContainerUtil.dispose(mailClone);
+        LifecycleUtil.dispose(mailClone);
         
         assertNull(mailClone.getMessage());
         assertNull(mail.getMessage());
-        ContainerUtil.dispose(mail);
-        ContainerUtil.dispose(messageFromSources);
+        LifecycleUtil.dispose(mail);
+        LifecycleUtil.dispose(messageFromSources);
     }
     
     public void testNPE1() throws MessagingException, InterruptedException {
@@ -204,13 +204,13 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
                                  "Body Text testNPE1\r\n").getBytes())));
         
         MimeMessageCopyOnWriteProxy mw2 = new MimeMessageCopyOnWriteProxy(mw);
-        ContainerUtil.dispose(mw2);
+        LifecycleUtil.dispose(mw2);
         mw2 = null;
         System.gc();
         Thread.sleep(1000);
         // the NPE was inside this call
         mw.getMessageSize();
-        ContainerUtil.dispose(mw);
+        LifecycleUtil.dispose(mw);
     }
 
     
@@ -223,7 +223,7 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
         
         MimeMessage mm = new MimeMessageCopyOnWriteProxy(mmorig);
         
-        ContainerUtil.dispose(mmorig);
+        LifecycleUtil.dispose(mmorig);
         mmorig = null;
         System.gc();
         Thread.sleep(200);
@@ -235,7 +235,7 @@ public class MimeMessageCopyOnWriteProxyTest extends MimeMessageFromStreamTest {
             fail("Exception while writing the message to output");
         }
         
-        ContainerUtil.dispose(mm);
+        LifecycleUtil.dispose(mm);
     }
 
     private static String getReferences(MimeMessage m) {

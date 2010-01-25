@@ -21,11 +21,9 @@
 package org.apache.james.smtpserver;
 
 import junit.framework.TestCase;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.integration.SetMimeHeaderHandler;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
@@ -84,8 +82,6 @@ public class SetMimeHeaderHandlerTest extends TestCase {
 
         SetMimeHeaderHandler header = new SetMimeHeaderHandler();
 
-        ContainerUtil.enableLogging(header, new MockLogger());
-
         header.setHeaderName(HEADER_NAME);
         header.setHeaderValue(HEADER_VALUE);
         header.onMessage(mockedSMTPSession, mockedMail);
@@ -103,8 +99,6 @@ public class SetMimeHeaderHandlerTest extends TestCase {
         mockedMail = Util.createMockMail2Recipients(mockedMimeMessage);
 
         SetMimeHeaderHandler header = new SetMimeHeaderHandler();
-
-        ContainerUtil.enableLogging(header, new MockLogger());
 
         header.setHeaderName(HEADER_NAME);
         header.setHeaderValue(HEADER_VALUE);

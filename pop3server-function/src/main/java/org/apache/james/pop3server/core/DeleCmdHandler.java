@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.protocol.CommandHandler;
 import org.apache.james.api.protocol.Request;
 import org.apache.james.api.protocol.Response;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.mailet.Mail;
@@ -69,7 +69,7 @@ public class DeleCmdHandler implements CommandHandler<POP3Session> {
                     session.getUserMailbox().set(num, dm);
                     // we are replacing our reference with "DELETED", so we have
                     // to dispose the no-more-referenced mail object.
-                    ContainerUtil.dispose(mc);
+                    LifecycleUtil.dispose(mc);
                     response = new POP3Response(POP3Response.OK_RESPONSE,"Message deleted");
                 }
             } catch (IndexOutOfBoundsException iob) {

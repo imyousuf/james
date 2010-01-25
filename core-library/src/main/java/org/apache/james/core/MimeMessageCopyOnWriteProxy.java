@@ -21,9 +21,6 @@
 
 package org.apache.james.core;
 
-import org.apache.avalon.framework.activity.Disposable;
-import org.apache.avalon.framework.container.ContainerUtil;
-
 import javax.activation.DataHandler;
 import javax.mail.Address;
 import javax.mail.Flags;
@@ -35,6 +32,9 @@ import javax.mail.Session;
 import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
+
+import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.LifecycleUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,7 +91,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
             */
             referenceCount--;
             if (referenceCount<=0) {
-                ContainerUtil.dispose(wrapped);
+                LifecycleUtil.dispose(wrapped);
                 wrapped = null;
             }
         }

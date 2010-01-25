@@ -38,7 +38,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -49,6 +48,7 @@ import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
 import org.apache.james.transport.MailetConfigImpl;
@@ -216,7 +216,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         // Send it off ... with null reverse-path
         reply.setSender(null);
         sendMail(reply);
-        ContainerUtil.dispose(reply);
+        LifecycleUtil.dispose(reply);
     }
 
     /**
@@ -396,7 +396,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
             mail.setState(state);
             sendMail(mail);
         } finally {
-            ContainerUtil.dispose(mail);
+            LifecycleUtil.dispose(mail);
         }
     }
 
@@ -436,7 +436,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         recipients.add(recipient);
         MailImpl m = new MailImpl(mailServer.getId(), sender, recipients, msg);
         localDeliveryMailet.service(m);
-        ContainerUtil.dispose(m);
+        LifecycleUtil.dispose(m);
     }
 
     public void setLog(Log log) {

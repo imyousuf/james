@@ -22,10 +22,9 @@ package org.apache.james.api.kernel.mock;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.api.kernel.AbstractJSR250LoaderService;
 
-public class FakeLoader extends AbstractJSR250LoaderService implements org.apache.avalon.framework.service.ServiceManager{
+public class FakeLoader extends AbstractJSR250LoaderService {
 
     private final Map<String, Object> servicesByName;
     private final Map<String, String> mappings = new HashMap<String, String>();
@@ -76,30 +75,6 @@ public class FakeLoader extends AbstractJSR250LoaderService implements org.apach
         return newName;
     }
    
-
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.avalon.framework.service.ServiceManager#hasService(java.lang.String)
-     */
-    public boolean hasService(String name) {
-        return servicesByName.containsKey(name);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.avalon.framework.service.ServiceManager#lookup(java.lang.String)
-     */
-    public Object lookup(String name) throws ServiceException {
-        return servicesByName.get(name);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.avalon.framework.service.ServiceManager#release(java.lang.Object)
-     */
-    public void release(Object service) {
-    }
 
     public void put(String role, Object service) {
         servicesByName.put(role, service);

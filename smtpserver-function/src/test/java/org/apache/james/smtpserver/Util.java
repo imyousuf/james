@@ -29,8 +29,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.james.test.mock.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.mailet.MailAddress;
@@ -86,17 +84,6 @@ public class Util {
         }
         PORT_LAST_USED = nextPortCandidate;
         return PORT_LAST_USED;
-    }
-
-    public static Configuration getValuedConfiguration(String name, String value) {
-        DefaultConfiguration defaultConfiguration = new DefaultConfiguration(name);
-        defaultConfiguration.setValue(value);
-        return defaultConfiguration;
-    }
-
-    public static DefaultConfiguration createRemoteManagerHandlerChainConfiguration() {
-        DefaultConfiguration handlerChainConfig = new DefaultConfiguration("test");
-        return handlerChainConfig;
     }
 
     public static MockMail createMockMail2Recipients(MimeMessage m) throws ParseException {

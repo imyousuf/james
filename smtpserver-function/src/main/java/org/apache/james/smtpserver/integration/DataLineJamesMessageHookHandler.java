@@ -31,7 +31,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.ExtensibleHandler;
@@ -41,6 +40,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.dsn.DSNStatus;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.MailEnvelope;
@@ -127,9 +127,9 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter<SMT
                     session.getLogger().info("Unexpected error handling DATA stream",e);
                     session.writeResponse(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream."));
                 } finally {
-                    ContainerUtil.dispose(mimeMessageCopyOnWriteProxy);
-                    ContainerUtil.dispose(mmiss);
-                    ContainerUtil.dispose(mail);
+                    LifecycleUtil.dispose(mimeMessageCopyOnWriteProxy);
+                    LifecycleUtil.dispose(mmiss);
+                    LifecycleUtil.dispose(mail);
                 }
     
                 
@@ -221,7 +221,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter<SMT
 			} finally {
 				// Dispose the mail object and remove it
 				if (mail != null) {
-					ContainerUtil.dispose(mail);
+				    LifecycleUtil.dispose(mail);
 					mail = null;
 				}
 				// do the clean up

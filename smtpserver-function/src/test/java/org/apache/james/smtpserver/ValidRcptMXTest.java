@@ -28,14 +28,12 @@ import java.util.Map;
 
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.integration.ValidRcptMX;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;
@@ -98,8 +96,6 @@ public class ValidRcptMXTest extends TestCase {
         MailAddress mailAddress = new MailAddress("test@" + INVALID_HOST);
         SMTPSession session = setupMockedSMTPSession(mailAddress);
         ValidRcptMX handler = new ValidRcptMX();
-
-        ContainerUtil.enableLogging(handler, new MockLogger());
 
         handler.setDNSService(dns);
         handler.setBannedNetworks(bNetworks, dns);

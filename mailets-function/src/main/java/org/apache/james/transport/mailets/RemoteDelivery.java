@@ -22,11 +22,11 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.base.GenericMailet;
@@ -791,13 +791,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         if (deliver(mail, session)) {
                             // Message was successfully delivered/fully failed... 
                             // delete it
-                            ContainerUtil.dispose(mail);
+                            LifecycleUtil.dispose(mail);
                             workRepository.remove(key);
                         } else {
                             // Something happened that will delay delivery.
                             // Store it back in the retry repository.
                             workRepository.store(mail);
-                            ContainerUtil.dispose(mail);
+                            LifecycleUtil.dispose(mail);
 
                             // This is an update, so we have to unlock and
                             // notify or this mail is kept locked by this thread.
@@ -820,7 +820,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         // there were an OutOfMemory condition caused because 
                         // something else in the server was abusing memory, we would 
                         // not want to start purging the retrying spool!
-                        ContainerUtil.dispose(mail);
+                        LifecycleUtil.dispose(mail);
                         workRepository.remove(key);
                         throw e;
                     }

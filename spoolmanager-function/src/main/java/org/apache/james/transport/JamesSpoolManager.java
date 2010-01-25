@@ -29,13 +29,12 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
-import org.apache.avalon.framework.container.ContainerUtil;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.SpoolManager;
 import org.apache.james.services.SpoolRepository;
@@ -202,7 +201,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
                 if ((Mail.GHOST.equals(mail.getState())) ||
                     (mail.getRecipients() == null) ||
                     (mail.getRecipients().size() == 0)) {
-                    ContainerUtil.dispose(mail);
+                    LifecycleUtil.dispose(mail);
                     spool.remove(key);
                     if (logger.isDebugEnabled()) {
                         StringBuffer debugBuffer =
@@ -218,7 +217,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
                     // message so that other threads can work on it!  If
                     // we don't remove it, we must unlock it!
                     spool.store(mail);
-                    ContainerUtil.dispose(mail);
+                    LifecycleUtil.dispose(mail);
                     spool.unlock(key);
                     // Do not notify: we simply updated the current mail
                     // and we are able to reprocess it now.
@@ -280,7 +279,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
         }
         logger.info("JamesSpoolManager thread shutdown completed.");
 
-        ContainerUtil.dispose(processorList);
+        LifecycleUtil.dispose(processorList);
     }
 
     /**

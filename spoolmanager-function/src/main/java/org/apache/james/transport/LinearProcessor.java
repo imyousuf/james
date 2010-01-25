@@ -35,12 +35,12 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
@@ -478,7 +478,7 @@ public class LinearProcessor implements  MailProcessor, MailetContainer, LogEnab
                 //If this message was ghosted, we just want to let it die
                 if (mail.getState().equals(Mail.GHOST)) {
                     // let this instance die...
-                    ContainerUtil.dispose(mail);
+                    LifecycleUtil.dispose(mail);
                     mail = null;
                     continue;
                 }
@@ -489,7 +489,7 @@ public class LinearProcessor implements  MailProcessor, MailetContainer, LogEnab
                 // The original mail will be "stored" by the caller.
                 if (originalMail != mail) {
                     spool.store(mail);
-                    ContainerUtil.dispose(mail);
+                    LifecycleUtil.dispose(mail);
                 }
                 mail = null;
                 continue;

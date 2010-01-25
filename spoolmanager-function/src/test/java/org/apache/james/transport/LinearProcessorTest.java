@@ -19,11 +19,11 @@
 
 package org.apache.james.transport;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.base.test.FakeMailetConfig;
@@ -166,8 +166,8 @@ public class LinearProcessorTest extends TestCase {
             assertEquals(m1.getSubject(), "new text 1");
             assertEquals(m2.getSubject(), "new text 2");
             m.dispose();
-            ContainerUtil.dispose(mail1);
-            ContainerUtil.dispose(mail2);
+            LifecycleUtil.dispose(mail1);
+            LifecycleUtil.dispose(mail2);
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -217,8 +217,8 @@ public class LinearProcessorTest extends TestCase {
             assertEquals("MYSTATE", ((Mail) a.get(0)).getState());
             assertEquals("MYSTATE", ((Mail) a.get(1)).getState());
             m.dispose();
-            ContainerUtil.dispose(mail1);
-            ContainerUtil.dispose(mail2);
+            LifecycleUtil.dispose(mail1);
+            LifecycleUtil.dispose(mail2);
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -241,9 +241,9 @@ public class LinearProcessorTest extends TestCase {
 
     public void tearDown() throws Exception {
         if (mimeMessage != null) {
-            ContainerUtil.dispose(mimeMessage);
+            LifecycleUtil.dispose(mimeMessage);
         }
-        ContainerUtil.dispose(linearProcessor);
+        LifecycleUtil.dispose(linearProcessor);
         super.tearDown();
     }
 

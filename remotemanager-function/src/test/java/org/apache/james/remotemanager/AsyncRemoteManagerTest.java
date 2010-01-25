@@ -34,7 +34,6 @@ import javax.mail.MessagingException;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
@@ -46,6 +45,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.MockVirtualUserTableManagementService;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementService;
 import org.apache.james.management.DomainListManagementException;
@@ -96,7 +96,7 @@ public class AsyncRemoteManagerTest extends TestCase {
 	}
 
 	protected void tearDown() throws Exception {
-		ContainerUtil.dispose(mailServer);
+	    LifecycleUtil.dispose(mailServer);
 		super.tearDown();
 	}
 

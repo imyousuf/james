@@ -38,7 +38,6 @@ import javax.mail.internet.MimeMultipart;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.smtpserver.integration.URIRBLHandler;
@@ -47,7 +46,6 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.test.mock.MockMimeMessage;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.mailet.Mail;
 
@@ -174,7 +172,6 @@ public class URIRBLHandlerTest extends TestCase {
 
         URIRBLHandler handler = new URIRBLHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDNSService(setupMockedDnsServer());
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);
@@ -191,7 +188,6 @@ public class URIRBLHandlerTest extends TestCase {
 
         URIRBLHandler handler = new URIRBLHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDNSService(setupMockedDnsServer());
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);
@@ -208,7 +204,6 @@ public class URIRBLHandlerTest extends TestCase {
 
         URIRBLHandler handler = new URIRBLHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         handler.setDNSService(setupMockedDnsServer());
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);

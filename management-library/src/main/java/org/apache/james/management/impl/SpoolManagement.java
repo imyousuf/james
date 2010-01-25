@@ -23,8 +23,8 @@
 package org.apache.james.management.impl;
 
 import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementMBean;
@@ -136,7 +136,7 @@ public class SpoolManagement implements SpoolManagementService, SpoolManagementM
                     } catch (MessagingException e) {
                         // unable to unlock
                     }
-                    ContainerUtil.dispose(m);
+                    LifecycleUtil.dispose(m);
                 }
             }
         }
@@ -452,7 +452,7 @@ public class SpoolManagement implements SpoolManagementService, SpoolManagementM
         Mail m = spoolRepository.retrieve(key);
         if (m == null) throw new SpoolManagementException("mail not available having key " + key);
         if (!filterMatches(m, filter)) return false;
-        ContainerUtil.dispose(m);
+        LifecycleUtil.dispose(m);
         spoolRepository.remove(key);
         return true;
     }

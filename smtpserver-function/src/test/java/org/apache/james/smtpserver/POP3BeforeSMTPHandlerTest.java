@@ -20,11 +20,9 @@
 
 package org.apache.james.smtpserver;
 
-import org.apache.avalon.framework.container.ContainerUtil;
 import org.apache.james.smtpserver.integration.POP3BeforeSMTPHandler;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.test.mock.avalon.MockLogger;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 
 import junit.framework.TestCase;
@@ -56,7 +54,6 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
 
         POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         setupMockedSMTPSession();
         POP3BeforeSMTPHelper.addIPAddress("192.168.200.1");
 
@@ -69,7 +66,6 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
         long sleepTime = 100;
         POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         setupMockedSMTPSession();
         POP3BeforeSMTPHelper.addIPAddress("192.168.200.1");
         assertFalse(mockedSession.isRelayingAllowed());
@@ -89,7 +85,6 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
         boolean exception = false;
         POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         setupMockedSMTPSession();     
 
         try {
@@ -104,7 +99,6 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
         boolean exception = false;
         POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        ContainerUtil.enableLogging(handler, new MockLogger());
         setupMockedSMTPSession();     
 
         try {

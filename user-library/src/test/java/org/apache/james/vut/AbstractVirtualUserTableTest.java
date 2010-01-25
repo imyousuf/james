@@ -25,15 +25,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.container.ContainerUtil;
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
+import org.apache.james.lifecycle.LifecycleUtil;
 
 import junit.framework.TestCase;
 
@@ -73,7 +71,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
                 }
             }
         }
-        ContainerUtil.dispose(virtualUserTable);
+        LifecycleUtil.dispose(virtualUserTable);
     }
     
     private void removeMapping(String user, String domain, String rawMapping) throws InvalidMappingException {
@@ -88,7 +86,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
         }
     }
     
-    protected abstract AbstractVirtualUserTable getVirtalUserTable() throws ServiceException, ConfigurationException, Exception;
+    protected abstract AbstractVirtualUserTable getVirtalUserTable() throws Exception;
     
     protected abstract boolean addMapping(String user , String domain, String mapping,int type)throws InvalidMappingException;
     

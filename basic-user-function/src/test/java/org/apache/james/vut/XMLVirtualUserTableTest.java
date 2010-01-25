@@ -22,21 +22,29 @@ package org.apache.james.vut;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
-import org.apache.james.test.mock.util.AttrValConfiguration;
-import org.apache.james.util.ConfigurationAdapter;
 
 
 public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
-    DefaultConfiguration defaultConfiguration = new DefaultConfiguration("conf");
+    private DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
     
+    
+    @Override
+    protected void setUp() throws Exception {
+        defaultConfiguration.setDelimiterParsingDisabled(true);
+        
+        super.setUp();
+    }
+
+
+
     protected AbstractVirtualUserTable getVirtalUserTable() throws Exception {
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
         mr.setDNSService(setUpDNSServer());
@@ -73,11 +81,11 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         }
         
         if (mappings.size() > 0) { 
-            defaultConfiguration.addChild(new AttrValConfiguration("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings)));
+            defaultConfiguration.addProperty("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings));
         }
     
         try {
-            virtualUserTable.configure(new ConfigurationAdapter(defaultConfiguration));
+            virtualUserTable.configure(defaultConfiguration);
             } catch (Exception e) {
             if (mappings.size() > 0) {
                 return false;
@@ -114,11 +122,11 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         }
 
         if (mappings.size() > 0) {
-            defaultConfiguration.addChild(new AttrValConfiguration("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings)));
+            defaultConfiguration.addProperty("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings));
         } 
     
         try {
-            virtualUserTable.configure(new ConfigurationAdapter(defaultConfiguration));
+            virtualUserTable.configure(defaultConfiguration);
             } catch (Exception e) {
            if (mappings.size() > 0) {
                return false;
@@ -130,17 +138,18 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
     
     
+    @SuppressWarnings("unchecked")
     private void removeMappings(String user, String domain, Collection<String> mappings) {
-        Configuration [] conf = defaultConfiguration.getChildren("mapping");
+        Iterator<String> conf = defaultConfiguration.getKeys();
         
-        for (int i = 0; i < conf.length; i++ ) {
-            DefaultConfiguration c = (DefaultConfiguration) conf[i];
+        while(conf.hasNext()) {
+            String c = conf.next();
             try {
                 String mapping = user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings);
             
             
-                if (c.getValue().equalsIgnoreCase(mapping)){
-                    defaultConfiguration.removeChild(c);
+                if (defaultConfiguration.getProperty(c).toString().equalsIgnoreCase(mapping)){
+                    defaultConfiguration.clearProperty(c);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
