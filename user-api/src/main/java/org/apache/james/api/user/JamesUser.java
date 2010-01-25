@@ -28,17 +28,11 @@ import org.apache.mailet.MailAddress;
  *
  *
  * @version $Revision$
+ * @deprecated Just use the User interface for Users. Forwarding and Aliasing should get done via VirtualUserTable
+ * 
  */
-
+@Deprecated
 public interface JamesUser extends User {
-
-    /**
-     * Change password to pass. Return true if successful.
-     *
-     * @param pass the new password
-     * @return true if successful, false otherwise
-     */
-    boolean setPassword(String pass);
 
     /**
      * Indicate if mail for this user should be forwarded to some other mail
