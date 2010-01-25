@@ -53,8 +53,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
     private final static String REMOVEDOMAINCMDHANDLER = RemoveDomainCmdHandler.class.getName();
     private final static String REMOVEMAPPINGCMDHANDLER = RemoveMappingCmdHandler.class.getName();
     private final static String RESETBAYESIANDATACMDHANDLER = ResetBayesianDataCmdHandler.class.getName();
-    private final static String SETALIASCMDHANDLER = SetAliasCmdHandler.class.getName();
-    private final static String SETFORWARDINGCMDHANDLER = SetForwardingCmdHandler.class.getName();
     private final static String SETPASSWORDCMDHANDLER = SetPasswordCmdHandler.class.getName();
     private final static String SHOWALIASCMDHANDLER = ShowAliasCmdHandler.class.getName();
     private final static String SHOWFORWARDINGCMDHANDLER = ShowForwardingCmdHandler.class.getName();
@@ -100,8 +98,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
         commands.add(REMOVEDOMAINCMDHANDLER);
         commands.add(REMOVEMAPPINGCMDHANDLER);
         commands.add(RESETBAYESIANDATACMDHANDLER);
-        commands.add(SETALIASCMDHANDLER);
-        commands.add(SETFORWARDINGCMDHANDLER);
         commands.add(SETPASSWORDCMDHANDLER);
         commands.add(SHOWALIASCMDHANDLER);
         commands.add(SHOWFORWARDINGCMDHANDLER);
