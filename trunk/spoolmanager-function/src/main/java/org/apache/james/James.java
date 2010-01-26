@@ -40,7 +40,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
-import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -55,10 +54,10 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.impl.jamesuser.JamesUsersRepository;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.services.store.Store;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
@@ -88,10 +87,6 @@ public class James
      */
     private HierarchicalConfiguration conf = null;
 
-    /**
-     * The logger used by the Mailet API.
-     */
-    //private Log mailetLogger = null;
 
     /**
      * The mail store containing the inbox repository and the spool.
@@ -147,8 +142,6 @@ public class James
      */
     protected Mailet localDeliveryMailet;
 
-    private FileSystem fileSystem;
-
     private DomainList domains;
     
     private boolean virtualHosting = false;
@@ -161,18 +154,6 @@ public class James
 
     private DNSService dns;
 
-
-
-    /**
-     * Sets the fileSystem service
-     * 
-     * @param system the new service
-     */
-    @Resource(name="filesystem")
-    public void setFileSystem(FileSystem system) {
-        this.fileSystem = system;
-    }
-    
     @Resource(name="domainlist")
     public void setDomainList(DomainList domains) {
         this.domains = domains;
@@ -264,26 +245,9 @@ public class James
                 // Should we use the defaultdomain here ?
                 helloName = conf.getString("helloName",defaultDomain);
             }
-            //attributes.put(Constants.HELLO_NAME, helloName);
         }
 
-        //Temporary get out to allow complex mailet config files to stop blocking sergei sozonoff's work on bouce processing
-        String confDir = conf.getString("configuration-directory", null);
-        
-        // defaults to the old behaviour
-        if (confDir == null) confDir = "file://conf/";
-        java.io.File configDir = fileSystem.getFile(confDir);
-        //attributes.put("confDir", configDir.getCanonicalPath());
 
-        /*
-        try {
-            //attributes.put(Constants.HOSTADDRESS, dns.getLocalHost().getHostAddress());
-            //attributes.put(Constants.HOSTNAME, dns.getLocalHost().getHostName());
-        } catch (java.net.UnknownHostException _) {
-            //attributes.put(Constants.HOSTADDRESS, "127.0.0.1");
-            //attributes.put(Constants.HOSTNAME, "localhost");
-        }
-        */
         System.out.println(SOFTWARE_NAME_VERSION);
         logger.info("JAMES ...init end");
     }

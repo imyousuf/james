@@ -36,7 +36,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
@@ -383,7 +382,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @throws SQLException
      */
     private DataSource initDataSource(String repositoryPath)
-        throws ServiceException, SQLException {
+        throws SQLException {
 
         int stindex = repositoryPath.indexOf("://") + 3;
         String datasourceName = repositoryPath.substring(stindex);

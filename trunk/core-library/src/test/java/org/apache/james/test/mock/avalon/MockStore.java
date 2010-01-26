@@ -21,10 +21,10 @@
 
 package org.apache.james.test.mock.avalon;
 
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationUtils;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.services.store.Store;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class MockStore implements Store {
         m_storedObjectMap.put(key, obj);
     }
     
-    public Object select(Object object) throws ServiceException {
+    public Object select(HierarchicalConfiguration object) throws StoreException {
         Object result = get(object);
         return result;
     }
@@ -70,9 +70,5 @@ public class MockStore implements Store {
 
     public boolean isSelectable(Object object) {
         return get(object) != null;
-    }
-
-    public void release(Object object) {
-        //trivial implementation
     }
 }

@@ -21,13 +21,13 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.services.store.Store;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.HostAddress;

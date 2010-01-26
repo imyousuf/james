@@ -19,8 +19,8 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
-import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.services.store.Store;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
 

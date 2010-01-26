@@ -28,8 +28,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -38,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.services.store.Store;
 
 /**
  * Provides a registry of mail repositories. A mail repository is uniquely
@@ -193,23 +192,15 @@ public class MailStore
      *                            MailRepository
      */
     @SuppressWarnings("unchecked")
-    public synchronized Object select(Object hint) throws ServiceException {
-        HierarchicalConfiguration repConf = null;
-        try {
-            repConf = (HierarchicalConfiguration) hint;
-        } catch (ClassCastException cce) {
-            throw new ServiceException("",
-                "hint is of the wrong type. Must be a Configuration", cce);
-        }
-        
+    public synchronized Object select(HierarchicalConfiguration repConf) throws StoreException {
+ 
         String destination = null;
         String protocol = null;
 
         destination = repConf.getString("[@destinationURL]");
         int idx = destination.indexOf(':');
         if ( idx == -1 )
-            throw new ServiceException("",
-                "destination is malformed. Must be a valid URL: "
+            throw new StoreException("Destination is malformed. Must be a valid URL: "
                 + destination);
         protocol = destination.substring(0,idx);
         
@@ -280,9 +271,7 @@ public class MailStore
                     getLogger().warn( "Exception while creating repository:" +
                                       e.getMessage(), e );
                 }
-                throw new
-                    ServiceException("", "Cannot find or init repository",
-                                       e);
+                throw new StoreException("Cannot find or init repository", e);
             }
         }
         
@@ -310,23 +299,17 @@ public class MailStore
      *
      * @return whether the mail store has a repository corresponding to this hint
      */
+    /*
     public boolean isSelectable( Object hint ) {
         Object comp = null;
         try {
             comp = select(hint);
-        } catch(ServiceException ex) {
+        } catch(StoreException ex) {
             if (getLogger().isErrorEnabled()) {
                 getLogger().error("Exception AvalonMailStore.hasComponent-" + ex.toString());
             }
         }
         return (comp != null);
     }
-
-    /**
-     * Return the <code>Component</code> when you are finished with it.  In this
-     * implementation it does nothing
-     *
-     * @param component The Component we are releasing.
-     */
-    public void release(Object component) {}
+    */
 }

@@ -21,14 +21,13 @@
 
 package org.apache.james.mailrepository.filepair;
 
-import org.apache.avalon.cornerstone.services.store.Repository;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
+import org.apache.james.services.store.Repository;
 import org.apache.james.util.io.ExtensionFileFilter;
 
 import java.io.File;
@@ -215,8 +214,9 @@ public abstract class AbstractFileRepository
         return (AbstractFileRepository) getClass().newInstance();
     }
 
-    /**
-     * @see org.apache.avalon.cornerstone.services.store.Repository#getChildRepository(String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.store.Repository#getChildRepository(java.lang.String)
      */
     public Repository getChildRepository( final String childName )
     {

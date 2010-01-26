@@ -21,8 +21,6 @@
 
 package org.apache.james.services;
 
-import org.apache.avalon.framework.service.ServiceException;
-
 import junit.framework.TestCase;
 
 /**
@@ -32,7 +30,7 @@ abstract public class MailServerTestAllImplementations extends TestCase {
     
     protected static final String EXISTING_USER_NAME = "testExistingUserName";
 
-    abstract public MailServer createMailServer() throws ServiceException, Exception;
+    abstract public MailServer createMailServer() throws Exception;
     abstract public boolean allowsPasswordlessUser();
 
     /**

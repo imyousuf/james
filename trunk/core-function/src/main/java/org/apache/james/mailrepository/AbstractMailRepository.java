@@ -21,13 +21,13 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailRepository;
+import org.apache.james.services.store.Store;
 import org.apache.james.util.Lock;
 import org.apache.mailet.Mail;
 

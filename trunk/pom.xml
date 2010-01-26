@@ -655,17 +655,7 @@
       <artifactId>geronimo-javamail_1.4_mail</artifactId>
       <version>1.6</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.framework</groupId>
-      <artifactId>avalon-framework-api</artifactId>
-      <version>4.3.1</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>avalon-logkit</artifactId>
-          <groupId>org.apache.avalon.avalon-logkit</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+   
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
@@ -750,25 +740,7 @@
       <artifactId>village</artifactId>
       <version>2.0</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.framework</groupId>
-      <artifactId>avalon-framework-impl</artifactId>
-      <version>4.3.1</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>jmock</artifactId>
-          <groupId>jmock</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>xalan</artifactId>
-          <groupId>xalan</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>xmlParserAPIs</artifactId>
-          <groupId>xml-apis</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
@@ -792,11 +764,6 @@
       <version>3.1</version>
     </dependency>
    
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.store</groupId>
-      <artifactId>cornerstone-store-api</artifactId>
-      <version>2.2.2</version>
-    </dependency>
     <dependency>
       <groupId>dnsjava</groupId>
       <artifactId>dnsjava</artifactId>
@@ -895,11 +862,6 @@
           <artifactId>xercesImpl</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.datasources</groupId>
-      <artifactId>cornerstone-datasources-api</artifactId>
-      <version>2.2.2</version>
     </dependency>
     
     <!-- Used by Mime4J -->

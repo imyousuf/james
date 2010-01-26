@@ -21,8 +21,8 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.james.core.MimeMessageSource;
+import org.apache.james.services.store.StreamRepository;
 import org.apache.james.util.sql.JDBCUtil;
 
 import java.io.ByteArrayInputStream;

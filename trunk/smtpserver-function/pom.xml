@@ -84,12 +84,6 @@
       <artifactId>${javax.activation.artifactId}</artifactId>
     </dependency>
 
-  
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.store</groupId>
-      <artifactId>cornerstone-store-api</artifactId>
-    </dependency>
-  
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
