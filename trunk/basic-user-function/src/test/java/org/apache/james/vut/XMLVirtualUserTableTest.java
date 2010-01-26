@@ -22,7 +22,7 @@ package org.apache.james.vut;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
@@ -67,7 +67,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         if (mappings == null) {
             mappings = new ArrayList<String>();
         } else {
-           removeMappings(user,domain,mappings);
+            removeMappingsFromConfig(user,domain,mappings);
         }
     
         if (type == ERROR_TYPE) {
@@ -109,7 +109,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
             return false;
         }  
     
-        removeMappings(user,domain, mappings);
+        removeMappingsFromConfig(user,domain, mappings);
     
         if (type == ERROR_TYPE) {
             mappings.remove(VirtualUserTable.ERROR_PREFIX + mapping);
@@ -139,22 +139,23 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     
     
     @SuppressWarnings("unchecked")
-    private void removeMappings(String user, String domain, Collection<String> mappings) {
-        Iterator<String> conf = defaultConfiguration.getKeys();
-        
-        while(conf.hasNext()) {
-            String c = conf.next();
-            try {
-                String mapping = user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings);
-            
-                System.out.println("M=" + mapping);
-            
-                if (defaultConfiguration.getProperty(c).toString().equalsIgnoreCase(mapping)){
-                    defaultConfiguration.clearProperty(c);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+    private void removeMappingsFromConfig(String user, String domain, Collection<String> mappings) {
+        List<String> confs = defaultConfiguration.getList("mapping");
+        List<String> stored = new ArrayList<String>();
+        for (int i = 0; i < confs.size(); i++) {
+            String c = confs.get(i);
+            String mapping = user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings);
+                        
+            if (!c.equalsIgnoreCase(mapping)){
+                stored.add(c);
             }
+        }
+        // clear old values
+        defaultConfiguration.clear();
+        
+        // add stored mappings
+        for (int i = 0; i < stored.size(); i++) {
+            defaultConfiguration.addProperty("mapping", stored.get(i));
         }
     }
 
