@@ -312,7 +312,7 @@ public class AsyncRemoteManagerTest extends TestCase {
 						return null;
 					}
 				});
-		serviceManager.put(MockStore.ROLE, new MockStore());
+		serviceManager.put("mailStore", new MockStore());
 		serviceManager.put(ProcessorManagementService.ROLE,
 				new ProcessorManagementService() {
 

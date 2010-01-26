@@ -21,14 +21,12 @@
 
 package org.apache.james.mailrepository.filepair;
 
-import org.apache.avalon.cornerstone.services.store.StreamRepository;
-
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.annotation.PostConstruct;
+import org.apache.james.services.store.StreamRepository;
 
 /**
  * Implementation of a StreamRepository to a File.
@@ -41,11 +39,6 @@ public class File_Persistent_Stream_Repository
     implements StreamRepository
 {
  
-    @PostConstruct
-    public void init() throws Exception {
-        super.init();
-    }
-    
     /**
      * @see org.apache.james.mailrepository.filepair.AbstractFileRepository#getExtensionDecorator()
      */

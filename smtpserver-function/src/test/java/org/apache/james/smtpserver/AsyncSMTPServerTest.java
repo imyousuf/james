@@ -38,7 +38,6 @@ import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
-import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
@@ -214,7 +213,7 @@ public class AsyncSMTPServerTest extends TestCase {
         m_serviceManager.put(DNSService.ROLE, m_dnsServer);
 
         store = new MockStore();
-        m_serviceManager.put(Store.ROLE, store);
+        m_serviceManager.put("mailStore", store);
         fileSystem = new MockFileSystem();
 
         m_serviceManager.put(FileSystem.ROLE, fileSystem);

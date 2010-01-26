@@ -19,12 +19,10 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
-import org.apache.avalon.cornerstone.services.store.Store;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.Constants;
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.services.store.Store;
 import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -111,20 +109,12 @@ public class TesterMailetConfig implements MailetConfig {
             this.wrapped = wrapped;
         }
 
-        public Object select(Object arg0) throws ServiceException {
-            if ((arg0 instanceof Configuration) && ((Configuration) arg0).getLocation().equals("generated:RemoteDelivery.java")) {
-                if (wrappedSpoolRepository == null) wrappedSpoolRepository = new SpoolRepositoryWrapper(owner, (SpoolRepository) wrapped.select(arg0));
-                return wrappedSpoolRepository;
-            }
+        public Object select(HierarchicalConfiguration arg0) throws StoreException {
+            //if ((arg0 instanceof Configuration) && ((Configuration) arg0).getLocation().equals("generated:RemoteDelivery.java")) {
+             //   if (wrappedSpoolRepository == null) wrappedSpoolRepository = new SpoolRepositoryWrapper(owner, (SpoolRepository) wrapped.select(arg0));
+             //   return wrappedSpoolRepository;
+            //}
             return wrapped.select(arg0);
-        }
-
-        public boolean isSelectable(Object arg0) {
-            return wrapped.isSelectable(arg0);
-        }
-
-        public void release(Object arg0) {
-            wrapped.release(arg0);
         }
     }
 

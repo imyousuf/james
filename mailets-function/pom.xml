@@ -94,10 +94,7 @@
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.avalon.cornerstone.store</groupId>
-      <artifactId>cornerstone-store-api</artifactId>
-    </dependency>
+   
    
     <dependency>
       <groupId>junit</groupId>

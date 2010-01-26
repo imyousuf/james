@@ -21,14 +21,14 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.avalon.cornerstone.services.store.ObjectRepository;
-import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
 import org.apache.james.impl.user.DefaultJamesUser;
+import org.apache.james.services.store.ObjectRepository;
+import org.apache.james.services.store.Store;
 
 
 import java.util.Iterator;
@@ -123,7 +123,6 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.api.user.UsersRepository#list()
      */
-    @SuppressWarnings("unchecked")
     public Iterator<String> list() {
         return objectRepository.list();
     }

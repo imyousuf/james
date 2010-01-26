@@ -28,9 +28,6 @@ import java.util.StringTokenizer;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import org.apache.avalon.framework.service.ServiceException;
-import org.apache.avalon.framework.service.ServiceManager;
-import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;

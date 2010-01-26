@@ -21,7 +21,6 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.cornerstone.services.store.StreamRepository;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -30,6 +29,7 @@ import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
+import org.apache.james.services.store.StreamRepository;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.Mail;

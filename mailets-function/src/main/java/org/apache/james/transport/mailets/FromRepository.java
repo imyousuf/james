@@ -21,10 +21,10 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MailRepository;
+import org.apache.james.services.store.Store;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 

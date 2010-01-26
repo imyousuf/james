@@ -20,8 +20,6 @@
 
 package org.apache.james.mailrepository;
 
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.service.ServiceException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository;

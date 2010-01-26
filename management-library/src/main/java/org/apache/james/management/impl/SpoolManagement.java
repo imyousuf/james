@@ -22,7 +22,6 @@
 
 package org.apache.james.management.impl;
 
-import org.apache.avalon.cornerstone.services.store.Store;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.management.SpoolFilter;
@@ -30,6 +29,7 @@ import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementMBean;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.SpoolRepository;
+import org.apache.james.services.store.Store;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.Pattern;
