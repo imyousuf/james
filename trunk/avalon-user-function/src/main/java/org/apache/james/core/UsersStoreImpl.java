@@ -37,6 +37,8 @@ public class UsersStoreImpl
     implements UsersStore {
     
 
+    private String defaultName;
+
     /** 
      * Get the repository, if any, whose name corresponds to
      * the argument parameter
@@ -46,6 +48,10 @@ public class UsersStoreImpl
      * @return the UsersRepository corresponding to the name parameter
      */
     public UsersRepository getRepository(String name) {
+        if (name == null || name.trim().equals("")) {
+            name = defaultName;
+        }
+        
         UsersRepository response = getObject(name);
         if ((response == null) && (getLogger().isWarnEnabled())) {
             getLogger().warn("No users repository called: " + name);
@@ -53,6 +59,10 @@ public class UsersStoreImpl
         return response;
     }
 
+    public void setDefaultRepository(String defaultName) {
+        this.defaultName = defaultName;
+    }
+    
     /** 
      * Yield an <code>Iterator</code> over the set of repository
      * names managed internally by this store.
