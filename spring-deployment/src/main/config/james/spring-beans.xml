@@ -149,7 +149,9 @@
 		class="org.apache.james.mailrepository.MailStoreSpoolRepository" />
 
 	<!-- The User Storage block -->
-	<bean id="users-store" class="org.apache.james.core.UsersStoreImpl" />
+	<bean id="users-store" class="org.apache.james.core.UsersStoreImpl" >
+	    <property name="defaultRepository" value="LocalUsers"/>
+	</bean>
 
 	<!--
 		This is needed to link the smtpserver to the local user repository
@@ -176,7 +178,7 @@
 
 	<!-- VirtualUserTable Store -->
 	<bean id="virtualusertable-store" class="org.apache.james.core.VirtualUserTableStoreImpl">
-	    <property name="defaultTable" value="defaultvirtualusertable"/>
+	    <property name="defaultTable" value="DefaultVirtualUserTable"/>
 	</bean>
 
 

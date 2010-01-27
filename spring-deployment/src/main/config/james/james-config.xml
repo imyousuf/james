@@ -1390,7 +1390,6 @@ Regards, Postmaster XXX.YYY
       <!--       in the <database-connections> configuration section. -->
 
       <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
-      <!-- TEMPORARY DEFAULT: db using Derby  -->
       <table name="DefaultVirtualUserTable" class="org.apache.james.vut.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
          <recursiveMapping> true </recursiveMapping>
          <mappingLimit> 10 </mappingLimit>
