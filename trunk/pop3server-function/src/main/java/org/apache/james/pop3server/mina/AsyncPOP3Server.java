@@ -30,9 +30,9 @@ import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3ServerMBean;
 import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.pop3server.mina.filter.POP3ResponseFilter;
+import org.apache.james.socket.ProtocolHandlerChainImpl;
 import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.james.socket.mina.filter.ResponseValidationFilter;
-import org.apache.james.socket.shared.ProtocolHandlerChainImpl;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 
