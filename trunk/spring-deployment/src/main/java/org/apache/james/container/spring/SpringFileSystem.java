@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.adaptor;
+package org.apache.james.container.spring;
 
 import org.apache.james.services.FileSystem;
 import org.springframework.context.ResourceLoaderAware;
@@ -27,7 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FileSystemBridge implements FileSystem, ResourceLoaderAware {
+public class SpringFileSystem implements FileSystem, ResourceLoaderAware {
 
     public File getBasedir() throws FileNotFoundException {
         return new File("./../");
