@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.socket.shared;
+package org.apache.james.socket;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -63,7 +63,7 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
     }
 
     /**
-     * @see org.apache.james.socket.shared.ProtocolHandlerChainImpl#getLog()
+     * @see org.apache.james.socket.ProtocolHandlerChainImpl#getLog()
      */
     protected Log getLog() {
         return log;

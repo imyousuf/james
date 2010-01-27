@@ -76,10 +76,6 @@
       <artifactId>james-server-mina-socket-library</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-socket-shared-library</artifactId>
-    </dependency>
-    <dependency>
       <groupId>${javax.activation.groupId}</groupId>
       <artifactId>${javax.activation.artifactId}</artifactId>
     </dependency>
