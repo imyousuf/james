@@ -79,6 +79,10 @@
 		<property name="configurationResource" value="classpath:james-config.xml" />
 	</bean>
 
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+      <property name = "location" value="classpath:database.properties"/>
+    </bean>
+  
 	<bean
 		class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
 		<property name="logProvider" ref="logProvider" />
@@ -164,7 +168,7 @@
 
 
 	<!-- The context FileSystem implementation -->
-	<bean id="filesystem" class="org.apache.james.container.spring.adaptor.FileSystemBridge" />
+	<bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
 
 	<!-- The VirtualUserTable Management block  -->
 	<bean id="virtualusertablemanagementservice"
@@ -176,9 +180,6 @@
 
 	<bean id="defaultvirtualusertable" name="virtualusertablemanagement" class="org.apache.james.impl.vut.DefaultVirtualUserTable" />
 
-	<!--
-		########################################################################
-	-->
 	<!-- The context domainlist implementation -->
 	<bean id="domainlist" class="org.apache.james.domain.XMLDomainList" />
 
@@ -244,27 +245,6 @@
         <constructor-arg index="2" ref="entityManagerFactory"/>
     </bean>
 
-    <bean id="maildb" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver" />
-        <property name="url" value="jdbc:derby:../var/derbydb;create=true" />
-        <property name="username" value="app" />
-        <property name="password" value="app" />
-    </bean>
-    
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="dataSource" ref="maildb"/>
-        <property name="jpaVendorAdapter" ref="vendorAdapter"/>
-    </bean>
-
-    <bean id="vendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
-        <property name="database" value="DERBY"/>
-        <!-- set this to true for debugging purposes -->
-        <property name="showSql" value="false"/>
-    </bean>
-	<!--
-		####################################################################
-	-->
-
 	<bean id="domainlistmanagement" class="org.apache.james.management.impl.DomainListManagement" />
 
 
@@ -276,4 +256,27 @@
 	<!-- The DataSourceSelector block -->
 	<bean id="database-connections" class="org.apache.james.container.spring.SpringDataSourceSelector"/>
 
+
+
+    <!-- Database related beans  -->
+
+    <bean id="maildb" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${database.driverClassName}" />
+        <property name="url" value="${database.url}" />
+        <property name="username" value="${database.username}" />
+        <property name="password" value="${database.password}" />
+    </bean>
+    
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="maildb"/>
+        <property name="jpaVendorAdapter" ref="vendorAdapter"/>
+    </bean>
+
+    <bean id="vendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+        <property name="database" value="${vendorAdapter.database}"/>
+        <!-- set this to true for debugging purposes -->
+        <property name="showSql" value="false"/>
+    </bean>
+    
+    <!--  #################################################################### -->
 </beans>
