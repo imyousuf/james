@@ -19,9 +19,7 @@
 
 package org.apache.james.smtpserver.integration;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -33,13 +31,10 @@ import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.lifecycle.Configurable;
+import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.core.fastfail.AbstractValidRcptHandler;
 import org.apache.mailet.MailAddress;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
 
 /**
  * Handler which reject invalid recipients
@@ -50,13 +45,12 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	private UsersRepository users;
 
 	private VirtualUserTableStore tableStore;
-
-	private Collection<String> recipients = new ArrayList<String>();
-	private Collection<String> domains = new ArrayList<String>();
-	private Collection<Pattern> regex = new ArrayList<Pattern>();
-	private boolean vut = true;
 	private VirtualUserTable table;
 	private String tableName = null;
+
+    private boolean vut = true;
+
+    private MailServer mailServer;
 
 	/**
 	 * Gets the users repository.
@@ -98,6 +92,11 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 		this.tableStore = tableStore;
 	}
 	
+	@Resource(name = "mailServer")
+	public void setMailServer(MailServer mailServer) {
+	    this.mailServer = mailServer;
+	}
+	
 	@PostConstruct
 	public void init() throws Exception{
 		loadTable();
@@ -106,70 +105,14 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	/**
 	 * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
 	 */
-	@SuppressWarnings("unchecked")
 	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-		setValidRecipients(config.getList("validRecipients"));
-		setValidDomains(config.getList("validDomains"));
-		try {
-			setValidRegex(config.getList("validRegexPattern"));
-		} catch (MalformedPatternException mpe) {
-			throw new ConfigurationException("Malformed pattern: ", mpe);
-		}
 		setVirtualUserTableSupport(config.getBoolean("enableVirtualUserTable",
 				true));
 		setTableName(config.getString("table", null));
 	}
 
-	/**
-	 * Set the valid recipients.
-	 * 
-	 * @param recip
-	 *            The valid recipients. Commaseperated list
-	 */
-	public void setValidRecipients(Collection<String> recips) {
-		Iterator<String> recipsIt = recips.iterator();
-		while (recipsIt.hasNext()) {
-			String recipient = recipsIt.next();
-			recipients.add(recipient);
-		}
-	}
-
-	/**
-	 * Set the domains for which every rcpt will be accepted.
-	 * 
-	 * @param dom
-	 *            The valid domains. Comma seperated list
-	 */
-	public void setValidDomains(Collection<String> doms) {
-		Iterator<String> domsIt = doms.iterator();
-
-		while (domsIt.hasNext()) {
-			String domain = domsIt.next().toLowerCase();
-			domains.add(domain);
-		}
-	}
-
-	/**
-	 * 
-	 * @param reg
-	 * @throws MalformedPatternException
-	 */
-	public void setValidRegex(Collection<String> regs)
-			throws MalformedPatternException {
-		Perl5Compiler compiler = new Perl5Compiler();
-
-		Iterator<String> regsIt = regs.iterator();
-		while (regsIt.hasNext()) {
-			String patternString = regsIt.next();
-			Pattern pattern = compiler.compile(patternString,
-					Perl5Compiler.READ_ONLY_MASK);
-			regex.add(pattern);
-
-		}
-	}
-
 	public void setVirtualUserTableSupport(boolean vut) {
-		this.vut = vut;
+		this.vut  = vut;
 	}
 
 	public void setTableName(String tableName) {
@@ -177,15 +120,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	}
 
 	private void loadTable() throws Exception {
-		if (this.tableName == null || this.tableName.equals("")) {
-			this.tableName = VirtualUserTableStore.DEFAULT_TABLE;
-		}
-		if (tableStore != null) {
-			table = tableStore.getTable(this.tableName);
-		}
-		if (table == null) {
-			throw new Exception("Unable to find VirtualUserTable with name " + tableName);
-		}
+        table = tableStore.getTable(this.tableName);	
 	}
 
 
@@ -193,9 +128,11 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	protected boolean isValidRecipient(SMTPSession session,
 			MailAddress recipient) {
 
-		if (users.contains(recipient.getLocalPart()) == true
-				|| recipients.contains(recipient.toString().toLowerCase())
-				|| domains.contains(recipient.getDomain().toLowerCase())) {
+	    if (mailServer.isLocalServer(recipient.getDomain()) == false) {
+	        return false;
+	    }
+	    
+		if (users.contains(recipient.getLocalPart()) == true) {
 			return true;
 		} else {
 			if (vut == true) {
@@ -211,17 +148,6 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 				}
 			}
 
-			if (!regex.isEmpty()) {
-				Iterator<Pattern> reg = regex.iterator();
-				Perl5Matcher matcher = new Perl5Matcher();
-
-				while (reg.hasNext()) {
-					if (matcher.matches(recipient.toString(), reg.next())) {
-						// regex match
-						return true;
-					}
-				}
-			}
 			return false;
 		}
 	}

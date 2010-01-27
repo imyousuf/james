@@ -36,6 +36,9 @@ public class VirtualUserTableStoreImpl
     implements VirtualUserTableStore {
 
 
+    private String defaultName;
+
+
     /** 
      * Get the repository, if any, whose name corresponds to
      * the argument parameter
@@ -45,6 +48,9 @@ public class VirtualUserTableStoreImpl
      * @return the VirtualUserTable corresponding to the name parameter
      */
     public VirtualUserTable getTable(String name) {
+        if (name == null || name.trim().equals("")) {
+            name = defaultName;
+        }
         VirtualUserTable response = getObject(name);
         if ((response == null) && (getLogger().isWarnEnabled())) {
             getLogger().warn("No virtualUserTable called: " + name);
@@ -52,6 +58,15 @@ public class VirtualUserTableStoreImpl
         return response;
     }
 
+    /**
+     * Set the default VirtualUserTable which will get returned when no name is given or the name is empty
+     * 
+     * @param defaultName
+     */
+    public void setDefaultTable(String defaultName) {
+        this.defaultName = defaultName;
+    }
+    
     /**
      * @see org.apache.james.core.AbstractAvalonStore#getStoreName()
      */

@@ -22,10 +22,14 @@
 
 package org.apache.james.smtpserver;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
@@ -33,6 +37,8 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
+import org.apache.james.services.MailRepository;
+import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.integration.ValidRcptHandler;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
@@ -40,11 +46,12 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.oro.text.regex.MalformedPatternException;
 
 public class ValidRcptHandlerTest extends TestCase {
     
+    private final static String VALID_DOMAIN = "localhost";
     private final static String VALID_USER = "postmaster";
     private final static String INVALID_USER = "invalid";
     private final static String USER1 = "user1";
@@ -60,6 +67,63 @@ public class ValidRcptHandlerTest extends TestCase {
         handler = new ValidRcptHandler();
         handler.setUsers(users);
         handler.setTableStore(setUpVirtualUserTableStore());
+        handler.setMailServer(new MailServer() {
+
+            public boolean addUser(String userName, String password) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public String getDefaultDomain() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public String getHelloName() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public String getId() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public MailRepository getUserInbox(String userName) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public boolean isLocalServer(String serverName) {
+                return serverName.equals(VALID_DOMAIN);
+            }
+
+            public void sendMail(MailAddress sender, Collection<MailAddress> recipients, MimeMessage msg) throws MessagingException {
+                // TODO Auto-generated method stub
+                
+            }
+
+            public void sendMail(MailAddress sender, Collection<MailAddress> recipients, InputStream msg) throws MessagingException {
+                // TODO Auto-generated method stub
+                
+            }
+
+            public void sendMail(Mail mail) throws MessagingException {
+                // TODO Auto-generated method stub
+                
+            }
+
+            public void sendMail(MimeMessage message) throws MessagingException {
+                // TODO Auto-generated method stub
+                
+            }
+
+            public boolean supportVirtualHosting() {
+                // TODO Auto-generated method stub
+                return false;
+            }
+            
+        });
         handler.init();
     }
 
@@ -92,8 +156,14 @@ public class ValidRcptHandlerTest extends TestCase {
                 return mappings;
             }
         };
-        final MockVirtualUserTableStore store = new MockVirtualUserTableStore();
-        store.tableStore.put(VirtualUserTableStore.DEFAULT_TABLE, table);
+        final MockVirtualUserTableStore store = new MockVirtualUserTableStore() {
+
+            @Override
+            public VirtualUserTable getTable(String name) {
+                return table;
+            }
+            
+        };
         return store;
     }
     
@@ -168,65 +238,7 @@ public class ValidRcptHandlerTest extends TestCase {
         
         assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
     }
-    
-    public void testNotRejectValidUserRecipient() throws Exception {
-        String recipient = "recip@domain";
-        ArrayList<String> list = new ArrayList<String>();
-        list.add(recipient);
-        MailAddress mailAddress = new MailAddress(recipient);
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
-    
-        handler.setValidRecipients(list);
-
-        int rCode = handler.doRcpt(session, null, mailAddress).getResult();
-        
-        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
-    }
-    
-    public void testNotRejectValidUserDomain() throws Exception {
-        String domain = "domain";
-        String recipient = "recip@" + domain;
-        ArrayList<String> list = new ArrayList<String>();
-        list.add(domain);
-        MailAddress mailAddress = new MailAddress(recipient);
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
-    
-        handler.setValidDomains(list);
-
-        int rCode = handler.doRcpt(session, null, mailAddress).getResult();
-        
-        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
-    }
-    
-    public void testNotRejectValidUserRegex() throws Exception {
-        String domain = "domain";
-        String recipient = "recip@" + domain;
-        ArrayList<String> list = new ArrayList<String>();
-        list.add("reci.*");
-        MailAddress mailAddress = new MailAddress(recipient);
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
-    
-        handler.setValidRegex(list);
-
-        int rCode = handler.doRcpt(session, null, mailAddress).getResult();
-        
-        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
-    }
-    
-    public void testInvalidRegex() throws Exception{
-        boolean exception = false;
-        
-        ArrayList<String> list = new ArrayList<String>();
-        list.add("(.*");
-        try {
-            handler.setValidRegex(list);
-        } catch (MalformedPatternException e) {
-            exception = true;
-        }
-
-        assertTrue("Invalid Config",exception);
-    }
-    
+  
     public void testHasAddressMapping() throws Exception {
         MailAddress mailAddress = new MailAddress(USER1 + "@localhost");
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
