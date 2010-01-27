@@ -175,7 +175,9 @@
 		class="org.apache.james.impl.vut.VirtualUserTableManagement" />
 
 	<!-- VirtualUserTable Store -->
-	<bean id="virtualusertable-store" class="org.apache.james.core.VirtualUserTableStoreImpl" />
+	<bean id="virtualusertable-store" class="org.apache.james.core.VirtualUserTableStoreImpl">
+	    <property name="defaultTable" name="defaultvirtualusertable"/>
+	</bean>
 
 
 	<bean id="defaultvirtualusertable" name="virtualusertablemanagement" class="org.apache.james.impl.vut.DefaultVirtualUserTable" />
