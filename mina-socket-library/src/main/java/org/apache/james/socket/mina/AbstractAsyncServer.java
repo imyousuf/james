@@ -21,7 +21,6 @@ package org.apache.james.socket.mina;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -36,13 +35,12 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.mina.codec.JamesProtocolCodecFactory;
 import org.apache.james.socket.mina.filter.ConnectionFilter;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.codec.textline.LineDelimiter;
-import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.filter.ssl.BogusTrustManagerFactory;
 import org.apache.mina.filter.ssl.KeyStoreFactory;
 import org.apache.mina.filter.ssl.SslContextFactory;
@@ -490,19 +488,10 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      * @return ioFilterChainBuilder
      */
     protected DefaultIoFilterChainBuilder createIoFilterChainBuilder() {
-        ProtocolCodecFilter codecFactory = new ProtocolCodecFilter(new TextLineCodecFactory(getProtocolCharset(), LineDelimiter.CRLF, LineDelimiter.CRLF));
+     
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
-        builder.addLast("protocolCodecFactory", codecFactory);
+        builder.addLast("protocolCodecFactory", new ProtocolCodecFilter(new JamesProtocolCodecFactory()));
         return builder;
-    }
-    
-    /**
-     * Return the Charset which will be used to encode / decode the protocol. The default is US-ASCII
-     * 
-     * @return charset
-     */
-    protected Charset getProtocolCharset() {
-        return Charset.forName("US-ASCII");
     }
     
     

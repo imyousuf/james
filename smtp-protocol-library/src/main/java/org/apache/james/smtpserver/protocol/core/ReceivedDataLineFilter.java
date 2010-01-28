@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.protocol.core;
 
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -27,10 +28,15 @@ import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
 
-public class ReceivedDataLineFilter implements DataLineFilter<SMTPSession> {
+public class ReceivedDataLineFilter implements DataLineFilter {
 
     private final static String SOFTWARE_TYPE = "JAMES SMTP Server ";
 
+    private Charset charSet;
+    
+    public ReceivedDataLineFilter() {
+        charSet = Charset.forName("US-ASCII");
+    }
     // Replace this with something usefull
     // + Constants.SOFTWARE_VERSION;
 
@@ -40,11 +46,12 @@ public class ReceivedDataLineFilter implements DataLineFilter<SMTPSession> {
     private final static RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
     private final static String HEADERS_WRITTEN = "HEADERS_WRITTEN";
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.api.protocol.LogEnabledSession, java.lang.String, org.apache.james.api.protocol.LineHandler)
+     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.api.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session,  String line, LineHandler<SMTPSession> next) {
+    public void onLine(SMTPSession session,  byte[] line, LineHandler<SMTPSession> next) {
         if (session.getState().containsKey(HEADERS_WRITTEN) == false) {
             addNewReceivedMailHeaders(session, next);
             session.getState().put(HEADERS_WRITTEN, true);
@@ -71,7 +78,7 @@ public class ReceivedDataLineFilter implements DataLineFilter<SMTPSession> {
 
         headerLineBuffer.append(" ([").append(session.getRemoteIPAddress())
                 .append("])").append("\r\n");
-        next.onLine(session, headerLineBuffer.toString());
+        next.onLine(session, headerLineBuffer.toString().getBytes(charSet));
         headerLineBuffer.delete(0, headerLineBuffer.length());
 
         headerLineBuffer.append("          by ").append(session.getHelloName())
@@ -102,7 +109,7 @@ public class ReceivedDataLineFilter implements DataLineFilter<SMTPSession> {
             // (prevents email address harvesting and large headers in
             // bulk email)
             headerLineBuffer.append("\r\n");
-            next.onLine(session, headerLineBuffer.toString());
+            next.onLine(session, headerLineBuffer.toString().getBytes(charSet));
             headerLineBuffer.delete(0, headerLineBuffer.length());
 
             headerLineBuffer.delete(0, headerLineBuffer.length());
@@ -110,7 +117,7 @@ public class ReceivedDataLineFilter implements DataLineFilter<SMTPSession> {
                     ((List) session.getState().get(SMTPSession.RCPT_LIST)).get(
                             0).toString()).append(">;").append("\r\n");
 
-            next.onLine(session, headerLineBuffer.toString());
+            next.onLine(session, headerLineBuffer.toString().getBytes(charSet));
             headerLineBuffer.delete(0, headerLineBuffer.length());
 
             headerLineBuffer.delete(0, headerLineBuffer.length());
@@ -118,11 +125,11 @@ public class ReceivedDataLineFilter implements DataLineFilter<SMTPSession> {
             // Put the ; on the end of the 'by' line
             headerLineBuffer.append(";");
             headerLineBuffer.append("\r\n");
-            next.onLine(session, headerLineBuffer.toString());
+            next.onLine(session, headerLineBuffer.toString().getBytes(charSet));
             headerLineBuffer.delete(0, headerLineBuffer.length());
         }
         headerLineBuffer = null;
         next.onLine(session, ("          "
-                + rfc822DateFormat.format(new Date()) + "\r\n"));
+                + rfc822DateFormat.format(new Date()) + "\r\n").getBytes(charSet));
     }
 }

@@ -60,7 +60,7 @@ import org.apache.mailet.MailAddress;
  * Handles the calling of JamesMessageHooks
  *
  */
-public final class DataLineJamesMessageHookHandler implements DataLineFilter<SMTPSession>, ExtensibleHandler, LogEnabled {
+public final class DataLineJamesMessageHookHandler implements DataLineFilter, ExtensibleHandler, LogEnabled {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineJamesMessageHookHandler.class);
@@ -93,14 +93,16 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter<SMT
         this.mailServer = mailServer;
     }
     
-    /**
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.smtpserver.protocol.LineHandler)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.api.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, String rawline, LineHandler<SMTPSession> next) {
+    public void onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
         MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE);
         OutputStream out = (OutputStream)  session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_OUTPUTSTREAM);
+
         try {
-            byte[] line = rawline.getBytes();
             // 46 is "."
             // Stream terminated
             if (line.length == 3 && line[0] == 46) {

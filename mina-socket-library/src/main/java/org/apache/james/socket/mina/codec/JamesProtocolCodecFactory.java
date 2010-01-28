@@ -16,33 +16,36 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.mina.filter;
 
-import org.apache.james.api.protocol.LineHandler;
-import org.apache.james.smtpserver.mina.SMTPSessionImpl;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.mina.core.filterchain.IoFilterAdapter;
+package org.apache.james.socket.mina.codec;
+
+import java.nio.charset.Charset;
+
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFactory;
+import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolEncoder;
+import org.apache.mina.filter.codec.textline.LineDelimiter;
+import org.apache.mina.filter.codec.textline.TextLineEncoder;
 
-
-/**
- * Adapter class which call the wrapped LineHandler on MessageReceived callback
- * 
- */
-public final class FilterLineHandlerAdapter extends IoFilterAdapter {
-
-    private LineHandler<SMTPSession> lineHandler;
-
-    public FilterLineHandlerAdapter(LineHandler<SMTPSession> lineHandler) {
-        this.lineHandler = lineHandler;
-    }
-
-    /**
-     * @see org.apache.mina.core.filterchain.IoFilterAdapter#messageReceived(org.apache.mina.core.filterchain.IoFilter.NextFilter, org.apache.mina.core.session.IoSession, java.lang.Object)
+public class JamesProtocolCodecFactory  implements ProtocolCodecFactory {
+    
+    private final ProtocolEncoder encoder = new TextLineEncoder(Charset.forName("US-ASCII"), LineDelimiter.CRLF);
+    private final ProtocolDecoder decoder = new CRLFTerminatedLineDecoder();
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.mina.filter.codec.ProtocolCodecFactory#getEncoder(org.apache.mina.core.session.IoSession)
      */
-    public void messageReceived(NextFilter arg0, IoSession session, Object arg2)
-            throws Exception {
-        lineHandler.onLine((SMTPSession) session.getAttribute(SMTPSessionImpl.SMTP_SESSION),
-                ((String) arg2) + "\r\n");
+    public ProtocolEncoder getEncoder(IoSession arg0) throws Exception {
+        return encoder;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.mina.filter.codec.ProtocolCodecFactory#getDecoder(org.apache.mina.core.session.IoSession)
+     */
+    public ProtocolDecoder getDecoder(IoSession arg0) throws Exception {
+        return decoder;
     }
 }

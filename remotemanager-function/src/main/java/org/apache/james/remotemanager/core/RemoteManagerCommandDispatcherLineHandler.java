@@ -19,6 +19,7 @@
 
 package org.apache.james.remotemanager.core;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +45,8 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
      * is available
      */
     private Log serviceLog = FALLBACK_LOG;
+
+    private final Charset charSet = Charset.forName("ISO-8859-1");
 
     /**
      * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getLog()
@@ -95,11 +98,11 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
     /**
      * @see org.apache.james.remotemanager.LineHandler#onLine(org.apache.james.remotemanager.RemoteManagerSession, java.lang.String)
      */
-    public void onLine(RemoteManagerSession session, String cmdString) {
+    public void onLine(RemoteManagerSession session, byte[] line) {
         String curCommandName = null;
         String curCommandArgument = null;
-        if (cmdString == null) {
-        }
+        String cmdString = new String(line, charSet).trim();
+
         int spaceIndex = cmdString.indexOf(" ");
         if (spaceIndex > 0) {
             curCommandName = cmdString.substring(0, spaceIndex);
@@ -114,18 +117,16 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
         }
 
         // fetch the command handlers registered to the command
-        List<org.apache.james.api.protocol.CommandHandler<RemoteManagerSession>> commandHandlers = getCommandHandlers(
-                curCommandName, session);
+        List<org.apache.james.api.protocol.CommandHandler<RemoteManagerSession>> commandHandlers = getCommandHandlers(curCommandName, session);
         if (commandHandlers == null) {
             // end the session
-            RemoteManagerResponse resp = new RemoteManagerResponse( "Local configuration error: unable to find a command handler.");
+            RemoteManagerResponse resp = new RemoteManagerResponse("Local configuration error: unable to find a command handler.");
             resp.setEndSession(true);
             session.writeResponse(resp);
         } else {
             int count = commandHandlers.size();
             for (int i = 0; i < count; i++) {
-                Response response = commandHandlers.get(i).onCommand(
-                        session, new RemoteManagerRequest(curCommandName, curCommandArgument));
+                Response response = commandHandlers.get(i).onCommand(session, new RemoteManagerRequest(curCommandName, curCommandArgument));
                 if (response != null) {
                     session.writeResponse(response);
                     break;

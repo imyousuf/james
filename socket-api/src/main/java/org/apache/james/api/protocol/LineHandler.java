@@ -25,10 +25,11 @@ package org.apache.james.api.protocol;
 public interface LineHandler<Session extends ProtocolSession> {
      
     /**
-     * Handle the command.
+     * Processing the give line. The line includes the CRLF delimiter
+     * 
      * @param session not null
      * @param line not null 
      */
-    public void onLine(Session session, String line);
+    public void onLine(Session session, byte[] line);
     
 }

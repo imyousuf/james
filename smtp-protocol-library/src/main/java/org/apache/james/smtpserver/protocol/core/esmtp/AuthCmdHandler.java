@@ -21,6 +21,7 @@
 
 package org.apache.james.smtpserver.protocol.core.esmtp;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -59,10 +60,16 @@ public class AuthCmdHandler
 
     private abstract class AbstractSMTPLineHandler implements LineHandler<SMTPSession> {
 
-        public void onLine(SMTPSession session, String l) {
-            SMTPResponse res = handleCommand(session, l);
-            session.popLineHandler();
-            session.writeResponse(res);
+        public void onLine(SMTPSession session, byte[] l) {
+            SMTPResponse res;
+            try {
+                res = handleCommand(session, new String(l,"US-ASCII"));
+                session.popLineHandler();
+                session.writeResponse(res);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
            
         }
 

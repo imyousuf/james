@@ -19,6 +19,7 @@
 
 package org.apache.james.pop3server.core;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +44,8 @@ public class POP3CommandDispatcherLineHandler extends
     private static final Log FALLBACK_LOG = LogFactory
             .getLog(POP3CommandDispatcherLineHandler.class);
 
+    private final Charset charSet = Charset.forName("US-ASCII");
+    
     /**
      * Non context specific log should only be used when no context specific log
      * is available
@@ -89,15 +92,17 @@ public class POP3CommandDispatcherLineHandler extends
         return list;
     }
 
-    /**
-     * @see org.apache.james.pop3server.LineHandler#onLine(org.apache.james.pop3server.POP3Session,
-     *      java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LineHandler#onLine(org.apache.james.api.protocol.ProtocolSession, byte[])
      */
-    public void onLine(POP3Session session, String cmdString) {
+    public void onLine(POP3Session session, byte[] line) {
         String curCommandName = null;
         String curCommandArgument = null;
-        if (cmdString == null) {
-        }
+        String cmdString;
+
+        cmdString = new String(line, charSet).trim();
+
         int spaceIndex = cmdString.indexOf(" ");
         if (spaceIndex > 0) {
             curCommandName = cmdString.substring(0, spaceIndex);
@@ -112,25 +117,21 @@ public class POP3CommandDispatcherLineHandler extends
             if (!curCommandName.equals("PASS")) {
                 session.getLogger().debug("Command received: " + cmdString);
             } else {
-                session.getLogger().debug(
-                        "Command received: PASS <password omitted>");
+                session.getLogger().debug("Command received: PASS <password omitted>");
             }
         }
 
         // fetch the command handlers registered to the command
-        List<CommandHandler<POP3Session>> commandHandlers = getCommandHandlers(
-                curCommandName, session);
+        List<CommandHandler<POP3Session>> commandHandlers = getCommandHandlers(curCommandName, session);
         if (commandHandlers == null) {
             // end the session
-            POP3Response resp = new POP3Response(POP3Response.ERR_RESPONSE,
-                    "Local configuration error: unable to find a command handler.");
+            POP3Response resp = new POP3Response(POP3Response.ERR_RESPONSE, "Local configuration error: unable to find a command handler.");
             resp.setEndSession(true);
             session.writeResponse(resp);
         } else {
             int count = commandHandlers.size();
             for (int i = 0; i < count; i++) {
-                Response response = commandHandlers.get(i).onCommand(
-                        session, new POP3Request(curCommandName, curCommandArgument));
+                Response response = commandHandlers.get(i).onCommand(session, new POP3Request(curCommandName, curCommandArgument));
                 if (response != null) {
                     session.writeResponse(response);
                     break;
@@ -138,6 +139,7 @@ public class POP3CommandDispatcherLineHandler extends
             }
 
         }
+       
     }
 
     /**

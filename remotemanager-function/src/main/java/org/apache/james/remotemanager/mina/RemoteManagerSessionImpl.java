@@ -28,8 +28,8 @@ import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.Response;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.remotemanager.mina.filter.FilterLineHandlerAdapter;
 import org.apache.james.remotemanager.mina.filter.RemoteManagerResponseFilter;
+import org.apache.james.socket.mina.filter.FilterLineHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
 public class RemoteManagerSessionImpl implements RemoteManagerSession {
@@ -102,7 +102,7 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
      */
     public void pushLineHandler(LineHandler<RemoteManagerSession> overrideCommandHandler) {
         lineHandlerCount++;
-        session.getFilterChain().addAfter(RemoteManagerResponseFilter.NAME, "lineHandler" + lineHandlerCount, new FilterLineHandlerAdapter(overrideCommandHandler));
+        session.getFilterChain().addAfter(RemoteManagerResponseFilter.NAME, "lineHandler" + lineHandlerCount, new FilterLineHandlerAdapter(overrideCommandHandler, REMOTEMANAGER_SESSION));
     }
 
     /*
