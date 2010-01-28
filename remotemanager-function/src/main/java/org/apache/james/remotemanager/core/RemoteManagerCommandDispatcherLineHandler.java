@@ -22,40 +22,25 @@ package org.apache.james.remotemanager.core;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
-import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.Response;
-import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.RemoteManagerRequest;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
-public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDispatcher<RemoteManagerSession> implements LineHandler<RemoteManagerSession>, LogEnabled{
-    /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory
-            .getLog(RemoteManagerCommandDispatcherLineHandler.class);
+/**
+ * Dispatch Commands for RemoteManager
+ * 
+ *
+ */
+public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDispatcher<RemoteManagerSession> {
+
     private UnknownCmdHandler unknownCmdHandler = new UnknownCmdHandler();
-    /**
-     * Non context specific log should only be used when no context specific log
-     * is available
-     */
-    private Log serviceLog = FALLBACK_LOG;
+   
 
-    private final Charset charSet = Charset.forName("ISO-8859-1");
-
-    /**
-     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getLog()
-     */
-    protected Log getLog() {
-        return serviceLog;
-    }
-
-    /**
+    /*
      * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getMandatoryCommands()
      */
     protected List<String> getMandatoryCommands() {
@@ -78,46 +63,10 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
         return UnknownCmdHandler.COMMAND_NAME;
     }
 
-    /**
-     * (non-Javadoc)
-     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
-     */
-    @SuppressWarnings("unchecked")
-    public List<Class<?>> getMarkerInterfaces() {
-        List mList = new ArrayList();
-        mList.add(CommandHandler.class);
-        return mList;
-    }
-    /**
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
-     */
-    public void setLog(Log log) {
-        this.serviceLog = log;
-    }
-
-    /**
-     * @see org.apache.james.remotemanager.LineHandler#onLine(org.apache.james.remotemanager.RemoteManagerSession, java.lang.String)
-     */
-    public void onLine(RemoteManagerSession session, byte[] line) {
-        String curCommandName = null;
-        String curCommandArgument = null;
-        String cmdString = new String(line, charSet).trim();
-
-        int spaceIndex = cmdString.indexOf(" ");
-        if (spaceIndex > 0) {
-            curCommandName = cmdString.substring(0, spaceIndex);
-            curCommandArgument = cmdString.substring(spaceIndex + 1).trim();
-        } else {
-            curCommandName = cmdString;
-        }
-        curCommandName = curCommandName.toUpperCase(Locale.US);
-
-        if (session.getLogger().isDebugEnabled()) {
-            session.getLogger().debug("Command received: " + cmdString);
-        }
-
+    @Override
+    protected void dispatchCommand(RemoteManagerSession session, String command, String argument) {
         // fetch the command handlers registered to the command
-        List<org.apache.james.api.protocol.CommandHandler<RemoteManagerSession>> commandHandlers = getCommandHandlers(curCommandName, session);
+        List<org.apache.james.api.protocol.CommandHandler<RemoteManagerSession>> commandHandlers = getCommandHandlers(command, session);
         if (commandHandlers == null) {
             // end the session
             RemoteManagerResponse resp = new RemoteManagerResponse("Local configuration error: unable to find a command handler.");
@@ -126,14 +75,18 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
         } else {
             int count = commandHandlers.size();
             for (int i = 0; i < count; i++) {
-                Response response = commandHandlers.get(i).onCommand(session, new RemoteManagerRequest(curCommandName, curCommandArgument));
+                Response response = commandHandlers.get(i).onCommand(session, new RemoteManagerRequest(command, argument));
                 if (response != null) {
                     session.writeResponse(response);
                     break;
                 }
             }
 
-        }
+        }        
     }
 
+    @Override
+    protected Charset getLineDecodingCharset() {
+        return Charset.forName("ISO-8859-1");
+    }
 }

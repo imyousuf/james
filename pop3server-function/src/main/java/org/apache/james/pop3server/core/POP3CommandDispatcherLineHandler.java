@@ -19,45 +19,27 @@
 
 package org.apache.james.pop3server.core;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
 import org.apache.james.api.protocol.CommandHandler;
-import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.Response;
-import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.pop3server.POP3Request;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
+/**
+ * Dispatch 
+ * @author norman
+ *
+ */
 public class POP3CommandDispatcherLineHandler extends
-        AbstractCommandDispatcher<POP3Session> implements LineHandler<POP3Session>, LogEnabled {
+        AbstractCommandDispatcher<POP3Session> {
     private final static String[] mandatoryCommands = { "USER", "PASS", "LIST" };
     private final CommandHandler<POP3Session> unknownHandler = new UnknownCmdHandler();
-    /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory
-            .getLog(POP3CommandDispatcherLineHandler.class);
+  
 
-    private final Charset charSet = Charset.forName("US-ASCII");
-    
-    /**
-     * Non context specific log should only be used when no context specific log
-     * is available
-     */
-    private Log serviceLog = FALLBACK_LOG;
-
-    /**
-     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getLog()
-     */
-    protected Log getLog() {
-        return serviceLog;
-    }
 
     /**
      * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getMandatoryCommands()
@@ -80,49 +62,10 @@ public class POP3CommandDispatcherLineHandler extends
         return UnknownCmdHandler.COMMAND_NAME;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ExtensibleHandler#getMarkerInterfaces()
-     */
-    @SuppressWarnings("unchecked")
-    public List<Class<?>> getMarkerInterfaces() {
-        List list = new ArrayList();
-        list.add(CommandHandler.class);
-        return list;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.api.protocol.LineHandler#onLine(org.apache.james.api.protocol.ProtocolSession, byte[])
-     */
-    public void onLine(POP3Session session, byte[] line) {
-        String curCommandName = null;
-        String curCommandArgument = null;
-        String cmdString;
-
-        cmdString = new String(line, charSet).trim();
-
-        int spaceIndex = cmdString.indexOf(" ");
-        if (spaceIndex > 0) {
-            curCommandName = cmdString.substring(0, spaceIndex);
-            curCommandArgument = cmdString.substring(spaceIndex + 1);
-        } else {
-            curCommandName = cmdString;
-        }
-        curCommandName = curCommandName.toUpperCase(Locale.US);
-
-        if (session.getLogger().isDebugEnabled()) {
-            // Don't display password in logger
-            if (!curCommandName.equals("PASS")) {
-                session.getLogger().debug("Command received: " + cmdString);
-            } else {
-                session.getLogger().debug("Command received: PASS <password omitted>");
-            }
-        }
-
+    @Override
+    protected void dispatchCommand(POP3Session session, String command, String argument) {
         // fetch the command handlers registered to the command
-        List<CommandHandler<POP3Session>> commandHandlers = getCommandHandlers(curCommandName, session);
+        List<CommandHandler<POP3Session>> commandHandlers = getCommandHandlers(command, session);
         if (commandHandlers == null) {
             // end the session
             POP3Response resp = new POP3Response(POP3Response.ERR_RESPONSE, "Local configuration error: unable to find a command handler.");
@@ -131,7 +74,7 @@ public class POP3CommandDispatcherLineHandler extends
         } else {
             int count = commandHandlers.size();
             for (int i = 0; i < count; i++) {
-                Response response = commandHandlers.get(i).onCommand(session, new POP3Request(curCommandName, curCommandArgument));
+                Response response = commandHandlers.get(i).onCommand(session, new POP3Request(command, argument));
                 if (response != null) {
                     session.writeResponse(response);
                     break;
@@ -142,11 +85,5 @@ public class POP3CommandDispatcherLineHandler extends
        
     }
 
-    /**
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
-     */
-    public void setLog(Log log) {
-        this.serviceLog = log;
-    }
 
 }
