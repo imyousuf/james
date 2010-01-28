@@ -19,20 +19,21 @@
 
 package org.apache.james.api.protocol;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
 
 /**
  * Abstract base class which CommandDispatcher implementations should extend
  *
  */
-public abstract class AbstractCommandDispatcher<Session extends ProtocolSession> implements ExtensibleHandler {
+public abstract class AbstractCommandDispatcher<Session extends ProtocolSession> implements ExtensibleHandler, LineHandler<Session> {
     /**
      * The list of available command handlers
      */
@@ -90,12 +91,6 @@ public abstract class AbstractCommandDispatcher<Session extends ProtocolSession>
     
             for (Iterator i = implCmds.iterator(); i.hasNext(); ) {
                 String commandName = ((String) i.next()).trim().toUpperCase(Locale.US);
-                /*
-                if (getLog().isInfoEnabled()) {
-                    getLog().info(
-                            "Added Commandhandler: " + handler.getClass() + " for command "+commandName);
-                }
-                */
                 addToMap(commandName, (CommandHandler) handler);
             }
         }
@@ -103,42 +98,66 @@ public abstract class AbstractCommandDispatcher<Session extends ProtocolSession>
         addToMap(getUnknownCommandHandlerIdentifier(), getUnknownCommandHandler());
 
         if (commandHandlerMap.size() < 2) {
-            if (getLog().isErrorEnabled()) {
-                getLog().error("No commandhandlers configured");
-            }
             throw new WiringException("No commandhandlers configured");
         } else {
-            boolean found = true;
             List<String> mandatoryCommands = getMandatoryCommands();
             for (int i = 0; i < mandatoryCommands.size(); i++) {
                 if (!commandHandlerMap.containsKey(mandatoryCommands.get(i))) {
-                    if (getLog().isErrorEnabled()) {
-                        getLog().error(
-                                "No commandhandlers configured for the command:"
-                                        + mandatoryCommands.get(i));
-                    }
-                    found = false;
-                    break;
+                    throw new WiringException(
+                    "No commandhandlers configured for mandatory commands");
                 }
             }
-
-            if (!found) {
-                throw new WiringException(
-                        "No commandhandlers configured for mandatory commands");
-            }
-
-
         }
 
     }
     
-    /**
-     * Return the Log object to use
-     * 
-     * @return log
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.LineHandler#onLine(org.apache.james.api.protocol.ProtocolSession, byte[])
      */
-    protected abstract Log getLog();
+    public void onLine(Session session, byte[] line) {
+        String curCommandName = null;
+        String curCommandArgument = null;
+        String cmdString;
+
+        cmdString = new String(line, getLineDecodingCharset()).trim();
+
+        int spaceIndex = cmdString.indexOf(" ");
+        if (spaceIndex > 0) {
+            curCommandName = cmdString.substring(0, spaceIndex);
+            curCommandArgument = cmdString.substring(spaceIndex + 1);
+        } else {
+            curCommandName = cmdString;
+        }
+        curCommandName = curCommandName.toUpperCase(Locale.US);
+
+        dispatchCommand(session, curCommandName, curCommandArgument);
+    }
+
+    protected Charset getLineDecodingCharset() {
+        return Charset.forName("US-ASCII");
+    }
     
+    /**
+     * Dispatch the given command and its parameters
+     * 
+     * @param session
+     * @param command
+     * @param argument
+     */
+    protected abstract void dispatchCommand(Session session, String command, String argument);
+
+
+    /**
+     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
+     */
+    @SuppressWarnings("unchecked")
+    public List<Class<?>> getMarkerInterfaces() {
+        List res = new LinkedList();
+        res.add(CommandHandler.class);
+        return res;
+    }
+
     /**
      * Return a List which holds all mandatory commands
      * 

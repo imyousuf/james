@@ -19,60 +19,38 @@
 
 package org.apache.james.smtpserver.protocol.core;
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
 import org.apache.james.api.protocol.CommandHandler;
-import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.Response;
-import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.smtpserver.protocol.SMTPRequest;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 
 
-public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<SMTPSession> implements LogEnabled, LineHandler<SMTPSession> {
+/**
+ * Dispatch CommandHandler for SMTP Requests
+ * 
+ *
+ */
+public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<SMTPSession> {
 
-    /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(SMTPCommandDispatcherLineHandler.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
-    private Log serviceLog = FALLBACK_LOG;
-    
 
     private final CommandHandler<SMTPSession> unknownHandler = new UnknownCmdHandler();
 
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
     
-    private final Charset charSet = Charset.forName("US-ASCII");
-
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.LineHandler#onLine(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String)
+     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#dispatchCommand(org.apache.james.api.protocol.ProtocolSession, java.lang.String, java.lang.String)
      */
-    public void onLine(SMTPSession session, byte[] line) {
-        String cmdString = new String(line, charSet).trim();
-
-        String curCommandArgument = null;
-        String curCommandName = null;
-        int spaceIndex = cmdString.indexOf(" ");
-        if (spaceIndex > 0) {
-            curCommandName = cmdString.substring(0, spaceIndex);
-            curCommandArgument = cmdString.substring(spaceIndex + 1);
-        } else {
-            curCommandName = cmdString;
-        }
-        curCommandName = curCommandName.toUpperCase(Locale.US);
-
-        List<CommandHandler<SMTPSession>> commandHandlers = getCommandHandlers(curCommandName, session);
+    protected void dispatchCommand(SMTPSession session, String command, String argument) {
+       
+        List<CommandHandler<SMTPSession>> commandHandlers = getCommandHandlers(command, session);
         // fetch the command handlers registered to the command
         if (commandHandlers == null) {
             // end the session
@@ -82,7 +60,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
         } else {
             int count = commandHandlers.size();
             for (int i = 0; i < count; i++) {
-                Response response = commandHandlers.get(i).onCommand(session, new SMTPRequest(curCommandName, curCommandArgument));
+                Response response = commandHandlers.get(i).onCommand(session, new SMTPRequest(command, argument));
 
                 session.writeResponse(response);
 
@@ -100,23 +78,6 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
 
         }
 
-    }
-
-    /**
-     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
-     */
-    @SuppressWarnings("unchecked")
-    public List getMarkerInterfaces() {
-        List res = new LinkedList();
-        res.add(CommandHandler.class);
-        return res;
-    }
-
-    /**
-     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#getLog()
-     */
-    protected Log getLog() {
-        return serviceLog;
     }
 
 
@@ -141,10 +102,4 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
         return unknownHandler;
     }
 
-    /**
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
-     */
-    public void setLog(Log log) {
-        this.serviceLog = log;
-    }
 }
