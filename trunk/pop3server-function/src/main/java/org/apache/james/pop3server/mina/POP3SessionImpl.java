@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.services.MailRepository;
@@ -140,14 +139,6 @@ public class POP3SessionImpl extends AbstractMINASession implements POP3Session{
 		this.userMailbox = userMailbox;
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.protocol.LogEnabledSession#writeResponse(org.apache.james.api.protocol.Response)
-	 */
-	public void writeResponse(Response response) {
-		getIoSession().write(response);		
-	}
 
 	/*
 	 * (non-Javadoc)

@@ -102,7 +102,7 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
      */
     public void pushLineHandler(LineHandler<RemoteManagerSession> overrideCommandHandler) {
         lineHandlerCount++;
-        session.getFilterChain().addAfter(RemoteManagerResponseFilter.NAME, "lineHandler" + lineHandlerCount, new FilterLineHandlerAdapter(overrideCommandHandler, REMOTEMANAGER_SESSION));
+        session.getFilterChain().addAfter(RemoteManagerResponseFilter.NAME, "lineHandler" + lineHandlerCount, new FilterLineHandlerAdapter<RemoteManagerSession>(overrideCommandHandler, REMOTEMANAGER_SESSION));
     }
 
     /*
@@ -126,6 +126,8 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
      * @see org.apache.james.api.protocol.LogEnabledSession#writeResponse(org.apache.james.api.protocol.Response)
      */
     public void writeResponse(Response response) {
-        session.write(response);        
+        if (session.isConnected()) {
+            session.write(response);    
+        }
     }
 }

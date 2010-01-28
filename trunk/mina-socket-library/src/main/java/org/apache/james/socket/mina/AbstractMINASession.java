@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.api.protocol.Response;
 import org.apache.james.api.protocol.TLSSupportedSession;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
@@ -125,6 +126,17 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
      */
     public Log getLogger() {
         return logger;
+    }
+    
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.ProtocolSession#writeResponse(org.apache.james.api.protocol.Response)
+     */
+    public void writeResponse(Response response) {
+        if (getIoSession().isConnected()) {
+            getIoSession().write(response);
+        }
     }
 
 }

@@ -28,7 +28,6 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.api.protocol.LineHandler;
-import org.apache.james.api.protocol.Response;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.smtpserver.mina.filter.TarpitFilter;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
@@ -132,16 +131,9 @@ public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession 
             lineHandlerCount++;
             getIoSession().getFilterChain().addAfter(SMTPResponseFilter.NAME,
                     "lineHandler" + lineHandlerCount,
-                    new FilterLineHandlerAdapter(overrideCommandHandler,SMTP_SESSION));
+                    new FilterLineHandlerAdapter<SMTPSession>(overrideCommandHandler,SMTP_SESSION));
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.apache.james.api.protocol.LogEnabledSession#writeResponse(org.apache.james.api.protocol.Response)
-         */
-        public void writeResponse(Response response) {
-            getIoSession().write(response);
-        }
 
 
         /**
