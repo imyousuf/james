@@ -92,7 +92,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 		this.tableStore = tableStore;
 	}
 	
-	@Resource(name = "mailServer")
+	@Resource(name = "James")
 	public void setMailServer(MailServer mailServer) {
 	    this.mailServer = mailServer;
 	}
@@ -112,7 +112,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	}
 
 	public void setVirtualUserTableSupport(boolean vut) {
-		this.vut  = vut;
+		this.vut = vut;
 	}
 
 	public void setTableName(String tableName) {
@@ -129,13 +129,25 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 			MailAddress recipient) {
 
 	    if (mailServer.isLocalServer(recipient.getDomain()) == false) {
+            session.getLogger().debug("Unknown domain " + recipient.getDomain() + " so reject it");
+
 	        return false;
 	    }
 	    
-		if (users.contains(recipient.getLocalPart()) == true) {
+	    String username = recipient.toString();
+	    
+	    // check if the server use virtualhosting, if not use only the localpart as username
+	    if (mailServer.supportVirtualHosting() == false) {
+	        username = recipient.getLocalPart();
+	    }
+	    
+		if (users.contains(username) == true) {
 			return true;
 		} else {
+
 			if (vut == true) {
+	            session.getLogger().debug("Unknown user " + username + " check if its an alias");
+
 				try {
 					Collection<String> targetString = table.getMappings(
 							recipient.getLocalPart(), recipient.getDomain());
