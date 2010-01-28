@@ -42,7 +42,7 @@ import org.apache.james.smtpserver.protocol.hook.HookResultHook;
 import org.apache.james.smtpserver.protocol.hook.MessageHook;
 import org.apache.mailet.Mail;
 
-public final class DataLineMessageHookHandler implements DataLineFilter<SMTPSession>, ExtensibleHandler, LogEnabled {
+public final class DataLineMessageHookHandler implements DataLineFilter, ExtensibleHandler, LogEnabled {
 
     /** This log is the fall back shared by all instances */
     private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineMessageHookHandler.class);
@@ -57,12 +57,11 @@ public final class DataLineMessageHookHandler implements DataLineFilter<SMTPSess
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.api.protocol.LogEnabledSession, java.lang.String, org.apache.james.api.protocol.LineHandler)
+     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.api.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, String rawLine, LineHandler<SMTPSession> next) {
+    public void onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
         MailEnvelopeImpl env = (MailEnvelopeImpl) session.getState().get(DataCmdHandler.MAILENV);
         OutputStream out = env.getMessageOutputStream();
-        byte[] line = rawLine.getBytes();
         try {
             // 46 is "."
             // Stream terminated

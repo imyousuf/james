@@ -19,6 +19,7 @@
 
 package org.apache.james.smtpserver.protocol.core;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,16 +50,16 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
     private final CommandHandler<SMTPSession> unknownHandler = new UnknownCmdHandler();
 
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
+    
+    private final Charset charSet = Charset.forName("US-ASCII");
 
 
     /*
      * (non-Javadoc)
      * @see org.apache.james.smtpserver.protocol.LineHandler#onLine(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String)
      */
-    public void onLine(SMTPSession session, String cmdString) {
-        if (cmdString != null) {
-            cmdString = cmdString.trim();
-        }
+    public void onLine(SMTPSession session, byte[] line) {
+        String cmdString = new String(line, charSet).trim();
 
         String curCommandArgument = null;
         String curCommandName = null;
@@ -98,6 +99,7 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
             }
 
         }
+
     }
 
     /**

@@ -257,7 +257,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         }
         try {
             if (name.indexOf("@") == -1) {
-                return isLocalEmail(new MailAddress(name, "localhost"));
+                return isLocalEmail(new MailAddress(name, mailServer.getDefaultDomain()));
             } else {
                 return isLocalEmail(new MailAddress(name));
             }

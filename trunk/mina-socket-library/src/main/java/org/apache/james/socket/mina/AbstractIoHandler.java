@@ -26,6 +26,7 @@ import org.apache.james.api.protocol.ConnectHandler;
 import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.ProtocolSession;
 import org.apache.james.api.protocol.ProtocolHandlerChain;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
@@ -51,8 +52,15 @@ public abstract class AbstractIoHandler extends IoHandlerAdapter{
             throws Exception {
         ProtocolSession pSession = (ProtocolSession) session.getAttribute(getSessionKey());
         LinkedList<LineHandler> lineHandlers = chain.getHandlers(LineHandler.class);
+        
+        IoBuffer buf = (IoBuffer) message;      
+        byte[] line = new byte[buf.capacity()];
+        buf.get(line, 0, line.length);
+        
         if (lineHandlers.size() > 0) {
-            ((LineHandler) lineHandlers.getLast()).onLine(pSession, (String) message);
+            
+            // Maybe it would be better to use the ByteBuffer here
+            ((LineHandler) lineHandlers.getLast()).onLine(pSession,line);
         }
     }
 

@@ -29,12 +29,12 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.Response;
-import org.apache.james.smtpserver.mina.filter.FilterLineHandlerAdapter;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.smtpserver.mina.filter.TarpitFilter;
 import org.apache.james.smtpserver.protocol.SMTPConfiguration;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.socket.mina.AbstractMINASession;
+import org.apache.james.socket.mina.filter.FilterLineHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
 public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession {
@@ -132,7 +132,7 @@ public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession 
             lineHandlerCount++;
             getIoSession().getFilterChain().addAfter(SMTPResponseFilter.NAME,
                     "lineHandler" + lineHandlerCount,
-                    new FilterLineHandlerAdapter(overrideCommandHandler));
+                    new FilterLineHandlerAdapter(overrideCommandHandler,SMTP_SESSION));
         }
 
         /*

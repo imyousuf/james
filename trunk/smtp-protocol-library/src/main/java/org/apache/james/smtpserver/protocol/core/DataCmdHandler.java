@@ -43,11 +43,13 @@ import org.apache.mailet.MailAddress;
 public class DataCmdHandler implements CommandHandler<SMTPSession>, ExtensibleHandler {
 
     public final class DataConsumerLineHandler implements LineHandler<SMTPSession> {
-        /**
-         * @see org.apache.james.smtpserver.protocol.LineHandler#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[])
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.api.protocol.LineHandler#onLine(org.apache.james.api.protocol.ProtocolSession, byte[])
          */
-        public void onLine(SMTPSession session, String rawLine) {
-            byte[] line = rawLine.getBytes();
+        public void onLine(SMTPSession session, byte[] line) {
+            
             // Discard everything until the end of DATA session
             if (line.length == 3 && line[0] == 46) {
                 session.popLineHandler();
@@ -57,14 +59,19 @@ public class DataCmdHandler implements CommandHandler<SMTPSession>, ExtensibleHa
 
     public final class DataLineFilterWrapper implements LineHandler<SMTPSession> {
 
-        private DataLineFilter<SMTPSession> filter;
+        private DataLineFilter filter;
         private LineHandler<SMTPSession> next;
         
-        public DataLineFilterWrapper(DataLineFilter<SMTPSession> filter, LineHandler<SMTPSession> next) {
+        public DataLineFilterWrapper(DataLineFilter filter, LineHandler<SMTPSession> next) {
             this.filter = filter;
             this.next = next;
         }
-        public void onLine(SMTPSession session, String line) {
+        
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.api.protocol.LineHandler#onLine(org.apache.james.api.protocol.ProtocolSession, byte[])
+         */
+        public void onLine(SMTPSession session, byte[] line) {
             filter.onLine(session, line, next);
         }
                 

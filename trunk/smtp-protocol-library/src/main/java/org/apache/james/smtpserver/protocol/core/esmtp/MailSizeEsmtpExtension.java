@@ -20,7 +20,7 @@ import org.apache.james.smtpserver.protocol.hook.MessageHook;
 /**
  * Handle the ESMTP SIZE extension.
  */
-public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension, DataLineFilter<SMTPSession>, MessageHook {
+public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension, DataLineFilter, MessageHook {
 
     private final static String MESG_SIZE = "MESG_SIZE"; // The size of the
     private final static String MESG_FAILED = "MESG_FAILED";   // Message failed flag
@@ -118,18 +118,17 @@ public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.api.protocol.LogEnabledSession, java.lang.String, org.apache.james.api.protocol.LineHandler)
+     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.api.protocol.LineHandler)
      */
-    public void onLine(SMTPSession session, String rawline, LineHandler<SMTPSession> next) {
+    public void onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
         Boolean failed = (Boolean) session.getState().get(MESG_FAILED);
         // If we already defined we failed and sent a reply we should simply
         // wait for a CRLF.CRLF to be sent by the client.
         if (failed != null && failed.booleanValue()) {
             // TODO
         } else {
-            byte[] line = rawline.getBytes();
             if (line.length == 3 && line[0] == 46) {
-                next.onLine(session, rawline);
+                next.onLine(session, line);
             } else {
                 Long currentSize = (Long) session.getState().get("CURRENT_SIZE");
                 Long newSize;
@@ -147,9 +146,9 @@ public class MailSizeEsmtpExtension implements MailParametersHook, EhloExtension
                     session.getState().put(MESG_FAILED, Boolean.TRUE);
                     // then let the client know that the size
                     // limit has been hit.
-                    next.onLine(session, ".\r\n");
+                    next.onLine(session, ".\r\n".getBytes());
                 } else {
-                    next.onLine(session, rawline);
+                    next.onLine(session, line);
                 }
                 
                 session.getState().put("CURRENT_SIZE", newSize);

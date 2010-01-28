@@ -19,6 +19,8 @@
 
 package org.apache.james.remotemanager.core;
 
+import java.nio.charset.Charset;
+
 import org.apache.james.api.protocol.ConnectHandler;
 import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerResponse;
@@ -31,7 +33,8 @@ public class AuthorizationHandler implements ConnectHandler<RemoteManagerSession
     private final static int PASSWORD_SUPPLIED = 2;
 
     private final static String USERNAME = "USERNAME";
-    
+    private Charset charSet = Charset.forName("ISO-8859-1");
+
     private final LineHandler<RemoteManagerSession> lineHandler = new AuthorizationLineHandler();
 
     /*
@@ -54,7 +57,8 @@ public class AuthorizationHandler implements ConnectHandler<RemoteManagerSession
     
     private final class AuthorizationLineHandler implements LineHandler<RemoteManagerSession> {
 
-        public void onLine(RemoteManagerSession session, String line) {
+        public void onLine(RemoteManagerSession session, byte[] byteLine) {
+            String line = new String(byteLine, charSet).trim();
             int state = (Integer) session.getState().get(AUTHORIZATION_STATE);
 
             if (state == LOGIN_SUPPLIED) {

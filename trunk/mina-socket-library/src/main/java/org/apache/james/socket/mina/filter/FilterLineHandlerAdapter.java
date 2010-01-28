@@ -16,25 +16,27 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.remotemanager.mina.filter;
+package org.apache.james.socket.mina.filter;
 
 import org.apache.james.api.protocol.LineHandler;
-import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.remotemanager.mina.RemoteManagerSessionImpl;
+import org.apache.james.api.protocol.ProtocolSession;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 
 
 /**
- * Adapter class which call the wrapped LineHandler on MessageReceived callback
+ * Adapter class which call the wrapped LineHandler on MessageReceived callback of IoFilterAdapter
  * 
  */
-public final class FilterLineHandlerAdapter extends IoFilterAdapter {
+public final class FilterLineHandlerAdapter<Session extends ProtocolSession> extends IoFilterAdapter {
 
-    private LineHandler<RemoteManagerSession> lineHandler;
+    private LineHandler<Session> lineHandler;
+    private String key;
 
-    public FilterLineHandlerAdapter(LineHandler<RemoteManagerSession> lineHandler) {
+    public FilterLineHandlerAdapter(LineHandler<Session> lineHandler, String key) {
         this.lineHandler = lineHandler;
+        this.key = key;
     }
 
     /**
@@ -42,7 +44,10 @@ public final class FilterLineHandlerAdapter extends IoFilterAdapter {
      */
     public void messageReceived(NextFilter arg0, IoSession session, Object arg2)
             throws Exception {
-        lineHandler.onLine((RemoteManagerSession) session.getAttribute(RemoteManagerSessionImpl.REMOTEMANAGER_SESSION),
-                (((String) arg2)));
+        IoBuffer buf = (IoBuffer) arg2;      
+        byte[] line = new byte[buf.capacity()];
+        buf.get(line, 0, line.length);
+        
+        lineHandler.onLine((Session) session.getAttribute(key), line);
     }
 }
