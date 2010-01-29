@@ -19,51 +19,34 @@
 
 package org.apache.james.pop3server.mina.filter;
 
+import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.socket.mina.filter.AbstractResponseFilter;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.write.DefaultWriteRequest;
-import org.apache.mina.core.write.WriteRequest;
 
 public class POP3ResponseFilter extends AbstractResponseFilter {
+    
+    public final static String NAME = "pop3ResponseFilter";
 
-    private static final String SCHEDULE_CLOSE_ATTRIBUTE = POP3ResponseFilter.class.getName() + ".closeAttribute";
-
-    @Override
-    protected String getCloseAttribute() {
-        return SCHEDULE_CLOSE_ATTRIBUTE;
-    }
-
-    /**
-     * @see org.apache.mina.core.filterchain.IoFilterAdapter#filterWrite(org.apache.mina.core.filterchain.IoFilter.NextFilter,
-     *      org.apache.mina.core.session.IoSession,
-     *      org.apache.mina.core.write.WriteRequest)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.mina.filter.AbstractResponseFilter#processResponse(org.apache.mina.core.filterchain.IoFilter.NextFilter, org.apache.mina.core.session.IoSession, org.apache.james.api.protocol.Response)
      */
-    public void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
+    protected void processResponse(NextFilter nextFilter, IoSession session, Response rawresponse) {
+        POP3Response response = (POP3Response) rawresponse;
+        for (int k = 0; k < response.getLines().size(); k++) {
+            StringBuffer respBuff = new StringBuffer(256);
+            if (k == 0) {
+                respBuff.append(response.getRetCode());
+                respBuff.append(" ");
+                respBuff.append(response.getLines().get(k));
 
-        if (writeRequest.getMessage() instanceof POP3Response) {
-            POP3Response response = (POP3Response) writeRequest.getMessage();
-            if (response != null) {
-                for (int k = 0; k < response.getLines().size(); k++) {
-                    StringBuffer respBuff = new StringBuffer(256);
-                    if (k == 0) {
-                        respBuff.append(response.getRetCode());
-                        respBuff.append(" ");
-                        respBuff.append(response.getLines().get(k));
-
-                    } else {
-                        respBuff.append(response.getLines().get(k));
-                    }
-                    nextFilter.filterWrite(session, new DefaultWriteRequest(respBuff.toString()));
-                }
-
-                if (response.isEndSession()) {
-                    session.setAttribute(getCloseAttribute());
-                }
+            } else {
+                respBuff.append(response.getLines().get(k));
             }
-        } else {
-            super.filterWrite(nextFilter, session, writeRequest);
+            writeResponse(nextFilter, session, respBuff.toString());
         }
 
     }
+
 }
