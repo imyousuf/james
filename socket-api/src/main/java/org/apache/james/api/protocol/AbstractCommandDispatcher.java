@@ -19,7 +19,7 @@
 
 package org.apache.james.api.protocol;
 
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -121,40 +121,46 @@ public abstract class AbstractCommandDispatcher<Session extends ProtocolSession>
         String curCommandArgument = null;
         String cmdString;
 
-        cmdString = new String(line, getLineDecodingCharset()).trim();
+        try {
+            cmdString = new String(line, getLineDecodingCharset()).trim(); 
+            int spaceIndex = cmdString.indexOf(" ");
+            if (spaceIndex > 0) {
+                curCommandName = cmdString.substring(0, spaceIndex);
+                curCommandArgument = cmdString.substring(spaceIndex + 1);
+            } else {
+                curCommandName = cmdString;
+            }
+            curCommandName = curCommandName.toUpperCase(Locale.US);
 
-        int spaceIndex = cmdString.indexOf(" ");
-        if (spaceIndex > 0) {
-            curCommandName = cmdString.substring(0, spaceIndex);
-            curCommandArgument = cmdString.substring(spaceIndex + 1);
-        } else {
-            curCommandName = cmdString;
-        }
-        curCommandName = curCommandName.toUpperCase(Locale.US);
+            List<CommandHandler<Session>> commandHandlers = getCommandHandlers(curCommandName, session);
+            // fetch the command handlers registered to the command
+            int count = commandHandlers.size();
+            for (int i = 0; i < count; i++) {
+                Response response = commandHandlers.get(i).onCommand(session, new BaseRequest(curCommandName, curCommandArgument));
+                session.writeResponse(response);
 
-        List<CommandHandler<Session>> commandHandlers = getCommandHandlers(curCommandName, session);
-        // fetch the command handlers registered to the command
-        int count = commandHandlers.size();
-        for (int i = 0; i < count; i++) {
-            Response response = commandHandlers.get(i).onCommand(session, new BaseRequest(curCommandName, curCommandArgument));
-            session.writeResponse(response);
+                // if the response is received, stop processing of command
+                // handlers
+                if (response != null) {
+                    break;
+                }
 
-            // if the response is received, stop processing of command
-            // handlers
-            if (response != null) {
-                break;
+                // NOTE we should never hit this line, otherwise we ended the
+                // CommandHandlers with
+                // no responses.
+                // (The note is valid for i == count-1)
             }
 
-            // NOTE we should never hit this line, otherwise we ended the
-            // CommandHandlers with
-            // no responses.
-            // (The note is valid for i == count-1)
+        } catch (UnsupportedEncodingException e) {
+            // Should never happen
+            e.printStackTrace();
         }
 
+       
     }
 
-    protected Charset getLineDecodingCharset() {
-        return Charset.forName("US-ASCII");
+    protected String getLineDecodingCharset() {
+        return "US-ASCII";
     }
 
     /**

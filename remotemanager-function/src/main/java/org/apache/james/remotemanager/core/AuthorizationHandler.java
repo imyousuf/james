@@ -19,7 +19,7 @@
 
 package org.apache.james.remotemanager.core;
 
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.james.api.protocol.ConnectHandler;
 import org.apache.james.api.protocol.LineHandler;
@@ -33,7 +33,6 @@ public class AuthorizationHandler implements ConnectHandler<RemoteManagerSession
     private final static int PASSWORD_SUPPLIED = 2;
 
     private final static String USERNAME = "USERNAME";
-    private Charset charSet = Charset.forName("ISO-8859-1");
 
     private final LineHandler<RemoteManagerSession> lineHandler = new AuthorizationLineHandler();
 
@@ -58,33 +57,40 @@ public class AuthorizationHandler implements ConnectHandler<RemoteManagerSession
     private final class AuthorizationLineHandler implements LineHandler<RemoteManagerSession> {
 
         public void onLine(RemoteManagerSession session, byte[] byteLine) {
-            String line = new String(byteLine, charSet).trim();
-            int state = (Integer) session.getState().get(AUTHORIZATION_STATE);
+            try {
+                String line = new String(byteLine, "ISO-8859-1").trim();
+                int state = (Integer) session.getState().get(AUTHORIZATION_STATE);
 
-            if (state == LOGIN_SUPPLIED) {
-                session.getState().put(USERNAME, line);
-                session.getState().put(AUTHORIZATION_STATE, PASSWORD_SUPPLIED);
+                if (state == LOGIN_SUPPLIED) {
+                    session.getState().put(USERNAME, line);
+                    session.getState().put(AUTHORIZATION_STATE, PASSWORD_SUPPLIED);
 
-                session.writeResponse(new RemoteManagerResponse("Password:"));
-            } else if (state == PASSWORD_SUPPLIED) {
-                String password = line;
-                String username = (String) session.getState().get(USERNAME);
+                    session.writeResponse(new RemoteManagerResponse("Password:"));
+                } else if (state == PASSWORD_SUPPLIED) {
+                    String password = line;
+                    String username = (String) session.getState().get(USERNAME);
 
-                if (!password.equals(session.getAdministrativeAccountData().get(username)) || password.length() == 0) {
-                    final String message = "Login failed for " + username;
-                    session.writeResponse(new RemoteManagerResponse(message));
-                    session.writeResponse(new RemoteManagerResponse("Login id:"));
-                } else {
-                    StringBuilder messageBuffer = new StringBuilder(64).append("Welcome ").append(username).append(". HELP for a list of commands");
-                    session.writeResponse(new RemoteManagerResponse(messageBuffer.toString()));
-                    if (session.getLogger().isInfoEnabled()) {
-                        StringBuilder infoBuffer = new StringBuilder(128).append("Login for ").append(username).append(" successful");
-                        session.getLogger().info(infoBuffer.toString());
+                    if (!password.equals(session.getAdministrativeAccountData().get(username)) || password.length() == 0) {
+                        final String message = "Login failed for " + username;
+                        session.writeResponse(new RemoteManagerResponse(message));
+                        session.writeResponse(new RemoteManagerResponse("Login id:"));
+                    } else {
+                        StringBuilder messageBuffer = new StringBuilder(64).append("Welcome ").append(username).append(". HELP for a list of commands");
+                        session.writeResponse(new RemoteManagerResponse(messageBuffer.toString()));
+                        if (session.getLogger().isInfoEnabled()) {
+                            StringBuilder infoBuffer = new StringBuilder(128).append("Login for ").append(username).append(" successful");
+                            session.getLogger().info(infoBuffer.toString());
+                        }
+                        session.popLineHandler();
                     }
-                    session.popLineHandler();
+                    session.getState().remove(USERNAME);
                 }
-                session.getState().remove(USERNAME);
+            } catch (UnsupportedEncodingException e) {
+                // Should never happen
+                e.printStackTrace();
+                
             }
+           
         }
     }
 

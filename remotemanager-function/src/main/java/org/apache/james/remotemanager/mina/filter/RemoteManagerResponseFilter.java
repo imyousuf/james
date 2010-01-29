@@ -19,44 +19,25 @@
 
 package org.apache.james.remotemanager.mina.filter;
 
+import org.apache.james.api.protocol.Response;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.socket.mina.filter.AbstractResponseFilter;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.write.DefaultWriteRequest;
-import org.apache.mina.core.write.WriteRequest;
-
 public class RemoteManagerResponseFilter extends AbstractResponseFilter{
 
     public final static String NAME = "remoteManagerResponseFilter";
-    private final static String CLOSE_ATTRIBUTE =  RemoteManagerResponseFilter.class.getName() + ".closeAttribute";;
-    
-    @Override
-    protected String getCloseAttribute() {
-        return CLOSE_ATTRIBUTE;
-    }
 
-    /**
-     * @see org.apache.mina.core.filterchain.IoFilterAdapter#filterWrite(org.apache.mina.core.filterchain.IoFilter.NextFilter,
-     *      org.apache.mina.core.session.IoSession,
-     *      org.apache.mina.core.write.WriteRequest)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.mina.filter.AbstractResponseFilter#processResponse(org.apache.mina.core.filterchain.IoFilter.NextFilter, org.apache.mina.core.session.IoSession, org.apache.james.api.protocol.Response)
      */
-    public void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
-
-        if (writeRequest.getMessage() instanceof RemoteManagerResponse) {
-            RemoteManagerResponse response = (RemoteManagerResponse) writeRequest.getMessage();
-            if (response != null) {
-                for (int k = 0; k < response.getLines().size(); k++) {
-                    nextFilter.filterWrite(session, new DefaultWriteRequest(response.getLines().get(k)));
-                }
-
-                if (response.isEndSession()) {
-                    session.setAttribute(getCloseAttribute());
-                }
+    protected void processResponse(NextFilter nextFilter, IoSession session, Response rawresponse) {
+        RemoteManagerResponse response = (RemoteManagerResponse) rawresponse;
+            for (int k = 0; k < response.getLines().size(); k++) {
+                writeResponse(nextFilter, session, response.getLines().get(k).toString());
             }
-        } else {
-            super.filterWrite(nextFilter, session, writeRequest);
-        }
-
+        
     }
+
 
 }
