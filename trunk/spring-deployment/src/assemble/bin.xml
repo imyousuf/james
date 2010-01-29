@@ -77,11 +77,30 @@
     </fileSet>
     <fileSet>
       <directory>target/appassembler/bin</directory>
-      <outputDirectory>/bin</outputDirectory>
+      <outputDirectory>bin</outputDirectory>
       <fileMode>0755</fileMode>
       <lineEnding>unix</lineEnding>
       <includes>
         <include>*.sh</include>
+      </includes>
+    </fileSet>
+    
+     <fileSet>
+      <directory>src/scripts/</directory>
+      <outputDirectory>bin</outputDirectory>
+      <fileMode>0755</fileMode>
+      <lineEnding>dos</lineEnding>
+      <includes>
+        <include>*.bat</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>src/scripts/</directory>
+      <outputDirectory>bin</outputDirectory>
+      <fileMode>0755</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>setenv.sh</include>
       </includes>
     </fileSet>
   </fileSets>
