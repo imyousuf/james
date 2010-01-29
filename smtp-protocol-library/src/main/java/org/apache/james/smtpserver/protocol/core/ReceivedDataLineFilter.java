@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.protocol.core;
 
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -32,11 +32,6 @@ public class ReceivedDataLineFilter implements DataLineFilter {
 
     private final static String SOFTWARE_TYPE = "JAMES SMTP Server ";
 
-    private Charset charSet;
-    
-    public ReceivedDataLineFilter() {
-        charSet = Charset.forName("US-ASCII");
-    }
     // Replace this with something usefull
     // + Constants.SOFTWARE_VERSION;
 
@@ -78,7 +73,12 @@ public class ReceivedDataLineFilter implements DataLineFilter {
 
         headerLineBuffer.append(" ([").append(session.getRemoteIPAddress())
                 .append("])").append("\r\n");
-        next.onLine(session, headerLineBuffer.toString().getBytes(charSet));
+        try {
+            next.onLine(session, headerLineBuffer.toString().getBytes("US-ASCII"));
+        } catch (UnsupportedEncodingException e1) {
+            // should never happen
+            e1.printStackTrace();
+        }
         headerLineBuffer.delete(0, headerLineBuffer.length());
 
         headerLineBuffer.append("          by ").append(session.getHelloName())
@@ -103,33 +103,38 @@ public class ReceivedDataLineFilter implements DataLineFilter {
         }
 
         headerLineBuffer.append(" ID ").append(session.getSessionID());
+        try {
 
-        if (((Collection) session.getState().get(SMTPSession.RCPT_LIST)).size() == 1) {
-            // Only indicate a recipient if they're the only recipient
-            // (prevents email address harvesting and large headers in
-            // bulk email)
-            headerLineBuffer.append("\r\n");
-            next.onLine(session, headerLineBuffer.toString().getBytes(charSet));
-            headerLineBuffer.delete(0, headerLineBuffer.length());
+            if (((Collection) session.getState().get(SMTPSession.RCPT_LIST)).size() == 1) {
+                // Only indicate a recipient if they're the only recipient
+                // (prevents email address harvesting and large headers in
+                // bulk email)
+                headerLineBuffer.append("\r\n");
+                next.onLine(session, headerLineBuffer.toString().getBytes("US-ASCII"));
+                headerLineBuffer.delete(0, headerLineBuffer.length());
 
-            headerLineBuffer.delete(0, headerLineBuffer.length());
-            headerLineBuffer.append("          for <").append(
-                    ((List) session.getState().get(SMTPSession.RCPT_LIST)).get(
-                            0).toString()).append(">;").append("\r\n");
+                headerLineBuffer.delete(0, headerLineBuffer.length());
+                headerLineBuffer.append("          for <").append(((List) session.getState().get(SMTPSession.RCPT_LIST)).get(0).toString()).append(">;").append("\r\n");
 
-            next.onLine(session, headerLineBuffer.toString().getBytes(charSet));
-            headerLineBuffer.delete(0, headerLineBuffer.length());
+                next.onLine(session, headerLineBuffer.toString().getBytes("US-ASCII"));
+                headerLineBuffer.delete(0, headerLineBuffer.length());
 
-            headerLineBuffer.delete(0, headerLineBuffer.length());
-        } else {
-            // Put the ; on the end of the 'by' line
-            headerLineBuffer.append(";");
-            headerLineBuffer.append("\r\n");
-            next.onLine(session, headerLineBuffer.toString().getBytes(charSet));
-            headerLineBuffer.delete(0, headerLineBuffer.length());
+                headerLineBuffer.delete(0, headerLineBuffer.length());
+            } else {
+                // Put the ; on the end of the 'by' line
+                headerLineBuffer.append(";");
+                headerLineBuffer.append("\r\n");
+
+                next.onLine(session, headerLineBuffer.toString().getBytes("US-ASCII"));
+
+                headerLineBuffer.delete(0, headerLineBuffer.length());
+            }
+            headerLineBuffer = null;
+            next.onLine(session, ("          " + rfc822DateFormat.format(new Date()) + "\r\n").getBytes("US-ASCII"));
+        } catch (UnsupportedEncodingException e) {
+            // Should never happen
+            e.printStackTrace();
+            
         }
-        headerLineBuffer = null;
-        next.onLine(session, ("          "
-                + rfc822DateFormat.format(new Date()) + "\r\n").getBytes(charSet));
     }
 }
