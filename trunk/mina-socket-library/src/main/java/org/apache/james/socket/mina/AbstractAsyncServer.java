@@ -61,7 +61,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     /**
      * The default value for the connection timeout.
      */
-    private static final int DEFAULT_TIMEOUT = 5* 60 * 1000;
+    private static final int DEFAULT_TIMEOUT = 5* 60;
 
     /**
      * The name of the parameter defining the connection timeout.

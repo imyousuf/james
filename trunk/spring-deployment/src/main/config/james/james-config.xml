@@ -902,7 +902,9 @@ Regards, Postmaster XXX.YYY
             <!-- Change the default login/password. -->
             <account login="root" password="root"/>
          </administrator_accounts>
-         <connectiontimeout> 60000 </connectiontimeout>
+         
+         <!-- connection timeout in secconds -->
+         <connectiontimeout> 600 </connectiontimeout>
          
          <!-- Set the maximum simultaneous incoming connections for this service -->
          <connectionLimit> 0 </connectionLimit>
@@ -962,7 +964,8 @@ Regards, Postmaster XXX.YYY
          <!--
          <helloName autodetect="true">myMailServer</helloName>
          -->
-         <connectiontimeout>120000</connectiontimeout>
+         <!-- connection timeout in secconds -->
+         <connectiontimeout>1200</connectiontimeout>
       
          <!-- Set the maximum simultaneous incoming connections for this service -->
          <connectionLimit> 0 </connectionLimit>
@@ -1022,7 +1025,9 @@ Regards, Postmaster XXX.YYY
          <!--
          <helloName autodetect="true">myMailServer</helloName>
          -->
-         <connectiontimeout>360000</connectiontimeout>
+         
+         <!-- connection timeout in secconds -->
+         <connectiontimeout>360</connectiontimeout>
 
          <!-- Set the maximum simultaneous incoming connections for this service -->
          <connectionLimit> 0 </connectionLimit>
@@ -1133,7 +1138,9 @@ Regards, Postmaster XXX.YYY
          <!--
          <helloName autodetect="true">myMailServer</helloName>
          -->
-         <connectiontimeout>360000</connectiontimeout>
+         
+         <!-- connection timeout in secconds -->
+         <connectiontimeout>360</connectiontimeout>
             
          <!-- Set the maximum simultaneous incoming connections for this service -->
          <connectionLimit> 0 </connectionLimit>
