@@ -19,47 +19,17 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.james.api.protocol.Request;
+import org.apache.james.api.protocol.BaseRequest;
 
 /**
  * POP3Request object 
  *
  */
-public class POP3Request implements Request{
+public class POP3Request extends BaseRequest{
 
-	private final String command;
-
-    private final String argument;
-
-    
-    /**
-     * Return the current POP3 argument. If there is no argument null is returned
-     * 
-     * @return argument
-     */
-    public String getArgument() {
-        return argument;
-    }
-
-    /**
-     * Return the current POP3 command
-     * 
-     * @return command
-     */
-    public String getCommand() {
-        return command;
-    }
+	
 
     public POP3Request(final String command, final String argument) {
-        this.command = command;
-        this.argument = argument;
-    }
-
-    public String toString() {
-        if (argument == null) {
-            return command;
-        } else {
-            return command + " " + argument;
-        }
+        super(command,argument);
     }
 }

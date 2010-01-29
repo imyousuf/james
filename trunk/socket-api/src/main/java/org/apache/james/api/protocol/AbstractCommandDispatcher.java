@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 
+
 /**
  * Abstract base class which CommandDispatcher implementations should extend
  *
@@ -131,22 +132,30 @@ public abstract class AbstractCommandDispatcher<Session extends ProtocolSession>
         }
         curCommandName = curCommandName.toUpperCase(Locale.US);
 
-        dispatchCommand(session, curCommandName, curCommandArgument);
+        List<CommandHandler<Session>> commandHandlers = getCommandHandlers(curCommandName, session);
+        // fetch the command handlers registered to the command
+        int count = commandHandlers.size();
+        for (int i = 0; i < count; i++) {
+            Response response = commandHandlers.get(i).onCommand(session, new BaseRequest(curCommandName, curCommandArgument));
+            session.writeResponse(response);
+
+            // if the response is received, stop processing of command
+            // handlers
+            if (response != null) {
+                break;
+            }
+
+            // NOTE we should never hit this line, otherwise we ended the
+            // CommandHandlers with
+            // no responses.
+            // (The note is valid for i == count-1)
+        }
+
     }
 
     protected Charset getLineDecodingCharset() {
         return Charset.forName("US-ASCII");
     }
-    
-    /**
-     * Dispatch the given command and its parameters
-     * 
-     * @param session
-     * @param command
-     * @param argument
-     */
-    protected abstract void dispatchCommand(Session session, String command, String argument);
-
 
     /**
      * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()

@@ -24,9 +24,6 @@ import java.util.List;
 
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
 import org.apache.james.api.protocol.CommandHandler;
-import org.apache.james.api.protocol.Response;
-import org.apache.james.pop3server.POP3Request;
-import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 
 /**
@@ -61,29 +58,5 @@ public class POP3CommandDispatcherLineHandler extends
     protected String getUnknownCommandHandlerIdentifier() {
         return UnknownCmdHandler.COMMAND_NAME;
     }
-
-    @Override
-    protected void dispatchCommand(POP3Session session, String command, String argument) {
-        // fetch the command handlers registered to the command
-        List<CommandHandler<POP3Session>> commandHandlers = getCommandHandlers(command, session);
-        if (commandHandlers == null) {
-            // end the session
-            POP3Response resp = new POP3Response(POP3Response.ERR_RESPONSE, "Local configuration error: unable to find a command handler.");
-            resp.setEndSession(true);
-            session.writeResponse(resp);
-        } else {
-            int count = commandHandlers.size();
-            for (int i = 0; i < count; i++) {
-                Response response = commandHandlers.get(i).onCommand(session, new POP3Request(command, argument));
-                if (response != null) {
-                    session.writeResponse(response);
-                    break;
-                }
-            }
-
-        }
-       
-    }
-
 
 }

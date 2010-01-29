@@ -24,10 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
-import org.apache.james.api.protocol.Response;
 import org.apache.james.remotemanager.CommandHandler;
-import org.apache.james.remotemanager.RemoteManagerRequest;
-import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
 /**
@@ -61,28 +58,6 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
      */
     protected String getUnknownCommandHandlerIdentifier() {
         return UnknownCmdHandler.COMMAND_NAME;
-    }
-
-    @Override
-    protected void dispatchCommand(RemoteManagerSession session, String command, String argument) {
-        // fetch the command handlers registered to the command
-        List<org.apache.james.api.protocol.CommandHandler<RemoteManagerSession>> commandHandlers = getCommandHandlers(command, session);
-        if (commandHandlers == null) {
-            // end the session
-            RemoteManagerResponse resp = new RemoteManagerResponse("Local configuration error: unable to find a command handler.");
-            resp.setEndSession(true);
-            session.writeResponse(resp);
-        } else {
-            int count = commandHandlers.size();
-            for (int i = 0; i < count; i++) {
-                Response response = commandHandlers.get(i).onCommand(session, new RemoteManagerRequest(command, argument));
-                if (response != null) {
-                    session.writeResponse(response);
-                    break;
-                }
-            }
-
-        }        
     }
 
     @Override

@@ -17,14 +17,45 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.protocol;
+package org.apache.james.api.protocol;
 
-import org.apache.james.api.protocol.BaseRequest;
+/**
+ * Basic Request which contains a command and argument
+ *
+ */
+public class BaseRequest implements Request{
 
-public final class SMTPRequest extends BaseRequest {
+    private final String command;
+    private final String argument;
 
-    public SMTPRequest(final String command, final String argument) {
-        super(command, argument);
+    public BaseRequest(final String command, final String argument) {
+        this.command = command;
+        this.argument = argument;
+        
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.Request#getArgument()
+     */
+    public String getArgument() {
+        return argument;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.protocol.Request#getCommand()
+     */
+    public String getCommand() {
+        return command;
+    }
+
+
+    public String toString() {
+        if (argument == null) {
+            return command;
+        } else {
+            return command + " " + argument;
+        }
+    }
 }
