@@ -19,7 +19,6 @@
 
 package org.apache.james.remotemanager.core;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class RemoteManagerCommandDispatcherLineHandler extends AbstractCommandDi
     }
 
     @Override
-    protected Charset getLineDecodingCharset() {
-        return Charset.forName("ISO-8859-1");
+    protected String getLineDecodingCharset() {
+        return "ISO-8859-1";
     }
 }
