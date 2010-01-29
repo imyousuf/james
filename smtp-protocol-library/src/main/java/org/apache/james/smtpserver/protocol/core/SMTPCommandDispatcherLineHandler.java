@@ -24,10 +24,6 @@ import java.util.List;
 
 import org.apache.james.api.protocol.AbstractCommandDispatcher;
 import org.apache.james.api.protocol.CommandHandler;
-import org.apache.james.api.protocol.Response;
-import org.apache.james.smtpserver.protocol.SMTPRequest;
-import org.apache.james.smtpserver.protocol.SMTPResponse;
-import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 
 
@@ -43,42 +39,6 @@ public class SMTPCommandDispatcherLineHandler extends AbstractCommandDispatcher<
 
     private final static String[] mandatoryCommands = { "MAIL" , "RCPT", "DATA"};
     
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.api.protocol.AbstractCommandDispatcher#dispatchCommand(org.apache.james.api.protocol.ProtocolSession, java.lang.String, java.lang.String)
-     */
-    protected void dispatchCommand(SMTPSession session, String command, String argument) {
-       
-        List<CommandHandler<SMTPSession>> commandHandlers = getCommandHandlers(command, session);
-        // fetch the command handlers registered to the command
-        if (commandHandlers == null) {
-            // end the session
-            SMTPResponse resp = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Local configuration error: unable to find a command handler.");
-            resp.setEndSession(true);
-            session.writeResponse(resp);
-        } else {
-            int count = commandHandlers.size();
-            for (int i = 0; i < count; i++) {
-                Response response = commandHandlers.get(i).onCommand(session, new SMTPRequest(command, argument));
-
-                session.writeResponse(response);
-
-                // if the response is received, stop processing of command
-                // handlers
-                if (response != null) {
-                    break;
-                }
-
-                // NOTE we should never hit this line, otherwise we ended the
-                // CommandHandlers with
-                // no responses.
-                // (The note is valid for i == count-1)
-            }
-
-        }
-
-    }
 
 
     /**
