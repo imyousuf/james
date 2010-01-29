@@ -217,13 +217,9 @@ public class AsyncSMTPServerTest extends TestCase {
         fileSystem = new MockFileSystem();
 
         m_serviceManager.put(FileSystem.ROLE, fileSystem);
-
-        dnsAdapter = new SMTPServerDNSServiceAdapter();
-        dnsAdapter.setDNSService(m_dnsServer);
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
         m_serviceManager.put(VirtualUserTableStore.ROLE, new DummyVirtualUserTableStore());
-        SMTPServerDNSServiceAdapter dnsAdapter = new SMTPServerDNSServiceAdapter();
-        dnsAdapter.setDNSService(m_dnsServer);
+
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
     }
 

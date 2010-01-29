@@ -40,7 +40,7 @@ import junit.framework.TestCase;
 
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.smtpserver.integration.URIRBLHandler;
+import org.apache.james.smtpserver.integration.fastfail.URIRBLHandler;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;

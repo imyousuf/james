@@ -23,8 +23,6 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.annotation.Resource;
-
 import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.TemporaryResolutionException;
 import org.apache.mailet.HostAddress;
@@ -34,12 +32,7 @@ public class SMTPServerDNSServiceAdapter implements DNSService{
     private org.apache.james.api.dnsservice.DNSService dns;
 
     
-    public SMTPServerDNSServiceAdapter() {    
-    
-    }
-    
-    @Resource(name="dnsserver")
-    public void setDNSService(org.apache.james.api.dnsservice.DNSService dns) {
+    public SMTPServerDNSServiceAdapter(org.apache.james.api.dnsservice.DNSService dns) {    
         this.dns = dns;
     }
     

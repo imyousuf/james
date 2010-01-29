@@ -22,10 +22,7 @@
 package org.apache.james.smtpserver.protocol.core.fastfail;
 
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
@@ -33,19 +30,10 @@ import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.smtpserver.protocol.hook.RcptHook;
 import org.apache.mailet.MailAddress;
 
-public class MaxRcptHandler implements RcptHook, Configurable {
+public class MaxRcptHandler implements RcptHook {
 
     private int maxRcpt = 0;
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration handlerConfiguration)
-            throws ConfigurationException {
-        int maxRcpt = handlerConfiguration.getInt("maxRcpt", 0);
-        setMaxRcpt(maxRcpt);
-    }
 
     /**
      * Set the max rcpt for wich should be accepted

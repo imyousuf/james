@@ -22,9 +22,6 @@
 package org.apache.james.smtpserver.protocol.core.fastfail;
 
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
@@ -35,33 +32,14 @@ import org.apache.mailet.MailAddress;
  * Add tarpit support to SMTPServer. See http://www.palomine.net/qmail/tarpit.html for more information
  *
  */
-public class TarpitHandler implements RcptHook, Configurable {
+public class TarpitHandler implements RcptHook {
 
     private int tarpitRcptCount = 0;
 
     private long tarpitSleepTime = 5000;
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration handlerConfiguration)
-            throws ConfigurationException {
-        setTarpitRcptCount(handlerConfiguration.getInt("tarpitRcptCount", 0));
 
-        if (tarpitRcptCount == 0)
-            throw new ConfigurationException(
-                    "Please set the tarpitRcptCount bigger values as 0");
-
-        setTarpitSleepTime(handlerConfiguration.getLong("tarpitSleepTime", 5000));
-
-
-        if (tarpitSleepTime == 0)
-            throw new ConfigurationException(
-                    "Please set the tarpitSleepTimeto a bigger values as 0");
-
-    }
 
     /**
      * Set the tarpit count after which the tarpit sleep time will be activated

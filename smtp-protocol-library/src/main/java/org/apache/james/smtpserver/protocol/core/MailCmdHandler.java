@@ -299,7 +299,7 @@ public class MailCmdHandler extends AbstractHookableCmdHandler<MailHook> {
      * 
      * @return defaultDomain
      */
-    public String getDefaultDomain() {
+    protected String getDefaultDomain() {
         return "localhost";
     }
 

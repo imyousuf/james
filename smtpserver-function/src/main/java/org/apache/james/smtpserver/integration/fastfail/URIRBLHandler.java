@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.smtpserver.integration;
+package org.apache.james.smtpserver.integration.fastfail;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -44,6 +44,7 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.smtpserver.integration.JamesMessageHook;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
@@ -70,7 +71,6 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
 
     private boolean getDetail = false;
 
-    private boolean checkAuthNetworks = false;
 
     /**
      * Sets the service log.
@@ -120,9 +120,7 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
             throw new ConfigurationException("Please provide at least one server");
         }
             
-        setGetDetail(config.getBoolean("getDetail",false));
-        setCheckAuthNetworks(config.getBoolean("checkAuthNetworks", false));
-        
+        setGetDetail(config.getBoolean("getDetail",false));        
         
     }
    
@@ -133,16 +131,6 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
      */
     public void setUriRblServer(Collection<String> uriRbl) {
         this.uriRbl = uriRbl;
-    }
-    
-    /**
-     * Set to true if AuthNetworks should be included in the EHLO check
-     * 
-     * @param checkAuthNetworks
-     *            Set to true to enable
-     */
-    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
-        this.checkAuthNetworks = checkAuthNetworks;
     }
 
     /**
@@ -233,11 +221,6 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
      */
     protected boolean check(SMTPSession session, Mail mail) {
         MimeMessage message;
-        
-        // Not scan the message if relaying allowed
-        if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            return false;
-        }
         
         try {
             message = mail.getMessage();
