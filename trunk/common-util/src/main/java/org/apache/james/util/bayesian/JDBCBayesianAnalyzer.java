@@ -81,8 +81,6 @@ extends BayesianAnalyzer {
      * Holds value of property sqlFileName.
      */
     private String sqlFileName;
-    
-    private File sqlFile;
 
     /**
      * Holds value of property sqlParameters.
@@ -371,7 +369,7 @@ extends BayesianAnalyzer {
                 conn.setAutoCommit(false);
             }
             
-            sqlQueries.init(this.sqlFile, JDBCBayesianAnalyzer.class.getName() , conn, getSqlParameters());
+            sqlQueries.init(sqlFile, JDBCBayesianAnalyzer.class.getName() , conn, getSqlParameters());
             
             checkTables(conn);
         } finally {
