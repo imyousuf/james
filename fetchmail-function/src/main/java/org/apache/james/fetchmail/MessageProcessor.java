@@ -1313,17 +1313,17 @@ public class MessageProcessor extends ProcessorAbstract
                 null);
 
         if (isUserUndefined())
-            aMail.setAttribute(getAttributePrefix() + "isUserUndefined", null);
+            aMail.setAttribute(getAttributePrefix() + "isUserUndefined", true);
 
         if (isBlacklistedRecipient())
             aMail.setAttribute(
                 getAttributePrefix() + "isBlacklistedRecipient",
-                null);
+                true);
 
         if (isRecipientNotFound())
             aMail.setAttribute(
                 getAttributePrefix() + "isRecipientNotFound",
-                null);
+                true);
 
         if (isMaxMessageSizeExceeded().booleanValue())
             aMail.setAttribute(
@@ -1333,22 +1333,22 @@ public class MessageProcessor extends ProcessorAbstract
         if (isRemoteReceivedHeaderInvalid().booleanValue())
             aMail.setAttribute(
                 getAttributePrefix() + "isRemoteReceivedHeaderInvalid",
-                null); 
+                true); 
                 
         if (isDefaultSenderLocalPart())
             aMail.setAttribute(
                 getAttributePrefix() + "isDefaultSenderLocalPart",
-                null);
+                true);
                 
         if (isDefaultSenderDomainPart())
             aMail.setAttribute(
                 getAttributePrefix() + "isDefaultSenderDomainPart",
-                null);
+                true);
                 
         if (isDefaultRemoteAddress())
             aMail.setAttribute(
                 getAttributePrefix() + "isDefaultRemoteAddress",
-                null);                                                                
+                true);                                                                
     }
 
     /**
