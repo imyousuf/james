@@ -41,7 +41,6 @@ import net.fortuna.mstor.data.MboxFile;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementMBean;
@@ -82,7 +81,7 @@ public class BayesianAnalyzerManagement implements BayesianAnalyzerManagementSer
         if (repos != null) {
             setDataSource(selector.getDataSource(repos));
             File sqlFile = fileSystem.getFile(sqlFileUrl);
-            analyzer.initSqlQueries(component.getConnection(), sqlFile.getAbsolutePath());
+            analyzer.initSqlQueries(component.getConnection(), sqlFile);
         }
     }
 
