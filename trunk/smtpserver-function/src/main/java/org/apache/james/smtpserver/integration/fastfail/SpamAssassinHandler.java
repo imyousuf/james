@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver.integration;
+package org.apache.james.smtpserver.integration.fastfail;
 
 import java.util.Iterator;
 
@@ -29,6 +29,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.Configurable;
+import org.apache.james.smtpserver.integration.JamesMessageHook;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
@@ -68,8 +69,6 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
      */
     private double spamdRejectionHits = 0.0;
 
-    private boolean checkAuthNetworks = false;
-
     /*
      * (non-Javadoc)
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
@@ -78,19 +77,9 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
         setSpamdHost(config.getString("spamdHost","localhost"));
         setSpamdPort(config.getInt("spamdPort",783));
         setSpamdRejectionHits(config.getDouble("spamdRejectionHits", 0.0));
-        setCheckAuthNetworks(config.getBoolean("checkAuthNetworks", false));
     }
 
-    /**
-     * Set to true if AuthNetworks should be included in the EHLO check
-     * 
-     * @param checkAuthNetworks
-     *            Set to true to enable
-     */
-    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
-        this.checkAuthNetworks = checkAuthNetworks;
-    }
-
+   
     /**
      * Set the host the spamd daemon is running at
      * 
@@ -127,11 +116,7 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
      */
     public HookResult onMessage(SMTPSession session, Mail mail) {
 
-        // Not scan the message if relaying allowed
-        if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            return null;
-        }
-
+     
         try {
             MimeMessage message = mail.getMessage();
             SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost,

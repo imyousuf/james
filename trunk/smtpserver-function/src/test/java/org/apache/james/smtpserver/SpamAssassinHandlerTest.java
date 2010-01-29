@@ -29,7 +29,7 @@ import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
-import org.apache.james.smtpserver.integration.SpamAssassinHandler;
+import org.apache.james.smtpserver.integration.fastfail.SpamAssassinHandler;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;

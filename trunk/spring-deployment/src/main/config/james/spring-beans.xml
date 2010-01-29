@@ -136,8 +136,6 @@
 	<!-- Async SMTP Server -->
 	<bean id="smtpserver" class="org.apache.james.smtpserver.mina.AsyncSMTPServer" />
 
-	<bean id="org.apache.james.smtpserver.protocol.DNSService" class="org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter" />
-
 	<!-- FetchMail Service -->
 	<bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 

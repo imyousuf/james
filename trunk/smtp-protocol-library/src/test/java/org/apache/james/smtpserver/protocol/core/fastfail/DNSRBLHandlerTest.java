@@ -32,8 +32,6 @@ import javax.mail.internet.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.smtpserver.protocol.BaseFakeDNSService;
 import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
 import org.apache.james.smtpserver.protocol.DNSService;
@@ -237,17 +235,6 @@ public class DNSRBLHandlerTest extends TestCase {
         assertNull(mockedSMTPSession.getConnectionState().get(RBL_DETAIL_MAIL_ATTRIBUTE_NAME));
         assertNull("Not blocked",mockedSMTPSession.getConnectionState().get(RBL_BLOCKLISTED_MAIL_ATTRIBUTE_NAME));
     }
-    
-    public void testInvalidConfig() {
-        boolean exception = false;
-        DNSRBLHandler rbl = new DNSRBLHandler();
-        try {
-            rbl.configure(new DefaultConfigurationBuilder()); 
-        } catch (ConfigurationException e) {
-            exception = true;
-        }
-        
-        assertTrue("Invalid config",exception);
-    }
+   
 
 }

@@ -118,26 +118,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         int result = handler.doRcpt(session,null, mailAddress).getResult();
         assertEquals("Not reject", result,HookReturnCode.DECLINED);
     }
-    
-    /* This is no more valid because it is handled by the hook sequence instead of
-     * checking it in each hook implementation.
-    public void testNotRejectInvalidHeloAuthUser() throws ParseException {
-        MailAddress mailAddress = new MailAddress("test@localhost");
-        SMTPSession session = setupMockSession(INVALID_HOST,false,true,"valid@user",mailAddress);
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-        
-        ContainerUtil.enableLogging(handler,new MockLogger());
-        
-        handler.setDnsServer(setupMockDNSServer());
-        
-        handler.doHelo(session, INVALID_HOST);
-        assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-
-
-        int result = handler.doRcpt(session,null, mailAddress).getResult();
-        assertEquals("Not reject", result,HookReturnCode.DECLINED);
-    }
-     */
+   
     
     public void testRejectInvalidHeloAuthUser() throws ParseException {
         MailAddress mailAddress = new MailAddress("test@localhost");
@@ -154,20 +135,7 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         assertEquals("Reject", result,HookReturnCode.DENY);
     }
     
-    public void testNotRejectRelay() throws ParseException {
-        MailAddress mailAddress = new MailAddress("test@localhost");
-        SMTPSession session = setupMockSession(INVALID_HOST,true,false,null,mailAddress);
-        ResolvableEhloHeloHandler handler = new ResolvableEhloHeloHandler();
-                
-        handler.setDNSService(setupMockDNSServer());
-        
-
-        handler.doHelo(session, INVALID_HOST);
-        assertNull("Value not stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));
-
-        int result = handler.doRcpt(session,null, mailAddress).getResult();
-        assertEquals("Not reject", result,HookReturnCode.DECLINED);
-    }
+   
     
     public void testRejectRelay() throws ParseException {
         MailAddress mailAddress = new MailAddress("test@localhost");
@@ -176,7 +144,6 @@ public class ResolvableEhloHeloHandlerTest extends TestCase {
         
         
         handler.setDNSService(setupMockDNSServer());
-        handler.setCheckAuthNetworks(true);
 
         handler.doHelo(session, INVALID_HOST);
         assertNotNull("Value stored",session.getState().get(ResolvableEhloHeloHandler.BAD_EHLO_HELO));

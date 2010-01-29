@@ -56,7 +56,7 @@
          please speak with your local system/network admins.
      -->
      <!--
-     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.DNSRBLHandler">
+     <handler class="org.apache.james.smtpserver.integration.fastfail.DNSRBLHandler">
          <getDetail> false </getDetail>
          <rblservers>
              <whitelist> query.bondedsender.org. </whitelist>
@@ -72,8 +72,7 @@
      <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
      <!-- are allowed to relay. Default is false. -->  
      <!--
-     <handler class="org.apache.james.smtpserver.integration.JamesSPFHandler">
-         <checkAuthNetworks> false </checkAuthNetworks>
+     <handler class="org.apache.james.smtpserver.integration.fastfail.SPFHandler">
          <blockSoftFail> false </blockSoftFail>
          <blockPermError> true </blockPermError>
      </handler>
@@ -86,20 +85,14 @@
      <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
      <!-- are allowed to relay. Default is false. -->
      <!--
-     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.ResolvableEhloHeloHandler">
-         <checkAuthNetworks> false </checkAuthNetworks>
-         <checkAuthUsers> false </checkAuthUsers>
-     </handler>  
+     <handler class="org.apache.james.smtpserver.integration.fastfail.ResolvableEhloHeloHandler"/>
      -->
             
      <!-- Checks HELO/EHLO is equal the reverse of the connecting client before accept it -->
      <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
      <!-- are allowed to relay. Default is false. -->
      <!--
-     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.ReverseEqualsEhloHeloHandler">
-         <checkAuthClients> false </checkAuthClients>
-         <checkAuthUsers> false </checkAuthUsers>
-     </handler>
+     <handler class="org.apache.james.smtpserver.integration.fastfail.ReverseEqualsEhloHeloHandler"/>
      -->
             
      <!-- If activated mail is only accepted if the sender contains -->
@@ -107,10 +100,7 @@
      <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
      <!-- are allowed to relay. Default is false. -->
      <!--
-     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.ValidSenderDomainHandler">
-         <checkAuthClients> false </checkAuthClients>
-         <checkAuthUsers> false </checkAuthUsers>
-     </handler>
+     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.ValidSenderDomainHandler"/>
      -->
      
          
@@ -118,16 +108,12 @@
      <!-- You need to add the recipient to the validRecipient list if you want -->
      <!-- to accept email for a recipient which not exist on the server -->
      <!-- 
-     <handler class="org.apache.james.smtpserver.integration.ValidRcptHandler">
-         <validRecipients> </validRecipients>
-         <validDomains> </validDomains>
-         <validRegexPattern> </validRegexPattern>
-     </handler>
+     <handler class="org.apache.james.smtpserver.integration.fastfail.ValidRcptHandler"/>
      -->
             
      <!-- If activated you can limit the maximal recipients -->
      <!-- 
-     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.MaxRcptHandler">
+     <handler class="org.apache.james.smtpserver.integration.fastfail.MaxRcptHandler">
          <maxRcpt> 10 </maxRcpt>                
      </handler>
      -->
@@ -135,7 +121,7 @@
      <!-- If uncomment this block you can enable greylisting. For more infos-->
      <!-- how greylisting work see: http://projects.puremagic.com/greylisting/whitepaper.html -->
      <!--
-     <handler class="org.apache.james.smtpserver.integration.JDBCGreylistHandler">
+     <handler class="org.apache.james.smtpserver.integration.fastfail.JDBCGreylistHandler">
          <repositoryPath> db://maildb </repositoryPath>
          <sqlFile>file://conf/sqlResources.xml</sqlFile>
          <tempBlockTime> 1 hour </tempBlockTime>
@@ -150,7 +136,7 @@
      <!-- Default is set to 0 (disabled). -->
      <!-- You can also configure the time to sleep in milliseconds -->
      <!--
-     <handler class="org.apache.james.smtpserver.protocol.core.fastfail.TarpitHandler">
+     <handler class="org.apache.james.smtpserver.integration.fastfail.TarpitHandler">
          <tarpitRcptCount> 5 </tarpitRcptCount>
          <tarpitSleepTime> 5000 </tarpitSleepTime>
      </handler>
@@ -171,11 +157,10 @@
      <!-- accept the email. So its possible to reject a message on smtplevel if a -->
      <!-- configured hits amount is reached. -->
      <!--
-     <handler class="org.apache.james.smtpserver.integration.SpamAssassinHandler">
+     <handler class="org.apache.james.smtpserver.integration.fastfail.SpamAssassinHandler">
          <spamdHost> 127.0.0.1 </spamdHost>
          <spamdPort> 783 </spamdPort>
          <spamdRejectionHits> 10 </spamdRejectionHits>
-         <checkAuthNetworks> false </checkAuthNetworksv>
      </handler>
      -->
      
@@ -183,10 +168,9 @@
      <!-- this domains against uriRbllists. See http://www.surbl.org for more informations. -->
      <!-- The message get rejected if a domain matched . -->
      <!--
-     <handler class="org.apache.james.smtpserver.integration.URIRBLHandler">
+     <handler class="org.apache.james.smtpserver.integration.fastfail.URIRBLHandler">
          <action> reject </action>
          <getDetail> true </getDetail>
-         <checkAuthNetworks> false </checkAuthNetworks>
          <uriRblServers> 
              <server> multi.surbl.org</server>
          </uriRblServers>

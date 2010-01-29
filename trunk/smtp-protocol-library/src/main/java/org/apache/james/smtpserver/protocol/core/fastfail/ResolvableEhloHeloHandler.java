@@ -21,12 +21,8 @@ package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import java.net.UnknownHostException;
 
-import javax.annotation.Resource;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -40,11 +36,9 @@ import org.apache.mailet.MailAddress;
 /**
  * This CommandHandler can be used to reject not resolvable EHLO/HELO
  */
-public class ResolvableEhloHeloHandler implements RcptHook, HeloHook,Configurable {
+public class ResolvableEhloHeloHandler implements RcptHook, HeloHook {
 
     public final static String BAD_EHLO_HELO = "BAD_EHLO_HELO";
-
-    protected boolean checkAuthNetworks = false;
 
     protected DNSService dnsService = null;
 
@@ -60,29 +54,10 @@ public class ResolvableEhloHeloHandler implements RcptHook, HeloHook,Configurabl
      * Sets the DNS service.
      * @param dnsService the dnsService to set
      */
-    @Resource(name="org.apache.james.smtpserver.protocol.DNSService")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration handlerConfiguration)
-            throws ConfigurationException {
-        setCheckAuthNetworks(handlerConfiguration.getBoolean("checkAuthNetworks",false));
-    }
-    
-    /**
-     * Set to true if AuthNetworks should be included in the EHLO/HELO check
-     * 
-     * @param checkAuthNetworks
-     *            Set to true to enable
-     */
-    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
-        this.checkAuthNetworks = checkAuthNetworks;
-    }
 
     /**
      * Check if EHLO/HELO is resolvable
@@ -93,10 +68,6 @@ public class ResolvableEhloHeloHandler implements RcptHook, HeloHook,Configurabl
      *            The argument
      */
     protected void checkEhloHelo(SMTPSession session, String argument) {
-        // Not scan the message if relaying allowed
-        if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            return;
-        }
         
         if (isBadHelo(session, argument)) {
             session.getState().put(BAD_EHLO_HELO, "true");

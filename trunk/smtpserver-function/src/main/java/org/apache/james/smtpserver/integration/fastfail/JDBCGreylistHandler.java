@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.integration;
+package org.apache.james.smtpserver.integration.fastfail;
 
 import java.io.File;
 import java.sql.Connection;

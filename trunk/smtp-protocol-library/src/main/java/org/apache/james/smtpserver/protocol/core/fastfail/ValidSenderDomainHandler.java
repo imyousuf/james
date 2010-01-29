@@ -20,12 +20,7 @@ package org.apache.james.smtpserver.protocol.core.fastfail;
 
 import java.util.Collection;
 
-import javax.annotation.Resource;
-
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
 import org.apache.james.smtpserver.protocol.SMTPSession;
@@ -39,57 +34,25 @@ import org.apache.mailet.MailAddress;
  * Add MFDNSCheck feature to SMTPServer. This handler reject mail from domains which have not an an valid MX record.  
  * 
  */
-public class ValidSenderDomainHandler implements MailHook, Configurable {
+public class ValidSenderDomainHandler implements MailHook {
     
-    private boolean checkAuthNetworks = false;
     private DNSService dnsService = null;
-
-    /**
-     * Gets the DNS service.
-     * @return the dnsService
-     */
-    public final DNSService getDNSService() {
-        return dnsService;
-    }
 
     /**
      * Sets the DNS service.
      * @param dnsService the dnsService to set
      */
-    @Resource(name="org.apache.james.smtpserver.protocol.DNSService")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }
     
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
-    	setCheckAuthNetworks(handlerConfiguration.getBoolean("checkAuthNetworks",false));
-    }
         
-    /**
-     * Enable checking of authorized networks
-     * 
-     * @param checkAuthNetworks Set to true to enable
-     */
-    public void setCheckAuthNetworks(boolean checkAuthNetworks) {
-        this.checkAuthNetworks = checkAuthNetworks;
-    }
+
 
     
     protected boolean check(SMTPSession session, MailAddress senderAddress) {
         // null sender so return
         if (senderAddress == null) return false;
-
-        // Not scan the message if relaying allowed
-        if (session.isRelayingAllowed() && !checkAuthNetworks) {
-            session.getLogger().info("YES");
-
-        	return false;
-        }
 
         Collection<String> records = null;
             

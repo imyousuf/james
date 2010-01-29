@@ -21,20 +21,11 @@
 
 package org.apache.james.smtpserver.protocol.core.fastfail;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.annotation.Resource;
-
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.ConnectHandler;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.DNSService;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
@@ -45,13 +36,8 @@ import org.apache.mailet.MailAddress;
 /**
   * Connect handler for DNSRBL processing
   */
-public class DNSRBLHandler implements  ConnectHandler<SMTPSession>, RcptHook, Configurable{
-    
-    /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(DNSRBLHandler.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
-    private Log serviceLog = FALLBACK_LOG;
+public class DNSRBLHandler implements  ConnectHandler<SMTPSession>, RcptHook{
+
     
     /**
      * The lists of rbl servers to be checked to limit spam
@@ -69,73 +55,16 @@ public class DNSRBLHandler implements  ConnectHandler<SMTPSession>, RcptHook, Co
     
     public static final String RBL_DETAIL_MAIL_ATTRIBUTE_NAME = "org.apache.james.smtpserver.rbl.detail";
 
-    
-    /**
-     * Gets the DNS service.
-     * @return the dnsService
-     */
-    public final DNSService getDNSService() {
-        return dnsService;
-    }
 
     /**
      * Sets the DNS service.
      * @param dnsService the dnsService to set
      */
-    @Resource(name="org.apache.james.smtpserver.protocol.DNSService")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    @SuppressWarnings("unchecked")
-	public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
-        boolean validConfig = false;
-
-        ArrayList<String> rblserverCollection = new ArrayList<String>();
-        List<String> whiteList = handlerConfiguration.getList("rblservers.whitelist");
-        if ( whiteList != null ) {
-            for ( int i = 0 ; i < whiteList.size() ; i++ ) {
-                String rblServerName = whiteList.get(i);
-                rblserverCollection.add(rblServerName);
-                if (serviceLog.isInfoEnabled()) {
-                    serviceLog.info("Adding RBL server to whitelist: " + rblServerName);
-                }
-            }
-            if (rblserverCollection != null && rblserverCollection.size() > 0) {
-                setWhitelist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
-                rblserverCollection.clear();
-                validConfig = true;
-            }
-        }
-        List<String> blackList = handlerConfiguration.getList("rblservers.blacklist");
-        if ( blackList != null ) {
-
-            for ( int i = 0 ; i < blackList.size() ; i++ ) {
-                String rblServerName = blackList.get(i);
-                rblserverCollection.add(rblServerName);
-                if (serviceLog.isInfoEnabled()) {
-                    serviceLog.info("Adding RBL server to blacklist: " + rblServerName);
-                }
-            }
-            if (rblserverCollection != null && rblserverCollection.size() > 0) {
-                setBlacklist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
-                rblserverCollection.clear();
-                validConfig = true;
-            }
-        }
-        
-        
-        // Throw an ConfiigurationException on invalid config
-        if (validConfig == false){
-            throw new ConfigurationException("Please configure whitelist or blacklist");
-        }
-
-        setGetDetail(handlerConfiguration.getBoolean("getDetail",false));
-    }
+   
     
     /**
      * check if the remote Ip address is block listed

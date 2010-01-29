@@ -26,13 +26,10 @@ import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.protocol.ExtensibleHandler;
 import org.apache.james.api.protocol.LineHandler;
 import org.apache.james.api.protocol.WiringException;
 import org.apache.james.dsn.DSNStatus;
-import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.smtpserver.protocol.MailEnvelopeImpl;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.smtpserver.protocol.SMTPRetCode;
@@ -42,13 +39,8 @@ import org.apache.james.smtpserver.protocol.hook.HookResultHook;
 import org.apache.james.smtpserver.protocol.hook.MessageHook;
 import org.apache.mailet.Mail;
 
-public final class DataLineMessageHookHandler implements DataLineFilter, ExtensibleHandler, LogEnabled {
+public final class DataLineMessageHookHandler implements DataLineFilter, ExtensibleHandler {
 
-    /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineMessageHookHandler.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
-    private Log serviceLog = FALLBACK_LOG;
     
     private List messageHandlers;
     
@@ -139,9 +131,6 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
         if (MessageHook.class.equals(interfaceName)) {
             this.messageHandlers = extension;
             if (messageHandlers.size() == 0) {
-                if (serviceLog.isErrorEnabled()) {
-                    serviceLog.error("No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
-                }
                 throw new WiringException("No messageHandler configured");
             }
         } else if (HookResultHook.class.equals(interfaceName)) {
@@ -159,12 +148,4 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
         return classes;
     }
 
-    /**
-     * Sets the service log.
-     * Where available, a context sensitive log should be used.
-     * @param Log not null
-     */
-    public void setLog(Log log) {
-        this.serviceLog = log;
-    }
 }
