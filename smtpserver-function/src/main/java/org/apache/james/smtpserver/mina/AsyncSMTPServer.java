@@ -22,7 +22,6 @@
 package org.apache.james.smtpserver.mina;
 
 
-import java.nio.charset.Charset;
 
 import javax.annotation.PostConstruct;
 
