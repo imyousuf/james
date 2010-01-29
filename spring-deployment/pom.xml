@@ -50,6 +50,7 @@
           <repositoryLayout>flat</repositoryLayout>
 		  <repositoryName>lib</repositoryName>
           <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+          <environmentSetupFileName>setenv</environmentSetupFileName>
           <!-- Generate bin scripts for windows and unix per default -->
           <platforms>
             <platform>windows</platform>
@@ -98,6 +99,7 @@
           		<!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
           			 from the lib dir to make windows happy again -->
                 <replace file="${project.build.directory}/appassembler/bin/run.bat" token="%BASEDIR%\lib" value="..\lib"/>
+                <replace file="${project.build.directory}/appassembler/bin/run.sh" token="setenv" value="setenv.sh"/>
               </tasks>
 
             </configuration>
