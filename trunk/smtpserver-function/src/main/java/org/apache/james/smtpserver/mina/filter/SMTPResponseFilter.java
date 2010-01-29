@@ -18,61 +18,39 @@
  ****************************************************************/
 package org.apache.james.smtpserver.mina.filter;
 
+import org.apache.james.api.protocol.Response;
 import org.apache.james.smtpserver.protocol.SMTPResponse;
 import org.apache.james.socket.mina.filter.AbstractResponseFilter;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.write.DefaultWriteRequest;
-import org.apache.mina.core.write.WriteRequest;
-
 
 /**
- * Filter to convert SMTPResponse to String Objects
+ * Filter to convert SMTPResponse to String Objects and write them 
  * 
  */
 public class SMTPResponseFilter extends AbstractResponseFilter {
-   
-    private static final String SCHEDULE_CLOSE_ATTRIBUTE = SMTPResponseFilter.class.getName() + ".closeAttribute";
 
     public final static String NAME = "smtpResponseFilter";
 
-    /**
-     * @see org.apache.mina.core.filterchain.IoFilterAdapter#filterWrite(org.apache.mina.core.filterchain.IoFilter.NextFilter, org.apache.mina.core.session.IoSession, org.apache.mina.core.write.WriteRequest)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.mina.filter.AbstractResponseFilter#processResponse(org.apache.mina.core.filterchain.IoFilter.NextFilter, org.apache.mina.core.session.IoSession, org.apache.james.api.protocol.Response)
      */
-    public void filterWrite(NextFilter nextFilter, IoSession session,
-            WriteRequest writeRequest) throws Exception {
+    protected void processResponse(NextFilter nextFilter, IoSession session, Response rawResponse) {
+        SMTPResponse response = (SMTPResponse) rawResponse;
+        for (int k = 0; k < response.getLines().size(); k++) {
+            StringBuffer respBuff = new StringBuffer(256);
+            respBuff.append(response.getRetCode());
+            if (k == response.getLines().size() - 1) {
+                respBuff.append(" ");
+                respBuff.append(response.getLines().get(k));
 
-        if (writeRequest.getMessage() instanceof SMTPResponse) {
-            SMTPResponse response = (SMTPResponse) writeRequest.getMessage();
-            if (response != null) {
-                for (int k = 0; k < response.getLines().size(); k++) {
-                    StringBuffer respBuff = new StringBuffer(256);
-                    respBuff.append(response.getRetCode());
-                    if (k == response.getLines().size() - 1) {
-                        respBuff.append(" ");
-                        respBuff.append(response.getLines().get(k));
-                        nextFilter.filterWrite(session,
-                                new DefaultWriteRequest(respBuff.toString()));
-                    } else {
-                        respBuff.append("-");
-                        respBuff.append(response.getLines().get(k));
-                        nextFilter.filterWrite(session,
-                                new DefaultWriteRequest(respBuff.toString()));
-                    }
-                }
+            } else {
+                respBuff.append("-");
+                respBuff.append(response.getLines().get(k));
 
-                if (response.isEndSession()) {
-                    session.setAttribute(getCloseAttribute());
-                }
             }
-        } else {
-            super.filterWrite(nextFilter, session, writeRequest);
+            writeResponse(nextFilter, session, respBuff.toString());
         }
-
     }
-
-	@Override
-	protected String getCloseAttribute() {
-		return SCHEDULE_CLOSE_ATTRIBUTE;
-	}
 
 }
