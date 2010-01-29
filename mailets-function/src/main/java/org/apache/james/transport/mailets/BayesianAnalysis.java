@@ -35,6 +35,7 @@ import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
 import org.apache.james.services.DataSourceSelector;
+import org.apache.james.services.FileSystem;
 import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.Mail;
@@ -156,6 +157,8 @@ extends GenericMailet {
     private long lastCorpusLoadTime;
 
     private DataSourceSelector selector;
+
+    private FileSystem fs;
     
     /**
      * Getter for property maxSize.
@@ -187,6 +190,11 @@ extends GenericMailet {
     @Resource(name="database-connections")
     public void setDataSourceSelector(DataSourceSelector selector) {
         this.selector = selector;
+    }
+    
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem fs) {
+        this.fs = fs;
     }
     
     /**
@@ -251,7 +259,7 @@ extends GenericMailet {
         }
         
         try {
-            analyzer.initSqlQueries(datasource.getConnection(), getMailetContext().getAttribute("confDir") + "/sqlResources.xml");
+            analyzer.initSqlQueries(datasource.getConnection(), fs.getFile("file://conf/sqlResources.xml"));
         } catch (Exception e) {
             throw new MessagingException("Exception initializing queries", e);
         }        

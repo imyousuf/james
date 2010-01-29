@@ -249,7 +249,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
             
         	setSqlFileUrl(sFile);
             
-            if (!sqlFileUrl.startsWith("file://")) {
+            if (!sqlFileUrl.startsWith("file://") && !sqlFileUrl.startsWith("classpath://")) {
                 throw new ConfigurationException(
                     "Malformed sqlFile - Must be of the format \"file://<filename>\".");
             }
