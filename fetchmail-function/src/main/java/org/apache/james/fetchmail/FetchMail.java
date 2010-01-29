@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -403,8 +402,6 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     private DNSService dnsServer;
 
     private Log logger;
-
-    private HierarchicalConfiguration config;
     
     /**
      * Constructor for POP3mail.
