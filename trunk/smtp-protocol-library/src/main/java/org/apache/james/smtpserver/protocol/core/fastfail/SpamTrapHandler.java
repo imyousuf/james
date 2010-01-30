@@ -23,12 +23,8 @@ package org.apache.james.smtpserver.protocol.core.fastfail;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.james.smtpserver.protocol.hook.HookResult;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
@@ -39,7 +35,7 @@ import org.apache.mailet.MailAddress;
  * This handler can be used for providing a spam trap. IPAddresses which send emails to the configured
  * recipients will get blacklisted for the configured time.
  */
-public class SpamTrapHandler implements RcptHook, Configurable {
+public class SpamTrapHandler implements RcptHook {
 
     /** Map which hold blockedIps and blockTime in memory */
     private Map<String,Long> blockedIps = new HashMap<String,Long>();
@@ -47,26 +43,9 @@ public class SpamTrapHandler implements RcptHook, Configurable {
     private Collection<String> spamTrapRecips = new ArrayList<String>();
     
     /** Default blocktime 12 hours */
-    private long blockTime = 4320000; 
+    protected long blockTime = 4320000; 
     
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    @SuppressWarnings("unchecked")
-	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        List<String> rcpts= config.getList("spamTrapRecip");
-    
-        if (rcpts.isEmpty() == false ) {
-            setSpamTrapRecipients(rcpts);
-        } else {
-            throw new ConfigurationException("Please configure a spamTrapRecip.");
-        }
-    
-        setBlockTime(config.getLong("blockTime",blockTime));
-        
-    }
-    
+   
     public void setSpamTrapRecipients(Collection<String> spamTrapRecips) {
         this.spamTrapRecips = spamTrapRecips;
     }
