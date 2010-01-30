@@ -34,7 +34,7 @@ import org.apache.james.smtpserver.protocol.hook.HookResultHook;
 import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 
 /**
- * Abstract class which Handle hooks.
+ * Abstract class which Handle hook-aware CommanHandler.
  * 
  */
 public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler<SMTPSession>, ExtensibleHandler {
@@ -201,6 +201,7 @@ public abstract class AbstractHookableCmdHandler<Hook> implements CommandHandler
      * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class,
      *      java.util.List)
      */
+    @SuppressWarnings("unchecked")
     public void wireExtensions(Class interfaceName, List extension) {
         if (getHookInterface().equals(interfaceName)) {
             this.hooks = extension;

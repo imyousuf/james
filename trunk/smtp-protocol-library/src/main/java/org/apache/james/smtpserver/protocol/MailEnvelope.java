@@ -26,17 +26,49 @@ import java.util.List;
 
 import org.apache.mailet.MailAddress;
 
+/**
+ * The MailEnvelope of a SMTP-Transaction
+ * 
+ *
+ */
 public interface MailEnvelope {
 
+    /**
+     * Return the size of the message. If the message is "empty" it will return -1
+     * 
+     * @return size
+     */
 	public int getSize();
 
+	/**
+	 * Return the recipients which where supplied in the RCPT TO: command
+	 * 
+	 * @return recipients
+	 */
 	public List<MailAddress> getRecipients();
 
+	/**
+	 * Return the sender of the mail which was supplied int the MAIL FROM: command. If its a "null" sender,
+	 * null will get returned
+	 * 
+	 * @return sender
+	 */
 	public MailAddress getSender();
 
-	public void setRecipients(List<MailAddress> recipientCollection);
 
+	/**
+	 * Return the OutputStream of the message
+	 * 
+	 * @return out
+	 * @throws Exception
+	 */
 	public OutputStream getMessageOutputStream() throws Exception;
 
+	/**
+	 * Return the InputStream of the message
+	 * 
+	 * @return in
+	 * @throws Exception
+	 */
 	public InputStream getMessageInputStream() throws Exception;
 }

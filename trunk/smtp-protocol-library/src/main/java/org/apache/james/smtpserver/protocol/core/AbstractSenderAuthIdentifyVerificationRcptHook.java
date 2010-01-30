@@ -29,7 +29,7 @@ import org.apache.james.smtpserver.protocol.hook.RcptHook;
 import org.apache.mailet.MailAddress;
 
 /**
- * Handler which check if the authenticated user is incorrect
+ * Handler which check if the authenticated user is incorrect or correct
  */
 public abstract class AbstractSenderAuthIdentifyVerificationRcptHook implements RcptHook {  
     /**
@@ -57,6 +57,12 @@ public abstract class AbstractSenderAuthIdentifyVerificationRcptHook implements 
     }
     
     
+    /**
+     * Return true if the given domain is a local domain for this server
+     * 
+     * @param domain
+     * @return isLocal
+     */
     protected abstract boolean isLocalDomain(String domain);
 
 }

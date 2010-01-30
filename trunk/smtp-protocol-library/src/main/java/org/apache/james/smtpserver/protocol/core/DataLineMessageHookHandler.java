@@ -127,6 +127,7 @@ public final class DataLineMessageHookHandler implements DataLineFilter, Extensi
     /**
      * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
+    @SuppressWarnings("unchecked")
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (MessageHook.class.equals(interfaceName)) {
             this.messageHandlers = extension;
