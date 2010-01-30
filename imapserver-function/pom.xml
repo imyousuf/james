@@ -45,10 +45,7 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-socket-api</artifactId>
-    </dependency>
+
         
     <dependency>
       <groupId>org.apache.james</groupId>
