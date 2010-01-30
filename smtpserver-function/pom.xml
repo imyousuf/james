@@ -151,5 +151,10 @@
    	  <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
+    <dependency>
+      <groupId>dnsjava</groupId>
+      <artifactId>dnsjava</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
