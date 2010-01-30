@@ -21,6 +21,11 @@ package org.apache.james.smtpserver.protocol;
 
 import org.apache.james.api.protocol.BaseRequest;
 
+/**
+ * SMTPRequest which contains a command and an optional argument
+ * 
+ *
+ */
 public final class SMTPRequest extends BaseRequest {
 
     public SMTPRequest(final String command, final String argument) {

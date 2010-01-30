@@ -25,7 +25,7 @@ import org.apache.james.smtpserver.protocol.hook.RcptHook;
 import org.apache.mailet.MailAddress;
 
 /**
- * This hook will stop the hook chain if relaying is allowed
+ * This hook will stop the hook chain if relaying is allowed 
  */
 public class AcceptRecipientIfRelayingIsAllowed implements RcptHook {
 

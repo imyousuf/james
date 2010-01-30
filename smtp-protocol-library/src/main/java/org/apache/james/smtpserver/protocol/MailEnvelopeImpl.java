@@ -28,6 +28,11 @@ import java.util.List;
 
 import org.apache.mailet.MailAddress;
 
+/**
+ * MailEnvelope implementation which stores everything in memory
+ * 
+ *
+ */
 public class MailEnvelopeImpl implements MailEnvelope{
 
     private List<MailAddress> recipients;
@@ -36,33 +41,63 @@ public class MailEnvelopeImpl implements MailEnvelope{
 
     private ByteArrayOutputStream outputStream;
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.MailEnvelope#getSize()
+     */
     public int getSize() {
         if (outputStream == null)
             return -1;
         return outputStream.size();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.MailEnvelope#getRecipients()
+     */
     public List<MailAddress> getRecipients() {
         return recipients;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.MailEnvelope#getSender()
+     */
     public MailAddress getSender() {
         return sender;
     }
 
+    /**
+     * Set the recipients of the mail
+     * 
+     * @param recipientCollection
+     */
     public void setRecipients(List<MailAddress> recipientCollection) {
         this.recipients = recipientCollection;
     }
 
+    /**
+     * Set the sender of the mail
+     * 
+     * @param sender
+     */
     public void setSender(MailAddress sender) {
         this.sender = sender;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.MailEnvelope#getMessageOutputStream()
+     */
     public OutputStream getMessageOutputStream() {
         this.outputStream = new ByteArrayOutputStream(100000);
         return outputStream;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.protocol.MailEnvelope#getMessageInputStream()
+     */
     public InputStream getMessageInputStream() {
         return new ByteArrayInputStream(outputStream.toByteArray());
     }
