@@ -61,19 +61,15 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
     </dependency>
- 
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet-base</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
+     <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-common-util</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
     </dependency>
+    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
@@ -84,19 +80,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-  
-  
-   <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-      <scope>test</scope>
-    </dependency>
-     
-    <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby</artifactId>
       <scope>test</scope>
     </dependency>
 

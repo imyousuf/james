@@ -74,7 +74,11 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-socket-api</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mina-socket-library</artifactId>
@@ -84,30 +88,31 @@
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>
-
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-common-util</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
     </dependency>
+    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
       <scope>test</scope>
     </dependency>
+     
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
