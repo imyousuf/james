@@ -30,12 +30,13 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet-base</artifactId>
+      <artifactId>apache-mailet</artifactId>
     </dependency>
     <!-- javax.mail.URLname (Iterable<HostAddress> ?) -->
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
     </dependency>
+
   </dependencies>
 </project>
