@@ -74,27 +74,18 @@
 		</property>
 	</bean>
 
-	<bean id="configurationProvider"
-		class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider">
-		<property name="configurationResource" value="classpath:james-config.xml" />
-	</bean>
-
+	<bean id="configurationProvider" class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider"/>
+		
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
       <property name = "location" value="classpath:database.properties"/>
     </bean>
   
-	<bean
-		class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
+	<bean class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
 		<property name="logProvider" ref="logProvider" />
 		<property name="order" value="0" />
-		<property name="mappings">
-			<map>
-			</map>
-		</property>
 	</bean>
 
-	<bean id="logProvider"
-		class="org.apache.james.container.spring.lifecycle.SpringLogProvider" />
+	<bean id="logProvider" class="org.apache.james.container.spring.lifecycle.SpringLogProvider" />
 
 
 	<bean id="org.apache.james.LoaderService" class="org.apache.james.container.spring.lifecycle.JSR250LoaderService">
