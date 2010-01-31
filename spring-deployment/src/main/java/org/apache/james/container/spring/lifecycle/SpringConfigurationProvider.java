@@ -18,6 +18,8 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
+import java.io.IOException;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -48,6 +50,14 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
 	 */
 	public HierarchicalConfiguration getConfigurationForComponent(String name)
 			throws ConfigurationException {
+	    Resource resource = loader.getResource("classpath:" + name + ".xml");
+	    if (resource.exists()) {
+	        try {
+                return getConfig(resource);
+            } catch (IOException e) {
+                throw new ConfigurationException("Unable to read config for component " + name, e);
+            }
+	    }
 		return config.configurationAt(name);
 	}
 
@@ -68,14 +78,19 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
                     + configFile);
         }
         try {
-            config = new XMLConfiguration();
-            config.setDelimiterParsingDisabled(true);
-            config.load(resource.getFile());
+            config = getConfig(resource);
             
         } catch (Exception e1) {
             throw new RuntimeException("could not open configuration file "
                     + configFile, e1);
         }
+    }
+    
+    private XMLConfiguration getConfig(Resource r) throws ConfigurationException, IOException {
+        XMLConfiguration config = new XMLConfiguration();
+        config.setDelimiterParsingDisabled(true);
+        config.load(r.getFile());
+        return config;
     }
 
 }
