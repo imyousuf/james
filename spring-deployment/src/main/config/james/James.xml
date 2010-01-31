@@ -1,0 +1,75 @@
+<James>
+
+    <!-- CHECKME! -->
+    <!-- This is the postmaster email address for this mail server. -->
+    <!-- Set this to the appropriate email address for error reports -->
+    <!-- If this is set to a non-local email address, the mail server -->
+    <!-- will still function, but will generate a warning on startup. -->
+    <postmaster>Postmaster@localhost</postmaster>
+
+
+    <!-- The inbox repository is the location for users inboxes -->
+    <!-- Default setting: file based repository - enter path ( use  "file:///" for absolute) -->
+    <!--
+    <inboxRepository>
+        <repository destinationURL="file://var/mail/inboxes/" type="MAIL"/>
+    </inboxRepository>
+    -->
+
+    <!-- Alternative inbox repository definition for DB use. -->
+    <!-- The format for the destinationURL is "db://<data-source>/<table>" -->
+    <!-- <data-source> is the datasource name set up in the database-connections block, below -->
+    <!-- <table> is the name of the table to store user inboxes in -->
+    <!-- The user name is used as <repositoryName> for this repository config. -->
+    <!--
+    <inboxRepository>
+       <repository destinationURL="db://maildb/inbox/" type="MAIL"/>
+    </inboxRepository>
+    -->
+
+    <!-- Alternative inbox repository definition for DB use. -->
+    <!-- Stores message body in file system, rest in database -->
+    <!-- TEMPORARY DEFAULT: dbfile using Derby -->         
+    <inboxRepository>
+       <repository destinationURL="dbfile://maildb/inbox/" type="MAIL"/>
+    </inboxRepository>
+
+    <!-- Alternative inbox repository definition for mbox use. -->
+    <!-- This method uses UNIX standard mbox files and is meant for people using mbox files -->
+    <!-- with systems such as mail list archive displayers -->
+    <!-- Note that dot-locking is not currently supported -->
+    <!-- so network (write) accesses may cause mbox corruption -->
+    <!-- the sample mbox URL is an absolute URL; mbox:///var/mail will put the users mbox files in /var/mail/-->
+    <!--
+    <inboxRepository>
+        <repository destinationURL="mbox:///var/mail/" type="MAIL"/>
+    </inboxRepository>
+    -->
+    <!-- Experimental IMAP support
+    <inboxRepository>
+        <repository destinationURL="mailboxmanager://#mail/" postfix=".INBOX" translateDelimiters="true" type="MAIL" />
+    </inboxRepository>
+    -->
+      
+    <!-- JCR Support
+    <inboxRepository>
+        <repository destinationURL="jcr://james:inbox/" type="MAIL"/>
+    </inboxRepository> 
+    -->
+    
+    <!-- Set to true to support virtualHosting. If virtualHosting support is enabled the server will accept thread every user independ on -->
+    <!-- domain level. -->
+    <enableVirtualHosting> false </enableVirtualHosting>     
+      
+    <!-- Set the default domain which will be used if an email is send to a recipient without a domain part -->
+    <!-- If not defaultdomain is set the first domain of the DomainList get used -->
+    <defaultDomain> localhost </defaultDomain>
+      
+    <!-- This is the name used by the server to identify itself in the RemoteManager -->
+    <!-- protocol.  If autodetect is TRUE, the server will discover its -->
+    <!-- own host name and use that in the protocol.  If discovery fails, -->
+    <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
+    <!-- will use the specified value. -->
+    <!-- Set the default helloName which is used in all services if not overridden in the specific service-->
+    <helloName autodetect="true">myMailServer</helloName>
+   </James>
