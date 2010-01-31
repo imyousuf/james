@@ -19,21 +19,7 @@
  -->
 <!DOCTYPE config [
 <!ENTITY listserverConfig SYSTEM "../conf/james-listmanager.xml">
-<!ENTITY fetchmailConfig SYSTEM "../conf/fetchmail.xml">
 <!ENTITY jmsConfig SYSTEM "../conf/jms.xml">
-<!ENTITY smtpserverConfig SYSTEM "../conf/smtpserver.xml">
-<!ENTITY pop3serverConfig SYSTEM "../conf/pop3server.xml">
-<!ENTITY imapserverConfig SYSTEM "../conf/imapserver.xml">
-<!ENTITY remotemanagerConfig SYSTEM "../conf/remotemanager.xml">
-<!ENTITY usersstoreConfig SYSTEM "../conf/users-store.xml">
-<!ENTITY virtualusertablestoreConfig SYSTEM "../conf/virtualusertable-store.xml">
-<!ENTITY JamesConfig SYSTEM "../conf/James.xml">
-<!ENTITY mailstoreConfig SYSTEM "../conf/mailstore.xml">
-<!ENTITY spoolmanagerConfig SYSTEM "../conf/spoolmanager.xml">
-<!ENTITY dnsserverConfig SYSTEM "../conf/dnsserver.xml">
-<!ENTITY domainlistConfig SYSTEM "../conf/domainlist.xml">
-
-
 ]>
 
 <!--  Configuration file for the ASF James server -->
@@ -55,7 +41,6 @@
 <!-- $Revision: 885240 $ Committed on $Date: 2009-11-29 16:15:13 +0100 (So, 29 Nov 2009) $ by: $Author: norman $ -->
 
 <config>
-   &JamesConfig;
    
    <!-- This is an example configuration for FetchMail, a JavaMail based gateway  -->
    <!-- service that pulls messages from other sources, and inserts them into the -->
@@ -65,7 +50,6 @@
    <!-- Fetchmail is a functionally richer replacement for FetchPOP.              -->
    <!-- CHECKME: FetchMail is disabled by default, and must be configured to use. -->
    <!-- Edit the file referred to by fetchmailConfig to enable and configure.     -->
-   &fetchmailConfig;
    
    <!-- Example configuration for JMS interoperation -->
    <!--&jmsConfig;-->
@@ -83,11 +67,6 @@
       <!-- Crytographic mailets -->
       <matcherpackage>org.apache.james.mailet.crypto.matchers</matcherpackage>
    </matcherpackages>
-
-    &spoolmanagerConfig;
-    &dnsserverConfig;
-    &domainlistConfig;
-  
       
    <!-- Uncommment this block to enable the BayesianAnalyserManagement. -->
    <!-- This is needed by the RemoteManager to enable the BayesianAnaylyzerManagement commands --> 
@@ -95,15 +74,6 @@
       <repositoryPath> db://maildb </repositoryPath>
       <sqlFile>file://conf/sqlResources.xml</sqlFile>
    </bayesiananalyzermanagement>
-    
-
-   &remotemanagerConfig;
-   &smtpserverConfig;
-   &pop3serverConfig;
-   &imapserverConfig;
- 
-   
-    
  
 
    <!-- Spool repository configuration -->
@@ -123,11 +93,4 @@
    <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
    <spoolrepository destinationURL="dbfile://maildb/spool/spool" type="SPOOL"/>
    <!-- TEMPORARY DEFAULT: dbfile using Derby  -->
-
-   &mailstoreConfig;
-    
-   &usersstoreConfig;
-   
-   &virtualusertablestoreConfig;
-
 </config>
