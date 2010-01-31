@@ -24,7 +24,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.james.container.spring.ConfigurationProvider;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -34,15 +33,9 @@ import org.springframework.core.io.ResourceLoader;
  * 
  *
  */
-public class SpringConfigurationProvider implements ConfigurationProvider, ResourceLoaderAware, InitializingBean{
+public class SpringConfigurationProvider implements ConfigurationProvider, ResourceLoaderAware {
 
 	private ResourceLoader loader;
-	private String configFile;
-	private XMLConfiguration config;
-	
-	public void setConfigurationResource(String configFile) {
-		this.configFile = configFile;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -58,7 +51,7 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
                 throw new ConfigurationException("Unable to read config for component " + name, e);
             }
 	    }
-		return config.configurationAt(name);
+	    throw new ConfigurationException("Unable to load configuration for component " + name);
 	}
 
 
@@ -70,21 +63,6 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
 		this.loader = loader;
 	}
 
-
-    public void afterPropertiesSet() throws Exception {
-        Resource resource = loader.getResource(configFile);
-        if (!resource.exists()) {
-            throw new RuntimeException("could not locate configuration file "
-                    + configFile);
-        }
-        try {
-            config = getConfig(resource);
-            
-        } catch (Exception e1) {
-            throw new RuntimeException("could not open configuration file "
-                    + configFile, e1);
-        }
-    }
     
     private XMLConfiguration getConfig(Resource r) throws ConfigurationException, IOException {
         XMLConfiguration config = new XMLConfiguration();
