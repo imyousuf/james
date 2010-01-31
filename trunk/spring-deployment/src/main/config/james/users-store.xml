@@ -1,0 +1,57 @@
+<!-- The User Storage block -->
+<users-store>
+    <!-- Configure User Repositories here. -->
+    <!-- -->
+    <!-- User repositories are required for the following purposes: -->
+    <!--    - storing James user information, including forwards, aliases, -->
+    <!--      and authentication data. -->
+    <!--    - holding lists of users for the listserv mailet -->
+    <!-- Currently, two different storage options are available: -->
+    <!--    - file-based storage using Java serialization -->
+    <!--    - database-backed storage -->
+    <!-- (Use of database or file-system is defined on a "per-repository" basis) -->
+    <!-- -->
+    <!-- Note: One user repository is required for James: -->
+    <!--   LocalUsers - the users for whom you are providing POP3, NNTP, or SMTP service -->
+    <!-- -->
+    <!-- Other repositories may be used by matchers or mailets. -->
+
+    <!-- Default: File-based user repositories  Use these configurations to store user info in the filesystem  -->
+    <!-- The LocalUsers repository, for storing James' User info. -->
+    <!--
+    <repository name="LocalUsers" class="org.apache.james.userrepository.UsersFileRepository">
+        <destination URL="file://var/users/"/>
+        <ignoreCase>true</ignoreCase>
+        <enableAliases>true</enableAliases>
+        <enableForwarding>true</enableForwarding>
+    </repository>
+    -->
+
+    <!-- Database backed user repositories -->
+    <!-- -->
+    <!-- Use these configurations to store user info in a database. -->
+    <!-- Note: The <data-source> element must refer to a connection configured -->
+    <!--       in the <database-connections> configuration section. -->
+    <!-- The LocalUsers repository, for storing James' User info. -->
+    <repository name="LocalUsers" class="org.apache.james.userrepository.JamesUsersJdbcRepository" destinationURL="db://maildb/users">
+        <sqlFile>file://conf/sqlResources.xml</sqlFile>
+        <!-- Set whether user names are case sensitive or case insensitive -->
+        <ignoreCase>true</ignoreCase>
+        <!-- Set whether to enable local aliases -->
+        <enableAliases>true</enableAliases>
+        <!-- Set whether to enable forwarding -->
+        <enableForwarding>true</enableForwarding>
+    </repository>
+
+    <!-- This is an example configuration including configuration for a list server. -->
+    <!-- CHECKME: before uncommenting this, edit the configuration file's contents   -->
+    <!-- -->
+    <!-- Mailing list repositories  -->
+    <!-- Add a user repository for each list -->
+    <!-- TODO: add more examples  -->    
+    <!--       
+    <repository name="list-test" class="org.apache.james.userrepository.UsersFileRepository">
+       <destination URL="file://var/lists/list-test/"/>
+    </repository>      
+    -->
+</users-store>
