@@ -49,8 +49,7 @@
     <module>pop3server-function</module>
     <module>spoolmanager-function</module>
     <module>remotemanager-function</module>
-    <module>basic-user-function</module>
-    <module>avalon-user-function</module>
+    <module>user-function</module>
     <module>mailets-function</module>
     <module>fetchmail-function</module>
     <module>experimental-activemq-function</module>
@@ -140,6 +139,7 @@
       </plugin>
     </plugins>
   </build>
+  
   
   <reporting>
     <plugins>
@@ -416,12 +416,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-user-function</artifactId>
-      <version>3.0-M1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-basic-user-function</artifactId>
+      <artifactId>james-server-user-function</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>

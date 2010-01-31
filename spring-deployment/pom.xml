@@ -282,15 +282,10 @@
       <artifactId>james-server-smtp-protocol-library</artifactId>
       <scope>runtime</scope>
     </dependency>
-   
+
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-avalon-user-function</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-basic-user-function</artifactId>
+      <artifactId>james-server-user-function</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
