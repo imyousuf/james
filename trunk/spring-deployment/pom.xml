@@ -290,12 +290,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtpserver-function</artifactId>
+      <artifactId>james-server-smtpserver</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imapserver-function</artifactId>
+      <artifactId>james-server-imapserver</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -305,12 +305,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-pop3server-function</artifactId>
+      <artifactId>james-server-pop3server</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-fetchmail-function</artifactId>
+      <artifactId>james-server-fetchmail</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -325,7 +325,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-remotemanager-function</artifactId>
+      <artifactId>james-server-remotemanager</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>

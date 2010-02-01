@@ -25,8 +25,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-fetchmail-function</artifactId>
-  <name>Apache JAMES Server FetchMail function</name>
+  <artifactId>james-server-fetchmail</artifactId>
+  <name>Apache JAMES Server FetchMail</name>
   <dependencies>
     <dependency>
       <groupId>${javax.mail.groupId}</groupId>
