@@ -282,7 +282,7 @@
       <artifactId>james-server-smtp-protocol-library</artifactId>
       <scope>runtime</scope>
     </dependency>
-
+   
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-function</artifactId>
