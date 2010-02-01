@@ -73,7 +73,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtp-protocol-library</artifactId>
+      <artifactId>james-server-smtp-protocol</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -122,7 +122,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtp-protocol-library</artifactId>
+      <artifactId>james-server-smtp-protocol</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

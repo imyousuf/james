@@ -43,8 +43,8 @@
     
     <module>domain-api</module>
     <module>core-library</module>
-    <module>management-library</module>
-    <module>smtp-protocol-library</module>
+    <module>management</module>
+    <module>smtp-protocol</module>
     <module>core-function</module>
     <module>imapserver</module>
     <module>smtpserver</module>
@@ -356,7 +356,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-management-library</artifactId>
+      <artifactId>james-server-management</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
@@ -373,12 +373,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtp-protocol-library</artifactId>
+      <artifactId>james-server-smtp-protocol</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtp-protocol-library</artifactId>
+      <artifactId>james-server-smtp-protocol</artifactId>
       <version>3.0-M1</version>
       <type>test-jar</type>
       <scope>test</scope>
