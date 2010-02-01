@@ -22,7 +22,7 @@ package org.apache.james.pop3server.core;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.api.protocol.HandlersPackage;
+import org.apache.james.protocols.api.HandlersPackage;
 
 public class CoreCmdHandlerLoader implements HandlersPackage{
 
@@ -63,8 +63,10 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
         commands.add(UNKOWNCMDHANDLER);
 
     }
-    /**
-     * @see org.apache.james.api.protocol.HandlersPackage#getHandlers()
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {
         return commands;

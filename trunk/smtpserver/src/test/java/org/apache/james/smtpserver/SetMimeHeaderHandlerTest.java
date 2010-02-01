@@ -21,9 +21,10 @@
 package org.apache.james.smtpserver;
 
 import junit.framework.TestCase;
+
+import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
+import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.integration.SetMimeHeaderHandler;
-import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
-import org.apache.james.smtpserver.protocol.SMTPSession;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;

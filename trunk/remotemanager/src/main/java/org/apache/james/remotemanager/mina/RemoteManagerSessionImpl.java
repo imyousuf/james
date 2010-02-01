@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.api.protocol.LineHandler;
-import org.apache.james.api.protocol.Response;
+import org.apache.james.protocols.api.LineHandler;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.remotemanager.mina.filter.RemoteManagerResponseFilter;

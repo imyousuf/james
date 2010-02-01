@@ -24,7 +24,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.Configurable;
 
-public class TarpitHandler extends org.apache.james.smtpserver.protocol.core.fastfail.TarpitHandler implements Configurable{
+public class TarpitHandler extends org.apache.james.protocols.smtp.core.fastfail.TarpitHandler implements Configurable{
 
     /*
      * (non-Javadoc)

@@ -25,10 +25,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.protocol.Request;
-import org.apache.james.api.protocol.Response;
 import org.apache.james.management.DomainListManagementException;
 import org.apache.james.management.DomainListManagementService;
+import org.apache.james.protocols.api.Request;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
@@ -57,9 +57,10 @@ public class AddDomainCmdHandler implements CommandHandler{
         return help;
     }
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.api.protocol.CommandHandler#onCommand(org.apache.james.api.protocol.LogEnabledSession, org.apache.james.api.protocol.Request)
+     * @see org.apache.james.protocols.api.CommandHandler#onCommand(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Request)
      */
     public Response onCommand(RemoteManagerSession session, Request request) {
         RemoteManagerResponse response = null;

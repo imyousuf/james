@@ -24,7 +24,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.dsn.DSNStatus;
 import org.apache.james.jspf.core.DNSService;
 import org.apache.james.jspf.core.exceptions.SPFErrorConstants;
 import org.apache.james.jspf.executor.SPFResult;
@@ -32,13 +31,14 @@ import org.apache.james.jspf.impl.DefaultSPF;
 import org.apache.james.jspf.impl.SPF;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.protocols.smtp.SMTPRetCode;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.dsn.DSNStatus;
+import org.apache.james.protocols.smtp.hook.HookResult;
+import org.apache.james.protocols.smtp.hook.HookReturnCode;
+import org.apache.james.protocols.smtp.hook.MailHook;
+import org.apache.james.protocols.smtp.hook.RcptHook;
 import org.apache.james.smtpserver.integration.JamesMessageHook;
-import org.apache.james.smtpserver.protocol.SMTPRetCode;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
-import org.apache.james.smtpserver.protocol.hook.MailHook;
-import org.apache.james.smtpserver.protocol.hook.RcptHook;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -169,7 +169,7 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.hook.RcptHook#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     * @see org.apache.james.protocols.smtp.hook.RcptHook#doRcpt(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         if (!session.isRelayingAllowed()) {
@@ -186,7 +186,7 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.hook.MailHook#doMail(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.MailAddress)
+     * @see org.apache.james.protocols.smtp.hook.MailHook#doMail(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.MailAddress)
      */
     public HookResult doMail(SMTPSession session, MailAddress sender) {
         doSPFCheck(session,sender);
@@ -312,7 +312,7 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
     }
     
 	/**
-	 * @see org.apache.james.smtpserver.integration.JamesMessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession,
+	 * @see org.apache.james.smtpserver.integration.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession,
 	 *      org.apache.mailet.Mail)
 	 */
 	public HookResult onMessage(SMTPSession session, Mail mail) {

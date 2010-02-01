@@ -31,9 +31,9 @@ import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.lifecycle.Configurable;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.fastfail.AbstractValidRcptHandler;
 import org.apache.mailet.MailAddress;
 
 /**

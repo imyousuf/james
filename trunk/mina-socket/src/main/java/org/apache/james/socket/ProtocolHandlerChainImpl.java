@@ -33,12 +33,13 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.kernel.LoaderService;
-import org.apache.james.api.protocol.ExtensibleHandler;
-import org.apache.james.api.protocol.HandlersPackage;
-import org.apache.james.api.protocol.ProtocolHandlerChain;
-import org.apache.james.api.protocol.WiringException;
+
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.api.WiringException;
 
 /**
  * Abstract class which HandlerChains should extend

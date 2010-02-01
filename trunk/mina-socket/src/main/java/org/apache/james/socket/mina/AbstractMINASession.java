@@ -25,8 +25,8 @@ import java.net.InetSocketAddress;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.api.protocol.Response;
-import org.apache.james.api.protocol.TLSSupportedSession;
+import org.apache.james.protocols.api.Response;
+import org.apache.james.protocols.api.TLSSupportedSession;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslFilter;
 

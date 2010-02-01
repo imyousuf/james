@@ -21,8 +21,8 @@ package org.apache.james.smtpserver.integration;
 
 import javax.annotation.Resource;
 
+import org.apache.james.protocols.smtp.core.RcptCmdHandler;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.core.RcptCmdHandler;
 
 public class JamesRcptCmdHandler extends RcptCmdHandler{
 	private MailServer mailServer;
@@ -49,7 +49,7 @@ public class JamesRcptCmdHandler extends RcptCmdHandler{
 
 	/**
 	 * (non-Javadoc)
-	 * @see org.apache.james.smtpserver.protocol.core.RcptCmdHandler#getDefaultDomain()
+	 * @see org.apache.james.protocols.smtp.core.RcptCmdHandler#getDefaultDomain()
 	 */
     protected String getDefaultDomain() {
     	return mailServer.getDefaultDomain();

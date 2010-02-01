@@ -50,8 +50,8 @@
       <artifactId>james-server-user-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-socket-api</artifactId>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -72,8 +72,8 @@
       <artifactId>james-server-core-library</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtp-protocol</artifactId>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-smtp</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -121,8 +121,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtp-protocol</artifactId>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-smtp</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

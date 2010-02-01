@@ -29,11 +29,11 @@ import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
+import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.hook.HookResult;
+import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.smtpserver.integration.fastfail.SpamAssassinHandler;
-import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.test.mock.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.util.MockSpamd;

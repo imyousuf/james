@@ -19,7 +19,7 @@
 
 package org.apache.james.remotemanager;
 
-public interface CommandHandler extends org.apache.james.api.protocol.CommandHandler<RemoteManagerSession>{
+public interface CommandHandler extends org.apache.james.protocols.api.CommandHandler<RemoteManagerSession>{
 	
 	public CommandHelp getHelp();
 }

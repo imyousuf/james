@@ -19,7 +19,7 @@
 
 package org.apache.james.remotemanager;
 
-import org.apache.james.api.protocol.BaseRequest;
+import org.apache.james.protocols.api.BaseRequest;
 
 public class RemoteManagerRequest extends BaseRequest{
 

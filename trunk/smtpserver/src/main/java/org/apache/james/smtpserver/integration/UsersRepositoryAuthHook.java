@@ -21,10 +21,10 @@ package org.apache.james.smtpserver.integration;
 import javax.annotation.Resource;
 
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.hook.AuthHook;
-import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.hook.AuthHook;
+import org.apache.james.protocols.smtp.hook.HookResult;
+import org.apache.james.protocols.smtp.hook.HookReturnCode;
 
 /**
  * This Auth hook can be used to authenticate against the james user repository
@@ -52,7 +52,7 @@ public class UsersRepositoryAuthHook implements AuthHook {
 
 
     /**
-     * @see org.apache.james.smtpserver.protocol.hook.AuthHook#doAuth(org.apache.james.smtpserver.protocol.SMTPSession, java.lang.String, java.lang.String)
+     * @see org.apache.james.protocols.smtp.hook.AuthHook#doAuth(org.apache.james.protocols.smtp.SMTPSession, java.lang.String, java.lang.String)
      */
     public HookResult doAuth(SMTPSession session, String username, String password) {
         if (users.test(username, password)) {

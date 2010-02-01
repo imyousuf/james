@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.james.api.protocol.CommandHandler;
-import org.apache.james.api.protocol.ExtensibleHandler;
-import org.apache.james.api.protocol.Request;
-import org.apache.james.api.protocol.Response;
-import org.apache.james.api.protocol.WiringException;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.protocols.api.CommandHandler;
+import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.Request;
+import org.apache.james.protocols.api.Response;
+import org.apache.james.protocols.api.WiringException;
 
 /**
  * This handler is used to handle CAPA commands
@@ -42,9 +42,11 @@ public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHa
 
 
 
+
+	
 	/*
 	 * (non-Javadoc)
-	 * @see org.apache.james.api.protocol.CommandHandler#onCommand(org.apache.james.api.protocol.LogEnabledSession, org.apache.james.api.protocol.Request)
+	 * @see org.apache.james.protocols.api.CommandHandler#onCommand(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Request)
 	 */
     public Response onCommand(POP3Session session, Request request) {
 	    POP3Response response = new POP3Response(POP3Response.OK_RESPONSE,"Capability list follows");

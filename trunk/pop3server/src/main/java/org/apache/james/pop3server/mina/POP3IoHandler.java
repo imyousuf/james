@@ -20,10 +20,10 @@
 package org.apache.james.pop3server.mina;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.api.protocol.ProtocolSession;
-import org.apache.james.api.protocol.ProtocolHandlerChain;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.socket.mina.AbstractIoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;

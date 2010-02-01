@@ -71,8 +71,8 @@
       <artifactId>james-server-core-library</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtp-protocol</artifactId>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-smtp</artifactId>
     </dependency>
 
     <dependency>

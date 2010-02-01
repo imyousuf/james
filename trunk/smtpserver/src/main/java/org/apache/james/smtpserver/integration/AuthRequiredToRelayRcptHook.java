@@ -20,8 +20,8 @@ package org.apache.james.smtpserver.integration;
 
 import javax.annotation.Resource;
 
+import org.apache.james.protocols.smtp.core.AbstractAuthRequiredToRelayRcptHook;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.core.AbstractAuthRequiredToRelayRcptHook;
 
 public class AuthRequiredToRelayRcptHook extends AbstractAuthRequiredToRelayRcptHook {
     private MailServer mailServer;
@@ -45,7 +45,7 @@ public class AuthRequiredToRelayRcptHook extends AbstractAuthRequiredToRelayRcpt
 
     /**
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.core.AbstractAuthRequiredToRelayRcptHook#isLocalDomain(java.lang.String)
+     * @see org.apache.james.protocols.smtp.core.AbstractAuthRequiredToRelayRcptHook#isLocalDomain(java.lang.String)
      */
     protected boolean isLocalDomain(String domain) {
         return mailServer.isLocalServer(domain);

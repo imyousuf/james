@@ -22,9 +22,9 @@ package org.apache.james.pop3server.core;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.james.api.protocol.AbstractCommandDispatcher;
-import org.apache.james.api.protocol.CommandHandler;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.protocols.api.AbstractCommandDispatcher;
+import org.apache.james.protocols.api.CommandHandler;
 
 /**
  * Dispatch 

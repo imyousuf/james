@@ -28,11 +28,11 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.james.protocols.smtp.SMTPConfiguration;
+import org.apache.james.protocols.smtp.SMTPResponse;
+import org.apache.james.protocols.smtp.SMTPServerMBean;
 import org.apache.james.smtpserver.integration.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
-import org.apache.james.smtpserver.protocol.SMTPConfiguration;
-import org.apache.james.smtpserver.protocol.SMTPResponse;
-import org.apache.james.smtpserver.protocol.SMTPServerMBean;
 import org.apache.james.socket.ProtocolHandlerChainImpl;
 import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.james.socket.mina.filter.ResponseValidationFilter;
@@ -228,7 +228,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
     private class SMTPHandlerConfigurationDataImpl implements SMTPConfiguration {
 
         /**
-         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#getHelloName()
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#getHelloName()
          */
         public String getHelloName() {
             if (AsyncSMTPServer.this.getHelloName() == null) {
@@ -239,21 +239,21 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         }
 
         /**
-         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#getResetLength()
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#getResetLength()
          */
         public int getResetLength() {
             return AsyncSMTPServer.this.lengthReset;
         }
 
         /**
-         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#getMaxMessageSize()
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#getMaxMessageSize()
          */
         public long getMaxMessageSize() {
             return AsyncSMTPServer.this.maxMessageSize;
         }
 
         /**
-         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#isAuthSupported(String)
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#isAuthSupported(String)
          */
         public boolean isRelayingAllowed(String remoteIP) {
             boolean relayingAllowed = false;
@@ -264,7 +264,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         }
 
         /**
-         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#useHeloEhloEnforcement()
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#useHeloEhloEnforcement()
          */
         public boolean useHeloEhloEnforcement() {
             return AsyncSMTPServer.this.heloEhloEnforcement;
@@ -272,21 +272,21 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 
 
         /**
-         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#getSMTPGreeting()
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#getSMTPGreeting()
          */
         public String getSMTPGreeting() {
             return AsyncSMTPServer.this.smtpGreeting;
         }
 
         /**
-         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#useAddressBracketsEnforcement()
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#useAddressBracketsEnforcement()
          */
         public boolean useAddressBracketsEnforcement() {
             return AsyncSMTPServer.this.addressBracketsEnforcement;
         }
 
         /**
-         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#isAuthRequired(java.lang.String)
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#isAuthRequired(java.lang.String)
          */
         public boolean isAuthRequired(String remoteIP) {
             if (AsyncSMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
@@ -298,7 +298,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         }
 
         /**
-         * @see org.apache.james.smtpserver.protocol.SMTPConfiguration#isStartTLSSupported()
+         * @see org.apache.james.protocols.smtp.SMTPConfiguration#isStartTLSSupported()
          */
 		public boolean isStartTLSSupported() {
 			return AsyncSMTPServer.this.isStartTLSSupported();
@@ -308,7 +308,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
     
     /**
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#getNetworkInterface()
+     * @see org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
      */
     public String getNetworkInterface() {
         return "unkown";
@@ -316,7 +316,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
 
     /**
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.SMTPServerMBean#getSocketType()
+     * @see org.apache.james.protocols.smtp.SMTPServerMBean#getSocketType()
      */
     public String getSocketType() {
         return "plain";

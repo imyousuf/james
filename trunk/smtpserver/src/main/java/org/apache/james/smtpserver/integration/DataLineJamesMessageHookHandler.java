@@ -33,25 +33,25 @@ import javax.mail.MessagingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.api.protocol.ExtensibleHandler;
-import org.apache.james.api.protocol.LineHandler;
-import org.apache.james.api.protocol.WiringException;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.LineHandler;
+import org.apache.james.protocols.api.WiringException;
+import org.apache.james.protocols.smtp.MailEnvelope;
+import org.apache.james.protocols.smtp.SMTPResponse;
+import org.apache.james.protocols.smtp.SMTPRetCode;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.core.AbstractHookableCmdHandler;
+import org.apache.james.protocols.smtp.core.DataLineFilter;
+import org.apache.james.protocols.smtp.dsn.DSNStatus;
+import org.apache.james.protocols.smtp.hook.HookResult;
+import org.apache.james.protocols.smtp.hook.HookResultHook;
+import org.apache.james.protocols.smtp.hook.MessageHook;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.MailEnvelope;
-import org.apache.james.smtpserver.protocol.SMTPResponse;
-import org.apache.james.smtpserver.protocol.SMTPRetCode;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.AbstractHookableCmdHandler;
-import org.apache.james.smtpserver.protocol.core.DataLineFilter;
-import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookResultHook;
-import org.apache.james.smtpserver.protocol.hook.MessageHook;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -280,7 +280,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     	}
     	
     	/**
-    	 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getMessageInputStream()
+    	 * @see org.apache.james.protocols.smtp.MailEnvelope#getMessageInputStream()
     	 */
 		public InputStream getMessageInputStream() throws Exception {
 			return mail.getMessage().getInputStream();
@@ -294,7 +294,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 		}
 
 		/**
-		 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getRecipients()
+		 * @see org.apache.james.protocols.smtp.MailEnvelope#getRecipients()
 		 */
 		public List<MailAddress> getRecipients() {
 			return new ArrayList<MailAddress>(mail.getRecipients());
@@ -302,14 +302,14 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 
 		/**
 		 * (non-Javadoc)
-		 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getSender()
+		 * @see org.apache.james.protocols.smtp.MailEnvelope#getSender()
 		 */
 		public MailAddress getSender() {
 			return mail.getSender();
 		}
 		
 		/**
-		 * @see org.apache.james.smtpserver.protocol.MailEnvelope#getSize()
+		 * @see org.apache.james.protocols.smtp.MailEnvelope#getSize()
 		 */
 		public int getSize() {
 			try {
@@ -321,7 +321,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 
 		/**
 		 * (non-Javadoc)
-		 * @see org.apache.james.smtpserver.protocol.MailEnvelope#setRecipients(java.util.List)
+		 * @see org.apache.james.protocols.smtp.MailEnvelope#setRecipients(java.util.List)
 		 */
 		public void setRecipients(List<MailAddress> recipientCollection) {
 			mail.setRecipients(recipientCollection);

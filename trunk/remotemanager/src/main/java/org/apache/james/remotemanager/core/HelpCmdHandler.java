@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.james.api.protocol.ExtensibleHandler;
-import org.apache.james.api.protocol.Request;
-import org.apache.james.api.protocol.Response;
-import org.apache.james.api.protocol.WiringException;
+import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.Request;
+import org.apache.james.protocols.api.Response;
+import org.apache.james.protocols.api.WiringException;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
@@ -48,7 +48,7 @@ public class HelpCmdHandler implements CommandHandler, ExtensibleHandler{
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.api.protocol.CommandHandler#onCommand(org.apache.james.api.protocol.LogEnabledSession, org.apache.james.api.protocol.Request)
+     * @see org.apache.james.protocols.api.CommandHandler#onCommand(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Request)
      */
     public Response onCommand(RemoteManagerSession session, Request request) {
         RemoteManagerResponse response = null;
@@ -85,8 +85,9 @@ public class HelpCmdHandler implements CommandHandler, ExtensibleHandler{
         return mList;
     }
 
-    /**
-     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (interfaceName.equals(CommandHandler.class)) {
