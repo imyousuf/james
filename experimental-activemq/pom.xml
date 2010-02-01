@@ -25,32 +25,53 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-mina-socket-library</artifactId>
-  <name>Apache JAMES Server Mina Socket Library</name>
+  <artifactId>james-server-experimental-activemq</artifactId>
+  <name>Apache JAMES Server JMS Function</name>
   <dependencies>
     <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-core</artifactId>
+      <groupId>${javax.mail.groupId}</groupId>
+      <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
+      <artifactId>apache-mailet</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-socket-api</artifactId>
+      <artifactId>apache-mime4j</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-library</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jms_1.1_spec</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-core</artifactId>
+    </dependency>
+    
+    <dependency>
+    	<groupId>commons-io</groupId>
+    	<artifactId>commons-io</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
+    	<groupId>commons-logging</groupId>
+    	<artifactId>commons-logging</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>jmock</groupId>
+      <artifactId>jmock</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

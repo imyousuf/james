@@ -235,7 +235,7 @@
 
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mina-socket-library</artifactId>
+      <artifactId>james-server-mina-socket</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -315,12 +315,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-spoolmanager-function</artifactId>
+      <artifactId>james-server-spoolmanager</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailets-function</artifactId>
+      <artifactId>james-server-mailets</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -330,7 +330,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-experimental-activemq-function</artifactId>
+      <artifactId>james-server-experimental-activemq</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -398,7 +398,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtpserver-function</artifactId>
+      <artifactId>james-server-smtpserver</artifactId>
       <version>3.0-M1</version>
       <type>test-jar</type>
       <scope>test</scope>
