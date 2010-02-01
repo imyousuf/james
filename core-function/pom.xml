@@ -78,7 +78,7 @@
    
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-management-library</artifactId>
+      <artifactId>james-server-management</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
