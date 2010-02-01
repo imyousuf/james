@@ -19,7 +19,7 @@
 package org.apache.james.socket.mina.filter;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.api.protocol.Response;
+import org.apache.james.protocols.api.Response;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;

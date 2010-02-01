@@ -24,21 +24,21 @@ package org.apache.james.smtpserver.integration;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.api.protocol.HandlersPackage;
-import org.apache.james.smtpserver.protocol.core.ExpnCmdHandler;
-import org.apache.james.smtpserver.protocol.core.HeloCmdHandler;
-import org.apache.james.smtpserver.protocol.core.HelpCmdHandler;
-import org.apache.james.smtpserver.protocol.core.NoopCmdHandler;
-import org.apache.james.smtpserver.protocol.core.PostmasterAbuseRcptHook;
-import org.apache.james.smtpserver.protocol.core.QuitCmdHandler;
-import org.apache.james.smtpserver.protocol.core.ReceivedDataLineFilter;
-import org.apache.james.smtpserver.protocol.core.RsetCmdHandler;
-import org.apache.james.smtpserver.protocol.core.SMTPCommandDispatcherLineHandler;
-import org.apache.james.smtpserver.protocol.core.VrfyCmdHandler;
-import org.apache.james.smtpserver.protocol.core.esmtp.AuthCmdHandler;
-import org.apache.james.smtpserver.protocol.core.esmtp.EhloCmdHandler;
-import org.apache.james.smtpserver.protocol.core.esmtp.MailSizeEsmtpExtension;
-import org.apache.james.smtpserver.protocol.core.esmtp.StartTlsCmdHandler;
+import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.smtp.core.ExpnCmdHandler;
+import org.apache.james.protocols.smtp.core.HeloCmdHandler;
+import org.apache.james.protocols.smtp.core.HelpCmdHandler;
+import org.apache.james.protocols.smtp.core.NoopCmdHandler;
+import org.apache.james.protocols.smtp.core.PostmasterAbuseRcptHook;
+import org.apache.james.protocols.smtp.core.QuitCmdHandler;
+import org.apache.james.protocols.smtp.core.ReceivedDataLineFilter;
+import org.apache.james.protocols.smtp.core.RsetCmdHandler;
+import org.apache.james.protocols.smtp.core.SMTPCommandDispatcherLineHandler;
+import org.apache.james.protocols.smtp.core.VrfyCmdHandler;
+import org.apache.james.protocols.smtp.core.esmtp.AuthCmdHandler;
+import org.apache.james.protocols.smtp.core.esmtp.EhloCmdHandler;
+import org.apache.james.protocols.smtp.core.esmtp.MailSizeEsmtpExtension;
+import org.apache.james.protocols.smtp.core.esmtp.StartTlsCmdHandler;
 
 /**
  * This class represent the base command handlers which are shipped with james.
@@ -102,8 +102,9 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(ADDDEFAULTATTRIBUTESHANDLER);
         commands.add(SENDMAILHANDLER);
     }
-    /**
-     * @see org.apache.james.api.protocol.HandlersPackage#getHandlers()
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {
         return commands;

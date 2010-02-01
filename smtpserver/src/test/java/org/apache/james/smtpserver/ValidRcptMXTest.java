@@ -30,10 +30,10 @@ import javax.mail.internet.ParseException;
 
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.smtpserver.integration.fastfail.ValidRcptMX;
-import org.apache.james.smtpserver.protocol.BaseFakeSMTPSession;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;

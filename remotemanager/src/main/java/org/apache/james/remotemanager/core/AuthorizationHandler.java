@@ -21,8 +21,8 @@ package org.apache.james.remotemanager.core;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.james.api.protocol.ConnectHandler;
-import org.apache.james.api.protocol.LineHandler;
+import org.apache.james.protocols.api.ConnectHandler;
+import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 

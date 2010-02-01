@@ -19,8 +19,8 @@
 
 package org.apache.james.pop3server.mina.filter;
 
-import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Response;
+import org.apache.james.protocols.api.Response;
 import org.apache.james.socket.mina.filter.AbstractResponseFilter;
 import org.apache.mina.core.session.IoSession;
 

@@ -19,7 +19,7 @@
 
 package org.apache.james.pop3server;
 
-import org.apache.james.api.protocol.BaseRequest;
+import org.apache.james.protocols.api.BaseRequest;
 
 /**
  * POP3Request object 

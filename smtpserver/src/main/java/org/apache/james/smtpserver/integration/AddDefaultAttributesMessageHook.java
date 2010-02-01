@@ -19,9 +19,9 @@
 package org.apache.james.smtpserver.integration;
 
 import org.apache.james.core.MailImpl;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.hook.HookResult;
+import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.mailet.Mail;
 
 /**

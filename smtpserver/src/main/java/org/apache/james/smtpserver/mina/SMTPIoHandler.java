@@ -20,12 +20,13 @@
 package org.apache.james.smtpserver.mina;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.api.protocol.ProtocolSession;
-import org.apache.james.api.protocol.ProtocolHandlerChain;
-import org.apache.james.smtpserver.protocol.SMTPConfiguration;
-import org.apache.james.smtpserver.protocol.SMTPResponse;
-import org.apache.james.smtpserver.protocol.SMTPRetCode;
-import org.apache.james.smtpserver.protocol.SMTPSession;
+
+import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.protocols.smtp.SMTPConfiguration;
+import org.apache.james.protocols.smtp.SMTPResponse;
+import org.apache.james.protocols.smtp.SMTPRetCode;
+import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.socket.mina.AbstractIoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.ssl.SslContextFactory;

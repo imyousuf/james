@@ -31,7 +31,7 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
 
-public class DNSRBLHandler extends org.apache.james.smtpserver.protocol.core.fastfail.DNSRBLHandler implements Configurable{
+public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail.DNSRBLHandler implements Configurable{
 
     /*
      * (non-Javadoc)

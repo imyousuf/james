@@ -22,7 +22,8 @@ package org.apache.james.pop3server;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.api.protocol.RetCodeResponse;
+import org.apache.james.protocols.api.RetCodeResponse;
+
 
 /**
  * Contains an SMTP result

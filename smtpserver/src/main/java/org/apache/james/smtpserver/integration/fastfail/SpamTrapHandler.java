@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
-public class SpamTrapHandler extends org.apache.james.smtpserver.protocol.core.fastfail.SpamTrapHandler{
+public class SpamTrapHandler extends org.apache.james.protocols.smtp.core.fastfail.SpamTrapHandler{
 
     /*
      * (non-Javadoc)

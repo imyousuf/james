@@ -22,7 +22,7 @@ package org.apache.james.remotemanager;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.api.protocol.Response;
+import org.apache.james.protocols.api.Response;
 
 /**
  */

@@ -24,7 +24,7 @@ package org.apache.james.pop3server;
 
 import java.util.List;
 
-import org.apache.james.api.protocol.TLSSupportedSession;
+import org.apache.james.protocols.api.TLSSupportedSession;
 import org.apache.james.services.MailRepository;
 import org.apache.mailet.Mail;
 

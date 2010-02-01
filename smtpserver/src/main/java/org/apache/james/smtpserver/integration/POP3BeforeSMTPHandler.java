@@ -22,9 +22,9 @@ package org.apache.james.smtpserver.integration;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.protocol.ConnectHandler;
 import org.apache.james.lifecycle.Configurable;
-import org.apache.james.smtpserver.protocol.SMTPSession;
+import org.apache.james.protocols.api.ConnectHandler;
+import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.TimeConverter;
 

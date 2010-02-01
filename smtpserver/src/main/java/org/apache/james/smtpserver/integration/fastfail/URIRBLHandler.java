@@ -41,13 +41,13 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.dsn.DSNStatus;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.dsn.DSNStatus;
+import org.apache.james.protocols.smtp.hook.HookResult;
+import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.smtpserver.integration.JamesMessageHook;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.mailet.Mail;
 
 /**
@@ -143,7 +143,7 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
     }
     
     /**
-     * @see org.apache.james.smtpserver.integration.JamesMessageHook#onMessage(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.integration.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.Mail)
      */
     public HookResult onMessage(SMTPSession session, Mail mail) {
         if (check(session, mail)) {

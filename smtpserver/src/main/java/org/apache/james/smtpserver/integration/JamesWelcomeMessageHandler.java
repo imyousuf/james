@@ -21,7 +21,7 @@
 package org.apache.james.smtpserver.integration;
 
 import org.apache.james.Constants;
-import org.apache.james.smtpserver.protocol.core.WelcomeMessageHandler;
+import org.apache.james.protocols.smtp.core.WelcomeMessageHandler;
 
 /**
  * This ConnectHandler print the greeting on connecting

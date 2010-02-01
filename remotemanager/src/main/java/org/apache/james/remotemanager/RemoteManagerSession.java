@@ -21,8 +21,9 @@ package org.apache.james.remotemanager;
 
 import java.util.Map;
 
-import org.apache.james.api.protocol.LineHandler;
-import org.apache.james.api.protocol.ProtocolSession;
+import org.apache.james.protocols.api.LineHandler;
+import org.apache.james.protocols.api.ProtocolSession;
+
 
 public interface RemoteManagerSession extends ProtocolSession{
 

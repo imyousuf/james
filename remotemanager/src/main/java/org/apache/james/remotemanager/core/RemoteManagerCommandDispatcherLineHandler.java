@@ -22,7 +22,7 @@ package org.apache.james.remotemanager.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.james.api.protocol.AbstractCommandDispatcher;
+import org.apache.james.protocols.api.AbstractCommandDispatcher;
 import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.RemoteManagerSession;
 

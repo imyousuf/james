@@ -25,11 +25,11 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.james.core.MimeMessageInputStreamSource;
+import org.apache.james.protocols.smtp.SMTPResponse;
+import org.apache.james.protocols.smtp.SMTPRetCode;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.core.DataCmdHandler;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.SMTPResponse;
-import org.apache.james.smtpserver.protocol.SMTPRetCode;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.DataCmdHandler;
 
 
 /**

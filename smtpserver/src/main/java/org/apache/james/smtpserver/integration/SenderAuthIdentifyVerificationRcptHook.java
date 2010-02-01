@@ -20,8 +20,8 @@ package org.apache.james.smtpserver.integration;
 
 import javax.annotation.Resource;
 
+import org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.core.AbstractSenderAuthIdentifyVerificationRcptHook;
 
 /**
  * Handler which check if the authenticated user is incorrect
@@ -48,7 +48,7 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.core.AbstractSenderAuthIdentifyVerificationRcptHook#isLocalDomain(java.lang.String)
+     * @see org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook#isLocalDomain(java.lang.String)
      */
     protected boolean isLocalDomain(String domain) {
         return mailServer.isLocalServer(domain);

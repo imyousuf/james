@@ -23,8 +23,8 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.james.smtpserver.protocol.DNSService;
-import org.apache.james.smtpserver.protocol.TemporaryResolutionException;
+import org.apache.james.protocols.smtp.DNSService;
+import org.apache.james.protocols.smtp.TemporaryResolutionException;
 import org.apache.mailet.HostAddress;
 
 public class SMTPServerDNSServiceAdapter implements DNSService{
@@ -37,7 +37,7 @@ public class SMTPServerDNSServiceAdapter implements DNSService{
     }
     
     /**
-     * @see org.apache.james.smtpserver.protocol.DNSService#findMXRecords(java.lang.String)
+     * @see org.apache.james.protocols.smtp.DNSService#findMXRecords(java.lang.String)
      */
     public Collection<String> findMXRecords(String hostname) throws TemporaryResolutionException {
         try {
@@ -48,42 +48,42 @@ public class SMTPServerDNSServiceAdapter implements DNSService{
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.DNSService#findTXTRecords(java.lang.String)
+     * @see org.apache.james.protocols.smtp.DNSService#findTXTRecords(java.lang.String)
      */
     public Collection<String> findTXTRecords(String hostname) {
         return dns.findTXTRecords(hostname);
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.DNSService#getAllByName(java.lang.String)
+     * @see org.apache.james.protocols.smtp.DNSService#getAllByName(java.lang.String)
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
         return dns.getAllByName(host);
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.DNSService#getByName(java.lang.String)
+     * @see org.apache.james.protocols.smtp.DNSService#getByName(java.lang.String)
      */
     public InetAddress getByName(String host) throws UnknownHostException {
         return dns.getByName(host);
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.DNSService#getHostName(java.net.InetAddress)
+     * @see org.apache.james.protocols.smtp.DNSService#getHostName(java.net.InetAddress)
      */
     public String getHostName(InetAddress addr) {
         return dns.getHostName(addr);
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.DNSService#getLocalHost()
+     * @see org.apache.james.protocols.smtp.DNSService#getLocalHost()
      */
     public InetAddress getLocalHost() throws UnknownHostException {
         return dns.getLocalHost();
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.DNSService#getSMTPHostAddresses(java.lang.String)
+     * @see org.apache.james.protocols.smtp.DNSService#getSMTPHostAddresses(java.lang.String)
      */
     public Iterator<HostAddress> getSMTPHostAddresses(String domainName) throws TemporaryResolutionException {
         try {

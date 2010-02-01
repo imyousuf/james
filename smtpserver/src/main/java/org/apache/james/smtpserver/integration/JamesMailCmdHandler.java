@@ -20,8 +20,8 @@ package org.apache.james.smtpserver.integration;
 
 import javax.annotation.Resource;
 
+import org.apache.james.protocols.smtp.core.MailCmdHandler;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.protocol.core.MailCmdHandler;
 
 public class JamesMailCmdHandler extends MailCmdHandler{
 
@@ -45,7 +45,7 @@ public class JamesMailCmdHandler extends MailCmdHandler{
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.core.MailCmdHandler#getDefaultDomain()
+     * @see org.apache.james.protocols.smtp.core.MailCmdHandler#getDefaultDomain()
      */
     public String getDefaultDomain() {
         return mailServer.getDefaultDomain();

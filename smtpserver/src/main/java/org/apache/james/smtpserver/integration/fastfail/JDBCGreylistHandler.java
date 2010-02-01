@@ -43,12 +43,12 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler;
+import org.apache.james.protocols.smtp.hook.HookResult;
+import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
-import org.apache.james.smtpserver.protocol.SMTPSession;
-import org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler;
-import org.apache.james.smtpserver.protocol.hook.HookResult;
-import org.apache.james.smtpserver.protocol.hook.HookReturnCode;
 import org.apache.james.util.TimeConverter;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -204,7 +204,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     
     
     /**
-     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#configure(org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#configure(org.apache.commons.configuration.Configuration)
      */
     @SuppressWarnings("unchecked")
 	public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
@@ -292,7 +292,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#getGreyListData(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#getGreyListData(java.lang.String, java.lang.String, java.lang.String)
      */
     protected Iterator<String> getGreyListData(String ipAddress,
         String sender, String recip) throws SQLException {
@@ -325,7 +325,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     
     /**
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#insertTriplet(java.lang.String, java.lang.String, java.lang.String, int, long)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#insertTriplet(java.lang.String, java.lang.String, java.lang.String, int, long)
      */
     protected void insertTriplet(String ipAddress,
         String sender, String recip, int count, long createTime)
@@ -350,7 +350,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#updateTriplet(java.lang.String, java.lang.String, java.lang.String, int, long)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#updateTriplet(java.lang.String, java.lang.String, java.lang.String, int, long)
      */
     protected void updateTriplet(String ipAddress,
         String sender, String recip, int count, long time)
@@ -391,7 +391,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#cleanupAutoWhiteListGreyList(long)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#cleanupAutoWhiteListGreyList(long)
      */
     protected void cleanupAutoWhiteListGreyList(long time)
         throws SQLException {
@@ -411,7 +411,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     }
 
     /**
-     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#cleanupGreyList(long)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#cleanupGreyList(long)
      */
     protected void cleanupGreyList(long time)
         throws SQLException {
@@ -522,7 +522,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
 
     
     /**
-     * @see org.apache.james.smtpserver.protocol.core.fastfail.AbstractGreylistHandler#doRcpt(org.apache.james.smtpserver.protocol.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#doRcpt(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {

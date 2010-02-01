@@ -255,11 +255,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-socket-api</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-domain-api</artifactId>
       <scope>runtime</scope>
     </dependency>
@@ -277,12 +272,7 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtp-protocol</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-   
+  
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-function</artifactId>

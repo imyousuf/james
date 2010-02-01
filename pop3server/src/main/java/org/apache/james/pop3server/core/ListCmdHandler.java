@@ -27,11 +27,11 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.api.protocol.CommandHandler;
-import org.apache.james.api.protocol.Request;
-import org.apache.james.api.protocol.Response;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
+import org.apache.james.protocols.api.CommandHandler;
+import org.apache.james.protocols.api.Request;
+import org.apache.james.protocols.api.Response;
 import org.apache.mailet.Mail;
 
 /**
