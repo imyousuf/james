@@ -38,25 +38,26 @@
     <module>core-api</module>
     <module>socket-api</module>
     <module>user-api</module>
-    <module>domain-api</module>
+    <module>user-function</module>
     <module>user-library</module>
+    
+    <module>domain-api</module>
     <module>core-library</module>
     <module>management-library</module>
     <module>smtp-protocol-library</module>
     <module>core-function</module>
-    <module>imapserver-function</module>
-    <module>smtpserver-function</module>
-    <module>pop3server-function</module>
-    <module>spoolmanager-function</module>
-    <module>remotemanager-function</module>
-    <module>user-function</module>
-    <module>mailets-function</module>
-    <module>fetchmail-function</module>
-    <module>experimental-activemq-function</module>
+    <module>imapserver</module>
+    <module>smtpserver</module>
+    <module>pop3server</module>
+    <module>spoolmanager</module>
+    <module>remotemanager</module>
+    <module>mailets</module>
+    <module>fetchmail</module>
+    <module>experimental-activemq</module>
     <module>jcr-store</module>
     <module>spring-deployment</module>
     <module>osgi-deployment</module>
-    <module>mina-socket-library</module>
+    <module>mina-socket</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -224,7 +225,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mina-socket-library</artifactId>
+      <artifactId>james-server-mina-socket</artifactId>
       <version>3.0-M1</version>
     </dependency>
    
@@ -421,12 +422,12 @@
   
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtpserver-function</artifactId>
+      <artifactId>james-server-smtpserver</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-imapserver-function</artifactId>
+      <artifactId>james-server-imapserver</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
@@ -436,27 +437,27 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-pop3server-function</artifactId>
+      <artifactId>james-server-pop3server</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-fetchmail-function</artifactId>
+      <artifactId>james-server-fetchmail</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-spoolmanager-function</artifactId>
+      <artifactId>james-server-spoolmanager</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailets-function</artifactId>
+      <artifactId>james-server-mailets</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-remotemanager-function</artifactId>
+      <artifactId>james-server-remotemanager</artifactId>
       <version>3.0-M1</version>
     </dependency>
     
@@ -504,7 +505,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-experimental-activemq-function</artifactId>
+      <artifactId>james-server-experimental-activemq</artifactId>
       <version>3.0-M1</version>
     </dependency>
     <dependency>
@@ -520,7 +521,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-smtpserver-function</artifactId>
+      <artifactId>james-server-smtpserver</artifactId>
       <version>3.0-M1</version>
       <type>test-jar</type>
       <scope>test</scope>
