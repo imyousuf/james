@@ -25,8 +25,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-smtpserver-function</artifactId>
-  <name>Apache JAMES Server SMTP function</name>
+  <artifactId>james-server-smtpserver</artifactId>
+  <name>Apache JAMES Server SMTP</name>
   
   <dependencies>
     <dependency>
