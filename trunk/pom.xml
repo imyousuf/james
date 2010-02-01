@@ -140,7 +140,6 @@
     </plugins>
   </build>
   
-  
   <reporting>
     <plugins>
     <!--
@@ -419,6 +418,7 @@
       <artifactId>james-server-user-function</artifactId>
       <version>3.0-M1</version>
     </dependency>
+  
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver-function</artifactId>
