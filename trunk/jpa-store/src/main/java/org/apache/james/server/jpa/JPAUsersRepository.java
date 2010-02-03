@@ -19,6 +19,7 @@
 
 package org.apache.james.server.jpa;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -219,8 +220,9 @@ public class JPAUsersRepository implements UsersRepository {
 
     /**
      * Removes a user from the repository
-     *
-     * @param name the user to remove from the repository
+     * 
+     * @param name
+     *            the user to remove from the repository
      */
     public void removeUser(String name) {
         final EntityTransaction transaction = entityManager.getTransaction();
@@ -244,11 +246,8 @@ public class JPAUsersRepository implements UsersRepository {
      * @return whether the user is in the repository
      */
     public boolean contains(String name) {
-        try
-        {
-            return ((Long) entityManager.createQuery("SELECT COUNT(user) FROM User user WHERE user.name=?1")
-                            .setParameter(1, name)
-                            .getSingleResult()).longValue() > 0;
+        try {
+            return ((Long) entityManager.createQuery("SELECT COUNT(user) FROM User user WHERE user.name=?1").setParameter(1, name).getSingleResult()).longValue() > 0;
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
             return false;
@@ -312,32 +311,19 @@ public class JPAUsersRepository implements UsersRepository {
 
     /**
      * List users in repository.
-     *
-     * @return Iterator over a collection of Strings, each being one user in the repository.
+     * 
+     * @return Iterator over a collection of Strings, each being one user in the
+     *         repository.
      */
-    public Iterator list() {
-        try
-        {
-            final List results = entityManager.createQuery("SELECT user FROM User user").getResultList();
-            return new Iterator() {
-                private final Iterator it = results.iterator();
-                public boolean hasNext() {
-                    return it.hasNext();
-                }
+    @SuppressWarnings("unchecked")
+    public Iterator<String> list() {
+        try {
+            return entityManager.createQuery("SELECT user.name FROM User user").getResultList().iterator();
 
-                public Object next() {
-                    return ((JPAUser)it.next()).getUserName();
-                }
-
-                public void remove() {
-                    throw new UnsupportedOperationException();
-                }
-            };
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
-            return Collections.EMPTY_LIST.iterator();
+            return new ArrayList<String>().iterator();
         }
     }
-
 
 }
