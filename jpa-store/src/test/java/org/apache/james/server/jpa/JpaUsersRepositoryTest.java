@@ -44,7 +44,7 @@ public class JpaUsersRepositoryTest extends MockUsersRepositoryTest {
         properties.put("openjpa.Log", "JDBC=WARN, SQL=WARN, Runtime=WARN");
         properties.put("openjpa.ConnectionFactoryProperties", "PrettyPrint=true, PrettyPrintLineLength=72");
         properties.put("openjpa.jdbc.SynchronizeMappings", "buildSchema(ForeignKeys=true)");
-        properties.put("openjpa.MetaDataFactory", "jpa(Types=org.apache.james.server.jpa.JPAUser)");
+        properties.put("openjpa.MetaDataFactory", "jpa(Types=" + JPAUser.class.getName() +")");
         super.setUp();
         deleteAll();
     }
@@ -69,7 +69,7 @@ public class JpaUsersRepositoryTest extends MockUsersRepositoryTest {
             OpenJPAEntityManager manager = factory.createEntityManager();
             final OpenJPAEntityTransaction transaction = manager.getTransaction();
             transaction.begin();
-            manager.createQuery("DELETE FROM User user").executeUpdate();
+            manager.createQuery("DELETE FROM JamesUser user").executeUpdate();
             transaction.commit();
         } catch (PersistenceException e) {
             e.printStackTrace();

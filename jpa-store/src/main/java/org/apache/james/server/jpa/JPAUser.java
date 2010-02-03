@@ -22,45 +22,60 @@ package org.apache.james.server.jpa;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Version;
 
 import org.apache.james.api.user.User;
 
-@Entity(name="User")
+@Entity(name = "JamesUser")
+@NamedQueries( { 
+    @NamedQuery(name = "findUserByName", query = "SELECT user FROM JamesUser user WHERE user.name=:name"),
+    @NamedQuery(name = "containsUser", query = "SELECT COUNT(user) FROM JamesUser user WHERE user.name=:name") ,
+    @NamedQuery(name = "countUsers", query = "SELECT COUNT(user) FROM JamesUser user"),
+    @NamedQuery(name = "listUserNames", query = "SELECT user.name FROM JamesUser user") 
+})
+
 public class JPAUser implements User {
 
-    /** 
-     * Static salt for hashing password.
-     * Modifying this value will render all passwords unrecognizable.
+    /**
+     * Static salt for hashing password. Modifying this value will render all
+     * passwords unrecognizable.
      */
     public static final String SALT = "JPAUsersRepository";
-    
+
     /**
      * Hashes salted password.
-     * @param username not null
-     * @param password not null
+     * 
+     * @param username
+     *            not null
+     * @param password
+     *            not null
      * @return not null
      */
     public static String hashPassword(String username, String password) {
         // Combine dynamic and static salt
-        final String hashedSaltedPassword = password;// = Text.md5(Text.md5(username + password) + SALT);
+        final String hashedSaltedPassword = password;// =
+        // Text.md5(Text.md5(username
+        // + password) + SALT);
         return hashedSaltedPassword;
     }
-    
+
     /** Prevents concurrent modification */
     @SuppressWarnings("unused")
     @Version
     private int version;
-    
+
     /** Key by user name */
     @Id
     private String name;
     /** Hashed password */
     @Basic
     private String password;
-    
-    protected JPAUser() {}
-    
+
+    protected JPAUser() {
+    }
+
     public JPAUser(final String userName, String password) {
         super();
         this.name = userName;
@@ -70,9 +85,10 @@ public class JPAUser implements User {
     public String getUserName() {
         return name;
     }
-    
+
     /**
      * Gets salted, hashed password.
+     * 
      * @return the hashedSaltedPassword
      */
     public final String getHashedSaltedPassword() {
@@ -126,10 +142,10 @@ public class JPAUser implements User {
             return false;
         return true;
     }
-    
+
     @Override
-     public String toString() {
-         return "[User " + name + "]";
-     }
-    
+    public String toString() {
+        return "[User " + name + "]";
+    }
+
 }
