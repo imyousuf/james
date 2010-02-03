@@ -24,7 +24,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Version;
 
-import org.apache.jackrabbit.util.Text;
 import org.apache.james.api.user.User;
 
 @Entity(name="User")
@@ -44,7 +43,7 @@ public class JPAUser implements User {
      */
     public static String hashPassword(String username, String password) {
         // Combine dynamic and static salt
-        final String hashedSaltedPassword = Text.md5(Text.md5(username + password) + SALT);
+        final String hashedSaltedPassword = password;// = Text.md5(Text.md5(username + password) + SALT);
         return hashedSaltedPassword;
     }
     
