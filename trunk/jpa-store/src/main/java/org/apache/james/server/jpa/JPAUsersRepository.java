@@ -156,9 +156,7 @@ public class JPAUsersRepository implements UsersRepository {
     private JPAUser getJPAUserByName(String name) {
         try
         {
-            return (JPAUser) entityManager.createQuery("SELECT user FROM User user WHERE user.name=?1")
-                            .setParameter(1, name)
-                            .getSingleResult();
+            return (JPAUser) entityManager.createNamedQuery("findUserByName").setParameter("name", name).getSingleResult();
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
             return null;
@@ -247,7 +245,7 @@ public class JPAUsersRepository implements UsersRepository {
      */
     public boolean contains(String name) {
         try {
-            return ((Long) entityManager.createQuery("SELECT COUNT(user) FROM User user WHERE user.name=?1").setParameter(1, name).getSingleResult()).longValue() > 0;
+            return ((Long) entityManager.createNamedQuery("containsUser").setParameter("name", name).getSingleResult()).longValue() > 0;
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
             return false;
@@ -301,7 +299,7 @@ public class JPAUsersRepository implements UsersRepository {
     public int countUsers() {
         try
         {
-            return ((Long) entityManager.createQuery("SELECT COUNT(user) FROM User user")
+            return ((Long) entityManager.createNamedQuery("countUsers")
                             .getSingleResult()).intValue();
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
@@ -318,7 +316,7 @@ public class JPAUsersRepository implements UsersRepository {
     @SuppressWarnings("unchecked")
     public Iterator<String> list() {
         try {
-            return entityManager.createQuery("SELECT user.name FROM User user").getResultList().iterator();
+            return entityManager.createNamedQuery("listUserNames").getResultList().iterator();
 
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
