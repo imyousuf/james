@@ -53,6 +53,7 @@
     <module>fetchmail</module>
     <module>experimental-activemq</module>
     <module>jcr-store</module>
+    <module>jpa-store</module>
     <module>spring-deployment</module>
     <module>osgi-deployment</module>
     <module>mina-socket</module>

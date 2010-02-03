@@ -80,6 +80,8 @@ public class JpaUsersRepositoryTest extends MockUsersRepositoryTest {
     {
         factory = OpenJPAPersistence.getEntityManagerFactory(properties);
         manager = factory.createEntityManager();
-        return new JPAUsersRepository(manager);
+        JPAUsersRepository repos =  new JPAUsersRepository();
+        repos.setEntityManager(manager);
+        return repos;
     }
 }

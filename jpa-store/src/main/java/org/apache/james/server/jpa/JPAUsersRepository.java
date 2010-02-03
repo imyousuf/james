@@ -25,7 +25,9 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
+import javax.persistence.PersistenceUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,21 +47,8 @@ public class JPAUsersRepository implements UsersRepository {
 
     private EntityManager entityManager;
 
-    /**
-     * Constructs repository with injection.
-     * @param entityManager not null
-     */
-    public JPAUsersRepository(EntityManager entityManager) {
-        super();
-        this.entityManager = entityManager;
-    }
-
-    /**
-     * Constructor for setting injection.
-     */
-    public JPAUsersRepository() {
-        this(null);
-    }
+    
+    
 
     /**
      * Gets current logger.
@@ -89,6 +78,7 @@ public class JPAUsersRepository implements UsersRepository {
      * Sets entity manager.
      * @param entityManager the entityManager to set
      */
+    @PersistenceContext
     public final void setEntityManager(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
