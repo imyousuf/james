@@ -16,18 +16,40 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-package org.apache.james.smtpserver.integration.fastfail;
+package org.apache.james.smtpserver;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
+import org.apache.james.protocols.smtp.core.MailCmdHandler;
+import org.apache.james.services.MailServer;
 
-public class ReverseEqualsEhloHeloHandler extends org.apache.james.protocols.smtp.core.fastfail.ReverseEqualsEhloHeloHandler{
+public class JamesMailCmdHandler extends MailCmdHandler{
 
-    @Resource(name="dnsserver")
-    public void setDNSService(DNSService dns) {
-        super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
+    private MailServer mailServer;
+        
+    /**
+     * Gets the mail server.
+     * @return the mailServer
+     */
+    public final MailServer getMailServer() {
+        return mailServer;
     }
+
+    /**
+     * Sets the mail server.
+     * @param mailServer the mailServer to set
+     */
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+
+    /**
+     * @see org.apache.james.protocols.smtp.core.MailCmdHandler#getDefaultDomain()
+     */
+    public String getDefaultDomain() {
+        return mailServer.getDefaultDomain();
+    }
+    
+    
 }

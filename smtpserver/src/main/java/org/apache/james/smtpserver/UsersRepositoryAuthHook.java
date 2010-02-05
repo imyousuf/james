@@ -16,45 +16,50 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.integration;
+package org.apache.james.smtpserver;
 
-import org.apache.james.core.MailImpl;
+import javax.annotation.Resource;
+
+import org.apache.james.api.user.UsersRepository;
 import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.hook.AuthHook;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
-import org.apache.mailet.Mail;
 
 /**
- * This hook adds the default attributes to the just created Mail 
+ * This Auth hook can be used to authenticate against the james user repository
  */
-public class AddDefaultAttributesMessageHook implements JamesMessageHook {
-
-    /**
-     * The mail attribute holding the SMTP AUTH user name, if any.
-     */
-    private final static String SMTP_AUTH_USER_ATTRIBUTE_NAME = "org.apache.james.SMTPAuthUser";
-
-    /**
-     * The mail attribute which get set if the client is allowed to relay
-     */
-    private final static String SMTP_AUTH_NETWORK_NAME = "org.apache.james.SMTPIsAuthNetwork";
-
+public class UsersRepositoryAuthHook implements AuthHook {
     
-    public HookResult onMessage(SMTPSession session, Mail mail) {
-        if (mail instanceof MailImpl) {
-            
-            final MailImpl mailImpl = (MailImpl) mail;
-            mailImpl.setRemoteHost(session.getRemoteHost());
-            mailImpl.setRemoteAddr(session.getRemoteIPAddress());
-            if (session.getUser() != null) {
-                mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, session.getUser());
-            }
-            
-            if (session.isRelayingAllowed()) {
-                mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
-            }
+    private UsersRepository users;
+    
+    /**
+     * Gets the users repository.
+     * @return the users
+     */
+    public final UsersRepository getUsers() {
+        return users;
+    }
+
+    /**
+     * Sets the users repository.
+     * @param users the users to set
+     */
+    @Resource(name="localusersrepository")
+    public final void setUsers(UsersRepository users) {
+        this.users = users;
+    }
+
+
+    /**
+     * @see org.apache.james.protocols.smtp.hook.AuthHook#doAuth(org.apache.james.protocols.smtp.SMTPSession, java.lang.String, java.lang.String)
+     */
+    public HookResult doAuth(SMTPSession session, String username, String password) {
+        if (users.test(username, password)) {
+            session.setUser(username);
+            session.setRelayingAllowed(true);
+            return new HookResult(HookReturnCode.OK, "Authentication Successful");
         }
         return new HookResult(HookReturnCode.DECLINED);
     }
-
 }

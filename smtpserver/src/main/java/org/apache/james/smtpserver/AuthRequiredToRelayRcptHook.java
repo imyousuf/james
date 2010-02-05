@@ -16,42 +16,38 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-package org.apache.james.smtpserver.integration;
+package org.apache.james.smtpserver;
 
 import javax.annotation.Resource;
 
-import org.apache.james.protocols.smtp.core.RcptCmdHandler;
+import org.apache.james.protocols.smtp.core.AbstractAuthRequiredToRelayRcptHook;
 import org.apache.james.services.MailServer;
 
-public class JamesRcptCmdHandler extends RcptCmdHandler{
-	private MailServer mailServer;
+public class AuthRequiredToRelayRcptHook extends AbstractAuthRequiredToRelayRcptHook {
+    private MailServer mailServer;
+    
+    /**
+     * Gets the mail server.
+     * @return the mailServer
+     */
+    public final MailServer getMailServer() {
+        return mailServer;
+    }
 
-	/**
-	 * Gets the mail server.
-	 * 
-	 * @return the mailServer
-	 */
-	public final MailServer getMailServer() {
-		return mailServer;
-	}
+    /**
+     * Sets the mail server.
+     * @param mailServer the mailServer to set
+     */
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
 
-	/**
-	 * Sets the mail server.
-	 * 
-	 * @param mailServer
-	 *            the mailServer to set
-	 */
-	@Resource(name = "James")
-	public final void setMailServer(MailServer mailServer) {
-		this.mailServer = mailServer;
-	}
-
-	/**
-	 * (non-Javadoc)
-	 * @see org.apache.james.protocols.smtp.core.RcptCmdHandler#getDefaultDomain()
-	 */
-    protected String getDefaultDomain() {
-    	return mailServer.getDefaultDomain();
+    /**
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.smtp.core.AbstractAuthRequiredToRelayRcptHook#isLocalDomain(java.lang.String)
+     */
+    protected boolean isLocalDomain(String domain) {
+        return mailServer.isLocalServer(domain);
     }
 }

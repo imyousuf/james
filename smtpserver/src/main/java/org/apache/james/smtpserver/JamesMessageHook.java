@@ -16,26 +16,22 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.smtpserver;
 
-
-package org.apache.james.smtpserver.integration;
-
-import org.apache.james.Constants;
-import org.apache.james.protocols.smtp.core.WelcomeMessageHandler;
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.hook.HookResult;
+import org.apache.mailet.Mail;
 
 /**
- * This ConnectHandler print the greeting on connecting
+ * Custom message handlers must implement this interface
+ * The message hooks will be server-wide common to all the SMTPHandlers,
+ * therefore the handlers must store all the state information
+ * in the SMTPSession object
  */
-public class JamesWelcomeMessageHandler extends WelcomeMessageHandler {
-
+public interface JamesMessageHook {
     /**
-     * SMTP Server identification string used in SMTP headers
+     * Handle Message
      */
-    private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
-                                                 + Constants.SOFTWARE_VERSION;
+    HookResult onMessage(SMTPSession session, Mail mail);
 
-    @Override
-    protected String getProductName() {
-        return SOFTWARE_TYPE;
-    }
 }

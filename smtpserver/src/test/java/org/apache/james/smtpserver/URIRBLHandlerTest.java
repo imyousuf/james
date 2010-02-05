@@ -44,7 +44,7 @@ import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
-import org.apache.james.smtpserver.integration.fastfail.URIRBLHandler;
+import org.apache.james.smtpserver.fastfail.URIRBLHandler;
 import org.apache.james.test.mock.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.mailet.Mail;

@@ -17,31 +17,25 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.integration.fastfail;
 
-import java.util.List;
+package org.apache.james.smtpserver;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.Constants;
+import org.apache.james.protocols.smtp.core.WelcomeMessageHandler;
 
-public class SpamTrapHandler extends org.apache.james.protocols.smtp.core.fastfail.SpamTrapHandler{
+/**
+ * This ConnectHandler print the greeting on connecting
+ */
+public class JamesWelcomeMessageHandler extends WelcomeMessageHandler {
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+    /**
+     * SMTP Server identification string used in SMTP headers
      */
-    @SuppressWarnings("unchecked")
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        List<String> rcpts= config.getList("spamTrapRecip");
-    
-        if (rcpts.isEmpty() == false ) {
-            setSpamTrapRecipients(rcpts);
-        } else {
-            throw new ConfigurationException("Please configure a spamTrapRecip.");
-        }
-    
-        setBlockTime(config.getLong("blockTime",blockTime));
-        
+    private final static String SOFTWARE_TYPE = "JAMES SMTP Server "
+                                                 + Constants.SOFTWARE_VERSION;
+
+    @Override
+    protected String getProductName() {
+        return SOFTWARE_TYPE;
     }
-    
 }

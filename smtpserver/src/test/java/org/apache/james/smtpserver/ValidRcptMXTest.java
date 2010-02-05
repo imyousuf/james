@@ -33,7 +33,7 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
-import org.apache.james.smtpserver.integration.fastfail.ValidRcptMX;
+import org.apache.james.smtpserver.fastfail.ValidRcptMX;
 import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;

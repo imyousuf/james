@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.smtpserver.integration;
+package org.apache.james.smtpserver;
 
 import java.util.Collection;
 

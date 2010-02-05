@@ -23,12 +23,12 @@ package org.apache.james.smtpserver;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.james.smtpserver.integration.CoreCmdHandlerLoader;
-import org.apache.james.smtpserver.integration.fastfail.DNSRBLHandler;
-import org.apache.james.smtpserver.integration.fastfail.MaxRcptHandler;
-import org.apache.james.smtpserver.integration.fastfail.ResolvableEhloHeloHandler;
-import org.apache.james.smtpserver.integration.fastfail.ReverseEqualsEhloHeloHandler;
-import org.apache.james.smtpserver.integration.fastfail.ValidSenderDomainHandler;
+import org.apache.james.smtpserver.CoreCmdHandlerLoader;
+import org.apache.james.smtpserver.fastfail.DNSRBLHandler;
+import org.apache.james.smtpserver.fastfail.MaxRcptHandler;
+import org.apache.james.smtpserver.fastfail.ResolvableEhloHeloHandler;
+import org.apache.james.smtpserver.fastfail.ReverseEqualsEhloHeloHandler;
+import org.apache.james.smtpserver.fastfail.ValidSenderDomainHandler;
 
 
 public class SMTPTestConfiguration extends DefaultConfigurationBuilder {

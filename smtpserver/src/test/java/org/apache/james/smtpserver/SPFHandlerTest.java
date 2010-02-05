@@ -31,7 +31,7 @@ import org.apache.james.jspf.core.exceptions.TimeoutException;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
-import org.apache.james.smtpserver.integration.fastfail.SPFHandler;
+import org.apache.james.smtpserver.fastfail.SPFHandler;
 import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

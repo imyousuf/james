@@ -31,7 +31,7 @@ import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPServerMBean;
-import org.apache.james.smtpserver.integration.CoreCmdHandlerLoader;
+import org.apache.james.smtpserver.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.socket.ProtocolHandlerChainImpl;
 import org.apache.james.socket.mina.AbstractAsyncServer;

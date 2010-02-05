@@ -43,7 +43,7 @@ import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.integration.fastfail.ValidRcptHandler;
+import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
 import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
