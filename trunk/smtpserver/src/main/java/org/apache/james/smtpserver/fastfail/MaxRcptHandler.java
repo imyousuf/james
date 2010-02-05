@@ -16,40 +16,22 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.integration;
 
-import javax.annotation.Resource;
+package org.apache.james.smtpserver.fastfail;
 
-import org.apache.james.protocols.smtp.core.MailCmdHandler;
-import org.apache.james.services.MailServer;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.lifecycle.Configurable;
 
-public class JamesMailCmdHandler extends MailCmdHandler{
+public class MaxRcptHandler extends org.apache.james.protocols.smtp.core.fastfail.MaxRcptHandler implements Configurable{
 
-    private MailServer mailServer;
-        
-    /**
-     * Gets the mail server.
-     * @return the mailServer
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public final MailServer getMailServer() {
-        return mailServer;
+    public void configure(HierarchicalConfiguration handlerConfiguration)
+            throws ConfigurationException {
+        int maxRcpt = handlerConfiguration.getInt("maxRcpt", 0);
+        setMaxRcpt(maxRcpt);
     }
-
-    /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="James")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.core.MailCmdHandler#getDefaultDomain()
-     */
-    public String getDefaultDomain() {
-        return mailServer.getDefaultDomain();
-    }
-    
-    
 }

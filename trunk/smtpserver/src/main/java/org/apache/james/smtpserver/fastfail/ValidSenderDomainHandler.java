@@ -17,21 +17,17 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.integration.fastfail;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.Configurable;
+package org.apache.james.smtpserver.fastfail;
 
-public class MaxRcptHandler extends org.apache.james.protocols.smtp.core.fastfail.MaxRcptHandler implements Configurable{
+import javax.annotation.Resource;
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration handlerConfiguration)
-            throws ConfigurationException {
-        int maxRcpt = handlerConfiguration.getInt("maxRcpt", 0);
-        setMaxRcpt(maxRcpt);
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.smtpserver.SMTPServerDNSServiceAdapter;
+
+public class ValidSenderDomainHandler extends org.apache.james.protocols.smtp.core.fastfail.ValidSenderDomainHandler{
+    @Resource(name="dnsserver")
+    public void setDNSService(DNSService dns) {
+        super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
     }
 }

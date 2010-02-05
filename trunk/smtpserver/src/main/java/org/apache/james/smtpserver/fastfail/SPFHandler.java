@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.smtpserver.integration.fastfail;
+package org.apache.james.smtpserver.fastfail;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -38,7 +38,7 @@ import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.protocols.smtp.hook.MailHook;
 import org.apache.james.protocols.smtp.hook.RcptHook;
-import org.apache.james.smtpserver.integration.JamesMessageHook;
+import org.apache.james.smtpserver.JamesMessageHook;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -312,7 +312,7 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
     }
     
 	/**
-	 * @see org.apache.james.smtpserver.integration.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession,
+	 * @see org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession,
 	 *      org.apache.mailet.Mail)
 	 */
 	public HookResult onMessage(SMTPSession session, Mail mail) {

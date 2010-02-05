@@ -16,41 +16,32 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.integration;
 
-import javax.annotation.Resource;
+package org.apache.james.smtpserver.fastfail;
 
-import org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook;
-import org.apache.james.services.MailServer;
+import java.util.List;
 
-/**
- * Handler which check if the authenticated user is incorrect
- */
-public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthIdentifyVerificationRcptHook {
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 
-    private MailServer mailServer;
+public class SpamTrapHandler extends org.apache.james.protocols.smtp.core.fastfail.SpamTrapHandler{
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    @SuppressWarnings("unchecked")
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        List<String> rcpts= config.getList("spamTrapRecip");
     
-    /**
-     * Gets the mail server.
-     * @return the mailServer
-     */
-    public final MailServer getMailServer() {
-        return mailServer;
+        if (rcpts.isEmpty() == false ) {
+            setSpamTrapRecipients(rcpts);
+        } else {
+            throw new ConfigurationException("Please configure a spamTrapRecip.");
+        }
+    
+        setBlockTime(config.getLong("blockTime",blockTime));
+        
     }
-
-    /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="James")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
-
-    /**
-     * @see org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook#isLocalDomain(java.lang.String)
-     */
-    protected boolean isLocalDomain(String domain) {
-        return mailServer.isLocalServer(domain);
-    }
+    
 }

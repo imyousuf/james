@@ -16,22 +16,41 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.integration;
+package org.apache.james.smtpserver;
 
-import org.apache.james.protocols.smtp.SMTPSession;
-import org.apache.james.protocols.smtp.hook.HookResult;
-import org.apache.mailet.Mail;
+import javax.annotation.Resource;
+
+import org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook;
+import org.apache.james.services.MailServer;
 
 /**
- * Custom message handlers must implement this interface
- * The message hooks will be server-wide common to all the SMTPHandlers,
- * therefore the handlers must store all the state information
- * in the SMTPSession object
+ * Handler which check if the authenticated user is incorrect
  */
-public interface JamesMessageHook {
-    /**
-     * Handle Message
-     */
-    HookResult onMessage(SMTPSession session, Mail mail);
+public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthIdentifyVerificationRcptHook {
 
+    private MailServer mailServer;
+    
+    /**
+     * Gets the mail server.
+     * @return the mailServer
+     */
+    public final MailServer getMailServer() {
+        return mailServer;
+    }
+
+    /**
+     * Sets the mail server.
+     * @param mailServer the mailServer to set
+     */
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+
+    /**
+     * @see org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook#isLocalDomain(java.lang.String)
+     */
+    protected boolean isLocalDomain(String domain) {
+        return mailServer.isLocalServer(domain);
+    }
 }

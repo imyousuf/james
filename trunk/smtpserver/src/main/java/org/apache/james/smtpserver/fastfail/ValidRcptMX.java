@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.smtpserver.integration.fastfail;
+package org.apache.james.smtpserver.fastfail;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;

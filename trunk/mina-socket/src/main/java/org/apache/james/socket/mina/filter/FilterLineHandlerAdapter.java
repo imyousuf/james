@@ -42,6 +42,7 @@ public final class FilterLineHandlerAdapter<Session extends ProtocolSession> ext
     /**
      * @see org.apache.mina.core.filterchain.IoFilterAdapter#messageReceived(org.apache.mina.core.filterchain.IoFilter.NextFilter, org.apache.mina.core.session.IoSession, java.lang.Object)
      */
+    @SuppressWarnings("unchecked")
     public void messageReceived(NextFilter arg0, IoSession session, Object arg2)
             throws Exception {
         IoBuffer buf = (IoBuffer) arg2;      

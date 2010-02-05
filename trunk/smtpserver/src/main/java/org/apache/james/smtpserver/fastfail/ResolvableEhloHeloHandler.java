@@ -17,17 +17,18 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-package org.apache.james.smtpserver.integration.fastfail;
+package org.apache.james.smtpserver.fastfail;
 
 import javax.annotation.Resource;
 
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.smtpserver.integration.SMTPServerDNSServiceAdapter;
+import org.apache.james.smtpserver.SMTPServerDNSServiceAdapter;
 
-public class ValidSenderDomainHandler extends org.apache.james.protocols.smtp.core.fastfail.ValidSenderDomainHandler{
+public class ResolvableEhloHeloHandler extends org.apache.james.protocols.smtp.core.fastfail.ResolvableEhloHeloHandler {
+
     @Resource(name="dnsserver")
     public void setDNSService(DNSService dns) {
         super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
     }
+
 }
