@@ -26,6 +26,7 @@ import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.services.store.Store;
 import org.apache.james.util.TimeConverter;
@@ -253,7 +254,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     /**
      * Filter used by 'accept' to check if message is ready for retrying.
      */
-    private MultipleDelayFilter delayFilter = new MultipleDelayFilter();
+    protected MultipleDelayFilter delayFilter = new MultipleDelayFilter();
     
     /** Default properties for the JavaMail Session */
     private Properties defprops = new Properties(); 
@@ -262,6 +263,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     private int dnsProblemRetry = 0;
 
     private Store mailStore;
+
+    private MailServer mailServer;
     
     
     @Resource(name="mailstore")
@@ -274,6 +277,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         this.dnsServer = dnsService;
     }
     
+    @Resource(name="James" )
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
     
     /**
      * Initializes all arguments based on configuration values specified in the
@@ -707,23 +714,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      */
     public void run() {
 
-        /* TODO: CHANGE ME!!! The problem is that we need to wait for James to
-         * finish initializing.  We expect the HELLO_NAME to be put into
-         * the MailetContext, but in the current configuration we get
-         * started before the SMTP Server, which establishes the value.
-         * Since there is no contractual guarantee that there will be a
-         * HELLO_NAME value, we can't just wait for it.  As a temporary
-         * measure, I'm inserting this philosophically unsatisfactory
-         * fix.
-         */
-        long stop = System.currentTimeMillis() + 60000;
-        while ((getMailetContext().getAttribute(Constants.HELLO_NAME) == null)
-               && stop > System.currentTimeMillis()) {
-            try {
-                Thread.sleep(1000);
-            } catch (Exception ignored) {} // wait for James to finish initializing
-        }
-
         //Checks the pool and delivers a mail message
         Properties props = new Properties();
         //Not needed for production environment
@@ -743,15 +733,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
 
         //Set the hostname we'll use as this server
-        if (getMailetContext().getAttribute(Constants.HELLO_NAME) != null) {
-            props.put("mail.smtp.localhost", getMailetContext().getAttribute(Constants.HELLO_NAME));
-        }
-        else {
-            String defaultDomain = (String) getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN);
-            if (defaultDomain != null) {
-                props.put("mail.smtp.localhost", defaultDomain);
-            }
-        }
+        props.put("mail.smtp.localhost", mailServer.getHelloName());
 
         if (isBindUsed) {
             // undocumented JavaMail 1.2 feature, smtp transport will use
