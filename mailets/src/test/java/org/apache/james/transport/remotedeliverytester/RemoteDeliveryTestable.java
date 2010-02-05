@@ -20,6 +20,7 @@
 package org.apache.james.transport.remotedeliverytester;
 
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.services.MailServer;
 import org.apache.james.services.store.Store;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
@@ -37,6 +38,8 @@ public interface RemoteDeliveryTestable {
     void setRemoteDeliveryTester(Tester tester);
     void setDNSService(DNSService dnsServer);
     void setStore(Store store);
+    void setMailServer(MailServer store);
+
     void init() throws MessagingException;
     void init(MailetConfig newConfig) throws MessagingException;
     void service(Mail mail) throws MessagingException;
