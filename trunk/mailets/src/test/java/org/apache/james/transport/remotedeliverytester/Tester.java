@@ -22,6 +22,8 @@ package org.apache.james.transport.remotedeliverytester;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.core.MailImpl;
+import org.apache.james.services.MailRepository;
+import org.apache.james.services.MailServer;
 import org.apache.james.services.store.Store;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
@@ -39,6 +41,7 @@ import javax.mail.URLName;
 import javax.mail.Provider.Type;
 import javax.mail.internet.MimeMessage;
 
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -130,7 +133,48 @@ public class Tester {
         mailetConfig = new TesterMailetConfig(this, mailetConfigProperties);
         remoteDelivery.setDNSService(dnsServer);
         remoteDelivery.setStore(store);
-        
+        remoteDelivery.setMailServer(new MailServer() {
+            
+            public boolean supportVirtualHosting() {
+                return false;
+            }
+            
+            public void sendMail(MimeMessage message) throws MessagingException {                
+            }
+            
+            public void sendMail(Mail mail) throws MessagingException {                
+            }
+            
+            public void sendMail(MailAddress sender, Collection<MailAddress> recipients, InputStream msg) throws MessagingException {                
+            }
+            
+            public void sendMail(MailAddress sender, Collection<MailAddress> recipients, MimeMessage msg) throws MessagingException {                
+            }
+            
+            public boolean isLocalServer(String serverName) {
+                return false;
+            }
+            
+            public MailRepository getUserInbox(String userName) {
+                return null;
+            }
+            
+            public String getId() {
+                return null;
+            }
+            
+            public String getHelloName() {
+                return "hello.name.com";
+            }
+            
+            public String getDefaultDomain() {
+                return null;
+            }
+            
+            public boolean addUser(String userName, String password) {
+                return false;
+            }
+        });
         remoteDelivery.init(mailetConfig);
 
         if (mailetConfig.getWrappedSpoolRepository() != null) log("DEBUG", "Init WrappedSpoolRepository OK");

@@ -19,11 +19,9 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.Constants;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.services.store.Store;
 import org.apache.mailet.base.test.FakeMailContext;
+import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetConfig;
@@ -46,9 +44,6 @@ public class TesterMailetConfig implements MailetConfig {
         }
 
         public Object getAttribute(String name) {
-            if (name.equals(Constants.HELLO_NAME)) {
-                return "hello.name.com";
-            }
             return null;
         }
 
@@ -61,7 +56,7 @@ public class TesterMailetConfig implements MailetConfig {
             System.out.println(message);
         }
 
-        public Iterator getSMTPHostAddresses(String domainName) {
+        public Iterator<HostAddress> getSMTPHostAddresses(String domainName) {
             return owner.onMailetContextGetSMTPHostAddresses(domainName);
         }
 
@@ -73,7 +68,7 @@ public class TesterMailetConfig implements MailetConfig {
             owner.onMailetContextBounce(mail, message);
         }
 
-        public Collection getMailServers(String host) {
+        public Collection<String> getMailServers(String host) {
             throw new UnsupportedOperationException();
         }
 
@@ -99,84 +94,6 @@ public class TesterMailetConfig implements MailetConfig {
 
     }
 
-    private class StoreWrapper implements Store {
-        private TesterMailetConfig owner;
-        private Store wrapped;
-        private SpoolRepository wrappedSpoolRepository;
-
-        public StoreWrapper(TesterMailetConfig owner, Store wrapped) {
-            this.owner = owner;
-            this.wrapped = wrapped;
-        }
-
-        public Object select(HierarchicalConfiguration arg0) throws StoreException {
-            //if ((arg0 instanceof Configuration) && ((Configuration) arg0).getLocation().equals("generated:RemoteDelivery.java")) {
-             //   if (wrappedSpoolRepository == null) wrappedSpoolRepository = new SpoolRepositoryWrapper(owner, (SpoolRepository) wrapped.select(arg0));
-             //   return wrappedSpoolRepository;
-            //}
-            return wrapped.select(arg0);
-        }
-    }
-
-    private class SpoolRepositoryWrapper implements SpoolRepository {
-        private TesterMailetConfig owner;
-        private SpoolRepository wrapped;
-
-        public SpoolRepositoryWrapper(TesterMailetConfig owner, SpoolRepository wrapped) {
-            this.owner = owner;
-            this.wrapped = wrapped;
-            owner.setWrappedSpoolRepository(this);
-        }
-
-        public void store(Mail mc) throws MessagingException {
-            owner.onOutgoingStore(mc);
-            wrapped.store(mc);
-        }
-
-        public void remove(Mail mail) throws MessagingException {
-            owner.onOutgoingRemove(mail);
-            wrapped.remove(mail);
-        }
-
-        public void remove(String key) throws MessagingException {
-            owner.onOutgoingRemove(key);
-            wrapped.remove(key);
-        }
-
-        public Mail accept(AcceptFilter filter) throws InterruptedException {
-            Mail mail = wrapped.accept(filter);
-            if (mail != null) owner.onOutgoingAccept(mail);
-            return mail;
-        }
-
-        public Mail accept() throws InterruptedException {
-            return wrapped.accept();
-        }
-
-        public Mail accept(long delay) throws InterruptedException {
-            return wrapped.accept(delay);
-        }
-
-        public Iterator list() throws MessagingException {
-            return wrapped.list();
-        }
-
-        public boolean lock(String key) throws MessagingException {
-            return wrapped.lock(key);
-        }
-
-        public void remove(Collection mails) throws MessagingException {
-            wrapped.remove(mails);
-        }
-
-        public Mail retrieve(String key) throws MessagingException {
-            return wrapped.retrieve(key);
-        }
-
-        public boolean unlock(String key) throws MessagingException {
-            return wrapped.unlock(key);
-        }
-    }
 
     private Tester owner;
     private Properties parameters;
