@@ -31,15 +31,32 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  */
 public class CRLFTerminatedLineDecoder extends CumulativeProtocolDecoder {
 
+    private int maxLineLength;
+
+
+    public CRLFTerminatedLineDecoder(int maxLineLength) {
+        this.maxLineLength = maxLineLength;
+    }
+    
+    public CRLFTerminatedLineDecoder() {
+        this(2048);
+    }
+    
+    
     /*
      * (non-Javadoc)
      * @see org.apache.mina.filter.codec.CumulativeProtocolDecoder#doDecode(org.apache.mina.core.session.IoSession, org.apache.mina.core.buffer.IoBuffer, org.apache.mina.filter.codec.ProtocolDecoderOutput)
      */
     protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+       
+        if (maxLineLength != -1 && in.capacity() > maxLineLength) {
+            throw new LineLengthExceededException(maxLineLength, in.capacity());
+        }
 
         // Remember the initial position.
         int start = in.position();
 
+        
         // Now find the first CRLF in the buffer.
         byte previous = 0;
         while (in.hasRemaining()) {
