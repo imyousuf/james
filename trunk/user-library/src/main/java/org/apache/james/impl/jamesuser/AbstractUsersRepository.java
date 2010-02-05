@@ -68,7 +68,7 @@ public abstract class AbstractUsersRepository implements JamesUsersRepository, L
     }
     
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
-        setIgnoreCase(configuration.getBoolean("usernames", false));
+        setIgnoreCase(configuration.getBoolean("ignoreCase", false));
         setEnableAliases(configuration.getBoolean("enableAliases", false));
         setEnableForwarding(configuration.getBoolean("enableForwarding", false));
         
