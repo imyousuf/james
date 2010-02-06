@@ -20,15 +20,12 @@
 package org.apache.james.server.jpa;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
-import javax.persistence.PersistenceUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
