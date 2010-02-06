@@ -28,6 +28,11 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.textline.LineDelimiter;
 import org.apache.mina.filter.codec.textline.TextLineEncoder;
 
+/**
+ * ProtocolCodecFactory which holds the standard implementation for James Services
+ * 
+ *
+ */
 public class JamesProtocolCodecFactory  implements ProtocolCodecFactory {
     
     private final ProtocolEncoder encoder = new TextLineEncoder(Charset.forName("US-ASCII"), LineDelimiter.CRLF);
