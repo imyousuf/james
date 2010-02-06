@@ -33,9 +33,8 @@ import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 
 /**
- * Proof-of-concept repository using JPA.
- * TODO: Support managed contexts.
- * TODO: Use factory and support pooled contexts
+ * Proof-of-concept repository using JPA. TODO: Support managed contexts. TODO:
+ * Use factory and support pooled contexts
  */
 public class JPAUsersRepository implements UsersRepository {
 
@@ -45,11 +44,9 @@ public class JPAUsersRepository implements UsersRepository {
 
     private EntityManager entityManager;
 
-    
-    
-
     /**
      * Gets current logger.
+     * 
      * @return the logger
      */
     public final Log getLogger() {
@@ -58,7 +55,9 @@ public class JPAUsersRepository implements UsersRepository {
 
     /**
      * Setter injection for logging.
-     * @param logger the logger to set
+     * 
+     * @param logger
+     *            the logger to set
      */
     public final void setLogger(Log logger) {
         this.logger = logger;
@@ -66,6 +65,7 @@ public class JPAUsersRepository implements UsersRepository {
 
     /**
      * Gets entity manager.
+     * 
      * @return the entityManager
      */
     public final EntityManager getEntityManager() {
@@ -74,7 +74,9 @@ public class JPAUsersRepository implements UsersRepository {
 
     /**
      * Sets entity manager.
-     * @param entityManager the entityManager to set
+     * 
+     * @param entityManager
+     *            the entityManager to set
      */
     @PersistenceContext
     public final void setEntityManager(EntityManager entityManager) {
@@ -83,29 +85,32 @@ public class JPAUsersRepository implements UsersRepository {
 
     /**
      * Adds a user to the repository with the specified User object.
-     *
-     * @param user the user to be added
-     *
+     * 
+     * @param user
+     *            the user to be added
+     * 
      * @return true if succesful, false otherwise
      * @since James 1.2.2
      * 
      * @deprecated James 2.4 user should be added using username/password
-     * because specific implementations of UsersRepository will support specific 
-     * implementations of users object.
+     *             because specific implementations of UsersRepository will
+     *             support specific implementations of users object.
      */
     public boolean addUser(User user) {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * Adds a user to the repository with the specified attributes.  In current
+     * Adds a user to the repository with the specified attributes. In current
      * implementations, the Object attributes is generally a String password.
-     *
-     * @param name the name of the user to be added
-     * @param attributes see decription
+     * 
+     * @param name
+     *            the name of the user to be added
+     * @param attributes
+     *            see decription
      * 
      * @deprecated James 2.4 user is always added using username/password and
-     * eventually modified by retrieving it later.
+     *             eventually modified by retrieving it later.
      */
     public void addUser(String name, Object attributes) {
         throw new UnsupportedOperationException();
@@ -114,8 +119,10 @@ public class JPAUsersRepository implements UsersRepository {
     /**
      * Adds a user to the repository with the specified password
      * 
-     * @param username the username of the user to be added
-     * @param password the password of the user to add
+     * @param username
+     *            the username of the user to be added
+     * @param password
+     *            the password of the user to add
      * @return true if succesful, false otherwise
      * 
      * @since James 2.3.0
@@ -138,12 +145,13 @@ public class JPAUsersRepository implements UsersRepository {
     }
 
     /**
-     * Get the user object with the specified user name.  Return null if no
-     * such user.
-     *
-     * @param name the name of the user to retrieve
+     * Get the user object with the specified user name. Return null if no such
+     * user.
+     * 
+     * @param name
+     *            the name of the user to retrieve
      * @return the user being retrieved, null if the user doesn't exist
-     *
+     * 
      * @since James 1.2.2
      */
     public User getUserByName(String name) {
@@ -151,8 +159,7 @@ public class JPAUsersRepository implements UsersRepository {
     }
 
     private JPAUser getJPAUserByName(String name) {
-        try
-        {
+        try {
             return (JPAUser) entityManager.createNamedQuery("findUserByName").setParameter("name", name).getSingleResult();
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
@@ -161,15 +168,17 @@ public class JPAUsersRepository implements UsersRepository {
     }
 
     /**
-     * Get the user object with the specified user name. Match user naems on
-     * a case insensitive basis.  Return null if no such user.
-     *
-     * @param name the name of the user to retrieve
+     * Get the user object with the specified user name. Match user naems on a
+     * case insensitive basis. Return null if no such user.
+     * 
+     * @param name
+     *            the name of the user to retrieve
      * @return the user being retrieved, null if the user doesn't exist
-     *
+     * 
      * @since James 1.2.2
      * @deprecated James 2.4 now caseSensitive is a property of the repository
-     * implementations and the getUserByName will search according to this property.
+     *             implementations and the getUserByName will search according
+     *             to this property.
      */
     public User getUserByNameCaseInsensitive(String name) {
         throw new UnsupportedOperationException();
@@ -178,8 +187,9 @@ public class JPAUsersRepository implements UsersRepository {
     /**
      * Returns the user name of the user matching name on an equalsIgnoreCase
      * basis. Returns null if no match.
-     *
-     * @param name the name to case-correct
+     * 
+     * @param name
+     *            the name to case-correct
      * @return the case-correct name of the user, null if the user doesn't exist
      */
     public String getRealName(String name) {
@@ -187,9 +197,9 @@ public class JPAUsersRepository implements UsersRepository {
     }
 
     /**
-     * Update the repository with the specified user object. A user object
-     * with this username must already exist.
-     *
+     * Update the repository with the specified user object. A user object with
+     * this username must already exist.
+     * 
      * @return true if successful.
      */
     public boolean updateUser(User user) {
@@ -236,8 +246,9 @@ public class JPAUsersRepository implements UsersRepository {
 
     /**
      * Returns whether or not this user is in the repository
-     *
-     * @param name the name to check in the repository
+     * 
+     * @param name
+     *            the name to check in the repository
      * @return whether the user is in the repository
      */
     public boolean contains(String name) {
@@ -250,14 +261,16 @@ public class JPAUsersRepository implements UsersRepository {
     }
 
     /**
-     * Returns whether or not this user is in the repository. Names are
-     * matched on a case insensitive basis.
-     *
-     * @param name the name to check in the repository
+     * Returns whether or not this user is in the repository. Names are matched
+     * on a case insensitive basis.
+     * 
+     * @param name
+     *            the name to check in the repository
      * @return whether the user is in the repository
      * 
      * @deprecated James 2.4 now caseSensitive is a property of the repository
-     * implementations and the contains will search according to this property.
+     *             implementations and the contains will search according to
+     *             this property.
      */
     public boolean containsCaseInsensitive(String name) {
         throw new UnsupportedOperationException();
@@ -265,24 +278,23 @@ public class JPAUsersRepository implements UsersRepository {
 
     /**
      * Test if user with name 'name' has password 'password'.
-     *
-     * @param name the name of the user to be tested
-     * @param password the password to be tested
-     *
-     * @return true if the test is successful, false if the user
-     *              doesn't exist or if the password is incorrect
-     *
+     * 
+     * @param name
+     *            the name of the user to be tested
+     * @param password
+     *            the password to be tested
+     * 
+     * @return true if the test is successful, false if the user doesn't exist
+     *         or if the password is incorrect
+     * 
      * @since James 1.2.2
      */
     public boolean test(String name, String password) {
         final JPAUser user = getJPAUserByName(name);
         final boolean result;
-        if (user == null)
-        {
+        if (user == null) {
             result = false;
-        }
-        else
-        {
+        } else {
             result = user.verifyPassword(password);
         }
         return result;
@@ -290,14 +302,12 @@ public class JPAUsersRepository implements UsersRepository {
 
     /**
      * Returns a count of the users in the repository.
-     *
+     * 
      * @return the number of users in the repository
      */
     public int countUsers() {
-        try
-        {
-            return ((Long) entityManager.createNamedQuery("countUsers")
-                            .getSingleResult()).intValue();
+        try {
+            return ((Long) entityManager.createNamedQuery("countUsers").getSingleResult()).intValue();
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
             return 0;
