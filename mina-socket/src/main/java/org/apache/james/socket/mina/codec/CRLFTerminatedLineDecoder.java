@@ -26,20 +26,31 @@ import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 /**
- * LineDecoder which buffer the input till a CRLF was found
+ * LineDecoder which buffer the input till a CRLF was found. It will throw an exception if a maxlinelength was 
+ * reached to prevent an DOS attack. The default is 2048 chars (including CRLF).
  *
  */
 public class CRLFTerminatedLineDecoder extends CumulativeProtocolDecoder {
 
     private int maxLineLength;
-
-
+    
+    public static int DEFAULT_MAX_LINE_LENTH = 2048;
+    
+    /**
+     * Construct new instance with a max line length given (chars per line). 
+     * 
+     * @param maxLineLength the maximal chars per line. If the length is exceed it will throw
+     *                      an LineLengthExceededException while decoding   
+     */
     public CRLFTerminatedLineDecoder(int maxLineLength) {
         this.maxLineLength = maxLineLength;
     }
     
+    /**
+     * Construct a new instance with a max line length of 2048 chars
+     */
     public CRLFTerminatedLineDecoder() {
-        this(2048);
+        this(DEFAULT_MAX_LINE_LENTH);
     }
     
     
@@ -62,6 +73,7 @@ public class CRLFTerminatedLineDecoder extends CumulativeProtocolDecoder {
             byte current = in.get();
             count++;
             
+            // max line lenth exceed. Throw exception to prevent DOS
             if (maxLineLength != -1 && count > maxLineLength) {
                 throw new LineLengthExceededException(maxLineLength, in.capacity());
             }

@@ -23,7 +23,7 @@ package org.apache.james.socket.mina.codec;
 import java.io.IOException;
 
 /**
- * Exception get thrown if the max line lenth was exceed
+ * Exception get thrown if the max line length was exceed (chars pers line)
  * 
  *
  */
