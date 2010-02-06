@@ -49,9 +49,7 @@ public class CRLFTerminatedLineDecoder extends CumulativeProtocolDecoder {
      */
     protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
        
-        if (maxLineLength != -1 && in.capacity() > maxLineLength) {
-            throw new LineLengthExceededException(maxLineLength, in.capacity());
-        }
+      
 
         // Remember the initial position.
         int start = in.position();
@@ -59,9 +57,15 @@ public class CRLFTerminatedLineDecoder extends CumulativeProtocolDecoder {
         
         // Now find the first CRLF in the buffer.
         byte previous = 0;
+        int count = 0;
         while (in.hasRemaining()) {
             byte current = in.get();
-
+            count++;
+            
+            if (maxLineLength != -1 && count > maxLineLength) {
+                throw new LineLengthExceededException(maxLineLength, in.capacity());
+            }
+            
             if (previous == '\r' && current == '\n') {
                 // Remember the current position and limit.
                 int position = in.position();
