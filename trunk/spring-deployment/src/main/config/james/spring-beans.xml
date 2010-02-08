@@ -92,6 +92,9 @@
 		<property name="order" value="3" />
 	</bean>
 
+    <!-- Add support for Persistence annotations -->
+    <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
+
 	<bean id="James" class="org.apache.james.James"/>
 	
 	<bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
