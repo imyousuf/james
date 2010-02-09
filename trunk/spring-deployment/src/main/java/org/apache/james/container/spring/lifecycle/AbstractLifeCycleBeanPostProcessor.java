@@ -18,9 +18,6 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -35,22 +32,18 @@ import org.springframework.core.PriorityOrdered;
  */
 public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostProcessor, PriorityOrdered{
 
-	private Map<String, String> mappings = new HashMap<String, String>();
 	private int order = Ordered.HIGHEST_PRECEDENCE;
-
-	public void setMappings(Map<String,String> mappings) {
-		this.mappings = mappings;
-	}
 	
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization(java.lang.Object, java.lang.String)
 	 */
-	public final Object postProcessAfterInitialization(Object bean, String name)
+	@SuppressWarnings("unchecked")
+    public final Object postProcessAfterInitialization(Object bean, String name)
 			throws BeansException {
 		try {
 			Class<T> lClass = getLifeCycleInterface();
-			if (lClass.isInstance(bean)) executeLifecycleMethodAfterInit((T)bean, name, getMapping(name));
+			if (lClass.isInstance(bean)) executeLifecycleMethodAfterInit((T)bean, name);
 		} catch (Exception e) {
 			throw new FatalBeanException("Unable to execute lifecycle method on bean" + name,e);
 		}
@@ -72,7 +65,7 @@ public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostP
 			throws BeansException {
 		try {
 			Class<T> lClass = getLifeCycleInterface();
-			if (lClass.isInstance(bean)) executeLifecycleMethodBeforeInit((T)bean, name, getMapping(name));
+			if (lClass.isInstance(bean)) executeLifecycleMethodBeforeInit((T)bean, name);
 		} catch (Exception e) {
 			throw new FatalBeanException("Unable to execute lifecycle method on bean" + name,e);
 		}
@@ -85,10 +78,9 @@ public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostP
 	 * 
 	 * @param bean the actual bean
 	 * @param beanname then name of the bean
-	 * @param componentName the component name 
 	 * @throws Exception 
 	 */
-	protected void executeLifecycleMethodBeforeInit(T bean, String beanname, String componentName) throws Exception {
+	protected void executeLifecycleMethodBeforeInit(T bean, String beanname) throws Exception {
 		
 	}
 	
@@ -101,16 +93,9 @@ public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostP
 	 * @param componentName the component name 
 	 * @throws Exception 
 	 */
-	protected void executeLifecycleMethodAfterInit(T bean, String beanname, String componentName) throws Exception {
+	protected void executeLifecycleMethodAfterInit(T bean, String beanname) throws Exception {
 
 	}
-	
-	private String getMapping(String name) {
-		String newname = mappings.get(name);
-		if (newname == null) newname = name;
-		return newname;
-	}
-	
 	
 	public void setOrder(int order) {
 		this.order = order;

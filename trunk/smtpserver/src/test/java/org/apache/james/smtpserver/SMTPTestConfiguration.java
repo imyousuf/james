@@ -31,6 +31,7 @@ import org.apache.james.smtpserver.fastfail.ReverseEqualsEhloHeloHandler;
 import org.apache.james.smtpserver.fastfail.ValidSenderDomainHandler;
 
 
+@SuppressWarnings("serial")
 public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
 
     private int m_smtpListenerPort;
@@ -185,8 +186,7 @@ public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
             addProperty("handler.handlerchain.handler.[@class]", MaxRcptHandler.class.getName());
             addProperty("handler.handlerchain.handler.maxRcpt", m_maxRcpt);
         }
-       
-        addProperty("handler.handlerchain.handler.[@class]", CoreCmdHandlerLoader.class.getName());
+        addProperty("handler.handlerchain.[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
     }
     
 }

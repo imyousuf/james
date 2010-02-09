@@ -20,17 +20,13 @@
 
 package org.apache.james.pop3server.mina;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3ServerMBean;
-import org.apache.james.pop3server.core.CoreCmdHandlerLoader;
 import org.apache.james.pop3server.mina.filter.POP3ResponseFilter;
-import org.apache.james.socket.ProtocolHandlerChainImpl;
+import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.james.socket.mina.filter.ResponseValidationFilter;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
@@ -56,40 +52,19 @@ public class AsyncPOP3Server extends AbstractAsyncServer implements POP3ServerMB
     private POP3HandlerConfigurationData theConfigData
         = new POP3HandlerConfigurationDataImpl();
 
-	private SubnodeConfiguration handlerConfiguration;
-
-	private ProtocolHandlerChainImpl handlerChain;
+	private ProtocolHandlerChain handlerChain;
 
 
+	public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
+	    this.handlerChain = handlerChain;
+	}
+	
 	@Override
 	protected IoHandler createIoHandler() {
 		return new POP3IoHandler(handlerChain, theConfigData, getLogger(), getSslContextFactory());
 	}
 
-	 /**
-     * Prepare the handlerchain
-     * 
-     * @throws Exception
-     */
-    private void prepareHandlerChain() throws Exception {
-        //read from the XML configuration and create and configure each of the handlers
-        HierarchicalConfiguration handlerchainConfig = handlerConfiguration.configurationAt("handlerchain");
-        if (handlerchainConfig.getString("[@coreHandlersPackage]") == null)
-            handlerchainConfig.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
-        
-        handlerChain = getLoader().load(ProtocolHandlerChainImpl.class, getLogger(), handlerchainConfig);
-        handlerChain.configure(handlerchainConfig);
-        
-    }
 
-
-    /**
-     * @see org.apache.james.socket.mina.AbstractAsyncServer#preInit()
-     */
-    protected void preInit() throws Exception {
-        prepareHandlerChain();
-    }
-    
 	@Override
 	protected int getDefaultPort() {
 		return 110;
@@ -104,7 +79,7 @@ public class AsyncPOP3Server extends AbstractAsyncServer implements POP3ServerMB
     @Override
     protected void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         super.doConfigure(configuration);
-        handlerConfiguration = configuration.configurationAt("handler");
+        HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
         lengthReset = handlerConfiguration.getInteger("lengthReset", lengthReset);
         if (getLogger().isInfoEnabled()) {
             getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");

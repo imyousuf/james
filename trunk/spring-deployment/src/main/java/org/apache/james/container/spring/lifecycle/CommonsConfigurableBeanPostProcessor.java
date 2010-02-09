@@ -19,7 +19,7 @@
 package org.apache.james.container.spring.lifecycle;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.container.spring.ConfigurationProvider;
+import org.apache.james.container.spring.Registry;
 import org.apache.james.lifecycle.Configurable;
 
 /**
@@ -30,12 +30,11 @@ import org.apache.james.lifecycle.Configurable;
 public class CommonsConfigurableBeanPostProcessor extends
 		AbstractLifeCycleBeanPostProcessor<Configurable> {
 
-	private ConfigurationProvider provider;
+	private Registry<HierarchicalConfiguration> provider;
 	
 	@Override
-	protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname,
-			String lifecyclename) throws Exception {
-		HierarchicalConfiguration beanConfig = provider.getConfigurationForComponent(lifecyclename);
+	protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname) throws Exception {
+		HierarchicalConfiguration beanConfig = provider.getForComponent(beanname);
 		if(beanConfig != null) {
 		    bean.configure(beanConfig);
 		}
@@ -43,7 +42,7 @@ public class CommonsConfigurableBeanPostProcessor extends
 
 
 
-	public void setConfigurationProvider(ConfigurationProvider provider) {
+	public void setConfigurationRegistry(Registry<HierarchicalConfiguration> provider) {
 		this.provider = provider;
 	}
 

@@ -30,7 +30,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
@@ -85,9 +84,6 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      */
     private MailServer mailServer;
 
-    /** Loads instances */
-    private LoaderService loader;
-
     private Log logger;
 
     private DNSService dns;
@@ -118,22 +114,6 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
 
     private SslContextFactory contextFactory;
 
-    /**
-     * Gets the current instance loader.
-     * @return the loader
-     */
-    public final LoaderService getLoader() {
-        return loader;
-    }
-
-    /**
-     * Sets the loader to be used for instances.
-     * @param loader the loader to set, not null
-     */
-    @Resource(name="org.apache.james.LoaderService")
-    public final void setLoader(LoaderService loader) {
-        this.loader = loader;
-    }
     
     @Resource(name="dnsserver")
     public final void setDNSService(DNSService dns) {

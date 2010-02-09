@@ -25,12 +25,11 @@ import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerMBean;
 import org.apache.james.remotemanager.RemoteManagerResponse;
-import org.apache.james.remotemanager.core.CoreCmdHandlerLoader;
 import org.apache.james.remotemanager.mina.filter.RemoteManagerResponseFilter;
-import org.apache.james.socket.ProtocolHandlerChainImpl;
 import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.james.socket.mina.filter.ResponseValidationFilter;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
@@ -38,10 +37,13 @@ import org.apache.mina.core.service.IoHandler;
 
 public class AsyncRemoteManager extends AbstractAsyncServer implements RemoteManagerMBean{
 
-    private HierarchicalConfiguration handlerConfiguration;
     private Map<String,String> adminAccounts = new HashMap<String, String>();
-    private ProtocolHandlerChainImpl handlerChain;
+    private ProtocolHandlerChain handlerChain;
     private RemoteManagerHandlerConfigurationData configData = new RemoteManagerHandlerConfigurationDataImpl();
+    
+    public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
+        this.handlerChain = handlerChain;
+    }
     
     @Override
     protected IoHandler createIoHandler() {
@@ -62,20 +64,13 @@ public class AsyncRemoteManager extends AbstractAsyncServer implements RemoteMan
     @Override
     protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
         super.doConfigure(config);
-        handlerConfiguration = config.configurationAt("handler");
+        HierarchicalConfiguration handlerConfiguration = config.configurationAt("handler");
         List<HierarchicalConfiguration> accounts = handlerConfiguration.configurationsAt("administrator_accounts.account");
         for (int i = 0; i < accounts.size(); i++) {
             adminAccounts.put(accounts.get(i).getString("[@login]"), accounts.get(i).getString("[@password]"));
         }
     }
 
-    
-    @Override
-    protected void preInit() throws Exception {
-        prepareHandlerChain();
-    }
-
-    
     protected DefaultIoFilterChainBuilder createIoFilterChainBuilder() {
         DefaultIoFilterChainBuilder builder = super.createIoFilterChainBuilder();
         
@@ -85,17 +80,7 @@ public class AsyncRemoteManager extends AbstractAsyncServer implements RemoteMan
         return builder;
     }
     
-    
-    private void prepareHandlerChain() throws Exception {
-        
-        //read from the XML configuration and create and configure each of the handlers
-        HierarchicalConfiguration jamesConfiguration = handlerConfiguration.configurationAt("handlerchain");
-        if (jamesConfiguration.getString("[@coreHandlersPackage]") == null)
-            jamesConfiguration.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
-        
-        handlerChain = getLoader().load(ProtocolHandlerChainImpl.class, getLogger(), jamesConfiguration);
-    }
-
+  
     
     /*
      * (non-Javadoc)

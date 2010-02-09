@@ -45,6 +45,7 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.pop3server.mina.AsyncPOP3Server;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.ProtocolHandlerChainImpl;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
@@ -65,6 +66,7 @@ public class AsyncPOP3ServerTest extends TestCase {
     private FakeLoader serviceManager;
     private DNSService dnsservice;
     private MockFileSystem fSystem;
+    private ProtocolHandlerChainImpl chain;
     
     public AsyncPOP3ServerTest() {
         super("AsyncPOP3ServerTest");
@@ -74,11 +76,17 @@ public class AsyncPOP3ServerTest extends TestCase {
 
     protected void setUp() throws Exception {
         setUpServiceManager();
-
+        
+        chain = new ProtocolHandlerChainImpl();
+        chain.setLoader(serviceManager);
+        chain.setLog(new SimpleLog("ChainLog"));
+        
         m_pop3Server = new AsyncPOP3Server();
         m_pop3Server.setDNSService(dnsservice);
         m_pop3Server.setFileSystem(fSystem);
-        m_pop3Server.setLoader(serviceManager);
+        m_pop3Server.setProtocolHandlerChain(chain);
+       
+        
         SimpleLog log = new SimpleLog("Mock");
         log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         m_pop3Server.setLog(log);
@@ -88,7 +96,9 @@ public class AsyncPOP3ServerTest extends TestCase {
 
     protected void finishSetUp(POP3TestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
+        chain.configure(testConfiguration.configurationAt("handler.handlerchain"));        
         m_pop3Server.configure(testConfiguration);
+        chain.init();
         m_pop3Server.init();
     }
 

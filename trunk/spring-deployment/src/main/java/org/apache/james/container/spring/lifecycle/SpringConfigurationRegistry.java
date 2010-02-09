@@ -19,11 +19,15 @@
 package org.apache.james.container.spring.lifecycle;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.james.container.spring.ConfigurationProvider;
+import org.apache.james.container.spring.Registry;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -33,25 +37,32 @@ import org.springframework.core.io.ResourceLoader;
  * 
  *
  */
-public class SpringConfigurationProvider implements ConfigurationProvider, ResourceLoaderAware {
+public class SpringConfigurationRegistry implements Registry<HierarchicalConfiguration>, ResourceLoaderAware, InitializingBean {
 
 	private ResourceLoader loader;
+	private Map<String,HierarchicalConfiguration> confMap = new HashMap<String,HierarchicalConfiguration>();
+    private Map<String,String> resources;
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.apache.james.container.spring.ConfigurationProvider#getConfigurationForComponent(java.lang.String)
+	 * @see org.apache.james.container.spring.Registry#getForComponent(java.lang.String)
 	 */
-	public HierarchicalConfiguration getConfigurationForComponent(String name)
-			throws ConfigurationException {
-	    Resource resource = loader.getResource("classpath:" + name + ".xml");
-	    if (resource.exists()) {
-	        try {
-                return getConfig(resource);
-            } catch (IOException e) {
-                throw new ConfigurationException("Unable to read config for component " + name, e);
-            }
+	public HierarchicalConfiguration getForComponent(String name)
+			throws RegistryException {
+	    HierarchicalConfiguration conf = confMap.get(name);
+	    if (conf != null) {
+	        return conf;
+	    } else {
+	        Resource r = loader.getResource("classpath:" + name + ".xml");
+	        if (r.exists()) {
+	            try {
+                    return getConfig(r);
+                } catch (Exception e) {
+                    throw new RegistryException("Unable to load configuration for component " + name,e);                    
+                }
+	        }
 	    }
-	    throw new ConfigurationException("Unable to load configuration for component " + name);
+	    throw new RegistryException("Unable to load configuration for component " + name);
 	}
 
 
@@ -69,6 +80,34 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
         config.setDelimiterParsingDisabled(true);
         config.load(r.getFile());
         return config;
+    }
+
+    public void setConfigurationMappings(Map<String,String> resources) {
+        this.resources = resources;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.container.spring.Registry#registerForComponent(java.lang.String, java.lang.Object)
+     */
+    public void registerForComponent(String name, HierarchicalConfiguration conf) {
+        confMap.put(name, conf);        
+    }
+
+
+    /*
+     * 
+     */
+    public void afterPropertiesSet() throws Exception {
+        if (resources != null) {
+            Iterator<String> it = resources.keySet().iterator();
+
+            while (it.hasNext()) {
+                String key = it.next();
+                String value = resources.get(key);
+                confMap.put(key,getForComponent(value));
+            }
+        }
     }
 
 }
