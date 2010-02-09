@@ -48,8 +48,8 @@ import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.SMTPServerDNSServiceAdapter;
 import org.apache.james.smtpserver.mina.AsyncSMTPServer;
+import org.apache.james.socket.ProtocolHandlerChainImpl;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
@@ -110,7 +110,6 @@ public class AsyncSMTPServerTest extends TestCase {
             }
 
             throw new UnsupportedOperationException("getByName not implemented in mock for host: " + host);
-            // return InetAddress.getByName(host);
         }
 
         public Collection<String> findTXTRecords(String hostname) {
@@ -152,7 +151,8 @@ public class AsyncSMTPServerTest extends TestCase {
     protected MockStore store;
     protected MockFileSystem fileSystem;
     protected SMTPServerDNSServiceAdapter dnsAdapter;
-
+    private ProtocolHandlerChainImpl chain;
+    
     public AsyncSMTPServerTest() {
         super("AsyncSMTPServerTest");
         m_smtpListenerPort = Util.getNonPrivilegedPort();
@@ -160,19 +160,28 @@ public class AsyncSMTPServerTest extends TestCase {
 
     protected void setUp() throws Exception {
         setUpFakeLoader();
+        m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
 
         m_smtpServer = new AsyncSMTPServer();
         m_smtpServer.setDNSService(m_dnsServer);
         m_smtpServer.setFileSystem(fileSystem);
-        m_smtpServer.setLoader(m_serviceManager);
+        
+        chain = new ProtocolHandlerChainImpl();
+        chain.setLoader(m_serviceManager);
+        chain.setLog(new SimpleLog("ChainLog"));
+        
+        m_smtpServer.setProtocolHandlerChain(chain);
+        
         m_smtpServer.setLog(new SimpleLog("Mock"));
         m_smtpServer.setMailServer(m_mailServer);
-        m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
     }
 
     protected void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
+        chain.configure(testConfiguration.configurationAt("handler.handlerchain"));        
         m_smtpServer.configure(testConfiguration);
+        chain.init();
+        
         m_smtpServer.init();
         m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize() * 1024);
     }

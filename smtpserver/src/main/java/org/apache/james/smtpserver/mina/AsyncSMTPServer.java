@@ -23,17 +23,14 @@ package org.apache.james.smtpserver.mina;
 
 
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPServerMBean;
-import org.apache.james.smtpserver.CoreCmdHandlerLoader;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
-import org.apache.james.socket.ProtocolHandlerChainImpl;
 import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.james.socket.mina.filter.ResponseValidationFilter;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
@@ -53,11 +50,7 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
      * Command handlers , Message handlers and connection handlers
      * Constructed during initialisation to allow dependency injection.
      */
-    private ProtocolHandlerChainImpl handlerChain;
-
-   
-    /** Cached configuration data for handler */
-    private HierarchicalConfiguration handlerConfiguration;
+    private ProtocolHandlerChain handlerChain;
 
     /**
      * Whether authentication is required to use
@@ -106,9 +99,15 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
     private boolean addressBracketsEnforcement = true;
 
     
+
+    public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
+        this.handlerChain = handlerChain;
+    }
+
+    
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
-            handlerConfiguration = configuration.configurationAt("handler");
+            HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
             String authRequiredString = handlerConfiguration.getString("authRequired","false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
             else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
@@ -179,33 +178,6 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
             addressBracketsEnforcement = handlerConfiguration.getBoolean("addressBracketsEnforcement",true);
         }
     }
-    
-    
-    /**
-     * Prepare the handlerchain
-     * 
-     * @throws Exception
-     */
-    private void prepareHandlerChain() throws Exception {
-        //read from the XML configuration and create and configure each of the handlers
-        HierarchicalConfiguration handlerchainConfig = handlerConfiguration.configurationAt("handlerchain");
-        if (handlerchainConfig.getString("[@coreHandlersPackage]") == null)
-            handlerchainConfig.addProperty("[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
-        
-        handlerChain = getLoader().load(ProtocolHandlerChainImpl.class, getLogger(), handlerchainConfig);
-        handlerChain.configure(handlerchainConfig);
-        
-    }
-
-
-    /**
-     * @see org.apache.james.socket.mina.AbstractAsyncServer#preInit()
-     */
-    protected void preInit() throws Exception {
-        prepareHandlerChain();
-    }
-
-
 
     /**
      * @see org.apache.james.socket.mina.AbstractAsyncServer#getDefaultPort()

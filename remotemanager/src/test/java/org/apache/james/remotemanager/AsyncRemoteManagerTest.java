@@ -56,6 +56,7 @@ import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.remotemanager.mina.AsyncRemoteManager;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.ProtocolHandlerChainImpl;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
@@ -79,14 +80,21 @@ public class AsyncRemoteManagerTest extends TestCase {
 	private MockFileSystem filesystem;
 	private MockVirtualUserTableManagementService vutManagement;
 	private AsyncRemoteManager remotemanager;
-
+	private ProtocolHandlerChainImpl chain;
+	
 	protected void setUp() throws Exception {
 		setUpFakeLoader();
 
+		chain = new ProtocolHandlerChainImpl();
+	    chain.setLoader(serviceManager);
+	    chain.setLog(new SimpleLog("ChainLog"));
+	        
+	        
 		remotemanager = new AsyncRemoteManager();
 		remotemanager.setDNSService(dnsservice);
 		remotemanager.setFileSystem(filesystem);
-		remotemanager.setLoader(serviceManager);
+		remotemanager.setProtocolHandlerChain(chain);
+       
 		SimpleLog log = new SimpleLog("Mock");
 		log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
 		remotemanager.setLog(log);
@@ -103,7 +111,9 @@ public class AsyncRemoteManagerTest extends TestCase {
 	protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration)
 			throws Exception {
 		testConfiguration.init();
+        chain.configure(testConfiguration.configurationAt("handler.handlerchain"));        
 		remotemanager.configure(testConfiguration);
+		chain.init();
 		remotemanager.init();
 	}
 

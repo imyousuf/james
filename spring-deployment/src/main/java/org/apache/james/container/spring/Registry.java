@@ -18,20 +18,42 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
-import org.apache.commons.logging.Log;
-
 /**
- * Provide a Log for a Component
+ * Provide a Object for a Component
  * 
  *
  */
-public interface LogProvider {
+public interface Registry<E> {
 
 	/**
-	 * Return the Log object which should get used for the Component with the given name
+	 * Return the object which should get used for the Component with the given name
 	 * 
 	 * @param componentname
-	 * @return log
+	 * @return object
 	 */
-	public Log getLogForComponent(String componentname);
+	public E getForComponent(String componentname) throws RegistryException;
+	
+	/**
+	 * Register the object for the componentname
+	 * 
+	 * @param componentName
+	 * @param object
+	 */
+	public void registerForComponent(String componentName, E object);
+	
+	
+    @SuppressWarnings("serial")
+    public final class RegistryException extends Exception {
+        public RegistryException(String msg, Throwable t) {
+            super(msg, t);
+        }
+
+        public RegistryException(Throwable t) {
+            super(t);
+        }
+
+        public RegistryException(String msg) {
+            super(msg);
+        }
+    }
 }

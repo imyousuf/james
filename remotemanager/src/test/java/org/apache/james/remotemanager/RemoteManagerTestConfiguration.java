@@ -70,7 +70,7 @@ public class RemoteManagerTestConfiguration extends DefaultConfigurationBuilder 
         addProperty("handler.administrator_accounts.account.[@login]", m_loginName);
         addProperty("handler.administrator_accounts.account.[@password]", m_loginPassword);
 
-        addProperty("handler.handlerchain.handler.[@class]", CoreCmdHandlerLoader.class.getName());
+        addProperty("handler.handlerchain.[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
        
     }
 }
