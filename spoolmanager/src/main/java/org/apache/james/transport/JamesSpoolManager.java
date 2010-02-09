@@ -32,7 +32,6 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
@@ -63,23 +62,6 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
     private int numThreads;
 
     /**
-     * The ThreadPool containing worker threads.
-     *
-     * This used to be used, but for threads that lived the entire
-     * lifespan of the application.  Currently commented out.  In
-     * the future, we could use a thread pool to run short-lived
-     * workers, so that we have a smaller number of readers that
-     * accept a message from the spool, and dispatch to a pool of
-     * worker threads that process the message.
-     */
-    // private ThreadPool workerPool;
-
-    /**
-     * The ThreadManager from which the thread pool is obtained.
-     */
-    // private ThreadManager threadManager;
-
-    /**
      * Number of active threads
      */
     private int numActive;
@@ -101,9 +83,6 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
 
     private Log logger;
 
-    private LoaderService loaderService;
-
-    private HierarchicalConfiguration config;
 
     /**
      * Set the SpoolRepository
@@ -114,22 +93,28 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
     public void setSpoolRepository(SpoolRepository spool) {
         this.spool = spool;
     }
-
-
-    @Resource(name="org.apache.james.LoaderService")
-    public final void setLoaderService(LoaderService service) {
-        this.loaderService = service;
+    
+    @Resource(name="mailProcessor")
+    public final void setMailProcessor(MailProcessor processorList) {
+        this.processorList = processorList;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
     public final void setLog(Log logger) {
         this.logger = logger;
     }
     
     
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         numThreads = config.getInt("threads",1);
-        this.config = config;
     }
 
     /**
@@ -139,24 +124,6 @@ public class JamesSpoolManager implements Runnable, SpoolManager, LogEnabled, Co
     public void init() throws Exception {
         logger.info("JamesSpoolManager init...");
         
-        String processorClass = config.getString("processorClass","org.apache.james.transport.StateAwareProcessorList");
-        try {
-             Class<MailProcessor> mClass = (Class<MailProcessor>) Thread.currentThread().getContextClassLoader().loadClass(processorClass);
-             processorList = loaderService.load(mClass, logger, config);
-        } catch (Exception e1) {
-            logger.error("Unable to instantiate spoolmanager processor: "+processorClass, e1);
-            throw new ConfigurationException("Instantiation exception: "+processorClass, e1);
-        }
-        
-        if (logger.isInfoEnabled()) {
-            StringBuffer infoBuffer =
-                new StringBuffer(64)
-                    .append("Spooler Manager uses ")
-                    .append(numThreads)
-                    .append(" Thread(s)");
-            logger.info(infoBuffer.toString());
-        }
-
         active = true;
         numActive = 0;
         spoolThreads = new java.util.ArrayList<Thread>(numThreads);
