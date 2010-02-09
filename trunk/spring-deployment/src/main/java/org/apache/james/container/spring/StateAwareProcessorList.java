@@ -19,104 +19,70 @@
 
 
 
-package org.apache.james.transport;
+package org.apache.james.container.spring;
 
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.kernel.LoaderService;
-import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.container.spring.Registry.RegistryException;
+import org.apache.james.transport.LinearProcessor;
+import org.apache.james.transport.MailProcessor;
+import org.apache.james.transport.ProcessorList;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetException;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.FatalBeanException;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * This class is responsible for creating a set of named processors and
  * directing messages to the appropriate processor (given the State of the mail)
  *
  */
-public class StateAwareProcessorList implements MailProcessor, ProcessorList, LogEnabled, Configurable {
+public class StateAwareProcessorList implements MailProcessor, ProcessorList, BeanFactoryPostProcessor, BeanNameAware, ApplicationContextAware {
 
     /**
      * The map of processor names to processors
      */
-    private final Map<String, MailProcessor> processors;
+    private final List<String> processors;
 
     private Log logger;
 
-    private HierarchicalConfiguration config;
+    private Registry<Log> logRegistry;
 
-    private LoaderService loader;
+    private Registry<HierarchicalConfiguration> confRegistry;
+
+    private String name;
+
+    private ApplicationContext context;
     
     public StateAwareProcessorList() {
         super();
-        this.processors = new HashMap<String, MailProcessor>();
+        this.processors = new ArrayList<String>();
     }
 
-    
-    public final void setLog(Log logger) {
-        this.logger = logger;
-    }
-    
-    
-    @Resource(name="org.apache.james.LoaderService")
-    public final void setLoaderService(LoaderService loader) {
-        this.loader = loader;
-    }
-    
-    /**
-     * @see org.apache.avalon.framework.activity.Initializable#initialize()
-     */
-    @SuppressWarnings("unchecked")
-    @PostConstruct
-    public void init() throws Exception {
-        final List<HierarchicalConfiguration> processorConfs = config.configurationsAt( "processor" );
-        for ( int i = 0; i < processorConfs.size(); i++ )
-        {
-            final HierarchicalConfiguration processorConf = processorConfs.get(i);
-            String processorName = processorConf.getString("[@name]");
-            String processorClass = processorConf.getString("[@class]","org.apache.james.transport.LinearProcessor");
 
-            try {
-                Class<MailProcessor> mClass = (Class<MailProcessor>)Thread.currentThread().getContextClassLoader().loadClass(processorClass);
-                 
-                MailProcessor processor = loader.load(mClass, logger, processorConf);
-              
-                processors.put(processorName, processor);
-                
-               
-                if (logger.isInfoEnabled()) {
-                    StringBuffer infoBuffer =
-                        new StringBuffer(64)
-                                .append("Processor ")
-                                .append(processorName)
-                                .append(" instantiated.");
-                    logger.info(infoBuffer.toString());
-                }
-            } catch (Exception ex) {
-                if (logger.isErrorEnabled()) {
-                    StringBuffer errorBuffer =
-                       new StringBuffer(256)
-                               .append("Unable to init processor ")
-                               .append(processorName)
-                               .append(": ")
-                               .append(ex.toString());
-                    logger.error( errorBuffer.toString(), ex );
-                }
-                throw ex;
-            }
-        }
+
+    public void setLogRegistry(Registry<Log> logRegistry) {
+        this.logRegistry = logRegistry;
     }
+    
+
+    public void setConfigurationRegistry(Registry<HierarchicalConfiguration> confRegistry) {
+        this.confRegistry = confRegistry;
+    }
+    
     
     /**
      * Process this mail message by the appropriate processor as designated
@@ -135,7 +101,7 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList, Lo
             }
             try {
                 MailProcessor processor
-                    = (MailProcessor)processors.get(processorName);
+                    = (MailProcessor)context.getBean(processorName);
                 if (processor == null) {
                     StringBuffer exceptionMessageBuffer =
                         new StringBuffer(128)
@@ -207,43 +173,88 @@ public class StateAwareProcessorList implements MailProcessor, ProcessorList, Lo
     }
 
     /**
-     * The dispose operation is called at the end of a components lifecycle.
-     * Instances of this class use this method to release and destroy any
-     * resources that they own.
-     *
-     * This implementation shuts down the Processors managed by this
-     * Component
-     *
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
-     */
-    @PreDestroy
-    public void dispose() {
-        Iterator<String> it = processors.keySet().iterator();
-        while (it.hasNext()) {
-            String processorName = it.next();
-            if (logger.isDebugEnabled()) {
-                logger.debug("Processor " + processorName);
-            }
-            Object processor = processors.get(processorName);
-            processors.remove(processor);
-        }
-    }
-
-    /**
      * @return names of all configured processors
      */
     public String[] getProcessorNames() {
-        return (String[]) processors.keySet().toArray(new String[]{});
+        return (String[]) processors.toArray(new String[]{});
     }
 
     public MailProcessor getProcessor(String name) {
-        return (MailProcessor) processors.get(name);
+        return (MailProcessor) context.getBean(name);
     }
 
 
-	public void configure(HierarchicalConfiguration config)
-			throws org.apache.commons.configuration.ConfigurationException {
-		this.config = config;
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor#postProcessBeanFactory(org.springframework.beans.factory.config.ConfigurableListableBeanFactory)
+     */
+    @SuppressWarnings("unchecked")
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory factory) throws BeansException {
+
+        BeanDefinitionRegistry registry = (BeanDefinitionRegistry) factory;
+        try {
+            List<HierarchicalConfiguration> processorConfs = confRegistry.getForComponent(name).configurationsAt( "processor" );
+            logger = logRegistry.getForComponent(name);
+            
+            for ( int i = 0; i < processorConfs.size(); i++ )
+            {
+                final HierarchicalConfiguration processorConf = processorConfs.get(i);
+                String processorName = processorConf.getString("[@name]");
+                String processorClass = processorConf.getString("[@class]", LinearProcessor.class.getName());
+
+                try {
+                    logRegistry.registerForComponent(processorName, logger);
+                    confRegistry.registerForComponent(processorName, processorConf);
+                    
+                    registry.registerBeanDefinition(processorName, BeanDefinitionBuilder.rootBeanDefinition(processorClass).setLazyInit(false).getBeanDefinition());              
+                    processors.add(processorName);
+                    
+                   
+                    if (logger.isInfoEnabled()) {
+                        StringBuffer infoBuffer =
+                            new StringBuffer(64)
+                                    .append("Processor ")
+                                    .append(processorName)
+                                    .append(" instantiated.");
+                        logger.info(infoBuffer.toString());
+                    }
+                } catch (Exception ex) {
+                    if (logger.isErrorEnabled()) {
+                        StringBuffer errorBuffer =
+                           new StringBuffer(256)
+                                   .append("Unable to init processor ")
+                                   .append(processorName)
+                                   .append(": ")
+                                   .append(ex.toString());
+                        logger.error( errorBuffer.toString(), ex );
+                    }
+                    throw new FatalBeanException("Unable to init processor " + processorName, ex);
+                }
+            }
+        } catch (RegistryException e) {
+            throw new FatalBeanException("Unable to load component for " +name , e);
+        }
+       
+    }
+
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.beans.factory.BeanNameAware#setBeanName(java.lang.String)
+     */
+    public void setBeanName(String name) {
+        this.name = name;
+    }
+
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
+     */
+    public void setApplicationContext(ApplicationContext context) throws BeansException {
+        this.context = context;
+    }
 
 }

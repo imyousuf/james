@@ -87,7 +87,7 @@ import org.apache.mailet.base.MatcherInverter;
  * <P>CVS $Id$</P>
  * @version 2.2.0
  */
-public class LinearProcessor implements  MailProcessor, MailetContainer, LogEnabled, Configurable {
+public class LinearProcessor implements MailProcessor, MailetContainer, LogEnabled, Configurable {
 
     /**
      *  The name of the matcher used to terminate the matcher chain.  The

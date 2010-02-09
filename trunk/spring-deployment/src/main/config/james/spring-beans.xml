@@ -76,6 +76,7 @@
 			    <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
 				<entry key="pop3ProtocolHandlerChain" value="pop3server"/>
 				<entry key="remoteProtocolHandlerChain" value="remotemanager"/>		
+				<entry key="mailProcessor" value="spoolmanager"/>
 	        </map>
 		</property>
 	</bean>
@@ -95,6 +96,7 @@
 				<entry key="smtpProtocolHandlerChain" value="smtpserver"/>
 				<entry key="pop3ProtocolHandlerChain" value="pop3server"/>
 				<entry key="remoteProtocolHandlerChain" value="remoteManager"/>
+				<entry key="mailProcessor" value="spoolmanager"/>
 			</map>
 		</property>
 	</bean>
@@ -113,6 +115,11 @@
 
 	<!-- The James Spool Manager block  -->
 	<bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" />
+	
+	<bean id="mailProcessor" class="org.apache.james.container.spring.StateAwareProcessorList">
+    	<property name="logRegistry" ref="logRegistry"/>
+	    <property name="configurationRegistry" ref="configurationRegistry"/>
+	</bean>
 
 	<bean id="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" />
 
