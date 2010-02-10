@@ -26,11 +26,13 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Version;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.james.api.user.User;
 
 @Entity(name = "JamesUser")
 @NamedQueries( { 
     @NamedQuery(name = "findUserByName", query = "SELECT user FROM JamesUser user WHERE user.name=:name"),
+    @NamedQuery(name = "deleteUserByName", query = "DELETE FROM JamesUser user WHERE user.name=:name"),
     @NamedQuery(name = "containsUser", query = "SELECT COUNT(user) FROM JamesUser user WHERE user.name=:name") ,
     @NamedQuery(name = "countUsers", query = "SELECT COUNT(user) FROM JamesUser user"),
     @NamedQuery(name = "listUserNames", query = "SELECT user.name FROM JamesUser user") 
@@ -39,13 +41,7 @@ import org.apache.james.api.user.User;
 public class JPAUser implements User {
 
     /**
-     * Static salt for hashing password. Modifying this value will render all
-     * passwords unrecognizable.
-     */
-    public static final String SALT = "JPAUsersRepository";
-
-    /**
-     * Hashes salted password.
+     * Hash password.
      * 
      * @param username
      *            not null
@@ -53,12 +49,20 @@ public class JPAUser implements User {
      *            not null
      * @return not null
      */
-    public static String hashPassword(String username, String password) {
-        // Combine dynamic and static salt
-        final String hashedSaltedPassword = password;// =
-        // Text.md5(Text.md5(username
-        // + password) + SALT);
-        return hashedSaltedPassword;
+    private static String hashPassword(String username, String password, String alg) {
+        String newPass;
+        if ( alg == null || alg.equals("MD5")) {
+            newPass = DigestUtils.md5Hex(password);
+        } else if (alg.equals("NONE")) {
+            newPass = "password";
+        } else if (alg.equals("SHA-256")) {
+            newPass = DigestUtils.sha256Hex(password);
+        } else if (alg.equals("SHA-512")) {
+            newPass = DigestUtils.sha512Hex(password);
+        } else {
+            newPass = DigestUtils.shaHex(password);
+        }
+        return newPass;
     }
 
     /** Prevents concurrent modification */
@@ -72,40 +76,47 @@ public class JPAUser implements User {
     /** Hashed password */
     @Basic
     private String password;
+    
+    @Basic
+    private String alg;
 
     protected JPAUser() {
     }
 
-    public JPAUser(final String userName, String password) {
+    public JPAUser(final String userName, String password,  String alg) {
         super();
         this.name = userName;
-        this.password = hashPassword(userName, password);
+        this.alg = alg;
+        this.password = hashPassword(userName, password, alg);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.user.User#getUserName()
+     */
     public String getUserName() {
         return name;
     }
 
-    /**
-     * Gets salted, hashed password.
-     * 
-     * @return the hashedSaltedPassword
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.user.User#setPassword(java.lang.String)
      */
-    public final String getHashedSaltedPassword() {
-        return password;
-    }
-
     public boolean setPassword(String newPass) {
         final boolean result;
         if (newPass == null) {
             result = false;
         } else {
-            password = hashPassword(name, newPass);
+            password = hashPassword(name, newPass, alg);
             result = true;
         }
         return result;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.api.user.User#verifyPassword(java.lang.String)
+     */
     public boolean verifyPassword(String pass) {
         final boolean result;
         if (pass == null) {
@@ -113,7 +124,7 @@ public class JPAUser implements User {
         } else if (password == null) {
             result = false;
         } else {
-            result = password.equals(hashPassword(name, pass));
+            result = password.equals(hashPassword(name, pass, alg));
         }
         return result;
     }

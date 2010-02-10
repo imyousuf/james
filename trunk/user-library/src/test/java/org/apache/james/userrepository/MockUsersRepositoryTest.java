@@ -155,7 +155,7 @@ public class MockUsersRepositoryTest extends TestCase {
             // UsersFileRepository accept this call for every argument
             // fail("removing an unknown user didn't fail!");
         } catch (Exception e) {
-            
+            e.printStackTrace();
         }
         assertTrue("user not added", usersRepository.addUser("username","password"));
         assertEquals("didn't accept the correct password", usersRepository.test("username", "password"),getPasswordsEnabled());
@@ -172,6 +172,7 @@ public class MockUsersRepositoryTest extends TestCase {
         try {
             usersRepository.removeUser("username");
         } catch (Exception e) {
+            e.printStackTrace();
             fail("removing the user failed!");
         }
         assertFalse("user not existing", usersRepository.contains("username"));

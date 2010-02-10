@@ -52,16 +52,22 @@
     <!-- Note: The <data-source> element must refer to a connection configured -->
     <!--       in the <database-connections> configuration section. -->
     <!-- The LocalUsers repository, for storing James' User info. -->
+    <!-- 
     <repository name="LocalUsers" class="org.apache.james.userrepository.JamesUsersJdbcRepository" destinationURL="db://maildb/users">
         <sqlFile>file://conf/sqlResources.xml</sqlFile>
-        <!-- Set whether user names are case sensitive or case insensitive -->
         <ignoreCase>true</ignoreCase>
-        <!-- Set whether to enable local aliases -->
         <enableAliases>true</enableAliases>
-        <!-- Set whether to enable forwarding -->
         <enableForwarding>true</enableForwarding>
     </repository>
-
+    -->
+    
+    <!-- JPA based backend. Support password algorithm are:
+         MD5, SHA-256, SHA-512, NONE
+     -->
+    <repository name="LocalUsers" class="org.apache.james.server.jpa.JPAUsersRepository">
+        <algorithm>MD5</algorithm>
+    </repository>
+    
     <!-- This is an example configuration including configuration for a list server. -->
     <!-- CHECKME: before uncommenting this, edit the configuration file's contents   -->
     <!-- -->

@@ -31,6 +31,42 @@
   <name>Apache JAMES Server JPA Backend</name>
   <version>3.0-M1</version>
 
+  <build>
+    <plugins>
+    
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>openjpa-maven-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <includes>org/apache/james/server/jpa/JPAUser.class</includes>
+          <addDefaultConstructor>true</addDefaultConstructor>
+          <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
+          <toolProperties>
+            <property>
+              <name>log</name>
+              <value>TOOL=TRACE</value>
+            </property>   
+            <property>
+              <name>metaDataFactory</name>
+              <value>jpa(Types=org.apache.james.server.jpa.JPAUser)</value>
+            </property>           
+          </toolProperties>
+        </configuration>
+        
+        <executions>
+          <execution>
+            <id>enhancer</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>enhance</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -46,7 +82,20 @@
       <artifactId>persistence-api</artifactId>
       <scope>compile</scope>
     </dependency>
-        <dependency>
+    
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
       <scope>test</scope>
@@ -58,22 +107,16 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-api</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa</artifactId>
-        <version>1.2.1</version>
-        <scope>test</scope>
-      </dependency>
+      <groupId>org.apache.openjpa</groupId>
+      <artifactId>openjpa</artifactId>
+      <version>1.2.1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>
