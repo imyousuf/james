@@ -2,15 +2,20 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     version="1.0">
     <persistence-unit name="James" transaction-type="RESOURCE_LOCAL">
-	<class>org.apache.james.imap.jpa.mail.model.JPAHeader</class>
-	<class>org.apache.james.imap.jpa.mail.model.JPAMailbox</class>
-	<class>org.apache.james.imap.jpa.mail.model.JPAMailboxMembership</class>
-	<class>org.apache.james.imap.jpa.mail.model.JPAMessage</class>
-	<class>org.apache.james.imap.jpa.mail.model.JPAProperty</class>
-	<class>org.apache.james.imap.jpa.user.model.JPASubscription</class>
-    <properties>
-        <!--  create tables on startup -->
-		<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-    </properties>
+        <!-- IMAP stuff-->
+	    <class>org.apache.james.imap.jpa.mail.model.JPAHeader</class>
+    	<class>org.apache.james.imap.jpa.mail.model.JPAMailbox</class>
+    	<class>org.apache.james.imap.jpa.mail.model.JPAMailboxMembership</class>
+    	<class>org.apache.james.imap.jpa.mail.model.JPAMessage</class>
+    	<class>org.apache.james.imap.jpa.mail.model.JPAProperty</class>
+    	<class>org.apache.james.imap.jpa.user.model.JPASubscription</class>
+        
+        <!-- UsersRepository -->
+    	<class>org.apache.james.server.jpa.JPAUser</class>
+
+        <properties>
+            <!--  create tables on startup -->
+	    	<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+        </properties>
     </persistence-unit>
 </persistence>

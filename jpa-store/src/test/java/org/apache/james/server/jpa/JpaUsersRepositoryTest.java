@@ -23,6 +23,7 @@ import java.util.HashMap;
 
 import javax.persistence.PersistenceException;
 
+import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.userrepository.MockUsersRepositoryTest;
 import org.apache.openjpa.persistence.OpenJPAEntityManager;
@@ -34,7 +35,6 @@ public class JpaUsersRepositoryTest extends MockUsersRepositoryTest {
 
     private HashMap<String, String> properties;
     private OpenJPAEntityManagerFactory factory;
-    private OpenJPAEntityManager manager;
 
     @Override
     protected void setUp() throws Exception {
@@ -53,35 +53,34 @@ public class JpaUsersRepositoryTest extends MockUsersRepositoryTest {
     protected void tearDown() throws Exception {
         deleteAll();
         super.tearDown();
-        if (manager != null)
-        {
-            manager.close();
-        }
-        if (factory != null)
-        {
-            factory.close();
-        }
+       
     }
     
     private void deleteAll() {
+        OpenJPAEntityManager manager = factory.createEntityManager();
+        final OpenJPAEntityTransaction transaction = manager.getTransaction();
         try
         {
-            OpenJPAEntityManager manager = factory.createEntityManager();
-            final OpenJPAEntityTransaction transaction = manager.getTransaction();
             transaction.begin();
             manager.createQuery("DELETE FROM JamesUser user").executeUpdate();
             transaction.commit();
         } catch (PersistenceException e) {
             e.printStackTrace();
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+        } finally {
+            manager.close();
         }
     }
 
+    @Override
     protected UsersRepository getUsersRepository() throws Exception 
     {
         factory = OpenJPAPersistence.getEntityManagerFactory(properties);
-        manager = factory.createEntityManager();
         JPAUsersRepository repos =  new JPAUsersRepository();
-        repos.setEntityManager(manager);
+        repos.setLog(new SimpleLog("JPA"));
+        repos.setEntityManagerFactory(factory);
         return repos;
     }
 }

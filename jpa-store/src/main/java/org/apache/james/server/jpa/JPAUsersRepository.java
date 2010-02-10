@@ -20,57 +20,36 @@
 package org.apache.james.server.jpa;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
+import javax.persistence.PersistenceUnit;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
+
 
 /**
- * Proof-of-concept repository using JPA. TODO: Support managed contexts. TODO:
- * Use factory and support pooled contexts
+ * JPA based UserRepository
+ *
  */
-public class JPAUsersRepository implements UsersRepository {
+public class JPAUsersRepository implements UsersRepository, Configurable, LogEnabled {
 
-    private static final Log LOGGER = LogFactory.getLog(JPAUsersRepository.class);
+    private EntityManagerFactory entityManagerFactory;
 
-    private Log logger = LOGGER;
+    private String algo;
 
-    private EntityManager entityManager;
+    private Log logger;
 
-    /**
-     * Gets current logger.
-     * 
-     * @return the logger
-     */
-    public final Log getLogger() {
-        return logger;
-    }
-
-    /**
-     * Setter injection for logging.
-     * 
-     * @param logger
-     *            the logger to set
-     */
-    public final void setLogger(Log logger) {
-        this.logger = logger;
-    }
-
-    /**
-     * Gets entity manager.
-     * 
-     * @return the entityManager
-     */
-    public final EntityManager getEntityManager() {
-        return entityManager;
-    }
 
     /**
      * Sets entity manager.
@@ -78,9 +57,9 @@ public class JPAUsersRepository implements UsersRepository {
      * @param entityManager
      *            the entityManager to set
      */
-    @PersistenceContext
-    public final void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    @PersistenceUnit
+    public final void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     /**
@@ -128,10 +107,11 @@ public class JPAUsersRepository implements UsersRepository {
      * @since James 2.3.0
      */
     public boolean addUser(String username, String password) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            JPAUser user = new JPAUser(username, password);
+            JPAUser user = new JPAUser(username, password, algo);
             entityManager.persist(user);
             transaction.commit();
             return true;
@@ -140,6 +120,8 @@ public class JPAUsersRepository implements UsersRepository {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+        } finally {
+            entityManager.close();
         }
         return false;
     }
@@ -155,16 +137,16 @@ public class JPAUsersRepository implements UsersRepository {
      * @since James 1.2.2
      */
     public User getUserByName(String name) {
-        return getJPAUserByName(name);
-    }
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-    private JPAUser getJPAUserByName(String name) {
         try {
             return (JPAUser) entityManager.createNamedQuery("findUserByName").setParameter("name", name).getSingleResult();
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
             return null;
-        }
+        } finally {
+            entityManager.close();
+        }    
     }
 
     /**
@@ -193,6 +175,10 @@ public class JPAUsersRepository implements UsersRepository {
      * @return the case-correct name of the user, null if the user doesn't exist
      */
     public String getRealName(String name) {
+        User u = getUserByName(name);
+        if (u != null) {
+            u.getUserName();
+        }
         return null;
     }
 
@@ -203,6 +189,8 @@ public class JPAUsersRepository implements UsersRepository {
      * @return true if successful.
      */
     public boolean updateUser(User user) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             if (contains(user.getUserName())) {
@@ -219,6 +207,8 @@ public class JPAUsersRepository implements UsersRepository {
                 transaction.rollback();
             }
             return false;
+        }finally {
+            entityManager.close();
         }
         return true;
     }
@@ -230,17 +220,20 @@ public class JPAUsersRepository implements UsersRepository {
      *            the user to remove from the repository
      */
     public void removeUser(String name) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            JPAUser user = getJPAUserByName(name);
-            entityManager.remove(user);
+            entityManager.createNamedQuery("deleteUserByName").setParameter("name", name).executeUpdate();
             transaction.commit();
         } catch (PersistenceException e) {
-            logger.debug("Failed to save user", e);
+            logger.debug("Failed to remove user", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+        } finally {
+            entityManager.close();
         }
     }
 
@@ -252,11 +245,15 @@ public class JPAUsersRepository implements UsersRepository {
      * @return whether the user is in the repository
      */
     public boolean contains(String name) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
         try {
             return ((Long) entityManager.createNamedQuery("containsUser").setParameter("name", name).getSingleResult()).longValue() > 0;
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
             return false;
+        } finally {
+            entityManager.close();
         }
     }
 
@@ -290,7 +287,7 @@ public class JPAUsersRepository implements UsersRepository {
      * @since James 1.2.2
      */
     public boolean test(String name, String password) {
-        final JPAUser user = getJPAUserByName(name);
+        final User user = getUserByName(name);
         final boolean result;
         if (user == null) {
             result = false;
@@ -306,11 +303,15 @@ public class JPAUsersRepository implements UsersRepository {
      * @return the number of users in the repository
      */
     public int countUsers() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
         try {
             return ((Long) entityManager.createNamedQuery("countUsers").getSingleResult()).intValue();
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
             return 0;
+        } finally {
+            entityManager.close();
         }
     }
 
@@ -322,13 +323,33 @@ public class JPAUsersRepository implements UsersRepository {
      */
     @SuppressWarnings("unchecked")
     public Iterator<String> list() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
         try {
-            return entityManager.createNamedQuery("listUserNames").getResultList().iterator();
+            return Collections.unmodifiableList(entityManager.createNamedQuery("listUserNames").getResultList()).iterator();
 
         } catch (PersistenceException e) {
             logger.debug("Failed to find user", e);
             return new ArrayList<String>().iterator();
+        } finally {
+            entityManager.close();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        algo = config.getString("algorithm","MD5");
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
+    public void setLog(Log log) {
+        this.logger = log;
     }
 
 }

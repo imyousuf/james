@@ -458,7 +458,11 @@
       <artifactId>james-server-remotemanager</artifactId>
       <version>3.0-M1</version>
     </dependency>
-    
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-jpa-store</artifactId>
+      <version>3.0-M1</version>
+    </dependency>
     <dependency>
       <groupId>javax.persistence</groupId>
       <artifactId>persistence-api</artifactId>
