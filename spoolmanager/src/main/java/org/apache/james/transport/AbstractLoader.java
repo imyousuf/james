@@ -22,14 +22,14 @@ package org.apache.james.transport;
 import java.util.List;
 import java.util.Vector;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.api.kernel.InstanceFactory;
+import org.apache.james.api.kernel.InstanceFactory.InstanceException;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.mailet.MailetContext;
@@ -38,7 +38,7 @@ import org.apache.mailet.MailetException;
 /**
  * Common services for loaders.
  */
-public abstract class AbstractLoader implements LogEnabled, Configurable{
+public abstract class AbstractLoader implements LogEnabled, Configurable {
 
     /**
      * The list of packages that may contain Mailets or matchers
@@ -50,28 +50,15 @@ public abstract class AbstractLoader implements LogEnabled, Configurable{
      */
     protected MailetContext mailetContext;
 
-    private LoaderService loaderService;
-
     private Log logger;
 
-    
-    /**
-     * Gets the loader service used by this instance.
-     * @return the loaderService 
-     */
-    public final LoaderService getLoaderService() {
-        return loaderService;
-    }
+    private InstanceFactory factory;
 
-    /**
-     * Sets the loader service used by this instance.
-     * @param loaderService the loaderService to set, not null
+   
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
-    @Resource(name="org.apache.james.LoaderService")
-    public final void setLoaderService(LoaderService loaderService) {
-        this.loaderService = loaderService;
-    }
-
     public final void setLog(Log logger) {
         this.logger = logger;
     }
@@ -85,15 +72,22 @@ public abstract class AbstractLoader implements LogEnabled, Configurable{
     public void setMailetContext(MailetContext mailetContext) {
         this.mailetContext = mailetContext;
     }
+    
+    @Resource(name="instanceFactory") 
+    public void setFactory(InstanceFactory factory) {
+        this.factory = factory;
+    }
 
     protected Log getLogger() {
         return logger;
     }
+    
     protected Object load(String className) throws ClassNotFoundException {
-        Class<?> mClass = Thread.currentThread().getContextClassLoader().loadClass(className);
-        Object newInstance = loaderService.load(mClass);
-		return newInstance;
-        
+        try {
+            return factory.newInstance(className);
+        } catch (InstanceException e) {
+            return null;
+        }    
     }
 
     @SuppressWarnings("unchecked")

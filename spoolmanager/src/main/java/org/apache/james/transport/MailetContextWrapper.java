@@ -14,7 +14,7 @@ import org.apache.mailet.MailetContext;
 /**
  * Wrapper for a MailetContext that simply override the used logger.
  */
-final class MailetContextWrapper implements MailetContext {
+public final class MailetContextWrapper implements MailetContext {
     
     /** the mailetContext */
     private MailetContext mailetContext;

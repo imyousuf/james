@@ -86,7 +86,7 @@ public class AsyncRemoteManagerTest extends TestCase {
 		setUpFakeLoader();
 
 		chain = new ProtocolHandlerChainImpl();
-	    chain.setLoader(serviceManager);
+	    chain.setInstanceFactory(serviceManager);
 	    chain.setLog(new SimpleLog("ChainLog"));
 	        
 	        

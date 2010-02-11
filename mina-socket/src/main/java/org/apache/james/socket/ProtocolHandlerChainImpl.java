@@ -25,14 +25,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.api.kernel.LoaderService;
+import org.apache.james.api.kernel.AbstractJSR250InstanceFactory;
 
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
@@ -73,26 +72,18 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
     protected final List<Object> handlers = new LinkedList<Object>();
     
     /** Loads instances */
-    private LoaderService loader;
+    private AbstractJSR250InstanceFactory factory;
 
     protected HierarchicalConfiguration commonsConf;
     
-    
-    /**
-     * Gets the current instance loader.
-     * @return the loader
-     */
-    public final LoaderService getLoader() {
-        return loader;
-    }
+   
 
     /**
      * Sets the loader to be used for instances.
      * @param loader the loader to set, not null
      */
-    @Resource(name="org.apache.james.LoaderService")
-    public final void setLoader(LoaderService loader) {
-        this.loader = loader;
+    public final void setInstanceFactory(AbstractJSR250InstanceFactory factory) {
+        this.factory = factory;
     }
     
     
@@ -126,11 +117,28 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
      * @throws ConfigurationException Get thrown on error
      */
     protected void loadClass(ClassLoader classLoader, String className,
-            org.apache.commons.configuration.HierarchicalConfiguration config) throws Exception {
-        final Class<?> handlerClass = classLoader.loadClass(className);
-        
+            final org.apache.commons.configuration.HierarchicalConfiguration config) throws Exception {        
        
-        Object handler =loader.load(handlerClass, getLog(), config);
+        Object handler = new AbstractJSR250InstanceFactory() {
+            
+            @Override
+            protected Object create(String className) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+                Object obj =  super.create(className);
+                if (obj instanceof Configurable) {
+                    try {
+                        ((Configurable) obj).configure(config);
+                    } catch (ConfigurationException e) {
+                        throw new InstantiationException();
+                    }
+                }
+                return obj;
+            }
+
+            @Override
+            public Object getObjectForName(String name) {
+                return factory.getObjectForName(name);
+            }
+        }.newInstance(className);
 
         // if it is a commands handler add it to the map with key as command
         // name
@@ -238,5 +246,5 @@ public class ProtocolHandlerChainImpl implements LogEnabled, Configurable, Proto
          loadHandlers();
          wireExtensibleHandlers();
     }
-    
+        
 }

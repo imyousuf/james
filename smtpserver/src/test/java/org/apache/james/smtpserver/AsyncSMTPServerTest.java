@@ -167,7 +167,7 @@ public class AsyncSMTPServerTest extends TestCase {
         m_smtpServer.setFileSystem(fileSystem);
         
         chain = new ProtocolHandlerChainImpl();
-        chain.setLoader(m_serviceManager);
+        chain.setInstanceFactory(m_serviceManager);
         chain.setLog(new SimpleLog("ChainLog"));
         
         m_smtpServer.setProtocolHandlerChain(chain);

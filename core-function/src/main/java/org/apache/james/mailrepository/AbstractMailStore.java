@@ -26,14 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.kernel.LoaderService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.store.Store;
@@ -43,7 +41,7 @@ import org.apache.james.services.store.Store;
  * identified by its destinationURL, type and model.
  *
  */
-public class MailStore
+public abstract class AbstractMailStore
     implements Store, LogEnabled, Configurable {
 
     // Prefix for repository names
@@ -70,7 +68,7 @@ public class MailStore
 
     private Log logger;
 
-	private LoaderService loader;
+	//private LoaderService loader;
 
 
     public void setLog(Log logger) {
@@ -85,12 +83,6 @@ public class MailStore
         this.configuration = configuration;
     }
 
-
-    
-    @Resource(name="org.apache.james.LoaderService")
-    public void setLoaderService(LoaderService loader) {
-    	this.loader = loader;
-    }
 
     @PostConstruct
     @SuppressWarnings("unchecked")
@@ -252,8 +244,7 @@ public class MailStore
             }
 
             try {
-                Class<?> replyClass = Thread.currentThread().getContextClassLoader().loadClass(repClass);
-                reply = loader.load(replyClass, logger, config);
+                reply = load(repClass, config, logger);
 
                 repositories.put(repID, reply);
                 if (getLogger().isInfoEnabled()) {
@@ -286,30 +277,10 @@ public class MailStore
      * @return a new repository name
      */
     public static final String getName() {
-        synchronized (MailStore.class) {
+        synchronized (AbstractMailStore.class) {
             return REPOSITORY_NAME + id++;
         }
     }
-
-    /**
-     * Returns whether the mail store has a repository corresponding to
-     * the passed in hint.
-     *
-     * @param hint the Configuration object used to look up the repository
-     *
-     * @return whether the mail store has a repository corresponding to this hint
-     */
-    /*
-    public boolean isSelectable( Object hint ) {
-        Object comp = null;
-        try {
-            comp = select(hint);
-        } catch(StoreException ex) {
-            if (getLogger().isErrorEnabled()) {
-                getLogger().error("Exception AvalonMailStore.hasComponent-" + ex.toString());
-            }
-        }
-        return (comp != null);
-    }
-    */
+    
+    protected abstract Object load(String className, HierarchicalConfiguration config, Log log) throws Exception;
 }

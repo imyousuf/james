@@ -42,27 +42,9 @@ import org.apache.mailet.MailetException;
  *
  */
 public class VirtualUserTable extends AbstractVirtualUserTableMailet {
-    private org.apache.james.api.vut.VirtualUserTable vut;
-
     private VirtualUserTableStore vutStore;
-    
-       
-    /**
-     * Gets the virtual user table.
-     * @return the vut
-     */
-    public final org.apache.james.api.vut.VirtualUserTable getVut() {
-        return vut;
-    }
-
-    /**
-     * Sets the virtual user table.
-     * @param vut the vut to set
-     */
-    @Resource(name="defaultvirtualusertable")
-    public final void setVut(org.apache.james.api.vut.VirtualUserTable vut) {
-        this.vut = vut;
-    }
+    private org.apache.james.api.vut.VirtualUserTable vut;
+   
 
     /**
      * Gets the virtual user table store.
@@ -87,23 +69,15 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
     public void init() throws MessagingException {
         super.init();
         
-        if (vut == null && vutStore == null) {
+        if (vutStore == null) {
             throw new MailetException("Not initialised. Please ensure that the mailet container supports either" +
             " setter or constructor injection. ");
         }
         
         String vutName = getInitParameter("virtualusertable");
-        if (vutName == null || vutName.length() == 0) {
-            if (vut == null) {
-                throw new MailetException("When 'virtualusertable' is unset, a virtual user table must be " +
-                "provided by the container.");
-            }
-        } else if (vutStore == null) {
-            throw new MailetException("When 'virtualusertable' is set, a virtual user table store must be " +
-                    "provided by the container.");
-        } else {
-            vut = vutStore.getTable(vutName);
-            if (vut == null) throw new MailetException("Could not find VirtualUserTable with name " + vutName);
+        vut = vutStore.getTable(vutName);
+        if (vut == null) {
+            throw new MailetException("Could not find VirtualUserTable with name " + vutName);
         }
     }
 
