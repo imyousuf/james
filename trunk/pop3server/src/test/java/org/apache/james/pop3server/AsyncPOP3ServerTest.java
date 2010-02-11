@@ -78,7 +78,7 @@ public class AsyncPOP3ServerTest extends TestCase {
         setUpServiceManager();
         
         chain = new ProtocolHandlerChainImpl();
-        chain.setLoader(serviceManager);
+        chain.setInstanceFactory(serviceManager);
         chain.setLog(new SimpleLog("ChainLog"));
         
         m_pop3Server = new AsyncPOP3Server();

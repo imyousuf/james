@@ -27,66 +27,42 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LogEnabled;
-
 /**
  * Abstract base class which implements a JSR250 based LoaderService
  * 
- *
+ * 
  */
-public abstract class AbstractJSR250LoaderService implements LoaderService{
+public abstract class AbstractJSR250InstanceFactory implements InstanceFactory {
 
     private List<Object> loaderRegistry = new ArrayList<Object>();
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.api.kernel.LoaderService#load(java.lang.Class)
+     * 
+     * @see org.apache.james.api.kernel.Factory#newInstance(java.lang.String)
      */
-    public <T>T load(Class<T> type) {
-        return load(type, null, null);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.api.kernel.LoaderService#load(java.lang.Class, org.apache.commons.logging.Log, org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    public <T>T load(Class<T> type, Log logger, HierarchicalConfiguration config) {
+    public final Object newInstance(String className) throws InstanceException, ClassNotFoundException {
         try {
-            T obj = type.newInstance();
-            if (obj instanceof LogEnabled && logger != null) {
-                ((LogEnabled) obj).setLog(logger);
-            }
-            if (obj instanceof Configurable && config != null) {
-                try {
-                ((Configurable) obj).configure(config);
-                } catch (ConfigurationException ex) {
-                    throw new RuntimeException("Unable to configure object " + obj, ex);
-                }
-            }
-            
+            Object obj = create(className);
             injectResources(obj);
             postConstruct(obj);
             synchronized (this) {
                 loaderRegistry.add(obj);
             }
             return obj;
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Unable to load instance of class " + type, e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("Unable to load instance of class " + type, e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException("Unable to load instance of class " + type, e);
+        } catch (ClassNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InstanceException("Unable to load instance of class " + className, e);
         }
-            
     }
-    
+
+    protected Object create(String className) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        return Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
+    }
     /**
-     * Dispose all loaded instances by calling the method of the instances which is annotated
-     * with @PreDestroy
+     * Dispose all loaded instances by calling the method of the instances which
+     * is annotated with @PreDestroy
      */
     public synchronized void dispose() {
         for (int i = 0; i < loaderRegistry.size(); i++) {
@@ -100,13 +76,11 @@ public abstract class AbstractJSR250LoaderService implements LoaderService{
         }
         loaderRegistry.clear();
     }
-	   
-    private void postConstruct(Object resource) throws IllegalAccessException,
-            InvocationTargetException {
+
+    private void postConstruct(Object resource) throws IllegalAccessException, InvocationTargetException {
         Method[] methods = resource.getClass().getMethods();
         for (Method method : methods) {
-            PostConstruct postConstructAnnotation = method
-                    .getAnnotation(PostConstruct.class);
+            PostConstruct postConstructAnnotation = method.getAnnotation(PostConstruct.class);
             if (postConstructAnnotation != null) {
                 Object[] args = {};
                 method.invoke(resource, args);
@@ -114,7 +88,7 @@ public abstract class AbstractJSR250LoaderService implements LoaderService{
             }
         }
     }
-    
+
     private void preDestroy(Object resource) throws IllegalAccessException, InvocationTargetException {
         Method[] methods = resource.getClass().getMethods();
         for (Method method : methods) {
@@ -127,7 +101,6 @@ public abstract class AbstractJSR250LoaderService implements LoaderService{
         }
     }
 
-    
     private void injectResources(Object resource) {
         final Method[] methods = resource.getClass().getMethods();
         for (Method method : methods) {
@@ -139,12 +112,12 @@ public abstract class AbstractJSR250LoaderService implements LoaderService{
                 } else {
                     // Name indicates a service
                     final Object service = getObjectForName(name);
-                    
+
                     if (service == null) {
                         throw new RuntimeException("Injection failed for object " + resource + " on method " + method + " with resource name " + name + ", because no mapping was found");
-                   } else {
+                    } else {
                         try {
-                            Object[] args = {service};
+                            Object[] args = { service };
                             method.invoke(resource, args);
                         } catch (IllegalAccessException e) {
                             throw new RuntimeException("Injection failed for object " + resource + " on method " + method + " with resource " + service, e);
@@ -159,12 +132,11 @@ public abstract class AbstractJSR250LoaderService implements LoaderService{
         }
     }
 
-	
-	/**
-	 * Return the Object which should be injected for given name
-	 * 
-	 * @param name
-	 * @return object
-	 */
-	protected abstract Object getObjectForName(String name);
+    /**
+     * Return the Object which should be injected for given name
+     * 
+     * @param name
+     * @return object
+     */
+    public abstract Object getObjectForName(String name);
 }

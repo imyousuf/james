@@ -22,9 +22,9 @@ package org.apache.james.api.kernel.mock;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.james.api.kernel.AbstractJSR250LoaderService;
+import org.apache.james.api.kernel.AbstractJSR250InstanceFactory;
 
-public class FakeLoader extends AbstractJSR250LoaderService {
+public class FakeLoader extends AbstractJSR250InstanceFactory {
 
     private final Map<String, Object> servicesByName;
     private final Map<String, String> mappings = new HashMap<String, String>();
@@ -82,7 +82,7 @@ public class FakeLoader extends AbstractJSR250LoaderService {
 
 
 	@Override
-	protected Object getObjectForName(String name) {
+	public Object getObjectForName(String name) {
 		return get(name);
 	}
 }

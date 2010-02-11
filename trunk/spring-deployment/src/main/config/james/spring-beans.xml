@@ -101,10 +101,12 @@
 		</property>
 	</bean>
 
+    <bean class= "org.springframework.context.annotation.CommonAnnotationBeanPostProcessor">
+		<property name="order" value="3" />    
+    </bean>
 
-	<bean id="org.apache.james.LoaderService" class="org.apache.james.container.spring.lifecycle.JSR250LoaderService">
-		<property name="order" value="3" />
-	</bean>
+	<bean id="instanceFactory" class="org.apache.james.container.spring.SpringInstanceFactory"/>
+	
 
     <!-- Add support for Persistence annotations -->
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
@@ -178,7 +180,7 @@
 	<bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 
 	<!-- The High Level Storage block -->
-	<bean id="mailstore" class="org.apache.james.mailrepository.MailStore" />
+	<bean id="mailstore" class="org.apache.james.container.spring.SpringMailStore" />
 
 	<!-- The main SpoolRepository -->
 	<bean id="spoolrepository"

@@ -19,35 +19,29 @@
 
 package org.apache.james.api.kernel;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-
 /**
  * Loads instances of given types.
  */
-public interface LoaderService {
+public interface InstanceFactory {
 
     /**
-     * Loads an instance of the given class.
-     * The load may elect to return a new instance
-     * and use the logger and config for the lifecycle.
+     * Create an instance of the given class.
      * Instances should - where appropriate - have dependencies injected.
      * @param <T> 
      * @param type may be interface or concrete, not null
      * @return an instance of the type
      */
-
-    public <T>T load(Class<T> type, Log logger, HierarchicalConfiguration config);
+    public Object newInstance(String className) throws InstanceException, ClassNotFoundException;
     
-    
-    /**
-     * Loads an instance of the given class.
-     * The load return a new instance
-     * Instances should - where appropriate - have dependencies injected.
-     * @param <T> 
-     * @param type may be interface or concrete, not null
-     * @return an instance of the type
-     */
+    @SuppressWarnings("serial")
+    public class InstanceException extends Exception {
+        public InstanceException(String msg, Throwable t) {
+            super(msg,t);
+        }
+        
+        public InstanceException(String msg) {
+            super(msg);
+        }
+    }
 
-    public <T>T load(Class<T> type);
 }
