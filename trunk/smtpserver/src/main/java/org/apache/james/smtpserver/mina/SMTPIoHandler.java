@@ -28,7 +28,9 @@ import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.socket.mina.AbstractIoHandler;
+import org.apache.james.socket.mina.codec.LineLengthExceededException;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.ssl.SslContextFactory;
 
 /**
@@ -60,12 +62,22 @@ public class SMTPIoHandler extends AbstractIoHandler{
      */
     public void exceptionCaught(IoSession session, Throwable exception)
             throws Exception {
-        logger.error("Caught exception: " + session.getCurrentWriteMessage(),
+        logger.debug("Caught exception: " + session.getCurrentWriteMessage(),
                 exception);
-        
+        if (exception instanceof ProtocolDecoderException) {
+            ProtocolDecoderException e = (ProtocolDecoderException) exception;
+            if (e.getCause() instanceof LineLengthExceededException) {
+                session.write(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
+                return;
+            }
+        }
+
+            
         if (session.isConnected()) {
             session.write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
         }
+        
+        
     }
 
     @Override
