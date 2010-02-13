@@ -68,15 +68,17 @@ public class CRLFTerminatedLineDecoder extends CumulativeProtocolDecoder {
         
         // Now find the first CRLF in the buffer.
         byte previous = 0;
-        int count = 0;
+        
+        if (maxLineLength != -1 && in.remaining() > maxLineLength) {
+            
+            // clear the buffer before throw exception
+            in.clear();
+            
+            throw new LineLengthExceededException(maxLineLength, in.remaining());
+        }
         while (in.hasRemaining()) {
             byte current = in.get();
-            count++;
-            
-            // max line lenth exceed. Throw exception to prevent DOS
-            if (maxLineLength != -1 && count > maxLineLength) {
-                throw new LineLengthExceededException(maxLineLength, in.capacity());
-            }
+           
             
             if (previous == '\r' && current == '\n') {
                 // Remember the current position and limit.

@@ -50,6 +50,7 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.mina.AsyncSMTPServer;
 import org.apache.james.socket.ProtocolHandlerChainImpl;
+import org.apache.james.socket.mina.codec.CRLFTerminatedLineDecoder;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
@@ -160,6 +161,8 @@ public class AsyncSMTPServerTest extends TestCase {
 
     protected void setUp() throws Exception {
         setUpFakeLoader();
+        SimpleLog log = new SimpleLog("Mock");
+        log.setLevel(SimpleLog.LOG_LEVEL_ALL);
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
 
         m_smtpServer = new AsyncSMTPServer();
@@ -168,11 +171,11 @@ public class AsyncSMTPServerTest extends TestCase {
         
         chain = new ProtocolHandlerChainImpl();
         chain.setInstanceFactory(m_serviceManager);
-        chain.setLog(new SimpleLog("ChainLog"));
+        chain.setLog(log);
         
         m_smtpServer.setProtocolHandlerChain(chain);
         
-        m_smtpServer.setLog(new SimpleLog("Mock"));
+        m_smtpServer.setLog(log);
         m_smtpServer.setMailServer(m_mailServer);
     }
 
@@ -263,6 +266,28 @@ public class AsyncSMTPServerTest extends TestCase {
 
         // mail was propagated by SMTPServer
         assertNotNull("mail received by mail server", m_mailServer.getLastMail());
+    }
+    
+    public void testMaxLineLength() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+        
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < CRLFTerminatedLineDecoder.DEFAULT_MAX_LINE_LENTH; i++) {
+            sb.append("A");
+        }
+        smtpProtocol.sendCommand("EHLO " + sb.toString());
+        System.out.println(smtpProtocol.getReplyString());
+        assertEquals("Line length exceed", 500, smtpProtocol.getReplyCode());
+
+        smtpProtocol.sendCommand("EHLO test");
+        assertEquals("Line length ok", 250, smtpProtocol.getReplyCode());
+
+
+        smtpProtocol.quit();
+        smtpProtocol.disconnect();
     }
 
     public void testStartTLSInEHLO() throws Exception {
