@@ -61,6 +61,13 @@
     </repository>
     -->
     
+    <!-- Read-Only LDAP based UsersRepository -->
+    <!--
+    <repository name="LocalUsers" class="org.apache.james.userrepository.ReadOnlyUsersLDAPRepository" ldapHost="ldap://myldapserver:389" 
+    	principal="uid=ldapUser,ou=system" credentials="password" userBase="ou=People,o=myorg.com,ou=system" userIdAttribute="uid"/>;
+    -->
+    
+    
     <!-- JPA based backend. Support password algorithm are:
          MD5, SHA-256, SHA-512, NONE
      -->
