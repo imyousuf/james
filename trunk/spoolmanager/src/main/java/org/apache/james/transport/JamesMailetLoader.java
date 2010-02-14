@@ -19,7 +19,6 @@
 
 
 package org.apache.james.transport;
-import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.Configuration;
@@ -59,7 +58,7 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
                     final MailetConfigImpl configImpl = new MailetConfigImpl();
                     configImpl.setMailetName(mailetName);
                     configImpl.setConfiguration(configuration);
-                    configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger())); 
+                    configImpl.setMailetContext(mailetContext);
                     mailet.init(configImpl);
                     
                     return mailet;
