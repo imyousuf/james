@@ -20,7 +20,6 @@
 
 
 package org.apache.james.transport;
-import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -62,7 +61,8 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
                     final MatcherConfigImpl configImpl = new MatcherConfigImpl();
                     configImpl.setMatcherName(matchName);
                     configImpl.setCondition(condition);
-                    configImpl.setMailetContext(new MailetContextWrapper(mailetContext, getLogger()));
+                    configImpl.setMailetContext(mailetContext);
+
                     matcher.init(configImpl);
                     
                     return matcher;
