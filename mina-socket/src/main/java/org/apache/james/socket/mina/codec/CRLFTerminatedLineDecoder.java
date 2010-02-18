@@ -33,6 +33,8 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 public class CRLFTerminatedLineDecoder extends CumulativeProtocolDecoder {
 
     private int maxLineLength;
+
+    private boolean check = true;
     
     public static int DEFAULT_MAX_LINE_LENTH = 2048;
     
@@ -52,7 +54,11 @@ public class CRLFTerminatedLineDecoder extends CumulativeProtocolDecoder {
     public CRLFTerminatedLineDecoder() {
         this(DEFAULT_MAX_LINE_LENTH);
     }
+   
     
+    public synchronized void checkLineLengthLimit(boolean check) {
+        this.check = check;
+    }
     
     /*
      * (non-Javadoc)
@@ -69,7 +75,7 @@ public class CRLFTerminatedLineDecoder extends CumulativeProtocolDecoder {
         // Now find the first CRLF in the buffer.
         byte previous = 0;
         
-        if (maxLineLength != -1 && in.remaining() > maxLineLength) {
+        if (check && maxLineLength != -1 && in.remaining() > maxLineLength) {
             
             // clear the buffer before throw exception
             in.clear();
