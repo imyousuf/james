@@ -35,9 +35,17 @@
     <!-- -->
     <!-- Warning: If you are using fetchmail it is important to include the -->
     <!-- fetched domains in the server name list to prevent looping.       -->
+    
+    <!-- comment this if you use JDBCDomainList -->
     <domainnames>
         <domainname>localhost</domainname>
     </domainnames>
+    
+    <!-- uncomment this if you use JDBCDomainList -->
+    <!--  
+    <repositoryPath>db://maildb/domain</repositoryPath>
+    <sqlFile>file://conf/sqlResources.xml</sqlFile>
+    -->
     <autodetect>true</autodetect>
     <autodetectIP>true</autodetectIP>
 </domainlist>
