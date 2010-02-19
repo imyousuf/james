@@ -36,9 +36,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
@@ -47,7 +47,7 @@ import org.apache.james.util.sql.SqlResources;
 /**
  * Allow to query a costum table for domains
  */
-public class JDBCDomainList extends AbstractDomainList {
+public class JDBCDomainList extends AbstractDomainList implements Configurable{
 
     private DataSourceSelector datasources;
     private DataSource dataSourceComponent;
@@ -70,8 +70,12 @@ public class JDBCDomainList extends AbstractDomainList {
     
     private HierarchicalConfiguration configuration;
 
-    public void configure(Configuration configuration) throws ConfigurationException{
-        this.configuration = (HierarchicalConfiguration)configuration;
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
+        this.configuration = configuration;
     }
 
     public void setDataSource(DataSource dataSourceComponent) {
@@ -136,7 +140,7 @@ public class JDBCDomainList extends AbstractDomainList {
             getLogger().debug(logBuffer.toString());
         }
     
-        sqlFileName = configuration.getString("sqlFile",null);
+        sqlFileName = configuration.getString("sqlFile","file://conf/sqlResources.xml");
         
         setAutoDetect(configuration.getBoolean("autodetect", true));    
         setAutoDetectIP(configuration.getBoolean("autodetectIP", true));    
@@ -311,10 +315,8 @@ public class JDBCDomainList extends AbstractDomainList {
 
             ResultSet mappingRS = null;
             try {
-            mappingStmt.setString(1, domain);
-                if (mappingStmt.executeUpdate() > 0) {
-                    return true;
-                }
+                mappingStmt.setString(1, domain);
+                return mappingStmt.execute();
             } finally {
                 theJDBCUtil.closeJDBCResultSet(mappingRS);
             }
