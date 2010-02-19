@@ -38,28 +38,44 @@ public class LocalJamesUsersRepository extends LocalUsersRepository implements J
      * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableAliases(boolean)
      */
     public void setEnableAliases(boolean enableAliases) {
-        ((JamesUsersRepository) users).setEnableAliases(enableAliases);
+        if (users instanceof JamesUsersRepository) {
+            ((JamesUsersRepository) users).setEnableAliases(enableAliases);
+        } else {
+            throw new UnsupportedOperationException("Not supported by this implementation");
+        }
     }
 
     /**
      * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableForwarding(boolean)
      */
     public void setEnableForwarding(boolean enableForwarding) {
-        ((JamesUsersRepository) users).setEnableForwarding(enableForwarding);
+        if (users instanceof JamesUsersRepository) {
+            ((JamesUsersRepository) users).setEnableForwarding(enableForwarding);
+        } else {
+            throw new UnsupportedOperationException("Not supported by this implementation");
+        }
     }
 
     /**
      * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setIgnoreCase(boolean)
      */
     public void setIgnoreCase(boolean ignoreCase) {
-        ((JamesUsersRepository) users).setIgnoreCase(ignoreCase);
+        if (users instanceof JamesUsersRepository) {
+            ((JamesUsersRepository) users).setIgnoreCase(ignoreCase);
+        } else {
+            throw new UnsupportedOperationException("Not supported by this implementation");
+        }
     }
 
     /**
      * @see org.apache.james.api.vut.VirtualUserTable#getMappings(java.lang.String, java.lang.String)
      */
     public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
-        return ((JamesUsersRepository) users).getMappings(user, domain);
+        if (users instanceof JamesUsersRepository) {
+            return ((JamesUsersRepository) users).getMappings(user, domain);
+            
+        }
+        return null;
     }
 
 }
