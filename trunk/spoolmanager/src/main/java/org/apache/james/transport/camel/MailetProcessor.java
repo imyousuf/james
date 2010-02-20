@@ -22,14 +22,13 @@ public class MailetProcessor implements Processor{
      * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
      */
     public void process(Exchange exchange) throws Exception {
-        //System.out.println("Call mailet " + mailet);
         try {
             mailet.service((Mail)exchange.getIn().getBody());
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
-        
+                
     }
 
 }
