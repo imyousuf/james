@@ -140,7 +140,10 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
 					}
 					response.appendLine(line);
 
-					lines--;
+					if (lines != -1) {
+					    // only count down lines if we have so line limit here
+					    lines--;
+					}
 
 				}
 
