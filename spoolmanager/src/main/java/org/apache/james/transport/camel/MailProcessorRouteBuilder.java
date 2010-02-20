@@ -82,7 +82,7 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements Configura
             String processorName = processorConf.getString("[@name]");
 
             // Check which route we need to go
-            ChoiceDefinition processorDef = spoolDef.when(header(MailMessage.STATE).isEqualTo(processorName));
+            ChoiceDefinition processorDef = spoolDef.when(header(MailMessage.STATE).isEqualTo(processorName)).setHeader("currentProcessor", constant(processorName));
             
             final List<HierarchicalConfiguration> mailetConfs = processorConf.configurationsAt("mailet");
             // Loop through the mailet configuration, load
@@ -169,10 +169,11 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements Configura
               
 
             }
+            processorDef.to("spool://spoolRepository");
         }
 
         // just use a mock for now
-        spoolDef.end().to("mock:end");
+        spoolDef.end();
         
     }
 

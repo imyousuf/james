@@ -42,7 +42,12 @@ public class SpoolProducer extends DefaultProducer{
     public void process(Exchange exchange) throws Exception {
         Exchange newExchange = getEndpoint().createExchange(exchange);
         Mail mail = (Mail) newExchange.getIn().getBody();
-        spool.store(mail);        
+        try {
+            spool.store(mail);   
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
         ExchangeHelper.copyResults(exchange, newExchange);
     }
 

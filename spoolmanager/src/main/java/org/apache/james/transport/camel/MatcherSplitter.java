@@ -28,6 +28,7 @@ import javax.mail.MessagingException;
 
 import org.apache.camel.Body;
 import org.apache.camel.Header;
+import org.apache.camel.InOnly;
 import org.apache.james.core.MailImpl;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -39,6 +40,7 @@ import org.apache.mailet.Matcher;
  * 
  *
  */
+@InOnly
 public class MatcherSplitter {
     
     public final static String MATCHER_MATCHED_HEADER = "matched";
@@ -54,8 +56,8 @@ public class MatcherSplitter {
      * @return mailMessageList
      * @throws MessagingException
      */
+    @SuppressWarnings("unchecked")
     public List<MailMessage> split(@Header(MATCHER_HEADER) Matcher matcher,@Body Mail mail) throws MessagingException {
-        //System.out.println("Call matcher " + matcher);
         List<MailMessage> mails = new ArrayList<MailMessage>();
         boolean fullMatch = false;
         
@@ -91,7 +93,7 @@ public class MatcherSplitter {
         MailMessage mailMsg = new MailMessage(mail);
         if (fullMatch) {
             // Set a header because the matcher matched. This can be used later when processing the route
-            mailMsg.setHeader("match", true);
+            mailMsg.setHeader(MATCHER_MATCHED_HEADER, true);
         }
         mails.add(mailMsg);
         

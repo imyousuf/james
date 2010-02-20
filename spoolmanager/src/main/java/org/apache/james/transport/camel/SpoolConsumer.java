@@ -20,6 +20,7 @@
 package org.apache.james.transport.camel;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.ExchangePattern;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.impl.DefaultEndpoint;
@@ -41,8 +42,7 @@ public class SpoolConsumer extends DefaultConsumer{
 
 
     public Exchange receive() {
-        Exchange ex = getEndpoint().createExchange();
-
+        Exchange ex = getEndpoint().createExchange();        
         Mail mail;
         try {
             mail = spool.accept();
