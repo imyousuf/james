@@ -23,16 +23,19 @@ import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.commons.logging.Log;
 import org.apache.james.services.SpoolRepository;
 
 public class SpoolEndPoint extends DefaultEndpoint{
 
     private SpoolRepository spool;
+    private Log log;
 
 
-    public SpoolEndPoint(String endpointUri, SpoolComponent component, SpoolRepository spool) {
+    public SpoolEndPoint(String endpointUri, SpoolComponent component, SpoolRepository spool, Log log) {
         super(endpointUri, component);
         this.spool = spool;
+        this.log = log;
     }
 
     
@@ -41,7 +44,7 @@ public class SpoolEndPoint extends DefaultEndpoint{
      * @see org.apache.camel.Endpoint#createProducer()
      */
     public Producer createProducer() throws Exception {
-        return new SpoolProducer(this,spool);
+        return new SpoolProducer(this,spool,log);
     }
 
     /*
@@ -58,8 +61,7 @@ public class SpoolEndPoint extends DefaultEndpoint{
      * @see org.apache.camel.Endpoint#createConsumer(org.apache.camel.Processor)
      */
     public Consumer createConsumer(Processor processor) throws Exception {
-        SpoolConsumer consumer = new SpoolConsumer(this,processor,spool);
-        //configureConsumer(consumer);
+        SpoolConsumer consumer = new SpoolConsumer(this,processor,spool,log);
         return consumer;
         
     }

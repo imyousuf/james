@@ -20,11 +20,10 @@
 package org.apache.james.transport.camel;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.ExchangePattern;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.impl.DefaultEndpoint;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.commons.logging.Log;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
@@ -33,11 +32,13 @@ public class SpoolConsumer extends DefaultConsumer{
 
     private SpoolRepository spool;
     private Processor processor;
+    private Log log;
     
-    public SpoolConsumer(DefaultEndpoint endpoint, Processor processor, SpoolRepository spool) {
+    public SpoolConsumer(DefaultEndpoint endpoint, Processor processor, SpoolRepository spool, Log log) {
         super(endpoint, processor);
         this.spool = spool;
         this.processor = processor;
+        this.log = log;
     }
 
 
@@ -46,26 +47,6 @@ public class SpoolConsumer extends DefaultConsumer{
         Mail mail;
         try {
             mail = spool.accept();
-
-            // Only remove an email from the spool is processing is
-            // complete, or if it has no recipients
-            if ((Mail.GHOST.equals(mail.getState())) ||
-                (mail.getRecipients() == null) ||
-                (mail.getRecipients().size() == 0)) {
-                spool.remove(mail.getName());
-                //if (logger.isDebugEnabled()) {
-                    StringBuffer debugBuffer =
-                        new StringBuffer(64)
-                                .append("==== Removed from spool mail ")
-                                .append(mail.getName())
-                                .append("====");
-                 //   logger.debug(debugBuffer.toString());
-               // }
-                    System.out.println(debugBuffer.toString());
-                    LifecycleUtil.dispose(mail);
-
-            }
-            
             ex.setIn(new MailMessage(mail));
             processor.process(ex);
         } catch (Exception e) {

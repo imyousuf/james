@@ -26,14 +26,17 @@ import javax.annotation.Resource;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
+import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.SpoolManager;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MatcherConfig;
 
-public class SpoolComponent extends DefaultComponent implements SpoolManager {
+public class SpoolComponent extends DefaultComponent implements SpoolManager, LogEnabled {
 
     private SpoolRepository spool;
+    private Log log;
 
     @Resource(name="spoolrepository")
     public void setSpoolRepository(SpoolRepository spool) {
@@ -43,7 +46,7 @@ public class SpoolComponent extends DefaultComponent implements SpoolManager {
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
         
-        return new SpoolEndPoint(uri,this, spool);
+        return new SpoolEndPoint(uri,this, spool, log);
     }
 
     public List<MailetConfig> getMailetConfigs(String processorName) {
@@ -59,5 +62,13 @@ public class SpoolComponent extends DefaultComponent implements SpoolManager {
     public String[] getProcessorNames() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
+    public void setLog(Log log) {
+        this.log = log;
     }
 }

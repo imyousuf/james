@@ -22,33 +22,50 @@ package org.apache.james.transport.camel;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultProducer;
-import org.apache.camel.util.ExchangeHelper;
+import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
-public class SpoolProducer extends DefaultProducer{
+public class SpoolProducer extends DefaultProducer {
 
     private SpoolRepository spool;
+    private Log log;
 
-    public SpoolProducer(Endpoint endpoint, SpoolRepository spool) {
+    public SpoolProducer(Endpoint endpoint, SpoolRepository spool, Log log) {
         super(endpoint);
         this.spool = spool;
+        this.log = log;
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
      */
     public void process(Exchange exchange) throws Exception {
-        Exchange newExchange = getEndpoint().createExchange(exchange);
-        Mail mail = (Mail) newExchange.getIn().getBody();
-        try {
-            spool.store(mail);   
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+        // Exchange newExchange = getEndpoint().createExchange(exchange);
+        Mail mail = (Mail) exchange.getIn().getBody();
+
+        // Only remove an email from the spool is processing is
+        // complete, or if it has no recipients
+        if ((Mail.GHOST.equals(mail.getState())) || (mail.getRecipients() == null) || (mail.getRecipients().size() == 0)) {
+            spool.remove(mail.getName());
+            if (log.isDebugEnabled()) {
+                StringBuffer debugBuffer = new StringBuffer(64).append("==== Removed from spool mail ").append(mail.getName()).append("====");
+                log.debug(debugBuffer.toString());
+            }
+            LifecycleUtil.dispose(mail);
+
+        } else {
+
+            try {
+                spool.store(mail);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
         }
-        ExchangeHelper.copyResults(exchange, newExchange);
     }
 
 }
