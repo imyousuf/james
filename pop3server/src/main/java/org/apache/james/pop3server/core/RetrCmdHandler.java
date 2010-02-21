@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
 
 /**
@@ -70,7 +71,9 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                 if (mc != dm) {
                     response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
                     try {
-                    	
+                        for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
+                            response.appendLine(e.nextElement().toString());
+                        }
                     	// write the full mail to the client
                         writeMessageContentTo(mc, response, -1);
                         
