@@ -316,7 +316,8 @@ public class JDBCDomainList extends AbstractDomainList implements Configurable{
             ResultSet mappingRS = null;
             try {
                 mappingStmt.setString(1, domain);
-                return mappingStmt.execute();
+                mappingStmt.execute();
+                return true;
             } finally {
                 theJDBCUtil.closeJDBCResultSet(mappingRS);
             }
