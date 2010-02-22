@@ -89,7 +89,9 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                         for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
                         	response.appendLine(e.nextElement().toString());
                         }
-
+                        // add empty line between headers and body
+                        response.appendLine("");
+                        
                        	writeMessageContentTo(mc, response, lines);
                        	
                     } finally {
@@ -121,7 +123,9 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
-        return response;    }
+        return response;   
+        
+    }
 
 
    
