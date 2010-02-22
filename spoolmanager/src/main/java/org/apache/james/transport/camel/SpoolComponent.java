@@ -19,7 +19,6 @@
 
 package org.apache.james.transport.camel;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -28,12 +27,14 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.services.SpoolManager;
 import org.apache.james.services.SpoolRepository;
-import org.apache.mailet.MailetConfig;
-import org.apache.mailet.MatcherConfig;
 
-public class SpoolComponent extends DefaultComponent implements SpoolManager, LogEnabled {
+/**
+ * Component which acts as SpoolEndPoint factory
+ * 
+ *
+ */
+public class SpoolComponent extends DefaultComponent implements LogEnabled {
 
     private SpoolRepository spool;
     private Log log;
@@ -47,21 +48,6 @@ public class SpoolComponent extends DefaultComponent implements SpoolManager, Lo
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
         
         return new SpoolEndPoint(uri,this, spool, log);
-    }
-
-    public List<MailetConfig> getMailetConfigs(String processorName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<MatcherConfig> getMatcherConfigs(String processorName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public String[] getProcessorNames() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /*

@@ -20,13 +20,16 @@
 package org.apache.james.transport.camel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.ChoiceDefinition;
 import org.apache.commons.configuration.ConfigurationException;
@@ -34,27 +37,37 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.services.SpoolManager;
+import org.apache.james.transport.MailetConfigImpl;
 import org.apache.james.transport.MailetLoader;
+import org.apache.james.transport.MatcherConfigImpl;
 import org.apache.james.transport.MatcherLoader;
+import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
 import org.apache.mailet.Matcher;
+import org.apache.mailet.MatcherConfig;
+import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.base.MatcherInverter;
 
 /**
  * Build up the Camel Route by parsing the spoolmanager.xml configuration file. 
  * 
- * @author norman
- *
+ * TODO:  - Limit Threads
  */
-public class MailProcessorRouteBuilder extends RouteBuilder implements Configurable, LogEnabled {
+public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolManager, Configurable, LogEnabled {
 
     private MatcherLoader matcherLoader;
     private HierarchicalConfiguration config;
     private MailetLoader mailetLoader;
     private Log logger;
 
-    private List<Mailet> mailets = new ArrayList<Mailet>();
+    private final Map<String,List<Mailet>> mailets = new HashMap<String,List<Mailet>>();
+    private final Map<String,List<Matcher>> matchers = new HashMap<String,List<Matcher>>();
+
+    private final List<String> processors = new ArrayList<String>();
     
+       
     @Resource(name = "matcherpackages")
     public void setMatcherLoader(MatcherLoader matcherLoader) {
         this.matcherLoader = matcherLoader;
@@ -73,16 +86,26 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements Configura
     @Override
     public void configure() throws Exception {
 
-        
-        ChoiceDefinition spoolDef = from("spool://spoolRepository").choice();
+        Processor terminatingMailetProcessor = new MailetProcessor(new TerminatingMailet(), logger);
+
+        // start to consume from the spool
+        ChoiceDefinition spoolDef = from("spool://spoolRepository")
+       
+        // start first choice
+        .choice();
         
         List<HierarchicalConfiguration> processorConfs = config.configurationsAt("processor");
         for (int i = 0; i < processorConfs.size(); i++) {
             final HierarchicalConfiguration processorConf = processorConfs.get(i);
             String processorName = processorConf.getString("[@name]");
 
+            
+            processors.add(processorName);
+            mailets.put(processorName, new ArrayList<Mailet>());
+            matchers.put(processorName, new ArrayList<Matcher>());
+
             // Check which route we need to go
-            ChoiceDefinition processorDef = spoolDef.when(header(MailMessage.STATE).isEqualTo(processorName)).setHeader("currentProcessor", constant(processorName));
+            ChoiceDefinition processorDef = spoolDef.when(header(MailMessage.STATE).isEqualTo(processorName));
             
             final List<HierarchicalConfiguration> mailetConfs = processorConf.configurationsAt("mailet");
             // Loop through the mailet configuration, load
@@ -152,42 +175,113 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements Configura
                     throw new ConfigurationException("Unable to init mailet", ex);
                 }
                 if (mailet != null && matcher != null) {
-                    // Store the matcher to use for splitter
-                    processorDef.setHeader(MatcherSplitter.MATCHER_HEADER, constant(matcher))
-                        // do splitting
-                        .split().method(MatcherSplitter.class)
-                            // check if we need to execute the mailet and remove headers
-                            .choice().when(header(MatcherSplitter.MATCHER_MATCHED_HEADER).isEqualTo(true)).process(new MailetProcessor(mailet)).removeHeader(MatcherSplitter.MATCHER_MATCHED_HEADER)
-                            .end()
-                        .end()
-                    // remove matcher from header
-                    .removeHeader(MatcherSplitter.MATCHER_HEADER);
+                    String onMatchException = null;
+                    MailetConfig mailetConfig = mailet.getMailetConfig();
                     
-                    // store mailet for later destroy on shutdown
-                    mailets.add(mailet);
+                    if (mailetConfig instanceof MailetConfigImpl) {
+                        onMatchException = ((MailetConfigImpl) mailetConfig).getInitAttribute("onMatchException");
+                    }
+                    
+                    // Store the matcher to use for splitter in properties
+                    processorDef.setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher))
+                    
+                            // store the config in properties
+                            .setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException))
+                            
+                            // store the logger in properties
+                            .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(logger))
+
+                            // do splitting of the mail based on the stored matcher
+                            .split().method(MatcherSplitter.class)
+                            
+                            // start first choice
+                            .choice()
+                            
+                            // check if the state of the mail is the same as the
+                            // current processor. if not we have can just store it to spool an stop the route processing
+                            .when(header(MailMessage.STATE).isNotEqualTo(processorName)).to("spool://spoolRepository").stop()
+                            
+                            // if not continue the route
+                            .otherwise()
+                            
+                            // start second choice
+                            .choice()
+                            
+                            // check if we need to execute the mailet. If so execute it and remove the header on the end
+                            .when(header(MatcherSplitter.MATCHER_MATCHED_HEADER).isEqualTo("true")).process(new MailetProcessor(mailet, logger)).removeHeader(MatcherSplitter.MATCHER_MATCHED_HEADER)
+                            
+                            // end second choice
+                            .end()
+                            
+                            // end first choice
+                            .end()
+                            
+                            // remove matcher from properties
+                            .removeProperty(MatcherSplitter.MATCHER_PROPERTY)
+
+                            // remove config from properties
+                            .removeProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY)
+                    
+                            // remove logger from properties
+                            .removeProperty(MatcherSplitter.LOGGER_PROPERTY);
+
+                    // store mailet and matcher
+                    mailets.get(processorName).add(mailet);
+                    matchers.get(processorName).add(matcher);
                 }
               
 
             }
-            processorDef.to("spool://spoolRepository");
+            
+            processorDef
+                    // start choice
+                    .choice()
+                    
+                    // when the mail state did not change till yet ( the end of the route) we need to call the TerminatingMailet to
+                    // make sure we don't fall into a endless loop
+                    .when(header(MailMessage.STATE).isEqualTo(processorName)).process(terminatingMailetProcessor)
+                    
+                    // end the choice
+                    .end()
+                    
+                    // route everything to the spool now
+                    .to("spool://spoolRepository");
         }
-
-        // just use a mock for now
-        spoolDef.end();
         
     }
 
+    /**
+     * Destroy all mailets and matchers
+     */
     @PreDestroy
     public void dispose() {
-        Iterator<Mailet> it = mailets.iterator();
         boolean debugEnabled = logger.isDebugEnabled();
+
+        Iterator<List<Mailet>> it = mailets.values().iterator();
         while (it.hasNext()) {
-            Mailet mailet = it.next();
-            if (debugEnabled) {
-                logger.debug("Shutdown mailet " + mailet.getMailetInfo());
+            List<Mailet> mList = it.next();
+            for (int i = 0; i < mList.size(); i++) {
+                Mailet m = mList.get(i);
+                if (debugEnabled) {
+                    logger.debug("Shutdown mailet " + m.getMailetInfo());
+                }
+                m.destroy();
             }
-            mailet.destroy();
+           
         }
+        
+        Iterator<List<Matcher>> mit = matchers.values().iterator();     
+        while (mit.hasNext()) {
+            List<Matcher> mList = mit.next();
+            for (int i = 0; i < mList.size(); i++) {
+                Matcher m = mList.get(i);
+                if (debugEnabled) {
+                    logger.debug("Shutdown matcher " + m.getMatcherInfo());
+                }
+                m.destroy();
+            }
+           
+        }      
     }
     
     /*
@@ -205,6 +299,93 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements Configura
     public void setLog(Log log) {
         this.logger = log;
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.SpoolManager#getMailetConfigs(java.lang.String)
+     */
+    public List<MailetConfig> getMailetConfigs(String processorName) {
+        List<MailetConfig> mailetConfigs = new ArrayList<MailetConfig>();
+        Iterator<Mailet> iterator = mailets.get(processorName).iterator();
+        while (iterator.hasNext()) {
+            Mailet mailet = (Mailet) iterator.next();
+            MailetConfig mailetConfig = mailet.getMailetConfig();
+            if (mailetConfig == null) mailetConfigs.add(new MailetConfigImpl()); // placeholder
+            else mailetConfigs.add(mailetConfig);
+        }
+        return mailetConfigs; 
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.SpoolManager#getMatcherConfigs(java.lang.String)
+     */
+    public List<MatcherConfig> getMatcherConfigs(String processorName) {
+        List<MatcherConfig> matcherConfigs = new ArrayList<MatcherConfig>();
+        Iterator<Matcher> iterator = matchers.get(processorName).iterator();
+        while (iterator.hasNext()) {
+            Matcher matcher = (Matcher) iterator.next();
+            MatcherConfig matcherConfig = matcher.getMatcherConfig();
+            if (matcherConfig == null) matcherConfigs.add(new MatcherConfigImpl()); // placeholder
+            else matcherConfigs.add(matcherConfig);
+        }      
+        return matcherConfigs;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.SpoolManager#getProcessorNames()
+     */
+    public String[] getProcessorNames() {
+        return processors.toArray(new String[processors.size()]);
+    }
+
+    
+    /**
+     * Mailet which protect us to not fall into an endless loop caused by an configuration error
+     *
+     */
+    private final class TerminatingMailet extends GenericMailet {
+        /**
+         *  The name of the mailet used to terminate the mailet chain.  The
+         *  end of the matcher/mailet chain must be a matcher that matches
+         *  all mails and a mailet that sets every mail to GHOST status.
+         *  This is necessary to ensure that mails are removed from the spool
+         *  in an orderly fashion.
+         */
+        private static final String TERMINATING_MAILET_NAME = "Terminating%Mailet%Name";
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.mailet.base.GenericMailet#service(org.apache.mailet.Mail)
+         */
+        public void service(Mail mail) {
+            if (!(Mail.ERROR.equals(mail.getState()))) {
+                // Don't complain if we fall off the end of the
+                // error processor.  That is currently the
+                // normal situation for James, and the message
+                // will show up in the error store.
+                StringBuffer warnBuffer = new StringBuffer(256)
+                                      .append("Message ")
+                                      .append(mail.getName())
+                                      .append(" reached the end of this processor, and is automatically deleted.  This may indicate a configuration error.");
+                logger.warn(warnBuffer.toString());
+            }
+            
+            // Set the mail to ghost state
+            mail.setState(Mail.GHOST);
+        }
+    
+        @Override
+        public String getMailetInfo() {
+            return getMailetName();
+        }
+    
+        @Override
+        public String getMailetName() {
+            return TERMINATING_MAILET_NAME;
+        }
     }
 
 }

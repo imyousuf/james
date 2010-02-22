@@ -30,6 +30,12 @@ public class MailMessage extends DefaultMessage{
     public final static String STATE = "mailstate";
 
     private Mail mail;
+    
+    /**
+     * 
+     * @param mail the mail message to use as Body of the message
+     * 
+     */
     public MailMessage(Mail mail) {
         this.mail = mail;
     }
