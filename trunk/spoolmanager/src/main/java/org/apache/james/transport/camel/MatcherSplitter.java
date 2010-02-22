@@ -23,13 +23,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.mail.MessagingException;
 
 import org.apache.camel.Body;
-import org.apache.camel.Header;
 import org.apache.camel.InOnly;
+import org.apache.camel.Property;
+import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
+import org.apache.james.transport.ProcessorUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
@@ -43,10 +46,21 @@ import org.apache.mailet.Matcher;
 @InOnly
 public class MatcherSplitter {
     
+    /**
+     * Headername which is used to indicate that the matcher matched
+     */
     public final static String MATCHER_MATCHED_HEADER = "matched";
     
-    public final static String MATCHER_HEADER = "matcher";
+    /**
+     * Headername under which the matcher is stored
+     */
+    public final static String MATCHER_PROPERTY = "matcher";
 
+    public final static String ON_MATCH_EXCEPTION_PROPERTY = "onMatchException";
+    
+    public final static String LOGGER_PROPERTY = "logger";
+
+    
     /**
      * Generate a List of MailMessage instances for the give @Body. This is done by using the given Matcher to see if we need more then one instance of the 
      * MailMessage
@@ -57,44 +71,77 @@ public class MatcherSplitter {
      * @throws MessagingException
      */
     @SuppressWarnings("unchecked")
-    public List<MailMessage> split(@Header(MATCHER_HEADER) Matcher matcher,@Body Mail mail) throws MessagingException {
+    public List<MailMessage> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Log logger, @Body Mail mail) throws MessagingException {
         List<MailMessage> mails = new ArrayList<MailMessage>();
         boolean fullMatch = false;
         
+        // call the matcher
+        Collection<MailAddress> matchedRcpts = null;
         
-        Collection<MailAddress> matchedRcpts = matcher.match(mail);
+        try {
+            matchedRcpts = matcher.match(mail);
+            if (matchedRcpts == null) {
+                //In case the matcher returned null, create an empty Collection
+                matchedRcpts = new ArrayList<MailAddress>(0);
+            } else if (matchedRcpts != mail.getRecipients()) {
+                //Make sure all the objects are MailAddress objects
+                ProcessorUtil.verifyMailAddresses(matchedRcpts);
+            }
+        } catch (MessagingException me) {
         
-        // check if the matcher matched
-        if (matchedRcpts != null &&  matchedRcpts.isEmpty() == false) {
-            
-            // check if we need to create another instance of the mail. This is only needed if not all
-            // recipients matched 
-            if (matchedRcpts.equals(mail.getRecipients()) == false) {
-                Mail newMail = new MailImpl(mail);
-                newMail.setRecipients(matchedRcpts);
-            
-                MailMessage newmsg = new MailMessage(newMail);
-                
-                // Set a header because the matcher matched. This can be used later when processing the route
-                newmsg.setHeader(MATCHER_MATCHED_HEADER, true);
-                mails.add(newmsg);
-            
-                List<MailAddress> rcpts = new ArrayList<MailAddress>(mail.getRecipients());
-                Iterator<MailAddress> rcptsIterator = newMail.getRecipients().iterator();
-                while(rcptsIterator.hasNext()) {
-                    rcpts.remove(rcptsIterator.next());
-                }
-                mail.setRecipients(rcpts);
+            if (onMatchException == null) {
+                onMatchException = Mail.ERROR;
             } else {
-                // all recipients matched
-                fullMatch = true;
+                onMatchException = onMatchException.trim().toLowerCase(Locale.US);
+            }
+            if (onMatchException.compareTo("nomatch") == 0) {
+                //In case the matcher returned null, create an empty Collection
+                matchedRcpts = new ArrayList<MailAddress>(0);
+            } else if (onMatchException.compareTo("matchall") == 0) {
+                matchedRcpts = mail.getRecipients();
+                // no need to verify addresses
+            } else {
+                ProcessorUtil.handleException(me, mail, matcher.getMatcherConfig().getMatcherName(), onMatchException, logger);
             }
         }
+        
+        // check if the matcher matched
+        if ( matchedRcpts != null && matchedRcpts.isEmpty() == false) {
+            List<MailAddress> rcpts = new ArrayList<MailAddress>(mail.getRecipients());
+            
+            Iterator<MailAddress> rcptsIterator = matchedRcpts.iterator();
+            
+            while(rcptsIterator.hasNext()) {
+                // loop through the recipients and remove the recipiends that matched
+                rcpts.remove(rcptsIterator.next());
+            }
+            
+            if (rcpts.isEmpty()) {
+                // all recipients matched
+                fullMatch = true;
+            } else {
+                mail.setRecipients(rcpts);
+                
+                Mail newMail = new MailImpl(mail);
+                newMail.setRecipients(matchedRcpts);
+                
+                MailMessage newmsg = new MailMessage(newMail);
+                    
+                // Set a header because the matcher matched. This can be used later when processing the route
+                newmsg.setHeader(MATCHER_MATCHED_HEADER, true);
+                
+                // add the new generated mail to the mails list
+                mails.add(newmsg);
+            }
+        }
+            
         MailMessage mailMsg = new MailMessage(mail);
         if (fullMatch) {
             // Set a header because the matcher matched. This can be used later when processing the route
             mailMsg.setHeader(MATCHER_MATCHED_HEADER, true);
         }
+        
+        // add mailMsg to the mails list
         mails.add(mailMsg);
         
         return mails;

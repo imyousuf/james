@@ -21,8 +21,6 @@
 
 package org.apache.james.transport;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -47,7 +45,6 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
-import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 import org.apache.mailet.base.GenericMailet;
@@ -392,7 +389,7 @@ public class LinearProcessor implements MailProcessor, MailetContainer, LogEnabl
                     recipients = new ArrayList<MailAddress>(0);
                 } else if (recipients != mail.getRecipients()) {
                     //Make sure all the objects are MailAddress objects
-                    verifyMailAddresses(recipients);
+                    ProcessorUtil.verifyMailAddresses(recipients);
                 }
             } catch (MessagingException me) {
                 // look in the matcher's mailet's init attributes
@@ -410,7 +407,7 @@ public class LinearProcessor implements MailProcessor, MailetContainer, LogEnabl
                     recipients = mail.getRecipients();
                     // no need to verify addresses
                 } else {
-                    handleException(me, mail, matcher.getMatcherConfig().getMatcherName(), onMatchException);
+                    ProcessorUtil.handleException(me, mail, matcher.getMatcherConfig().getMatcherName(), onMatchException, logger);
                 }
             }
 
@@ -455,7 +452,7 @@ public class LinearProcessor implements MailProcessor, MailetContainer, LogEnabl
             try {
                 mailet.service(mail);
                 // Make sure all the recipients are still MailAddress objects
-                verifyMailAddresses(mail.getRecipients());
+                ProcessorUtil.verifyMailAddresses(mail.getRecipients());
             } catch (MessagingException me) {
                 MailetConfig mailetConfig = mailet.getMailetConfig();
                 String onMailetException = ((MailetConfigImpl) mailetConfig).getInitAttribute("onMailetException");
@@ -467,9 +464,9 @@ public class LinearProcessor implements MailProcessor, MailetContainer, LogEnabl
                 if (onMailetException.compareTo("ignore") == 0) {
                     // ignore the exception and continue
                     // this option should not be used if the mail object can be changed by the mailet
-                    verifyMailAddresses(mail.getRecipients());
+                    ProcessorUtil.verifyMailAddresses(mail.getRecipients());
                 } else {
-                    handleException(me, mail, mailet.getMailetConfig().getMailetName(), onMailetException);
+                    ProcessorUtil.handleException(me, mail, mailet.getMailetConfig().getMailetName(), onMailetException, logger);
                 }
             }
 
@@ -503,64 +500,9 @@ public class LinearProcessor implements MailProcessor, MailetContainer, LogEnabl
     }
 
 
-    /**
-     * Checks that all objects in this class are of the form MailAddress.
-     *
-     * @throws MessagingException when the <code>Collection</code> contains objects that are not <code>MailAddress</code> objects
-     */
-    private void verifyMailAddresses(Collection<MailAddress> col) throws MessagingException {
-        try {
-            MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
+   
 
-            // Why is this here?  According to the javadoc for
-            // java.util.Collection.toArray(Object[]), this should
-            // never happen.  The exception will be thrown.
-            if (addresses.length != col.size()) {
-                throw new MailetException("The recipient list contains objects other than MailAddress objects");
-            }
-        } catch (ArrayStoreException ase) {
-            throw new MailetException("The recipient list contains objects other than MailAddress objects");
-        }
-    }
-
-    /**
-     * This is a helper method that updates the state of the mail object to
-     * Mail.ERROR as well as recording the exception to the log
-     *
-     * @param me the exception to be handled
-     * @param mail the mail being processed when the exception was generated
-     * @param offendersName the matcher or mailet than generated the exception
-     * @param nextState the next state to set
-     *
-     * @throws MessagingException thrown always, rethrowing the passed in exception
-     */
-    private void handleException(MessagingException me, Mail mail, String offendersName, String nextState) throws MessagingException {
-        System.err.println("exception! " + me);
-        mail.setState(nextState);
-        StringWriter sout = new StringWriter();
-        PrintWriter out = new PrintWriter(sout, true);
-        StringBuffer exceptionBuffer =
-            new StringBuffer(128)
-                    .append("Exception calling ")
-                    .append(offendersName)
-                    .append(": ")
-                    .append(me.getMessage());
-        out.println(exceptionBuffer.toString());
-        Exception e = me;
-        while (e != null) {
-            e.printStackTrace(out);
-            if (e instanceof MessagingException) {
-                e = ((MessagingException)e).getNextException();
-            } else {
-                e = null;
-            }
-        }
-        String errorString = sout.toString();
-        mail.setErrorMessage(errorString);
-        logger.error(errorString);
-        throw me;
-    }
-    
+  
     /**
      * <p>Initialize the processor matcher/mailet list.</p>
      */

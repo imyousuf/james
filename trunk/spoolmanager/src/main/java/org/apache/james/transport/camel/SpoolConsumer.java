@@ -19,6 +19,10 @@
 
 package org.apache.james.transport.camel;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
@@ -27,12 +31,19 @@ import org.apache.commons.logging.Log;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
+/**
+ * Consumer implementation which consum Mail objects of the SpoolRepository
+ * 
+ *
+ */
 public class SpoolConsumer extends DefaultConsumer{
 
 
     private SpoolRepository spool;
     private Processor processor;
     private Log log;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private Future<?> f;
     
     public SpoolConsumer(DefaultEndpoint endpoint, Processor processor, SpoolRepository spool, Log log) {
         super(endpoint, processor);
@@ -42,18 +53,21 @@ public class SpoolConsumer extends DefaultConsumer{
     }
 
 
-    public Exchange receive() {
+    /**
+     * Receive a Mail object of the SpoolRepository when one is ready. This method will block until a Mail object is ready to process
+     * 
+     * @return exchange exchange which holds the MailMessage build up on the Mail
+     */
+    private Exchange receive() {
         Exchange ex = getEndpoint().createExchange();        
         Mail mail;
         try {
             mail = spool.accept();
             ex.setIn(new MailMessage(mail));
+            log.debug("Mail " + mail.toString() + " ready for process. Start to process exchange " +ex);
             processor.process(ex);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
             ex.setException(e);
-            
         }
         return ex;
 
@@ -63,7 +77,7 @@ public class SpoolConsumer extends DefaultConsumer{
     @Override
     protected void doStart() throws Exception {
         super.doStart();
-        Thread t = new Thread(new Runnable() {
+        f  = executor.submit(new Runnable() {
 
             public void run() {
                 while(true) {
@@ -72,15 +86,17 @@ public class SpoolConsumer extends DefaultConsumer{
             }
             
         });
-        t.setDaemon(true);
-        t.start();
     }
 
 
     @Override
     protected void doStop() throws Exception {
         super.doStop();
-        
+        try {
+            f.cancel(true);
+        } catch (Exception e) {
+            // ignore
+        }
     }
     
 }

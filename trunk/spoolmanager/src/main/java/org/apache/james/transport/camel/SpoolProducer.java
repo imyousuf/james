@@ -27,6 +27,11 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.SpoolRepository;
 import org.apache.mailet.Mail;
 
+/**
+ * Producer which handles store and remove of Mails. If a Mail is has state Mail.GHOST or the recipients are size of 0 it will get removed from the spool, otherwise it will get stored 
+ * back to the spool
+ *
+ */
 public class SpoolProducer extends DefaultProducer {
 
     private SpoolRepository spool;
@@ -44,7 +49,6 @@ public class SpoolProducer extends DefaultProducer {
      * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
      */
     public void process(Exchange exchange) throws Exception {
-        // Exchange newExchange = getEndpoint().createExchange(exchange);
         Mail mail = (Mail) exchange.getIn().getBody();
 
         // Only remove an email from the spool is processing is
@@ -55,11 +59,12 @@ public class SpoolProducer extends DefaultProducer {
                 StringBuffer debugBuffer = new StringBuffer(64).append("==== Removed from spool mail ").append(mail.getName()).append("====");
                 log.debug(debugBuffer.toString());
             }
+            // Dispose mail 
             LifecycleUtil.dispose(mail);
 
         } else {
-
             try {
+                // store mail back to spool
                 spool.store(mail);
             } catch (Exception e) {
                 e.printStackTrace();

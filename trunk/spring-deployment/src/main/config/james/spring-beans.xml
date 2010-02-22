@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
 
 	<!--
 		! Licensed to the Apache Software Foundation (ASF) under one ! ! or
@@ -17,7 +16,13 @@
 	-->
 
 
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xsi:schemaLocation="
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
 
 	<!--
 		** JMX part ** to enable exposure of JMX, activate the following beans
@@ -76,7 +81,7 @@
 			    <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
 				<entry key="pop3ProtocolHandlerChain" value="pop3server"/>
 				<entry key="remoteProtocolHandlerChain" value="remotemanager"/>		
-				<entry key="mailProcessor" value="spoolmanager"/>
+				<entry key="spool" value="spoolmanager"/>
 	        </map>
 		</property>
 	</bean>
@@ -96,7 +101,7 @@
 				<entry key="smtpProtocolHandlerChain" value="smtpserver"/>
 				<entry key="pop3ProtocolHandlerChain" value="pop3server"/>
 				<entry key="remoteProtocolHandlerChain" value="remoteManager"/>
-				<entry key="mailProcessor" value="spoolmanager"/>
+				<entry key="spool" value="spoolmanager"/>				
 			</map>
 		</property>
 	</bean>
@@ -107,22 +112,33 @@
 
 	<bean id="instanceFactory" class="org.apache.james.container.spring.SpringInstanceFactory"/>
 	
-
     <!-- Add support for Persistence annotations -->
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
+
+    <!-- Change trace to true for debugging purposes -->
+    <camelContext id="jamesCamelContext" xmlns="http://camel.apache.org/schema/spring" trace="false">
+        <routeBuilder ref="processorRoute" />    
+    </camelContext>
+  
+    <!-- Build the camelroute from the spoolmanager.xml -->
+    <bean id="spoolmanager" name="processorRoute" class="org.apache.james.transport.camel.MailProcessorRouteBuilder"/>
+
+    <!-- The component for the spool which handles consuming and producing -->    
+	<bean id="spool" class="org.apache.james.transport.camel.SpoolComponent" />
 
 	<bean id="James" class="org.apache.james.James"/>
 	
 	<bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
 
 	<!-- The James Spool Manager block  -->
+	<!-- 
 	<bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" />
 	
 	<bean id="mailProcessor" class="org.apache.james.container.spring.StateAwareProcessorList">
     	<property name="logRegistry" ref="logRegistry"/>
 	    <property name="configurationRegistry" ref="configurationRegistry"/>
 	</bean>
-
+    -->
 	<bean id="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" />
 
 	<bean id="mailetpackages" class="org.apache.james.transport.JamesMailetLoader" />

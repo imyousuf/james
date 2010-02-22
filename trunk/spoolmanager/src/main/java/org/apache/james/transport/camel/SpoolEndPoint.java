@@ -26,6 +26,10 @@ import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.commons.logging.Log;
 import org.apache.james.services.SpoolRepository;
 
+/**
+ * Endpoint which handles Producer and Consumer for SpoolRepositories
+ *
+ */
 public class SpoolEndPoint extends DefaultEndpoint{
 
     private SpoolRepository spool;
@@ -61,9 +65,7 @@ public class SpoolEndPoint extends DefaultEndpoint{
      * @see org.apache.camel.Endpoint#createConsumer(org.apache.camel.Processor)
      */
     public Consumer createConsumer(Processor processor) throws Exception {
-        SpoolConsumer consumer = new SpoolConsumer(this,processor,spool,log);
-        return consumer;
-        
+        return new SpoolConsumer(this,processor,spool,log);        
     }
 
 }
