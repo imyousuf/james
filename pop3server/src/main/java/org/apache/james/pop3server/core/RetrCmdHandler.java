@@ -74,6 +74,9 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                         for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
                             response.appendLine(e.nextElement().toString());
                         }
+                        // add empty line between headers and body
+                        response.appendLine("");
+                        
                     	// write the full mail to the client
                         writeMessageContentTo(mc, response, -1);
                         
