@@ -74,6 +74,10 @@ public class AuthorizationHandler implements ConnectHandler<RemoteManagerSession
                         final String message = "Login failed for " + username;
                         session.writeResponse(new RemoteManagerResponse(message));
                         session.writeResponse(new RemoteManagerResponse("Login id:"));
+
+                        // we need to handle the next line as login again
+                        session.getState().put(AUTHORIZATION_STATE, LOGIN_SUPPLIED);
+
                     } else {
                         StringBuilder messageBuffer = new StringBuilder(64).append("Welcome ").append(username).append(". HELP for a list of commands");
                         session.writeResponse(new RemoteManagerResponse(messageBuffer.toString()));
