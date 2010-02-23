@@ -22,7 +22,6 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.james.Constants;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.lifecycle.LifecycleUtil;
@@ -1482,7 +1481,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         PrintWriter out = new PrintWriter(sout, true);
         String machine = "[unknown]";
         try {
-            machine = getMailetContext().getAttribute(Constants.HOSTNAME).toString();
+            machine = dnsServer.getLocalHost().getHostName();
             
         } catch(Exception e){
             machine = "[address unknown]";

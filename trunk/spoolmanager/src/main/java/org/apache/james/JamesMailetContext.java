@@ -107,9 +107,6 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
     @PostConstruct
     public void init() throws Exception {
 
-        // used by RemoteDelivery for HELO
-        attributes.put(Constants.DEFAULT_DOMAIN, mailServer.getDefaultDomain());
-
         initializeLocalDeliveryMailet();
 
         initPostmaster();

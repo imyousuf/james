@@ -23,6 +23,7 @@ package org.apache.james.transport.mailets;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.UnknownHostException;
 
 import java.util.Collection;
 import java.util.Date;
@@ -33,6 +34,7 @@ import java.util.Locale;
 import java.util.ArrayList;
 
 
+import javax.annotation.Resource;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
@@ -44,9 +46,10 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
-import org.apache.james.Constants;
+import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageUtil;
+import org.apache.james.services.MailServer;
 
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
@@ -134,6 +137,7 @@ import org.apache.mailet.MailAddress;
  */
 
 public abstract class AbstractRedirect extends GenericMailet {
+    
     
     /**
      * Gets the expected init parameters.
@@ -230,6 +234,23 @@ public abstract class AbstractRedirect extends GenericMailet {
 
     private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
+    protected MailServer mailServer;
+
+    protected DNSService dns;
+
+    
+    @Resource(name="James")
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
+
+    @Resource(name="dnsserver")
+    public void setDNSService(DNSService dns) {
+        this.dns = dns;
+    }
+
+    
     /* ******************************************************************** */
     /* ****************** Begin of getX and setX methods ****************** */
     /* ******************************************************************** */
@@ -983,8 +1004,17 @@ public abstract class AbstractRedirect extends GenericMailet {
             // We don't need to use the original Remote Address and Host,
             // and doing so would likely cause a loop with spam detecting
             // matchers.
-            newMail.setRemoteAddr(getMailetContext().getAttribute(Constants.HOSTADDRESS).toString());
-            newMail.setRemoteHost(getMailetContext().getAttribute(Constants.HOSTNAME).toString());
+            try {
+                newMail.setRemoteAddr(dns.getLocalHost().getHostAddress());
+            } catch (UnknownHostException e) {
+                newMail.setRemoteAddr("127.0.0.1");
+
+            }
+            try {
+                newMail.setRemoteHost(dns.getLocalHost().getHostName());
+            } catch (UnknownHostException e) {
+                newMail.setRemoteHost("localhost");
+            }
             
             if (isDebug) {
                 log("New mail - sender: " + newMail.getSender()
