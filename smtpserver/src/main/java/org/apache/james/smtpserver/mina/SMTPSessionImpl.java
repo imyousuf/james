@@ -33,8 +33,6 @@ import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.smtpserver.mina.filter.TarpitFilter;
 import org.apache.james.socket.mina.AbstractMINASession;
-import org.apache.james.socket.mina.codec.CRLFTerminatedLineDecoder;
-import org.apache.james.socket.mina.codec.JamesProtocolCodecFactory;
 import org.apache.james.socket.mina.filter.FilterLineHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
@@ -115,7 +113,6 @@ public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession 
             if (currentHeloMode != null) {
                 getState().put(CURRENT_HELO_MODE, currentHeloMode);
             }
-            
         }
 
         /**
@@ -125,9 +122,6 @@ public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession 
             getIoSession().getFilterChain()
                     .remove("lineHandler" + lineHandlerCount);
             lineHandlerCount--;
-            if (lineHandlerCount == 0) {
-                ((CRLFTerminatedLineDecoder)getIoSession().getAttribute(JamesProtocolCodecFactory.DECODER_KEY)).checkLineLengthLimit(true);
-            }
         }
 
         /**
@@ -138,10 +132,6 @@ public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession 
             getIoSession().getFilterChain().addAfter(SMTPResponseFilter.NAME,
                     "lineHandler" + lineHandlerCount,
                     new FilterLineHandlerAdapter<SMTPSession>(overrideCommandHandler,SMTP_SESSION));
-            // disable the line length limit because we are processing the data
-            // not sure if this is the right place todo this
-            ((CRLFTerminatedLineDecoder)getIoSession().getAttribute(JamesProtocolCodecFactory.DECODER_KEY)).checkLineLengthLimit(false);
-            
         }
 
 

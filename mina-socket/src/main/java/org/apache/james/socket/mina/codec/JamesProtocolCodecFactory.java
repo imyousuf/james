@@ -21,7 +21,6 @@ package org.apache.james.socket.mina.codec;
 
 import java.nio.charset.Charset;
 
-import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
@@ -35,9 +34,7 @@ import org.apache.mina.filter.codec.textline.TextLineEncoder;
  *
  */
 public class JamesProtocolCodecFactory  implements ProtocolCodecFactory {
-    public static final AttributeKey DECODER_KEY = new AttributeKey(CRLFTerminatedLineDecoder.class,"decoder");
-    public static final AttributeKey ENCODER_KEY = new AttributeKey(TextLineEncoder.class,"encoder");
-
+    
     private final ProtocolEncoder encoder = new TextLineEncoder(Charset.forName("US-ASCII"), LineDelimiter.CRLF);
     private final ProtocolDecoder decoder = new CRLFTerminatedLineDecoder();
     
@@ -46,8 +43,6 @@ public class JamesProtocolCodecFactory  implements ProtocolCodecFactory {
      * @see org.apache.mina.filter.codec.ProtocolCodecFactory#getEncoder(org.apache.mina.core.session.IoSession)
      */
     public ProtocolEncoder getEncoder(IoSession arg0) throws Exception {
-        arg0.setAttribute(ENCODER_KEY,encoder);
-
         return encoder;
     }
     
@@ -56,7 +51,6 @@ public class JamesProtocolCodecFactory  implements ProtocolCodecFactory {
      * @see org.apache.mina.filter.codec.ProtocolCodecFactory#getDecoder(org.apache.mina.core.session.IoSession)
      */
     public ProtocolDecoder getDecoder(IoSession arg0) throws Exception {
-        arg0.setAttribute(DECODER_KEY,decoder);
         return decoder;
     }
 }
