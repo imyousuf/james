@@ -21,17 +21,7 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
-import org.apache.james.impl.vut.VirtualUserTableUtil;
-import org.apache.mailet.base.GenericMailet;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.oro.text.regex.MalformedPatternException;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.ParseException;
-
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,6 +29,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import javax.annotation.Resource;
+import javax.mail.MessagingException;
+import javax.mail.internet.ParseException;
+
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.core.MailImpl;
+import org.apache.james.impl.vut.VirtualUserTableUtil;
+import org.apache.james.services.MailServer;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.base.GenericMailet;
+import org.apache.oro.text.regex.MalformedPatternException;
 
 /**
  * Provides an abstraction of common functionality needed for implementing
@@ -48,7 +51,19 @@ import java.util.StringTokenizer;
 public abstract class AbstractVirtualUserTable extends GenericMailet
 {
     static private final String MARKER = "org.apache.james.transport.mailets.AbstractVirtualUserTable.mapped";
+    private MailServer mailServer;
+    private DNSService dns;
 
+    @Resource(name="James")
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
+    
+    @Resource(name="dnsserver")
+    public void setDNSService(DNSService dns) {
+        this.dns = dns;
+    }
+    
     /**
      * Checks the recipient list of the email for user mappings.  Maps recipients as
      * appropriate, modifying the recipient list of the mail and sends mail to any new
@@ -107,7 +122,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
                         }
 
                         try {
-                            MailAddress target = (targetAddress.indexOf('@') < 0) ? new MailAddress(targetAddress, (String) getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN))
+                            MailAddress target = (targetAddress.indexOf('@') < 0) ? new MailAddress(targetAddress, mailServer.getDefaultDomain())
                                 : new MailAddress(targetAddress);
 
                             //Mark this source address as an address to remove from the recipient list
@@ -165,8 +180,16 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
             // duplicates the Mail object, to be able to modify the new mail keeping the original untouched
             MailImpl newMail = new MailImpl(mail);
             try {
-            newMail.setRemoteAddr(getMailetContext().getAttribute(Constants.HOSTADDRESS).toString());
-                newMail.setRemoteHost(getMailetContext().getAttribute(Constants.HOSTNAME).toString());
+                try {
+                    newMail.setRemoteAddr(dns.getLocalHost().getHostAddress());
+                } catch (UnknownHostException e) {
+                    newMail.setRemoteAddr("127.0.0.1");
+                }
+                try {
+                    newMail.setRemoteHost(dns.getLocalHost().getHostName());
+                } catch (UnknownHostException e) {
+                    newMail.setRemoteHost("localhost");
+                }
                 
                 newMail.setRecipients(recipientsToAddForward);
                 newMail.setAttribute(MARKER, Boolean.TRUE);

@@ -21,27 +21,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.Constants;
-import org.apache.james.core.MailImpl;
-import org.apache.james.protocols.smtp.dsn.DSNStatus;
-import org.apache.mailet.base.mail.MimeMultipartReport;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.base.RFC2822Headers;
-import org.apache.mailet.base.RFC822DateFormat;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-
-import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.ConnectException;
@@ -52,6 +31,26 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+
+import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+
+import org.apache.james.core.MailImpl;
+import org.apache.james.protocols.smtp.dsn.DSNStatus;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.base.RFC2822Headers;
+import org.apache.mailet.base.RFC822DateFormat;
+import org.apache.mailet.base.mail.MimeMultipartReport;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
 
 
 
@@ -90,7 +89,7 @@ import java.util.Iterator;
 
 public class DSNBounce extends AbstractNotify {
 
-
+    
     private static final RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
     // regexp pattern for scaning status code from exception message
@@ -152,8 +151,18 @@ public class DSNBounce extends AbstractNotify {
             // We don't need to use the original Remote Address and Host,
             // and doing so would likely cause a loop with spam detecting
             // matchers.
-            newMail.setRemoteAddr(getMailetContext().getAttribute(Constants.HOSTADDRESS).toString());
-            newMail.setRemoteHost(getMailetContext().getAttribute(Constants.HOSTNAME).toString());
+            try {
+                newMail.setRemoteAddr(dns.getLocalHost().getHostName());
+            } catch (UnknownHostException e) {
+                newMail.setRemoteHost("localhost");
+            }
+           
+            try {
+                newMail.setRemoteHost(dns.getLocalHost().getHostAddress());
+            } catch (UnknownHostException e) {
+                newMail.setRemoteAddr("127.0.0.1");
+            }
+
             
             if (originalMail.getSender() == null) {
                 if (isDebug)
@@ -311,8 +320,7 @@ public class DSNBounce extends AbstractNotify {
         // failure reports into DSNs
         nameType = "dns";
         try {
-            String myAddress =
-                (String)getMailetContext().getAttribute(Constants.HELLO_NAME);
+            String myAddress = mailServer.getHelloName();
             /*
             String myAddress = InetAddress.getLocalHost().getCanonicalHostName();
             */

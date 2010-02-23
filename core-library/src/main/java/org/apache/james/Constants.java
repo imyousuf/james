@@ -40,26 +40,4 @@ public class Constants {
      */
     public static final String SOFTWARE_NAME = "@@NAME@@";
 
-    /**
-     * Context key used to store the default domain name
-     * serviced by this James instance in the context.
-     */
-    public static final String DEFAULT_DOMAIN = "DEFAULT_DOMAIN";
-
-    /**
-     * Context key used to store the Mailet/SMTP "hello name" for this
-     * James instance in the context.
-     */
-    public static final String HELLO_NAME = "HELLO_NAME";
-
-    /**
-     * Key used to store the hostaddress of the localhost
-     */
-    public static final String HOSTADDRESS = "LOCAL_HOSTADDRESS";
-    
-    /**
-     * Key used to store the hostname of localhost
-     */
-    public static final String HOSTNAME = "LOCAL_HOSTNAME";
-
 }

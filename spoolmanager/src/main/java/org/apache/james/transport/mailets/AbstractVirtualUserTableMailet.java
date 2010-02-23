@@ -25,10 +25,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Vector;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.Constants;
+import org.apache.james.services.MailServer;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.GenericMailet;
@@ -41,6 +42,13 @@ import org.apache.mailet.base.RFC2822Headers;
  *
  */
 public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
+    
+    private MailServer mailServer;
+
+    @Resource(name="James")
+    public void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
     
     /*
      * (non-Javadoc)
@@ -128,7 +136,7 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
 
             if (rcpt.indexOf("@") < 0) {
                 // the mapping contains no domain name, use the default domain
-                rcpt = rcpt + "@" + getMailetContext().getAttribute(Constants.DEFAULT_DOMAIN);
+                rcpt = rcpt + "@" + mailServer.getDefaultDomain();
             }
 
             MailAddress nextMap = new MailAddress(rcpt);
