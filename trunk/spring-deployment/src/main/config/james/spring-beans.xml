@@ -130,15 +130,6 @@
 	
 	<bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
 
-	<!-- The James Spool Manager block  -->
-	<!-- 
-	<bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager" />
-	
-	<bean id="mailProcessor" class="org.apache.james.container.spring.StateAwareProcessorList">
-    	<property name="logRegistry" ref="logRegistry"/>
-	    <property name="configurationRegistry" ref="configurationRegistry"/>
-	</bean>
-    -->
 	<bean id="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" />
 
 	<bean id="mailetpackages" class="org.apache.james.transport.JamesMailetLoader" />
