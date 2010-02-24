@@ -30,7 +30,7 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public class LineLengthExceededException extends IOException{
 
-    public LineLengthExceededException(int limit, int actualLength) {
-        super("Line length limit exceeded. Limit =>" + limit + " Actual=>" + actualLength);
+    public LineLengthExceededException(int limit) {
+        super("Line length limit " + limit + " exceeded");
     }
 }
