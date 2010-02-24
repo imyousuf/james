@@ -27,7 +27,7 @@ import org.apache.commons.io.FileUtils;
 
 public class FileUserMetaDataRepositoryTest extends TestCase {
 
-    private static final String SYMBOLIC_KEY = "\\/><'@~ #][}{()=+.,| !`%$3\" exit(0)";
+    private static final String SYMBOLIC_KEY = "\\/><'@~ #][}{()=+.,|!`%$3\" exit(0)";
 
     private static final String KEY = "key";
 
