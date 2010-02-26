@@ -1057,6 +1057,7 @@
     <javax.activation.artifactId>activation</javax.activation.artifactId>
     <javax.mail.groupId>javax.mail</javax.mail.groupId>
     <javax.mail.artifactId>mail</javax.mail.artifactId>
+    <productName>Apache-James Mail Server</productName>
   </properties>
 
 </project>
