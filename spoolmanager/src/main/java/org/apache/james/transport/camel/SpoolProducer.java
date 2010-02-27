@@ -50,13 +50,14 @@ public class SpoolProducer extends DefaultProducer {
      */
     public void process(Exchange exchange) throws Exception {
         Mail mail = (Mail) exchange.getIn().getBody();
-
+        
         // Only remove an email from the spool is processing is
         // complete, or if it has no recipients
-        if ((Mail.GHOST.equals(mail.getState())) || (mail.getRecipients() == null) || (mail.getRecipients().size() == 0)) {
-            spool.remove(mail.getName());
+        if (Mail.GHOST.equals(mail.getState()) || mail.getRecipients() == null || mail.getRecipients().size() == 0) {
+            String key = (String)exchange.getIn().getHeader(MailMessage.KEY);
+            spool.remove(key);
             if (log.isDebugEnabled()) {
-                StringBuffer debugBuffer = new StringBuffer(64).append("==== Removed from spool mail ").append(mail.getName()).append("====");
+                StringBuffer debugBuffer = new StringBuffer(64).append("==== Removed from spool mail ").append(key).append("====");
                 log.debug(debugBuffer.toString());
             }
             // Dispose mail 

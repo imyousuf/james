@@ -28,7 +28,7 @@ import org.apache.mailet.Mail;
  */
 public class MailMessage extends DefaultMessage{
     public final static String STATE = "mailstate";
-
+    public final static String KEY ="key";
     private Mail mail;
     
     /**
@@ -38,6 +38,7 @@ public class MailMessage extends DefaultMessage{
      */
     public MailMessage(Mail mail) {
         this.mail = mail;
+        setHeader(KEY, mail.getName());
     }
     
     
