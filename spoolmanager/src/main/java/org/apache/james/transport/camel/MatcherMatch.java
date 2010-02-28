@@ -19,53 +19,27 @@
 
 package org.apache.james.transport.camel;
 
-import org.apache.camel.Consumer;
-import org.apache.camel.Processor;
-import org.apache.camel.Producer;
-import org.apache.camel.impl.DefaultEndpoint;
-import org.apache.commons.logging.Log;
-import org.apache.james.services.SpoolRepository;
+import org.apache.camel.Exchange;
+import org.apache.camel.Predicate;
+import org.apache.mailet.Mail;
 
 /**
- * Endpoint which handles Producer and Consumer for SpoolRepositories
+ * Check if the previous called Matcher matched. This is done be
+ * checking for the present of MatcherSplitter.MATCHER_MATCHED_ATTRIBUTE attribute in the Mail
+ * 
  *
  */
-public class SpoolEndPoint extends DefaultEndpoint{
-
-    private SpoolRepository spool;
-    private Log log;
-
-
-    public SpoolEndPoint(String endpointUri, SpoolComponent component, SpoolRepository spool, Log log) {
-        super(endpointUri, component);
-        this.spool = spool;
-        this.log = log;
-    }
-
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.camel.Endpoint#createProducer()
-     */
-    public Producer createProducer() throws Exception {
-        return new SpoolProducer(this,spool,log);
-    }
+public class MatcherMatch implements Predicate{
 
     /*
      * (non-Javadoc)
-     * @see org.apache.camel.IsSingleton#isSingleton()
+     * @see org.apache.camel.Predicate#matches(org.apache.camel.Exchange)
      */
-    public boolean isSingleton() {
-        return true;
+    public boolean matches(Exchange arg0) {
+        Mail m = (Mail) arg0.getIn().getBody(); 
+        if (m.removeAttribute(MatcherSplitter.MATCHER_MATCHED_ATTRIBUTE) != null) {
+           return true;
+        }
+        return false;
     }
-
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.camel.Endpoint#createConsumer(org.apache.camel.Processor)
-     */
-    public Consumer createConsumer(Processor processor) throws Exception {
-        return new SpoolConsumer(this,processor,spool,log);        
-    }
-
 }

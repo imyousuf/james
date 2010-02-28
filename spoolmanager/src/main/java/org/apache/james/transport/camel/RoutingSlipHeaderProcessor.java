@@ -19,42 +19,25 @@
 
 package org.apache.james.transport.camel;
 
-import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.mailet.Mail;
 
 /**
- * Message for Mails
+ * Set the right header on the exchange based on the State of the Mail. This is used 
+ * later to route it to the right endpoint
  *
  */
-public class MailMessage extends DefaultMessage{
-    public final static String STATE = "mailstate";
-    public final static String KEY ="key";
-    private Mail mail;
+public class RoutingSlipHeaderProcessor implements Processor {
     
-    /**
-     * 
-     * @param mail the mail message to use as Body of the message
-     * 
+    public static final String ROUTESLIP_HEADER = "routeslipEndpoint";
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
      */
-    public MailMessage(Mail mail) {
-        this.mail = mail;
-        setHeader(KEY, mail.getName());
+    public void process(Exchange arg0) throws Exception {
+        arg0.getIn().setHeader(ROUTESLIP_HEADER, "activemq:queue:processor." +  ((Mail) arg0.getIn().getBody()).getState());
     }
-    
-    
-    @Override
-    protected Object createBody() {
-        return mail;
-    }
-
-
-    @Override
-    public Object getHeader(String name) {
-        if (STATE.equals(name)) {
-            return mail.getState();
-        }
-        return super.getHeader(name);
-    }
-
-    
+   
 }

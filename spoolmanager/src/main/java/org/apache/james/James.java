@@ -40,6 +40,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
+import org.apache.camel.ExchangePattern;
+import org.apache.camel.ProducerTemplate;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -58,6 +60,7 @@ import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.SpoolRepository;
 import org.apache.james.services.store.Store;
+import org.apache.james.transport.camel.InMemoryMail;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
@@ -93,11 +96,7 @@ public class James
      */
     private Store store;
 
-    /**
-     * The spool used for processing mail handled by this server.
-     */
-    private SpoolRepository spool;
-
+  
     /**
      * The root URL used to get mailboxes from the repository
      */
@@ -154,6 +153,8 @@ public class James
 
     private DNSService dns;
 
+    private ProducerTemplate producerTemplate;
+
     @Resource(name="domainlist")
     public void setDomainList(DomainList domains) {
         this.domains = domains;
@@ -162,6 +163,11 @@ public class James
     @Resource(name="dnsserver")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
+    }
+    
+    @Resource(name="producerTemplate")
+    public void setProducerTemplate(ProducerTemplate producerTemplate) {
+        this.producerTemplate = producerTemplate;
     }
     
     public final void setLog(Log logger) {
@@ -265,15 +271,6 @@ public class James
             }
         }
 
-        try {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Using SpoolRepository: " + spool.toString());
-            }
-        } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Can't get spoolRepository: " + e);
-            }
-        }
 
         /*
         try {
@@ -325,15 +322,6 @@ public class James
         this.store = store;
     }
 
-    /**
-     * Set the SpoolRepository to use
-     * 
-     * @param spool the SpoleRepository to use
-     */
-    @Resource(name="spoolrepository")
-    public void setSpoolRepository(SpoolRepository spool) {
-        this.spool = spool;
-    }
 
     /**
      * Set the UsersRepository to use
@@ -403,14 +391,16 @@ public class James
      */
     public void sendMail(Mail mail) throws MessagingException {
         try {
-            spool.store(mail);
+            producerTemplate.sendBody("activemq:queue:processor."+ mail.getState(), ExchangePattern.InOnly, new InMemoryMail(mail));
+            
         } catch (Exception e) {
             logger.error("Error storing message: " + e.getMessage(),e);
-            try {
+            
+            /*try {
                 spool.remove(mail);
             } catch (Exception ignored) {
                 logger.error("Error removing message after an error storing it: " + e.getMessage(),e);
-            }
+            }*/
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
         }
         if (logger.isDebugEnabled()) {

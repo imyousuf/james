@@ -28,10 +28,10 @@ import java.util.Locale;
 import javax.mail.MessagingException;
 
 import org.apache.camel.Body;
+import org.apache.camel.Handler;
 import org.apache.camel.InOnly;
 import org.apache.camel.Property;
 import org.apache.commons.logging.Log;
-import org.apache.james.core.MailImpl;
 import org.apache.james.transport.ProcessorUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -49,7 +49,7 @@ public class MatcherSplitter {
     /**
      * Headername which is used to indicate that the matcher matched
      */
-    public final static String MATCHER_MATCHED_HEADER = "matched";
+    public final static String MATCHER_MATCHED_ATTRIBUTE = "matched";
     
     /**
      * Headername under which the matcher is stored
@@ -71,8 +71,9 @@ public class MatcherSplitter {
      * @throws MessagingException
      */
     @SuppressWarnings("unchecked")
-    public List<MailMessage> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Log logger, @Body Mail mail) throws MessagingException {
-        List<MailMessage> mails = new ArrayList<MailMessage>();
+    @Handler
+    public List<Mail> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Log logger, @Body Mail mail) throws MessagingException {
+        List<Mail> mails = new ArrayList<Mail>();
         boolean fullMatch = false;
         
         // call the matcher
@@ -122,28 +123,27 @@ public class MatcherSplitter {
             } else {
                 mail.setRecipients(rcpts);
                 
-                Mail newMail = new MailImpl(mail);
+                Mail newMail = new InMemoryMail(mail);
                 newMail.setRecipients(matchedRcpts);
                 
-                MailMessage newmsg = new MailMessage(newMail);
-                    
+              
                 // Set a header because the matcher matched. This can be used later when processing the route
-                newmsg.setHeader(MATCHER_MATCHED_HEADER, true);
+                newMail.setAttribute(MATCHER_MATCHED_ATTRIBUTE, true);
                 
                 // add the new generated mail to the mails list
-                mails.add(newmsg);
+                mails.add(newMail);
             }
         }
             
-        MailMessage mailMsg = new MailMessage(mail);
         if (fullMatch) {
             // Set a header because the matcher matched. This can be used later when processing the route
-            mailMsg.setHeader(MATCHER_MATCHED_HEADER, true);
+            mail.setAttribute(MATCHER_MATCHED_ATTRIBUTE, true);
         }
         
         // add mailMsg to the mails list
-        mails.add(mailMsg);
+        mails.add(mail);
         
         return mails;
     }
+
 }
