@@ -29,6 +29,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.ChoiceDefinition;
@@ -88,24 +89,28 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
 
         Processor terminatingMailetProcessor = new MailetProcessor(new TerminatingMailet(), logger);
 
-        // start to consume from the spool
-        ChoiceDefinition spoolDef = from("spool://spoolRepository")
-       
-        // start first choice
-        .choice();
         
         List<HierarchicalConfiguration> processorConfs = config.configurationsAt("processor");
         for (int i = 0; i < processorConfs.size(); i++) {
             final HierarchicalConfiguration processorConf = processorConfs.get(i);
             String processorName = processorConf.getString("[@name]");
 
-            
+          
             processors.add(processorName);
             mailets.put(processorName, new ArrayList<Mailet>());
             matchers.put(processorName, new ArrayList<Matcher>());
 
             // Check which route we need to go
-            ChoiceDefinition processorDef = spoolDef.when(header(MailMessage.STATE).isEqualTo(processorName));
+            ChoiceDefinition processorDef = fromF("activemq:queue:processor.%s?maxConcurrentConsumers=50", processorName)
+            
+                // exchange mode is inOnly
+                .inOnly()
+                
+                // use transaction
+                .transacted()
+                
+                // check that body is not null, just to be sure...
+                .choice().when(body().isNotNull());
             
             final List<HierarchicalConfiguration> mailetConfs = processorConf.configurationsAt("mailet");
             // Loop through the mailet configuration, load
@@ -197,21 +202,22 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
                             // start first choice
                             .choice()
                             
-                            // check if the state of the mail is the same as the
-                            // current processor. if not we have can just store it to spool an stop the route processing
-                            .when(header(MailMessage.STATE).isNotEqualTo(processorName)).to("spool://spoolRepository").stop()
-                            
-                            // if not continue the route
-                            .otherwise()
-                            
-                            // start second choice
-                            .choice()
-                            
                             // check if we need to execute the mailet. If so execute it and remove the header on the end
-                            .when(header(MatcherSplitter.MATCHER_MATCHED_HEADER).isEqualTo("true")).process(new MailetProcessor(mailet, logger)).removeHeader(MatcherSplitter.MATCHER_MATCHED_HEADER)
+                            .when(new MatcherMatch()).process(new MailetProcessor(mailet, logger))
+                                            
                             
                             // end second choice
                             .end()
+                            
+                            .choice()
+               
+                            // if the mailstate is GHOST whe should just stop here.
+                            .when(new MailStateEquals(Mail.GHOST)).stop()
+                             
+                            // check if the state of the mail is the same as the
+                            // current processor. If not just route it to the right endpoint via routingSlip.
+                            // we use the routingSlip because @RecipientList not work as aspected. See https://issues.apache.org/activemq/browse/CAMEL-2507
+                            .when(new MailStateNotEquals(processorName)).process(new RoutingSlipHeaderProcessor()).routingSlip(RoutingSlipHeaderProcessor.ROUTESLIP_HEADER).stop()
                             
                             // end first choice
                             .end()
@@ -239,16 +245,17 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
                     
                     // when the mail state did not change till yet ( the end of the route) we need to call the TerminatingMailet to
                     // make sure we don't fall into a endless loop
-                    .when(header(MailMessage.STATE).isEqualTo(processorName)).process(terminatingMailetProcessor)
+                    .when(new MailStateEquals(processorName)).process(terminatingMailetProcessor)
                     
                     // end the choice
                     .end()
                     
-                    // route everything to the spool now
-                    .to("spool://spoolRepository");
+                    // route it to the right processor
+                    // we use the routingSlip because @RecipientList not work as aspected. See https://issues.apache.org/activemq/browse/CAMEL-2507
+                    .process(new RoutingSlipHeaderProcessor()).routingSlip(RoutingSlipHeaderProcessor.ROUTESLIP_HEADER).stop();
         }
-        
     }
+
 
     /**
      * Destroy all mailets and matchers

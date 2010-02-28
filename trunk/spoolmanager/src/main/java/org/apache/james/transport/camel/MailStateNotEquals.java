@@ -16,45 +16,34 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.transport.camel;
 
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.apache.camel.Endpoint;
-import org.apache.camel.impl.DefaultComponent;
-import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.services.SpoolRepository;
+import org.apache.camel.Exchange;
+import org.apache.camel.Predicate;
+import org.apache.mailet.Mail;
 
 /**
- * Component which acts as SpoolEndPoint factory
+ * Check if the Mail state is NOT equal to the one given on the constructor
  * 
  *
  */
-public class SpoolComponent extends DefaultComponent implements LogEnabled {
+public class MailStateNotEquals implements Predicate{
 
-    private SpoolRepository spool;
-    private Log log;
-
-    @Resource(name="spoolrepository")
-    public void setSpoolRepository(SpoolRepository spool) {
-        this.spool = spool;
+    private String state;
+    public MailStateNotEquals(String state) {
+        this.state = state;
     }
     
-    @Override
-    protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        
-        return new SpoolEndPoint(uri,this, spool, log);
-    }
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.camel.Predicate#matches(org.apache.camel.Exchange)
      */
-    public void setLog(Log log) {
-        this.log = log;
+    public boolean matches(Exchange ex) {
+        Mail m = (Mail) ex.getIn().getBody();
+        if (state.equals(m.getState())) {
+            return false;
+        }
+        return true;
     }
+
 }
