@@ -214,8 +214,8 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
                             .when(new MailStateEquals(Mail.GHOST)).stop()
                              
                             // check if the state of the mail is the same as the
-                            // current processor. If not just route it to the right endpoint via recipientList.
-                            .when(new MailStateNotEquals(processorName)).recipientList().method(MailRouter.class)
+                            // current processor. If not just route it to the right endpoint via recipientList and stop processing.
+                            .when(new MailStateNotEquals(processorName)).recipientList().method(MailRouter.class).stop()
                             
                             // end first choice
                             .end()
