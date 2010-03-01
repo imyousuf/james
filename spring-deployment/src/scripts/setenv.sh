@@ -16,5 +16,5 @@
 # ----------------------------------------------------------------------------
 #
 # Add every needed extra jar to this
-CLASSPATH_PREFIX=../conf/lib/mysql-connector-java-5.0.8-bin.jar
+CLASSPATH_PREFIX=
 export CLASSPATH_PREFIX
