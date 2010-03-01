@@ -19,20 +19,22 @@
 package org.apache.james.transport.camel;
 
 import org.apache.camel.Body;
-import org.apache.camel.RecipientList;
 import org.apache.mailet.Mail;
 
 /**
  * Route the mail to the right JMS queue depending on the state of the Mail. 
  * 
- * This is not used atm because of this bug:
- * https://issues.apache.org/activemq/browse/CAMEL-2507
  * 
  *
  */
 public class MailRouter {
     
-    @RecipientList
+    /**
+     * Route Mail to the right JMS queue based on the state of the mail
+     * 
+     * @param mail
+     * @return camel endpoint uri
+     */
     public String to(@Body Mail mail) {
         String queueName = "activemq:queue:processor."+ mail.getState();
         return queueName;

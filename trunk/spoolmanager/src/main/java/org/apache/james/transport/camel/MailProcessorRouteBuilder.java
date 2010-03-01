@@ -214,9 +214,8 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
                             .when(new MailStateEquals(Mail.GHOST)).stop()
                              
                             // check if the state of the mail is the same as the
-                            // current processor. If not just route it to the right endpoint via routingSlip.
-                            // we use the routingSlip because @RecipientList not work as aspected. See https://issues.apache.org/activemq/browse/CAMEL-2507
-                            .when(new MailStateNotEquals(processorName)).process(new RoutingSlipHeaderProcessor()).routingSlip(RoutingSlipHeaderProcessor.ROUTESLIP_HEADER).stop()
+                            // current processor. If not just route it to the right endpoint via recipientList.
+                            .when(new MailStateNotEquals(processorName)).recipientList().method(MailRouter.class)
                             
                             // end first choice
                             .end()
@@ -249,9 +248,9 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
                     // end the choice
                     .end()
                     
-                    // route it to the right processor
-                    // we use the routingSlip because @RecipientList not work as aspected. See https://issues.apache.org/activemq/browse/CAMEL-2507
-                    .process(new RoutingSlipHeaderProcessor()).routingSlip(RoutingSlipHeaderProcessor.ROUTESLIP_HEADER).stop();
+                     // route it to the right processor
+                    .recipientList().method(MailRouter.class);
+                  
         }
     }
 
