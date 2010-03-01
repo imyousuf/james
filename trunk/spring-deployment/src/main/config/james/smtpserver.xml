@@ -210,7 +210,7 @@
              <!-- If checkAuthNetworks is set to true sender domain will be checked also for clients that -->
              <!-- are allowed to relay. Default is false. -->
              <!--
-             <handler class="org.apache.james.smtpserver.protocol.core.fastfail.ValidSenderDomainHandler"/>
+             <handler class="org.apache.james.smtpserver.fastfail.ValidSenderDomainHandler"/>
              -->
      
          
