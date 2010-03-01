@@ -115,17 +115,41 @@
     <!-- Add support for Persistence annotations -->
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
+
     <!-- Change trace to true for debugging purposes -->
-    <camelContext id="jamesCamelContext" xmlns="http://camel.apache.org/schema/spring" trace="false">
-        <routeBuilder ref="processorRoute" />    
-    </camelContext>
-  
-    <!-- Build the camelroute from the spoolmanager.xml -->
-    <bean id="spoolmanager" name="processorRoute" class="org.apache.james.transport.camel.MailProcessorRouteBuilder"/>
+    <camel:camelContext id="jamesCamelContext" trace="false" >
+        <camel:template id="producerTemplate"/>   
+        <camel:routeBuilder ref="processorRoute" /> 
+    </camel:camelContext>
 
-    <!-- The component for the spool which handles consuming and producing -->    
-	<bean id="spool" class="org.apache.james.transport.camel.SpoolComponent" />
+     <!-- Build the camelroute from the spoolmanager.xml -->
+     <bean id="spoolmanager" name="processorRoute" class="org.apache.james.transport.camel.MailProcessorRouteBuilder"/>
+ 
+ 
 
+    <!-- jms connection pooling  -->
+    <bean id="jmsConnectionFactory" class="org.jencks.amqpool.PooledConnectionFactory">
+      <constructor-arg value="vm://localhost?broker.useJmx=false" />
+      <property name="maxConnections" value="8" />
+    </bean> 
+
+
+    <!-- setup spring jms TX manager -->
+    <bean id="jmsTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
+        <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    </bean>
+
+    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent" depends-on="broker">
+        <property name="connectionFactory" ref="jmsConnectionFactory"/>
+        <property name="transacted" value="true"/>
+        <property name="transactionManager" ref="jmsTransactionManager"/>  
+    </bean>
+    
+    <bean id="broker" class="org.apache.activemq.xbean.BrokerFactoryBean">
+        <property name="config" value="classpath:activemq.xml" />
+        <property name="start" value="true" />
+    </bean>
+    
 	<bean id="James" class="org.apache.james.James"/>
 	
 	<bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>

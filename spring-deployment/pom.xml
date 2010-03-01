@@ -215,9 +215,29 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jms</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
      <groupId>org.apache.camel</groupId>
      <artifactId>camel-spring</artifactId>
      <scope>runtime</scope>
+    </dependency>
+   <dependency>
+     <groupId>org.apache.activemq</groupId>
+     <artifactId>activemq-camel</artifactId>
+     <scope>runtime</scope>
+   </dependency>
+   <dependency>
+      <groupId>org.jencks</groupId>
+      <artifactId>jencks-amqpool</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+   <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-spring</artifactId>
+       <scope>runtime</scope>
     </dependency>
    
     <dependency>
