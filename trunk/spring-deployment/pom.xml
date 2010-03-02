@@ -229,11 +229,7 @@
      <artifactId>activemq-camel</artifactId>
      <scope>runtime</scope>
    </dependency>
-   <dependency>
-      <groupId>org.jencks</groupId>
-      <artifactId>jencks-amqpool</artifactId>
-      <scope>runtime</scope>
-    </dependency>
+  
    <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-spring</artifactId>
