@@ -198,6 +198,9 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
                             // do splitting of the mail based on the stored matcher
                             .split().method(MatcherSplitter.class)
                             
+                            // speed up things by processing in parallel
+                            .parallelProcessing()
+                            
                             // start first choice
                             .choice()
                             
