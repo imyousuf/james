@@ -384,12 +384,12 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-mailbox</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-decode</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>commons-lang</groupId>
@@ -404,7 +404,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-message</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -472,17 +472,17 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-torque</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-jpa</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-store</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>commons-collections</groupId>
@@ -497,7 +497,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-processor</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -513,7 +513,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-seda</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -536,7 +536,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-api</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -547,7 +547,7 @@
    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-memory</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.1-M2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
