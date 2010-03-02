@@ -913,6 +913,10 @@
           <groupId>xerces</groupId>
           <artifactId>xercesImpl</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>village</groupId>
+          <artifactId>village</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     
