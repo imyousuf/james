@@ -741,57 +741,6 @@
       <version>2.0</version>
     </dependency>
     
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi</artifactId>
-      <version>3.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.osgi</groupId>
-      <artifactId>spring-osgi-core</artifactId>
-      <version>1.2.1</version>
-      <exclusions>
-      	<exclusion>
-      	  <groupId>org.springframework</groupId>
-      	  <artifactId>org.springframework.core</artifactId>
-      	</exclusion>
-      	<exclusion>
-      	  <groupId>org.springframework</groupId>
-      	  <artifactId>org.springframework.beans</artifactId>
-      	</exclusion>
-      	<exclusion>
-      	  <groupId>org.springframework</groupId>
-      	  <artifactId>org.springframework.context</artifactId>
-      	</exclusion>
-      	<exclusion>
-      	  <groupId>org.springframework</groupId>
-      	  <artifactId>org.springframework.aop</artifactId>
-      	</exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.osgi</groupId>
-      <artifactId>spring-osgi-extender</artifactId>
-      <version>1.2.1</version>
-      <exclusions>
-      	<exclusion>
-      	  <groupId>org.springframework</groupId>
-      	  <artifactId>org.springframework.core</artifactId>
-      	</exclusion>
-      	<exclusion>
-      	  <groupId>org.springframework</groupId>
-      	  <artifactId>org.springframework.beans</artifactId>
-      	</exclusion>
-      	<exclusion>
-      	  <groupId>org.springframework</groupId>
-      	  <artifactId>org.springframework.context</artifactId>
-      	</exclusion>
-      	<exclusion>
-      	  <groupId>org.springframework</groupId>
-      	  <artifactId>org.springframework.aop</artifactId>
-      	</exclusion>
-      </exclusions>
-    </dependency>  
     
     <dependency>
       <groupId>commons-dbcp</groupId>
