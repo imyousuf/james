@@ -58,7 +58,6 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.SpoolRepository;
 import org.apache.james.services.store.Store;
 import org.apache.james.transport.camel.InMemoryMail;
 import org.apache.mailet.Mail;
@@ -128,13 +127,6 @@ public class James
      */
     private Map<String,MailRepository> mailboxes = new ReferenceMap();
 
-
-    /**
-     * A hash table of server attributes
-     * These are the MailetContext attributes
-     */
-    //private Hashtable<String,Object> attributes = new Hashtable<String,Object>();
-
     /**
      * Currently used by storeMail to avoid code duplication (we moved store logic to that mailet).
      * TODO We should remove this and its initialization when we remove storeMail method.
@@ -170,10 +162,41 @@ public class James
         this.producerTemplate = producerTemplate;
     }
     
+    
+
+    /**
+     * Set Store to use
+     * 
+     * @param store the Store to use
+     */
+    @Resource(name="mailstore")
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
+
+    /**
+     * Set the UsersRepository to use
+     * 
+     * @param localusers the UserRepository to use
+     */
+    @Resource(name="localusersrepository")
+    public void setUsersRepository(UsersRepository localusers) {
+        this.localusers = localusers;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
     public final void setLog(Log logger) {
         this.logger = logger;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.conf = (HierarchicalConfiguration)config;
     }
@@ -259,8 +282,6 @@ public class James
     }
 
     private void initializeServices() throws Exception {
-        // TODO: This should retrieve a more specific named thread pool from
-        // Context that is set up in server.xml
         try {
             if (logger.isDebugEnabled()) {
                 logger.debug("Using Store: " + store.toString());
@@ -272,21 +293,7 @@ public class James
         }
 
 
-        /*
-        try {
-            // lookup the usersStore.
-            // This is not used by James itself, but we check we received it here
-            // because mailets will try to lookup this later.
-            UsersStore usersStore = (UsersStore) compMgr.lookup( UsersStore.ROLE );
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Using UsersStore: " + usersStore.toString());
-            }
-        } catch (Exception e) {
-            if (getLogger().isWarnEnabled()) {
-                getLogger().warn("Can't get Store: " + e);
-            }
-        }
-        */
+      
         if (logger.isDebugEnabled()) {
             logger.debug("Using LocalUsersRepository: " + localusers.toString());
         }    
@@ -310,28 +317,7 @@ public class James
        
     }
 
-    
-
-    /**
-     * Set Store to use
-     * 
-     * @param store the Store to use
-     */
-    @Resource(name="mailstore")
-    public void setStore(Store store) {
-        this.store = store;
-    }
-
-
-    /**
-     * Set the UsersRepository to use
-     * 
-     * @param localusers the UserRepository to use
-     */
-    @Resource(name="localusersrepository")
-    public void setUsersRepository(UsersRepository localusers) {
-        this.localusers = localusers;
-    }
+ 
 
     /**
      * Place a mail on the spool for processing
@@ -395,12 +381,6 @@ public class James
             
         } catch (Exception e) {
             logger.error("Error storing message: " + e.getMessage(),e);
-            
-            /*try {
-                spool.remove(mail);
-            } catch (Exception ignored) {
-                logger.error("Error removing message after an error storing it: " + e.getMessage(),e);
-            }*/
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
         }
         if (logger.isDebugEnabled()) {
@@ -592,15 +572,6 @@ public class James
             return helloName;
         } else {
             return getDefaultDomain();
-            /*
-            String hello = (String) getAttribute(Constants.HELLO_NAME);   
-            
-            if (hello == null) {
-                return defaultDomain;
-            } else {
-                return hello;
-            }
-            */
         }
     }
 }
