@@ -21,6 +21,8 @@ package org.apache.james.imapserver.mina;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.ImapConstants;
@@ -43,6 +45,7 @@ public class ImapIoHandler extends StreamIoHandler{
     private final ImapRequestHandler handler;
 
     private final static String IMAP_SESSION = "IMAP_SESSION"; 
+    private ExecutorService executor = Executors.newCachedThreadPool();
     
     public ImapIoHandler(String hello, ImapRequestHandler handler, Log logger) {
         this.logger = logger;
@@ -53,7 +56,7 @@ public class ImapIoHandler extends StreamIoHandler{
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) {
-    	logger.error("Error while processing imap request",cause);
+    	logger.debug("Error while processing imap request",cause);
     	
     	// logout on error not sure if that is the best way to handle it
         final ImapSessionImpl imapSession = (ImapSessionImpl) session.getAttribute(IMAP_SESSION);     
@@ -88,7 +91,7 @@ public class ImapIoHandler extends StreamIoHandler{
     protected void processStreamIo(final IoSession session, final InputStream in, final OutputStream out) {  
         
         // it would prolly make sense to use a thread pool...
-        new Thread(new Runnable() {
+        executor.execute(new Runnable() {
         
             public void run() {
                 final ImapSessionImpl imapSession = (ImapSessionImpl) session.getAttribute(IMAP_SESSION);
@@ -99,7 +102,7 @@ public class ImapIoHandler extends StreamIoHandler{
                 session.close(false);
             }
 
-        }).start();
+        });
 
     }
 
