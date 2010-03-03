@@ -400,7 +400,9 @@ Regards, Postmaster XXX.YYY
 
          
          <!-- Deliver To IMAP mailboxes, applying a Sieve script if the user has one
-         <mailet match="All" class="SieveMailet"/>
+         <mailet match="All" class="SieveMailet">
+             <quiet>true</quiet>
+         </mailet>
          -->
         
          <!-- Is the recipient is for a local account, deliver it locally -->
