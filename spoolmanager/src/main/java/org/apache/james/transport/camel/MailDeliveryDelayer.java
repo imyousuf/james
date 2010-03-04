@@ -32,7 +32,7 @@ public class MailDeliveryDelayer {
     /**
      * Header to use for storing the date till the processing should be delayed (in milliseconds)
      */
-    public final static String NEXT_DELIVERY ="NEXT_DELIVERY";
+    public final static String NEXT_DELIVERY ="JAMES_NEXT_DELIVERY";
     
     
     /**
