@@ -61,7 +61,9 @@ public class ImapIoHandler extends StreamIoHandler{
     	// logout on error not sure if that is the best way to handle it
         final ImapSessionImpl imapSession = (ImapSessionImpl) session.getAttribute(IMAP_SESSION);     
         if (imapSession != null) imapSession.logout();
-        session.close(false);
+
+        // just close the session now!
+        session.close(true);
         
     	super.exceptionCaught(session, cause);
     }
@@ -99,7 +101,11 @@ public class ImapIoHandler extends StreamIoHandler{
                 // handle requests in a loop
                 while (handler.handleRequest(in, out, imapSession));
                 if (imapSession != null) imapSession.logout();
+                
+                logger.debug("Thread execution complete for session " + session.getId());
+
                 session.close(false);
+                
             }
 
         });
