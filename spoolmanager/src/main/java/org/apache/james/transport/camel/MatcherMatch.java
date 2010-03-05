@@ -36,7 +36,7 @@ public class MatcherMatch implements Predicate{
      * @see org.apache.camel.Predicate#matches(org.apache.camel.Exchange)
      */
     public boolean matches(Exchange arg0) {
-        Mail m = (Mail) arg0.getIn().getBody(); 
+        Mail m = arg0.getIn().getBody(Mail.class); 
         if (m.removeAttribute(MatcherSplitter.MATCHER_MATCHED_ATTRIBUTE) != null) {
            return true;
         }
