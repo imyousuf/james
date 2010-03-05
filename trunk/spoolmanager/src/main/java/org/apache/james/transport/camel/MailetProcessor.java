@@ -55,7 +55,7 @@ public class MailetProcessor implements Processor{
      */
     @SuppressWarnings("unchecked")
     public void process(Exchange exchange) throws Exception {
-        Mail mail = (Mail) exchange.getIn().getBody();
+        Mail mail = exchange.getIn().getBody(Mail.class);
         try {
             mailet.service(mail);
         } catch (MessagingException me) {
