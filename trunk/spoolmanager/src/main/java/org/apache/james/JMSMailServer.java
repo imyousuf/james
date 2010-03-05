@@ -34,6 +34,6 @@ public class JMSMailServer extends AbstractMailServer{
 
     @Override
     protected String getToUri(Mail mail) {
-        return "activemq:queue:processor."+ mail.getState();
+        return "jms:queue:processor."+ mail.getState();
     }
 }
