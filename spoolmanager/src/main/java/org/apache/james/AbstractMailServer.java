@@ -241,11 +241,6 @@ public abstract class AbstractMailServer
 
         initializeServernames();
 
-        // We don't need this. UsersRepository.ROLE is already in the compMgr we received
-        // We've just looked up it from the cmpManager
-        // compMgr.put( UsersRepository.ROLE, localusers);
-        // getLogger().info("Local users repository opened");
-
         inboxRootURL = conf.configurationAt("inboxRepository.repository").getString("[@destinationURL]");
 
         logger.info("Private Repository LocalInbox opened");
@@ -495,20 +490,7 @@ public abstract class AbstractMailServer
         return idBuffer.toString();
     }
 
-    /**
-     * The main method.  Should never be invoked, as James must be called
-     * from within an Avalon framework container.
-     *
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        System.out.println("ERROR!");
-        System.out.println("Cannot execute James as a stand alone application.");
-        System.out.println("To run James, you need to have the Avalon framework installed.");
-        System.out.println("Please refer to the Readme file to know how to run James.");
-    }
-
-
+ 
     /**
      * @see org.apache.james.services.MailServer#isLocalServer(java.lang.String)
      */
