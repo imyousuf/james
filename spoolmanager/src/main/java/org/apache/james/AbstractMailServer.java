@@ -76,7 +76,7 @@ import org.apache.mailet.Mailet;
 
  */
 @SuppressWarnings("unchecked")
-public class James
+public abstract class AbstractMailServer
     implements MailServer, LogEnabled, Configurable {
 
     /**
@@ -377,7 +377,7 @@ public class James
      */
     public void sendMail(Mail mail) throws MessagingException {
         try {
-            producerTemplate.sendBody("activemq:queue:processor."+ mail.getState(), ExchangePattern.InOnly, new InMemoryMail(mail));
+            producerTemplate.sendBody(getToUri(mail), ExchangePattern.InOnly, new InMemoryMail(mail));
             
         } catch (Exception e) {
             logger.error("Error storing message: " + e.getMessage(),e);
@@ -574,4 +574,13 @@ public class James
             return getDefaultDomain();
         }
     }
+    
+    /**
+     * Return the camel endpoint uri which should get used for the given mail
+     * 
+     * @param mail
+     * @return toUri
+     * 
+     */
+    protected abstract String getToUri(Mail mail);
 }

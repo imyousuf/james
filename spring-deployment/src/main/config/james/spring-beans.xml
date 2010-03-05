@@ -82,6 +82,7 @@
 				<entry key="pop3ProtocolHandlerChain" value="pop3server"/>
 				<entry key="remoteProtocolHandlerChain" value="remotemanager"/>		
 				<entry key="spool" value="spoolmanager"/>
+				<entry key="mailserver" value="James"/>				
 	        </map>
 		</property>
 	</bean>
@@ -101,7 +102,8 @@
 				<entry key="smtpProtocolHandlerChain" value="smtpserver"/>
 				<entry key="pop3ProtocolHandlerChain" value="pop3server"/>
 				<entry key="remoteProtocolHandlerChain" value="remoteManager"/>
-				<entry key="spool" value="spoolmanager"/>				
+				<entry key="spool" value="spoolmanager"/>	
+				<entry key="mailserver" value="James"/>										
 			</map>
 		</property>
 	</bean>
@@ -122,8 +124,8 @@
         <camel:routeBuilder ref="processorRoute" /> 
     </camel:camelContext>
 
-     <!-- Build the camelroute from the spoolmanager.xml -->
-     <bean id="spoolmanager" name="processorRoute" class="org.apache.james.transport.camel.MailProcessorRouteBuilder"/>
+     <!-- Build the camelroute from the spoolmanager.xml using ActiveMQ as producer and consumer-->
+     <bean id="spoolmanager" name="processorRoute" class="org.apache.james.transport.camel.ActiveMQProcessorRouteBuilder"/>
  
  
 
@@ -154,7 +156,8 @@
         <property name="start" value="true" />
     </bean>
     
-	<bean id="James" class="org.apache.james.James"/>
+    <!-- mailserver implementation which use activemq for spooling the mail -->
+	<bean id="mailserver" name="James" class="org.apache.james.ActiveMQMailServer"/>
 	
 	<bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
 
