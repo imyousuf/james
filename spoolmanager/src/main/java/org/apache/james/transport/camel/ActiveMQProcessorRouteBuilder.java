@@ -16,29 +16,24 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+
 package org.apache.james.transport.camel;
 
-import org.apache.camel.Body;
-import org.apache.mailet.Mail;
 
 /**
- * Route the mail to the right JMS queue depending on the state of the Mail. 
+ * ActiveMQ based ProcessorRouteBuilder which use a JMS to consume and produce mails
  * 
- * 
- *
  */
-public class MailRouter {
-    
-    /**
-     * Route Mail to the right JMS queue based on the state of the mail
-     * 
-     * @param mail
-     * @return camel endpoint uri
-     */
-    public String to(@Body Mail mail) {
-        String queueName = "activemq:queue:processor."+ mail.getState();
-        return queueName;
+public class ActiveMQProcessorRouteBuilder extends AbstractProcessorRouteBuilder {
+
+    @Override
+    protected String getFromUri(String processorName) {
+        return "activemq:queue:processor." + processorName+"?maxConcurrentConsumers=50";
     }
-    
+
+    @Override
+    protected Class<?> getRecipientList() {
+        return ActiveMQRecipientList.class;
+    }
 
 }

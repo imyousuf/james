@@ -55,7 +55,7 @@ import org.apache.mailet.base.MatcherInverter;
  * 
  * TODO:  - Limit Threads
  */
-public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolManager, Configurable, LogEnabled {
+public abstract class AbstractProcessorRouteBuilder extends RouteBuilder implements SpoolManager, Configurable, LogEnabled {
 
     private MatcherLoader matcherLoader;
     private HierarchicalConfiguration config;
@@ -100,7 +100,7 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
             matchers.put(processorName, new ArrayList<Matcher>());
 
             // Check which route we need to go
-            ChoiceDefinition processorDef = fromF("activemq:queue:processor.%s?maxConcurrentConsumers=50", processorName)
+            ChoiceDefinition processorDef = fromF(getFromUri(processorName))
             
                 // exchange mode is inOnly
                 .inOnly()
@@ -218,7 +218,7 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
                              
                             // check if the state of the mail is the same as the
                             // current processor. If not just route it to the right endpoint via recipientList and stop processing.
-                            .when(new MailStateNotEquals(processorName)).recipientList().method(MailRouter.class).stop()
+                            .when(new MailStateNotEquals(processorName)).recipientList().method(getRecipientList()).stop()
                             
                             // end first choice
                             .end()
@@ -252,7 +252,7 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
                     .end()
                     
                      // route it to the right processor
-                    .recipientList().method(MailRouter.class);
+                    .recipientList().method(getRecipientList());
                   
         }
     }
@@ -395,5 +395,19 @@ public class MailProcessorRouteBuilder extends RouteBuilder implements SpoolMana
             return TERMINATING_MAILET_NAME;
         }
     }
+    
+    /**
+     * Return the uri for the processor to use for consuming mails
+     * 
+     * @param processor
+     * @return consumerUri
+     */
+    protected abstract String getFromUri(String processor);
 
+    /**
+     * Return the class which get used for dynamic lookup the ToUris for the mails (producers)
+     * 
+     * @return recipientListClass
+     */
+    protected abstract Class<?> getRecipientList();
 }
