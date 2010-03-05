@@ -51,7 +51,6 @@
     <module>remotemanager</module>
     <module>mailets</module>
     <module>fetchmail</module>
-    <module>experimental-activemq</module>
     <module>jcr-store</module>
     <module>jpa-store</module>
     <module>spring-deployment</module>
@@ -504,11 +503,6 @@
           <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-experimental-activemq</artifactId>
-      <version>3.0-M1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
