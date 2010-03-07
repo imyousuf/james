@@ -36,25 +36,24 @@ import org.apache.camel.impl.ScheduledPollConsumer;
 public class ActiveMQPollingConsumer extends ScheduledPollConsumer{
 
     private ConsumerTemplate consumerTemplate;
-    private String receiveEndpointUri;
+	private String uri;
     
     public ActiveMQPollingConsumer(DefaultEndpoint endpoint, Processor processor, ConsumerTemplate consumerTemplate) {
         super(endpoint, processor);
         this.consumerTemplate = consumerTemplate;
-        receiveEndpointUri = getEndpoint().getEndpointUri().replace(getEndpoint().getEndpointKey(),"activemq");
- 
     }
   
+    public void setEndpointUri(String uri) {
+    	this.uri = uri;
+    }
+    
     @Override
     protected void poll() throws Exception {
       
         StringBuffer consumerUri = new StringBuffer();
-        consumerUri.append(receiveEndpointUri);
-        if (receiveEndpointUri.indexOf("?") > -1) {
-            consumerUri.append("&");
-        } else {
-            consumerUri.append("?");
-        }
+        consumerUri.append(uri);
+        consumerUri.append("?");
+        
         consumerUri.append("selector=");
         consumerUri.append(JamesCamelConstants.JAMES_NEXT_DELIVERY);
         consumerUri.append("<");

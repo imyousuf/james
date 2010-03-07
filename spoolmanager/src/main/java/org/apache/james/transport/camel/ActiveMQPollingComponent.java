@@ -29,6 +29,7 @@ import org.apache.camel.impl.DefaultComponent;
  */
 public class ActiveMQPollingComponent extends DefaultComponent{
 
+	
     @Override
     protected Endpoint createEndpoint(String uri, String arg1, Map<String, Object> arg2) throws Exception {
         return new ActiveMQPollingEndpoint(uri, this);
