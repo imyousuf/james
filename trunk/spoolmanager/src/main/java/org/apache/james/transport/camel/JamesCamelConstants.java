@@ -30,5 +30,10 @@ public interface JamesCamelConstants {
      */
     public final static String JAMES_NEXT_DELIVERY = "JAMES_NEXT_DELIVERY";
 
+    /**
+     * Property which should be set to true if the mail should get sent again
+     */
+    public final static String JAMES_RETRY_DELIVERY = "JAMES_RETRY_DELIVERY";
+
 
 }

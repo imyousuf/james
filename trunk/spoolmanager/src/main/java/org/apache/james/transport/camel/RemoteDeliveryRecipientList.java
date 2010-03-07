@@ -19,36 +19,17 @@
 
 package org.apache.james.transport.camel;
 
-import org.apache.camel.Header;
+import org.apache.camel.Body;
+import org.apache.camel.Property;
+import org.apache.mailet.Mail;
 
-/**
- * Delayer which use a Header called NEXT_DELIVERY which contains a long value which represent the Date 
- * in milliseconds till which the processing of the next Processor should be delayed
- * 
- *
- */
-public class MailDeliveryDelayer {
-    
-    /**
-     * Header to use for storing the date till the processing should be delayed (in milliseconds)
-     */
-    public final static String NEXT_DELIVERY ="JAMES_NEXT_DELIVERY";
-    
-    
-    /**
-     * Return the time in milliseconds which should the execution of the next processor get delayed
-     * 
-     * @param nextDelivery 
-     * @return millisToSleep
-     */
-    public long delay(@Header(NEXT_DELIVERY) long nextDelivery) {
-        long sleepTime = nextDelivery - System.currentTimeMillis();
-        
-        // check if we should trigger the next processor now
-        if (sleepTime < 0) {
-            sleepTime = 0;
-        }
-        return sleepTime;
-    }
 
+public class RemoteDeliveryRecipientList {
+	
+	public final static String JAMES_OUTGOING_QUEUE = "JAMES_OUTGOING_QUEUE";
+	
+	public String to(@Property(JAMES_OUTGOING_QUEUE) String outgoing, @Body Mail mail) {
+		Integer retry = Integer.parseInt(mail.getErrorMessage());
+		return "activemq:queue:"+outgoing+"." +retry;
+	}
 }

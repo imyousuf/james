@@ -19,6 +19,8 @@
 
 package org.apache.james.transport.camel;
 
+import java.util.Map;
+
 import org.apache.camel.Component;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
@@ -52,5 +54,12 @@ public class ActiveMQPollingEndpoint extends ScheduledPollEndpoint{
         configureConsumer(consumer);
         return consumer;
     }
+
+	@Override
+	public boolean isLenientProperties() {
+		return true;
+	}
+    
+    
 
 }
