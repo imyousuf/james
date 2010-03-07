@@ -51,16 +51,19 @@ public class InMemoryMail extends MailImpl {
         
     }
    
+    @Override
     public MimeMessage getMessage() throws MessagingException {
         MimeMessage m = new MimeMessage(Session.getInstance(new Properties()), new ByteArrayInputStream(mimeMessage));
         return m;
     }
 
+    @Override
     public long getMessageSize() throws MessagingException {
         return MimeMessageUtil.calculateMessageSize(getMessage());
     }
 
    
+    @Override
     public void setMessage(MimeMessage arg0) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
