@@ -26,9 +26,15 @@ package org.apache.james.transport.camel;
  */
 public class ActiveMQProcessorRouteBuilder extends AbstractProcessorRouteBuilder {
 
+	private int maxConcurrentConsumers = 50;
+
+	public void setMaxConcurrentConsumers(int maxConcurrentConsumers) {
+		this.maxConcurrentConsumers = maxConcurrentConsumers;
+	}
+	
     @Override
     protected String getFromUri(String processorName) {
-        return "activemq:queue:processor." + processorName+"?maxConcurrentConsumers=50";
+        return "activemq:queue:processor." + processorName+"?maxConcurrentConsumers=" + maxConcurrentConsumers;
     }
 
     @Override
