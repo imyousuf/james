@@ -42,6 +42,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler;
@@ -57,7 +58,7 @@ import org.apache.mailet.MailAddress;
 /**
  * GreylistHandler which can be used to activate Greylisting
  */
-public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogEnabled{
+public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogEnabled, Configurable{
 
     
     /** This log is the fall back shared by all instances */
