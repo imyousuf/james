@@ -33,11 +33,11 @@ public class Constants {
     /**
      * The version of James.
      */
-    public static final String SOFTWARE_VERSION = "3.0-M1";
+    public static final String SOFTWARE_VERSION = "@@VERSION@@";
 
     /**
      * The name of the software (i.e. James).
      */
-    public static final String SOFTWARE_NAME = "Apache-James Mail Server";
+    public static final String SOFTWARE_NAME = "@@NAME@@";
 
 }
