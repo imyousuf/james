@@ -19,17 +19,53 @@
 
 package org.apache.james.transport.camel;
 
-import org.apache.camel.Body;
-import org.apache.camel.Property;
-import org.apache.mailet.Mail;
+import org.apache.camel.Component;
+import org.apache.camel.Consumer;
+import org.apache.camel.Processor;
+import org.apache.camel.Producer;
+import org.apache.camel.impl.ScheduledPollEndpoint;
 
+/**
+ * Endpoint which provide a polling consumer which polls on a JMS Queue
+ * 
+ *
+ */
+public class JMSSelectorPollingEndpoint extends ScheduledPollEndpoint{
 
-public class RemoteDeliveryRecipientList {
-	
-	public final static String JAMES_OUTGOING_QUEUE = "JAMES_OUTGOING_QUEUE";
-	
-	public String to(@Property(JAMES_OUTGOING_QUEUE) String outgoing, @Body Mail mail) {
-		Integer retry = Integer.parseInt(mail.getErrorMessage());
-		return "activemq:queue:"+outgoing+"." +retry;
+    public JMSSelectorPollingEndpoint(String uri, Component component) {
+        super(uri,component);
+    }
+    
+    /**
+     * No Producer implemented
+     */
+    public Producer createProducer() throws Exception {
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.camel.IsSingleton#isSingleton()
+     */
+    public boolean isSingleton() {
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.camel.Endpoint#createConsumer(org.apache.camel.Processor)
+     */
+    public Consumer createConsumer(Processor processor) throws Exception {
+        JMSSelectorPollingConsumer consumer =  new JMSSelectorPollingConsumer(this,processor,getCamelContext().createConsumerTemplate());
+        configureConsumer(consumer);
+        return consumer;
+    }
+
+	@Override
+	public boolean isLenientProperties() {
+		return true;
 	}
+    
+    
+
 }
