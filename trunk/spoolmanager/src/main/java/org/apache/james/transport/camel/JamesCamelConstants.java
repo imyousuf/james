@@ -28,7 +28,7 @@ public interface JamesCamelConstants {
     /**
      * Header which holds the next delivery time in milliseconds as long value
      */
-    public final static String JAMES_NEXT_DELIVERY = "next";
+    public final static String JAMES_NEXT_DELIVERY = "JAMES_NEXT_DELIVERY";
 
     /**
      * Property which should be set to true if the mail should get sent again
