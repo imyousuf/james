@@ -21,45 +21,18 @@ package org.apache.james.transport.camel;
 
 import java.util.Map;
 
-import org.apache.camel.Component;
-import org.apache.camel.Consumer;
-import org.apache.camel.Processor;
-import org.apache.camel.Producer;
-import org.apache.camel.impl.ScheduledPollEndpoint;
+import org.apache.camel.Endpoint;
+import org.apache.camel.impl.DefaultComponent;
 
-public class ActiveMQPollingEndpoint extends ScheduledPollEndpoint{
+/**
+ * Component which polls a JMS queue with a selector 
+ */
+public class JMSSelectorPollingComponent extends DefaultComponent{
 
-    public ActiveMQPollingEndpoint(String uri, Component component) {
-        super(uri,component);
+	
+    @Override
+    protected Endpoint createEndpoint(String uri, String arg1, Map<String, Object> arg2) throws Exception {
+        return new JMSSelectorPollingEndpoint(uri, this);
     }
-    
-    public Producer createProducer() throws Exception {
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.camel.IsSingleton#isSingleton()
-     */
-    public boolean isSingleton() {
-        return true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.camel.Endpoint#createConsumer(org.apache.camel.Processor)
-     */
-    public Consumer createConsumer(Processor processor) throws Exception {
-        ActiveMQPollingConsumer consumer =  new ActiveMQPollingConsumer(this,processor,getCamelContext().createConsumerTemplate());
-        configureConsumer(consumer);
-        return consumer;
-    }
-
-	@Override
-	public boolean isLenientProperties() {
-		return true;
-	}
-    
-    
 
 }

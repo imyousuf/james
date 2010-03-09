@@ -26,23 +26,30 @@ import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.impl.ScheduledPollConsumer;
 
 /**
- * Consumer which polls an activemq endpoint with a selector which only selects messages with JAMES_NEXT_DELIVERY header
+ * Consumer which polls a JMS Endpoint with a selector which only selects messages with JAMES_NEXT_DELIVERY header
  * value is smaller then the current time in milliseconds.
+ * 
+ * This implementation should work on every JMS Queue
  * 
  * 
  * 
  *
  */
-public class ActiveMQPollingConsumer extends ScheduledPollConsumer{
+public class JMSSelectorPollingConsumer extends ScheduledPollConsumer{
 
     private ConsumerTemplate consumerTemplate;
 	private String uri;
     
-    public ActiveMQPollingConsumer(DefaultEndpoint endpoint, Processor processor, ConsumerTemplate consumerTemplate) {
+    public JMSSelectorPollingConsumer(DefaultEndpoint endpoint, Processor processor, ConsumerTemplate consumerTemplate) {
         super(endpoint, processor);
         this.consumerTemplate = consumerTemplate;
     }
   
+    /**
+     * Set the EndpointUri to poll on
+     * 
+     * @param uri
+     */
     public void setEndpointUri(String uri) {
     	this.uri = uri;
     }
@@ -53,10 +60,11 @@ public class ActiveMQPollingConsumer extends ScheduledPollConsumer{
         StringBuffer consumerUri = new StringBuffer();
         consumerUri.append(uri);
         consumerUri.append("?");
-        
+        consumerUri.append("transacted=true");
+        consumerUri.append("&");
         consumerUri.append("selector=");
         consumerUri.append(JamesCamelConstants.JAMES_NEXT_DELIVERY);
-        consumerUri.append("<");
+        consumerUri.append(" < ");
         consumerUri.append(System.currentTimeMillis());
         
         // process every exchange which is ready. If no exchange is left break the loop
