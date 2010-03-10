@@ -32,6 +32,7 @@ import org.apache.james.api.user.UserMetaDataRespository;
 import org.apache.james.api.user.UserRepositoryException;
 import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.SubscriptionException;
+import org.apache.james.imap.mailbox.MailboxSession.User;
 import org.apache.james.imap.store.Subscriber;
 
 /**
@@ -55,27 +56,21 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
         this.repository = repository;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.imap.store.Subscriber#subscribe(java.lang.String, java.lang.String)
-     */
-    public void subscribe(String user, String mailbox) throws SubscriptionException {
+
+    public void subscribe(User user, String mailbox) throws SubscriptionException {
         try {
-            final UserSubscription subscription = getUserSubscription(user);
+            final UserSubscription subscription = getUserSubscription(user.getUserName());
             subscription.subscribe(mailbox);
         } catch (UserRepositoryException e) {
             throw new SubscriptionException(HumanReadableText.GENERIC_SUBSCRIPTION_FAILURE, e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.imap.store.Subscriber#subscriptions(java.lang.String)
-     */
+
     @SuppressWarnings("unchecked")
-    public Collection<String> subscriptions(String user) throws SubscriptionException {
+    public Collection<String> subscriptions(User user) throws SubscriptionException {
         try {
-            final UserSubscription subscription = getUserSubscription(user);
+            final UserSubscription subscription = getUserSubscription(user.getUserName());
             final Collection<String> results = (Collection) subscription.subscriptions().clone();
             return results;
         } catch (UserRepositoryException e) {
@@ -83,13 +78,9 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.imap.store.Subscriber#unsubscribe(java.lang.String, java.lang.String)
-     */
-    public void unsubscribe(String user, String mailbox) throws SubscriptionException {
+    public void unsubscribe(User user, String mailbox) throws SubscriptionException {
         try {
-            final UserSubscription subscription = getUserSubscription(user);
+            final UserSubscription subscription = getUserSubscription(user.getUserName());
             subscription.unsubscribe(mailbox);
         } catch (UserRepositoryException e) {
             throw new SubscriptionException(HumanReadableText.GENERIC_UNSUBSCRIPTION_FAILURE, e);
