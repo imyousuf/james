@@ -17,27 +17,31 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.transport.remotedeliverytester;
 
-package org.apache.james;
+import javax.mail.MessagingException;
+
+import org.apache.camel.CamelContextAware;
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.services.MailServer;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailetConfig;
 
 /**
- * Assorted Constants for use in all James blocks
- * The Software Version, Software Name and Build Date are set by ant during
- * the build process.
- *
- *
- * @version This is $Revision$
+ * Interface for a RemoteDelivery mailet to be tested by the Tester tool.
+ * 
+ * <p>Each RemoteDelivery to be tested should be estended throuth this and 
+ * it should take the session from Tester.obtainSession(Properties)</p>
  */
-public class Constants {
+public interface RemoteDeliveryTestable extends CamelContextAware{
+    
+    void setRemoteDeliveryTester(Tester tester);
+    void setDNSService(DNSService dnsServer);
+    void setMailServer(MailServer store);
 
-    /**
-     * The version of James.
-     */
-    public static final String SOFTWARE_VERSION = "3.0-M1";
-
-    /**
-     * The name of the software (i.e. James).
-     */
-    public static final String SOFTWARE_NAME = "Apache-James Mail Server";
-
+    void init() throws MessagingException;
+    void init(MailetConfig newConfig) throws MessagingException;
+    void service(Mail mail) throws MessagingException;
+    
+    void destroy();
 }

@@ -19,6 +19,7 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
+import org.apache.camel.CamelContext;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.core.MailImpl;
@@ -129,10 +130,10 @@ public class Tester {
         Tester.instance = this;
     }
         
-    public void init(Store store, Properties mailetConfigProperties) throws MessagingException {
+    public void init(CamelContext context, Properties mailetConfigProperties) throws MessagingException {
         mailetConfig = new TesterMailetConfig(this, mailetConfigProperties);
         remoteDelivery.setDNSService(dnsServer);
-        remoteDelivery.setStore(store);
+        remoteDelivery.setCamelContext(context);
         remoteDelivery.setMailServer(new MailServer() {
             
             public boolean supportVirtualHosting() {

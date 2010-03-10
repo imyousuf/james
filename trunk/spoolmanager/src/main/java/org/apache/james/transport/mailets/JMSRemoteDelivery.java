@@ -16,33 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-package org.apache.james.transport.remotedeliverytester;
-
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.services.MailServer;
-import org.apache.james.services.store.Store;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailetConfig;
-
-import javax.mail.MessagingException;
+package org.apache.james.transport.mailets;
 
 /**
- * Interface for a RemoteDelivery mailet to be tested by the Tester tool.
+ * RemoteDelivery implementation which use JMS for the outgoing spooling / queue.
  * 
- * <p>Each RemoteDelivery to be tested should be estended throuth this and 
- * it should take the session from Tester.obtainSession(Properties)</p>
+ * If you use ActiveMQ you should use {@link ActiveMQRemoteDelivery}
+ * 
+ *
  */
-public interface RemoteDeliveryTestable {
-    
-    void setRemoteDeliveryTester(Tester tester);
-    void setDNSService(DNSService dnsServer);
-    void setStore(Store store);
-    void setMailServer(MailServer store);
+public class JMSRemoteDelivery extends AbstractRemoteDelivery{
 
-    void init() throws MessagingException;
-    void init(MailetConfig newConfig) throws MessagingException;
-    void service(Mail mail) throws MessagingException;
-    
-    void destroy();
+	@Override
+	protected String getOutgoingQueueEndpoint(String outgoingQueue) {
+		return "jms:queue:"+ outgoingQueue;
+	}
+
+	@Override
+	protected String getOutgoingRetryQueueEndpoint(String outgoingRetryQueue) {
+		return "jms:queue:"+ outgoingRetryQueue;
+
+	}
+
 }

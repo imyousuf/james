@@ -19,45 +19,23 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.services.store.Store;
+import org.apache.james.transport.remotedeliverytester.AbstractRemoteDeliveryTest;
 import org.apache.james.transport.remotedeliverytester.RemoteDeliveryTestable;
-import org.apache.james.transport.remotedeliverytester.Tester;
-
-import javax.mail.Session;
 
 import java.util.Properties;
 
 /**
- * RemoteDelivery extension to publish test-aware interfaces
+ * Tester for the standard RemoteDelivery Mailet
  */
-public class StandardRemoteDeliveryTestable extends RemoteDelivery implements RemoteDeliveryTestable {
+public class RemoteDeliveryTest extends AbstractRemoteDeliveryTest {
     
-    public boolean logEnabled = true;
-    private Tester tester;
-
-    public void setRemoteDeliveryTester(Tester tester) {
-        this.tester = tester;
+    public RemoteDeliveryTestable getDeliverer() {
+        StandardRemoteDeliveryTestable d = new StandardRemoteDeliveryTestable();
+        d.logEnabled = true;
+        return d;
     }
 
-    protected Session obtainSession(Properties props) {
-        if (tester != null) return tester.obtainSession(props);
-        else return super.obtainSession(props);
-    }
-
-    public void log(String message, Throwable t) {
-        if (logEnabled) super.log(message, t);
-    }
-
-    public void log(String message) {
-        if (logEnabled) super.log(message);
-    }
-    
-    public void setDNSService(DNSService dnsServer) {
-        super.setDNSService(dnsServer);
-    }
-
-    public void setStore(Store mailStore) {
-        super.setStore(mailStore);
+    public Properties getParameters() {
+        return null;//getStandardParameters();
     }
 }
