@@ -17,27 +17,41 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.transport.mailets;
 
-package org.apache.james;
+
+import org.apache.james.transport.remotedeliverytester.RemoteDeliveryTestable;
+import org.apache.james.transport.remotedeliverytester.Tester;
+
+import javax.mail.Session;
+
+import java.util.Properties;
 
 /**
- * Assorted Constants for use in all James blocks
- * The Software Version, Software Name and Build Date are set by ant during
- * the build process.
- *
- *
- * @version This is $Revision$
+ * RemoteDelivery extension to publish test-aware interfaces
  */
-public class Constants {
+public class StandardRemoteDeliveryTestable extends ActiveMQRemoteDelivery implements RemoteDeliveryTestable {
+    
+    public boolean logEnabled = true;
+    private Tester tester;
 
-    /**
-     * The version of James.
-     */
-    public static final String SOFTWARE_VERSION = "3.0-M1";
+    public void setRemoteDeliveryTester(Tester tester) {
+        this.tester = tester;
+    }
 
-    /**
-     * The name of the software (i.e. James).
-     */
-    public static final String SOFTWARE_NAME = "Apache-James Mail Server";
+    protected Session obtainSession(Properties props) {
+        if (tester != null) return tester.obtainSession(props);
+        //else return super.obtainSession(props);
+        return null;
+    }
 
+    public void log(String message, Throwable t) {
+        if (logEnabled) super.log(message, t);
+    }
+
+    public void log(String message) {
+        if (logEnabled) super.log(message);
+    }
+    
+  
 }

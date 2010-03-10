@@ -16,26 +16,24 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.transport.mailets;
 
-import org.apache.james.transport.remotedeliverytester.AbstractRemoteDeliveryTest;
-import org.apache.james.transport.remotedeliverytester.RemoteDeliveryTestable;
-
-import java.util.Properties;
-
 /**
- * Tester for the standard RemoteDelivery Mailet
+ * RemoteDelivery implementation which use ActiveMQ for the outgoing spooling / queue
+ * 
+ *
  */
-public class RemoteDeliveryTest extends AbstractRemoteDeliveryTest {
-    
-    public RemoteDeliveryTestable getDeliverer() {
-        StandardRemoteDeliveryTestable d = new StandardRemoteDeliveryTestable();
-        d.logEnabled = true;
-        return d;
-    }
+public class ActiveMQRemoteDelivery extends AbstractRemoteDelivery{
 
-    public Properties getParameters() {
-        return getStandardParameters();
-    }
+	@Override
+	protected String getOutgoingQueueEndpoint(String outgoingQueue) {
+		return "activemq:queue:"+ outgoingQueue;
+	}
+
+	@Override
+	protected String getOutgoingRetryQueueEndpoint(String outgoingRetryQueue) {
+		return "activemq:queue:"+ outgoingRetryQueue;
+
+	}
+
 }
