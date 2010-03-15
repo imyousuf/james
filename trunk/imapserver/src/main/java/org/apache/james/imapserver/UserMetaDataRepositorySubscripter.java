@@ -31,8 +31,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.UserMetaDataRespository;
 import org.apache.james.api.user.UserRepositoryException;
 import org.apache.james.imap.api.display.HumanReadableText;
+import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.mailbox.SubscriptionException;
-import org.apache.james.imap.mailbox.MailboxSession.User;
 import org.apache.james.imap.store.Subscriber;
 
 /**
@@ -57,9 +57,13 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
     }
     
 
-    public void subscribe(User user, String mailbox) throws SubscriptionException {
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.store.Subscriber#subscribe(org.apache.james.imap.mailbox.MailboxSession, java.lang.String)
+     */
+    public void subscribe(MailboxSession session, String mailbox) throws SubscriptionException {
         try {
-            final UserSubscription subscription = getUserSubscription(user.getUserName());
+            final UserSubscription subscription = getUserSubscription(session.getUser().getUserName());
             subscription.subscribe(mailbox);
         } catch (UserRepositoryException e) {
             throw new SubscriptionException(HumanReadableText.GENERIC_SUBSCRIPTION_FAILURE, e);
@@ -67,10 +71,15 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
     }
 
 
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.store.Subscriber#subscriptions(org.apache.james.imap.mailbox.MailboxSession)
+     */
     @SuppressWarnings("unchecked")
-    public Collection<String> subscriptions(User user) throws SubscriptionException {
+    public Collection<String> subscriptions(MailboxSession session) throws SubscriptionException {
         try {
-            final UserSubscription subscription = getUserSubscription(user.getUserName());
+            final UserSubscription subscription = getUserSubscription(session.getUser().getUserName());
             final Collection<String> results = (Collection) subscription.subscriptions().clone();
             return results;
         } catch (UserRepositoryException e) {
@@ -78,9 +87,13 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
         }
     }
 
-    public void unsubscribe(User user, String mailbox) throws SubscriptionException {
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.imap.store.Subscriber#unsubscribe(org.apache.james.imap.mailbox.MailboxSession, java.lang.String)
+     */
+    public void unsubscribe(MailboxSession session, String mailbox) throws SubscriptionException {
         try {
-            final UserSubscription subscription = getUserSubscription(user.getUserName());
+            final UserSubscription subscription = getUserSubscription(session.getUser().getUserName());
             subscription.unsubscribe(mailbox);
         } catch (UserRepositoryException e) {
             throw new SubscriptionException(HumanReadableText.GENERIC_UNSUBSCRIPTION_FAILURE, e);
@@ -132,6 +145,7 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
             }
         }
 
+        @SuppressWarnings("unchecked")
         public HashSet<String> subscriptions() throws UserRepositoryException {
             try {
                 final HashSet<String> storedSubscriptions = (HashSet<String>) repository.getAttribute(user, META_DATA_KEY);
