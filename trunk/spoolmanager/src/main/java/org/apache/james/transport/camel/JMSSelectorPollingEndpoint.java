@@ -56,7 +56,7 @@ public class JMSSelectorPollingEndpoint extends ScheduledPollEndpoint{
      * @see org.apache.camel.Endpoint#createConsumer(org.apache.camel.Processor)
      */
     public Consumer createConsumer(Processor processor) throws Exception {
-        JMSSelectorPollingConsumer consumer =  new JMSSelectorPollingConsumer(this,processor,getCamelContext().createConsumerTemplate());
+        JMSSelectorPollingConsumer consumer =  new JMSSelectorPollingConsumer(this,processor,getCamelContext());
         configureConsumer(consumer);
         return consumer;
     }
