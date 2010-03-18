@@ -19,8 +19,9 @@
 
 package org.apache.james.transport.camel;
 
-import org.apache.camel.ConsumerTemplate;
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.PollingConsumer;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.impl.ScheduledPollConsumer;
@@ -37,12 +38,12 @@ import org.apache.camel.impl.ScheduledPollConsumer;
  */
 public class JMSSelectorPollingConsumer extends ScheduledPollConsumer{
 
-    private ConsumerTemplate consumerTemplate;
+    private CamelContext context;
 	private String uri;
     
-    public JMSSelectorPollingConsumer(DefaultEndpoint endpoint, Processor processor, ConsumerTemplate consumerTemplate) {
+    public JMSSelectorPollingConsumer(DefaultEndpoint endpoint, Processor processor, CamelContext context) {
         super(endpoint, processor);
-        this.consumerTemplate = consumerTemplate;
+        this.context = context;
     }
   
     /**
@@ -67,12 +68,15 @@ public class JMSSelectorPollingConsumer extends ScheduledPollConsumer{
         consumerUri.append(" < ");
         consumerUri.append(System.currentTimeMillis());
         
+        PollingConsumer consumer = context.getEndpoint(consumerUri.toString()).createPollingConsumer();
+        consumer.start();
         // process every exchange which is ready. If no exchange is left break the loop
         while(true) {
-            Exchange ex = consumerTemplate.receiveNoWait(consumerUri.toString());
+            Exchange ex = consumer.receiveNoWait();
             if (ex != null) {
                 getProcessor().process(ex);
             } else {
+                consumer.stop();
                 break;
             }
             
