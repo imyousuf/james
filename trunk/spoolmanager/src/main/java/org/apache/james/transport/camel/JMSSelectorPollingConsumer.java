@@ -70,16 +70,19 @@ public class JMSSelectorPollingConsumer extends ScheduledPollConsumer{
         
         PollingConsumer consumer = context.getEndpoint(consumerUri.toString()).createPollingConsumer();
         consumer.start();
-        // process every exchange which is ready. If no exchange is left break the loop
-        while(true) {
-            Exchange ex = consumer.receiveNoWait();
-            if (ex != null) {
-                getProcessor().process(ex);
-            } else {
-                consumer.stop();
-                break;
+        try {
+            // process every exchange which is ready. If no exchange is left break the loop
+            while(true) {
+                Exchange ex = consumer.receiveNoWait();
+                if (ex != null) {
+                    getProcessor().process(ex);
+                } else {
+                    break;
+                }
             }
-            
+        } finally {
+            // be sure to stop the consumer, even on exception..
+            consumer.stop();
         }
     }
 
