@@ -31,8 +31,6 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 
@@ -43,15 +41,12 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
     private static final String PASSWD_PROPERTY = "passwd";
 
     private static final String USERNAME_PROPERTY = "username";
-
-    private static final Log LOGGER = LogFactory.getLog(JCRMailRepository.class);
     
     /**
      * For setter injection.
      */    
     public JCRUsersRepository() {
-        super(LOGGER);
-        this.path = "users";
+        super("users");
     }
 
     /**
@@ -64,8 +59,8 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
      * @param path path (relative to root) of the user node within the workspace,
      * or null to use default.
      */
-    public JCRUsersRepository(Repository repository, Credentials credentials, String workspace, String path, Log logger) {
-        super(repository, credentials, workspace, path, logger);
+    public JCRUsersRepository(Repository repository, Credentials credentials, String workspace, String path) {
+        super(repository, credentials, workspace, path);
     }
     
     /**
@@ -73,7 +68,7 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
      * @param repository not null
      */
     public JCRUsersRepository(Repository repository) {
-        super(repository, LOGGER);
+        super(repository);
         this.path = "users";
     }
 
@@ -427,8 +422,8 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
      *
      * @return Iterator over a collection of Strings, each being one user in the repository.
      */
-    public Iterator list() {
-        final Collection userNames = new ArrayList();
+    public Iterator<String> list() {
+        final Collection<String> userNames = new ArrayList<String>();
         try {
             final Session session = login();
             try {
