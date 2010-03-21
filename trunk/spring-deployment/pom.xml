@@ -347,7 +347,11 @@
       <artifactId>james-server-jcr-store</artifactId>
       <scope>runtime</scope>
     </dependency>
-    
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-core</artifactId>
+      <scope>runtime</scope>
+    </dependency>    
 	
 	<dependency>
       <groupId>org.apache.derby</groupId>
@@ -364,7 +368,6 @@
       <artifactId>apache-james-imap-jcr</artifactId>
       <scope>runtime</scope>
     </dependency>
-    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-processor</artifactId>
