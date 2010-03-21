@@ -34,11 +34,12 @@ import javax.jcr.query.QueryManager;
 import org.apache.commons.logging.Log;
 import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
+import org.apache.james.lifecycle.LogEnabled;
 
 /**
  * Framework for JCR repositories used by James.
  */
-class AbstractJCRRepository {
+public abstract class AbstractJCRRepository implements LogEnabled{
     
     protected Log logger;
 
@@ -65,23 +66,18 @@ class AbstractJCRRepository {
      */
     protected String path = "james";
 
-    /**
-     * For setter injection.
-     */
-    public AbstractJCRRepository(Log logger) {
-        super();
-        this.logger = logger;
+    public AbstractJCRRepository(String path) {
+    	this.path = path;
     }
     
     /**
      * Minimal constructor for injection.
      * @param repository not null
      */
-    public AbstractJCRRepository(Repository repository, Log logger) {
+    public AbstractJCRRepository(Repository repository) {
         super();
         this.repository = repository;
         credentials = new SimpleCredentials("userid", "".toCharArray());
-        this.logger = logger;
     }
 
     /**
@@ -94,14 +90,12 @@ class AbstractJCRRepository {
      * @param path path (relative to root) of the user node within the workspace,
      * or null to use default.
      */
-    public AbstractJCRRepository(Repository repository, Credentials credentials, String workspace, String path, 
-            Log logger) {
+    public AbstractJCRRepository(Repository repository, Credentials credentials, String workspace, String path) {
         super();
         this.repository = repository;
         this.credentials = credentials;
         this.workspace = workspace;
         this.path = path;
-        this.logger = logger;
     }
 
     
@@ -112,15 +106,7 @@ class AbstractJCRRepository {
     public final Log getLogger() {
         return logger;
     }
-
-    /**
-     * Sets the current logger.
-     * @param logger the logger to set, not null
-     */
-    public final void setLogger(Log logger) {
-        this.logger = logger;
-    }
-
+    
     /**
      * Retuns the JCR content repository used as the mail repository.
      *
@@ -220,5 +206,12 @@ class AbstractJCRRepository {
         NodeIterator iterator = query.execute().getNodes();
         return iterator;
     }
+
+    /*
+     * 
+     */
+	public void setLog(Log logger) {
+		this.logger = logger;
+	}
 
 }

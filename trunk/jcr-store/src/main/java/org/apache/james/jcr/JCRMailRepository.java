@@ -49,8 +49,6 @@ import javax.jcr.query.QueryManager;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
 import org.apache.james.core.MailImpl;
@@ -64,16 +62,10 @@ import org.apache.mailet.MailAddress;
 public class JCRMailRepository extends AbstractJCRRepository implements MailRepository {
 
     /**
-     * Logger instance.
-     */
-    private static final Log LOGGER = LogFactory.getLog(JCRMailRepository.class.getName());
-
-    /**
      * For setter injection.
      */
     public JCRMailRepository() {
-        super(LOGGER);
-        this.path = "james/mail";
+        super("james/mail");
     }
     
     /**
@@ -86,16 +78,16 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
      * @param path path (relative to root) of the user node within the workspace,
      * or null to use default.
      */
-    public JCRMailRepository(Repository repository, Credentials credentials, String workspace, String path, Log logger) {
-        super(repository, credentials, workspace, path, logger);
+    public JCRMailRepository(Repository repository, Credentials credentials, String workspace, String path) {
+        super(repository, credentials, workspace, path);
     }
 
     /**
      * Minimal constructor for injection.
      * @param repository not null
      */
-    public JCRMailRepository(Repository repository, Log logger) {
-        super(repository, logger);
+    public JCRMailRepository(Repository repository) {
+        super(repository);
     }
 
 

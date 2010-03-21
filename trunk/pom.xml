@@ -480,6 +480,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-jcr</artifactId>
+      <version>0.1-M2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-store</artifactId>
       <version>0.1-M2-SNAPSHOT</version>
       <exclusions>
@@ -867,18 +872,12 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>1.2</version>
+      <version>1.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
       <version>5.3.0</version>
-    </dependency>
-   
-    <dependency>
-      <groupId>javax.jcr</groupId>
-      <artifactId>jcr</artifactId>
-      <version>1.0</version>
     </dependency>
    
     <dependency>
@@ -960,28 +959,24 @@
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
-      <version>1.0</version>
+      <version>2.0</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-rmi</artifactId>
-      <version>1.4.1</version>
-      <exclusions>
-      	<exclusion>
-      		<groupId>xerces</groupId>
-      		<artifactId>xercesImpl</artifactId>
-      	</exclusion>
-      </exclusions>
+      <version>2.0.0</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-commons</artifactId>
-      <version>1.4.2</version>
+      <version>2.0.0</version>
     </dependency>
 	<dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-core</artifactId>
-      <version>1.4.6</version>
+      <version>2.0.0</version>
       <scope>test</scope>
     </dependency>
    
