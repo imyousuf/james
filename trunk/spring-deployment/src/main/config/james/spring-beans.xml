@@ -330,19 +330,25 @@
         <constructor-arg index="1" ref="subscriper"/>
         <constructor-arg index="2" ref="entityManagerFactory"/>
     </bean>
-    
-    
+
     
 	<!-- JCR implementation of IMAP Storage-->
 	<!--  
-	<bean id ="subscriper" 	class="org.apache.james.imap.jcr.JCRGlobalUserSubscriptionManager">
+    <bean id="imapCndLoader" class="org.apache.james.imap.jcr.JCRUtils" factory-method="registerCnd">        
+      <constructor-arg index="0" ref="jcrRepository"/>
+      <constructor-arg index="1" value="james"/>
+      <constructor-arg index="2" value="james"/>
+      <constructor-arg index="3" value="james"/>
+    </bean>
+    
+	<bean id ="subscriper" 	class="org.apache.james.imap.jcr.JCRGlobalUserSubscriptionManager" depends-on="imapCndLoader">
       <constructor-arg index="0" ref="jcrRepository"/>
       <constructor-arg index="1" value="james"/>
       <constructor-arg index="2" value="james"/>
       <constructor-arg index="3" value="james"/>
 	</bean>
 	
-	<bean id="mailboxmanager" class="org.apache.james.imap.jcr.JCRGlobalUserMailboxManager">
+	<bean id="mailboxmanager" class="org.apache.james.imap.jcr.JCRGlobalUserMailboxManager" depends-on="imapCndLoader">
       <constructor-arg index="0" ref="authenticator"/>
       <constructor-arg index="1" ref="subscriper"/>
       <constructor-arg index="2" ref="jcrRepository"/>
@@ -350,6 +356,7 @@
       <constructor-arg index="4" value="james"/>
       <constructor-arg index="5" value="james"/>
 	</bean>
+	
     -->
 
 	<bean id="domainlistmanagement" class="org.apache.james.management.impl.DomainListManagement" />
@@ -395,6 +402,6 @@
         <constructor-arg index="0" value="../conf/jcr-repository.xml"/>
         <constructor-arg index="1" value="../var/jackrabbit" />
     </bean>
-    
+
     <!--  #################################################################### -->
 </beans>
