@@ -154,9 +154,46 @@ public class AsyncImapServer extends AbstractAsyncServer implements ImapConstant
                         } 
                         
                         final MailboxSession session = mailboxManager.createSystemSession(user, getLogger());
+                        
+                        // start processing request
+                        mailboxManager.startProcessingRequest(session);
+
                         // This allows Sieve scripts to use a standard delimiter regardless of mailbox implementation
-                        final String mailbox = urlPath.replace('/', session.getPersonalSpace().getDeliminator());
-                        postToMailbox(user, mail, mailbox, session, mailboxManager);
+                        String destination = urlPath.replace('/', session.getPersonalSpace().getDeliminator());
+                        
+                        if (destination == null || "".equals(destination)) {
+                            destination = "INBOX";
+                        }
+                        final String name = mailboxManager.resolve(user, destination);
+                        try
+                        {
+                            if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(name, session))) {
+                                mailboxManager.createMailbox(name, session);
+                            }
+                            final Mailbox mailbox = mailboxManager.getMailbox(name, session);
+                            
+                            if (mailbox == null) {
+                                final String error = "Mailbox for user " + user
+                                        + " was not found on this server.";
+                                throw new MessagingException(error);
+                            }
+
+                            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            mail.writeTo(baos);
+                            mailbox.appendMessage(baos.toByteArray() , new Date(), session, true, null);
+                        }
+                        catch (IOException e)
+                        {
+                            throw new MessagingException("Failed to write mail message", e);
+                        }
+                        finally 
+                        {
+                            session.close();   
+                            mailboxManager.logout(session, true);
+                            
+                            // stop processing request
+                            mailboxManager.endProcessingRequest(session);
+                        }
                     }
                 }
             } else {
@@ -167,39 +204,4 @@ public class AsyncImapServer extends AbstractAsyncServer implements ImapConstant
             }
         }
     }
-    
-    public void postToMailbox(String username, MimeMessage mail, String destination, final MailboxSession session, final MailboxManager mailboxManager) throws MessagingException {
-        if (destination == null || "".equals(destination)) {
-            destination = "INBOX";
-        }
-        final String name = mailboxManager.resolve(username, destination);
-        try
-        {
-            if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(name, session))) {
-                mailboxManager.createMailbox(name, session);
-            }
-            final Mailbox mailbox = mailboxManager.getMailbox(name, session);
-            
-            if (mailbox == null) {
-                final String error = "Mailbox for user " + username
-                        + " was not found on this server.";
-                throw new MessagingException(error);
-            }
-
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            mail.writeTo(baos);
-            mailbox.appendMessage(baos.toByteArray() , new Date(), session, true, null);
-        }
-        catch (IOException e)
-        {
-            throw new MessagingException("Failed to write mail message", e);
-        }
-        finally 
-        {
-            session.close();   
-            mailboxManager.logout(session, true);
-        }
-    }
-
-
 }
