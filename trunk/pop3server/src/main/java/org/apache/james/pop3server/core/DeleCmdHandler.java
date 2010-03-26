@@ -26,13 +26,11 @@ import java.util.Collection;
 import java.util.List;
 
 
-import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.mailet.Mail;
 
 /**
   * Handles DELE command
@@ -57,9 +55,12 @@ public class DeleCmdHandler implements CommandHandler<POP3Session> {
                 return response;
             }
             try {
-                Mail mc = session.getUserMailbox().get(num);
-                Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
-                if (mc == dm) {
+                List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+                List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
+
+                Long uid = uidList.get(num -1);
+                
+                if (deletedUidList.contains(uid)) {
                     StringBuilder responseBuffer =
                         new StringBuilder(64)
                                 .append("Message (")
@@ -67,10 +68,9 @@ public class DeleCmdHandler implements CommandHandler<POP3Session> {
                                 .append(") already deleted.");
                     response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
                 } else {
-                    session.getUserMailbox().set(num, dm);
+                	deletedUidList.add(uid);
                     // we are replacing our reference with "DELETED", so we have
                     // to dispose the no-more-referenced mail object.
-                    LifecycleUtil.dispose(mc);
                     response = new POP3Response(POP3Response.OK_RESPONSE,"Message deleted");
                 }
             } catch (IndexOutOfBoundsException iob) {

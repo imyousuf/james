@@ -21,6 +21,11 @@
 
 package org.apache.james.pop3server.core;
 
+import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.mailbox.MessageRange;
+import org.apache.james.imap.mailbox.MessageResult;
+import org.apache.james.imap.mailbox.MessageResult.FetchGroup;
+import org.apache.james.imap.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
@@ -32,11 +37,13 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -65,26 +72,26 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                 return response;
             }
             try {
-                Mail mc = session.getUserMailbox().get(num);
-                Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
+            	List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+                List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
 
-                if (mc != dm) {
+                MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
+            	Long uid = uidList.get(num -1);
+                if (deletedUidList.contains(uid) == false) {
+                	Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
+
                     response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
                     try {
-                        for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
-                            response.appendLine(e.nextElement().toString());
-                        }
-                        // add empty line between headers and body
-                        response.appendLine("");
-                        
-                    	// write the full mail to the client
-                        writeMessageContentTo(mc, response, -1);
-                        
+                    	MessageResult result = results.next();
+                    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    	result.getFullContent().writeTo(Channels.newChannel(out));
+                    	
+                    	response.appendLine(new String(out.toByteArray()));
                     } finally {
                     	response.appendLine(".");
-                      
                     }
-                    return response;
+                    
+                	return response;	
                 } else {
                     
                     StringBuilder responseBuffer =
@@ -111,56 +118,6 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
         }
         return response;
     }
-
-
-    /**
-     * Writes the content of the Mail to the client
-     *
-     * @param mail the Mail to write
-     * @param lines the number of lines to write to the client. If -1 is given it write every line of the given MimeMessage to the client
-     * @param session the POP3Session to use
-     *
-     * @throws MessagingException if the MimeMessage is not set for this Mail
-     * @throws IOException if an error occurs while reading or writing from the stream
-     */
-	protected void writeMessageContentTo(Mail mail,
-			POP3Response response, int lines)
-			throws IOException, MessagingException {
-		String line;
-		BufferedReader br;
-		MimeMessage message = mail.getMessage();
-
-		if (message != null) {
-			br = new BufferedReader(new InputStreamReader(message
-					.getRawInputStream()));
-			try {
-
-				while (lines == -1 || lines > 0) {
-					if ((line = br.readLine()) == null) {
-						break;
-					}
-
-					// add extra dot if line starts with dot
-					if (line.startsWith(".")) {
-						line = "." + line;
-					}
-					response.appendLine(line);
-
-					if (lines != -1) {
-					    // only count down lines if we have so line limit here
-					    lines--;
-					}
-
-				}
-
-			} finally {
-				br.close();
-			}
-		} else {
-			throw new MessagingException("No message set for this Mail!");
-		}
-	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()

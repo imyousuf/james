@@ -28,12 +28,16 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
+import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.mailbox.MessageRange;
+import org.apache.james.imap.mailbox.MessageResult;
+import org.apache.james.imap.mailbox.MessageResult.FetchGroup;
+import org.apache.james.imap.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.mailet.Mail;
 
 
 /**
@@ -41,7 +45,8 @@ import org.apache.mailet.Mail;
   */
 public class RsetCmdHandler implements CommandHandler<POP3Session> {
 	private final static String COMMAND_NAME = "RSET";
-
+	
+	
 	/**
      * Handler method called upon receipt of a RSET command.
      * Calls stat() to reset the mailbox.
@@ -69,31 +74,22 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
      * user inbox.
      *
      */
-    @SuppressWarnings("unchecked")
     protected void stat(POP3Session session) {
-        ArrayList<Mail> userMailbox = new ArrayList<Mail>();
-        Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
-
-        userMailbox.add(dm);
         try {
-            for (Iterator it = session.getUserInbox().list(); it.hasNext(); ) {
-                String key = (String) it.next();
-                Mail mc = session.getUserInbox().retrieve(key);
-                // Retrieve can return null if the mail is no longer in the store.
-                // In this case we simply continue to the next key
-                if (mc == null) {
-                    continue;
-                }
-                userMailbox.add(mc);
+            MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
+
+            List<Long> uids = new ArrayList<Long>();
+        	Iterator<MessageResult> it = session.getUserMailbox().getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+            while (it.hasNext()) {
+            	uids.add(it.next().getUid());
             }
+            session.getState().put(POP3Session.UID_LIST, uids);
+            session.getState().put(POP3Session.DELETED_UID_LIST, new ArrayList<Long>());
         } catch(MessagingException e) {
             // In the event of an exception being thrown there may or may not be anything in userMailbox
             session.getLogger().error("Unable to STAT mail box ", e);
         }
-        finally {
-            session.setUserMailbox(userMailbox);
-            session.setBackupUserMailbox((List<Mail>) userMailbox.clone());
-        }
+        
     }
 
     /**

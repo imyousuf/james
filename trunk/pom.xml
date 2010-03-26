@@ -382,6 +382,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-memory</artifactId>
+      <version>0.1-M2-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-mailbox</artifactId>
       <version>0.1-M2-SNAPSHOT</version>
     </dependency>

@@ -23,16 +23,22 @@ package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.mail.MessagingException;
 
+import org.apache.james.imap.mailbox.MailboxException;
+import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.mailbox.MessageRange;
+import org.apache.james.imap.mailbox.MessageResult;
+import org.apache.james.imap.mailbox.MessageResult.FetchGroup;
+import org.apache.james.imap.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.mailet.Mail;
 
 /**
   * Handles LIST command
@@ -52,22 +58,35 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
-        
+        List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+        List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
+
+        MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
-            Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
-
             if (parameters == null) {
-
-                long size = 0;
-                int count = 0;
+                
 
                 try {
+                    long size = 0;
+                    int count = 0;
+                	List<MessageResult> validResults = new ArrayList<MessageResult>();
 
-                    for (Mail mc:session.getUserMailbox()) {
-                        if (mc != dm) {
-                            size += mc.getMessageSize();
-                            count++;
-                        }
+                    if (uidList.isEmpty() == false) {
+                    	Iterator<MessageResult> results;
+                    	if (uidList.size() > 1) {
+                    		results =  session.getUserMailbox().getMessages(MessageRange.range(uidList.get(0), uidList.get(uidList.size() -1)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+                    	} else {
+                    		results =  session.getUserMailbox().getMessages(MessageRange.one(uidList.get(0)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+                    	}
+
+                    	while (results.hasNext()) {
+                    		MessageResult result = results.next();
+                    		if (deletedUidList.contains(result.getUid()) == false) {
+                    			size += result.getSize();
+                    			count++;
+                            	validResults.add(result);
+                    		}
+                    	}
                     }
                     StringBuilder responseBuffer =
                         new StringBuilder(32)
@@ -76,32 +95,32 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
                                 .append(size);
                     response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
                     count = 0;
-                    for (Mail mc:session.getUserMailbox()) {
-                        if (mc != dm) {
-                            responseBuffer =
-                                new StringBuilder(16)
-                                        .append(count)
-                                        .append(" ")
-                                        .append(mc.getMessageSize());
-                            response.appendLine(responseBuffer.toString());
-                        }
-                        count++;
+                    for (int i = 0 ; i < validResults.size(); i++) {
+                        responseBuffer =
+                            new StringBuilder(16)
+                                    .append(i +1 )
+                                    .append(" ")
+                                    .append(validResults.get(i).getSize());
+                        response.appendLine(responseBuffer.toString());
+                        
                     }
                     response.appendLine(".");
-                } catch (MessagingException me) {
+                } catch (MailboxException me) {
                     response = new POP3Response(POP3Response.ERR_RESPONSE);
                 }
             } else {
                 int num = 0;
                 try {
                     num = Integer.parseInt(parameters);
-                    Mail mc = session.getUserMailbox().get(num);
-                    if (mc != dm) {
+                    Long uid = uidList.get(num -1);
+                    if (deletedUidList.contains(uid) != false) {
+                        Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
                                     .append(num)
                                     .append(" ")
-                                    .append(mc.getMessageSize());
+                                    .append(results.next().getSize());
                         response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
                     } else {
                         StringBuilder responseBuffer =
