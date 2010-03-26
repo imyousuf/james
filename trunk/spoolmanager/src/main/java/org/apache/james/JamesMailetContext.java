@@ -50,8 +50,6 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
-import org.apache.james.transport.MailetConfigImpl;
-import org.apache.james.transport.mailets.LocalDelivery;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -410,6 +408,10 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
     	throw new UnsupportedOperationException("Was removed");
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
     public void setLog(Log log) {
         this.log = log;
     }
