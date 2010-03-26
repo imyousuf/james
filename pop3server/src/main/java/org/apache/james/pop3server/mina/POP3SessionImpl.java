@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.services.MailRepository;
@@ -41,13 +42,9 @@ public class POP3SessionImpl extends AbstractMINASession implements POP3Session{
 
 	private Map<String, Object> state = new HashMap<String, Object>();
 
-	private List<Mail> userMailbox;
-
-	private MailRepository userInbox;
-
 	private int handlerState;
 
-	private List<Mail> backupUserMailbox;
+	private Mailbox mailbox;
 	
 	public POP3SessionImpl(POP3HandlerConfigurationData configData, Log logger, IoSession session, SSLContext context) {
 		super(logger, session, context);
@@ -59,13 +56,6 @@ public class POP3SessionImpl extends AbstractMINASession implements POP3Session{
 		this(configData, logger, session, null);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3Session#getBackupUserMailbox()
-	 */
-	public List<Mail> getBackupUserMailbox() {
-		return backupUserMailbox;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -91,29 +81,6 @@ public class POP3SessionImpl extends AbstractMINASession implements POP3Session{
 		return state;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3Session#getUserInbox()
-	 */
-	public MailRepository getUserInbox() {
-		return userInbox;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3Session#getUserMailbox()
-	 */
-	public List<Mail> getUserMailbox() {
-		return userMailbox;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3Session#setBackupUserMailbox(java.util.List)
-	 */
-	public void setBackupUserMailbox(List<Mail> backupUserMailbox) {
-		this.backupUserMailbox = backupUserMailbox;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -125,29 +92,20 @@ public class POP3SessionImpl extends AbstractMINASession implements POP3Session{
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3Session#setUserInbox(org.apache.james.services.MailRepository)
-	 */
-	public void setUserInbox(MailRepository userInbox) {
-		this.userInbox = userInbox;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3Session#setUserMailbox(java.util.List)
-	 */
-	public void setUserMailbox(List<Mail> userMailbox) {
-		this.userMailbox = userMailbox;
-	}
-
-
-	/*
-	 * (non-Javadoc)
 	 * @see org.apache.james.api.protocol.TLSSupportedSession#resetState()
 	 */
 	public void resetState() {
 		state.clear();
 		
 		setHandlerState(AUTHENTICATION_READY);
+	}
+
+	public Mailbox getUserMailbox() {
+		return mailbox;
+	}
+
+	public void setUserMailbox(Mailbox mailbox) {
+		this.mailbox = mailbox;
 	}
 
 }

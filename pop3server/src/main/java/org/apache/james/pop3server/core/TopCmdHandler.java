@@ -21,19 +21,29 @@
 
 package org.apache.james.pop3server.core;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.mail.MessagingException;
 
+import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.mailbox.MessageRange;
+import org.apache.james.imap.mailbox.MessageResult;
+import org.apache.james.imap.mailbox.MessageResult.FetchGroup;
+import org.apache.james.imap.mailbox.MessageResult.Header;
+import org.apache.james.imap.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.mailet.Mail;
 
 /**
   * Handles TOP command
@@ -71,7 +81,7 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
 
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             int num = 0;
-            int lines = 0;
+            int lines = -1;
             try {
                 num = Integer.parseInt(argument);
                 lines = Integer.parseInt(argument1);
@@ -80,20 +90,34 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                 return response;
             }
             try {
-                Mail mc = session.getUserMailbox().get(num);
-                Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
+            	List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+                List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
 
-                if (mc != dm) {
+                MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
+            	Long uid = uidList.get(num -1);
+                if (deletedUidList.contains(uid) == false) {
+                	FetchGroupImpl fetchGroup = new FetchGroupImpl(FetchGroup.BODY_CONTENT);
+                	fetchGroup.or(FetchGroup.HEADERS);
+                	Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.one(uid), fetchGroup, mailboxSession);
+
                     response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
                     try {
-                        for (Enumeration e = mc.getMessage().getAllHeaderLines(); e.hasMoreElements(); ) {
-                        	response.appendLine(e.nextElement().toString());
-                        }
-                        // add empty line between headers and body
-                        response.appendLine("");
-                        
-                       	writeMessageContentTo(mc, response, lines);
-                       	
+                    	MessageResult result = results.next();
+                    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    	WritableByteChannel outChannel = Channels.newChannel(out);
+                    	
+                    	// write headers
+                    	Iterator<Header> headers = result.headers();
+                    	while (headers.hasNext()) {
+                    		headers.next().writeTo(outChannel);
+                    	}
+                    	// headers and body are seperated by a CRLF
+                    	out.write("\r\n".getBytes());
+                    	
+                    	// write body
+                    	result.getBody().writeTo(Channels.newChannel(new CountingBodyOutputStream(out, lines)));
+                    	
+                    	response.appendLine(new String(out.toByteArray()));
                     } finally {
                     	response.appendLine(".");
                     }
@@ -152,4 +176,60 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
         return commands;
     }
 
+    /**
+     * This OutputStream implementation can be used to limit the body lines which will be written
+     * to the wrapped OutputStream
+     * 
+     * 
+     *
+     */
+    private final class CountingBodyOutputStream extends FilterOutputStream {
+
+    	private int count = 0;
+    	private int limit = -1;
+    	private char lastChar;
+    	
+    	/**
+    	 * 
+    	 * @param out OutputStream to write to
+    	 * @param limit the lines to write to the outputstream. -1 is used for no limits
+    	 */
+		public CountingBodyOutputStream(OutputStream out, int limit) {
+			super(out);
+			this.limit = limit;
+		}
+		
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			for (int i = off ; i < len; i++) {
+				write(b[i]);
+			}
+		}
+		
+		@Override
+		public void write(byte[] b) throws IOException {
+			for (int i = 0 ; i < b.length; i++) {
+				write(b[i]);
+			}
+		}
+		@Override
+		public void write(int b) throws IOException {
+
+			if (limit != -1) { 
+		        if (count <= limit) {
+		            super.write(b);
+			    }
+		    } else {
+		        super.write(b);
+		    }
+			
+			
+			if (lastChar == '\r' && b == '\n') {
+				count++;
+			}
+			lastChar = (char) b;
+		    
+		}
+    	
+    }
 }

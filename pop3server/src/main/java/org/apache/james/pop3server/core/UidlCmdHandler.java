@@ -30,7 +30,6 @@ import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.mailet.Mail;
 
 /**
   * Handles UIDL command
@@ -47,34 +46,36 @@ public class UidlCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
         POP3Response response = null;
         String parameters = request.getArgument();
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
-            Mail dm = (Mail) session.getState().get(POP3Session.DELETED);
-
+            List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+            List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
+              
             if (parameters == null) {
                 response = new POP3Response(POP3Response.OK_RESPONSE,"unique-id listing follows");
-                int count = 0;
-                for (Mail mc:session.getUserMailbox()) {
-                    if (mc != dm) {
+                for (int i = 0; i < uidList.size(); i++) {
+                	Long uid = uidList.get(i);
+                    if (deletedUidList.contains(uid) == false) {
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
-                                    .append(count)
+                                    .append(i + 1 )
                                     .append(" ")
-                                    .append(mc.getName());
-                        response.appendLine(responseBuffer.toString());
+                                    .append(uid);
+                        response.appendLine(responseBuffer.toString());                        
                     }
-                    count++;
                 }
+               
                 response.appendLine(".");
             } else {
                 int num = 0;
                 try {
                     num = Integer.parseInt(parameters);
-                    Mail mc = (Mail) session.getUserMailbox().get(num);
-                    if (mc != dm) {
+                    Long uid = uidList.get(num -1);
+                    if (deletedUidList.contains(uid) == false) {
+ 
                         StringBuilder responseBuffer =
                             new StringBuilder(64)
                                     .append(num)
                                     .append(" ")
-                                    .append(mc.getName());
+                                    .append(uid.hashCode());
                         response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
 
                     } else {

@@ -25,21 +25,32 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections.ListUtils;
+import javax.annotation.Resource;
+import javax.mail.Flags;
+
+import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MailboxException;
+import org.apache.james.imap.mailbox.MailboxManager;
+import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.mailbox.MessageRange;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.mailet.Mail;
 
 /**
   * Handles QUIT command
   */
 public class QuitCmdHandler implements CommandHandler<POP3Session> {
 	private final static String COMMAND_NAME = "QUIT";
+	protected MailboxManager mailboxManager;
 
-
+	@Resource(name="mailboxmanager")
+	public void setMailboxManager(MailboxManager manager) {
+		this.mailboxManager = manager;
+	}
+	
 	/**
      * Handler method called upon receipt of a QUIT command.
      * This method handles cleanup of the POP3Handler state.
@@ -53,19 +64,29 @@ public class QuitCmdHandler implements CommandHandler<POP3Session> {
             response.setEndSession(true);
             return response;
         }
-        List<Mail> toBeRemoved =  ListUtils.subtract(session.getBackupUserMailbox(), session.getUserMailbox());
+        MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
+
+        List<Long> toBeRemoved =  (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
         try {
-            session.getUserInbox().remove(toBeRemoved);
-            // for (Iterator it = toBeRemoved.iterator(); it.hasNext(); ) {
-            //    Mail mc = (Mail) it.next();
-            //    userInbox.remove(mc.getName());
-            //}
+            Mailbox mailbox = session.getUserMailbox();
+            
+        	for (int i = 0; i < toBeRemoved.size(); i++) {
+        		MessageRange range = MessageRange.one(toBeRemoved.get(i));
+        		mailbox.setFlags(new Flags(Flags.Flag.DELETED), true, false, range, mailboxSession);
+        		mailbox.expunge(range, mailboxSession);
+        	}
             response = new POP3Response(POP3Response.OK_RESPONSE ,"Apache James POP3 Server signing off.");
         } catch (Exception ex) {
             response = new POP3Response(POP3Response.ERR_RESPONSE,"Some deleted messages were not removed");
-            session.getLogger().error("Some deleted messages were not removed: " + ex.getMessage());
+            session.getLogger().error("Some deleted messages were not removed",ex);
         }
         response.setEndSession(true);
+        try {
+			mailboxManager.logout(mailboxSession, false);
+		} catch (MailboxException e) {
+			// nothing todo on logout
+		}
+        
         return response;    
     }
    

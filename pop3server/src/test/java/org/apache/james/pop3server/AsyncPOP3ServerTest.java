@@ -19,16 +19,15 @@
 
 package org.apache.james.pop3server;
 
-import java.io.InputStream;
 import java.io.Reader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import javax.mail.Flags;
 import javax.mail.MessagingException;
-import javax.mail.util.SharedByteArrayInputStream;
 
 import junit.framework.TestCase;
 
@@ -40,19 +39,20 @@ import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.core.MailImpl;
+import org.apache.james.imap.inmemory.InMemoryMailboxManager;
+import org.apache.james.imap.inmemory.InMemorySubscriptionManager;
+import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.store.Authenticator;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.pop3server.mina.AsyncPOP3Server;
-import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.ProtocolHandlerChainImpl;
-import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
-import org.apache.mailet.MailAddress;
 
 public class AsyncPOP3ServerTest extends TestCase {
 
@@ -61,12 +61,11 @@ public class AsyncPOP3ServerTest extends TestCase {
     private POP3TestConfiguration m_testConfiguration;
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private POP3Client m_pop3Protocol = null;
-    private MailImpl testMail1;
-    private MailImpl testMail2;
     private FakeLoader serviceManager;
     private DNSService dnsservice;
     private MockFileSystem fSystem;
     private ProtocolHandlerChainImpl chain;
+    private InMemoryMailboxManager manager;
     
     public AsyncPOP3ServerTest() {
         super("AsyncPOP3ServerTest");
@@ -110,7 +109,17 @@ public class AsyncPOP3ServerTest extends TestCase {
         serviceManager.put(MailServer.ROLE, m_mailServer);
         serviceManager.put(UsersRepository.ROLE,
                 m_usersRepository);
-       
+        
+        
+        manager = new InMemoryMailboxManager(new Authenticator() {
+            
+            public boolean isAuthentic(String userid, CharSequence passwd) {
+                return m_usersRepository.test(userid, passwd.toString());
+            }
+        }, new InMemorySubscriptionManager());
+        
+        serviceManager.put("mailboxmanager", manager);
+        
         dnsservice = setUpDNSServer();
         serviceManager.put(DNSService.ROLE, setUpDNSServer());
         fSystem = new MockFileSystem();
@@ -133,12 +142,16 @@ public class AsyncPOP3ServerTest extends TestCase {
     }
     protected void tearDown() throws Exception {
         if (m_pop3Protocol != null) {
-            m_pop3Protocol.sendCommand("quit");
-            m_pop3Protocol.disconnect();
+           if ( m_pop3Protocol.isConnected()){
+               m_pop3Protocol.sendCommand("quit");
+               m_pop3Protocol.disconnect();
+           }
         }
         LifecycleUtil.dispose(m_mailServer);
-        if (testMail1 != null) testMail1.dispose();
-        if (testMail2 != null) testMail2.dispose();
+        
+        manager.deleteEverything();
+        //manager.deleteAll();
+
         super.tearDown();
     }
 
@@ -173,8 +186,6 @@ public class AsyncPOP3ServerTest extends TestCase {
         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
         m_usersRepository.addUser("foo", "bar");
-        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
-        m_mailServer.setUserInbox("foo", mockMailRepository);
 
         // not authenticated
         POP3MessageInfo[] entries = m_pop3Protocol.listMessages();
@@ -194,7 +205,6 @@ public class AsyncPOP3ServerTest extends TestCase {
         assertEquals(1, m_pop3Protocol.getState());
         assertNull(p3i);
 
-        LifecycleUtil.dispose(mockMailRepository);
     }
 
     // TODO: This currently fails with Async implementation because
@@ -235,8 +245,6 @@ public class AsyncPOP3ServerTest extends TestCase {
         finishSetUp(m_testConfiguration);
 
         m_usersRepository.addUser("foo", "bar");
-        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
-        m_mailServer.setUserInbox("foo", mockMailRepository);
 
         m_pop3Protocol = new POP3Client();
         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
@@ -250,20 +258,24 @@ public class AsyncPOP3ServerTest extends TestCase {
         assertEquals("Found unexpected messages", 0, list.length);
 
         m_pop3Protocol.disconnect();
-        
-        setupTestMails(mockMailRepository);
+        String mailboxName = "#mail.foo.INBOX";
+        MailboxSession session = manager.login("foo", "bar", new SimpleLog("Test"));
+        if (manager.mailboxExists(mailboxName, session) == false) {
+            manager.createMailbox(mailboxName, session);
+        }
+        setupTestMails(session,manager.getMailbox(mailboxName, session));
         
         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
         m_pop3Protocol.login("foo", "bar");
 
         list = m_pop3Protocol.listUniqueIdentifiers();
         assertEquals("Expected 2 messages, found: "+list.length, 2, list.length);
-        assertEquals("name", list[0].identifier);
-        assertEquals("name2", list[1].identifier);
         
         POP3MessageInfo p3i = m_pop3Protocol.listUniqueIdentifier(1);
         assertNotNull(p3i);
-        assertEquals("name", p3i.identifier);
+        
+        manager.deleteMailbox("#mail.foo.INBOX", session);
+
 
     }
 
@@ -271,9 +283,7 @@ public class AsyncPOP3ServerTest extends TestCase {
         finishSetUp(m_testConfiguration);
 
         m_usersRepository.addUser("foo", "bar");
-        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
-        m_mailServer.setUserInbox("foo", mockMailRepository);
-
+        
         m_pop3Protocol = new POP3Client();
         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
@@ -329,11 +339,15 @@ public class AsyncPOP3ServerTest extends TestCase {
         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
         m_usersRepository.addUser("foo2", "bar2");
-        InMemorySpoolRepository mailRep = new InMemorySpoolRepository();
-
-        setupTestMails(mailRep);
-
-        m_mailServer.setUserInbox("foo2", mailRep);
+        
+        String mailboxName = "#mail.foo2.INBOX";
+        MailboxSession session = manager.login("foo2", "bar2", new SimpleLog("Test"));
+        
+        if (manager.mailboxExists(mailboxName, session) == false) {
+            manager.createMailbox(mailboxName, session);
+        }
+        
+        setupTestMails(session,manager.getMailbox(mailboxName, session));
         
         m_pop3Protocol.sendCommand("retr","1");
         assertEquals(0, m_pop3Protocol.getState());
@@ -399,25 +413,18 @@ public class AsyncPOP3ServerTest extends TestCase {
         Reader r3 = m_pop3Protocol.retrieveMessageTop(entries[0].number, 0);
         assertNotNull(r3);
         r3.close();
-        LifecycleUtil.dispose(mailRep);
+        manager.deleteMailbox(mailboxName, session);
     }
 
-    private void setupTestMails(MailRepository mailRep) throws MessagingException {
-        ArrayList<MailAddress> recipients = new ArrayList<MailAddress>();
-        recipients.add(new MailAddress("recipient@test.com"));
-        InputStream mw = new SharedByteArrayInputStream(
-                                ("Return-path: return@test.com\r\n"+
+    private void setupTestMails(MailboxSession session, Mailbox mailbox) throws MessagingException {
+        byte[] content =        ("Return-path: return@test.com\r\n"+
                                  "Content-Transfer-Encoding: plain\r\n"+
                                  "Subject: test\r\n\r\n"+
-                                 "Body Text POP3ServerTest.setupTestMails\r\n").getBytes());
-        testMail1 = new MailImpl("name", new MailAddress("from@test.com"),
-                        recipients, mw);
-        mailRep.store(testMail1);
-        InputStream mw2 = new SharedByteArrayInputStream(
-                                ("EMPTY").getBytes());
-        testMail2 = new MailImpl("name2", new MailAddress("from@test.com"),
-                                recipients, mw2);
-        mailRep.store(testMail2);
+                                 "Body Text POP3ServerTest.setupTestMails\r\n").getBytes();
+        
+        mailbox.appendMessage(content, new Date(), session, true, new Flags());
+        byte[] content2 = ("EMPTY").getBytes();
+        mailbox.appendMessage(content2, new Date(), session, true, new Flags());
     }
 
     /*
@@ -466,6 +473,7 @@ public class AsyncPOP3ServerTest extends TestCase {
         }
     }
     */
+    
     public void testIpStored() throws Exception {
         finishSetUp(m_testConfiguration);
 
@@ -474,13 +482,10 @@ public class AsyncPOP3ServerTest extends TestCase {
 
         String pass = "password";
         m_usersRepository.addUser("foo", pass);
-        InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
-        m_mailServer.setUserInbox("foo", mockMailRepository);
 
         m_pop3Protocol.login("foo", pass);
         assertEquals(1, m_pop3Protocol.getState());
         assertTrue(POP3BeforeSMTPHelper.isAuthorized("127.0.0.1"));
-        LifecycleUtil.dispose(mockMailRepository);
     }
     
     public void testCapa() throws Exception {
@@ -491,8 +496,6 @@ public class AsyncPOP3ServerTest extends TestCase {
 
          String pass = "password";
          m_usersRepository.addUser("foo", pass);
-         InMemorySpoolRepository mockMailRepository = new InMemorySpoolRepository();
-         m_mailServer.setUserInbox("foo", mockMailRepository);
 
          assertEquals(POP3Reply.OK, m_pop3Protocol.sendCommand("CAPA"));
          
@@ -511,8 +514,6 @@ public class AsyncPOP3ServerTest extends TestCase {
          assertTrue("contains USER", replies.contains("USER"));
          assertTrue("contains UIDL", replies.contains("UIDL"));
          assertTrue("contains TOP", replies.contains("TOP"));
-
-         LifecycleUtil.dispose(mockMailRepository);
 
     }
     

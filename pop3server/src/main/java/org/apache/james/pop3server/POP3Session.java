@@ -22,11 +22,8 @@
 package org.apache.james.pop3server;
 
 
-import java.util.List;
-
+import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.protocols.api.TLSSupportedSession;
-import org.apache.james.services.MailRepository;
-import org.apache.mailet.Mail;
 
 /**
  * All the handlers access this interface to communicate with
@@ -41,6 +38,10 @@ public interface POP3Session extends TLSSupportedSession {
      * deleted from the inbox.
      */
     public final static String DELETED ="DELETED_MAIL";
+    
+    public final static String UID_LIST = "UID_LIST";
+    public final static String DELETED_UID_LIST = "DELETED_UID_LIST";
+    public final static String MAILBOX_SESSION = "MAILBOX_SESSION";
    
     // Authentication states for the POP3 interaction
     /** Waiting for user id */
@@ -76,46 +77,17 @@ public interface POP3Session extends TLSSupportedSession {
     void setHandlerState(int handlerState);
 
     /**
-     * Returns the current user inbox
-     *
-     * @return MailRepository
-     */
-    MailRepository getUserInbox();
-
-    /**
-     * Sets the user's mail repository
-     * 
-     * @param userInbox userInbox
-     */
-    void setUserInbox(MailRepository userInbox);
-
-    /**
      * Returns the mail list contained in the mailbox
      * 
      * @return mailbox content
      */
-    List<Mail> getUserMailbox();
+    Mailbox getUserMailbox();
 
     /**
      * Sets a new mailbox content
      * 
      * @param userMailbox mailbox
      */
-    void setUserMailbox(List<Mail> userMailbox);
-    
-    /**
-     * Returns the backup mailbox
-     * 
-     * @return list backup
-     */
-    List<Mail> getBackupUserMailbox();
-
-
-    /**
-     * Sets a new backup mailbox content
-     * 
-     * @param backupUserMailbox the mailbox backup
-     */
-    void setBackupUserMailbox(List<Mail> backupUserMailbox);
+    void setUserMailbox(Mailbox mailbox);
 }
 
