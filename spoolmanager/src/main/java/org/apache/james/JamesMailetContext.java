@@ -39,7 +39,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
@@ -73,8 +72,6 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
 
     private UsersRepository localusers;
 
-    private LocalDelivery localDeliveryMailet;
-
     /**
      * The address of the postmaster for this server
      */
@@ -106,8 +103,6 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
 
     @PostConstruct
     public void init() throws Exception {
-
-        initializeLocalDeliveryMailet();
 
         initPostmaster();
     }
@@ -397,18 +392,6 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         }
     }
 
-    private void initializeLocalDeliveryMailet() throws MessagingException {
-        // We can safely remove this and the localDeliveryField when we
-        // remove the storeMail method from James and from the MailetContext
-        DefaultConfigurationBuilder conf = new DefaultConfigurationBuilder();
-        MailetConfigImpl configImpl = new MailetConfigImpl();
-        configImpl.setMailetName("LocalDelivery");
-        configImpl.setConfiguration(conf);
-        configImpl.setMailetContext(this);
-        localDeliveryMailet = new LocalDelivery();
-        localDeliveryMailet.init(configImpl);
-    }
-
     /**
      * This method has been moved to LocalDelivery (the only client of the
      * method). Now we can safely remove it from the Mailet API and from this
@@ -421,19 +404,10 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
      *             do the local delivery.
      * @see org.apache.mailet.MailetContext#storeMail(org.apache.mailet.MailAddress,
      *      org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)
+     *      
      */
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
-        if (recipient == null) {
-            throw new IllegalArgumentException("Recipient for mail to be spooled cannot be null.");
-        }
-        if (msg == null) {
-            throw new IllegalArgumentException("Mail message to be spooled cannot be null.");
-        }
-        Collection<MailAddress> recipients = new HashSet<MailAddress>();
-        recipients.add(recipient);
-        MailImpl m = new MailImpl(mailServer.getId(), sender, recipients, msg);
-        localDeliveryMailet.service(m);
-        LifecycleUtil.dispose(m);
+    	throw new UnsupportedOperationException("Was removed");
     }
 
     public void setLog(Log log) {

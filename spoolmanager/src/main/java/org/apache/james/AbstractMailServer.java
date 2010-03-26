@@ -30,7 +30,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -42,8 +41,6 @@ import javax.mail.internet.ParseException;
 
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.ProducerTemplate;
-import org.apache.commons.collections.map.ReferenceMap;
-import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
@@ -56,13 +53,10 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.impl.jamesuser.JamesUsersRepository;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.services.MailRepository;
 import org.apache.james.services.MailServer;
-import org.apache.james.services.store.Store;
 import org.apache.james.transport.camel.InMemoryMail;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.Mailet;
 
 /**
  * Core class for JAMES. Provides three primary services:
@@ -91,17 +85,6 @@ public abstract class AbstractMailServer
 
 
     /**
-     * The mail store containing the inbox repository and the spool.
-     */
-    private Store store;
-
-  
-    /**
-     * The root URL used to get mailboxes from the repository
-     */
-    private String inboxRootURL;
-
-    /**
      * The user repository for this mail server.  Contains all the users with inboxes
      * on this server.
      */
@@ -119,19 +102,6 @@ public abstract class AbstractMailServer
      */
     private static int count = 0;
     private static final Object countLock = new Object();
-
-
-    /**
-     * A map used to store mailboxes and reduce the cost of lookup of individual
-     * mailboxes.
-     */
-    private Map<String,MailRepository> mailboxes = new ReferenceMap();
-
-    /**
-     * Currently used by storeMail to avoid code duplication (we moved store logic to that mailet).
-     * TODO We should remove this and its initialization when we remove storeMail method.
-     */
-    protected Mailet localDeliveryMailet;
 
     private DomainList domains;
     
@@ -162,29 +132,6 @@ public abstract class AbstractMailServer
         this.producerTemplate = producerTemplate;
     }
     
-    
-
-    /**
-     * Set Store to use
-     * 
-     * @param store the Store to use
-     */
-    @Resource(name="mailstore")
-    public void setStore(Store store) {
-        this.store = store;
-    }
-
-
-    /**
-     * Set the UsersRepository to use
-     * 
-     * @param localusers the UserRepository to use
-     */
-    @Resource(name="localusersrepository")
-    public void setUsersRepository(UsersRepository localusers) {
-        this.localusers = localusers;
-    }
-    
     /*
      * (non-Javadoc)
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
@@ -206,8 +153,6 @@ public abstract class AbstractMailServer
     public void init() throws Exception {
 
         logger.info("JAMES init...");
-
-        initializeServices();
 
         if (conf.getKeys("usernames").hasNext()) {
             HierarchicalConfiguration userNamesConf = conf.configurationAt("usernames");
@@ -240,8 +185,6 @@ public abstract class AbstractMailServer
         }
 
         initializeServernames();
-
-        inboxRootURL = conf.configurationAt("inboxRepository.repository").getString("[@destinationURL]");
 
         logger.info("Private Repository LocalInbox opened");
         
@@ -276,23 +219,6 @@ public abstract class AbstractMailServer
         logger.info("JAMES ...init end");
     }
 
-    private void initializeServices() throws Exception {
-        try {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Using Store: " + store.toString());
-            }
-        } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Can't get Store: " + e);
-            }
-        }
-
-
-      
-        if (logger.isDebugEnabled()) {
-            logger.debug("Using LocalUsersRepository: " + localusers.toString());
-        }    
-    }
 
     private void initializeServernames() throws ConfigurationException, ParseException {
         String defaultDomain = getDefaultDomain();
@@ -385,67 +311,6 @@ public abstract class AbstractMailServer
                         .append(mail.getName())
                         .append(" pushed in spool");
             logger.debug(logBuffer.toString());
-        }
-    }
-
-    /**
-     * @see org.apache.james.services.MailServer#getUserInbox(java.lang.String)
-     */
-    public synchronized MailRepository getUserInbox(String userName) {
-        MailRepository userInbox = null;
-        
-        if (virtualHosting == false && (userName.indexOf("@") < 0) == false) {
-            userName = userName.split("@")[0];
-        }
-
-        userInbox = (MailRepository) mailboxes.get(userName);
-
-        if (userInbox != null) {
-            return userInbox;
-        /*
-         * we're using a ReferenceMap with HARD keys and SOFT values
-         * so it could happen to find a null value after a second pass
-         * of a full GC and we should simply lookup it again
-         */
-//        } else if (mailboxes.containsKey(userName)) {
-//            // we have a problem
-//            getLogger().error("Null mailbox for non-null key");
-//            throw new RuntimeException("Error in getUserInbox.");
-        } else {
-            // need mailbox object
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieving and caching inbox for " + userName );
-            }
-
-            StringBuffer destinationBuffer = new StringBuffer(192);
-                  
-            if (virtualHosting == true && inboxRootURL.startsWith("file://") && !(userName.indexOf("@") < 0)) {
-                String userArgs[] = userName.split("@");
-                            
-                // build the url like : file://var/mail/inboxes/domain/username/
-                destinationBuffer.append(inboxRootURL).append(userArgs[1]).append("/").append(userArgs[0]).append("/");
-            } else {
-                destinationBuffer.append(inboxRootURL).append(userName).append("/");
-            }
-                 
-            String destination = destinationBuffer.toString();
-            try {
-                // Copy the inboxRepository configuration and modify the destinationURL
-                CombinedConfiguration mboxConf = new CombinedConfiguration();
-                mboxConf.addConfiguration(conf.configurationAt("inboxRepository.repository"));
-                mboxConf.setProperty("[@destinationURL]", destination);
-
-                userInbox = (MailRepository) store.select(mboxConf);
-                if (userInbox!=null) {
-                    mailboxes.put(userName, userInbox);
-                }
-            } catch (Exception e) {
-                if (logger.isErrorEnabled()) {
-                    logger.error("Cannot open user Mailbox",e);
-                }
-                throw new RuntimeException("Error in getUserInbox.",e);
-            }
-            return userInbox;
         }
     }
 

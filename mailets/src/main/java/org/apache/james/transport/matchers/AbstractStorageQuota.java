@@ -21,19 +21,24 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.james.api.user.JamesUser;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.services.MailRepository;
-import org.apache.james.services.MailServer;
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetContext;
+import java.util.Iterator;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import java.util.Iterator;
+import org.apache.commons.logging.Log;
+import org.apache.james.api.user.JamesUser;
+import org.apache.james.api.user.UsersRepository;
+import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MailboxManager;
+import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.imap.mailbox.MessageRange;
+import org.apache.james.imap.mailbox.MessageResult;
+import org.apache.james.imap.mailbox.MessageResult.FetchGroup;
+import org.apache.james.imap.mailbox.util.FetchGroupImpl;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.MailetContext;
 
 /**
  * <P>Experimental: Abstract matcher checking whether a recipient has exceeded a maximum allowed
@@ -49,11 +54,11 @@ import java.util.Iterator;
  */
 abstract public class AbstractStorageQuota extends AbstractQuotaMatcher { 
 
-    private MailServer mailServer;
+    private MailboxManager manager;
 
-    @Resource(name="James")
-    public void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
+    @Resource(name="mailboxmanager")
+    public void setMailboxManager(MailboxManager manager) {
+        this.manager = manager;
     }
     
     @Resource(name="localusersrepository")
@@ -86,20 +91,92 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      */    
     protected long getUsed(MailAddress recipient, Mail _) throws MessagingException {
         long size = 0;
-        MailRepository userInbox = mailServer.getUserInbox(getPrimaryName(recipient.getLocalPart()));
-        for (Iterator<String> it = userInbox.list(); it.hasNext(); ) {
-            String key = it.next();
-            Mail mc = userInbox.retrieve(key);
-            // Retrieve can return null if the mail is no longer in the store.
-            if (mc != null) try {
-                size += mc.getMessageSize();
-            } catch (Throwable e) {
-                // MailRepository.retrieve() does NOT lock the message.
-                // It could be deleted while we're looping.
-                log("Exception in getting message size: " + e.getMessage());
-            }
-            LifecycleUtil.dispose(mc);
+        MailboxSession session = manager.createSystemSession(getPrimaryName(recipient.getLocalPart()), new Log() {
+
+			public void debug(Object arg0) {
+				// just consume 				
+			}
+
+			public void debug(Object arg0, Throwable arg1) {
+				// just consume 
+			}
+
+			public void error(Object arg0) {
+				log(arg0.toString());
+
+			}
+
+			public void error(Object arg0, Throwable arg1) {
+				log(arg0.toString(),arg1);
+			}
+
+			public void fatal(Object arg0) {
+				log(arg0.toString());
+			}
+
+			public void fatal(Object arg0, Throwable arg1) {
+				log(arg0.toString(), arg1);				
+			}
+
+			public void info(Object arg0) {
+				log(arg0.toString());
+			}
+
+			public void info(Object arg0, Throwable arg1) {
+				log(arg0.toString(), arg1);
+				
+			}
+
+			public boolean isDebugEnabled() {
+				return false;
+			}
+
+			public boolean isErrorEnabled() {
+				return true;
+			}
+
+			public boolean isFatalEnabled() {
+				return true;
+			}
+
+			public boolean isInfoEnabled() {
+				return true;
+			}
+
+			public boolean isTraceEnabled() {
+				return false;
+			}
+
+			public boolean isWarnEnabled() {
+				return true;
+			}
+
+			public void trace(Object arg0) {
+				// just consume 				
+			}
+
+			public void trace(Object arg0, Throwable arg1) {
+				// just consume 				
+			}
+
+			public void warn(Object arg0) {
+				log(arg0.toString());
+			}
+
+			public void warn(Object arg0, Throwable arg1) {
+				log(arg0.toString(), arg1);
+			}
+        	
+        });
+        manager.startProcessingRequest(session);
+        Mailbox mailbox = manager.getMailbox(manager.getUserNameSpacePrefix() + manager.getDelimiter() + "INBOX", session);
+        Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);
+        
+        while (results.hasNext()) {
+        	size += results.next().getSize();
         }
+        manager.startProcessingRequest(session);
+        manager.logout(session, true);
         return size;
     }
 

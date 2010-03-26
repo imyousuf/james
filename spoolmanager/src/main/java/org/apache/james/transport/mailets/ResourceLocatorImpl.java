@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.sieve;
+package org.apache.james.transport.mailets;
 
 import java.io.FileInputStream;
 import java.io.IOException;
