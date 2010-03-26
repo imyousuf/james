@@ -21,10 +21,10 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.commons.collections.iterators.IteratorChain;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.services.MailServer;
+import org.apache.jsieve.mailet.Poster;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
@@ -34,7 +34,6 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -55,19 +54,23 @@ public class LocalDelivery extends GenericMailet {
     /**
      * Mailet that actually store the message
      */
-    private ToMultiRepository deliveryMailet;
-
+    private SieveMailet sieveMailet;
+    
     private UsersRepository usersRepository;
 
     private UsersStore usersStore;
 
     private MailServer mailServer;
 
+	private Poster poster;
 
+
+    
     @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }
+    
     
     @Resource(name="users-store")
     public void setUsersStore(UsersStore usersStore) {
@@ -79,6 +82,11 @@ public class LocalDelivery extends GenericMailet {
         this.mailServer = mailServer;
     }
     
+
+    @Resource(name="org.apache.jsieve.mailet.Poster")
+    public void setPoster(Poster poster) {
+        this.poster = poster;
+    }
     
     /**
      * Delivers a mail to a local mailbox.
@@ -92,7 +100,7 @@ public class LocalDelivery extends GenericMailet {
     public void service(Mail mail) throws MessagingException {
         aliasingMailet.service(mail);
         if (mail.getState() != Mail.GHOST) {
-            deliveryMailet.service(mail);
+        	sieveMailet.service(mail);
         }
     }
 
@@ -115,34 +123,21 @@ public class LocalDelivery extends GenericMailet {
         aliasingMailet.setUsersRepository(usersRepository);
         aliasingMailet.setUsersStore(usersStore);
         aliasingMailet.init(getMailetConfig());
-        deliveryMailet = new ToMultiRepository();
-        deliveryMailet.setMailServer(mailServer);
+        sieveMailet = new SieveMailet();
         MailetConfig m = new MailetConfig() {
 
             /**
              * @see org.apache.mailet.MailetConfig#getInitParameter(java.lang.String)
              */
             public String getInitParameter(String name) {
-                if ("addDeliveryHeader".equals(name)) {
-                    return "Delivered-To";
-                } else if ("resetReturnPath".equals(name)) {
-                    return "true";
-                } else {
-                    return getMailetConfig().getInitParameter(name);
-                }
+            	return null;
             }
 
             /**
              * @see org.apache.mailet.MailetConfig#getInitParameterNames()
              */
             public Iterator<String> getInitParameterNames() {
-                IteratorChain c = new IteratorChain();
-                Collection<String> h = new ArrayList<String>();
-                h.add("addDeliveryHeader");
-                h.add("resetReturnPath");
-                c.addIterator(getMailetConfig().getInitParameterNames());
-                c.addIterator(h.iterator());
-                return c;
+            	return new ArrayList<String>().iterator();
             }
 
             /**
@@ -160,7 +155,11 @@ public class LocalDelivery extends GenericMailet {
             }
 
         };
-        deliveryMailet.init(m);
+        sieveMailet.setMailSerer(mailServer);
+        sieveMailet.setPoster(poster);
+        sieveMailet.init(m);
+
+        sieveMailet.setQuiet(true);
     }
 
 }

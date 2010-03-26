@@ -100,15 +100,7 @@ public interface MailServer
     void sendMail(MimeMessage message)
         throws MessagingException;        
 
-    /**
-     * Retrieve the primary mailbox for userName. For POP3 style stores this
-     * is their (sole) mailbox.
-     *
-     * @param userName - the name of the user
-     * @return a reference to an initialised mailbox
-     */
-    MailRepository getUserInbox(String userName);
-
+  
     /**
      * Generate a new identifier/name for a mail being processed by this server.
      *

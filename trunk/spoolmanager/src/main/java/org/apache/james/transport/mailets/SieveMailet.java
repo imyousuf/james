@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver.sieve;
+package org.apache.james.transport.mailets;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -39,8 +39,6 @@ public class SieveMailet extends SieveMailboxMailet {
     public void setMailSerer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
-    
-
 
 
     @Override

@@ -74,7 +74,10 @@
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-smtp</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-mailbox</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>

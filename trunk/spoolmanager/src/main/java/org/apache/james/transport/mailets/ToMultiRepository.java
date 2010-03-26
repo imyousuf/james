@@ -24,14 +24,12 @@ package org.apache.james.transport.mailets;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailRepository;
-import org.apache.james.services.MailServer;
 import org.apache.james.services.store.Store;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.RFC2822Headers;
 
-import javax.annotation.Resource;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
@@ -74,10 +72,6 @@ public class ToMultiRepository extends GenericMailet {
     private static int count = 0;
     private static final Object countLock = new Object();
 
-    /**
-     * The mailserver reference
-     */
-    private MailServer mailServer;
 
     /**
      * The mailstore
@@ -112,11 +106,6 @@ public class ToMultiRepository extends GenericMailet {
      */
     private boolean resetReturnPath;
 
-    
-    @Resource(name="James")
-    public void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
     
     /**
      * Delivers a mail to a local mailbox.
@@ -280,6 +269,8 @@ public class ToMultiRepository extends GenericMailet {
             if (!SELECTOR_LOCALPART.equals(repositorySelector) && !SELECTOR_FULL.equals(repositorySelector)) {
                 throw new MessagingException("repositorySelector valid options are "+SELECTOR_FULL+" or "+SELECTOR_LOCALPART);
             }
+        } else {
+        	throw new MessagingException("Please configure a repositoryUrl");
         }
 
         deliveryHeader = getInitParameter("addDeliveryHeader");
@@ -295,30 +286,28 @@ public class ToMultiRepository extends GenericMailet {
      * @param userName
      */
     private MailRepository getRepository(String userName) {
-        MailRepository userInbox;
-        if (repositoryUrl == null) {
-            userInbox = mailServer.getUserInbox(userName);
-        } else {
-            if (SELECTOR_LOCALPART.equals(repositorySelector)) {
-                // find the username for delivery to that user - localname, ignore the rest
-                String[] addressParts = userName.split("@");
-                userName = addressParts[0];
-            }
-                        
-            StringBuffer destinationBuffer = new StringBuffer(192).append(
-            repositoryUrl).append(userName).append("/");
-            String destination = destinationBuffer.toString();
-            DefaultConfigurationBuilder mboxConf = new DefaultConfigurationBuilder();
-            mboxConf.addProperty("[@destinationURL]", destination);
-            mboxConf.addProperty("[@type]", repositoryType);
-            try {
-                userInbox = (MailRepository) store.select(mboxConf);
-            } catch (Exception e) {
-                log("Cannot open repository " + e);
-                userInbox = null;
-            }
-        }
-        return userInbox;
-    }
+		if (SELECTOR_LOCALPART.equals(repositorySelector)) {
+			// find the username for delivery to that user - localname, ignore
+			// the rest
+			String[] addressParts = userName.split("@");
+			userName = addressParts[0];
+		}
+
+		StringBuffer destinationBuffer = new StringBuffer(192).append(
+				repositoryUrl).append(userName).append("/");
+		String destination = destinationBuffer.toString();
+		DefaultConfigurationBuilder mboxConf = new DefaultConfigurationBuilder();
+		mboxConf.addProperty("[@destinationURL]", destination);
+		mboxConf.addProperty("[@type]", repositoryType);
+		MailRepository userInbox;
+		try {
+			userInbox = (MailRepository) store.select(mboxConf);
+		} catch (Exception e) {
+			log("Cannot open repository " + e);
+			userInbox = null;
+		}
+
+		return userInbox;
+	}
 
 }

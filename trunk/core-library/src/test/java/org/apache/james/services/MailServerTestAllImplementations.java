@@ -97,21 +97,4 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         
     }
 
-    public void testGetNonexistingUserInbox() throws Exception {
-
-        MailServer mailServer = createMailServer();
-
-        String userName = "testNonexisitingUserName";
-        MailRepository userInbox = null;
-        
-        userInbox = mailServer.getUserInbox(userName);
-        assertEquals("test user does not exist", null, userInbox);
-    }
-    
-    public void testGetExisitingUserInbox() throws Exception {
-        MailServer mailServer = createMailServer();
-
-        MailRepository userInbox = mailServer.getUserInbox(EXISTING_USER_NAME);
-        assertNotNull("existing user exists", userInbox);
-    }
 }
