@@ -398,13 +398,7 @@ Regards, Postmaster XXX.YYY
              <virtualusertable>DefaultVirtualUserTable</virtualusertable>
          </mailet>
 
-         
-         <!-- Deliver To IMAP mailboxes, applying a Sieve script if the user has one
-         <mailet match="All" class="SieveMailet">
-             <quiet>true</quiet>
-         </mailet>
-         -->
-        
+
          <!-- Is the recipient is for a local account, deliver it locally -->
          <mailet match="RecipientIsLocal" class="LocalDelivery"/>
 
