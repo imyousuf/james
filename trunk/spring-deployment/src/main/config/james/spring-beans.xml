@@ -338,12 +338,20 @@
     
 	<!-- JCR implementation of IMAP Storage-->
 	<!--  
-    <bean id="imapCndLoader" class="org.apache.james.imap.jcr.JCRUtils" factory-method="registerCnd">        
-      <constructor-arg index="0" ref="jcrRepository"/>
-      <constructor-arg index="1" value="james"/>
-      <constructor-arg index="2" value="james"/>
-      <constructor-arg index="3" value="james"/>
+    <bean id="imapCndLoader" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+      <property name="targetObject"><ref local="jcrUtils"/></property>
+      <property name="targetMethod"><value>registerCnd</value></property>
+      <property name="arguments">
+        <list>
+          <ref local="jcrRepository"/>
+          <value>james</value>
+          <value>james</value>
+          <value>james</value>
+        </list>
+      </property>
     </bean>
+    
+    <bean id="jcrUtils" class="org.apache.james.imap.jcr.JCRUtils"/>    
     
 	<bean id ="subscriper" 	class="org.apache.james.imap.jcr.JCRGlobalUserSubscriptionManager" depends-on="imapCndLoader">
       <constructor-arg index="0" ref="jcrRepository"/>
