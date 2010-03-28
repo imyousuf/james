@@ -32,14 +32,6 @@
             <!-- Set if the messages should be listed sorted. False by default -->
             <config FIFO="false"/> 
         </repository>
-        <repository class="org.apache.james.mailrepository.FileSpoolRepository">
-            <protocols>
-                <protocol>file</protocol>
-            </protocols>
-            <types>
-                 <type>SPOOL</type>
-            </types>
-        </repository>
 
         <!-- JDBC based repositories.  These repositories store all message data -->
         <!-- in the database. -->
@@ -62,19 +54,6 @@
             </config>
         </repository>
 
-        <repository class="org.apache.james.mailrepository.JDBCSpoolRepository">
-            <protocols>
-                <protocol>db</protocol>
-            </protocols>
-            <types>
-                <type>SPOOL</type>
-            </types>
-            <config>
-                <sqlFile>file://conf/sqlResources.xml</sqlFile>
-                <maxcache>1000</maxcache>
-            </config>
-        </repository>
-
         <!-- These repositories store message delivery and headers in the DB, and the body to the filesystem -->
         <repository class="org.apache.james.mailrepository.JDBCMailRepository">
             <protocols>
@@ -86,20 +65,6 @@
             <config>
                 <sqlFile>file://conf/sqlResources.xml</sqlFile>
                 <filestore>file://var/dbmail</filestore>
-            </config>
-        </repository>
-
-        <repository class="org.apache.james.mailrepository.JDBCSpoolRepository">
-            <protocols>
-                <protocol>dbfile</protocol>
-            </protocols>
-            <types>
-                <type>SPOOL</type>
-            </types>
-            <config>
-                <sqlFile>file://conf/sqlResources.xml</sqlFile>
-                <filestore>file://var/dbmail</filestore>
-                <maxcache>1000</maxcache>
             </config>
         </repository>
  

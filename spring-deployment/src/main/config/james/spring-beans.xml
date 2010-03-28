@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-	<!--
-		! Licensed to the Apache Software Foundation (ASF) under one ! ! or
+    <!--
+        ! Licensed to the Apache Software Foundation (ASF) under one ! ! or
 		more contributor license agreements. See the NOTICE file ! !
 		distributed with this work for additional information ! ! regarding
 		copyright ownership. The ASF licenses this file ! ! to you under the
@@ -16,7 +15,7 @@
 	-->
 
 
-<beans xmlns="http://www.springframework.org/schema/beans"
+<beans xmlns="http://www.springframework.org/schema/beans" 
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:camel="http://camel.apache.org/schema/spring"
        xsi:schemaLocation="
@@ -24,60 +23,60 @@
           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 
-	<!--
-		** JMX part ** to enable exposure of JMX, activate the following beans
+    <!--
+        ** JMX part ** to enable exposure of JMX, activate the following beans
 
-		NOTE: if you are running JDK < 1.5, you'd have to make a MBeanServer
-		implementation available on the classpath, for example mx4j
-	-->
+        NOTE: if you are running JDK < 1.5, you'd have to make a MBeanServer
+        implementation available on the classpath, for example mx4j
+    -->
 
-	<!--
-	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false"> 
-		<property name="autodetect" value="true" /> 
-		<property name="namingStrategy" ref="namingStrategy" /> 
-	</bean> 
-	<bean id="namingStrategy" class="org.springframework.jmx.export.naming.KeyNamingStrategy" >
-		<property name="mappings" >
-			<props> 
-				<prop key="fetchmail"> bean:name=fetchmail</prop> 
-				<prop key="smtpserver">bean:name=smtpserver</prop> 
-				<prop key="James" >bean:name=James</prop>
-				<prop key="dnsserver" >bean:name=dnsserver</prop> 
-				<prop key="remotemanager" >bean:name=remotemanager</prop> 
-				<prop key="pop3server" >bean:name=pop3server</prop> 
-				<prop key="virtualusertablemanagement">bean:name=virtualusertablemanagement</prop> 
-				<prop key="spoolmanagement" >bean:name=spoolmanagement</prop> 
-				<prop key="domainlistmanagement" >bean:name=domainlistmanagement</prop>
-				<prop key="processormanagement" >bean:name=processormanagement</prop>
-				<prop key="bayesiananalyzermanagement">bean:name=bayesiananalyzermanagement</prop> 
-				<prop key="usermanagement" >bean:name=usermanagement</prop> 
-				<prop key="serverConnector" >bean:name=serverConnector</prop>
-			</props>
-		</property> 
-	</bean> 
+    <!--
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false"> 
+        <property name="autodetect" value="true" /> 
+        <property name="namingStrategy" ref="namingStrategy" /> 
+    </bean> 
+    <bean id="namingStrategy" class="org.springframework.jmx.export.naming.KeyNamingStrategy" >
+        <property name="mappings" >
+            <props> 
+                <prop key="fetchmail"> bean:name=fetchmail</prop> 
+                <prop key="smtpserver">bean:name=smtpserver</prop> 
+                <prop key="James" >bean:name=James</prop>
+                <prop key="dnsserver" >bean:name=dnsserver</prop> 
+                <prop key="remotemanager" >bean:name=remotemanager</prop> 
+                <prop key="pop3server" >bean:name=pop3server</prop> 
+                <prop key="virtualusertablemanagement">bean:name=virtualusertablemanagement</prop> 
+                <prop key="spoolmanagement" >bean:name=spoolmanagement</prop> 
+                <prop key="domainlistmanagement" >bean:name=domainlistmanagement</prop>
+                <prop key="processormanagement" >bean:name=processormanagement</prop>
+                <prop key="bayesiananalyzermanagement">bean:name=bayesiananalyzermanagement</prop> 
+                <prop key="usermanagement" >bean:name=usermanagement</prop> 
+                <prop key="serverConnector" >bean:name=serverConnector</prop>
+            </props>
+        </property>
+    </bean> 
 		
-	<bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
+    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
 
-	<bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
-		<property name="port" value="1099" /> 
-	</bean> 
+    <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+        <property name="port" value="1099" /> 
+    </bean> 
 		
-	<bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry"> 
-		<property name="objectName" value="connector:name=rmi" /> 
-		<property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" /> 
-	</bean>
-	-->
+    <bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry"> 
+        <property name="objectName" value="connector:name=rmi" /> 
+        <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" /> 
+    </bean>
+    -->
+    
+    <bean class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
+        <property name="configurationRegistry" ref="configurationRegistry" />
+        <property name="order" value="1" />
+    </bean>
 
-	<bean class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
-		<property name="configurationRegistry" ref="configurationRegistry" />
-		<property name="order" value="1" />
-	</bean>
-
-	<bean id="configurationRegistry" class="org.apache.james.container.spring.lifecycle.SpringConfigurationRegistry">
-	    <property name="configurationMappings">
+    <bean id="configurationRegistry" class="org.apache.james.container.spring.lifecycle.SpringConfigurationRegistry">
+        <property name="configurationMappings">
 	        <map>
 	            <entry key="mailboxmanager" value="imapserver" />		
-			    <entry key="mailetcontext" value="James"/>
+	            <entry key="mailetcontext" value="James"/>
 			    <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
 				<entry key="pop3ProtocolHandlerChain" value="pop3server"/>
 				<entry key="remoteProtocolHandlerChain" value="remotemanager"/>		
@@ -160,7 +159,8 @@
         <property name="start" value="true" />
     </bean>
     
-    <!-- mailserver implementation which use activemq for spooling the mail -->
+    <!-- mailserver implementation which use activemq for spooling the mail
+-->
 	<bean id="mailserver" name="James" class="org.apache.james.ActiveMQMailServer"/>
 	
 	<bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
@@ -172,8 +172,10 @@
 	<bean id="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
 
 	<!-- The Spool Management block  -->
+	<!-- 
 	<bean id="spoolmanagement" class="org.apache.james.management.impl.SpoolManagement" />
-
+    -->
+    
 	<bean id="processormanagement" class="org.apache.james.management.impl.ProcessorManagement" />
 
 	<bean id="bayesiananalyzermanagement"
@@ -224,9 +226,6 @@
 	<!-- The High Level Storage block -->
 	<bean id="mailstore" class="org.apache.james.container.spring.SpringMailStore" />
 
-	<!-- The main SpoolRepository -->
-	<bean id="spoolrepository"
-		class="org.apache.james.mailrepository.MailStoreSpoolRepository" />
 
 	<!-- The User Storage block -->
 	<bean id="users-store" class="org.apache.james.container.spring.SpringUsersStore" >
@@ -415,5 +414,6 @@
         <constructor-arg index="1" value="../var/jackrabbit" />
     </bean>
 
-    <!--  #################################################################### -->
+    <!--  ####################################################################
+-->
 </beans>

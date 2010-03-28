@@ -32,10 +32,10 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
     private final static String ADDSPAMCMDHANDLER = AddSpamCmdHandler.class.getName();
     private final static String ADDUSERCMDHANDLER = AddUserCmdHandler.class.getName();
     private final static String COUNTUSERSCMDHANDLER = CountUsersCmdHandler.class.getName();
-    private final static String DELETESPOOLCMDHANDLER = DeleteSpoolCmdHandler.class.getName();
+    //private final static String DELETESPOOLCMDHANDLER = DeleteSpoolCmdHandler.class.getName();
     private final static String DELUSERCMDHANDLER = DelUserCmdHandler.class.getName();
     private final static String EXPORTBAYESIANDATACMDHANDLER = ExportBayesianDataCmdHandler.class.getName();
-    private final static String FLUSHSPOOLCMDHANDLER = FlushSpoolCmdHandler.class.getName();
+    //private final static String FLUSHSPOOLCMDHANDLER = FlushSpoolCmdHandler.class.getName();
     private final static String HELPCMDHANDLER = HelpCmdHandler.class.getName();
 
     private final static String IMPORTBAYESIANDATACMDHANDLER = ImportBayesianDataCmdHandler.class.getName();
@@ -45,10 +45,10 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
     private final static String LISTMAPPINGCMDHANDLER = ListMappingCmdHandler.class.getName();
     private final static String LISTMATCHERSCMDHANDLER = ListMatchersCmdHandler.class.getName();
     private final static String LISTPROCESSORSCMDHANDLER = ListProcessorsCmdHandler.class.getName();
-    private final static String LISTSPOOLCMDHANDLER = ListSpoolCmdHandler.class.getName();
+    //private final static String LISTSPOOLCMDHANDLER = ListSpoolCmdHandler.class.getName();
     private final static String LISTUSERSCMDHANDLER = ListUsersCmdHandler.class.getName();
     private final static String MEMSTATCMDHANDLER = MemStatCmdHandler.class.getName();
-    private final static String MOVEMAILSCMDHANDLER = MoveMailsCmdHandler.class.getName();
+    //private final static String MOVEMAILSCMDHANDLER = MoveMailsCmdHandler.class.getName();
     private final static String QUITCMDHANDLER = QuitCmdHandler.class.getName();
     private final static String REMOVEDOMAINCMDHANDLER = RemoveDomainCmdHandler.class.getName();
     private final static String REMOVEMAPPINGCMDHANDLER = RemoveMappingCmdHandler.class.getName();
@@ -78,10 +78,10 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
         commands.add(ADDSPAMCMDHANDLER);
         commands.add(ADDUSERCMDHANDLER);
         commands.add(COUNTUSERSCMDHANDLER);
-        commands.add(DELETESPOOLCMDHANDLER);
+        //commands.add(DELETESPOOLCMDHANDLER);
         commands.add(DELUSERCMDHANDLER);
         commands.add(EXPORTBAYESIANDATACMDHANDLER);
-        commands.add(FLUSHSPOOLCMDHANDLER);
+        //commands.add(FLUSHSPOOLCMDHANDLER);
         commands.add(HELPCMDHANDLER);
         commands.add(IMPORTBAYESIANDATACMDHANDLER);
         commands.add(LISTALLMAPPINGSCMDHANDLER);
@@ -90,10 +90,10 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
         commands.add(LISTMAPPINGCMDHANDLER);
         commands.add(LISTMATCHERSCMDHANDLER);
         commands.add(LISTPROCESSORSCMDHANDLER);
-        commands.add(LISTSPOOLCMDHANDLER);
+        //commands.add(LISTSPOOLCMDHANDLER);
         commands.add(LISTUSERSCMDHANDLER);
         commands.add(MEMSTATCMDHANDLER);
-        commands.add(MOVEMAILSCMDHANDLER);
+        //commands.add(MOVEMAILSCMDHANDLER);
         commands.add(QUITCMDHANDLER);
         commands.add(REMOVEDOMAINCMDHANDLER);
         commands.add(REMOVEMAPPINGCMDHANDLER);
