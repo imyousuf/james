@@ -58,19 +58,21 @@ public class StatCmdHandler implements CommandHandler<POP3Session> {
             try {
             	List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
                 List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
-
-                MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
-            	Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.range(uidList.get(0), uidList.get(uidList.size() -1)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
-
                 long size = 0;
                 int count = 0;
-            	List<MessageResult> validResults = new ArrayList<MessageResult>();
-                while (results.hasNext()) {
-                	MessageResult result = results.next();
-                    if (deletedUidList.contains(result.getUid()) == false) {
-                        size += result.getSize();
-                        count++;
-                        validResults.add(result);
+                if (uidList.isEmpty() == false) {
+                    MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
+                    Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.range(uidList.get(0), uidList.get(uidList.size() -1)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+
+
+                    List<MessageResult> validResults = new ArrayList<MessageResult>();
+                    while (results.hasNext()) {
+                        MessageResult result = results.next();
+                        if (deletedUidList.contains(result.getUid()) == false) {
+                            size += result.getSize();
+                            count++;
+                            validResults.add(result);
+                        }
                     }
                 }
                 StringBuilder responseBuffer =
