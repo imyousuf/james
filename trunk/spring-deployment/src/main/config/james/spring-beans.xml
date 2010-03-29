@@ -121,6 +121,7 @@
 
     <!-- Change trace to true for debugging purposes -->
     <camel:camelContext id="jamesCamelContext" trace="false" >
+        <camel:jmxAgent id="agent" disabled="true"/>
         <camel:template id="producerTemplate"/>   
         <camel:routeBuilder ref="processorRoute" /> 
     </camel:camelContext>
