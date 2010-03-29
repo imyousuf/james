@@ -52,6 +52,7 @@ import org.apache.james.core.MailHeaders;
 import org.apache.james.core.MailImpl;
 import org.apache.james.impl.jamesuser.JamesUsersRepository;
 import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
 import org.apache.james.transport.camel.InMemoryMail;
@@ -298,7 +299,10 @@ public abstract class AbstractMailServer
      */
     public void sendMail(Mail mail) throws MessagingException {
         try {
-            producerTemplate.sendBody(getToUri(mail), ExchangePattern.InOnly, new InMemoryMail(mail));
+        	Mail newMail = new InMemoryMail(mail);
+            producerTemplate.sendBody(getToUri(mail), ExchangePattern.InOnly, newMail);
+            
+            LifecycleUtil.dispose(mail);
             
         } catch (Exception e) {
             logger.error("Error storing message: " + e.getMessage(),e);
