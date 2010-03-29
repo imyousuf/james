@@ -87,7 +87,7 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
     public void configure() throws Exception {
 
         Processor terminatingMailetProcessor = new MailetProcessor(new TerminatingMailet(), logger);
-
+        Processor disposeProcessor = new DisposeProcessor();
         
         List<HierarchicalConfiguration> processorConfs = config.configurationsAt("processor");
         for (int i = 0; i < processorConfs.size(); i++) {
@@ -213,8 +213,8 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                             
                             .choice()
                
-                            // if the mailstate is GHOST whe should just stop here.
-                            .when(new MailStateEquals(Mail.GHOST)).stop()
+                            // if the mailstate is GHOST whe should just dispose and stop here.
+                            .when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop()
                              
                             // check if the state of the mail is the same as the
                             // current processor. If not just route it to the right endpoint via recipientList and stop processing.
