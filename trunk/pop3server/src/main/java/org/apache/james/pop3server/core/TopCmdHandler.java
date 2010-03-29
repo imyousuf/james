@@ -110,6 +110,10 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                     	Iterator<Header> headers = result.headers();
                     	while (headers.hasNext()) {
                     		headers.next().writeTo(outChannel);
+                    		
+                    		// we need to write out the CRLF after each header
+                            out.write("\r\n".getBytes());
+
                     	}
                     	// headers and body are seperated by a CRLF
                     	out.write("\r\n".getBytes());
