@@ -22,7 +22,7 @@ package org.apache.james.lifecycle;
 public class LifecycleUtil {
 
     public static void dispose(Object obj) {
-        if (obj instanceof Disposable) {
+        if (obj instanceof Disposable && obj != null) {
             ((Disposable) obj).dispose();
         }
     }

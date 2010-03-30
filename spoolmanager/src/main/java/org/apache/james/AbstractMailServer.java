@@ -298,15 +298,17 @@ public abstract class AbstractMailServer
      * @see org.apache.james.services.MailServer#sendMail(Mail)
      */
     public void sendMail(Mail mail) throws MessagingException {
+        Mail newMail = null;
         try {
-        	Mail newMail = new InMemoryMail(mail);
+        	newMail = new InMemoryMail(mail);
             producerTemplate.sendBody(getToUri(mail), ExchangePattern.InOnly, newMail);
-            
-            LifecycleUtil.dispose(mail);
-            
+                        
         } catch (Exception e) {
             logger.error("Error storing message: " + e.getMessage(),e);
             throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
+        } finally {
+            LifecycleUtil.dispose(newMail);
+            LifecycleUtil.dispose(mail);
         }
         if (logger.isDebugEnabled()) {
             StringBuffer logBuffer =
