@@ -23,6 +23,7 @@ package org.apache.james.smtpserver.mina;
 
 
 
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.dnsservice.util.NetMatcher;
@@ -306,7 +307,6 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         builder.addLast("responseValidationFilter", new ResponseValidationFilter<SMTPResponse>(getLogger(),SMTPResponse.class));
         return builder;
     }
-
 
 
     /**

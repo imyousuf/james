@@ -99,8 +99,8 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
      * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.api.protocol.LineHandler)
      */
     public void onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
-        MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE);
-        OutputStream out = (OutputStream)  session.getState().get(JamesDataCmdHandler.DATA_MIMEMESSAGE_OUTPUTSTREAM);
+        MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
+        OutputStream out = (OutputStream)  session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_OUTPUTSTREAM);
 
         try {
             // 46 is "."
@@ -114,6 +114,10 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                     new MailImpl(mailServer.getId(),
                                  (MailAddress) session.getState().get(SMTPSession.SENDER),
                                  recipientCollection);
+                
+                // store mail in the session so we can be sure it get disposed later
+                session.getState().put(SMTPConstants.MAIL, mail);
+                
                 MimeMessageCopyOnWriteProxy mimeMessageCopyOnWriteProxy = null;
                 try {
                     mimeMessageCopyOnWriteProxy = new MimeMessageCopyOnWriteProxy(mmiss);

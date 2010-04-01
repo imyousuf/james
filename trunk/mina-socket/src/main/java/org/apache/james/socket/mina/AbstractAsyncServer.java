@@ -23,6 +23,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.Configuration;
@@ -114,7 +115,8 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
 
     private SslContextFactory contextFactory;
 
-    
+    private SocketAcceptor acceptor;  
+
     @Resource(name="dnsserver")
     public final void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -279,7 +281,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
                 builder.addFirst( "sslFilter", new SslFilter(contextFactory.newInstance()));
             }
             
-            SocketAcceptor acceptor = new NioSocketAcceptor();  
+            acceptor = new NioSocketAcceptor();  
             acceptor.setFilterChainBuilder(builder);
             acceptor.setBacklog(backlog);
             acceptor.setReuseAddress(true);
@@ -289,6 +291,14 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
         }
     }
 
+    @PreDestroy
+    public final void destroy() {
+        getLogger().info("Dispose " + getServiceType());
+        
+        acceptor.dispose();
+    }
+    
+    
     /**
      * This method is called on init of the Server. Subclasses should override this method to init stuff
      *

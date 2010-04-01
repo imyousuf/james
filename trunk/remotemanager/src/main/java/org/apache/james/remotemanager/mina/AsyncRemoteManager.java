@@ -57,7 +57,7 @@ public class AsyncRemoteManager extends AbstractAsyncServer implements RemoteMan
 
     @Override
     protected String getServiceType() {
-        return "plain";
+        return "RemoteManager Service";
     }
 
     @SuppressWarnings("unchecked")
