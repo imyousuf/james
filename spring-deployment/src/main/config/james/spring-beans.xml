@@ -129,7 +129,9 @@
      <bean id="pollingjms"  class="org.apache.james.transport.camel.JMSSelectorPollingComponent"/>
 
      <!-- Build the camelroute from the spoolmanager.xml using ActiveMQ as producer and consumer-->
-     <bean id="spoolmanager" name="processorRoute" class="org.apache.james.transport.camel.ActiveMQProcessorRouteBuilder"/>
+     <bean id="spoolmanager" name="processorRoute" class="org.apache.james.transport.camel.ActiveMQProcessorRouteBuilder">
+         <property name="maxConcurrentConsumers" value="20"/>
+     </bean>
  
  
 
@@ -162,7 +164,7 @@
     
     <!-- mailserver implementation which use activemq for spooling the mail
 -->
-	<bean id="mailserver" name="James" class="org.apache.james.ActiveMQMailServer"/>
+    <bean id="mailserver" name="James" class="org.apache.james.ActiveMQMailServer"/>
 	
 	<bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
 
