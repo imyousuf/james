@@ -38,7 +38,9 @@ import org.apache.mina.core.session.IoSession;
 
 public class SMTPSessionImpl extends AbstractMINASession implements SMTPSession {
 
+      
         public final static String SMTP_SESSION = "SMTP_SESSION";
+        
         private static Random random = new Random();
 
         private boolean relayingAllowed;

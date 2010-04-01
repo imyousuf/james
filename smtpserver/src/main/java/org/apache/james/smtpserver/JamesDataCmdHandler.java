@@ -38,9 +38,6 @@ import org.apache.james.services.MailServer;
 public class JamesDataCmdHandler extends DataCmdHandler {
 
     
-    static final String DATA_MIMEMESSAGE_STREAMSOURCE = "org.apache.james.core.DataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE";
-
-    static final String DATA_MIMEMESSAGE_OUTPUTSTREAM = "org.apache.james.core.DataCmdHandler.DATA_MIMEMESSAGE_OUTPUTSTREAM";
 
     private MailServer mailServer;
     
@@ -74,8 +71,8 @@ public class JamesDataCmdHandler extends DataCmdHandler {
             MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(mailServer.getId());
             OutputStream out = mmiss.getWritableOutputStream();
 
-            session.getState().put(DATA_MIMEMESSAGE_STREAMSOURCE, mmiss);
-            session.getState().put(DATA_MIMEMESSAGE_OUTPUTSTREAM, out);
+            session.getState().put(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE, mmiss);
+            session.getState().put(SMTPConstants.DATA_MIMEMESSAGE_OUTPUTSTREAM, out);
 
         } catch (IOException e) {
             session.getLogger().warn("Error creating temporary outputstream for incoming data",e);

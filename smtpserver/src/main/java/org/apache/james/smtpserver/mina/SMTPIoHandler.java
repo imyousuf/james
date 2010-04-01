@@ -21,12 +21,14 @@ package org.apache.james.smtpserver.mina;
 
 import org.apache.commons.logging.Log;
 
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.smtpserver.SMTPConstants;
 import org.apache.james.socket.mina.AbstractIoHandler;
 import org.apache.james.socket.mina.codec.LineLengthExceededException;
 import org.apache.mina.core.session.IoSession;
@@ -48,6 +50,21 @@ public class SMTPIoHandler extends AbstractIoHandler{
         this(chain,conf,logger,null);
     }
     
+    @Override
+    public void sessionClosed(IoSession session) throws Exception {
+        
+        logger.debug("Dispose objects while closing session " + session.getId());
+        // Make sure we dispose everything on exit on session close
+        SMTPSession smtpSession = (SMTPSession) session.getAttribute(getSessionKey());
+        
+        LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.MAIL));
+        LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE));
+        LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_OUTPUTSTREAM));
+        
+        
+        super.sessionClosed(session);
+    }
+
     public SMTPIoHandler(ProtocolHandlerChain chain,
             SMTPConfiguration conf, Log logger, SslContextFactory contextFactory) {
         super(chain);

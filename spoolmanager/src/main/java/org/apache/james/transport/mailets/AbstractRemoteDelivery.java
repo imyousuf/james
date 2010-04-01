@@ -60,6 +60,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.services.MailServer;
+import org.apache.james.transport.camel.DisposeProcessor;
 import org.apache.james.transport.camel.InMemoryMail;
 import org.apache.james.transport.camel.JamesCamelConstants;
 import org.apache.james.util.TimeConverter;
@@ -1707,12 +1708,20 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
 	 * 
 	 */
 	private final class RemoteDeliveryRouteBuilder extends RouteBuilder {
+        private Processor disposeProcessor = new DisposeProcessor();
 
 		@Override
 		public void configure() throws Exception {
 			from(getOutgoingQueueEndpoint(outgoingQueue))
 			.inOnly()
 			.transacted()
+            
+            // dispose the mail object if an exception was thrown while processing this route
+            .onException(Exception.class).process(disposeProcessor).end()
+                
+            // dispose the mail object if route processing was complete
+            .onCompletion().process(disposeProcessor).end()
+            
 			.process(new DeliveryProcessor())
 			.choice()
 			.when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).to(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().stop().end();
@@ -1720,6 +1729,13 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
 			fromF("pollingjms:queue?delay=30000&consumer.endpointUri=%s", getOutgoingRetryQueueEndpoint(outgoingRetryQueue))
 			.inOnly()
 			.transacted()
+            
+            // dispose the mail object if an exception was thrown while processing this route
+            .onException(Exception.class).process(disposeProcessor).end()
+                
+            // dispose the mail object if route processing was complete
+            .onCompletion().process(disposeProcessor).end()
+            
 			.process(new DeliveryProcessor())
 			.choice()
 			.when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).toF(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().stop().end();
