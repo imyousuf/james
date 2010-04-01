@@ -25,7 +25,7 @@ package org.apache.james.transport.camel;
  */
 public class JMSProcessorRouteBuilder extends AbstractProcessorRouteBuilder{
 
-	private int maxConcurrentConsumers = 50;
+	private int maxConcurrentConsumers = 20;
 
 	public void setMaxConcurrentConsumers(int maxConcurrentConsumers) {
 		this.maxConcurrentConsumers = maxConcurrentConsumers;
