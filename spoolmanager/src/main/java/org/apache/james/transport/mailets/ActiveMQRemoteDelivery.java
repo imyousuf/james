@@ -19,21 +19,22 @@
 package org.apache.james.transport.mailets;
 
 /**
- * RemoteDelivery implementation which use ActiveMQ for the outgoing spooling / queue
+ * RemoteDelivery implementation which use ActiveMQ for the outgoing spooling /
+ * queue
  * 
- *
+ * 
  */
-public class ActiveMQRemoteDelivery extends AbstractRemoteDelivery{
+public class ActiveMQRemoteDelivery extends AbstractRemoteDelivery {
 
-	@Override
-	protected String getOutgoingQueueEndpoint(String outgoingQueue) {
-		return "activemq:queue:"+ outgoingQueue;
-	}
+    @Override
+    protected String getOutgoingQueueEndpoint(String outgoingQueue) {
+        return "activemq:queue:" + outgoingQueue;
+    }
 
-	@Override
-	protected String getOutgoingRetryQueueEndpoint(String outgoingRetryQueue) {
-		return "activemq:queue:"+ outgoingRetryQueue;
+    @Override
+    protected String getOutgoingRetryQueueEndpoint(String outgoingRetryQueue) {
+        return "activemq:queue:" + outgoingRetryQueue;
 
-	}
+    }
 
 }

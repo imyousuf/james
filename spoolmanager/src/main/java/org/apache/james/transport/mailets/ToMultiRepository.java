@@ -280,34 +280,33 @@ public class ToMultiRepository extends GenericMailet {
 
     /**
      * Get the user inbox: if the repositoryUrl is null then get the userinbox
-     * from the mailserver, otherwise lookup the store with the given 
+     * from the mailserver, otherwise lookup the store with the given
      * repositoryurl/type
-     *   
+     * 
      * @param userName
      */
     private MailRepository getRepository(String userName) {
-		if (SELECTOR_LOCALPART.equals(repositorySelector)) {
-			// find the username for delivery to that user - localname, ignore
-			// the rest
-			String[] addressParts = userName.split("@");
-			userName = addressParts[0];
-		}
+        if (SELECTOR_LOCALPART.equals(repositorySelector)) {
+            // find the username for delivery to that user - localname, ignore
+            // the rest
+            String[] addressParts = userName.split("@");
+            userName = addressParts[0];
+        }
 
-		StringBuffer destinationBuffer = new StringBuffer(192).append(
-				repositoryUrl).append(userName).append("/");
-		String destination = destinationBuffer.toString();
-		DefaultConfigurationBuilder mboxConf = new DefaultConfigurationBuilder();
-		mboxConf.addProperty("[@destinationURL]", destination);
-		mboxConf.addProperty("[@type]", repositoryType);
-		MailRepository userInbox;
-		try {
-			userInbox = (MailRepository) store.select(mboxConf);
-		} catch (Exception e) {
-			log("Cannot open repository " + e);
-			userInbox = null;
-		}
+        StringBuffer destinationBuffer = new StringBuffer(192).append(repositoryUrl).append(userName).append("/");
+        String destination = destinationBuffer.toString();
+        DefaultConfigurationBuilder mboxConf = new DefaultConfigurationBuilder();
+        mboxConf.addProperty("[@destinationURL]", destination);
+        mboxConf.addProperty("[@type]", repositoryType);
+        MailRepository userInbox;
+        try {
+            userInbox = (MailRepository) store.select(mboxConf);
+        } catch (Exception e) {
+            log("Cannot open repository " + e);
+            userInbox = null;
+        }
 
-		return userInbox;
-	}
+        return userInbox;
+    }
 
 }

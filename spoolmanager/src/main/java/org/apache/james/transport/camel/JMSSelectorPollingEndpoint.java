@@ -61,11 +61,9 @@ public class JMSSelectorPollingEndpoint extends ScheduledPollEndpoint{
         return consumer;
     }
 
-	@Override
-	public boolean isLenientProperties() {
-		return true;
-	}
-    
-    
+    @Override
+    public boolean isLenientProperties() {
+        return true;
+    }
 
 }
