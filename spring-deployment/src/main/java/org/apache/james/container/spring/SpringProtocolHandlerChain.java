@@ -51,6 +51,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * 
  *
  */
+@SuppressWarnings("unchecked")
 public class SpringProtocolHandlerChain implements BeanFactoryPostProcessor, ProtocolHandlerChain, ApplicationContextAware, ApplicationListener, BeanNameAware {
 
     private final List<String> handlers = new LinkedList<String>();
@@ -182,7 +183,6 @@ public class SpringProtocolHandlerChain implements BeanFactoryPostProcessor, Pro
     /* (non-Javadoc)
      * @see org.apache.james.socket.shared.ProtocolHandlerChain#getHandlers(java.lang.Class)
      */
-    @SuppressWarnings("unchecked")
     public <T> LinkedList<T> getHandlers(Class<T> type) {
         LinkedList<T> result = new LinkedList<T>();
         Map<String,T> beans = context.getBeansOfType(type);
@@ -203,7 +203,6 @@ public class SpringProtocolHandlerChain implements BeanFactoryPostProcessor, Pro
      * @param configuration
      *            configuration under handlerchain node
      */
-    @SuppressWarnings("unchecked")
     private void loadHandlers(BeanDefinitionRegistry registry, HierarchicalConfiguration commonsConf) throws Exception {
 
             List<org.apache.commons.configuration.HierarchicalConfiguration> children = ((HierarchicalConfiguration) commonsConf).configurationsAt("handler");
