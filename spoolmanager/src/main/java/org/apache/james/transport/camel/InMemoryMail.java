@@ -76,8 +76,15 @@ public class InMemoryMail extends MailImpl {
         mimeMessage = out.toByteArray();
         
         // we have the MimeMessage copied to the byte array, so time to dispose the shared stuff
-        dispose();
+        super.dispose();
    
+    }
+    
+    public void dispose() {
+        // clear the byte array
+        mimeMessage = null;
+        
+        super.dispose();
     }
 
 }
