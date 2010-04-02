@@ -30,8 +30,12 @@ import org.apache.james.lifecycle.LifecycleUtil;
  */
 public class DisposeProcessor implements Processor{
 
-	public void process(Exchange arg0) throws Exception {
-		LifecycleUtil.dispose(arg0.getIn().getBody());
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
+     */
+    public void process(Exchange arg0) throws Exception {
+        LifecycleUtil.dispose(arg0.getIn().getBody());
+    }
 
 }

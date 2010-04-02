@@ -19,23 +19,24 @@
 package org.apache.james.transport.mailets;
 
 /**
- * RemoteDelivery implementation which use JMS for the outgoing spooling / queue.
+ * RemoteDelivery implementation which use JMS for the outgoing spooling /
+ * queue.
  * 
  * If you use ActiveMQ you should use {@link ActiveMQRemoteDelivery}
  * 
- *
+ * 
  */
-public class JMSRemoteDelivery extends AbstractRemoteDelivery{
+public class JMSRemoteDelivery extends AbstractRemoteDelivery {
 
-	@Override
-	protected String getOutgoingQueueEndpoint(String outgoingQueue) {
-		return "jms:queue:"+ outgoingQueue;
-	}
+    @Override
+    protected String getOutgoingQueueEndpoint(String outgoingQueue) {
+        return "jms:queue:" + outgoingQueue;
+    }
 
-	@Override
-	protected String getOutgoingRetryQueueEndpoint(String outgoingRetryQueue) {
-		return "jms:queue:"+ outgoingRetryQueue;
+    @Override
+    protected String getOutgoingRetryQueueEndpoint(String outgoingRetryQueue) {
+        return "jms:queue:" + outgoingRetryQueue;
 
-	}
+    }
 
 }
