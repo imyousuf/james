@@ -32,6 +32,7 @@ import org.apache.camel.Handler;
 import org.apache.camel.InOnly;
 import org.apache.camel.Property;
 import org.apache.commons.logging.Log;
+import org.apache.james.core.MailImpl;
 import org.apache.james.transport.ProcessorUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -113,7 +114,7 @@ public class MatcherSplitter {
             Iterator<MailAddress> rcptsIterator = matchedRcpts.iterator();
             
             while(rcptsIterator.hasNext()) {
-                // loop through the recipients and remove the recipiends that matched
+                // loop through the recipients and remove the recipients that matched
                 rcpts.remove(rcptsIterator.next());
             }
             
@@ -123,7 +124,7 @@ public class MatcherSplitter {
             } else {
                 mail.setRecipients(rcpts);
                 
-                Mail newMail = new InMemoryMail(mail);
+                Mail newMail = new MailImpl(mail);
                 newMail.setRecipients(matchedRcpts);
                 
               

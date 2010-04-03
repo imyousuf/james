@@ -25,10 +25,8 @@ import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.base.RFC2822Headers;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
@@ -214,30 +212,7 @@ public class MailImpl implements Disposable, Mail {
         this.setMessage(new MimeMessageCopyOnWriteProxy(message));
     }
 
-    /**
-     * Gets the MailAddress corresponding to the existing "Return-Path" of
-     * <I>message</I>.
-     * If missing or empty returns <CODE>null</CODE>,
-     */
-    private MailAddress getReturnPath(MimeMessage message) throws MessagingException {
-        MailAddress mailAddress = null;
-        String[] returnPathHeaders = message.getHeader(RFC2822Headers.RETURN_PATH);
-        String returnPathHeader = null;
-        if (returnPathHeaders != null) {
-            returnPathHeader = returnPathHeaders[0];
-            if (returnPathHeader != null) {
-                returnPathHeader = returnPathHeader.trim();
-                if (!returnPathHeader.equals("<>")) {
-                    try {
-                        mailAddress = new MailAddress(new InternetAddress(returnPathHeader, false));
-                    } catch (ParseException pe) {
-                        throw new MessagingException("Could not parse address: " + returnPathHeader + " from " + message.getHeader(RFC2822Headers.RETURN_PATH, ", "), pe);
-                    }
-                }
-            }
-        }
-        return mailAddress;
-    }
+
     /**
      * Duplicate the MailImpl.
      *

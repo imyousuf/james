@@ -159,6 +159,13 @@
         <property name="start" value="true" />
     </bean>
 
+    <bean id ="spoolMessageStore" class="org.apache.james.FileSpoolMessageStore">
+        <constructor-arg index="0" value="../var/mail/spool"/>
+    </bean> 
+    <bean id ="mailClaimCheck" class="org.apache.james.transport.camel.MailClaimCheck"/>
+    <bean id ="mailEnricher" class="org.apache.james.transport.camel.MailEnricher"/>
+
+
     <!-- mailserver implementation which use activemq for spooling the mail -->
     <bean id="mailserver" name="James" class="org.apache.james.ActiveMQMailServer"/>
 
