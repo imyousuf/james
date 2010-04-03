@@ -123,6 +123,10 @@ public class FileSpoolMessageStore implements SpoolMessageStore{
             return id;
         }
 
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.lifecycle.Disposable#dispose()
+         */
         public void dispose() {
             file.delete();
         }
