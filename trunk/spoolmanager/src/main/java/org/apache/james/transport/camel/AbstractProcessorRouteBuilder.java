@@ -106,15 +106,9 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                 
                 // use transaction
                 .transacted()
-                
-                // dispose the mail object if an exception was thrown while processing this route
-                .onException(Exception.class).process(disposeProcessor).end()
-                
-                // dispose the mail object if route processing was complete
-                .onCompletion().process(disposeProcessor).end()
-                
+               
                 // check that body is not null, just to be sure...
-                .choice().when(body().isNotNull());
+                .choice().when(body().isNotNull()).beanRef("mailEnricher");
             
             final List<HierarchicalConfiguration> mailetConfs = processorConf.configurationsAt("mailet");
             // Loop through the mailet configuration, load
@@ -219,11 +213,11 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                             .choice()
                
                             // if the mailstate is GHOST whe should just dispose and stop here.
-                            .when(new MailStateEquals(Mail.GHOST)).stop()
+                            .when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop()
                              
                             // check if the state of the mail is the same as the
                             // current processor. If not just route it to the right endpoint via recipientList and stop processing.
-                            .when(new MailStateNotEquals(processorName)).recipientList().method(getRecipientList()).stop()
+                            .when(new MailStateNotEquals(processorName)).beanRef("mailClaimCheck").recipientList().method(getRecipientList()).stop()
                             
                             // end first choice
                             .end()
@@ -257,7 +251,7 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                     .end()
                     
                      // route it to the right processor
-                    .recipientList().method(getRecipientList());
+                    .beanRef("mailClaimCheck").recipientList().method(getRecipientList());
                   
         }
     }

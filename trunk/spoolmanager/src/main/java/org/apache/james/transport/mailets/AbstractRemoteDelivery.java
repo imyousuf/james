@@ -59,9 +59,9 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
+import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
 import org.apache.james.transport.camel.DisposeProcessor;
-import org.apache.james.transport.camel.InMemoryMail;
 import org.apache.james.transport.camel.JamesCamelConstants;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.HostAddress;
@@ -580,7 +580,7 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
                     StringBuilder logMessageBuffer = new StringBuilder(128).append("Sending mail to ").append(rec).append(" on host ").append(host);
                     log(logMessageBuffer.toString());
                 }
-                Mail m = new InMemoryMail(mail);
+                Mail m = new MailImpl(mail);
                 m.setRecipients(rec);
                 StringBuilder nameBuffer = new StringBuilder(128).append(name).append("-to-").append(host);
                 m.setName(nameBuffer.toString());
@@ -597,7 +597,7 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
                 log(logMessageBuffer.toString());
             }
 
-            producerTemplate.sendBody("activemq:queue:" + outgoingQueue, new InMemoryMail(mail));
+            producerTemplate.sendBody("activemq:queue:" + outgoingQueue, mail);
 
             // Set it to try to deliver (in a separate thread) immediately
             // (triggered by storage)
@@ -1553,26 +1553,12 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
         @Override
         public void configure() throws Exception {
             from(getOutgoingQueueEndpoint(outgoingQueue)).inOnly().transacted()
-
-            // dispose the mail object if an exception was thrown while
-            // processing this route
-                    .onException(Exception.class).process(disposeProcessor).end()
-
-                    // dispose the mail object if route processing was complete
-                    .onCompletion().process(disposeProcessor).end()
-
-                    .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).to(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().stop().end();
+            
+            .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).to(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().process(disposeProcessor).stop().end();
 
             fromF("pollingjms:queue?delay=30000&consumer.endpointUri=%s", getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).inOnly().transacted()
 
-            // dispose the mail object if an exception was thrown while
-            // processing this route
-                    .onException(Exception.class).process(disposeProcessor).end()
-
-                    // dispose the mail object if route processing was complete
-                    .onCompletion().process(disposeProcessor).end()
-
-                    .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).toF(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().stop().end();
+            .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).toF(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().process(disposeProcessor).stop().end();
         }
 
     }

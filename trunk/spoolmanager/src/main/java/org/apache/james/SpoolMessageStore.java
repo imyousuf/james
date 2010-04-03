@@ -16,30 +16,37 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james;
 
-package org.apache.james.transport.camel;
+import java.io.IOException;
+import java.io.OutputStream;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
-import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.mailet.Mail;
+import org.apache.james.core.MimeMessageSource;
+
 
 /**
- * Processor which dispose body object if needed
+ * Store which store the complete Email message for spooling. This is used via 
+ * Claim check in conjunction with JMS
  * 
  *
  */
-public class DisposeProcessor implements Processor{
+public interface SpoolMessageStore {
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
+    /**
+     * Return a OutputStream for the given key which can be used to write the 
+     * Email message to
+     * 
+     * @param key
+     * @return out
      */
-    public void process(Exchange arg0) throws Exception {
-        Mail mail = arg0.getIn().getBody(Mail.class);
-        LifecycleUtil.dispose(mail.getMessage());
-        LifecycleUtil.dispose(mail);
-
-    }
-
+    public OutputStream saveMessage(String key) throws IOException;
+    
+    
+    /**
+     * Return the Email message as {@link MimeMessageSource}
+     * 
+     * @param key
+     * @return source
+     */
+    public MimeMessageSource getMessage(String key) throws IOException;
 }

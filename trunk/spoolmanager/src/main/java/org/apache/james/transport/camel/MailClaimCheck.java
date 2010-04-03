@@ -16,30 +16,51 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.transport.camel;
 
+
+
+import java.io.OutputStream;
+
+import javax.annotation.Resource;
+
+import org.apache.camel.Body;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.SpoolMessageStore;
 import org.apache.mailet.Mail;
 
 /**
- * Processor which dispose body object if needed
+ * Bean which is used in the camel route to store the real message content to some external
+ * storage. This is needed because JMS is not really the best solution for big content
  * 
+ * This Bean should get called before the Exchange object get send the JMS Endpoint
  *
  */
-public class DisposeProcessor implements Processor{
+public final class MailClaimCheck {
+    
+    private SpoolMessageStore spoolMessageStore;
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
-     */
-    public void process(Exchange arg0) throws Exception {
-        Mail mail = arg0.getIn().getBody(Mail.class);
-        LifecycleUtil.dispose(mail.getMessage());
-        LifecycleUtil.dispose(mail);
-
+    @Resource(name="spoolMessageStore")
+    public void setSpooolMessageStore(SpoolMessageStore spoolMessageStore) {
+        this.spoolMessageStore = spoolMessageStore;
     }
-
+    
+    
+    /**
+     * Save the Email Message to an external storage
+     * 
+     * @param exchange
+     * @param mail
+     * @throws Exception
+     */
+    public void saveMessage(Exchange exchange, @Body Mail mail) throws Exception{
+        
+        OutputStream out = spoolMessageStore.saveMessage(mail.getName());
+        // write the message to the store
+        mail.getMessage().writeTo(out);
+        
+        // close stream
+        out.close();
+        
+    }
 }
