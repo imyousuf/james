@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
@@ -39,19 +37,17 @@ import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 
-
 /**
-  * Handles RSET command
-  */
+ * Handles RSET command
+ */
 public class RsetCmdHandler implements CommandHandler<POP3Session> {
-	private final static String COMMAND_NAME = "RSET";
-	
-	
-	/**
-     * Handler method called upon receipt of a RSET command.
-     * Calls stat() to reset the mailbox.
-     *
-	 */
+    private final static String COMMAND_NAME = "RSET";
+
+    /**
+     * Handler method called upon receipt of a RSET command. Calls stat() to
+     * reset the mailbox.
+     * 
+     */
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
@@ -60,36 +56,33 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
-        return response;    
+        return response;
     }
 
-   
-
     /**
-     * Implements a "stat".  If the handler is currently in
-     * a transaction state, this amounts to a rollback of the
-     * mailbox contents to the beginning of the transaction.
-     * This method is also called when first entering the
-     * transaction state to initialize the handler copies of the
-     * user inbox.
-     *
+     * Implements a "stat". If the handler is currently in a transaction state,
+     * this amounts to a rollback of the mailbox contents to the beginning of
+     * the transaction. This method is also called when first entering the
+     * transaction state to initialize the handler copies of the user inbox.
+     * 
      */
     protected void stat(POP3Session session) {
         try {
             MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
 
             List<Long> uids = new ArrayList<Long>();
-        	Iterator<MessageResult> it = session.getUserMailbox().getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+            Iterator<MessageResult> it = session.getUserMailbox().getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
             while (it.hasNext()) {
-            	uids.add(it.next().getUid());
+                uids.add(it.next().getUid());
             }
             session.getState().put(POP3Session.UID_LIST, uids);
             session.getState().put(POP3Session.DELETED_UID_LIST, new ArrayList<Long>());
-        } catch(MessagingException e) {
-            // In the event of an exception being thrown there may or may not be anything in userMailbox
+        } catch (MessagingException e) {
+            // In the event of an exception being thrown there may or may not be
+            // anything in userMailbox
             session.getLogger().error("Unable to STAT mail box ", e);
         }
-        
+
     }
 
     /**
@@ -100,5 +93,5 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
         commands.add(COMMAND_NAME);
         return commands;
     }
-    
+
 }

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
@@ -32,72 +30,53 @@ import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 
 /**
-  * Handles UIDL command
-  */
+ * Handles UIDL command
+ */
 public class UidlCmdHandler implements CommandHandler<POP3Session>, CapaCapability {
-	private final static String COMMAND_NAME = "UIDL";
+    private final static String COMMAND_NAME = "UIDL";
 
-	/**
-     * Handler method called upon receipt of a UIDL command.
-     * Returns a listing of message ids to the client.
-     *
-	 */
+    /**
+     * Handler method called upon receipt of a UIDL command. Returns a listing
+     * of message ids to the client.
+     * 
+     */
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
             List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
-              
+
             if (parameters == null) {
-                response = new POP3Response(POP3Response.OK_RESPONSE,"unique-id listing follows");
+                response = new POP3Response(POP3Response.OK_RESPONSE, "unique-id listing follows");
                 for (int i = 0; i < uidList.size(); i++) {
-                	Long uid = uidList.get(i);
+                    Long uid = uidList.get(i);
                     if (deletedUidList.contains(uid) == false) {
-                        StringBuilder responseBuffer =
-                            new StringBuilder(64)
-                                    .append(i + 1 )
-                                    .append(" ")
-                                    .append(uid);
-                        response.appendLine(responseBuffer.toString());                        
+                        StringBuilder responseBuffer = new StringBuilder(64).append(i + 1).append(" ").append(uid);
+                        response.appendLine(responseBuffer.toString());
                     }
                 }
-               
+
                 response.appendLine(".");
             } else {
                 int num = 0;
                 try {
                     num = Integer.parseInt(parameters);
-                    Long uid = uidList.get(num -1);
+                    Long uid = uidList.get(num - 1);
                     if (deletedUidList.contains(uid) == false) {
- 
-                        StringBuilder responseBuffer =
-                            new StringBuilder(64)
-                                    .append(num)
-                                    .append(" ")
-                                    .append(uid.hashCode());
+
+                        StringBuilder responseBuffer = new StringBuilder(64).append(num).append(" ").append(uid.hashCode());
                         response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
 
                     } else {
-                        StringBuilder responseBuffer =
-                            new StringBuilder(64)
-                                    .append("Message (")
-                                    .append(num)
-                                    .append(") already deleted.");
+                        StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") already deleted.");
                         response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                     }
                 } catch (IndexOutOfBoundsException npe) {
-                    StringBuilder responseBuffer =
-                        new StringBuilder(64)
-                                .append("Message (")
-                                .append(num)
-                                .append(") does not exist.");
+                    StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
                     response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                 } catch (NumberFormatException nfe) {
-                    StringBuilder responseBuffer =
-                        new StringBuilder(64)
-                                .append(parameters)
-                                .append(" is not a valid number");
+                    StringBuilder responseBuffer = new StringBuilder(64).append(parameters).append(" is not a valid number");
                     response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                 }
             }
@@ -107,24 +86,23 @@ public class UidlCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
         return response;
     }
 
-    
-	
-	/**
+    /**
      * @see org.apache.james.pop3server.core.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
      */
-	public List<String> getImplementedCapabilities(POP3Session session) {
-		List<String> caps = new ArrayList<String>();
-		if (session.getHandlerState() == POP3Session.TRANSACTION) {
-			caps.add(COMMAND_NAME);
-			return caps;
-		}
-		return caps;
-	}
+    public List<String> getImplementedCapabilities(POP3Session session) {
+        List<String> caps = new ArrayList<String>();
+        if (session.getHandlerState() == POP3Session.TRANSACTION) {
+            caps.add(COMMAND_NAME);
+            return caps;
+        }
+        return caps;
+    }
 
-	/**
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
-	 */
+    /**
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
+     */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();
         commands.add(COMMAND_NAME);

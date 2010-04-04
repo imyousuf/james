@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.pop3server.core;
 
 import java.util.List;
@@ -25,17 +24,19 @@ import java.util.List;
 import org.apache.james.pop3server.POP3Session;
 
 /**
- * A handler which support the POP3 Extension Mechanism should implement this interface
+ * A handler which support the POP3 Extension Mechanism should implement this
+ * interface
  * 
- *
+ * 
  */
 public interface CapaCapability {
 
-	/**
-	 * Return a List of responses which should get returned when a client issue the CAPA command
-	 *
-	 * @param session
-	 * @return list
-	 */
-	public List<String> getImplementedCapabilities(POP3Session session);
+    /**
+     * Return a List of responses which should get returned when a client issue
+     * the CAPA command
+     * 
+     * @param session
+     * @return list
+     */
+    public List<String> getImplementedCapabilities(POP3Session session);
 }

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
@@ -39,77 +37,72 @@ import org.apache.james.protocols.api.Response;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 
 /**
-  * Handles PASS command
-  */
+ * Handles PASS command
+ */
 public class PassCmdHandler extends RsetCmdHandler {
 
-	private final static String COMMAND_NAME ="PASS";
-	private MailboxManager mailboxManager;
+    private final static String COMMAND_NAME = "PASS";
+    private MailboxManager mailboxManager;
 
+    @Resource(name = "mailboxmanager")
+    public void setMailboxManager(MailboxManager manager) {
+        this.mailboxManager = manager;
+    }
 
-	@Resource(name="mailboxmanager")
-	public void setMailboxManager(MailboxManager manager) {
-		this.mailboxManager = manager;
-	}
-	
-	/**
-     * Handler method called upon receipt of a PASS command.
-     * Reads in and validates the password.
-     *
-	 */
+    /**
+     * Handler method called upon receipt of a PASS command. Reads in and
+     * validates the password.
+     * 
+     */
     public Response onCommand(POP3Session session, Request request) {
-    	String parameters = request.getArgument();
+        String parameters = request.getArgument();
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.AUTHENTICATION_USERSET && parameters != null) {
             String passArg = parameters;
-                try {
-                    MailboxSession mSession = mailboxManager.login(session.getUser(), passArg, session.getLogger());
-                    StringBuffer sb = new StringBuffer();
-                    sb.append(mailboxManager.getUserNameSpacePrefix());
-                    sb.append(mailboxManager.getDelimiter());
-                    sb.append(session.getUser());
-                    sb.append(mailboxManager.getDelimiter());
-                    sb.append("INBOX");;
-                    String mailboxName = sb.toString();
-                    
-                    // check if mailbox exists.. if not just create it
-                    if (mailboxManager.mailboxExists(mailboxName, mSession) == false) {
-                        mailboxManager.createMailbox(mailboxName, mSession); 
-                    }
-                    Mailbox mailbox = mailboxManager.getMailbox(mailboxName, mSession);
-                    
-                    session.getState().put(POP3Session.MAILBOX_SESSION, mSession);
-                    session.setUserMailbox(mailbox);
-                    stat(session);
-                    
-                    // Store the ipAddress to use it later for pop before smtp 
-                    POP3BeforeSMTPHelper.addIPAddress(session.getRemoteIPAddress());
-                    
-                    StringBuilder responseBuffer =
-                        new StringBuilder(64)
-                                .append("Welcome ")
-                                .append(session.getUser());
-                    response = new POP3Response(POP3Response.OK_RESPONSE,responseBuffer.toString());
-                    session.setHandlerState(POP3Session.TRANSACTION);
-                } catch (BadCredentialsException e) {
-                	
-                    response = new POP3Response(POP3Response.ERR_RESPONSE, "Authentication failed.");
-                    session.setHandlerState(POP3Session.AUTHENTICATION_READY);
-                } catch (MailboxException e) {
-                    session.getLogger().error("Unexpected error accessing mailbox for "+session.getUser(),e);
-                    response = new POP3Response(POP3Response.ERR_RESPONSE,"Unexpected error accessing mailbox");
-                    session.setHandlerState(POP3Session.AUTHENTICATION_READY);
-                }
-            } else {
-                response = new POP3Response(POP3Response.ERR_RESPONSE, "Authentication failed.");
+            try {
+                MailboxSession mSession = mailboxManager.login(session.getUser(), passArg, session.getLogger());
+                StringBuffer sb = new StringBuffer();
+                sb.append(mailboxManager.getUserNameSpacePrefix());
+                sb.append(mailboxManager.getDelimiter());
+                sb.append(session.getUser());
+                sb.append(mailboxManager.getDelimiter());
+                sb.append("INBOX");
+                ;
+                String mailboxName = sb.toString();
 
+                // check if mailbox exists.. if not just create it
+                if (mailboxManager.mailboxExists(mailboxName, mSession) == false) {
+                    mailboxManager.createMailbox(mailboxName, mSession);
+                }
+                Mailbox mailbox = mailboxManager.getMailbox(mailboxName, mSession);
+
+                session.getState().put(POP3Session.MAILBOX_SESSION, mSession);
+                session.setUserMailbox(mailbox);
+                stat(session);
+
+                // Store the ipAddress to use it later for pop before smtp
+                POP3BeforeSMTPHelper.addIPAddress(session.getRemoteIPAddress());
+
+                StringBuilder responseBuffer = new StringBuilder(64).append("Welcome ").append(session.getUser());
+                response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
+                session.setHandlerState(POP3Session.TRANSACTION);
+            } catch (BadCredentialsException e) {
+
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Authentication failed.");
+                session.setHandlerState(POP3Session.AUTHENTICATION_READY);
+            } catch (MailboxException e) {
+                session.getLogger().error("Unexpected error accessing mailbox for " + session.getUser(), e);
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Unexpected error accessing mailbox");
                 session.setHandlerState(POP3Session.AUTHENTICATION_READY);
             }
-        
-        return response;    
-    }
+        } else {
+            response = new POP3Response(POP3Response.ERR_RESPONSE, "Authentication failed.");
 
-  
+            session.setHandlerState(POP3Session.AUTHENTICATION_READY);
+        }
+
+        return response;
+    }
 
     /**
      * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
@@ -119,6 +112,5 @@ public class PassCmdHandler extends RsetCmdHandler {
         commands.add(COMMAND_NAME);
         return commands;
     }
-
 
 }

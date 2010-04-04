@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
@@ -40,30 +38,28 @@ import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 
 /**
-  * Handles STAT command
-  */
+ * Handles STAT command
+ */
 public class StatCmdHandler implements CommandHandler<POP3Session> {
-	private final static String COMMAND_NAME = "STAT";
+    private final static String COMMAND_NAME = "STAT";
 
-	/**
-     * Handler method called upon receipt of a STAT command.
-     * Returns the number of messages in the mailbox and its
-     * aggregate size.
-     *
-	 */
+    /**
+     * Handler method called upon receipt of a STAT command. Returns the number
+     * of messages in the mailbox and its aggregate size.
+     * 
+     */
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
-  
+
             try {
-            	List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+                List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
                 List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
                 long size = 0;
                 int count = 0;
                 if (uidList.isEmpty() == false) {
                     MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
-                    Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.range(uidList.get(0), uidList.get(uidList.size() -1)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
-
+                    Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.range(uidList.get(0), uidList.get(uidList.size() - 1)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
 
                     List<MessageResult> validResults = new ArrayList<MessageResult>();
                     while (results.hasNext()) {
@@ -75,12 +71,8 @@ public class StatCmdHandler implements CommandHandler<POP3Session> {
                         }
                     }
                 }
-                StringBuilder responseBuffer =
-                    new StringBuilder(32)
-                            .append(count)
-                            .append(" ")
-                            .append(size);
-                response = new POP3Response(POP3Response.OK_RESPONSE,responseBuffer.toString());
+                StringBuilder responseBuffer = new StringBuilder(32).append(count).append(" ").append(size);
+                response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
             } catch (MessagingException me) {
                 response = new POP3Response(POP3Response.ERR_RESPONSE);
             }
@@ -89,8 +81,6 @@ public class StatCmdHandler implements CommandHandler<POP3Session> {
         }
         return response;
     }
-
-
 
     /**
      * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()

@@ -20,7 +20,6 @@
 package org.apache.james.pop3server.mina;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
@@ -29,83 +28,97 @@ import org.apache.commons.logging.Log;
 import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.services.MailRepository;
 import org.apache.james.socket.mina.AbstractMINASession;
-import org.apache.mailet.Mail;
 import org.apache.mina.core.session.IoSession;
 
-public class POP3SessionImpl extends AbstractMINASession implements POP3Session{
+/**
+ * {@link POP3Session} implementation which use MINA
+ * 
+ *
+ */
+public class POP3SessionImpl extends AbstractMINASession implements POP3Session {
 
     public final static String POP3SESSION = "POP3SESSION";
 
-	private POP3HandlerConfigurationData configData;
+    private POP3HandlerConfigurationData configData;
 
-	private Map<String, Object> state = new HashMap<String, Object>();
+    private Map<String, Object> state = new HashMap<String, Object>();
 
-	private int handlerState;
+    private int handlerState;
 
-	private Mailbox mailbox;
-	
-	public POP3SessionImpl(POP3HandlerConfigurationData configData, Log logger, IoSession session, SSLContext context) {
-		super(logger, session, context);
-		
-		this.configData = configData;
-	}
+    private Mailbox mailbox;
 
-	public POP3SessionImpl(POP3HandlerConfigurationData configData, Log logger, IoSession session) {
-		this(configData, logger, session, null);
-	}
-	
+    public POP3SessionImpl(POP3HandlerConfigurationData configData, Log logger, IoSession session, SSLContext context) {
+        super(logger, session, context);
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3Session#getConfigurationData()
-	 */
-	public POP3HandlerConfigurationData getConfigurationData() {
-		return configData;
-	}
+        this.configData = configData;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3Session#getHandlerState()
-	 */
-	public int getHandlerState() {
-		return handlerState;
-	}
+    public POP3SessionImpl(POP3HandlerConfigurationData configData, Log logger, IoSession session) {
+        this(configData, logger, session, null);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.protocol.TLSSupportedSession#getState()
-	 */
-	public Map<String, Object> getState() {
-		return state;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.pop3server.POP3Session#getConfigurationData()
+     */
+    public POP3HandlerConfigurationData getConfigurationData() {
+        return configData;
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.pop3server.POP3Session#getHandlerState()
+     */
+    public int getHandlerState() {
+        return handlerState;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3Session#setHandlerState(int)
-	 */
-	public void setHandlerState(int handlerState) {
-		this.handlerState = handlerState;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.api.protocol.TLSSupportedSession#getState()
+     */
+    public Map<String, Object> getState() {
+        return state;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.protocol.TLSSupportedSession#resetState()
-	 */
-	public void resetState() {
-		state.clear();
-		
-		setHandlerState(AUTHENTICATION_READY);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.pop3server.POP3Session#setHandlerState(int)
+     */
+    public void setHandlerState(int handlerState) {
+        this.handlerState = handlerState;
+    }
 
-	public Mailbox getUserMailbox() {
-		return mailbox;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.api.protocol.TLSSupportedSession#resetState()
+     */
+    public void resetState() {
+        state.clear();
 
-	public void setUserMailbox(Mailbox mailbox) {
-		this.mailbox = mailbox;
-	}
+        setHandlerState(AUTHENTICATION_READY);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.pop3server.POP3Session#getUserMailbox()
+     */
+    public Mailbox getUserMailbox() {
+        return mailbox;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(org.apache.james.imap.mailbox.Mailbox)
+     */
+    public void setUserMailbox(Mailbox mailbox) {
+        this.mailbox = mailbox;
+    }
 
 }

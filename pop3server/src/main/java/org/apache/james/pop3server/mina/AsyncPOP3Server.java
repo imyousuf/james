@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.pop3server.mina;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -33,47 +32,42 @@ import org.apache.mina.core.service.IoHandler;
 /**
  * Async implementation of a POP3Server
  * 
- *
+ * 
  */
-public class AsyncPOP3Server extends AbstractAsyncServer implements POP3ServerMBean{
+public class AsyncPOP3Server extends AbstractAsyncServer implements POP3ServerMBean {
 
     /**
-     * The number of bytes to read before resetting
-     * the connection timeout timer.  Defaults to
-     * 20 KB.
+     * The number of bytes to read before resetting the connection timeout
+     * timer. Defaults to 20 KB.
      */
     private int lengthReset = 20 * 1024;
-    
+
     /**
      * The configuration data to be passed to the handler
      */
-    private POP3HandlerConfigurationData theConfigData
-        = new POP3HandlerConfigurationDataImpl();
+    private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
 
-	private ProtocolHandlerChain handlerChain;
+    private ProtocolHandlerChain handlerChain;
 
+    public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
+        this.handlerChain = handlerChain;
+    }
 
-	public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
-	    this.handlerChain = handlerChain;
-	}
-	
-	@Override
-	protected IoHandler createIoHandler() {
-		return new POP3IoHandler(handlerChain, theConfigData, getLogger(), getSslContextFactory());
-	}
+    @Override
+    protected IoHandler createIoHandler() {
+        return new POP3IoHandler(handlerChain, theConfigData, getLogger(), getSslContextFactory());
+    }
 
+    @Override
+    protected int getDefaultPort() {
+        return 110;
+    }
 
-	@Override
-	protected int getDefaultPort() {
-		return 110;
-	}
-
-	@Override
-	protected String getServiceType() {
+    @Override
+    protected String getServiceType() {
         return "POP3 Service";
-	}
+    }
 
-	 
     @Override
     protected void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         super.doConfigure(configuration);
@@ -83,13 +77,13 @@ public class AsyncPOP3Server extends AbstractAsyncServer implements POP3ServerMB
             getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
         }
     }
-    
+
     /**
      * @see org.apache.james.socket.mina.AbstractAsyncServer#createIoFilterChainBuilder()
      */
     protected DefaultIoFilterChainBuilder createIoFilterChainBuilder() {
         DefaultIoFilterChainBuilder builder = super.createIoFilterChainBuilder();
-        
+
         // response and validation filter to the chain
         builder.addLast("pop3ResponseFilter", new POP3ResponseFilter());
         return builder;
@@ -118,34 +112,33 @@ public class AsyncPOP3Server extends AbstractAsyncServer implements POP3ServerMB
             return AsyncPOP3Server.this.lengthReset;
         }
 
-
         /**
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#isStartTLSSupported()
          */
-		public boolean isStartTLSSupported() {
-			return AsyncPOP3Server.this.isStartTLSSupported();
-		}
+        public boolean isStartTLSSupported() {
+            return AsyncPOP3Server.this.isStartTLSSupported();
+        }
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.pop3server.POP3ServerMBean#getNetworkInterface()
      */
-	public String getNetworkInterface() {
-		return "unkown";
-	}
+    public String getNetworkInterface() {
+        return "unkown";
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.pop3server.POP3ServerMBean#getSocketType()
-	 */
-	public String getSocketType() {
-	    if (isSSLSocket()) {
-	        return "secure";
-	    }
-		return "plain";
-	}
-
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.pop3server.POP3ServerMBean#getSocketType()
+     */
+    public String getSocketType() {
+        if (isSSLSocket()) {
+            return "secure";
+        }
+        return "plain";
+    }
 
 }

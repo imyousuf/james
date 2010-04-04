@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
@@ -34,38 +33,36 @@ import org.apache.james.protocols.api.WiringException;
 
 /**
  * This handler is used to handle CAPA commands
- *
+ * 
  */
-public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHandler, CapaCapability{
-	public final static String COMMAND_NAME = "CAPA";
-	private List<CapaCapability> caps;
+public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHandler, CapaCapability {
+    public final static String COMMAND_NAME = "CAPA";
+    private List<CapaCapability> caps;
 
-
-
-
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.protocols.api.CommandHandler#onCommand(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Request)
-	 */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.protocols.api.CommandHandler#onCommand(org.apache.james
+     * .protocols.api.ProtocolSession, org.apache.james.protocols.api.Request)
+     */
     public Response onCommand(POP3Session session, Request request) {
-	    POP3Response response = new POP3Response(POP3Response.OK_RESPONSE,"Capability list follows");
-		
-		for (int i = 0; i < caps.size(); i++) {
-			List<String> cList = caps.get(i).getImplementedCapabilities(session);
-			for (int a = 0; a < cList.size(); a++) {
-				response.appendLine(cList.get(a));
-			}
-		}
-		response.appendLine(".");
-		return response;
-	}
-	
+        POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, "Capability list follows");
 
-	/**
-	 * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
-	 */
-	@SuppressWarnings("unchecked")
+        for (int i = 0; i < caps.size(); i++) {
+            List<String> cList = caps.get(i).getImplementedCapabilities(session);
+            for (int a = 0; a < cList.size(); a++) {
+                response.appendLine(cList.get(a));
+            }
+        }
+        response.appendLine(".");
+        return response;
+    }
+
+    /**
+     * @see org.apache.james.api.protocol.ExtensibleHandler#getMarkerInterfaces()
+     */
+    @SuppressWarnings("unchecked")
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> mList = new ArrayList();
         mList.add(CapaCapability.class);
@@ -73,11 +70,11 @@ public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHa
     }
 
     /**
-     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class,
+     *      java.util.List)
      */
     @SuppressWarnings("unchecked")
-    public void wireExtensions(Class interfaceName, List extension)
-            throws WiringException {
+    public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (interfaceName.equals(CapaCapability.class)) {
             caps = extension;
         }
@@ -92,14 +89,13 @@ public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHa
         return commands;
     }
 
-
     /**
      * @see org.apache.james.pop3server.core.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
      */
-	public List<String> getImplementedCapabilities(POP3Session session) {
-		 List<String> cList = new ArrayList<String>();
-	     cList.add("PIPELINING");
-	     return cList;
-	}
+    public List<String> getImplementedCapabilities(POP3Session session) {
+        List<String> cList = new ArrayList<String>();
+        cList.add("PIPELINING");
+        return cList;
+    }
 
 }

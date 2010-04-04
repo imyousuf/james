@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
@@ -31,30 +29,27 @@ import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 
-
 /**
-  * Default command handler for handling unknown commands
-  */
+ * Default command handler for handling unknown commands
+ */
 public class UnknownCmdHandler implements CommandHandler<POP3Session> {
     /**
      * The name of the command handled by the command handler
      */
     public static final String COMMAND_NAME = "UNKNOWN";
 
-
     /**
-     * Handler method called upon receipt of an unrecognized command.
-     * Returns an error response and logs the command.    
-     *
+     * Handler method called upon receipt of an unrecognized command. Returns an
+     * error response and logs the command.
+     * 
      */
     public Response onCommand(POP3Session session, Request request) {
         return new POP3Response(POP3Response.ERR_RESPONSE);
     }
 
-
-	/**
-	 * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
-	 */
+    /**
+     * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
+     */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();
         commands.add(COMMAND_NAME);

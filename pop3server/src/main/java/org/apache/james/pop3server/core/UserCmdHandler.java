@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
@@ -32,18 +30,17 @@ import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 
 /**
-  * Handles NOOP command
-  */
+ * Handles NOOP command
+ */
 public class UserCmdHandler implements CommandHandler<POP3Session>, CapaCapability {
 
-	private final static String COMMAND_NAME = "USER";
+    private final static String COMMAND_NAME = "USER";
 
-
-	/**
-     * Handler method called upon receipt of a USER command.
-     * Reads in the user id.
-     *
-	 */
+    /**
+     * Handler method called upon receipt of a USER command. Reads in the user
+     * id.
+     * 
+     */
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
@@ -54,23 +51,21 @@ public class UserCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
-        return response;   
+        return response;
     }
-
-   
 
     /**
      * @see org.apache.james.pop3server.core.CapaCapability#getImplementedCapabilities(org.apache.james.pop3server.POP3Session)
      */
-	public List<String> getImplementedCapabilities(POP3Session session) {
-		List<String> caps = new ArrayList<String>();
-		caps.add(COMMAND_NAME);
-		return caps;
-	}
+    public List<String> getImplementedCapabilities(POP3Session session) {
+        List<String> caps = new ArrayList<String>();
+        caps.add(COMMAND_NAME);
+        return caps;
+    }
 
-	/**
-	 * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
-	 */
+    /**
+     * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
+     */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();
         commands.add(COMMAND_NAME);

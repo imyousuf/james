@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server.core;
 
 import java.io.IOException;
@@ -44,19 +42,17 @@ import org.apache.james.protocols.api.Response;
 import org.apache.james.socket.MessageStream;
 
 /**
-  * Handles RETR command
-  */
+ * Handles RETR command
+ */
 public class RetrCmdHandler implements CommandHandler<POP3Session> {
 
-	private final static String COMMAND_NAME = "RETR";
-
+    private final static String COMMAND_NAME = "RETR";
 
     /**
-     * Handler method called upon receipt of a RETR command.
-     * This command retrieves a particular mail message from the
-     * mailbox.
-     *
-	 */
+     * Handler method called upon receipt of a RETR command. This command
+     * retrieves a particular mail message from the mailbox.
+     * 
+     */
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
@@ -69,59 +65,54 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                 return response;
             }
             try {
-            	List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+                List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
                 List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
 
                 MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
-            	Long uid = uidList.get(num -1);
+                Long uid = uidList.get(num - 1);
                 if (deletedUidList.contains(uid) == false) {
-                    Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
+                    Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
                     MessageStream stream = new MessageStream();
                     OutputStream out = stream.getOutputStream();
                     out.write((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes());
-                    //response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
+                    // response = new POP3Response(POP3Response.OK_RESPONSE,
+                    // "Message follows");
                     try {
-                    	MessageResult result = results.next();
-                    	result.getFullContent().writeTo(Channels.newChannel(out));
-                    	
+                        MessageResult result = results.next();
+                        result.getFullContent().writeTo(Channels.newChannel(out));
+
                     } finally {
                         out.write((".\r\n").getBytes());
                         out.flush();
                     }
-                    
+
                     session.writeStream(stream.getInputStream());
-                    
-                	return null;	
+
+                    return null;
                 } else {
-                    
-                    StringBuilder responseBuffer =
-                        new StringBuilder(64)
-                                .append("Message (")
-                                .append(num)
-                                .append(") already deleted.");
-                    response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
+
+                    StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") already deleted.");
+                    response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                 }
             } catch (IOException ioe) {
-                response = new POP3Response(POP3Response.ERR_RESPONSE,"Error while retrieving message.");
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Error while retrieving message.");
             } catch (MessagingException me) {
-                response = new POP3Response(POP3Response.ERR_RESPONSE,"Error while retrieving message.");
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Error while retrieving message.");
             } catch (IndexOutOfBoundsException iob) {
-                StringBuilder responseBuffer =
-                    new StringBuilder(64)
-                            .append("Message (")
-                            .append(num)
-                            .append(") does not exist.");
-                response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
+                StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
+                response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
             }
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
         return response;
     }
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
-	 */
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
+     */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();
         commands.add(COMMAND_NAME);

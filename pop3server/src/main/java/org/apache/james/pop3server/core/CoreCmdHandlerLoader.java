@@ -61,7 +61,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
         commands.add(STATCMDHANDLER);
         commands.add(QUITCMDHANDLER);
         commands.add(UNKOWNCMDHANDLER);
-
     }
 
     /*
