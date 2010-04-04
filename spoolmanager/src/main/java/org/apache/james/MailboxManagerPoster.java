@@ -43,8 +43,8 @@ import org.apache.jsieve.mailet.Poster;
 public class MailboxManagerPoster implements Poster, LogEnabled{
 
     private MailboxManager mailboxManager;
-	private MailServer mailserver;
-	private Log logger;
+    private MailServer mailserver;
+    private Log logger;
 
 
     @Resource(name="James")
@@ -148,9 +148,10 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
     }
 
     /*
-     * 
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
-	public void setLog(Log log) {
-		this.logger = log;
-	}
+    public void setLog(Log log) {
+        this.logger = log;
+    }
 }
