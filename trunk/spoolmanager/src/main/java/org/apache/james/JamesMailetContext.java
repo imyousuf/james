@@ -405,7 +405,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
      *      
      */
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
-    	throw new UnsupportedOperationException("Was removed");
+        throw new UnsupportedOperationException("Was removed");
     }
 
     /*

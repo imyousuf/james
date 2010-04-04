@@ -40,8 +40,8 @@ public interface SpoolMessageStore {
      * @return out
      */
     public OutputStream saveMessage(String key) throws IOException;
-    
-    
+
+
     /**
      * Return the Email message as {@link MimeMessageSource}
      * 
