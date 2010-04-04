@@ -20,6 +20,7 @@
 package org.apache.james.socket.mina;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 
 import javax.net.ssl.SSLContext;
@@ -138,5 +139,17 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
             getIoSession().write(response);
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.ProtocolSession#writeStream(java.io.InputStream)
+     */
+    public void writeStream(InputStream stream) {
+        if (getIoSession().isConnected()) {
+            getIoSession().write(stream);
+        }
+    }
+    
+    
 
 }

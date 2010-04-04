@@ -19,6 +19,7 @@
 
 package org.apache.james.socket.mina;
 
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,6 +45,17 @@ public abstract class AbstractIoHandler extends IoHandlerAdapter{
     public AbstractIoHandler(ProtocolHandlerChain chain) {
         this.chain = chain;
     }
+
+    
+    @Override
+    public final void messageSent(IoSession session, Object message) throws Exception {
+        if (message instanceof InputStream) {
+            // we need to close the Stream after message was sent
+            ((InputStream) message).close();
+        }
+        super.messageSent(session, message);
+    }
+
 
     /**
      * @see org.apache.mina.core.service.IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession, java.lang.Object)

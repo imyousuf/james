@@ -21,6 +21,16 @@
 
 package org.apache.james.pop3server.core;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.mail.MessagingException;
+
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.mailbox.MessageRange;
 import org.apache.james.imap.mailbox.MessageResult;
@@ -31,20 +41,7 @@ import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.mailet.Mail;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.channels.Channels;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import org.apache.james.socket.MessageStream;
 
 /**
   * Handles RETR command
@@ -78,20 +75,23 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                 MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
             	Long uid = uidList.get(num -1);
                 if (deletedUidList.contains(uid) == false) {
-                	Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
-
-                    response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
+                    Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
+                    MessageStream stream = new MessageStream();
+                    OutputStream out = stream.getOutputStream();
+                    out.write((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes());
+                    //response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
                     try {
                     	MessageResult result = results.next();
-                    	ByteArrayOutputStream out = new ByteArrayOutputStream();
                     	result.getFullContent().writeTo(Channels.newChannel(out));
                     	
-                    	response.appendLine(new String(out.toByteArray()));
                     } finally {
-                    	response.appendLine(".");
+                        out.write((".\r\n").getBytes());
+                        out.flush();
                     }
                     
-                	return response;	
+                    session.writeStream(stream.getInputStream());
+                    
+                	return null;	
                 } else {
                     
                     StringBuilder responseBuffer =

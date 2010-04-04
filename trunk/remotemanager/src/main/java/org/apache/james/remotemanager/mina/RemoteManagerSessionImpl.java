@@ -19,6 +19,7 @@
 
 package org.apache.james.remotemanager.mina;
 
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -128,6 +129,16 @@ public class RemoteManagerSessionImpl implements RemoteManagerSession {
     public void writeResponse(Response response) {
         if (session.isConnected()) {
             session.write(response);    
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.ProtocolSession#writeStream(java.io.InputStream)
+     */
+    public void writeStream(InputStream stream) {
+        if (session.isConnected()) {
+            session.write(stream);    
         }
     }
 }
