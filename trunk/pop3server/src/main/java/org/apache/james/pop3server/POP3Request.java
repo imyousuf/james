@@ -27,7 +27,7 @@ import org.apache.james.protocols.api.BaseRequest;
  */
 public class POP3Request extends BaseRequest{
 
-	
+
 
     public POP3Request(final String command, final String argument) {
         super(command,argument);

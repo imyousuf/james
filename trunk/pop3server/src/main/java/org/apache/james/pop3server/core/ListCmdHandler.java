@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
@@ -41,18 +39,17 @@ import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 
 /**
-  * Handles LIST command
-  */
+ * Handles LIST command
+ */
 public class ListCmdHandler implements CommandHandler<POP3Session> {
 
-
     /**
-     * Handler method called upon receipt of a LIST command.
-     * Returns the number of messages in the mailbox and its
-     * aggregate size, or optionally, the number and size of
-     * a single message.
-     *
-     * @param argument the first argument parsed by the parseCommand method
+     * Handler method called upon receipt of a LIST command. Returns the number
+     * of messages in the mailbox and its aggregate size, or optionally, the
+     * number and size of a single message.
+     * 
+     * @param argument
+     *            the first argument parsed by the parseCommand method
      */
 
     public Response onCommand(POP3Session session, Request request) {
@@ -64,45 +61,36 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
         MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
             if (parameters == null) {
-                
 
                 try {
                     long size = 0;
                     int count = 0;
-                	List<MessageResult> validResults = new ArrayList<MessageResult>();
+                    List<MessageResult> validResults = new ArrayList<MessageResult>();
 
                     if (uidList.isEmpty() == false) {
-                    	Iterator<MessageResult> results;
-                    	if (uidList.size() > 1) {
-                    		results =  session.getUserMailbox().getMessages(MessageRange.range(uidList.get(0), uidList.get(uidList.size() -1)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
-                    	} else {
-                    		results =  session.getUserMailbox().getMessages(MessageRange.one(uidList.get(0)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
-                    	}
+                        Iterator<MessageResult> results;
+                        if (uidList.size() > 1) {
+                            results = session.getUserMailbox().getMessages(MessageRange.range(uidList.get(0), uidList.get(uidList.size() - 1)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+                        } else {
+                            results = session.getUserMailbox().getMessages(MessageRange.one(uidList.get(0)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+                        }
 
-                    	while (results.hasNext()) {
-                    		MessageResult result = results.next();
-                    		if (deletedUidList.contains(result.getUid()) == false) {
-                    			size += result.getSize();
-                    			count++;
-                            	validResults.add(result);
-                    		}
-                    	}
+                        while (results.hasNext()) {
+                            MessageResult result = results.next();
+                            if (deletedUidList.contains(result.getUid()) == false) {
+                                size += result.getSize();
+                                count++;
+                                validResults.add(result);
+                            }
+                        }
                     }
-                    StringBuilder responseBuffer =
-                        new StringBuilder(32)
-                                .append(count)
-                                .append(" ")
-                                .append(size);
+                    StringBuilder responseBuffer = new StringBuilder(32).append(count).append(" ").append(size);
                     response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
                     count = 0;
-                    for (int i = 0 ; i < validResults.size(); i++) {
-                        responseBuffer =
-                            new StringBuilder(16)
-                                    .append(i +1 )
-                                    .append(" ")
-                                    .append(validResults.get(i).getSize());
+                    for (int i = 0; i < validResults.size(); i++) {
+                        responseBuffer = new StringBuilder(16).append(i + 1).append(" ").append(validResults.get(i).getSize());
                         response.appendLine(responseBuffer.toString());
-                        
+
                     }
                     response.appendLine(".");
                 } catch (MailboxException me) {
@@ -112,36 +100,21 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
                 int num = 0;
                 try {
                     num = Integer.parseInt(parameters);
-                    Long uid = uidList.get(num -1);
+                    Long uid = uidList.get(num - 1);
                     if (deletedUidList.contains(uid) != false) {
-                        Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
+                        Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
 
-                        StringBuilder responseBuffer =
-                            new StringBuilder(64)
-                                    .append(num)
-                                    .append(" ")
-                                    .append(results.next().getSize());
+                        StringBuilder responseBuffer = new StringBuilder(64).append(num).append(" ").append(results.next().getSize());
                         response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
                     } else {
-                        StringBuilder responseBuffer =
-                            new StringBuilder(64)
-                                    .append("Message (")
-                                    .append(num)
-                                    .append(") already deleted.");
+                        StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") already deleted.");
                         response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                     }
                 } catch (IndexOutOfBoundsException npe) {
-                    StringBuilder responseBuffer =
-                        new StringBuilder(64)
-                                .append("Message (")
-                                .append(num)
-                                .append(") does not exist.");
+                    StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
                     response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                 } catch (NumberFormatException nfe) {
-                    StringBuilder responseBuffer =
-                        new StringBuilder(64)
-                                .append(parameters)
-                                .append(" is not a valid number");
+                    StringBuilder responseBuffer = new StringBuilder(64).append(parameters).append(" is not a valid number");
                     response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                 } catch (MessagingException me) {
                     response = new POP3Response(POP3Response.ERR_RESPONSE);
@@ -153,6 +126,10 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
         return response;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.CommandHandler#getImplCommands()
+     */
     public Collection<String> getImplCommands() {
         List<String> commands = new ArrayList<String>();
         commands.add("LIST");

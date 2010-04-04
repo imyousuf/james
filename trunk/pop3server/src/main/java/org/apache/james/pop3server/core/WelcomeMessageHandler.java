@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.pop3server.core;
 
 import org.apache.james.Constants;
@@ -25,10 +24,9 @@ import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.ConnectHandler;
 
-public class WelcomeMessageHandler implements ConnectHandler<POP3Session>{
+public class WelcomeMessageHandler implements ConnectHandler<POP3Session> {
     /** POP3 Server identification string used in POP3 headers */
-    private static final String softwaretype        = "JAMES POP3 Server "
-                                                        + Constants.SOFTWARE_VERSION;
+    private static final String softwaretype = "JAMES POP3 Server " + Constants.SOFTWARE_VERSION;
 
     /**
      * @see org.apache.james.pop3server.ConnectHandler#onConnect(org.apache.james.pop3server.POP3Session)
@@ -37,11 +35,8 @@ public class WelcomeMessageHandler implements ConnectHandler<POP3Session>{
         StringBuilder responseBuffer = new StringBuilder();
 
         // Initially greet the connector
-        // Format is:  Sat, 24 Jan 1998 13:16:09 -0500
-        responseBuffer.append(session.getConfigurationData().getHelloName())
-                    .append(" POP3 server (")
-                    .append(softwaretype)
-                    .append(") ready ");
+        // Format is: Sat, 24 Jan 1998 13:16:09 -0500
+        responseBuffer.append(session.getConfigurationData().getHelloName()).append(" POP3 server (").append(softwaretype).append(") ready ");
         POP3Response response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
         session.writeResponse(response);
     }
