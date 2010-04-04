@@ -23,12 +23,10 @@ package org.apache.james.pop3server.mina;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
-import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3ServerMBean;
 import org.apache.james.pop3server.mina.filter.POP3ResponseFilter;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.socket.mina.AbstractAsyncServer;
-import org.apache.james.socket.mina.filter.ResponseValidationFilter;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 
@@ -94,7 +92,6 @@ public class AsyncPOP3Server extends AbstractAsyncServer implements POP3ServerMB
         
         // response and validation filter to the chain
         builder.addLast("pop3ResponseFilter", new POP3ResponseFilter());
-        builder.addLast("responseValidationFilter", new ResponseValidationFilter<POP3Response>(getLogger(), POP3Response.class));
         return builder;
     }
 

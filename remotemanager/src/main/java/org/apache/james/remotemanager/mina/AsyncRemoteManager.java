@@ -28,10 +28,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerMBean;
-import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.mina.filter.RemoteManagerResponseFilter;
 import org.apache.james.socket.mina.AbstractAsyncServer;
-import org.apache.james.socket.mina.filter.ResponseValidationFilter;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 
@@ -76,7 +74,6 @@ public class AsyncRemoteManager extends AbstractAsyncServer implements RemoteMan
         
         // response and validation filter to the chain
         builder.addLast(RemoteManagerResponseFilter.NAME, new RemoteManagerResponseFilter());
-        builder.addLast("requestValidationFilter", new ResponseValidationFilter<RemoteManagerResponse>(getLogger(),RemoteManagerResponse.class));
         return builder;
     }
     

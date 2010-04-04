@@ -29,11 +29,9 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
-import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPServerMBean;
 import org.apache.james.smtpserver.mina.filter.SMTPResponseFilter;
 import org.apache.james.socket.mina.AbstractAsyncServer;
-import org.apache.james.socket.mina.filter.ResponseValidationFilter;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
 
@@ -304,7 +302,6 @@ public class AsyncSMTPServer extends AbstractAsyncServer implements SMTPServerMB
         
         // response and validation filter to the chain
         builder.addLast(SMTPResponseFilter.NAME, new SMTPResponseFilter());
-        builder.addLast("responseValidationFilter", new ResponseValidationFilter<SMTPResponse>(getLogger(),SMTPResponse.class));
         return builder;
     }
 

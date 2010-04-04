@@ -21,7 +21,6 @@
 
 package org.apache.james.pop3server.core;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,6 +43,7 @@ import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
+import org.apache.james.socket.MessageStream;
 
 /**
   * Handles TOP command
@@ -99,11 +99,13 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                 	FetchGroupImpl fetchGroup = new FetchGroupImpl(FetchGroup.BODY_CONTENT);
                 	fetchGroup.or(FetchGroup.HEADERS);
                 	Iterator<MessageResult> results =  session.getUserMailbox().getMessages(MessageRange.one(uid), fetchGroup, mailboxSession);
-
-                    response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
+                	MessageStream stream = new MessageStream();
+                    OutputStream out = stream.getOutputStream();
+                    out.write((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes());
+                    //response = new POP3Response(POP3Response.OK_RESPONSE, "Message follows");
                     try {
                     	MessageResult result = results.next();
-                    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    	
                     	WritableByteChannel outChannel = Channels.newChannel(out);
                     	
                     	// write headers
@@ -121,12 +123,13 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                     	// write body
                     	result.getBody().writeTo(Channels.newChannel(new CountingBodyOutputStream(out, lines)));
                     	
-                    	response.appendLine(new String(out.toByteArray()));
                     } finally {
-                    	response.appendLine(".");
+                        out.write((".\r\n").getBytes());
+                        out.flush();
                     }
+                    session.writeStream(stream.getInputStream());
                     
-                	return response;	
+                	return null;	
 
                 } else {
                     StringBuilder responseBuffer =

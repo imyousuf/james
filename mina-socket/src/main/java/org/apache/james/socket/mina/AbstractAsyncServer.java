@@ -45,6 +45,7 @@ import org.apache.mina.filter.ssl.BogusTrustManagerFactory;
 import org.apache.mina.filter.ssl.KeyStoreFactory;
 import org.apache.mina.filter.ssl.SslContextFactory;
 import org.apache.mina.filter.ssl.SslFilter;
+import org.apache.mina.filter.stream.StreamWriteFilter;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
@@ -275,7 +276,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
             // add connectionfilter in the first of the chain
             DefaultIoFilterChainBuilder builder = createIoFilterChainBuilder();
             builder.addFirst("connectionFilter", new ConnectionFilter(getLogger(), connectionLimit, connPerIP));
-           
+            builder.addLast("streamFilter", new StreamWriteFilter());
             // add the sslfilter if needed
             if (isSSLSocket()) {
                 builder.addFirst( "sslFilter", new SslFilter(contextFactory.newInstance()));
