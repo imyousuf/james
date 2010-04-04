@@ -42,6 +42,7 @@ import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.socket.MessageStream;
+import org.apache.james.util.stream.ExtraDotOutputStream;
 
 /**
  * Handles TOP command
@@ -97,13 +98,16 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                     Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), fetchGroup, mailboxSession);
                     MessageStream stream = new MessageStream();
                     OutputStream out = stream.getOutputStream();
+                    OutputStream extraDotOut = new ExtraDotOutputStream(out);
+                    
                     out.write((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes());
+                    out.flush();
                     // response = new POP3Response(POP3Response.OK_RESPONSE,
                     // "Message follows");
                     try {
                         MessageResult result = results.next();
 
-                        WritableByteChannel outChannel = Channels.newChannel(out);
+                        WritableByteChannel outChannel = Channels.newChannel(extraDotOut);
 
                         // write headers
                         Iterator<Header> headers = result.headers();
@@ -111,16 +115,18 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                             headers.next().writeTo(outChannel);
 
                             // we need to write out the CRLF after each header
-                            out.write("\r\n".getBytes());
+                            extraDotOut.write("\r\n".getBytes());
 
                         }
                         // headers and body are seperated by a CRLF
-                        out.write("\r\n".getBytes());
+                        extraDotOut.write("\r\n".getBytes());
 
                         // write body
-                        result.getBody().writeTo(Channels.newChannel(new CountingBodyOutputStream(out, lines)));
+                        result.getBody().writeTo(Channels.newChannel(new CountingBodyOutputStream(extraDotOut, lines)));
 
                     } finally {
+                        extraDotOut.flush();
+                        // write a single dot to mark message as complete
                         out.write((".\r\n").getBytes());
                         out.flush();
                     }
