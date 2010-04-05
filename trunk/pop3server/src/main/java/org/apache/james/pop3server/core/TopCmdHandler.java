@@ -129,6 +129,9 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                         // write a single dot to mark message as complete
                         out.write((".\r\n").getBytes());
                         out.flush();
+                        
+                        extraDotOut.close();
+                        out.close();
                     }
                     session.writeStream(stream.getInputStream());
 
