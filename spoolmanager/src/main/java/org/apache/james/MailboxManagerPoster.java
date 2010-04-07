@@ -19,9 +19,12 @@
 
 package org.apache.james;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
+import java.util.Enumeration;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -120,9 +123,8 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
                                 throw new MessagingException(error);
                             }
 
-                            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            mail.writeTo(baos);
-                            mailbox.appendMessage(baos.toByteArray() , new Date(), session, true, null);
+
+                            mailbox.appendMessage(new MimeMessageInputStream(mail) , new Date(), session, true, null);
                         }
                         catch (IOException e)
                         {
@@ -153,5 +155,77 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
      */
     public void setLog(Log log) {
         this.logger = log;
+    }
+
+	/**
+	 * {@link InputStream} which contains the headers and the Body of the wrapped {@link MimeMessage}
+	 *
+	 */
+    private final class MimeMessageInputStream extends InputStream {
+        private InputStream headersInputStream;
+        private InputStream bodyInputStream;
+        private int cStream = 0;
+
+        boolean nextCR = false;
+        boolean nextLF = false;
+
+        @SuppressWarnings("unchecked")
+        public MimeMessageInputStream(MimeMessage message) throws IOException {
+            try {
+                ByteArrayOutputStream headersOut = new ByteArrayOutputStream();
+                Enumeration headers = message.getAllHeaderLines();
+                while (headers.hasMoreElements()) {
+                    headersOut.write(headers.nextElement().toString().getBytes("US-ASCII"));
+                    headersOut.write("\r\n".getBytes());
+                }
+                headersInputStream = new ByteArrayInputStream(headersOut.toByteArray());
+                this.bodyInputStream = message.getInputStream();
+            } catch (MessagingException e) {
+                throw new IOException("Unable to read MimeMessage", e);
+            }
+        }
+
+        @Override
+        public int read() throws IOException {
+            if (nextCR) {
+                nextCR = false;
+                nextLF = true;
+                return '\r';
+            } else if (nextLF) {
+                nextLF = false;
+                return '\n';
+            } else {
+                int i = -1;
+                if (cStream == 0) {
+                    i = headersInputStream.read();
+                } else {
+                    i = bodyInputStream.read();
+                }
+
+                if (i == -1 && cStream == 0) {
+                    cStream++;
+                    nextCR = true;
+                    return read();
+                }
+                return i;
+            }
+
+        }
+
+        /** Closes all streams */
+        public void close() throws IOException {
+            headersInputStream.close();
+            bodyInputStream.close();
+        }
+
+        /** Is there more data to read */
+        public int available() throws IOException {
+            if (cStream == 0) {
+                return headersInputStream.available() + bodyInputStream.available() + 2;
+            } else {
+                return bodyInputStream.available();
+            }
+        }
+
     }
 }
