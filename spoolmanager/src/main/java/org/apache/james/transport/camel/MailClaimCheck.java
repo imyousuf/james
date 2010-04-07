@@ -23,6 +23,7 @@ package org.apache.james.transport.camel;
 import java.io.OutputStream;
 
 import javax.annotation.Resource;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.camel.Body;
 import org.apache.camel.Exchange;
@@ -55,12 +56,18 @@ public final class MailClaimCheck {
      */
     public void saveMessage(Exchange exchange, @Body Mail mail) throws Exception{
         
-        OutputStream out = spoolMessageStore.saveMessage(mail.getName());
-        // write the message to the store
-        mail.getMessage().writeTo(out);
+        MimeMessage m = mail.getMessage();
+
+        // Check if the message is not null first.. This could be the case if the message was set to
+        // null before or was disposed
+        if (m != null) {
+            OutputStream out = spoolMessageStore.saveMessage(mail.getName());
+            // write the message to the store
+            m.writeTo(out);
         
-        // close stream
-        out.close();
+            // close stream
+            out.close();
+        }
         
     }
 }
