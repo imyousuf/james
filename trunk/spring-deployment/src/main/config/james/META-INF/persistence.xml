@@ -2,16 +2,18 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     version="1.0">
     <persistence-unit name="James" transaction-type="RESOURCE_LOCAL">
-        <!-- IMAP stuff-->
-	    <class>org.apache.james.imap.jpa.mail.model.JPAHeader</class>
-    	<class>org.apache.james.imap.jpa.mail.model.JPAMailbox</class>
-    	<class>org.apache.james.imap.jpa.mail.model.JPAMailboxMembership</class>
-    	<class>org.apache.james.imap.jpa.mail.model.JPAMessage</class>
-    	<class>org.apache.james.imap.jpa.mail.model.JPAProperty</class>
-    	<class>org.apache.james.imap.jpa.user.model.JPASubscription</class>
+        <!-- Mailbox stuff-->
+        <class>org.apache.james.imap.jpa.mail.model.JPAHeader</class>
+        <class>org.apache.james.imap.jpa.mail.model.JPAMailbox</class>
+        <class>org.apache.james.imap.jpa.mail.model.JPAMailboxMembership</class>
+        <class>org.apache.james.imap.jpa.mail.model.AbstractJPAMessage</class>
+        <class>org.apache.james.imap.jpa.mail.model.JPAMessage</class>
+        <class>org.apache.james.imap.jpa.mail.model.openjpa.JPAStreamingMessage</class>
+        <class>org.apache.james.imap.jpa.mail.model.JPAProperty</class>
+        <class>org.apache.james.imap.jpa.user.model.JPASubscription</class>
         
         <!-- UsersRepository -->
-    	<class>org.apache.james.server.jpa.JPAUser</class>
+        <class>org.apache.james.server.jpa.JPAUser</class>
 
         <properties>
             <!-- workaround for MYSQL till openjpa 1.3 or 2.0.0 was released -->
@@ -21,7 +23,7 @@
             <property name="openjpa.jdbc.DBDictionary" value="blobTypeName=LONGBLOB"/>
             -->
             <!--  create tables on startup -->
-	    	<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
         </properties>
     </persistence-unit>
 </persistence>

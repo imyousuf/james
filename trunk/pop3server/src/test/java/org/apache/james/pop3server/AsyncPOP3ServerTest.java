@@ -19,6 +19,7 @@
 
 package org.apache.james.pop3server;
 
+import java.io.ByteArrayInputStream;
 import java.io.Reader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -422,9 +423,9 @@ public class AsyncPOP3ServerTest extends TestCase {
                                  "Subject: test\r\n\r\n"+
                                  "Body Text POP3ServerTest.setupTestMails\r\n").getBytes();
         
-        mailbox.appendMessage(content, new Date(), session, true, new Flags());
+        mailbox.appendMessage(new ByteArrayInputStream(content), new Date(), session, true, new Flags());
         byte[] content2 = ("EMPTY").getBytes();
-        mailbox.appendMessage(content2, new Date(), session, true, new Flags());
+        mailbox.appendMessage(new ByteArrayInputStream(content2), new Date(), session, true, new Flags());
     }
 
     /*
