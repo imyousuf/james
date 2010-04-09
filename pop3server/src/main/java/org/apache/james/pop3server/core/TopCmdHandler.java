@@ -41,8 +41,8 @@ import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.james.socket.MessageStream;
 import org.apache.james.util.stream.ExtraDotOutputStream;
+import org.apache.james.util.stream.MessageStream;
 
 /**
  * Handles TOP command
@@ -148,6 +148,8 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
             } catch (IndexOutOfBoundsException iob) {
                 StringBuilder exceptionBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
                 response = new POP3Response(POP3Response.ERR_RESPONSE, exceptionBuffer.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);

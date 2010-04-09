@@ -17,34 +17,44 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.pop3server;
+package org.apache.james.smtpserver;
 
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.pop3server.mina.AsyncPOP3Server;
+import org.apache.james.smtpserver.netty.NioSMTPServer;
 
-public class AsyncPOP3ServerTest extends AbstractAsyncPOP3ServerTest{
+public class NioSMTPServerTest extends AbstractSMTPServerTest{
 
-    private AsyncPOP3Server m_pop3Server;
+    private NioSMTPServer m_smtpServer;
 
     @Override
-    protected void initPOP3Server(POP3TestConfiguration testConfiguration) throws Exception {
-        m_pop3Server.configure(testConfiguration);
-        m_pop3Server.init();
+    protected void initSMTPServer(SMTPTestConfiguration testConfiguration) throws Exception {
+        m_smtpServer.configure(testConfiguration);      
+        m_smtpServer.init();
+      
     }
 
     @Override
-    protected void setUpPOP3Server() throws Exception {
+    protected void setUpSMTPServer() throws Exception {
+        SimpleLog log = new SimpleLog("SMTP");
+        log.setLevel(SimpleLog.LOG_LEVEL_ALL);
+        m_smtpServer = new NioSMTPServer();
+        m_smtpServer.setDNSService(m_dnsServer);
+        m_smtpServer.setFileSystem(fileSystem);      
         
-        m_pop3Server = new AsyncPOP3Server();
-        m_pop3Server.setDNSService(dnsservice);
-        m_pop3Server.setFileSystem(fSystem);
-        m_pop3Server.setProtocolHandlerChain(chain);
-       
+        m_smtpServer.setProtocolHandlerChain(chain);
         
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        m_pop3Server.setLog(log);
-        m_pop3Server.setMailServer(m_mailServer);        
+        m_smtpServer.setLog(log);
+        m_smtpServer.setMailServer(m_mailServer);        
+    }
+
+    @Override
+    public void testMaxLineLength() throws Exception {
+        // TODO: Add support
+    }
+
+    @Override
+    public void testStartTLSInEHLO() throws Exception {
+        // TODO: Add support
     }
 
 }

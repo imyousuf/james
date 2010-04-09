@@ -17,34 +17,48 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket;
+package org.apache.james.util.stream;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import org.apache.james.lifecycle.Disposable;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
- * {@link FileInputStream} which offers a method to dispose the underlying {@link File}
+ * Helper class to write to temporary file for transfer data. This is mostly useful for writing
+ * large chunk of data back the the client. This Object is designed for one time use..
  * 
  *
  */
-public class DisposableFileInputStream extends FileInputStream implements Disposable{
-
+public class MessageStream {
     private File file;
 
-    public DisposableFileInputStream(File file) throws FileNotFoundException {
-        super(file);
-        this.file = file;
+    /**
+     * Create new MessageStream on a temporary File
+     * 
+     * @throws IOException 
+     */
+    public MessageStream() throws IOException {
+        this.file = File.createTempFile("messagestream", ".ms");
     }
 
     /**
-     * Dispose file
+     * Return the {@link OutputStream} of the temporary file
+     * 
+     * @return out
+     * @throws IOException
      */
-    public void dispose() {
-        file.delete();
+    public OutputStream getOutputStream() throws IOException {
+        return new FileOutputStream(file);
     }
     
-
+    /**
+     * Return the {@link DisposeOnCloseInputStream} of the temporary file
+     * 
+     * @return in
+     * @throws IOException
+     */
+    public DisposeOnCloseInputStream getInputStream() throws IOException {
+        return new DisposeOnCloseInputStream(new DisposableFileInputStream(file));
+    }
 }

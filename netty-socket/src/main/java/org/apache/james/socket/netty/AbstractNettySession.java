@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket.mina;
+package org.apache.james.socket.netty;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,31 +28,32 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.logging.Log;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.TLSSupportedSession;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.ssl.SslFilter;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.handler.stream.ChunkedStream;
 
 /**
- * Abstract implementation of TLSSupportedSession which use IoSession
+ * Abstract implementation of TLSSupportedSession which use Netty
  * 
  * 
  */
-public abstract class AbstractMINASession implements TLSSupportedSession {
+public abstract class AbstractNettySession implements TLSSupportedSession {
 
-    protected IoSession session;
+    protected ChannelHandlerContext handlerContext;
     protected InetSocketAddress socketAddress;
     protected Log logger;
     protected SSLContext context;
     protected String user;
 
-    public AbstractMINASession(Log logger, IoSession session, SSLContext context) {
-        this.session = session;
-        this.socketAddress = (InetSocketAddress) session.getRemoteAddress();
+    public AbstractNettySession(Log logger, ChannelHandlerContext handlerContext, SSLContext context) {
+        this.handlerContext = handlerContext;
+        this.socketAddress = (InetSocketAddress) handlerContext.getChannel().getRemoteAddress();
         this.logger = logger;
         this.context = context;
     }
 
-    public AbstractMINASession(Log logger, IoSession session) {
-        this(logger, session, null);
+    public AbstractNettySession(Log logger, ChannelHandlerContext handlerContext) {
+        this(logger, handlerContext, null);
     }
 
     /**
@@ -88,8 +89,8 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
      * 
      * @return session
      */
-    public IoSession getIoSession() {
-        return session;
+    public ChannelHandlerContext getChannelHandlerContext() {
+        return handlerContext;
     }
 
     /**
@@ -103,9 +104,11 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
      * @see org.apache.james.api.protocol.TLSSupportedSession#isTLSStarted()
      */
     public boolean isTLSStarted() {
+        /*
         if (isStartTLSSupported()) {
             return session.getFilterChain().contains("sslFilter");
         }
+        */
         return false;
     }
 
@@ -113,6 +116,7 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
      * @see org.apache.james.api.protocol.TLSSupportedSession#startTLS()
      */
     public void startTLS() throws IOException {
+        /*
         if (isStartTLSSupported()) {
             session.suspendRead();
             SslFilter filter = new SslFilter(context);
@@ -120,6 +124,7 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
             session.getFilterChain().addFirst("sslFilter", filter);
             session.resumeRead();
         }
+        */
     }
 
     /**
@@ -135,8 +140,12 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
      * @see org.apache.james.api.protocol.ProtocolSession#writeResponse(org.apache.james.api.protocol.Response)
      */
     public void writeResponse(Response response) {
-        if (response != null && getIoSession().isConnected()) {
-            getIoSession().write(response);
+        Channel channel = getChannelHandlerContext().getChannel();
+        if (response != null && channel.isConnected()) {
+            channel.write(response);
+            if (response.isEndSession()) {
+                channel.close();
+            }
         }
     }
 
@@ -145,8 +154,9 @@ public abstract class AbstractMINASession implements TLSSupportedSession {
      * @see org.apache.james.protocols.api.ProtocolSession#writeStream(java.io.InputStream)
      */
     public void writeStream(InputStream stream) {
-        if (stream != null && getIoSession().isConnected()) {
-            getIoSession().write(stream);
+        Channel channel = getChannelHandlerContext().getChannel();
+        if (stream != null && channel.isConnected()) {
+            channel.write(new ChunkedStream(stream));
         }
     }
     

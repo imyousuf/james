@@ -16,35 +16,16 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.socket.netty;
 
-package org.apache.james.pop3server;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelLocal;
 
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.pop3server.mina.AsyncPOP3Server;
+public interface ChannelAttributeSupport {
 
-public class AsyncPOP3ServerTest extends AbstractAsyncPOP3ServerTest{
-
-    private AsyncPOP3Server m_pop3Server;
-
-    @Override
-    protected void initPOP3Server(POP3TestConfiguration testConfiguration) throws Exception {
-        m_pop3Server.configure(testConfiguration);
-        m_pop3Server.init();
-    }
-
-    @Override
-    protected void setUpPOP3Server() throws Exception {
-        
-        m_pop3Server = new AsyncPOP3Server();
-        m_pop3Server.setDNSService(dnsservice);
-        m_pop3Server.setFileSystem(fSystem);
-        m_pop3Server.setProtocolHandlerChain(chain);
-       
-        
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        m_pop3Server.setLog(log);
-        m_pop3Server.setMailServer(m_mailServer);        
-    }
+    /**
+     * Stores attributes per {@link Channel}
+     */
+    public static final ChannelLocal<Object> attributes = new ChannelLocal<Object>(); 
 
 }
