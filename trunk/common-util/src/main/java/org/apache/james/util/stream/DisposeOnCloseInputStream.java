@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.socket;
+package org.apache.james.util.stream;
 
 import java.io.FilterInputStream;
 import java.io.IOException;

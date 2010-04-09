@@ -25,23 +25,35 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-common-util</artifactId>
-  <version>3.0-M1</version>
-  <name>Apache JAMES Server Common Utilities</name>
+  <artifactId>james-server-netty-socket</artifactId>
+  <name>Apache JAMES Server Netty Socket</name>
   <dependencies>
+    <dependency>
+      <groupId>org.jboss.netty</groupId>
+      <artifactId>netty</artifactId>
+      <version>3.1.5.GA</version>
+      <scope>compile</scope>
+    </dependency>
+     
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
-      <version>3.0-M1</version>
     </dependency>
     <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
     </dependency>
   </dependencies>
 </project>

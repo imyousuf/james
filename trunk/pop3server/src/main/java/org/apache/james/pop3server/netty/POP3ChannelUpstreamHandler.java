@@ -16,35 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.pop3server.netty;
 
-package org.apache.james.pop3server;
+import org.apache.commons.logging.Log;
+import org.apache.james.pop3server.POP3HandlerConfigurationData;
+import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.socket.netty.AbstractChannelUpstreamHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
 
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.pop3server.mina.AsyncPOP3Server;
+public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
 
-public class AsyncPOP3ServerTest extends AbstractAsyncPOP3ServerTest{
-
-    private AsyncPOP3Server m_pop3Server;
-
-    @Override
-    protected void initPOP3Server(POP3TestConfiguration testConfiguration) throws Exception {
-        m_pop3Server.configure(testConfiguration);
-        m_pop3Server.init();
+    private Log logger;
+    private POP3HandlerConfigurationData conf;
+    
+    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Log logger) {
+        super(chain);
+        this.logger = logger;
+        this.conf = conf;
     }
 
     @Override
-    protected void setUpPOP3Server() throws Exception {
-        
-        m_pop3Server = new AsyncPOP3Server();
-        m_pop3Server.setDNSService(dnsservice);
-        m_pop3Server.setFileSystem(fSystem);
-        m_pop3Server.setProtocolHandlerChain(chain);
-       
-        
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        m_pop3Server.setLog(log);
-        m_pop3Server.setMailServer(m_mailServer);        
+    protected ProtocolSession createSession(ChannelHandlerContext ctx) throws Exception {
+        return new POP3NettySession(conf, logger, ctx);
     }
 
 }

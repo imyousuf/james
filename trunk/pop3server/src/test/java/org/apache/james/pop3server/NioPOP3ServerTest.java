@@ -20,11 +20,11 @@
 package org.apache.james.pop3server;
 
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.pop3server.mina.AsyncPOP3Server;
+import org.apache.james.pop3server.netty.NioPOP3Server;
 
-public class AsyncPOP3ServerTest extends AbstractAsyncPOP3ServerTest{
+public class NioPOP3ServerTest extends AbstractAsyncPOP3ServerTest{
 
-    private AsyncPOP3Server m_pop3Server;
+    private NioPOP3Server m_pop3Server;
 
     @Override
     protected void initPOP3Server(POP3TestConfiguration testConfiguration) throws Exception {
@@ -35,7 +35,7 @@ public class AsyncPOP3ServerTest extends AbstractAsyncPOP3ServerTest{
     @Override
     protected void setUpPOP3Server() throws Exception {
         
-        m_pop3Server = new AsyncPOP3Server();
+        m_pop3Server = new NioPOP3Server();
         m_pop3Server.setDNSService(dnsservice);
         m_pop3Server.setFileSystem(fSystem);
         m_pop3Server.setProtocolHandlerChain(chain);

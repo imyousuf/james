@@ -55,6 +55,8 @@
     <module>jpa-store</module>
     <module>spring-deployment</module>
     <module>mina-socket</module>
+    <module>netty-socket</module>
+    
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -101,6 +103,14 @@
       <layout>legacy</layout>
     </repository>
 
+    <!-- netty -->
+    <repository>
+      <id>repository.jboss.org</id>
+      <url>http://repository.jboss.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
   
   <build>
@@ -225,7 +235,11 @@
       <artifactId>james-server-mina-socket</artifactId>
       <version>3.0-M1</version>
     </dependency>
-   
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-netty-socket</artifactId>
+      <version>3.0-M1</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
@@ -1074,6 +1088,13 @@
       </exclusions>
     </dependency>
 
+    <dependency>
+      <groupId>org.jboss.netty</groupId>
+      <artifactId>netty</artifactId>
+      <version>3.1.5.GA</version>
+      <scope>compile</scope>
+    </dependency>
+     
     </dependencies>
   </dependencyManagement>
 

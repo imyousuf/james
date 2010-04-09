@@ -16,35 +16,40 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.pop3server.netty;
 
-package org.apache.james.pop3server;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.pop3server.mina.AsyncPOP3Server;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.socket.netty.AbstractResponseEncoder;
 
-public class AsyncPOP3ServerTest extends AbstractAsyncPOP3ServerTest{
+/**
+ * {@link AbstractResponseEncoder} implementation which handles {@link POP3Response} messages
+ *
+ */
+public class POP3ResponseEncoder extends AbstractResponseEncoder<POP3Response>{
 
-    private AsyncPOP3Server m_pop3Server;
-
-    @Override
-    protected void initPOP3Server(POP3TestConfiguration testConfiguration) throws Exception {
-        m_pop3Server.configure(testConfiguration);
-        m_pop3Server.init();
+    public POP3ResponseEncoder() {
+        super(POP3Response.class, "US-ASCII");
     }
 
     @Override
-    protected void setUpPOP3Server() throws Exception {
-        
-        m_pop3Server = new AsyncPOP3Server();
-        m_pop3Server.setDNSService(dnsservice);
-        m_pop3Server.setFileSystem(fSystem);
-        m_pop3Server.setProtocolHandlerChain(chain);
-       
-        
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        m_pop3Server.setLog(log);
-        m_pop3Server.setMailServer(m_mailServer);        
+    protected List<String> getResponse(POP3Response response) {
+        List<String> responseList = new ArrayList<String>();
+        for (int k = 0; k < response.getLines().size(); k++) {
+            StringBuffer respBuff = new StringBuffer(256);
+            if (k == 0) {
+                respBuff.append(response.getRetCode());
+                respBuff.append(" ");
+                respBuff.append(response.getLines().get(k));
+
+            } else {
+                respBuff.append(response.getLines().get(k));
+            }
+            responseList.add(respBuff.toString());
+        }
+        return responseList;
     }
 
 }
