@@ -48,7 +48,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     /**
      * The default value for the connection backlog.
      */
-    private static final int DEFAULT_BACKLOG = 5;
+    private static final int DEFAULT_BACKLOG = 200;
     
     /**
      * The default value for the connection timeout.
@@ -273,8 +273,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
                 builder.addFirst( "sslFilter", new SslFilter(contextFactory.newInstance()));
             }
             */
-            bootstrap = new ServerBootstrap(
-                                 new NioServerSocketChannelFactory(
+            bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                                                    Executors.newCachedThreadPool(),
                                            Executors.newCachedThreadPool()));
             // Configure the pipeline factory.

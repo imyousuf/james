@@ -31,6 +31,7 @@
     <bind> </bind>
     -->
     
+    <connectionBacklog>200</connectionBacklog>
     
     <!-- Set to true to use TLS for the Socket.
          To use this you need to copy sunjce_provider.jar to /path/james/lib directory.
