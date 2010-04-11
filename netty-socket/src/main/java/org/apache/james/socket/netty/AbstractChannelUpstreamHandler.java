@@ -106,8 +106,6 @@ public abstract class AbstractChannelUpstreamHandler extends SimpleChannelUpstre
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         cleanup(ctx.getChannel());
-        
-        super.exceptionCaught(ctx, e);
     }
 
     private void cleanup(Channel channel) {
