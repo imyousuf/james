@@ -34,6 +34,8 @@
       <bind> </bind>
       -->
 
+      <connectionBacklog>200</connectionBacklog>
+
       <!-- Use provider elements to specify additional JCE providers.
          The jars should be put into $JAMES_HOME/lib.
            For example, Uncomment this if you want to use 
