@@ -27,10 +27,12 @@ import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
+import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
@@ -95,10 +97,27 @@ public abstract class AbstractChannelUpstreamHandler extends SimpleChannelUpstre
 
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        attributes.remove(ctx.getChannel());
+        cleanup(ctx.getChannel());
+        
         super.channelClosed(ctx, e);
     }
 
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        cleanup(ctx.getChannel());
+        
+        super.exceptionCaught(ctx, e);
+    }
+
+    private void cleanup(Channel channel) {
+        ProtocolSession session = (ProtocolSession) attributes.get(channel);
+        if (session != null) {
+            session.resetState();
+            session = null;
+            attributes.remove(channel);
+        }
+    }
 
     /**
      * Create a new "protocol" session 
