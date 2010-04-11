@@ -93,6 +93,7 @@ public class SMTPIoHandler extends AbstractIoHandler{
         if (session.isConnected()) {
             session.write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
         }
+        session.close(true);
         
         
     }
