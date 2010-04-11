@@ -51,6 +51,7 @@ public class MimeMessageInputStreamSource
     implements Disposable {
 
     private final List<InputStream> streams = new ArrayList<InputStream>();
+    private final List<OutputStream> streamsOut = new ArrayList<OutputStream>();
 
     
     /**
@@ -166,8 +167,10 @@ public class MimeMessageInputStreamSource
      * @return
      * @throws FileNotFoundException
      */
-    public OutputStream getWritableOutputStream() throws FileNotFoundException {
-        return new FileOutputStream(file);
+    public synchronized OutputStream getWritableOutputStream() throws FileNotFoundException {
+        FileOutputStream out = new FileOutputStream(file);
+        streamsOut.add(out);
+        return out;
     }
     
     /**
@@ -178,6 +181,13 @@ public class MimeMessageInputStreamSource
         for (int i = 0; i < streams.size(); i++) {
             try {
                 streams.get(i).close();
+            } catch (IOException e) {
+                // ignore on dispose
+            }
+        }
+        for (int i = 0; i < streamsOut.size(); i++) {
+            try {
+                streamsOut.get(i).close();
             } catch (IOException e) {
                 // ignore on dispose
             }
