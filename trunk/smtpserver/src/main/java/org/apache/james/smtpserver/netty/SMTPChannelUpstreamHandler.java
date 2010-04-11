@@ -36,24 +36,31 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         logger.info("Dispose objects while closing channel " + ctx.getChannel().getId());
-        // Make sure we dispose everything on exit on session close
-        SMTPSession smtpSession = (SMTPSession) attributes.get(ctx.getChannel());
-        
-        if (smtpSession != null) {
-            LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.MAIL));
-            LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE));
-            LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_OUTPUTSTREAM));
-        }
+        cleanup(ctx.getChannel());
         super.channelDisconnected(ctx, e);
     }
 
+    
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {        
         Channel channel = ctx.getChannel();
         if (channel.isConnected()) {
             ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
         }
+        cleanup(channel);
+        channel.close();
+        super.exceptionCaught(ctx, e);
     }
 
+    private void cleanup(Channel channel) {
+        // Make sure we dispose everything on exit on session close
+        SMTPSession smtpSession = (SMTPSession) attributes.get(channel);
+        
+        if (smtpSession != null) {
+            LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.MAIL));
+            LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE));
+            LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_OUTPUTSTREAM));
+        }
+    }
     
 }
