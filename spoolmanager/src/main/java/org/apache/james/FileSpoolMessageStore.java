@@ -19,11 +19,14 @@
 package org.apache.james;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.mail.util.SharedFileInputStream;
 
 import org.apache.james.core.MimeMessageSource;
 import org.apache.james.lifecycle.Disposable;
@@ -107,6 +110,7 @@ public class FileSpoolMessageStore implements SpoolMessageStore{
 
         private File file;
         private String id;
+        private List<SharedFileInputStream> streams = new ArrayList<SharedFileInputStream>();
         
         private FileMimeMessageSource(File file) throws IOException {
             this.file = file;
@@ -114,8 +118,10 @@ public class FileSpoolMessageStore implements SpoolMessageStore{
         }
         
         @Override
-        public InputStream getInputStream() throws IOException {
-            return new FileInputStream(file);
+        public synchronized InputStream getInputStream() throws IOException {
+            SharedFileInputStream input = new SharedFileInputStream(file);
+            streams.add(input);
+            return input;
         }
 
         @Override
@@ -127,8 +133,19 @@ public class FileSpoolMessageStore implements SpoolMessageStore{
          * (non-Javadoc)
          * @see org.apache.james.lifecycle.Disposable#dispose()
          */
-        public void dispose() {
-            file.delete();
+        public synchronized void dispose() {
+            for (int i = 0; i < streams.size(); i++) {
+                SharedFileInputStream in = streams.get(i);
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // ignore on dispose
+                }
+            }
+            if (file != null) {
+                file.delete();
+                file = null;
+            }
         }
         
     }

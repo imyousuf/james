@@ -33,6 +33,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Takes an input stream and creates a repeatable input stream source
@@ -48,6 +50,9 @@ public class MimeMessageInputStreamSource
     extends MimeMessageSource
     implements Disposable {
 
+    private final List<InputStream> streams = new ArrayList<InputStream>();
+
+    
     /**
      * A temporary file used to hold the message stream
      */
@@ -141,7 +146,9 @@ public class MimeMessageInputStreamSource
      * @return a <code>BufferedInputStream</code> containing the data
      */
     public synchronized InputStream getInputStream() throws IOException {
-        return new SharedFileInputStream(file);
+        SharedFileInputStream in = new SharedFileInputStream(file);
+        streams.add(in);
+        return in;
     }
 
     /**
@@ -167,6 +174,14 @@ public class MimeMessageInputStreamSource
      * @see org.apache.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
+        // explicit close all streams
+        for (int i = 0; i < streams.size(); i++) {
+            try {
+                streams.get(i).close();
+            } catch (IOException e) {
+                // ignore on dispose
+            }
+        }
         try {
             if (file != null && file.exists()) {
                 file.delete();
