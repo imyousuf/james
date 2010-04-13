@@ -138,7 +138,7 @@
     <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
         <property name="connectionFactory">
             <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-                <property name="brokerURL" value="vm://localhost?broker.useJmx=false&amp;jms.prefetchPolicy.all=1"/>
+                <property name="brokerURL" value="vm://localhost?broker.useJmx=false"/>
             </bean>
         </property>
     </bean>
