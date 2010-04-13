@@ -26,7 +26,7 @@ import javax.mail.MessagingException;
 import org.apache.camel.Body;
 import org.apache.camel.Exchange;
 import org.apache.james.SpoolMessageStore;
-import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.mailet.Mail;
 
 /**
@@ -60,7 +60,7 @@ public final class MailEnricher {
         
         // put back the MimeMessage
         try {
-            mail.setMessage(new MimeMessageWrapper(spoolMessageStore.getMessage(key)));
+            mail.setMessage(new MimeMessageCopyOnWriteProxy(spoolMessageStore.getMessage(key)));
         } catch (IOException e) {
             throw new MessagingException("Unable to enrich mail " + mail, e);
         }
