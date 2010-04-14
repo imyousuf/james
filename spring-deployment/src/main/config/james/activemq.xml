@@ -55,7 +55,7 @@
                     <vmCursor />
                   </pendingSubscriberPolicy>
                 </policyEntry>
-                <policyEntry queue=">" producerFlowControl="true" memoryLimit="1mb">
+                <policyEntry queue=">" producerFlowControl="false" memoryLimit="20mb">
                   <!-- Use VM cursor for better latency
                        For more information, see:
                        
