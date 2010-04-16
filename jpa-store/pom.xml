@@ -23,13 +23,13 @@
   <parent>
     <artifactId>james-server</artifactId>
     <groupId>org.apache.james</groupId>
-    <version>3.0-M1</version>
+    <version>3.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-jpa-store</artifactId>
   <name>Apache JAMES Server JPA Backend</name>
-  <version>3.0-M1</version>
+  <version>3.0-SNAPSHOT</version>
 
   <build>
     <plugins>
