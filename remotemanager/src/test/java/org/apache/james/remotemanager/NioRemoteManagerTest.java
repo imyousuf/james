@@ -19,11 +19,10 @@
 package org.apache.james.remotemanager;
 
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.remotemanager.mina.AsyncRemoteManager;
+import org.apache.james.remotemanager.netty.NioRemoteManager;
 
-public class AsyncRemoteManagerTest extends AbstractRemoteManagerTest{
-
-    private AsyncRemoteManager remotemanager;
+public class NioRemoteManagerTest extends AbstractRemoteManagerTest{
+    private NioRemoteManager remotemanager;
 
     @Override
     protected void initRemoteManager(RemoteManagerTestConfiguration testConfiguration) throws Exception {
@@ -34,7 +33,7 @@ public class AsyncRemoteManagerTest extends AbstractRemoteManagerTest{
     @Override
     protected void setUpRemoteManager() throws Exception {
         
-        remotemanager = new AsyncRemoteManager();
+        remotemanager = new NioRemoteManager();
         remotemanager.setDNSService(dnsservice);
         remotemanager.setFileSystem(filesystem);
         remotemanager.setProtocolHandlerChain(chain);

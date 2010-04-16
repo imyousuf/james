@@ -16,33 +16,32 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.remotemanager;
 
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.remotemanager.mina.AsyncRemoteManager;
+package org.apache.james.remotemanager.netty;
 
-public class AsyncRemoteManagerTest extends AbstractRemoteManagerTest{
+import org.apache.commons.logging.Log;
+import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
+import org.apache.james.remotemanager.RemoteManagerSession;
+import org.apache.james.socket.netty.AbstractChannelUpstreamHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
 
-    private AsyncRemoteManager remotemanager;
+public class RemoteManagerChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
 
-    @Override
-    protected void initRemoteManager(RemoteManagerTestConfiguration testConfiguration) throws Exception {
-        remotemanager.configure(testConfiguration);
-        remotemanager.init();
+    private Log logger;
+    private RemoteManagerHandlerConfigurationData config;
+    public RemoteManagerChannelUpstreamHandler(RemoteManagerHandlerConfigurationData config, ProtocolHandlerChain chain, Log logger) {
+        super(chain);
+        this.logger = logger;
+        this.config = config;
     }
 
     @Override
-    protected void setUpRemoteManager() throws Exception {
-        
-        remotemanager = new AsyncRemoteManager();
-        remotemanager.setDNSService(dnsservice);
-        remotemanager.setFileSystem(filesystem);
-        remotemanager.setProtocolHandlerChain(chain);
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        remotemanager.setLog(log);
-        remotemanager.setMailServer(mailServer);
-               
+    protected ProtocolSession createSession(ChannelHandlerContext ctx) throws Exception {
+        RemoteManagerSession rSession  = new NettyRemoteManagerSession(config, logger, ctx.getChannel());
+        rSession.getState().put(RemoteManagerSession.CURRENT_USERREPOSITORY, "LocalUsers");
+        return rSession;
     }
 
 }
