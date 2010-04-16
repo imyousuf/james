@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imapserver.netty;
+package org.jboss.netty.handler.stream;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,13 +26,18 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
-public class ChannelBufferOutputStream extends OutputStream{
+/**
+ * {@link OutputStream} which write data to the wrapped {@link Channel}
+ *
+ *  @author Norman Maurer 
+ */
+public class ChannelOutputStream extends OutputStream{
 
     private final Channel channel;
 
     private ChannelFuture lastChannelFuture;
 
-    public ChannelBufferOutputStream(Channel channel) {
+    public ChannelOutputStream(Channel channel) {
         this.channel = channel;
     }
 
