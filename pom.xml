@@ -826,13 +826,6 @@
       <version>${derby.version}</version>
       <scope>runtime</scope>
     </dependency>
-    <!--  workaround for derby -->
-    <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby-project</artifactId>
-      <version>${derby.version}</version>
-      <scope>runtime</scope>
-    </dependency>
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
@@ -1122,7 +1115,7 @@
     <javax.mail.groupId>javax.mail</javax.mail.groupId>
     <javax.mail.artifactId>mail</javax.mail.artifactId>
     <productName>Apache-James Mail Server</productName>
-    <derby.version>10.5.3.0</derby.version>
+    <derby.version>10.5.3.0_1</derby.version>
   </properties>
 
 </project>
