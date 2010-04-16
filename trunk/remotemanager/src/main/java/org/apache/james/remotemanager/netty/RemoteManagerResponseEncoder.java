@@ -16,33 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.remotemanager;
 
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.remotemanager.mina.AsyncRemoteManager;
+package org.apache.james.remotemanager.netty;
 
-public class AsyncRemoteManagerTest extends AbstractRemoteManagerTest{
+import java.util.ArrayList;
+import java.util.List;
 
-    private AsyncRemoteManager remotemanager;
+import org.apache.james.remotemanager.RemoteManagerResponse;
+import org.apache.james.socket.netty.AbstractResponseEncoder;
 
-    @Override
-    protected void initRemoteManager(RemoteManagerTestConfiguration testConfiguration) throws Exception {
-        remotemanager.configure(testConfiguration);
-        remotemanager.init();
+public class RemoteManagerResponseEncoder extends AbstractResponseEncoder<RemoteManagerResponse>{
+
+    public RemoteManagerResponseEncoder() {
+        super(RemoteManagerResponse.class, "UTF-8");
     }
 
     @Override
-    protected void setUpRemoteManager() throws Exception {
+    protected List<String> getResponse(RemoteManagerResponse response) {
+        List<String> responseList = new ArrayList<String>();
+        for (int k = 0; k < response.getLines().size(); k++) {
+            responseList.add(response.getLines().get(k).toString());
+        }
+        return responseList;
         
-        remotemanager = new AsyncRemoteManager();
-        remotemanager.setDNSService(dnsservice);
-        remotemanager.setFileSystem(filesystem);
-        remotemanager.setProtocolHandlerChain(chain);
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        remotemanager.setLog(log);
-        remotemanager.setMailServer(mailServer);
-               
     }
 
 }
