@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.imapserver.netty;
+package org.jboss.netty.handler.stream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +24,13 @@ import java.io.InputStream;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
+/**
+ * {@link InputStream} implementation which can be used to write {@link ChannelBuffer} 
+ * objects to and read them
+ * 
+ *
+ *  @author Norman Maurer 
+ */
 public class BlockingChannelBufferInputStream extends InputStream{
     private final Object mutex = new Object();
 
@@ -37,9 +44,6 @@ public class BlockingChannelBufferInputStream extends InputStream{
 
     public BlockingChannelBufferInputStream() {
         buf = ChannelBuffers.dynamicBuffer();
-        //buf..setA
-        //buf.setAutoExpand(true);
-        //buf.limit(0);
     }
 
     @Override
@@ -139,6 +143,12 @@ public class BlockingChannelBufferInputStream extends InputStream{
         released = true;
     }
 
+    /**
+     * Write the {@link ChannelBuffer} to {@link InputStream} and unblock the
+     * read methods
+     * 
+     * @param src buffer
+     */
     public void write(ChannelBuffer src) {
         synchronized (mutex) {
             if (closed) {
@@ -146,8 +156,9 @@ public class BlockingChannelBufferInputStream extends InputStream{
             }
 
             if (buf.readable()) {
+                
                 this.buf.writeBytes(src);
-                this.buf.readerIndex(0);
+                //this.buf.readerIndex(0);
             } else {
                 this.buf.clear();
                 this.buf.writeBytes(src);
@@ -157,6 +168,11 @@ public class BlockingChannelBufferInputStream extends InputStream{
         }
     }
 
+    /**
+     * Throw the given {@link IOException} on the next read call
+     * 
+     * @param e
+     */
     public void throwException(IOException e) {
         synchronized (mutex) {
             if (exception == null) {
