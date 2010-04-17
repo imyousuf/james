@@ -29,7 +29,8 @@ import org.jboss.netty.channel.ChannelFuture;
 /**
  * {@link OutputStream} which write data to the wrapped {@link Channel}
  *
- *  @author Norman Maurer 
+ * TODO: Remove this class when it is included in netty.
+ *       See: https://jira.jboss.org/jira/browse/NETTY-307
  */
 public class ChannelOutputStream extends OutputStream{
 

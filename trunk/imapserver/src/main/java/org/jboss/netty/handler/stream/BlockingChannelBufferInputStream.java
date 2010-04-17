@@ -28,8 +28,9 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * {@link InputStream} implementation which can be used to write {@link ChannelBuffer} 
  * objects to and read them
  * 
- *
- *  @author Norman Maurer 
+ * TODO: Remove this class when it is included in netty.
+ *       See: https://jira.jboss.org/jira/browse/NETTY-307
+ *   
  */
 public class BlockingChannelBufferInputStream extends InputStream{
     private final Object mutex = new Object();
