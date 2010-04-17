@@ -187,7 +187,7 @@
     <bean id="bayesiananalyzermanagement" class="org.apache.james.management.impl.BayesianAnalyzerManagement" />
 
     <!-- Async RemoteManager -->
-    <bean id="remotemanager" class="org.apache.james.remotemanager.mina.AsyncRemoteManager" >
+    <bean id="remotemanager" class="org.apache.james.remotemanager.netty.NioRemoteManager" >
         <property name="protocolHandlerChain" ref="remoteProtocolHandlerChain"/>
     </bean>
 
@@ -201,7 +201,7 @@
     <bean id="usermanagement" class="org.apache.james.impl.user.UserManagement" />
 
     <!-- Async POP3 Server -->
-    <bean id="pop3server"  class="org.apache.james.pop3server.mina.AsyncPOP3Server" >
+    <bean id="pop3server"  class="org.apache.james.pop3server.netty.NioPOP3Server" >
         <property name="protocolHandlerChain" ref="pop3ProtocolHandlerChain"/>
     </bean>
 
@@ -212,7 +212,7 @@
     </bean>
 
     <!-- Async SMTP Server -->
-    <bean id="smtpserver" class="org.apache.james.smtpserver.mina.AsyncSMTPServer">
+    <bean id="smtpserver" class="org.apache.james.smtpserver.netty.NioSMTPServer">
         <property name="protocolHandlerChain" ref="smtpProtocolHandlerChain"/>
     </bean>
 
@@ -283,7 +283,7 @@
     <bean id="poster" name="org.apache.jsieve.mailet.Poster" class="org.apache.james.MailboxManagerPoster"/>
 
     <!-- IMAP server Beans -->
-    <bean id="imapserver" class="org.apache.james.imapserver.mina.AsyncImapServer">
+    <bean id="imapserver" class="org.apache.james.imapserver.netty.NioImapServer">
         <property name="imapDecoder" ref="imapDecoder"/>
         <property name="imapEncoder" ref="imapEncoder"/>	
     </bean>
