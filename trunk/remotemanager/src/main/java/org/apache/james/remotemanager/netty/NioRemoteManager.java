@@ -35,6 +35,10 @@ import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 
+/**
+ * NIO RemoteManager which use Netty
+ *
+ */
 public class NioRemoteManager extends AbstractAsyncServer implements RemoteManagerMBean{
 
 

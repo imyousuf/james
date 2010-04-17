@@ -16,33 +16,43 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.socket.netty;
 
-package org.apache.james.remotemanager.netty;
+import javax.net.ssl.SSLContext;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.james.remotemanager.RemoteManagerResponse;
-import org.apache.james.socket.netty.AbstractResponseEncoder;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.handler.ssl.SslHandler;
 
 /**
- * {@link AbstractResponseEncoder} implementation which encode {@link RemoteManagerResponse} objects
+ * Abstract base class for {@link ChannelPipeline} implementations which use TLS 
  * 
+ *
  */
-public class RemoteManagerResponseEncoder extends AbstractResponseEncoder<RemoteManagerResponse>{
+public abstract class AbstractSSLAwareChannelPipelineFactory extends AbstractChannelPipelineFactory{
 
-    public RemoteManagerResponseEncoder() {
-        super(RemoteManagerResponse.class, "UTF-8");
-    }
-
+    
+    
     @Override
-    protected List<String> getResponse(RemoteManagerResponse response) {
-        List<String> responseList = new ArrayList<String>();
-        for (int k = 0; k < response.getLines().size(); k++) {
-            responseList.add(response.getLines().get(k).toString());
+    public ChannelPipeline getPipeline() throws Exception {
+        ChannelPipeline pipeline =  super.getPipeline();
+
+        if (isSSLSocket()) {
+            pipeline.addFirst("sslHandler", new SslHandler(getSSLContext().createSSLEngine()));
         }
-        return responseList;
-        
+        return pipeline;
     }
 
+    /**
+     * Return if the socket is using SSL/TLS
+     * 
+     * @return isSSL
+     */
+    protected abstract boolean isSSLSocket();
+    
+    /**
+     * Return the SSL context
+     * 
+     * @return context
+     */
+    protected abstract SSLContext getSSLContext();
 }

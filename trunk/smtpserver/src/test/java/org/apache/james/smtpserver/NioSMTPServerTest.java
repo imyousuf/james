@@ -52,9 +52,4 @@ public class NioSMTPServerTest extends AbstractSMTPServerTest{
         // TODO: Add support
     }
 
-    @Override
-    public void testStartTLSInEHLO() throws Exception {
-        // TODO: Add support
-    }
-
 }

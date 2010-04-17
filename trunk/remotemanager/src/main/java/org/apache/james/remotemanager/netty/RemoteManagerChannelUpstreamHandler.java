@@ -26,7 +26,12 @@ import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.socket.netty.AbstractChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelUpstreamHandler;
 
+/**
+ * {@link ChannelUpstreamHandler} which is used by RemoteManager 
+ *
+ */
 public class RemoteManagerChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
 
     private Log logger;

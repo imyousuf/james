@@ -33,6 +33,10 @@ import org.apache.james.socket.netty.LineHandlerUpstreamHandler;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.handler.stream.ChunkedStream;
 
+/**
+ * {@link RemoteManagerSession} implementation for Netty
+ *
+ */
 public class NettyRemoteManagerSession implements RemoteManagerSession {
     private Log logger;
     private Channel channel;
