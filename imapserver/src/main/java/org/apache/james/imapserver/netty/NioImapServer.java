@@ -32,7 +32,12 @@ import org.apache.james.imap.main.ImapRequestHandler;
 import org.apache.james.socket.netty.AbstractAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.handler.ssl.SslHandler;
 
+/**
+ * NIO IMAP Server which use Netty
+ *
+ */
 public class NioImapServer extends AbstractAsyncServer implements ImapConstants{
 
     private static final String softwaretype = "JAMES "+VERSION+" Server "; //+ Constants.SOFTWARE_VERSION;
@@ -88,7 +93,11 @@ public class NioImapServer extends AbstractAsyncServer implements ImapConstants{
 
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
+                if (isSSLSocket()) {
+                    pipeline.addFirst("sslHandler", new SslHandler(getSSLContext().createSSLEngine()));
+                }
                 final ImapRequestHandler handler = new ImapRequestHandler(decoder, processor, encoder);
+                
                 pipeline.addLast("coreHandler",  new ImapChannelUpstreamHandler(hello, handler, getLogger(), NioImapServer.this.getTimeout()));
                 return pipeline;
             }

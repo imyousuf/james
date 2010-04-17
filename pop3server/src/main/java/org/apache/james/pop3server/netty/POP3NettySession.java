@@ -21,6 +21,8 @@ package org.apache.james.pop3server.netty;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.net.ssl.SSLEngine;
+
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
@@ -43,6 +45,12 @@ public class POP3NettySession extends AbstractNettySession implements POP3Sessio
 
     public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext) {
         super(logger, handlerContext);
+        this.configData = configData;
+    }
+
+
+    public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
+        super(logger, handlerContext, engine);
         this.configData = configData;
     }
 

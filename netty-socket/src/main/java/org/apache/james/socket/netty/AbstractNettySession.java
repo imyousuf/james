@@ -23,13 +23,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.TLSSupportedSession;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedStream;
 
 /**
@@ -42,14 +43,14 @@ public abstract class AbstractNettySession implements TLSSupportedSession {
     protected ChannelHandlerContext handlerContext;
     protected InetSocketAddress socketAddress;
     protected Log logger;
-    protected SSLContext context;
+    protected SSLEngine engine;
     protected String user;
 
-    public AbstractNettySession(Log logger, ChannelHandlerContext handlerContext, SSLContext context) {
+    public AbstractNettySession(Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         this.handlerContext = handlerContext;
         this.socketAddress = (InetSocketAddress) handlerContext.getChannel().getRemoteAddress();
         this.logger = logger;
-        this.context = context;
+        this.engine = engine;
     }
 
     public AbstractNettySession(Log logger, ChannelHandlerContext handlerContext) {
@@ -97,18 +98,18 @@ public abstract class AbstractNettySession implements TLSSupportedSession {
      * @see org.apache.james.api.protocol.TLSSupportedSession#isStartTLSSupported()
      */
     public boolean isStartTLSSupported() {
-        return context != null;
+        return engine != null;
     }
 
     /**
      * @see org.apache.james.api.protocol.TLSSupportedSession#isTLSStarted()
      */
     public boolean isTLSStarted() {
-        /*
+        
         if (isStartTLSSupported()) {
-            return session.getFilterChain().contains("sslFilter");
+            return getChannelHandlerContext().getPipeline().get("sslHandler") != null;
         }
-        */
+        
         return false;
     }
 
@@ -116,15 +117,15 @@ public abstract class AbstractNettySession implements TLSSupportedSession {
      * @see org.apache.james.api.protocol.TLSSupportedSession#startTLS()
      */
     public void startTLS() throws IOException {
-        /*
-        if (isStartTLSSupported()) {
-            session.suspendRead();
-            SslFilter filter = new SslFilter(context);
+        if (isStartTLSSupported() && isTLSStarted() == false) {
+            getChannelHandlerContext().getChannel().setReadable(false);
+            SslHandler filter = new SslHandler(engine);
+            filter.getEngine().setUseClientMode(false);
             resetState();
-            session.getFilterChain().addFirst("sslFilter", filter);
-            session.resumeRead();
+            getChannelHandlerContext().getPipeline().addFirst("sslHandler", filter);
+            getChannelHandlerContext().getChannel().setReadable(true);
         }
-        */
+        
     }
 
     /**

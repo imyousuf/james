@@ -1,4 +1,24 @@
+/****************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *
+ * under the License.                                           *
+ ****************************************************************/
 package org.apache.james.smtpserver.netty;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -7,11 +27,16 @@ import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPServerMBean;
 import org.apache.james.socket.netty.AbstractAsyncServer;
-import org.apache.james.socket.netty.AbstractChannelPipelineFactory;
+import org.apache.james.socket.netty.AbstractSSLAwareChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
+/**
+ * NIO SMTPServer which use Netty
+ * 
+ *
+ */
 public class NioSMTPServer extends AbstractAsyncServer implements SMTPServerMBean{
 
     
@@ -267,11 +292,11 @@ public class NioSMTPServer extends AbstractAsyncServer implements SMTPServerMBea
     
     @Override
     protected ChannelPipelineFactory createPipelineFactory() {
-        return new AbstractChannelPipelineFactory() {
+        return new AbstractSSLAwareChannelPipelineFactory() {
             
             @Override
             protected ChannelUpstreamHandler createHandler() {
-                return new SMTPChannelUpstreamHandler(NioSMTPServer.this.getProtocolHandlerChain(), getSMTPConfiguration(),getLogger());
+                return new SMTPChannelUpstreamHandler(NioSMTPServer.this.getProtocolHandlerChain(), getSMTPConfiguration(),getLogger(), getSSLContext());
             }
             
             @Override
@@ -282,6 +307,16 @@ public class NioSMTPServer extends AbstractAsyncServer implements SMTPServerMBea
             @Override
             protected int getTimeout() {
                 return NioSMTPServer.this.getTimeout();
+            }
+
+            @Override
+            protected SSLContext getSSLContext() {
+                return NioSMTPServer.this.getSSLContext();
+            }
+
+            @Override
+            protected boolean isSSLSocket() {
+                return NioSMTPServer.this.isSSLSocket();
             }
         };
     }

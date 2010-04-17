@@ -18,17 +18,24 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3ServerMBean;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.socket.netty.AbstractAsyncServer;
-import org.apache.james.socket.netty.AbstractChannelPipelineFactory;
+import org.apache.james.socket.netty.AbstractSSLAwareChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
+/**
+ * NIO POP3 Server which use Netty
+ * 
+ *
+ */
 public class NioPOP3Server extends AbstractAsyncServer implements POP3ServerMBean{
     /**
      * The number of bytes to read before resetting the connection timeout
@@ -124,11 +131,11 @@ public class NioPOP3Server extends AbstractAsyncServer implements POP3ServerMBea
     
     @Override
     protected ChannelPipelineFactory createPipelineFactory() {
-        return new AbstractChannelPipelineFactory() {
+        return new AbstractSSLAwareChannelPipelineFactory() {
             
             @Override
             protected ChannelUpstreamHandler createHandler() {
-                return new POP3ChannelUpstreamHandler(NioPOP3Server.this.getProtocolHandlerChain(), getPOP3HandlerConfiguration(), getLogger());
+                return new POP3ChannelUpstreamHandler(NioPOP3Server.this.getProtocolHandlerChain(), getPOP3HandlerConfiguration(), getLogger(), getSSLContext());
             }
             
             @Override
@@ -139,6 +146,16 @@ public class NioPOP3Server extends AbstractAsyncServer implements POP3ServerMBea
             @Override
             protected int getTimeout() {
                 return NioPOP3Server.this.getTimeout();
+            }
+
+            @Override
+            protected SSLContext getSSLContext() {
+                return NioPOP3Server.this.getSSLContext();
+            }
+
+            @Override
+            protected boolean isSSLSocket() {
+                return NioPOP3Server.this.isSSLSocket();
             }
         };
     }

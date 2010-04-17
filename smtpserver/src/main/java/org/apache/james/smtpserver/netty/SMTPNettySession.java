@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import javax.net.ssl.SSLEngine;
+
 import org.apache.commons.logging.Log;
 import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
@@ -31,6 +33,10 @@ import org.apache.james.socket.netty.AbstractNettySession;
 import org.apache.james.socket.netty.LineHandlerUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
+/**
+ * {@link SMTPSession} implementation for use with Netty
+ *
+ */
 public class SMTPNettySession extends AbstractNettySession implements SMTPSession{
     public final static String SMTP_SESSION = "SMTP_SESSION";
     
@@ -46,15 +52,18 @@ public class SMTPNettySession extends AbstractNettySession implements SMTPSessio
 
     private int lineHandlerCount = 0;
 
-    public SMTPNettySession(SMTPConfiguration theConfigData, Log logger, ChannelHandlerContext handlerContext) {
-        super(logger, handlerContext);
+    public SMTPNettySession(SMTPConfiguration theConfigData, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
+        super(logger, handlerContext, engine);
         this.theConfigData = theConfigData;
         connectionState = new HashMap<String, Object>();
         smtpID = random.nextInt(1024) + "";
 
         relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());    
     }
-    
+   
+    public SMTPNettySession(SMTPConfiguration theConfigData, Log logger, ChannelHandlerContext handlerContext) {
+        this(theConfigData, logger, handlerContext, null);  
+    }
 
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#getConnectionState()

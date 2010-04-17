@@ -18,14 +18,18 @@
  ****************************************************************/
 package org.apache.james.socket.netty;
 
+import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.security.KeyStore;
 import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -105,7 +109,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
 
     private int timeout;
 
-    //private SslContextFactory contextFactory;
+    private SSLContext context;
 
     private ServerBootstrap bootstrap;  
 
@@ -262,17 +266,8 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     public final void init() throws Exception {
         if (isEnabled()) {
             preInit();
-            //buildSSLContextFactory();
-            /*
-            // add connectionfilter in the first of the chain
-            DefaultIoFilterChainBuilder builder = createIoFilterChainBuilder();
-            builder.addFirst("connectionFilter", new ConnectionFilter(getLogger(), connectionLimit, connPerIP));
-            builder.addLast("streamFilter", new StreamWriteFilter());
-            // add the sslfilter if needed
-            if (isSSLSocket()) {
-                builder.addFirst( "sslFilter", new SslFilter(contextFactory.newInstance()));
-            }
-            */
+            buildSSLContext();
+
             bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                                                    Executors.newCachedThreadPool(),
                                            Executors.newCachedThreadPool()));
@@ -431,25 +426,29 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     }
     
     /**
-     * Build the SslContextFactory
+     * Build the SSLEngine
      * 
      * @throws Exception
      */
-    /*
-    private void buildSSLContextFactory() throws Exception{
+    
+    private void buildSSLContext() throws Exception {
         if (useStartTLS) {
-            KeyStoreFactory kfactory = new KeyStoreFactory();
-            kfactory.setDataFile(fileSystem.getFile(keystore));
-            kfactory.setPassword(secret);
+            String algorithm = "SunX509";
+            KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(new FileInputStream(fileSystem.getFile(keystore)), secret.toCharArray());
+
+            // Set up key manager factory to use our key store
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+            kmf.init(ks, secret.toCharArray());
+
+            // Initialize the SSLContext to work with our key managers.
+            context = SSLContext.getInstance("TLS");
+            context.init(kmf.getKeyManagers(), null, null);
             
-            contextFactory = new SslContextFactory();
-            contextFactory.setKeyManagerFactoryKeyStore(kfactory.newInstance());
-            contextFactory.setKeyManagerFactoryAlgorithm("SunX509");
-            contextFactory.setTrustManagerFactory(new BogusTrustManagerFactory());
-            contextFactory.setKeyManagerFactoryKeyStorePassword(secret);
+
         }
     }
-    */
+   
     
     
     /**
@@ -464,30 +463,6 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      * 
      * @return contextFactory
      */
-    /*
-    protected SslContextFactory getSslContextFactory() {
-        return contextFactory;
-    }
-    */
-    
-    /**
-     * Create IoFilterChainBuilder which will get used for the Acceptor. 
-     * The builder will contain a ProtocalCodecFilter which handles Line based Protocols and
-     * a ConnectionFilter which limit the connection count / connection count per ip.
-     * 
-     * Developers should override this to add more filters to the chain.
-     * 
-     * @return ioFilterChainBuilder
-     */
-    /*
-    protected DefaultIoFilterChainBuilder createIoFilterChainBuilder() {
-     
-        DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
-        builder.addLast("protocolCodecFactory", new ProtocolCodecFilter(new JamesProtocolCodecFactory()));
-        return builder;
-    }
-    */
-    
     
     /**
      * Return the default port which will get used for this server if non is specify in the configuration
@@ -505,5 +480,9 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     
     protected int getTimeout() {
         return timeout;
+    }
+    
+    protected SSLContext getSSLContext() {
+        return context;
     }
 }
