@@ -21,6 +21,7 @@ package org.apache.james.socket.netty;
 import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
@@ -44,22 +45,15 @@ public class LineHandlerUpstreamHandler<Session extends ProtocolSession> extends
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         Session pSession = (Session) attributes.get(ctx.getChannel());
         
+        // Copy buffer and add CRLF to it
         ChannelBuffer buf = (ChannelBuffer) e.getMessage();      
-                
-        byte[] line = new byte[buf.capacity()];
-        buf.getBytes(0, line);
-
-        // TODO: improve me!
-        // thats not the most performant thing but it at least works for now
-        // this should get improved later
-        byte[] newLine = new byte[line.length +2];
-        for (int i = 0; i < line.length; i++) {
-            newLine[i] = line[i];
-        }
-        newLine[newLine.length -2] = '\r';
-        newLine[newLine.length -1] = '\n';
-
-        handler.onLine(pSession,newLine);
+        ChannelBuffer lineBuf = ChannelBuffers.buffer(buf.capacity() + 2);
+        lineBuf.writeBytes(buf);
+        lineBuf.writeInt('\r');
+        lineBuf.writeInt('\n');
+        byte[] lineBytes = new byte[lineBuf.capacity()];
+        lineBuf.getBytes(0, lineBytes);
+        handler.onLine(pSession, lineBytes);
 
         
     }
