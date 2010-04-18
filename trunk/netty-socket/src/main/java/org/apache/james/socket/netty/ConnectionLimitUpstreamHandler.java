@@ -21,6 +21,7 @@ package org.apache.james.socket.netty;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
@@ -29,7 +30,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  * {@link ChannelUpstreamHandler} which limit the concurrent connection
  *
  */
-
+@ChannelPipelineCoverage("all")
 public class ConnectionLimitUpstreamHandler extends SimpleChannelUpstreamHandler{
 
     private final AtomicInteger connections = new AtomicInteger(0);
