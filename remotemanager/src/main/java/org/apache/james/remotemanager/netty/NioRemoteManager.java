@@ -142,6 +142,16 @@ public class NioRemoteManager extends AbstractAsyncServer implements RemoteManag
             protected int getTimeout() {
                 return NioRemoteManager.this.getTimeout();
             }
+
+            @Override
+            protected int getMaxConnections() {
+                return NioRemoteManager.this.connectionLimit;
+            }
+
+            @Override
+            protected int getMaxConnectionsPerIP() {
+                return NioRemoteManager.this.connPerIP;
+            }
             
         };
     }

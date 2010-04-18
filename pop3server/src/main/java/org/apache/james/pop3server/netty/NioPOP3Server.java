@@ -157,6 +157,16 @@ public class NioPOP3Server extends AbstractAsyncServer implements POP3ServerMBea
             protected boolean isSSLSocket() {
                 return NioPOP3Server.this.isSSLSocket();
             }
+
+            @Override
+            protected int getMaxConnections() {
+                return NioPOP3Server.this.connectionLimit;
+            }
+
+            @Override
+            protected int getMaxConnectionsPerIP() {
+                return NioPOP3Server.this.connPerIP;
+            }
         };
     }
     

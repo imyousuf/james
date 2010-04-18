@@ -318,6 +318,16 @@ public class NioSMTPServer extends AbstractAsyncServer implements SMTPServerMBea
             protected boolean isSSLSocket() {
                 return NioSMTPServer.this.isSSLSocket();
             }
+
+            @Override
+            protected int getMaxConnections() {
+                return NioSMTPServer.this.connectionLimit;
+            }
+
+            @Override
+            protected int getMaxConnectionsPerIP() {
+                return NioSMTPServer.this.connPerIP;
+            }
         };
     }
     
