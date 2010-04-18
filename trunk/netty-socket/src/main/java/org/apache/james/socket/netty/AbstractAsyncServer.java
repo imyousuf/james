@@ -87,13 +87,13 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
 
     private boolean enabled;
 
-    private int connPerIP;
+    protected int connPerIP;
 
     private boolean useStartTLS;
     private boolean useSSL;
 
 
-    private int connectionLimit;
+    protected int connectionLimit;
 
     private String helloName;
     

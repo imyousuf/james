@@ -47,7 +47,12 @@ public abstract class AbstractChannelPipelineFactory implements ChannelPipelineF
     public ChannelPipeline getPipeline() throws Exception {
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
+        
+        pipeline.addLast("connectionLimit", new ConnectionLimitUpstreamHandler(getMaxConnections()));
 
+        pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(getMaxConnectionsPerIP()));
+
+        
         // Add the text line codec combination first,
         // decoder
         pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
@@ -84,6 +89,20 @@ public abstract class AbstractChannelPipelineFactory implements ChannelPipelineF
      */
     protected abstract int getTimeout();
 
+
+    /**
+     * Return the max connections 
+     * 
+     * @return max connections
+     */
+    protected abstract int getMaxConnections();
+    
+    /**
+     * Return the max connections per ip
+     * 
+     * @return max connections per ip
+     */
+    protected abstract int getMaxConnectionsPerIP();
 
 
 }

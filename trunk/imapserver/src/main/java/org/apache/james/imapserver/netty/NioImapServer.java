@@ -30,6 +30,8 @@ import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.socket.netty.AbstractAsyncServer;
+import org.apache.james.socket.netty.ConnectionLimitUpstreamHandler;
+import org.apache.james.socket.netty.ConnectionPerIpLimitUpstreamHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.handler.ssl.SslHandler;
@@ -93,6 +95,10 @@ public class NioImapServer extends AbstractAsyncServer implements ImapConstants{
 
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
+                pipeline.addLast("connectionLimit", new ConnectionLimitUpstreamHandler(NioImapServer.this.connectionLimit));
+
+                pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(NioImapServer.this.connPerIP));
+
                 if (isSSLSocket()) {
                     pipeline.addFirst("sslHandler", new SslHandler(getSSLContext().createSSLEngine()));
                 }
