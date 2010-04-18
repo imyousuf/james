@@ -28,7 +28,7 @@ import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
-import org.apache.james.imap.main.ImapRequestHandler;
+import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.socket.netty.AbstractAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -96,9 +96,9 @@ public class NioImapServer extends AbstractAsyncServer implements ImapConstants{
                 if (isSSLSocket()) {
                     pipeline.addFirst("sslHandler", new SslHandler(getSSLContext().createSSLEngine()));
                 }
-                final ImapRequestHandler handler = new ImapRequestHandler(decoder, processor, encoder);
+                final ImapRequestStreamHandler handler = new ImapRequestStreamHandler(decoder, processor, encoder);
                 
-                pipeline.addLast("coreHandler",  new ImapChannelUpstreamHandler(hello, handler, getLogger(), NioImapServer.this.getTimeout()));
+                pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), NioImapServer.this.getTimeout()));
                 return pipeline;
             }
            
