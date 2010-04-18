@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.ImapConstants;
-import org.apache.james.imap.main.ImapRequestHandler;
+import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -42,12 +42,12 @@ public class ImapIoHandler extends StreamIoHandler{
 
     private final String hello;
 
-    private final ImapRequestHandler handler;
+    private final ImapRequestStreamHandler handler;
 
     private final static String IMAP_SESSION = "IMAP_SESSION"; 
     private ExecutorService executor = Executors.newCachedThreadPool();
     
-    public ImapIoHandler(String hello, ImapRequestHandler handler, Log logger) {
+    public ImapIoHandler(String hello, ImapRequestStreamHandler handler, Log logger) {
         this.logger = logger;
         this.hello = hello;
         this.handler = handler;

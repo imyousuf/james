@@ -27,7 +27,7 @@ import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
-import org.apache.james.imap.main.ImapRequestHandler;
+import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.socket.mina.AbstractAsyncServer;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandler;
@@ -87,7 +87,7 @@ public class AsyncImapServer extends AbstractAsyncServer implements ImapConstant
     
     @Override
     protected IoHandler createIoHandler() {
-        final ImapRequestHandler handler = new ImapRequestHandler(decoder, processor, encoder);
+        final ImapRequestStreamHandler handler = new ImapRequestStreamHandler(decoder, processor, encoder);
         return new ImapIoHandler(hello, handler, getLogger());
     }
 

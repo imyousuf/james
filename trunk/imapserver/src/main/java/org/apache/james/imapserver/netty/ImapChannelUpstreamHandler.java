@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.ImapConstants;
-import org.apache.james.imap.main.ImapRequestHandler;
+import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -45,11 +45,11 @@ public class ImapChannelUpstreamHandler extends StreamHandler{
 
     private final String hello;
 
-    private final ImapRequestHandler handler;
+    private final ImapRequestStreamHandler handler;
 
     private final static String IMAP_SESSION = "IMAP_SESSION"; 
     
-    public ImapChannelUpstreamHandler(final String hello, final ImapRequestHandler handler, final Log logger, final long readTimeout) {
+    public ImapChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final long readTimeout) {
         super(new HashedWheelTimer(), readTimeout, TimeUnit.SECONDS);
         this.logger = logger;
         this.hello = hello;
