@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
@@ -31,6 +32,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  * {@link ChannelUpstreamHandler} which limit connections per IP
  *
  */
+@ChannelPipelineCoverage("all")
 public class ConnectionPerIpLimitUpstreamHandler extends SimpleChannelUpstreamHandler{
 
     private final ConcurrentHashMap<String, AtomicInteger> connections = new ConcurrentHashMap<String, AtomicInteger>();
