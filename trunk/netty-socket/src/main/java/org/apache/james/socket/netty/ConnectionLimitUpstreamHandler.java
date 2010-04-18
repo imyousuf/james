@@ -43,8 +43,6 @@ public class ConnectionLimitUpstreamHandler extends SimpleChannelUpstreamHandler
         if (maxConnections > 0) {
             int currentCount = connections.getAndIncrement();
             
-            System.out.println("MAX = " + maxConnections + " CON = " + currentCount);
-
             if (currentCount > maxConnections) {
                 ctx.getChannel().close();
                 connections.decrementAndGet();
