@@ -46,7 +46,6 @@ public class ConnectionPerIpLimitUpstreamHandler extends SimpleChannelUpstreamHa
             InetSocketAddress remoteAddress = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
             String remoteIp = remoteAddress.getAddress().getHostAddress();
             AtomicInteger count = connections.get(remoteIp);
-            System.out.println("MAX = " + maxConnectionsPerIp + " CON = " + count);
 
             if (count == null) {
                 count = new AtomicInteger(1);
