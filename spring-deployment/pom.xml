@@ -114,9 +114,9 @@
       
 	  <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2-beta-2</version>
         <configuration>
           <descriptorSourceDirectory>src/assemble/</descriptorSourceDirectory>
+          <tarLongFileMode>gnu</tarLongFileMode>
         </configuration>
         <executions>
           <execution>
