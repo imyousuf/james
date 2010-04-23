@@ -5,13 +5,22 @@
         <!-- Mailbox stuff-->
         <class>org.apache.james.imap.jpa.mail.model.JPAHeader</class>
         <class>org.apache.james.imap.jpa.mail.model.JPAMailbox</class>
-        <class>org.apache.james.imap.jpa.mail.model.AbstractJPAMailboxMembership</class>
-        <class>org.apache.james.imap.jpa.mail.model.JPAMailboxMembership</class>
-        <class>org.apache.james.imap.jpa.mail.model.openjpa.JPAStreamingMailboxMembership</class>
-        <class>org.apache.james.imap.jpa.mail.model.openjpa.JPAStreamingMailboxMembership</class>
         <class>org.apache.james.imap.jpa.mail.model.AbstractJPAMessage</class>
-        <class>org.apache.james.imap.jpa.mail.model.JPAMessage</class>
+        <class>org.apache.james.imap.jpa.mail.model.AbstractJPAMailboxMembership</class>
+        <!-- This needs to get used when you want to use streaming. Remember to comment the following classes
+             org.apache.james.imap.jpa.mail.model.JPAMailboxMembership
+             org.apache.james.imap.jpa.mail.model.JPAMessage
+             
+             If you don't do this the EntityManager will get confused
+         -->
+         <!-- 
+        <class>org.apache.james.imap.jpa.mail.model.openjpa.JPAStreamingMailboxMembership</class>
         <class>org.apache.james.imap.jpa.mail.model.openjpa.JPAStreamingMessage</class>
+         -->
+         
+         <!-- Comment if you want to use streaming -->
+        <class>org.apache.james.imap.jpa.mail.model.JPAMailboxMembership</class>
+        <class>org.apache.james.imap.jpa.mail.model.JPAMessage</class>
         <class>org.apache.james.imap.jpa.mail.model.JPAProperty</class>
         <class>org.apache.james.imap.jpa.user.model.JPASubscription</class>
 
