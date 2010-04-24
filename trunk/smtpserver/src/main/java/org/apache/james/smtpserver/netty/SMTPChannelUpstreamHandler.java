@@ -72,7 +72,7 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         logger.info("Dispose objects while closing channel " + ctx.getChannel().getId());
         cleanup(ctx.getChannel());
-        super.channelDisconnected(ctx, e);
+        super.channelClosed(ctx, e);
     }
 
     
