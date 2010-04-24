@@ -20,7 +20,9 @@
 package org.apache.james.smtpserver;
 
 import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.james.smtpserver.netty.NioSMTPServer;
+import org.apache.james.socket.netty.AbstractChannelPipelineFactory;
 
 public class NioSMTPServerTest extends AbstractSMTPServerTest{
 
@@ -47,9 +49,26 @@ public class NioSMTPServerTest extends AbstractSMTPServerTest{
         m_smtpServer.setMailServer(m_mailServer);        
     }
 
-    @Override
     public void testMaxLineLength() throws Exception {
-        // TODO: Add support
+        finishSetUp(m_testConfiguration);
+
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+        
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < AbstractChannelPipelineFactory.MAX_LINE_LENGTH; i++) {
+            sb.append("A");
+        }
+        smtpProtocol.sendCommand("EHLO " + sb.toString());
+        System.out.println(smtpProtocol.getReplyString());
+        assertEquals("Line length exceed", 500, smtpProtocol.getReplyCode());
+
+        smtpProtocol.sendCommand("EHLO test");
+        assertEquals("Line length ok", 250, smtpProtocol.getReplyCode());
+
+
+        smtpProtocol.quit();
+        smtpProtocol.disconnect();
     }
 
 }

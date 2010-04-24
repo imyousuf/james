@@ -20,7 +20,9 @@
 package org.apache.james.smtpserver;
 
 import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.james.smtpserver.mina.AsyncSMTPServer;
+import org.apache.james.socket.mina.codec.CRLFTerminatedLineDecoder;
 
 public class AsyncSMTPServerTest extends AbstractSMTPServerTest{
 
@@ -46,4 +48,25 @@ public class AsyncSMTPServerTest extends AbstractSMTPServerTest{
         m_smtpServer.init();
     }
 
+    public void testMaxLineLength() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+        
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < CRLFTerminatedLineDecoder.DEFAULT_MAX_LINE_LENTH; i++) {
+            sb.append("A");
+        }
+        smtpProtocol.sendCommand("EHLO " + sb.toString());
+        System.out.println(smtpProtocol.getReplyString());
+        assertEquals("Line length exceed", 500, smtpProtocol.getReplyCode());
+
+        smtpProtocol.sendCommand("EHLO test");
+        assertEquals("Line length ok", 250, smtpProtocol.getReplyCode());
+
+
+        smtpProtocol.quit();
+        smtpProtocol.disconnect();
+    }
 }

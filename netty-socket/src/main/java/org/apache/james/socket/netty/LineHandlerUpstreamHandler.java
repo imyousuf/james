@@ -39,27 +39,19 @@ public class LineHandlerUpstreamHandler<Session extends ProtocolSession> extends
     public LineHandlerUpstreamHandler(LineHandler<Session> handler) {
         this.handler = handler;
     }
+    
     @SuppressWarnings("unchecked")
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         Session pSession = (Session) attributes.get(ctx.getChannel());
         
         ChannelBuffer buf = (ChannelBuffer) e.getMessage();      
-                
+
+        // copy the ChannelBuffer to a byte array to process the LineHandler
         byte[] line = new byte[buf.capacity()];
         buf.getBytes(0, line);
 
-        // TODO: improve me!
-        // thats not the most performant thing but it at least works for now
-        // this should get improved later
-        byte[] newLine = new byte[line.length +2];
-        for (int i = 0; i < line.length; i++) {
-            newLine[i] = line[i];
-        }
-        newLine[newLine.length -2] = '\r';
-        newLine[newLine.length -1] = '\n';
-
-        handler.onLine(pSession,newLine);
+        handler.onLine(pSession, line);
 
         
     }

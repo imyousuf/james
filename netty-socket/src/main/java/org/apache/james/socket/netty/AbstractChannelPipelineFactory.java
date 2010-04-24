@@ -39,6 +39,7 @@ import org.jboss.netty.util.Timer;
  */
 public abstract class AbstractChannelPipelineFactory implements ChannelPipelineFactory{
 
+    public final static int MAX_LINE_LENGTH = 8192;
     private final Timer timer = new HashedWheelTimer();
     /*
      * (non-Javadoc)
@@ -53,15 +54,14 @@ public abstract class AbstractChannelPipelineFactory implements ChannelPipelineF
         pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(getMaxConnectionsPerIP()));
 
         
-        // Add the text line codec combination first,
-        // decoder
-        pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
+        // Add the text line decoder which limit the max line length, don't strip the delimiter and use CRLF as delimiter
+        pipeline.addLast("framer", new DelimiterBasedFrameDecoder(MAX_LINE_LENGTH, false, Delimiters.lineDelimiter()));
        
         // encoder
         pipeline.addLast("encoderResponse", createEncoder());
 
         pipeline.addLast("streamer", new ChunkedWriteHandler());
-        pipeline.addLast("timeoutHandler", new TimeoutHandler(timer, 120,120,0));
+        pipeline.addLast("timeoutHandler", new TimeoutHandler(timer, 120, 120, 0));
         pipeline.addLast("coreHandler", createHandler());
 
 

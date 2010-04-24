@@ -35,6 +35,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 
 /**
  * {@link ChannelUpstreamHandler} which is used by the SMTPServer
@@ -78,11 +79,16 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {        
         Channel channel = ctx.getChannel();
-        if (channel.isConnected()) {
-            ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
+        if (e.getCause() instanceof TooLongFrameException) {
+            ctx.getChannel().write(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
+        } else {
+            if (channel.isConnected()) {
+                ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
+            }
+            cleanup(channel);
+            channel.close();
         }
-        cleanup(channel);
-        channel.close();
+       
         super.exceptionCaught(ctx, e);
     }
 

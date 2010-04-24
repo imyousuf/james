@@ -49,7 +49,6 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.ProtocolHandlerChainImpl;
-import org.apache.james.socket.mina.codec.CRLFTerminatedLineDecoder;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
@@ -264,27 +263,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertNotNull("mail received by mail server", m_mailServer.getLastMail());
     }
     
-    public void testMaxLineLength() throws Exception {
-        finishSetUp(m_testConfiguration);
 
-        SMTPClient smtpProtocol = new SMTPClient();
-        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
-        
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < CRLFTerminatedLineDecoder.DEFAULT_MAX_LINE_LENTH; i++) {
-            sb.append("A");
-        }
-        smtpProtocol.sendCommand("EHLO " + sb.toString());
-        System.out.println(smtpProtocol.getReplyString());
-        assertEquals("Line length exceed", 500, smtpProtocol.getReplyCode());
-
-        smtpProtocol.sendCommand("EHLO test");
-        assertEquals("Line length ok", 250, smtpProtocol.getReplyCode());
-
-
-        smtpProtocol.quit();
-        smtpProtocol.disconnect();
-    }
 
     public void testStartTLSInEHLO() throws Exception {
         m_testConfiguration.setStartTLS();
