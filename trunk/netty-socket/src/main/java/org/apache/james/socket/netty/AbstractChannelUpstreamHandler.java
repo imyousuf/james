@@ -35,6 +35,7 @@ import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 
 /**
  * This abstract {@link ChannelUpstreamHandler} handling the calling of ConnectHandler and LineHandlers
@@ -105,7 +106,9 @@ public abstract class AbstractChannelUpstreamHandler extends SimpleChannelUpstre
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        cleanup(ctx.getChannel());
+        if ((e.getCause() instanceof TooLongFrameException) == false) {
+            cleanup(ctx.getChannel());
+        }
     }
 
     private void cleanup(Channel channel) {
