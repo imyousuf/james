@@ -116,8 +116,9 @@ public abstract class AbstractChannelUpstreamHandler extends SimpleChannelUpstre
         if (session != null) {
             session.resetState();
             session = null;
-            attributes.remove(channel);
         }
+        attributes.remove(channel);
+
     }
 
     /**
