@@ -103,5 +103,30 @@
         <include>setenv.sh</include>
       </includes>
     </fileSet>
+    
+        <!-- include stuff from appassembler  daemons-->
+    <fileSet>
+      <directory>target/appassembler/jsw/james/lib</directory>
+      <outputDirectory>lib</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>target/appassembler/jsw/james/conf</directory>
+      <outputDirectory>conf</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>target/appassembler/jsw/james/bin</directory>
+      <outputDirectory>bin</outputDirectory>
+      <fileMode>0755</fileMode>
+      <includes>
+        <include>*.bat</include>
+        <include>*.exe</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>target/appassembler/jsw/james/bin</directory>
+      <outputDirectory>bin</outputDirectory>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    
   </fileSets>
 </assembly>
