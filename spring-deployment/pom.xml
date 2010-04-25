@@ -77,6 +77,44 @@
               </platforms>
             </program>
           </programs>
+                   
+          <daemons>
+            <daemon>
+              <id>james</id>
+              <mainClass>org.apache.james.container.spring.Main</mainClass>
+              <commandLineArguments>
+                <commandLineArgument>start</commandLineArgument>
+              </commandLineArguments>
+              <platforms>
+                <platform>jsw</platform>
+              </platforms>   
+              <generatorConfigurations>
+                <generatorConfiguration>
+                  <generator>jsw</generator>
+                  <configuration>
+                    <property>
+                      <name>configuration.directory.in.classpath.first</name>
+                      <value>../conf</value>
+                    </property>
+                    <property>
+                      <name>set.default.REPO_DIR</name>
+                      <value>../lib</value>
+                    </property>
+                    <property>
+                      <name>wrapper.working.dir</name>
+                      <value>.</value>
+                    </property>
+                    <property>
+                      <name>wrapper.logfile</name>
+                      <value>log/wrapper.log</value>
+                    </property>
+                  </configuration>
+                </generatorConfiguration>
+              </generatorConfigurations>
+                         
+            </daemon>
+          </daemons>
+          
         </configuration>
         <executions>
           <execution>
@@ -84,6 +122,7 @@
             <phase>package</phase>
             <goals>
               <goal>assemble</goal>
+              <goal>generate-daemons</goal>
             </goals>
           </execution>
         </executions>
@@ -98,10 +137,15 @@
             <configuration>
 
               <tasks>
-          		<!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
-          			 from the lib dir to make windows happy again -->
+                <!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
+                     from the lib dir to make windows happy again
+                -->
                 <replace file="${project.build.directory}/appassembler/bin/run.bat" token="%BASEDIR%\lib" value="..\lib"/>
                 <replace file="${project.build.directory}/appassembler/bin/run.sh" token="setenv" value="setenv.sh"/>
+                
+                <!-- this is needed because appassembler is not really smart on some settings -->
+                <replace file="${project.build.directory}/appassembler/jsw/james/conf/wrapper.conf" token="lib/wrapper.jar" value="%REPO_DIR%/wrapper.jar"/>
+                <replace file="${project.build.directory}/appassembler/jsw/james/bin/james" token="logs" value="var"/>
               </tasks>
 
             </configuration>

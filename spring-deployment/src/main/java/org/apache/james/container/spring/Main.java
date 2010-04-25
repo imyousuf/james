@@ -18,17 +18,14 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
-
 /**
  * Bootstraps James using a Spring container
  */
-public class Main {    
+public class Main {
 
-    public static void main(String[] args) {    	
-    	JamesServerApplicationContext context = new JamesServerApplicationContext(
-    	        new String[] {"spring-beans.xml"});
-    	context.registerShutdownHook();
-
+    public static void main(String[] args) {
+        final JamesServerApplicationContext context = new JamesServerApplicationContext(new String[] { "spring-beans.xml" });
+        context.registerShutdownHook();
     }
 
 }
