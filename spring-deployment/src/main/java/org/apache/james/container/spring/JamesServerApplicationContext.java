@@ -18,44 +18,45 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
-import java.io.File;
-
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
+/**
+ * {@link ApplicationContext} which loads all needed beans for JAMES
+ *
+ */
 public class JamesServerApplicationContext extends ClassPathXmlApplicationContext{
 
-    private static final String FILE_PROTOCOL = "file://";
-    private static final String FILE_PROTOCOL_ABSOLUTE = "file:///";
+    /**
+     * The resourceloader to use
+     */
+    private final static JamesResourceLoader resourceLoader = new JamesResourceLoader() {
 
-    private static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
-    private static final String FILE_PROTOCOL_AND_VAR = "file://var/";
+        @Override
+        protected String getRootPath() {
+            return "..";
+        }
+
+        public ClassLoader getClassLoader() {
+            return this.getClassLoader();
+        }
+        
+    };
+    
     
     public JamesServerApplicationContext(String[] configs) {
     	super(configs);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.core.io.DefaultResourceLoader#getResource(java.lang.String)
+     */
     public Resource getResource(String fileURL) {
-        Resource r = null;
-        if (fileURL.startsWith("classpath:")) {
-            String resourceName = fileURL.substring("classpath:".length());
-            r = new ClassPathResource(resourceName);
-        } else if (fileURL.startsWith(FILE_PROTOCOL)) {
-            File file = null;
-            if (fileURL.startsWith(FILE_PROTOCOL_AND_CONF)) {
-                file = new File("../conf/" + fileURL.substring(FILE_PROTOCOL_AND_CONF.length()));
-            } else if (fileURL.startsWith(FILE_PROTOCOL_AND_VAR)) {
-                file = new File("../var/" + fileURL.substring(FILE_PROTOCOL_AND_VAR.length()));
-            } else if (fileURL.startsWith(FILE_PROTOCOL_ABSOLUTE)) {
-            	file = new File("/" + fileURL.substring(FILE_PROTOCOL_ABSOLUTE.length()));
-            } else {
-            	// move to the root folder of the spring deployment
-                file = new File("../" + fileURL.substring(FILE_PROTOCOL.length()));
-            }
-            r = new FileSystemResource(file);
-        } else {
+        // delegate the loading to the resourceloader
+        Resource r = resourceLoader.getResource(fileURL);
+        if (r == null) {
             r = super.getResource(fileURL);
         }
         return r;
