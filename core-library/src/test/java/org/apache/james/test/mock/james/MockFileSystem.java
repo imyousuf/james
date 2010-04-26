@@ -51,7 +51,7 @@ public class MockFileSystem implements FileSystem {
 					}
                     // return new File("./src"+fileURL.substring(6));
                 } else {
-                    throw new UnsupportedOperationException("getFile: "+fileURL);
+                    return new File(fileURL.substring(FileSystem.FILE_PROTOCOL.length()));
                 }
             } else {
                 throw new UnsupportedOperationException("getFile: "+fileURL);
