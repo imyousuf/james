@@ -172,6 +172,51 @@
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>src/main/config/james</directory>
+              <!-- override the destination directory for this resource -->
+              <targetPath>WEB-INF/conf/</targetPath>
+              <excludes>
+                <exclude>log4j.properties</exclude>
+                <exclude>META-INF/persistence.xml</exclude> 
+              </excludes>
+            </resource>
+            <resource>
+              <directory>src/main/config/james</directory>
+              <!-- override the destination directory for this resource -->
+              <targetPath>WEB-INF/classes/</targetPath>
+              <includes>
+                <include>log4j.properties</include>
+                <include>META-INF/persistence.xml</include> 
+              </includes>
+            </resource>
+            <resource>
+              <directory>src/main/config/war</directory>
+              <!-- override the destination directory for this resource -->
+              <targetPath>WEB-INF/conf/</targetPath>
+              
+            </resource>
+
+          </webResources>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-war</id>
+            <phase>package</phase>
+            <goals>
+              <goal>war</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      
       <!--  be sure to start up james before run it -->
       <!--  
        <plugin>
@@ -247,6 +292,11 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
@@ -401,10 +451,13 @@
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-core</artifactId>
-      <scope>runtime</scope>
     </dependency>    
-	
-	<dependency>
+       <dependency>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
       <scope>runtime</scope>
@@ -472,7 +525,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver</artifactId>
-      <version>3.0-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

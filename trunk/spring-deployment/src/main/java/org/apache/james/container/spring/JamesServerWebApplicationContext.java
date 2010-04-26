@@ -18,27 +18,31 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
- * {@link ApplicationContext} which loads all needed beans for JAMES
- *
+ * {@link XmlWebApplicationContext} which is used to startup james in a servlet
+ * container
+ * 
  */
-public class JamesServerApplicationContext extends ClassPathXmlApplicationContext implements JamesResourceLoader{
+public class JamesServerWebApplicationContext extends XmlWebApplicationContext implements JamesResourceLoader{
 
     /**
-     * The resourceloader to use. This must be defined as static, otherwise it will fail to startup..
+     * The resourceloader to use
      */
-    private final static JamesResourceLoader resourceLoader = new AbstractJamesResourceLoader() {
+    private final JamesResourceLoader resourceLoader = new AbstractJamesResourceLoader() {
 
         /*
          * (non-Javadoc)
          * @see org.apache.james.container.spring.JamesResourceLoader#getAbsoluteDirectory()
          */
         public String getAbsoluteDirectory() {
-            return "/";
+            if (absoluteDirectory == null) {
+                return getRootDirectory();
+            } else {
+                return absoluteDirectory;
+            }
         }
 
         /*
@@ -46,15 +50,11 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
          * @see org.apache.james.container.spring.JamesResourceLoader#getConfDirectory()
          */
         public String getConfDirectory() {
-            return getRootDirectory() + "/conf/";
-        }
-
-        /*
-         * (non-Javadoc)
-         * @see org.apache.james.container.spring.JamesResourceLoader#getVarDirectory()
-         */
-        public String getVarDirectory() {
-            return getRootDirectory() + "/var/";
+            if (confDirectory == null) {
+                return getRootDirectory() + "/WEB-INF/conf/";
+            } else {
+                return confDirectory;
+            }
         }
 
         /*
@@ -62,19 +62,38 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
          * @see org.apache.james.container.spring.JamesResourceLoader#getRootDirectory()
          */
         public String getRootDirectory() {
-            return "../";
+            if (rootDirectory == null) {
+            // the root dir is the same as the servlets path
+                return JamesServerWebApplicationContext.this.getServletContext().getRealPath("/");
+            } else {
+                return rootDirectory;
+            }
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.container.spring.JamesResourceLoader#getVarDirectory()
+         */
+        public String getVarDirectory() {
+            if (varDirectory == null) {
+                return getRootDirectory() + "/var/";
+            } else {
+                return varDirectory;
+            }
         }
 
     };
-    
-    
-    public JamesServerApplicationContext(String[] configs) {
-    	super(configs);
-    }
+    private String rootDirectory;
+    private String absoluteDirectory;
+    private String varDirectory;
+    private String confDirectory;
 
     /*
      * (non-Javadoc)
-     * @see org.springframework.core.io.DefaultResourceLoader#getResource(java.lang.String)
+     * 
+     * @see
+     * org.springframework.core.io.DefaultResourceLoader#getResource(java.lang
+     * .String)
      */
     public Resource getResource(String fileURL) {
         // delegate the loading to the resourceloader
@@ -85,6 +104,22 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
         return r;
     }
 
+    public void setRootDirectory(String rootDirectory) {
+        this.rootDirectory = rootDirectory;
+    }
+    
+    public void setAbsoluteDirectory(String absoluteDirectory) {
+        this.absoluteDirectory = absoluteDirectory;
+    }
+    
+    
+    public void setVarDirectory(String varDirectory) {
+        this.varDirectory = varDirectory;
+    }
+    
+    public void setConfDirectory(String confDirectory) {
+        this.confDirectory = confDirectory;
+    }
     /*
      * (non-Javadoc)
      * @see org.apache.james.container.spring.JamesResourceLoader#getAbsoluteDirectory()
@@ -116,5 +151,4 @@ public class JamesServerApplicationContext extends ClassPathXmlApplicationContex
     public String getRootDirectory() {
         return resourceLoader.getRootDirectory();
     }
-
 }

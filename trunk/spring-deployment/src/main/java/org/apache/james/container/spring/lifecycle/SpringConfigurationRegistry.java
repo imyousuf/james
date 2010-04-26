@@ -53,7 +53,7 @@ public class SpringConfigurationRegistry implements Registry<HierarchicalConfigu
 	    if (conf != null) {
 	        return conf;
 	    } else {
-	        Resource r = loader.getResource("classpath:" + name + ".xml");
+	        Resource r = loader.getResource("file://conf/" + name + ".xml");
 	        if (r.exists()) {
 	            try {
                     return getConfig(r);

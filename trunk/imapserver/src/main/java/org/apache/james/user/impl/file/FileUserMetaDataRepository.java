@@ -29,10 +29,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.james.api.user.UserMetaDataRespository;
 import org.apache.james.api.user.UserRepositoryException;
+import org.apache.james.services.FileSystem;
 
 /**
  * Stores user meta-data in the file system.
@@ -49,13 +53,39 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
         '4','5','6','7','8','9'
     };
     
-    private final String baseDirectory;
+    private File baseDirectory;
+
+    private FileSystem fs;
+
+    private String baseDirUrl;
     
-    public FileUserMetaDataRepository(final String baseDirectory) {
+    public FileUserMetaDataRepository() {
         super();
-        this.baseDirectory = baseDirectory;
     }
 
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem fs) {
+        this.fs = fs;
+    }
+    
+    public void setBaseDirectory(String baseDirUrl) {
+        this.baseDirUrl = baseDirUrl;
+    }
+    
+    
+    
+    @PostConstruct
+    public void init() throws Exception{
+        baseDirectory = fs.getFile(baseDirUrl);
+        if (!baseDirectory.exists()) {
+            if (!baseDirectory.mkdirs()) {
+                throw new Exception("Cannot create directory: " + baseDirectory);
+            }
+        }
+    }
+    
+    
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.api.user.UserMetaDataRespository#clear(java.lang.String)
@@ -125,11 +155,9 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
         return valueFile;
     }
 
-    private File userDirectory(String username) throws UserRepositoryException {
-        final File baseDir = getBaseDirectory();
-        
+    private File userDirectory(String username) throws UserRepositoryException {        
         final String userDirectoryName = fileSystemSafeName(username);
-        final File userDir = new File(baseDir, userDirectoryName);
+        final File userDir = new File(baseDirectory, userDirectoryName);
         if (!userDir.exists()) {
             if (!userDir.mkdir()) {
                 throw new UserRepositoryException("Cannot create directory: " + userDir.getAbsolutePath());
@@ -138,15 +166,7 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
         return userDir;
     }
 
-    private File getBaseDirectory() throws UserRepositoryException {
-        final File baseDir = new File(baseDirectory);
-        if (!baseDir.exists()) {
-            if (!baseDir.mkdirs()) {
-                throw new UserRepositoryException("Cannot create directory: " + baseDirectory);
-            }
-        }
-        return baseDir;
-    }
+   
 
     /**
      * Maps a value to a file-system safe name.
