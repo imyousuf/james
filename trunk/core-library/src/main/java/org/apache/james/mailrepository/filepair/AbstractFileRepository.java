@@ -53,15 +53,13 @@ public abstract class AbstractFileRepository
     implements Repository, Configurable, LogEnabled {
     protected static final boolean DEBUG = false;
 
-    protected static final String HANDLED_URL = "file://";
     protected static final int BYTE_MASK = 0x0f;
     protected static final char[] HEX_DIGITS = new char[]
     {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
     };
 
-    protected String m_path;
-    protected String m_destination;
+    protected File m_destination;
     protected String m_extension;
     protected String m_name;
     protected FilenameFilter m_filter;
@@ -72,11 +70,9 @@ public abstract class AbstractFileRepository
     private Log logger;
     
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{        
-        if( null == m_destination )
-        {
-            final String destination = configuration.getString( "[@destinationURL]" );
-            setDestination( destination );
-        }
+        final String destination = configuration.getString( "[@destinationURL]" );
+        setDestination( destination );
+        
     }
     
     
@@ -113,28 +109,15 @@ public abstract class AbstractFileRepository
         
         File directory;
 
-        // Check for absolute path
-        if( m_path.startsWith( "/" ) )
-        {
-            directory = new File( m_path );
-        }
-        else
-        {
-            directory = new File( m_baseDirectory, m_path );
-        }
-
         try
         {
-            directory = directory.getCanonicalFile();
+            directory = m_baseDirectory.getCanonicalFile();
         }
         catch( final IOException ioe )
         {
             throw new ConfigurationException( "Unable to form canonical representation of " +
-                                              directory );
+                    m_baseDirectory );
         }
-
-        m_path = directory.toString();
-
         
        
         m_name = "Repository";
@@ -145,7 +128,7 @@ public abstract class AbstractFileRepository
 
         directory.mkdirs();
 
-        getLogger().info( getClass().getName() + " opened in " + m_path );
+        getLogger().info( getClass().getName() + " opened in " + m_destination );
 
         //We will look for all numbered repository files in this
         //  directory and rename them to non-numbered repositories,
@@ -186,19 +169,23 @@ public abstract class AbstractFileRepository
      * Set the destination for the repository
      * 
      * @param destination the destination under which the repository get stored
+     * @throws ConfigurationException 
      * @throws ConfigurationException get thrown on invalid destintion syntax
      */
     protected void setDestination( final String destination )
         throws ConfigurationException
     {
-        if( !destination.startsWith( HANDLED_URL ) )
+        if( !destination.startsWith( FileSystem.FILE_PROTOCOL ) )
         {
-            throw new ConfigurationException( "cannot handle destination " + destination );
+            throw new ConfigurationException( "cannot handle destination " + destination);
         }
 
         
-        m_path = destination.substring( HANDLED_URL.length() );
-        m_destination = destination;
+        try {
+            m_destination = fileSystem.getFile(destination);
+        } catch (FileNotFoundException e) {
+            throw new ConfigurationException("Unable to acces destination " + destination, e);
+        }
 
     }
 
@@ -237,7 +224,7 @@ public abstract class AbstractFileRepository
 
         try
         {
-            child.setDestination( m_destination + File.pathSeparatorChar +
+            child.setDestination( m_destination.getAbsolutePath() + File.pathSeparatorChar +
                                   childName + File.pathSeparator );
         }
         catch( final ConfigurationException ce )
@@ -359,7 +346,7 @@ public abstract class AbstractFileRepository
      */
     public Iterator<String> list()
     {
-        final File storeDir = new File( m_path );
+        final File storeDir = new File( m_baseDirectory.getAbsolutePath() );
         final String[] names = storeDir.list( m_filter );
         final List<String> list = new ArrayList<String>();
 
@@ -397,7 +384,7 @@ public abstract class AbstractFileRepository
         }
 
         StringBuffer result = new StringBuffer();
-        result.append( m_path );
+        result.append( m_baseDirectory.getAbsolutePath() );
         result.append( File.separator );
         result.append( buffer );
         result.append( m_extension );

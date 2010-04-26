@@ -64,7 +64,7 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
             }
 
             public File getFile(String fileURL) throws FileNotFoundException {
-                throw new UnsupportedOperationException();
+                return new File(fileURL.substring(FileSystem.FILE_PROTOCOL.length()));
             }
             
         };
