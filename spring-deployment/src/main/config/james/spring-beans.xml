@@ -87,7 +87,7 @@
     </bean>
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name = "location" value="classpath:database.properties"/>
+        <property name = "location" value="file://conf/database.properties"/>
     </bean>
 
     <bean class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
@@ -155,13 +155,14 @@
     </bean>
     
     <bean id="broker" class="org.apache.activemq.xbean.BrokerFactoryBean">
-        <property name="config" value="classpath:activemq.xml" />
+        <property name="config" value="file://conf/activemq.xml" />
         <property name="start" value="true" />
     </bean>
 
     <bean id ="spoolMessageStore" class="org.apache.james.FileSpoolMessageStore">
-        <constructor-arg index="0" value="../var/mail/spool"/>
+        <property name="spoolDirectory" value="file://var/mail/spool"/>
     </bean> 
+    
     <bean id ="mailClaimCheck" class="org.apache.james.transport.camel.MailClaimCheck"/>
     <bean id ="mailEnricher" class="org.apache.james.transport.camel.MailEnricher"/>
 
@@ -308,7 +309,7 @@
     <bean id="subscriper" class="org.apache.james.imapserver.UserMetaDataRepositorySubscripter"/>
 
     <bean id="userMetaDataRepository" class="org.apache.james.user.impl.file.FileUserMetaDataRepository">
-        <constructor-arg index="0" value="var/users"/>
+        <property name="baseDirectory" value="file://var/users"/>
     </bean>
 
 
@@ -404,9 +405,12 @@
     <bean id="jcrRepository" class="org.apache.jackrabbit.core.RepositoryImpl">
         <constructor-arg index="0" ref="config" />
     </bean>
-    <bean id="config" class="org.apache.jackrabbit.core.config.RepositoryConfig" factory-method="create">        
-        <constructor-arg index="0" value="../conf/jcr-repository.xml"/>
-        <constructor-arg index="1" value="../var/jackrabbit" />
+    
+    <!-- Jackrabbit config -->
+    <bean id="config" class="org.apache.james.container.spring.FileSystemRepositoryConfigFactory" factory-method="create">        
+        <constructor-arg index="0" value="file://conf/jcr-repository.xml"/>
+        <constructor-arg index="1" value="file://var/jackrabbit" />
+        <constructor-arg index="2" ref="filesystem"/>
     </bean>
 
     <!-- #################################################################### -->

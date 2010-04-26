@@ -26,10 +26,13 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.mail.util.SharedFileInputStream;
 
 import org.apache.james.core.MimeMessageSource;
 import org.apache.james.lifecycle.Disposable;
+import org.apache.james.services.FileSystem;
 
 /**
  * Use the filesystem as storage for the Email message while spooling
@@ -41,12 +44,26 @@ public class FileSpoolMessageStore implements SpoolMessageStore{
     private final String PROCESSING_SUFFIX =".processing";
 
     private File spooldir;
+
+    private FileSystem fs;
+
+    private String spoolDir = "file://var/mail/spool";
+
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem fs) {
+        this.fs = fs;
+    }
+
+    public void setSpoolDirectory(String spoolDir) {
+        this.spoolDir = spoolDir;
+    }
     
-    public FileSpoolMessageStore(String storageDir) {
-        spooldir = new File(storageDir);
+    @PostConstruct
+    public void init() throws Exception {
+    	spooldir = fs.getFile(spoolDir);
         if (spooldir.exists()) {
             if (spooldir.isFile()) {
-                throw new RuntimeException("Spooldirectory " + storageDir + " already exists and is a file!");
+                throw new RuntimeException("Spooldirectory " + spoolDir + " already exists and is a file!");
             }
         } else {
             if (spooldir.mkdirs() == false) {

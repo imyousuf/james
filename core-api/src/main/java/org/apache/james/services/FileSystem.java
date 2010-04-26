@@ -34,6 +34,32 @@ public interface FileSystem {
 
     String ROLE = "org.apache.james.services.FileSystem";
 
+
+    /**
+     * Prefix for loading of a filesystem based on the current directory
+     */
+    public static final String FILE_PROTOCOL = "file://";
+    
+    /**
+     * Prefix for loading of a filesystem using the absolute path
+     */
+    public static final String FILE_PROTOCOL_ABSOLUTE = "file:///";
+
+    /**
+     * Prefix for loading of the config directory
+     */
+    public static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
+    
+    /**
+     * Prefix for loading of the var directory
+     */
+    public static final String FILE_PROTOCOL_AND_VAR = "file://var/";
+    
+    /**
+     * Prefix for loading of the classpath
+     */
+    public static final String CLASSPATH_PROTOCOL = "classpath:";
+
     /**
      * to retrieve a resource. this is typically a file resource,
      * but depending on the implementation, this could also be from classpath or

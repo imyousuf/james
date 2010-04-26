@@ -20,10 +20,14 @@
 package org.apache.james.user.impl.file;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.james.services.FileSystem;
 
 public class FileUserMetaDataRepositoryTest extends TestCase {
 
@@ -36,7 +40,22 @@ public class FileUserMetaDataRepositoryTest extends TestCase {
 
     private static final String TEST_DIRECTORY = "target/testusermetadata";
     
-    FileUserMetaDataRepository repository;
+    private FileUserMetaDataRepository repository;
+    private FileSystem fs = new FileSystem() {
+        
+        public InputStream getResource(String url) throws IOException {
+            throw new UnsupportedOperationException();
+        }
+        
+        public File getFile(String fileURL) throws FileNotFoundException {
+            fileURL = fileURL.substring("file://".length());
+            return new File(fileURL);
+        }
+        
+        public File getBasedir() throws FileNotFoundException {
+            throw new UnsupportedOperationException();
+        }
+    };
     
     protected void setUp() throws Exception {
         super.setUp();
@@ -44,7 +63,10 @@ public class FileUserMetaDataRepositoryTest extends TestCase {
         if (directory.exists()) {
             FileUtils.deleteDirectory(directory);
         }
-        repository = new FileUserMetaDataRepository(TEST_DIRECTORY);
+        repository = new FileUserMetaDataRepository();
+        repository.setFileSystem(fs);
+        repository.setBaseDirectory("file://"+TEST_DIRECTORY);
+        repository.init();
     }
 
     public void testClear() throws Exception {

@@ -19,31 +19,44 @@
 package org.apache.james.container.spring;
 
 import org.apache.james.services.FileSystem;
-import org.springframework.context.ResourceLoaderAware;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class SpringFileSystem implements FileSystem, ResourceLoaderAware {
+/**
+ * {@link FileSystem} implementation which use the {@link JamesResourceLoader} to load all needed
+ * resources
+ *
+ */
+public class SpringFileSystem implements FileSystem, ApplicationContextAware {
+   
+    private JamesResourceLoader resourceLoader = null;
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.FileSystem#getBasedir()
+     */
     public File getBasedir() throws FileNotFoundException {
-        return new File("./../");
+        return new File(resourceLoader.getRootDirectory());
     }
     
-    private ResourceLoader resourceLoader = null;
 
-    /**
-     * loads resources from classpath or file system 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.FileSystem#getResource(java.lang.String)
      */
     public InputStream getResource(String url) throws IOException {
         return resourceLoader.getResource(url).getInputStream();
     }
 
-    /**
-     * @see org.apache.james.services.FileSystem#getFile(String filURL) 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.FileSystem#getFile(java.lang.String)
      */
     public File getFile(String fileURL) throws FileNotFoundException {
         try {
@@ -53,12 +66,14 @@ public class SpringFileSystem implements FileSystem, ResourceLoaderAware {
         }
     }
 
-    protected synchronized ResourceLoader getResourceLoader() {
-        return resourceLoader;
-    }
 
-    public synchronized void setResourceLoader(ResourceLoader provider) {
-        this.resourceLoader = provider;
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
+     */
+    public void setApplicationContext(ApplicationContext context) throws BeansException {
+            this.resourceLoader = (JamesResourceLoader)context;
     }
+    
 
 }
