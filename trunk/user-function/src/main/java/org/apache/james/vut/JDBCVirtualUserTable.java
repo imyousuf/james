@@ -246,7 +246,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
                 try {
                     mappingStmt.setString(1, user);
                     mappingStmt.setString(2, domain);
-                    mappingStmt.setString(3, domain);
                     mappingRS = mappingStmt.executeQuery();
                     if (mappingRS.next()) {
                         return mappingRS.getString(1);
