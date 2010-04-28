@@ -36,6 +36,13 @@
             -->
             <!--  create tables on startup -->
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            
+            <!-- persimistic locking -->
+            <property name="openjpa.LockManager"  value="pessimistic"/>
+            <property name="openjpa.ReadLockLevel"  value="read"/>
+            <property name="openjpa.WriteLockLevel"  value="write"/>
+            <property name="openjpa.jdbc.TransactionIsolation" value="repeatable-read"/>
+            
         </properties>
     </persistence-unit>
 </persistence>
