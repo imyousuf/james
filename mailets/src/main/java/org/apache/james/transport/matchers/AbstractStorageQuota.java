@@ -175,7 +175,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
         while (results.hasNext()) {
         	size += results.next().getSize();
         }
-        manager.startProcessingRequest(session);
+        manager.endProcessingRequest(session);
         manager.logout(session, true);
         return size;
     }
