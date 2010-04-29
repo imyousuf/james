@@ -21,6 +21,12 @@ package org.apache.james.socket.netty;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelLocal;
 
+/**
+ * This interface should be implemented by handlers which need to store attachements that 
+ * are shared across all handlers
+ * 
+ *
+ */
 public interface ChannelAttributeSupport {
 
     /**

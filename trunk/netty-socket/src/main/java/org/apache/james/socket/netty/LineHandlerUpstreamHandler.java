@@ -32,10 +32,11 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  *
  * @param <Session>
  */
-@ChannelPipelineCoverage("one")
+@ChannelPipelineCoverage("all")
 public class LineHandlerUpstreamHandler<Session extends ProtocolSession> extends SimpleChannelUpstreamHandler implements ChannelAttributeSupport{
 
     private LineHandler<Session> handler;
+    
     public LineHandlerUpstreamHandler(LineHandler<Session> handler) {
         this.handler = handler;
     }
