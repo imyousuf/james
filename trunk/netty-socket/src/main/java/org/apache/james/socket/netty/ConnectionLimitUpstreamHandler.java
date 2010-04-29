@@ -33,18 +33,19 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 @ChannelPipelineCoverage("all")
 public class ConnectionLimitUpstreamHandler extends SimpleChannelUpstreamHandler{
 
-    private final AtomicInteger connections = new AtomicInteger(0);
+    private static final AtomicInteger connections = new AtomicInteger(0);
     private final int maxConnections;
     
     public ConnectionLimitUpstreamHandler(int maxConnections) {
         this.maxConnections = maxConnections;
     }
+    
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         if (maxConnections > 0) {
             int currentCount = connections.getAndIncrement();
             
-            if (currentCount > maxConnections) {
+            if (currentCount + 1 > maxConnections) {
                 ctx.getChannel().close();
                 connections.decrementAndGet();
             }

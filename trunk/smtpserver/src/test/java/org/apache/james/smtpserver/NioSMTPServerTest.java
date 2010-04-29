@@ -70,5 +70,35 @@ public class NioSMTPServerTest extends AbstractSMTPServerTest{
         smtpProtocol.quit();
         smtpProtocol.disconnect();
     }
+    
+    public void testConnectionLimit() throws Exception {
+        m_testConfiguration.setConnectionLimit(2);
+        finishSetUp(m_testConfiguration);
+
+        SMTPClient smtpProtocol = new SMTPClient();
+        smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
+        SMTPClient smtpProtocol2 = new SMTPClient();
+        smtpProtocol2.connect("127.0.0.1", m_smtpListenerPort);
+        
+        SMTPClient smtpProtocol3 = new SMTPClient();
+
+        try {
+            smtpProtocol3.connect("127.0.0.1", m_smtpListenerPort);
+            Thread.sleep(3000);
+            fail("Shold disconnect connection 3");
+        } catch (Exception e) {
+            
+        }
+        
+        smtpProtocol.quit();
+        smtpProtocol.disconnect();
+        smtpProtocol2.quit();
+        smtpProtocol2.disconnect();
+        
+        smtpProtocol3.connect("127.0.0.1", m_smtpListenerPort);
+        Thread.sleep(3000);
+
+       
+    }
 
 }

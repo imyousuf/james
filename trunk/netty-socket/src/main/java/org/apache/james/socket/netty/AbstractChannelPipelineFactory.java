@@ -41,6 +41,13 @@ public abstract class AbstractChannelPipelineFactory implements ChannelPipelineF
 
     public final static int MAX_LINE_LENGTH = 8192;
     private final Timer timer = new HashedWheelTimer();
+    private final ConnectionLimitUpstreamHandler connectionLimitHandler;
+    private final ConnectionPerIpLimitUpstreamHandler connectionPerIpLimitHandler;
+    
+    public AbstractChannelPipelineFactory() {
+        connectionLimitHandler = new ConnectionLimitUpstreamHandler(getMaxConnections());
+        connectionPerIpLimitHandler = new ConnectionPerIpLimitUpstreamHandler(getMaxConnectionsPerIP());
+    }
     /*
      * (non-Javadoc)
      * @see org.jboss.netty.channel.ChannelPipelineFactory#getPipeline()
@@ -49,9 +56,9 @@ public abstract class AbstractChannelPipelineFactory implements ChannelPipelineF
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
         
-        pipeline.addLast("connectionLimit", new ConnectionLimitUpstreamHandler(getMaxConnections()));
+        pipeline.addLast("connectionLimit", connectionLimitHandler);
 
-        pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(getMaxConnectionsPerIP()));
+        pipeline.addLast("connectionPerIpLimit", connectionPerIpLimitHandler);
 
         
         // Add the text line decoder which limit the max line length, don't strip the delimiter and use CRLF as delimiter
