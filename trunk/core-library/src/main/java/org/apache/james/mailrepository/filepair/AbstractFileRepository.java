@@ -59,7 +59,6 @@ public abstract class AbstractFileRepository
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
     };
 
-    protected File m_destination;
     protected String m_extension;
     protected String m_name;
     protected FilenameFilter m_filter;
@@ -99,13 +98,6 @@ public abstract class AbstractFileRepository
         throws Exception
     {
         getLogger().info( "Init " + getClass().getName() + " Store" );
-
-        try {
-            m_baseDirectory = fileSystem.getBasedir();
-        } catch (FileNotFoundException e) {
-            getLogger().error("Cannot find the base directory of the application",e);
-            throw new ConfigurationException("Cannot find the base directory of the application");
-        }
         
         File directory;
 
@@ -128,7 +120,7 @@ public abstract class AbstractFileRepository
 
         directory.mkdirs();
 
-        getLogger().info( getClass().getName() + " opened in " + m_destination );
+        getLogger().info( getClass().getName() + " opened in " + m_baseDirectory );
 
         //We will look for all numbered repository files in this
         //  directory and rename them to non-numbered repositories,
@@ -182,7 +174,8 @@ public abstract class AbstractFileRepository
 
         
         try {
-            m_destination = fileSystem.getFile(destination);
+            m_baseDirectory = fileSystem.getFile(destination);
+            System.out.println("HERE!");
         } catch (FileNotFoundException e) {
             throw new ConfigurationException("Unable to acces destination " + destination, e);
         }
@@ -224,7 +217,7 @@ public abstract class AbstractFileRepository
 
         try
         {
-            child.setDestination( m_destination.getAbsolutePath() + File.pathSeparatorChar +
+            child.setDestination( m_baseDirectory.getAbsolutePath() + File.pathSeparatorChar +
                                   childName + File.pathSeparator );
         }
         catch( final ConfigurationException ce )
@@ -248,7 +241,7 @@ public abstract class AbstractFileRepository
         if( DEBUG )
         {
             getLogger().debug( "Child repository of " + m_name + " created in " +
-                               m_destination + File.pathSeparatorChar +
+                    m_baseDirectory + File.pathSeparatorChar +
                                childName + File.pathSeparator );
         }
 
