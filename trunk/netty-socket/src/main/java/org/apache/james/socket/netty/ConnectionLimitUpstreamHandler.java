@@ -21,13 +21,16 @@ package org.apache.james.socket.netty;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 /**
- * {@link ChannelUpstreamHandler} which limit the concurrent connection
+ * {@link ChannelUpstreamHandler} which limit the concurrent connection. 
+ * 
+ * This handler must be used as singleton when adding it to the {@link ChannelPipeline} to work correctly
  *
  */
 @ChannelPipelineCoverage("all")
