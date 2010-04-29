@@ -19,10 +19,11 @@
 package org.apache.james.socket.netty;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
@@ -30,36 +31,43 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 /**
  * {@link ChannelUpstreamHandler} which limit connections per IP
+ * 
+ * This handler must be used as singleton when adding it to the {@link ChannelPipeline} to work correctly
  *
  */
 @ChannelPipelineCoverage("all")
 public class ConnectionPerIpLimitUpstreamHandler extends SimpleChannelUpstreamHandler{
 
-    private final ConcurrentHashMap<String, AtomicInteger> connections = new ConcurrentHashMap<String, AtomicInteger>();
+    private final Map<String, Integer> connections = new HashMap<String, Integer>();
     private final int maxConnectionsPerIp;
     
     public ConnectionPerIpLimitUpstreamHandler(int maxConnectionsPerIp) {
         this.maxConnectionsPerIp = maxConnectionsPerIp;
     }
+    
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 
         if (maxConnectionsPerIp > 0) {
             InetSocketAddress remoteAddress = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
             String remoteIp = remoteAddress.getAddress().getHostAddress();
-            AtomicInteger count = connections.get(remoteIp);
+            synchronized (connections) {
+                Integer count = connections.get(remoteIp);
 
-            if (count == null) {
-                count = new AtomicInteger(1);
-                connections.put(remoteIp, count);
-            } else {
-                int connectionCount = count.incrementAndGet();
-                if (connectionCount > maxConnectionsPerIp) {
-                    ctx.getChannel().close();
-                    count.decrementAndGet(); 
+                if (count == null) {
+                    count = new Integer(1);
+                    connections.put(remoteIp, count);
+                } else {
+                    count++;
+                    if (count > maxConnectionsPerIp) {
+                        ctx.getChannel().close();
+                        count--;
+                    }
+                    connections.put(remoteIp, count);
                 }
+               
             }
-           
+            
         }
         
         super.channelOpen(ctx, e);
@@ -69,9 +77,13 @@ public class ConnectionPerIpLimitUpstreamHandler extends SimpleChannelUpstreamHa
         if (maxConnectionsPerIp > 0) {
             InetSocketAddress remoteAddress = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
             String remoteIp = remoteAddress.getAddress().getHostAddress();
-            AtomicInteger count = connections.get(remoteIp);
-            if (count != null)
-                count.decrementAndGet();
+            synchronized (connections) {
+                Integer count = connections.get(remoteIp);
+                if (count != null) {
+                    count--;
+                    connections.put(remoteIp, count);
+                }              
+            }
         }
         super.channelClosed(ctx, e);
     }
