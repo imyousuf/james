@@ -18,11 +18,17 @@
  ****************************************************************/
 package org.apache.james.socket.netty;
 
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.timeout.IdleState;
 import org.jboss.netty.handler.timeout.IdleStateHandler;
 import org.jboss.netty.util.Timer;
 
+/**
+ * {@link IdleStateHandler} implementation which disconnect the {@link Channel} after a configured
+ * idle timeout
+ *
+ */
 public class TimeoutHandler extends IdleStateHandler{
 
     public TimeoutHandler(Timer timer, int readerIdleTimeSeconds, int writerIdleTimeSeconds, int allIdleTimeSeconds) {
