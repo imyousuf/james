@@ -36,7 +36,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 @ChannelPipelineCoverage("all")
 public class ConnectionLimitUpstreamHandler extends SimpleChannelUpstreamHandler{
 
-    private static final AtomicInteger connections = new AtomicInteger(0);
+    private final AtomicInteger connections = new AtomicInteger(0);
     private final int maxConnections;
     
     public ConnectionLimitUpstreamHandler(int maxConnections) {
