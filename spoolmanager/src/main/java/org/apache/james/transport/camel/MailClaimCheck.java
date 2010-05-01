@@ -28,6 +28,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.camel.Body;
 import org.apache.camel.Exchange;
 import org.apache.james.SpoolMessageStore;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.mailet.Mail;
 
 /**
@@ -48,7 +49,7 @@ public final class MailClaimCheck {
     
     
     /**
-     * Save the Email Message to an external storage
+     * Save the Email Message to an external storage and dispose it 
      * 
      * @param exchange
      * @param mail
@@ -67,6 +68,12 @@ public final class MailClaimCheck {
         
             // close stream
             out.close();
+            
+            // dispose the mail now, to make sure every stream is closed etc
+            // Without that we will get a problem on windows later..
+            LifecycleUtil.dispose(m);
+            LifecycleUtil.dispose(mail);
+            
         }
         
     }
