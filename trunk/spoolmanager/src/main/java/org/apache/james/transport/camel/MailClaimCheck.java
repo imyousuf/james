@@ -71,6 +71,7 @@ public final class MailClaimCheck {
             
             // dispose the mail now, to make sure every stream is closed etc
             // Without that we will get a problem on windows later..
+            // See https://issues.apache.org/jira/browse/JAMES-995
             LifecycleUtil.dispose(m);
             LifecycleUtil.dispose(mail);
             
