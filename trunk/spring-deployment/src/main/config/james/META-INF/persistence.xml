@@ -41,7 +41,8 @@
             <property name="openjpa.LockManager"  value="pessimistic"/>
             <property name="openjpa.ReadLockLevel"  value="read"/>
             <property name="openjpa.WriteLockLevel"  value="write"/>
-            <property name="openjpa.jdbc.TransactionIsolation" value="repeatable-read"/>
+            <property name="LockTimeout"  value="60000"/>
+            <property name="openjpa.jdbc.TransactionIsolation" value="read-committed"/>
             
         </properties>
     </persistence-unit>
