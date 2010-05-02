@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.socket.netty;
+package org.jboss.netty.handler.connection;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -34,6 +34,8 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  * 
  * This handler must be used as singleton when adding it to the {@link ChannelPipeline} to work correctly
  *
+ * TODO: Remove when its committed to NETTY. 
+ *       https://jira.jboss.org/jira/browse/NETTY-311
  */
 @ChannelPipelineCoverage("all")
 public class ConnectionPerIpLimitUpstreamHandler extends SimpleChannelUpstreamHandler{
