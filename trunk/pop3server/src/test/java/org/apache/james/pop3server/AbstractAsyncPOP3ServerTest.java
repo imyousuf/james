@@ -47,7 +47,7 @@ import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.store.Authenticator;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.ProtocolHandlerChainImpl;
+import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;

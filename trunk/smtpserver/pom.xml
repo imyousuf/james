@@ -77,10 +77,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mina-socket</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-netty-socket</artifactId>
     </dependency>
     <dependency>
@@ -88,11 +84,6 @@
       <artifactId>${javax.activation.artifactId}</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-core</artifactId>
-    </dependency>
-    
     
     <dependency>
       <groupId>org.apache.james</groupId>
