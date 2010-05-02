@@ -21,7 +21,6 @@ package org.apache.james.transport.matchers;
 
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
-import org.apache.mailet.CompositeMatcher;
 import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.base.test.FakeMatcherConfig;
