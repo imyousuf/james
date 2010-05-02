@@ -120,6 +120,14 @@
                       <name>wrapper.logfile</name>
                       <value>log/wrapper.log</value>
                     </property>
+                    <property>
+                      <name>wrapper.java.initmemory</name>
+                      <value>128</value>
+                    </property>
+                    <property>
+                      <name>wrapper.java.maxmemory</name>
+                      <value>512</value>
+                    </property>
                   </configuration>
                 </generatorConfiguration>
               </generatorConfigurations>
