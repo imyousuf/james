@@ -48,7 +48,7 @@ import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.ProtocolHandlerChainImpl;
+import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;

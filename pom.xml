@@ -54,7 +54,6 @@
     <module>jcr-store</module>
     <module>jpa-store</module>
     <module>spring-deployment</module>
-    <module>mina-socket</module>
     <module>netty-socket</module>
     
   </modules>
@@ -225,16 +224,6 @@
   </distributionManagement>
   <dependencyManagement>
     <dependencies>
-    <dependency>
-      <groupId>org.apache.mina</groupId>
-      <artifactId>mina-core</artifactId>
-      <version>2.0.0-RC1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mina-socket</artifactId>
-      <version>3.0-SNAPSHOT</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-netty-socket</artifactId>
