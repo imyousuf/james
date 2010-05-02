@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import javax.mail.MessagingException;
 
-public class Or extends CompositeMatcherBase {
+public class Or extends GenericCompositeMatcher {
 
     /**
      * This is the Or CompositeMatcher - consider it to be a union of the

@@ -31,7 +31,7 @@ import org.apache.mailet.Matcher;
  * This matcher performs And conjunction between the two recipients
  * 
  */
-public class And extends CompositeMatcherBase {
+public class And extends GenericCompositeMatcher {
 
     /**
      * This is the And CompositeMatcher - consider it to be an intersection of
