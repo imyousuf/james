@@ -30,10 +30,10 @@ import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.socket.netty.AbstractAsyncServer;
-import org.apache.james.socket.netty.ConnectionLimitUpstreamHandler;
-import org.apache.james.socket.netty.ConnectionPerIpLimitUpstreamHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.handler.connection.ConnectionLimitUpstreamHandler;
+import org.jboss.netty.handler.connection.ConnectionPerIpLimitUpstreamHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
 
 /**
