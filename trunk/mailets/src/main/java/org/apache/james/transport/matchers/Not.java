@@ -27,7 +27,7 @@ import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
 
-public class Not extends CompositeMatcherBase {
+public class Not extends GenericCompositeMatcher {
 
     /**
      * This is the Not CompositeMatcher - consider what wasn't in the result set

@@ -31,7 +31,7 @@ import org.apache.mailet.base.GenericMatcher;
  * Abstract base class for CompositeMatchers. This class handles the child
  * collection of Matchers associated with the CompositeMatcher.
  */
-public abstract class CompositeMatcherBase extends GenericMatcher implements CompositeMatcher {
+public abstract class GenericCompositeMatcher extends GenericMatcher implements CompositeMatcher {
     /**
      * This lets the SpoolManager configuration code build up the composition
      * (which might be composed of other composites).

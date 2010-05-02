@@ -27,7 +27,7 @@ import org.apache.mailet.Mail;
 import javax.mail.MessagingException;
 import org.apache.mailet.Matcher;
 
-public class Xor extends CompositeMatcherBase {
+public class Xor extends GenericCompositeMatcher {
 
     /**
      * This is the Xor CompositeMatcher - consider it to be the inequality
