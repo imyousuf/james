@@ -322,14 +322,17 @@
     -->
 
     <!-- JPA implementation of IMAP Storage-->
-    <bean id ="subscriper" class="org.apache.james.imap.jpa.JPASubscriptionManager">
+    <bean id ="sessionEntityManagerFactory" class="org.apache.james.imap.jpa.MailboxSessionEntityManagerFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
+    </bean>
+    <bean id ="subscriper" class="org.apache.james.imap.jpa.JPASubscriptionManager">
+        <constructor-arg index="0" ref="sessionEntityManagerFactory"/>
     </bean>
 
     <bean id="mailboxmanager" class="org.apache.james.imap.jpa.openjpa.OpenJPAMailboxManager">
         <constructor-arg index="0" ref="authenticator"/>
         <constructor-arg index="1" ref="subscriper"/>
-        <constructor-arg index="2" ref="entityManagerFactory"/>
+        <constructor-arg index="2" ref="sessionEntityManagerFactory"/>
         <constructor-arg index="3" value="${openjpa.streaming}"/>
     </bean>
 
@@ -351,21 +354,22 @@
 
     <bean id="jcrUtils" class="org.apache.james.imap.jcr.JCRUtils"/>    
 
-    <bean id ="subscriper" 	class="org.apache.james.imap.jcr.JCRGlobalUserSubscriptionManager" depends-on="imapCndLoader">
+    <bean id ="sessionJcrRepository" 	class="org.apache.james.imap.jcr.JCRGlobalJCRRepository" depends-on="imapCndLoader">
         <constructor-arg index="0" ref="jcrRepository"/>
         <constructor-arg index="1" value="james"/>
         <constructor-arg index="2" value="james"/>
         <constructor-arg index="3" value="james"/>
     </bean>
+    
+    <bean id ="subscriper" 	class="org.apache.james.imap.jcr.JCRGlobalUserSubscriptionManager">
+        <constructor-arg index="0" ref="sessionJcrRepository"/>
+    </bean>
 
 
-    <bean id="mailboxmanager" class="org.apache.james.imap.jcr.JCRGlobalUserMailboxManager" depends-on="imapCndLoader">
+    <bean id="mailboxmanager" class="org.apache.james.imap.jcr.JCRGlobalUserMailboxManager">
         <constructor-arg index="0" ref="authenticator"/>
         <constructor-arg index="1" ref="subscriper"/>
-        <constructor-arg index="2" ref="jcrRepository"/>
-        <constructor-arg index="3" value="james"/>
-        <constructor-arg index="4" value="james"/>
-        <constructor-arg index="5" value="james"/>
+        <constructor-arg index="2" ref="sessionJcrRepository"/>
     </bean>
     -->
 
