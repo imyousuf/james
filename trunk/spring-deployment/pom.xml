@@ -121,6 +121,10 @@
                       <value>log/wrapper.log</value>
                     </property>
                     <property>
+                      <name>wrapper.java.library.path</name>
+                      <value>../lib</value>
+                    </property>
+                    <property>
                       <name>wrapper.java.initmemory</name>
                       <value>128</value>
                     </property>
