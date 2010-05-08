@@ -65,6 +65,19 @@ public class XMLDomainListTest extends TestCase {
         return dns;
     }
 
+
+
+    // See https://issues.apache.org/jira/browse/JAMES-998
+    public void testNoConfiguredDomains() throws Exception {
+        List<String> domains = new ArrayList<String>();
+        XMLDomainList dom = new XMLDomainList();
+        dom.setLog(new SimpleLog("MockLog"));
+        dom.configure(setUpConfiguration(false, false, domains));
+        dom.setDNSService(setUpDNSServer("localhost"));
+
+        assertTrue("No domain found", dom.getDomains().isEmpty());
+    }
+
     public void testGetDomains() throws Exception {
         List<String> domains = new ArrayList<String>();
         domains.add("domain1.");

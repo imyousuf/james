@@ -25,9 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.Configurable;
@@ -38,7 +35,7 @@ import org.apache.james.lifecycle.Configurable;
  */
 public class XMLDomainList extends AbstractDomainList implements Configurable{
     
-    private List<String> domainNames = null;
+    private List<String> domainNames = new ArrayList<String>();
     
     private boolean managementDisabled = false;
     
@@ -46,11 +43,13 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
      * (non-Javadoc)
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+	@SuppressWarnings("unchecked")
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
 		List<String> serverNameConfs = config.getList( "domainnames.domainname" );
         for ( int i = 0; i < serverNameConfs.size(); i++ ) {
             addDomainInternal( serverNameConfs.get(i));
         }
+        
         setAutoDetect(config.getBoolean("autodetect", true));    
         setAutoDetectIP(config.getBoolean("autodetectIP", true));    
     }
@@ -73,7 +72,6 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
      * @see org.apache.james.api.domainlist.DomainList#containsDomain(java.lang.String)
      */
     public boolean containsDomain(String domains) {
-        if (domainNames == null) return false;
         return domainNames.contains(domains);
     }
 
@@ -86,10 +84,6 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
         // TODO: Remove later. Temporary fix to get sure no domains can be added to the XMLDomainList
         if (managementDisabled) throw new UnsupportedOperationException("Management not supported");
         
-        if (domainNames == null) {
-            domainNames = new ArrayList<String>();
-        }
-    
         String newDomain = domain.toLowerCase(Locale.US);
         if (containsDomain(newDomain) == false) {
             domainNames.add(newDomain);
@@ -106,7 +100,6 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
         // TODO: Remove later. Temporary fix to get sure no domains can be added to the XMLDomainList
         if (managementDisabled) throw new UnsupportedOperationException("Management not supported");
        
-        if (domainNames == null) return false;
         return domainNames.remove(domain.toLowerCase(Locale.US));
     }
 }
