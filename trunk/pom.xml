@@ -270,7 +270,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-standard-mailets</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0</version>
       <exclusions>
         <exclusion>
           <groupId>javax.mail</groupId>
@@ -281,7 +281,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-standard-mailets</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
@@ -611,12 +611,12 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jsieve</artifactId>
-      <version>0.4-SNAPSHOT</version>
+      <version>0.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jsieve-mailet</artifactId>
-      <version>0.4-SNAPSHOT</version>
+      <version>0.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
