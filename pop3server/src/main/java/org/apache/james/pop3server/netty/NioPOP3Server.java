@@ -18,10 +18,12 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
+import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3ServerMBean;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
@@ -49,6 +51,8 @@ public class NioPOP3Server extends AbstractAsyncServer implements POP3ServerMBea
     private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
 
     private ProtocolHandlerChain handlerChain;
+
+    private MailboxManager manager;
 
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
@@ -135,7 +139,7 @@ public class NioPOP3Server extends AbstractAsyncServer implements POP3ServerMBea
             
             @Override
             protected ChannelUpstreamHandler createHandler() {
-                return new POP3ChannelUpstreamHandler(NioPOP3Server.this.getProtocolHandlerChain(), getPOP3HandlerConfiguration(), getLogger(), getSSLContext());
+                return new POP3ChannelUpstreamHandler(NioPOP3Server.this.getProtocolHandlerChain(), getPOP3HandlerConfiguration(), manager, getLogger(), getSSLContext());
             }
             
             @Override
@@ -176,5 +180,10 @@ public class NioPOP3Server extends AbstractAsyncServer implements POP3ServerMBea
     
     protected final POP3HandlerConfigurationData getPOP3HandlerConfiguration() {
         return theConfigData;
+    }
+    
+    @Resource(name = "mailboxmanager")
+    public void setMailboxManager(MailboxManager manager) {
+        this.manager = manager;
     }
 }

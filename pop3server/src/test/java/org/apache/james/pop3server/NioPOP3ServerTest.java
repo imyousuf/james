@@ -45,6 +45,7 @@ public class NioPOP3ServerTest extends AbstractAsyncPOP3ServerTest{
         log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         m_pop3Server.setLog(log);
         m_pop3Server.setMailServer(m_mailServer);        
+        m_pop3Server.setMailboxManager(manager);
     }
 
 }
