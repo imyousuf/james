@@ -21,6 +21,7 @@ package org.apache.james.pop3server.netty;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
@@ -38,25 +39,27 @@ public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
     private final Log logger;
     private final POP3HandlerConfigurationData conf;
     private final  SSLContext context;
+    private MailboxManager manager;
     
-    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Log logger, SSLContext context) {
+    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, MailboxManager manager,Log logger, SSLContext context) {
         super(chain);
         this.logger = logger;
         this.conf = conf;
         this.context = context;
+        this.manager = manager;
     }
 
-    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Log logger) {
-        this(chain, conf, logger, null);
+    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, MailboxManager manager, Log logger) {
+        this(chain, conf, manager, logger, null);
     }
 
     
     @Override
     protected ProtocolSession createSession(ChannelHandlerContext ctx) throws Exception {
         if (context != null) {
-            return new POP3NettySession(conf, logger, ctx, context.createSSLEngine());
+            return new POP3NettySession(conf, manager, logger, ctx, context.createSSLEngine());
         } else {
-            return new POP3NettySession(conf, logger, ctx);
+            return new POP3NettySession(conf, manager, logger, ctx);
         }
     }
 
