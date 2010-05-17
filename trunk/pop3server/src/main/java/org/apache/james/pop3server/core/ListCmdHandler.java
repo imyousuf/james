@@ -101,7 +101,7 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
                 try {
                     num = Integer.parseInt(parameters);
                     Long uid = uidList.get(num - 1);
-                    if (deletedUidList.contains(uid) != false) {
+                    if (deletedUidList.contains(uid) == false) {
                         Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
 
                         StringBuilder responseBuffer = new StringBuilder(64).append(num).append(" ").append(results.next().getSize());
