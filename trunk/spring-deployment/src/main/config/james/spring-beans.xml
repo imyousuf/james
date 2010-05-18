@@ -237,15 +237,19 @@
         <property name="configurationRegistry" ref="configurationRegistry"/>
     </bean>
 
-    <!--This is needed to link the smtpserver to the local user repository
+    <!-- This is needed to link the smtpserver to the local user repository
         LocalJamesUsersRepository is used for backward compatibility with
-        James 2.3.0
-        If backward compatibility is not need the LocalUsersRepository
-        implementation
+        org.apache.james.impl.jamesuser.LocalJamesUsersRepository can be used for
+        backward compatibility with James 2.3.0
+        If backward compatibility is not needed, org.apache.james.impl.user.LocalUsersRepository
+        implementation is used by default.
     -->
-    <!-- could be safely used -->
-    <bean id="localusersrepository" class="org.apache.james.impl.jamesuser.LocalJamesUsersRepository" />
 
+    <!-- uncomment this for james 2.3.0 backward compatibility
+    <bean id="localusersrepository" class="org.apache.james.impl.jamesuser.LocalJamesUsersRepository" />
+    -->
+    <!-- this is the default implementation for the localusersrepository - not james 2.3.0 backward compatible -->
+    <bean id="localusersrepository" class="org.apache.james.impl.user.LocalUsersRepository" />
 
     <!-- The context FileSystem implementation -->
     <bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
