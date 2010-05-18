@@ -83,7 +83,6 @@ public class QuitCmdHandler implements CommandHandler<POP3Session> {
             mailboxManager.logout(mailboxSession, false);
         } catch (MailboxException e) {
             // nothing todo on logout
-            session.getLogger().info("Unable to logout from mailboxmanager", e);
         }
 
         return response;

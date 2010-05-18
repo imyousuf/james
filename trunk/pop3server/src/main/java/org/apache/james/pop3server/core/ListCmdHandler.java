@@ -124,7 +124,7 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
         return response;
-     }
+    }
 
     /*
      * (non-Javadoc)

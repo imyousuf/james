@@ -26,6 +26,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.james.imap.mailbox.BadCredentialsException;
+import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxException;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
@@ -60,9 +61,23 @@ public class PassCmdHandler extends RsetCmdHandler {
             String passArg = parameters;
             try {
                 MailboxSession mSession = mailboxManager.login(session.getUser(), passArg, session.getLogger());
-               
+                StringBuffer sb = new StringBuffer();
+                sb.append(mailboxManager.getUserNameSpacePrefix());
+                sb.append(mailboxManager.getDelimiter());
+                sb.append(session.getUser());
+                sb.append(mailboxManager.getDelimiter());
+                sb.append("INBOX");
+                ;
+                String mailboxName = sb.toString();
+
+                // check if mailbox exists.. if not just create it
+                if (mailboxManager.mailboxExists(mailboxName, mSession) == false) {
+                    mailboxManager.createMailbox(mailboxName, mSession);
+                }
+                Mailbox mailbox = mailboxManager.getMailbox(mailboxName, mSession);
+
                 session.getState().put(POP3Session.MAILBOX_SESSION, mSession);
-                //session.setUserMailbox(mailbox);
+                session.setUserMailbox(mailbox);
                 stat(session);
 
                 // Store the ipAddress to use it later for pop before smtp

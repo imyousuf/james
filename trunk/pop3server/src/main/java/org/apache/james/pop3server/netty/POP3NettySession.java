@@ -24,11 +24,7 @@ import java.util.Map;
 import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.Mailbox;
-import org.apache.james.imap.mailbox.MailboxException;
-import org.apache.james.imap.mailbox.MailboxManager;
-import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.socket.netty.AbstractNettySession;
@@ -45,16 +41,15 @@ public class POP3NettySession extends AbstractNettySession implements POP3Sessio
 
     private int handlerState;
 
-    private MailboxManager manager;
+    private Mailbox mailbox;
 
-    public POP3NettySession(POP3HandlerConfigurationData configData, MailboxManager manager,Log logger, ChannelHandlerContext handlerContext) {
+    public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext) {
         super(logger, handlerContext);
         this.configData = configData;
-        this.manager = manager;
     }
 
 
-    public POP3NettySession(POP3HandlerConfigurationData configData, MailboxManager manager, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
+    public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         super(logger, handlerContext, engine);
         this.configData = configData;
     }
@@ -111,25 +106,16 @@ public class POP3NettySession extends AbstractNettySession implements POP3Sessio
      * (non-Javadoc)
      * @see org.apache.james.pop3server.POP3Session#getUserMailbox()
      */
-    public Mailbox getUserMailbox() throws MailboxException {
-        StringBuffer sb = new StringBuffer();
-        sb.append(manager.getUserNameSpacePrefix());
-        sb.append(manager.getDelimiter());
-        sb.append(getUser());
-        sb.append(manager.getDelimiter());
-        sb.append("INBOX");
-        ;
-        String mailboxName = sb.toString();
-
-        MailboxSession session =  (MailboxSession) getState().get(MAILBOX_SESSION);
-        if (session == null) throw new MailboxException(HumanReadableText.INVALID_LOGIN);
-        // check if mailbox exists.. if not just create it
-        if (manager.mailboxExists(mailboxName,session) == false) {
-            manager.createMailbox(mailboxName, session);
-        }
-        Mailbox mailbox = manager.getMailbox(mailboxName, session);
- 
+    public Mailbox getUserMailbox() {
         return mailbox;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(org.apache.james.imap.mailbox.Mailbox)
+     */
+    public void setUserMailbox(Mailbox mailbox) {
+        this.mailbox = mailbox;
     }
 
 }
