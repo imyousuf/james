@@ -65,7 +65,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     protected DNSService dnsservice;
     protected MockFileSystem fSystem;
     protected ProtocolHandlerChainImpl chain;
-    protected InMemoryMailboxManager manager;
+    private InMemoryMailboxManager manager;
     
     public AbstractAsyncPOP3ServerTest() {
         super("AsyncPOP3ServerTest");

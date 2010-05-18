@@ -23,7 +23,6 @@ package org.apache.james.pop3server;
 
 
 import org.apache.james.imap.mailbox.Mailbox;
-import org.apache.james.imap.mailbox.MailboxException;
 import org.apache.james.protocols.api.TLSSupportedSession;
 
 /**
@@ -82,6 +81,13 @@ public interface POP3Session extends TLSSupportedSession {
      * 
      * @return mailbox content
      */
-    Mailbox getUserMailbox() throws MailboxException;
+    Mailbox getUserMailbox();
+
+    /**
+     * Sets a new mailbox content
+     * 
+     * @param userMailbox mailbox
+     */
+    void setUserMailbox(Mailbox mailbox);
 }
 
