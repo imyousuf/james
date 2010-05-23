@@ -52,7 +52,7 @@
           <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
           <environmentSetupFileName>setenv</environmentSetupFileName>
           <!--  set some sane defaults for memory -->
-          <extraJvmArguments>-Xms128m -Xmx512m</extraJvmArguments>
+          <extraJvmArguments>-Xms128m -Xmx512m -Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader</extraJvmArguments>
           <!-- Generate bin scripts for windows and unix per default -->
           <platforms>
             <platform>windows</platform>
@@ -131,6 +131,10 @@
                     <property>
                       <name>wrapper.java.maxmemory</name>
                       <value>512</value>
+                    </property>
+                    <property>
+                      <name>wrapper.java.additional.1</name>
+                      <value>-Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader</value>
                     </property>
                   </configuration>
                 </generatorConfiguration>

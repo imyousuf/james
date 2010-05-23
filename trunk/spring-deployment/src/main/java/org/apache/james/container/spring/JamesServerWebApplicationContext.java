@@ -81,7 +81,6 @@ public class JamesServerWebApplicationContext extends XmlWebApplicationContext i
                 return varDirectory;
             }
         }
-
     };
     private String rootDirectory;
     private String absoluteDirectory;
@@ -120,6 +119,7 @@ public class JamesServerWebApplicationContext extends XmlWebApplicationContext i
     public void setConfDirectory(String confDirectory) {
         this.confDirectory = confDirectory;
     }
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.container.spring.JamesResourceLoader#getAbsoluteDirectory()
