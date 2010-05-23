@@ -56,4 +56,6 @@ public interface JamesResourceLoader extends ResourceLoader{
      * @return rootDir
      */
     public String getRootDirectory();
+
+    
 }
