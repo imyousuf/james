@@ -1553,12 +1553,12 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
         @Override
         public void configure() throws Exception {
             from(getOutgoingQueueEndpoint(outgoingQueue)).inOnly().transacted()
-            
-            .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).to(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().process(disposeProcessor).stop().end();
+            .beanRef("mailEnricher")
+            .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).to(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().beanRef("mailClaimCheck").process(disposeProcessor).stop().end();
 
             fromF("pollingjms:queue?delay=30000&consumer.endpointUri=%s", getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).inOnly().transacted()
-
-            .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).toF(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().process(disposeProcessor).stop().end();
+            .beanRef("mailEnricher")
+            .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).beanRef("mailClaimCheck").toF(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().process(disposeProcessor).stop().end();
         }
 
     }
