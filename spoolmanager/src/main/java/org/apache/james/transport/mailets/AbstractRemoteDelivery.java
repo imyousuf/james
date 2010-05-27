@@ -36,6 +36,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 import javax.annotation.Resource;
@@ -118,6 +119,8 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
     /** The DNSService */
     private DNSService dnsServer;
 
+    private static int instance= 0;
+    
     /**
      * Static initializer.
      * <p>
@@ -150,7 +153,7 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
     /** If false then ANY address errors will cause the transmission to fail */
     private boolean sendPartial = false;
 
-    private String outgoingQueueInjectorEndpoint = "direct:outgoingQueueInjectorEndpoint";
+    private String outgoingQueueInjectorEndpoint = "direct:outgoingQueueInjectorEndpoint" + instance++;
     
     /**
      * The amount of time JavaMail will wait before giving up on a socket
