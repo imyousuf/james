@@ -150,6 +150,8 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
     /** If false then ANY address errors will cause the transmission to fail */
     private boolean sendPartial = false;
 
+    private String outgoingQueueInjectorEndpoint = "direct:outgoingQueueInjectorEndpoint";
+    
     /**
      * The amount of time JavaMail will wait before giving up on a socket
      * connect()
@@ -585,7 +587,7 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
                 StringBuilder nameBuffer = new StringBuilder(128).append(name).append("-to-").append(host);
                 m.setName(nameBuffer.toString());
 
-                producerTemplate.sendBody("activemq:queue:" + outgoingQueue, m);
+                producerTemplate.sendBody(outgoingQueueInjectorEndpoint, m);
                 // workRepository.store(mail);
                 // Set it to try to deliver (in a separate thread) immediately
                 // (triggered by storage)
@@ -597,7 +599,7 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
                 log(logMessageBuffer.toString());
             }
 
-            producerTemplate.sendBody("activemq:queue:" + outgoingQueue, mail);
+            producerTemplate.sendBody(outgoingQueueInjectorEndpoint, mail);
 
             // Set it to try to deliver (in a separate thread) immediately
             // (triggered by storage)
@@ -1552,6 +1554,10 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
 
         @Override
         public void configure() throws Exception {
+            
+            // we need to store the message to offsite storage so use claimcheck
+            from(outgoingQueueInjectorEndpoint).inOnly().beanRef("mailClaimCheck").to(getOutgoingQueueEndpoint(outgoingQueue));
+            
             from(getOutgoingQueueEndpoint(outgoingQueue)).inOnly().transacted()
             .beanRef("mailEnricher")
             .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).to(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().beanRef("mailClaimCheck").process(disposeProcessor).stop().end();
