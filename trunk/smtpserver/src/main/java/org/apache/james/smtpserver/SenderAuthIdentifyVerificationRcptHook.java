@@ -53,4 +53,9 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
     protected boolean isLocalDomain(String domain) {
         return mailServer.isLocalServer(domain);
     }
+
+    @Override
+    protected boolean useVirtualHosting() {
+        return mailServer.supportVirtualHosting();
+    }
 }
