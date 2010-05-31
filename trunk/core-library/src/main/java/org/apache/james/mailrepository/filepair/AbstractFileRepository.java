@@ -175,7 +175,6 @@ public abstract class AbstractFileRepository
         
         try {
             m_baseDirectory = fileSystem.getFile(destination);
-            System.out.println("HERE!");
         } catch (FileNotFoundException e) {
             throw new ConfigurationException("Unable to acces destination " + destination, e);
         }
