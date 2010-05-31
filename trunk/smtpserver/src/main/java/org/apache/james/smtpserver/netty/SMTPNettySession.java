@@ -119,9 +119,11 @@ public class SMTPNettySession extends AbstractNettySession implements SMTPSessio
      * @see org.apache.james.protocols.smtp.SMTPSession#popLineHandler()
      */
     public void popLineHandler() {
-        getChannelHandlerContext().getPipeline()
-                .remove("lineHandler" + lineHandlerCount);
-        lineHandlerCount--;
+        if (lineHandlerCount > 0) {
+            getChannelHandlerContext().getPipeline()
+            .remove("lineHandler" + lineHandlerCount);
+            lineHandlerCount--;
+        }
     }
 
     /**
@@ -129,7 +131,8 @@ public class SMTPNettySession extends AbstractNettySession implements SMTPSessio
      */
     public void pushLineHandler(LineHandler<SMTPSession> overrideCommandHandler) {
         lineHandlerCount++;
-        getChannelHandlerContext().getPipeline().addBefore("coreHandler",
+
+        getChannelHandlerContext().getPipeline().addAfter("timeoutHandler",
                 "lineHandler" + lineHandlerCount,
                 new LineHandlerUpstreamHandler<SMTPSession>(overrideCommandHandler));
     }
@@ -211,6 +214,10 @@ public class SMTPNettySession extends AbstractNettySession implements SMTPSessio
      */
     public boolean useHeloEhloEnforcement() {
         return theConfigData.useHeloEhloEnforcement();
+    }
+    
+    public int getPushedLineHandlerCount() {
+        return lineHandlerCount;
     }
 
 }
