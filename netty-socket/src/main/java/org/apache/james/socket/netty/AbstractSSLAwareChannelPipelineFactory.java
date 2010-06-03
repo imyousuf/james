@@ -19,6 +19,7 @@
 package org.apache.james.socket.netty;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.handler.ssl.SslHandler;
@@ -37,7 +38,9 @@ public abstract class AbstractSSLAwareChannelPipelineFactory extends AbstractCha
         ChannelPipeline pipeline =  super.getPipeline();
 
         if (isSSLSocket()) {
-            pipeline.addFirst("sslHandler", new SslHandler(getSSLContext().createSSLEngine()));
+            SSLEngine engine = getSSLContext().createSSLEngine();
+            engine.setUseClientMode(false);
+            pipeline.addFirst("sslHandler", new SslHandler(engine));
         }
         return pipeline;
     }
