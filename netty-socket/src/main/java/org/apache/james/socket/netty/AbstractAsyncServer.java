@@ -338,7 +338,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      * 
      * @param handlerConfiguration
      */
-    private void configureHelloName(Configuration handlerConfiguration) {
+    protected void configureHelloName(Configuration handlerConfiguration) {
         StringBuilder infoBuffer;
         String hostName = null;
         try {
