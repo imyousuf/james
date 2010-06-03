@@ -432,7 +432,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      */
     
     private void buildSSLContext() throws Exception {
-        if (useStartTLS) {
+        if (useStartTLS || useSSL) {
             String algorithm = "SunX509";
             KeyStore ks = KeyStore.getInstance("JKS");
             ks.load(new FileInputStream(fileSystem.getFile(keystore)), secret.toCharArray());
