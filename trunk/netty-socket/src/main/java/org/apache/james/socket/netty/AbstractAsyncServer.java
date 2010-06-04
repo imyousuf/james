@@ -41,7 +41,13 @@ import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 /**
@@ -111,8 +117,9 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
 
     private SSLContext context;
 
-    private ServerBootstrap bootstrap;  
+    private ServerBootstrap bootstrap;
 
+    private ChannelGroup channels = new DefaultChannelGroup();
     @Resource(name="dnsserver")
     public final void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -272,22 +279,23 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
                                                    Executors.newCachedThreadPool(),
                                            Executors.newCachedThreadPool()));
             // Configure the pipeline factory.
+            ChannelPipelineFactory factory = createPipelineFactory();
+            factory.getPipeline().addFirst("channelGroupHandler", new ChannelGroupHandler());
             bootstrap.setPipelineFactory(createPipelineFactory());
          
             // Bind and start to accept incoming connections.
             bootstrap.setOption("backlog",backlog);
             bootstrap.setOption("reuseAddress",true);
 
-            //acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, timeout );
-            //acceptor.setHandler(createIoHandler());
-            bootstrap.bind(new InetSocketAddress(bindTo,port));
+            Channel serverChannel = bootstrap.bind(new InetSocketAddress(bindTo,port));
+            channels.add(serverChannel);
         }
     }
 
     @PreDestroy
     public final void destroy() {
         getLogger().info("Dispose " + getServiceType());
-        
+        channels.close().awaitUninterruptibly();
         bootstrap.releaseExternalResources();
     }
     
@@ -484,5 +492,19 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     
     protected SSLContext getSSLContext() {
         return context;
+    }
+    
+    private final class ChannelGroupHandler extends SimpleChannelUpstreamHandler {
+        public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
+            // Add all open channels to the global group so that they are
+            // closed on shutdown.
+            channels.add(e.getChannel());
+        }
+
+        @Override
+        public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+           channels.remove(ctx.getChannel());
+        }
+
     }
 }
