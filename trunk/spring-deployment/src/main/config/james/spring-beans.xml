@@ -414,7 +414,7 @@
     </bean>
 
     <!-- Jackrabbit JCR Repository -->
-    <bean id="jcrRepository" class="org.apache.jackrabbit.core.RepositoryImpl">
+    <bean id="jcrRepository" class="org.apache.jackrabbit.core.RepositoryImpl" destroy-method="shutdown">
         <constructor-arg index="0" ref="config" />
     </bean>
     
