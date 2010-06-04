@@ -326,17 +326,17 @@
     -->
 
     <!-- JPA implementation of IMAP Storage-->
-    <bean id ="sessionEntityManagerFactory" class="org.apache.james.imap.jpa.MailboxSessionEntityManagerFactory">
+    <bean id="sessionMapperFactory" class="org.apache.james.imap.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
     </bean>
     <bean id ="subscriper" class="org.apache.james.imap.jpa.JPASubscriptionManager">
-        <constructor-arg index="0" ref="sessionEntityManagerFactory"/>
+        <constructor-arg index="0" ref="sessionMapperFactory"/>
     </bean>
 
     <bean id="mailboxmanager" class="org.apache.james.imap.jpa.openjpa.OpenJPAMailboxManager">
-        <constructor-arg index="0" ref="authenticator"/>
-        <constructor-arg index="1" ref="subscriper"/>
-        <constructor-arg index="2" ref="sessionEntityManagerFactory"/>
+        <constructor-arg index="0" ref="sessionMapperFactory"/>
+        <constructor-arg index="1" ref="authenticator"/>
+        <constructor-arg index="2" ref="subscriper"/>
         <constructor-arg index="3" value="${openjpa.streaming}"/>
     </bean>
 
@@ -365,16 +365,20 @@
         <constructor-arg index="3" value="james"/>
     </bean>
     
-    <bean id ="subscriper" 	class="org.apache.james.imap.jcr.JCRSubscriptionManager">
+    <bean id="sessionMapperFactory" class="org.apache.james.imap.jcr.JCRMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="sessionJcrRepository"/>
     </bean>
 
+    <bean id ="subscriper" class="org.apache.james.imap.jcr.JCRSubscriptionManager">
+        <constructor-arg index="0" ref="sessionMapperFactory"/>
+    </bean>
 
     <bean id="mailboxmanager" class="org.apache.james.imap.jcr.JCRMailboxManager">
-        <constructor-arg index="0" ref="authenticator"/>
-        <constructor-arg index="1" ref="subscriper"/>
-        <constructor-arg index="2" ref="sessionJcrRepository"/>
+        <constructor-arg index="0" ref="sessionMapperFactory"/>
+        <constructor-arg index="1" ref="authenticator"/>
+        <constructor-arg index="2" ref="subscriper"/>
     </bean>
+
     -->
 
     <bean id="domainlistmanagement" class="org.apache.james.management.impl.DomainListManagement" />
