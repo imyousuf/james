@@ -235,7 +235,7 @@ public abstract class AbstractMailServer
         String defaultDomain = getDefaultDomain();
         if (domains.containsDomain(defaultDomain) == false) {
             if (domains instanceof ManageableDomainList) {
-                if(((ManageableDomainList) domains).addDomain(defaultDomain) != false) {
+                if(((ManageableDomainList) domains).addDomain(defaultDomain) == false) {
                     throw new ConfigurationException("Configured defaultdomain could not get added to DomainList");
                 }
             } else {
@@ -416,7 +416,7 @@ public abstract class AbstractMailServer
         if (defaultDomain == null) {
             List<String> domainList = domains.getDomains();
             if (domainList == null || domainList.isEmpty()) {
-                return "localhost";
+            	return conf.getString("defaultDomain", "localhost");
             } else {
                 return (String) domainList.get(0);
             }  
