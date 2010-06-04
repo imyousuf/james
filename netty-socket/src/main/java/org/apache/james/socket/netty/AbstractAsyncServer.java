@@ -43,6 +43,7 @@ import org.apache.james.services.MailServer;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipelineCoverage;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
@@ -494,6 +495,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
         return context;
     }
     
+    @ChannelPipelineCoverage("all")
     private final class ChannelGroupHandler extends SimpleChannelUpstreamHandler {
         public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
             // Add all open channels to the global group so that they are
