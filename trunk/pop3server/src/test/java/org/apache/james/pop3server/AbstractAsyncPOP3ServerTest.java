@@ -41,6 +41,7 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.kernel.mock.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.inmemory.InMemoryMailboxManager;
+import org.apache.james.imap.inmemory.InMemoryMailboxSessionMapperFactory;
 import org.apache.james.imap.inmemory.InMemorySubscriptionManager;
 import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxSession;
@@ -101,13 +102,14 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         serviceManager.put(UsersRepository.ROLE,
                 m_usersRepository);
         
-        
-        manager = new InMemoryMailboxManager(new Authenticator() {
+        InMemoryMailboxSessionMapperFactory factory = new InMemoryMailboxSessionMapperFactory();
+
+        manager = new InMemoryMailboxManager(factory, new Authenticator() {
             
             public boolean isAuthentic(String userid, CharSequence passwd) {
                 return m_usersRepository.test(userid, passwd.toString());
             }
-        }, new InMemorySubscriptionManager());
+        }, new InMemorySubscriptionManager(factory));
         
         serviceManager.put("mailboxmanager", manager);
         
