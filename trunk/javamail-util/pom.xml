@@ -32,9 +32,5 @@
       <groupId>${javax.mail.groupId}</groupId>
       <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
-    <dependency>
-      <groupId>${javax.activation.groupId}</groupId>
-      <artifactId>${javax.activation.artifactId}</artifactId>
-    </dependency>
   </dependencies>
 </project>

@@ -122,5 +122,10 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 </project>
