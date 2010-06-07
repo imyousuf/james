@@ -74,13 +74,12 @@
       <artifactId>james-server-netty-socket</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james.protocols</groupId>
-      <artifactId>protocols-api</artifactId>
+      <groupId>org.jboss.netty</groupId>
+      <artifactId>netty</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>runtime</scope>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -95,11 +94,7 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-library</artifactId>
-      <scope>test</scope>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>

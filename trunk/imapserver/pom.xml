@@ -29,11 +29,6 @@
   <name>Apache JAMES Server IMAP</name>
   <dependencies>
     <dependency>
-      <groupId>${javax.mail.groupId}</groupId>
-      <artifactId>${javax.mail.artifactId}</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
     </dependency>
@@ -45,13 +40,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
     </dependency>
-
-        
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet</artifactId>
-    </dependency>
-
 
     <dependency>
        <groupId>org.apache.geronimo.specs</groupId>
@@ -112,15 +100,10 @@
       <groupId>org.apache.db.torque</groupId>
       <artifactId>runtime</artifactId>
     </dependency>
-        
+
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-    	<groupId>junit</groupId>
-    	<artifactId>junit</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
 </project>

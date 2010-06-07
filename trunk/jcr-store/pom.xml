@@ -78,14 +78,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -100,14 +94,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
