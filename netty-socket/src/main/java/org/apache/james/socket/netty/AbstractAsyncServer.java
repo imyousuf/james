@@ -503,10 +503,5 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
             channels.add(e.getChannel());
         }
 
-        @Override
-        public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-           channels.remove(ctx.getChannel());
-        }
-
     }
 }
