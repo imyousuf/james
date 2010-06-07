@@ -101,6 +101,11 @@
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
     </dependency>
+    
+    <dependency>
+      <artifactId>dnsjava</artifactId>
+      <groupId>dnsjava</groupId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
@@ -138,6 +143,7 @@
     <dependency>
    	  <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
