@@ -75,7 +75,10 @@
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
+    </dependency>    
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
@@ -106,11 +109,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-annotation_1.0_spec</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

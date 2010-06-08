@@ -101,7 +101,10 @@
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
+    </dependency>    
     <dependency>
       <artifactId>dnsjava</artifactId>
       <groupId>dnsjava</groupId>
