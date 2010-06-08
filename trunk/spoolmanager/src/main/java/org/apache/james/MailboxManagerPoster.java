@@ -181,7 +181,7 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
                 headersInputStream = new ByteArrayInputStream(headersOut.toByteArray());
                 this.bodyInputStream = message.getInputStream();
             } catch (MessagingException e) {
-                throw new IOException("Unable to read MimeMessage", e);
+                throw new IOException("Unable to read MimeMessage: " + e.getMessage());
             }
         }
 

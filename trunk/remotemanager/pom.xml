@@ -56,10 +56,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
     </dependency>
-    <dependency>
-       <groupId>org.apache.geronimo.specs</groupId>
-       <artifactId>geronimo-annotation_1.0_spec</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>commons-configuration</groupId>
@@ -80,6 +76,10 @@
     <dependency>
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
