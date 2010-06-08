@@ -93,18 +93,15 @@
      <groupId>org.apache.camel</groupId>
      <artifactId>camel-core</artifactId>
    </dependency>
-
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-standard-mailets</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -122,7 +119,7 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>
