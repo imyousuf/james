@@ -24,12 +24,12 @@ import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.protocols.impl.AbstractChannelUpstreamHandler;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.SMTPConstants;
-import org.apache.james.socket.netty.AbstractChannelUpstreamHandler;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -97,7 +97,7 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
      * 
      * @param channel
      */
-    private void cleanup(Channel channel) {
+    protected void cleanup(Channel channel) {
         // Make sure we dispose everything on exit on session close
         SMTPSession smtpSession = (SMTPSession) attributes.get(channel);
         
@@ -106,6 +106,8 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
             LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE));
             LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_OUTPUTSTREAM));
         }
+        
+        super.cleanup(channel);
     }
     
 }

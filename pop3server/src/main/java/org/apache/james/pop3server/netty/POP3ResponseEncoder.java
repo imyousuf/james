@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.james.pop3server.POP3Response;
-import org.apache.james.socket.netty.AbstractResponseEncoder;
+import org.apache.james.protocols.impl.AbstractResponseEncoder;
 
 /**
  * {@link AbstractResponseEncoder} implementation which handles {@link POP3Response} messages

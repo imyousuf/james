@@ -27,17 +27,17 @@ import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.protocols.api.LineHandler;
+import org.apache.james.protocols.impl.AbstractSession;
+import org.apache.james.protocols.impl.LineHandlerUpstreamHandler;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
-import org.apache.james.socket.netty.AbstractNettySession;
-import org.apache.james.socket.netty.LineHandlerUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
 /**
  * {@link SMTPSession} implementation for use with Netty
  *
  */
-public class SMTPNettySession extends AbstractNettySession implements SMTPSession{
+public class SMTPNettySession extends AbstractSession implements SMTPSession{
     public final static String SMTP_SESSION = "SMTP_SESSION";
     
     private static Random random = new Random();

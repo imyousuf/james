@@ -21,8 +21,8 @@ package org.apache.james.smtpserver.netty;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.james.protocols.impl.AbstractResponseEncoder;
 import org.apache.james.protocols.smtp.SMTPResponse;
-import org.apache.james.socket.netty.AbstractResponseEncoder;
 
 /**
  * {@link AbstractResponseEncoder} which encode {@link SMTPResponse} objects

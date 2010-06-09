@@ -104,6 +104,10 @@
     <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>jsr250-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-impl</artifactId>
     </dependency>    
     <dependency>
       <artifactId>dnsjava</artifactId>

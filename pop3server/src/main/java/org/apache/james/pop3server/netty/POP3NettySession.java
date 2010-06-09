@@ -27,14 +27,14 @@ import org.apache.commons.logging.Log;
 import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.socket.netty.AbstractNettySession;
+import org.apache.james.protocols.impl.AbstractSession;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
 /**
  * {@link POP3Session} implementation which use Netty
  *
  */
-public class POP3NettySession extends AbstractNettySession implements POP3Session {
+public class POP3NettySession extends AbstractSession implements POP3Session {
     private POP3HandlerConfigurationData configData;
 
     private Map<String, Object> state = new HashMap<String, Object>();

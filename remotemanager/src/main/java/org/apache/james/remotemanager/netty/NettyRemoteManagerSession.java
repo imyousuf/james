@@ -27,9 +27,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.protocols.api.Response;
+import org.apache.james.protocols.impl.LineHandlerUpstreamHandler;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.socket.netty.LineHandlerUpstreamHandler;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.handler.stream.ChunkedStream;
 

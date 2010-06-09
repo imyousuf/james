@@ -24,10 +24,10 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.dnsservice.util.NetMatcher;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPServerMBean;
-import org.apache.james.socket.netty.AbstractAsyncServer;
-import org.apache.james.socket.netty.AbstractSSLAwareChannelPipelineFactory;
+import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
@@ -37,7 +37,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
  * 
  *
  */
-public class NioSMTPServer extends AbstractAsyncServer implements SMTPServerMBean{
+public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SMTPServerMBean{
 
     
     /**
@@ -88,8 +88,7 @@ public class NioSMTPServer extends AbstractAsyncServer implements SMTPServerMBea
     /**
      * The configuration data to be passed to the handler
      */
-    private SMTPConfiguration theConfigData
-    = new SMTPHandlerConfigurationDataImpl();
+    private final SMTPConfiguration theConfigData = new SMTPHandlerConfigurationDataImpl();
 
     private boolean addressBracketsEnforcement = true;
 
@@ -175,7 +174,7 @@ public class NioSMTPServer extends AbstractAsyncServer implements SMTPServerMBea
     }
 
     /**
-     * @see org.apache.james.socket.mina.AbstractAsyncServer#getDefaultPort()
+     * @see org.apache.james.socket.AbstractConfigurableAsyncServer.AbstractAsyncServer#getDefaultPort()
      */
     protected int getDefaultPort() {
         return 25;
@@ -273,69 +272,38 @@ public class NioSMTPServer extends AbstractAsyncServer implements SMTPServerMBea
 
     }
     
-    /**
-     * (non-Javadoc)
-     * @see org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
-     */
-    public String getNetworkInterface() {
-        return "unkown";
-    }
-
-    /**
-     * (non-Javadoc)
-     * @see org.apache.james.protocols.smtp.SMTPServerMBean#getSocketType()
-     */
-    public String getSocketType() {
-        return "plain";
-    }
-
-    
     @Override
     protected ChannelPipelineFactory createPipelineFactory() {
-        return new AbstractSSLAwareChannelPipelineFactory() {
-            
-            @Override
-            protected ChannelUpstreamHandler createHandler() {
-                return new SMTPChannelUpstreamHandler(NioSMTPServer.this.getProtocolHandlerChain(), getSMTPConfiguration(),getLogger(), getSSLContext());
-            }
-            
-            @Override
-            protected OneToOneEncoder createEncoder() {
-                return new SMTPResponseEncoder();
-            }
-
-            @Override
-            protected int getTimeout() {
-                return NioSMTPServer.this.getTimeout();
-            }
-
-            @Override
-            protected SSLContext getSSLContext() {
-                return NioSMTPServer.this.getSSLContext();
-            }
-
-            @Override
-            protected boolean isSSLSocket() {
-                return NioSMTPServer.this.isSSLSocket();
-            }
-
-            @Override
-            protected int getMaxConnections() {
-                return NioSMTPServer.this.connectionLimit;
-            }
-
-            @Override
-            protected int getMaxConnectionsPerIP() {
-                return NioSMTPServer.this.connPerIP;
-            }
-        };
+        return new SMTPChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP);
     }
     
-    protected final ProtocolHandlerChain getProtocolHandlerChain() {
-        return handlerChain;
-    }
     
-    protected final SMTPConfiguration getSMTPConfiguration() {
-        return theConfigData;
+    private final class SMTPChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
+
+        public SMTPChannelPipelineFactory(int timeout, int maxConnections,
+                int maxConnectsPerIp) {
+            super(timeout, maxConnections, maxConnectsPerIp);
+        }
+
+        @Override
+        protected SSLContext getSSLContext() {
+            return NioSMTPServer.this.getSSLContext();
+        }
+
+        @Override
+        protected boolean isSSLSocket() {
+            return  NioSMTPServer.this.isSSLSocket();
+        }
+
+        @Override
+        protected OneToOneEncoder createEncoder() {
+            return new SMTPResponseEncoder();
+        }
+
+        @Override
+        protected ChannelUpstreamHandler createHandler() {
+            return new SMTPChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext());
+        }
+        
     }
 }

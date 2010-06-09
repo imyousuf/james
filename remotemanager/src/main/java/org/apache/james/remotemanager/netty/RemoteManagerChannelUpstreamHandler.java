@@ -22,9 +22,9 @@ package org.apache.james.remotemanager.netty;
 import org.apache.commons.logging.Log;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.protocols.impl.AbstractChannelUpstreamHandler;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.socket.netty.AbstractChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 
