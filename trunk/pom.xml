@@ -38,8 +38,7 @@
     <module>core-api</module>
     <module>user-api</module>
     <module>user-function</module>
-    <module>user-library</module>
-    
+    <module>user-library</module>    
     <module>domain-api</module>
     <module>core-library</module>
     <module>management</module>
@@ -212,7 +211,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-netty-socket</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -286,103 +285,103 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-javamail-util</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-api</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>${protocols.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-domain-api</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-management</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-smtp</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>${protocols.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-smtp</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>${protocols.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-memory</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-mailbox</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-decode</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-lang</groupId>
@@ -397,7 +396,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-message</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -408,74 +407,74 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
   
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-imapserver</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-function</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-pop3server</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-fetchmail</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-spoolmanager</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailets</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-remotemanager</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-jpa-store</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-torque</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-jpa</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-jcr</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-store</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-collections</groupId>
@@ -490,7 +489,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-processor</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -501,7 +500,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-seda</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -512,19 +511,19 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-jcr-store</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-api</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -535,12 +534,12 @@
    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-memory</artifactId>
-      <version>0.1-M2-SNAPSHOT</version>
+      <version>${imap.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
-      <version>3.0-SNAPSHOT</version>
+      <version>${pom.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -596,12 +595,12 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jsieve</artifactId>
-      <version>0.4</version>
+      <version>${jsieve.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jsieve-mailet</artifactId>
-      <version>0.4</version>
+      <version>${jsieve.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -865,39 +864,39 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>${spring.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-orm</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>${spring.version}</version>
       <scope>runtime</scope>
       <exclusions>
         <exclusion>
@@ -925,13 +924,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jms</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>${spring.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>3.0.2.RELEASE</version>
+      <version>${spring.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -1011,12 +1010,12 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
-      <version>2.2.0</version>
+      <version>${camel.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
-      <version>2.2.0</version>
+      <version>${camel.version}</version>
       <scope>runtime</scope>
       <exclusions>
         <exclusion>
@@ -1029,7 +1028,7 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jms</artifactId>
-      <version>2.2.0</version>
+      <version>${camel.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -1099,6 +1098,12 @@
     <javax.mail.artifactId>mail</javax.mail.artifactId>
     <productName>Apache-James Mail Server</productName>
     <derby.version>10.5.3.0_1</derby.version>
+    <camel.version>2.2.0</camel.version>
+    <spring.version>3.0.2.RELEASE</spring.version>
+    <imap.version>0.1-M2-SNAPSHOT</imap.version>
+    <protocols.version>1.1-SNAPSHOT</protocols.version>
+    <jsieve.version>0.4</jsieve.version>
+
   </properties>
 
 </project>
