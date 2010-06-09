@@ -25,8 +25,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3ServerMBean;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
-import org.apache.james.socket.netty.AbstractAsyncServer;
-import org.apache.james.socket.netty.AbstractSSLAwareChannelPipelineFactory;
+import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
+import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
@@ -36,7 +36,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
  * 
  *
  */
-public class NioPOP3Server extends AbstractAsyncServer implements POP3ServerMBean{
+public class NioPOP3Server extends AbstractConfigurableAsyncServer implements POP3ServerMBean{
     /**
      * The number of bytes to read before resetting the connection timeout
      * timer. Defaults to 20 KB.
@@ -107,74 +107,40 @@ public class NioPOP3Server extends AbstractAsyncServer implements POP3ServerMBea
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.pop3server.POP3ServerMBean#getNetworkInterface()
-     */
-    public String getNetworkInterface() {
-        return "unkown";
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.pop3server.POP3ServerMBean#getSocketType()
-     */
-    public String getSocketType() {
-        if (isSSLSocket()) {
-            return "secure";
-        }
-        return "plain";
-    }
-
-    
     @Override
     protected ChannelPipelineFactory createPipelineFactory() {
-        return new AbstractSSLAwareChannelPipelineFactory() {
-            
-            @Override
-            protected ChannelUpstreamHandler createHandler() {
-                return new POP3ChannelUpstreamHandler(NioPOP3Server.this.getProtocolHandlerChain(), getPOP3HandlerConfiguration(), getLogger(), getSSLContext());
-            }
-            
-            @Override
-            protected OneToOneEncoder createEncoder() {
-                return new POP3ResponseEncoder();
-            }
-            
-            @Override
-            protected int getTimeout() {
-                return NioPOP3Server.this.getTimeout();
-            }
-
-            @Override
-            protected SSLContext getSSLContext() {
-                return NioPOP3Server.this.getSSLContext();
-            }
-
-            @Override
-            protected boolean isSSLSocket() {
-                return NioPOP3Server.this.isSSLSocket();
-            }
-
-            @Override
-            protected int getMaxConnections() {
-                return NioPOP3Server.this.connectionLimit;
-            }
-
-            @Override
-            protected int getMaxConnectionsPerIP() {
-                return NioPOP3Server.this.connPerIP;
-            }
-        };
+        return new POP3ChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP);
     }
-    
-    protected final ProtocolHandlerChain getProtocolHandlerChain() {
-        return handlerChain;
-    }
-    
-    protected final POP3HandlerConfigurationData getPOP3HandlerConfiguration() {
-        return theConfigData;
+
+    private final class POP3ChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
+
+        public POP3ChannelPipelineFactory(int timeout, int maxConnections,
+                int maxConnectsPerIp) {
+            super(timeout, maxConnections, maxConnectsPerIp);
+        }
+
+        @Override
+        protected SSLContext getSSLContext() {
+            return NioPOP3Server.this.getSSLContext();
+
+        }
+
+        @Override
+        protected boolean isSSLSocket() {
+            return NioPOP3Server.this.isSSLSocket();
+        }
+
+        @Override
+        protected OneToOneEncoder createEncoder() {
+            return new POP3ResponseEncoder();
+
+        }
+
+        @Override
+        protected ChannelUpstreamHandler createHandler() {
+            return new POP3ChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext());
+
+        }
+        
     }
 }

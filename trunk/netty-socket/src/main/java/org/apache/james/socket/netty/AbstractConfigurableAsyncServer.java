@@ -20,10 +20,8 @@ package org.apache.james.socket.netty;
 
 import java.io.FileInputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
-import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -38,24 +36,16 @@ import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.protocols.impl.AbstractAsyncServer;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+
 
 /**
- * Abstract base class for Servers which want to use async io
+ * Abstract base class for Servers for all James Servers
  *
  */
-public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
+public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServer implements LogEnabled, Configurable{
     /**
      * The default value for the connection backlog.
      */
@@ -99,7 +89,6 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
     private boolean useStartTLS;
     private boolean useSSL;
 
-
     protected int connectionLimit;
 
     private String helloName;
@@ -108,19 +97,8 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
 
     private String secret;
     
-    private int backlog;
-    
-    private InetAddress bindTo;
-
-    private int port;
-
-    private int timeout;
-
     private SSLContext context;
 
-    private ServerBootstrap bootstrap;
-
-    private ChannelGroup channels = new DefaultChannelGroup();
     @Resource(name="dnsserver")
     public final void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -159,15 +137,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
           logger.info(getServiceType() + " disabled by configuration");
           return;
         }
-
-        
-        /*
-        boolean streamdump=handlerConfiguration.getChild("streamdump").getAttributeAsBoolean("enabled", false);
-        String streamdumpDir=streamdump ? handlerConfiguration.getChild("streamdump").getAttribute("directory", null) : null;
-        setStreamDumpDir(streamdumpDir);
-        */
-
-        port = config.getInt("port",getDefaultPort());
+        setPort(config.getInt("port", getDefaultPort()));
 
      
 
@@ -177,13 +147,14 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
         try {
             final String bindAddress = config.getString("bind",null);
             if( null != bindAddress ) {
-                bindTo = InetAddress.getByName(bindAddress);
+                String bindTo = InetAddress.getByName(bindAddress).getHostName();
                 infoBuffer =
                     new StringBuilder(64)
                             .append(getServiceType())
                             .append(" bound to: ")
                             .append(bindTo);
                 logger.info(infoBuffer.toString());
+                setIP(bindTo);
             }
         }
         catch( final UnknownHostException unhe ) {
@@ -192,22 +163,22 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
 
         configureHelloName(handlerConfiguration);
 
-        timeout = handlerConfiguration.getInt(TIMEOUT_NAME,DEFAULT_TIMEOUT);
+        setTimeout(handlerConfiguration.getInt(TIMEOUT_NAME,DEFAULT_TIMEOUT));
 
         infoBuffer =
             new StringBuilder(64)
                     .append(getServiceType())
                     .append(" handler connection timeout is: ")
-                    .append(timeout);
+                    .append(getTimeout());
         logger.info(infoBuffer.toString());
 
-        backlog = config.getInt(BACKLOG_NAME,DEFAULT_BACKLOG);
+        setBacklog(config.getInt(BACKLOG_NAME,DEFAULT_BACKLOG));
 
         infoBuffer =
                     new StringBuilder(64)
                     .append(getServiceType())
                     .append(" connection backlog is: ")
-                    .append(backlog);
+                    .append(getBacklog());
         logger.info(infoBuffer.toString());
 
         
@@ -276,28 +247,14 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
             preInit();
             buildSSLContext();
 
-            bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
-                                                   Executors.newCachedThreadPool(),
-                                           Executors.newCachedThreadPool()));
-            // Configure the pipeline factory.
-            ChannelPipelineFactory factory = createPipelineFactory();
-            factory.getPipeline().addFirst("channelGroupHandler", new ChannelGroupHandler());
-            bootstrap.setPipelineFactory(createPipelineFactory());
-         
-            // Bind and start to accept incoming connections.
-            bootstrap.setOption("backlog",backlog);
-            bootstrap.setOption("reuseAddress",true);
-
-            Channel serverChannel = bootstrap.bind(new InetSocketAddress(bindTo,port));
-            channels.add(serverChannel);
+            start();
         }
     }
 
     @PreDestroy
     public final void destroy() {
         getLogger().info("Dispose " + getServiceType());
-        channels.close().awaitUninterruptibly();
-        bootstrap.releaseExternalResources();
+        super.stop();
     }
     
     
@@ -378,16 +335,7 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
                     .append(helloName);
         getLogger().info(infoBuffer.toString());
     }
-    
-    /**
-     * Return the port this server will listen on
-     * 
-     * @return port
-     */
-    public int getPort() {
-        return port;
-    }
-    
+
     /**
      * Return the logger
      * 
@@ -458,21 +406,6 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
         }
     }
    
-    
-    
-    /**
-     * Createh IoHandler to use by this Server implementation
-     * 
-     * @return ioHandler
-     */
-    protected abstract ChannelPipelineFactory createPipelineFactory();
-    
-    /**
-     * Return the SslContextFactory which was created for this service. 
-     * 
-     * @return contextFactory
-     */
-    
     /**
      * Return the default port which will get used for this server if non is specify in the configuration
      * 
@@ -487,21 +420,35 @@ public abstract class AbstractAsyncServer implements LogEnabled, Configurable{
      */
     protected abstract String getServiceType();
     
-    protected int getTimeout() {
-        return timeout;
-    }
     
+    /**
+     * Return the SSLContext to use 
+     * 
+     * @return sslContext
+     */
     protected SSLContext getSSLContext() {
         return context;
     }
-    
-    @ChannelPipelineCoverage("all")
-    private final class ChannelGroupHandler extends SimpleChannelUpstreamHandler {
-        public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
-            // Add all open channels to the global group so that they are
-            // closed on shutdown.
-            channels.add(e.getChannel());
-        }
 
+    /**
+     * Return the socket type. The Socket type can be secure or plain
+     * @return
+     */
+    public String getSocketType() {
+        if (isSSLSocket()) {
+            return "secure";
+        }
+        return "plain";
     }
+    
+    /**
+     * Return the network interface on which server is bound. Default is to return
+     * unknown
+     * 
+     * @return interface
+     */
+    public String getNetworkInterface() {
+        return "unkown";
+    }
+    
 }

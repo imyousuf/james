@@ -29,7 +29,7 @@ import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
-import org.apache.james.socket.netty.AbstractAsyncServer;
+import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.handler.connection.ConnectionLimitUpstreamHandler;
@@ -40,7 +40,7 @@ import org.jboss.netty.handler.ssl.SslHandler;
  * NIO IMAP Server which use Netty
  *
  */
-public class NioImapServer extends AbstractAsyncServer implements ImapConstants{
+public class NioImapServer extends AbstractConfigurableAsyncServer implements ImapConstants{
 
     private static final String softwaretype = "JAMES "+VERSION+" Server "; //+ Constants.SOFTWARE_VERSION;
 

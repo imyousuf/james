@@ -26,10 +26,10 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerMBean;
-import org.apache.james.socket.netty.AbstractAsyncServer;
-import org.apache.james.socket.netty.AbstractChannelPipelineFactory;
+import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
@@ -39,7 +39,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
  * NIO RemoteManager which use Netty
  *
  */
-public class NioRemoteManager extends AbstractAsyncServer implements RemoteManagerMBean{
+public class NioRemoteManager extends AbstractConfigurableAsyncServer implements RemoteManagerMBean{
 
 
     private Map<String,String> adminAccounts = new HashMap<String, String>();
@@ -73,23 +73,6 @@ public class NioRemoteManager extends AbstractAsyncServer implements RemoteManag
         }
     }
 
-  
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.remotemanager.RemoteManagerMBean#getNetworkInterface()
-     */
-    public String getNetworkInterface() {
-        return "unknown";
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.remotemanager.RemoteManagerMBean#getSocketType()
-     */
-    public String getSocketType() {
-        return "plain";
-    }
     
     /**
      * A class to provide RemoteManager handler configuration to the handlers
@@ -126,34 +109,24 @@ public class NioRemoteManager extends AbstractAsyncServer implements RemoteManag
     
     @Override
     protected ChannelPipelineFactory createPipelineFactory() {
-        return new AbstractChannelPipelineFactory() {
-
-            @Override
-            protected OneToOneEncoder createEncoder() {
-                return new RemoteManagerResponseEncoder();
-            }
-
-            @Override
-            protected ChannelUpstreamHandler createHandler() {
-                return new RemoteManagerChannelUpstreamHandler(configData, handlerChain, getLogger());
-            }
-
-            @Override
-            protected int getTimeout() {
-                return NioRemoteManager.this.getTimeout();
-            }
-
-            @Override
-            protected int getMaxConnections() {
-                return NioRemoteManager.this.connectionLimit;
-            }
-
-            @Override
-            protected int getMaxConnectionsPerIP() {
-                return NioRemoteManager.this.connPerIP;
-            }
-            
-        };
+        return new RemoteManagerChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP);
     }
+    
+    private final class RemoteManagerChannelPipelineFactory extends AbstractChannelPipelineFactory {
 
+        public RemoteManagerChannelPipelineFactory(int timeout,
+                int maxConnections, int maxConnectsPerIp) {
+            super(timeout, maxConnections, maxConnectsPerIp);
+        }
+        @Override
+        protected OneToOneEncoder createEncoder() {
+            return new RemoteManagerResponseEncoder();
+        }
+
+        @Override
+        protected ChannelUpstreamHandler createHandler() {
+            return new RemoteManagerChannelUpstreamHandler(configData, handlerChain, getLogger());
+        }
+        
+    }
 }

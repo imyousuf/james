@@ -24,7 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.socket.netty.AbstractChannelUpstreamHandler;
+import org.apache.james.protocols.impl.AbstractChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 

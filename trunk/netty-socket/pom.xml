@@ -44,6 +44,10 @@
       <artifactId>protocols-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-impl</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
     </dependency>

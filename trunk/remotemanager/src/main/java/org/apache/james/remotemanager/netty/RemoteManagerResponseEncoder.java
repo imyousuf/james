@@ -22,8 +22,8 @@ package org.apache.james.remotemanager.netty;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.james.protocols.impl.AbstractResponseEncoder;
 import org.apache.james.remotemanager.RemoteManagerResponse;
-import org.apache.james.socket.netty.AbstractResponseEncoder;
 
 /**
  * {@link AbstractResponseEncoder} implementation which encode {@link RemoteManagerResponse} objects

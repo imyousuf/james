@@ -21,8 +21,8 @@ package org.apache.james.smtpserver;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
+import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
 import org.apache.james.smtpserver.netty.NioSMTPServer;
-import org.apache.james.socket.netty.AbstractChannelPipelineFactory;
 
 public class NioSMTPServerTest extends AbstractSMTPServerTest{
 

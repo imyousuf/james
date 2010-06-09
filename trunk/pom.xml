@@ -322,6 +322,12 @@
       <version>${protocols.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-impl</artifactId>
+      <version>${protocols.version}</version>
+    </dependency>
+    
+    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
       <type>test-jar</type>
