@@ -29,6 +29,7 @@ import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
+import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 /**
@@ -108,15 +109,15 @@ public class NioPOP3Server extends AbstractConfigurableAsyncServer implements PO
     }
 
     @Override
-    protected ChannelPipelineFactory createPipelineFactory() {
-        return new POP3ChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP);
+    protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
+        return new POP3ChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
     }
 
     private final class POP3ChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
 
         public POP3ChannelPipelineFactory(int timeout, int maxConnections,
-                int maxConnectsPerIp) {
-            super(timeout, maxConnections, maxConnectsPerIp);
+                int maxConnectsPerIp, ChannelGroup group) {
+            super(timeout, maxConnections, maxConnectsPerIp, group);
         }
 
         @Override

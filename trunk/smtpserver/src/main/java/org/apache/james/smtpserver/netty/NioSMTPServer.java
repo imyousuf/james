@@ -30,6 +30,7 @@ import org.apache.james.protocols.smtp.SMTPServerMBean;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
+import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 /**
@@ -273,16 +274,16 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
     }
     
     @Override
-    protected ChannelPipelineFactory createPipelineFactory() {
-        return new SMTPChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP);
+    protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
+        return new SMTPChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
     }
     
     
     private final class SMTPChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
 
         public SMTPChannelPipelineFactory(int timeout, int maxConnections,
-                int maxConnectsPerIp) {
-            super(timeout, maxConnections, maxConnectsPerIp);
+                int maxConnectsPerIp, ChannelGroup group) {
+            super(timeout, maxConnections, maxConnectsPerIp, group);
         }
 
         @Override
