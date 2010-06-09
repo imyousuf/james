@@ -29,9 +29,11 @@ import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
+import org.apache.james.protocols.impl.ChannelGroupHandler;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.connection.ConnectionLimitUpstreamHandler;
 import org.jboss.netty.handler.connection.ConnectionPerIpLimitUpstreamHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
@@ -90,11 +92,14 @@ public class NioImapServer extends AbstractConfigurableAsyncServer implements Im
     }
 
     @Override
-    protected ChannelPipelineFactory createPipelineFactory() {
+    protected ChannelPipelineFactory createPipelineFactory(final ChannelGroup group) {
         return new ChannelPipelineFactory() {
+            private ChannelGroupHandler groupHandler = new ChannelGroupHandler(group);
 
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
+                pipeline.addLast("groupHandler", groupHandler);
+
                 pipeline.addLast("connectionLimit", new ConnectionLimitUpstreamHandler(NioImapServer.this.connectionLimit));
 
                 pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(NioImapServer.this.connPerIP));
