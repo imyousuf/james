@@ -128,6 +128,13 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-api</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-function</artifactId>
       <scope>runtime</scope>
     </dependency>

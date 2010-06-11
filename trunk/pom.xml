@@ -341,6 +341,13 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-api</artifactId>
+      <version>${pom.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
       <version>${pom.version}</version>
     </dependency>
