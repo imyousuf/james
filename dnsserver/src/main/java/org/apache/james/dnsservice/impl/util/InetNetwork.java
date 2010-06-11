@@ -19,12 +19,12 @@
 
 
 
-package org.apache.james.api.dnsservice.util;
+package org.apache.james.dnsservice.impl.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.DNSService;
 
 class InetNetwork
 {

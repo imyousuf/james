@@ -46,9 +46,9 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
-import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageUtil;
+import org.apache.james.dnsservice.DNSService;
 import org.apache.james.services.MailServer;
 
 import org.apache.mailet.base.GenericMailet;

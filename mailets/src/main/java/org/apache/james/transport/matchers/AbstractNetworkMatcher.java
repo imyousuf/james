@@ -21,8 +21,8 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.james.dnsservice.DNSService;
+import org.apache.james.dnsservice.impl.util.NetMatcher;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;

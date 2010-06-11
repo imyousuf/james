@@ -24,8 +24,8 @@ package org.apache.james.dnsserver;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.TemporaryResolutionException;
+import org.apache.james.dnsservice.DNSService;
+import org.apache.james.dnsservice.TemporaryResolutionException;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.mailet.HostAddress;
@@ -302,7 +302,7 @@ public class DNSServer implements DNSService, DNSServerMBean, LogEnabled, Config
     }
     
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#findMXRecords(String)
+     * @see org.apache.james.dnsservice.DNSService#findMXRecords(String)
      */
     public Collection<String> findMXRecords(String hostname) throws TemporaryResolutionException {
         List<String> servers = new ArrayList<String>();
@@ -416,7 +416,7 @@ public class DNSServer implements DNSService, DNSServerMBean, LogEnabled, Config
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getSMTPHostAddresses(String)
+     * @see org.apache.james.dnsservice.DNSService#getSMTPHostAddresses(String)
      */
     public Iterator<HostAddress> getSMTPHostAddresses(final String domainName) throws TemporaryResolutionException {
         return new Iterator<HostAddress>() {
@@ -509,7 +509,7 @@ public class DNSServer implements DNSService, DNSServerMBean, LogEnabled, Config
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getByName(String)
+     * @see org.apache.james.dnsservice.DNSService#getByName(String)
      */
     public InetAddress getByName(String host) throws UnknownHostException {
         String name = allowIPLiteral(host);
@@ -532,7 +532,7 @@ public class DNSServer implements DNSService, DNSServerMBean, LogEnabled, Config
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getAllByName(String)
+     * @see org.apache.james.dnsservice.DNSService#getAllByName(String)
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
         String name = allowIPLiteral(host);
@@ -559,7 +559,7 @@ public class DNSServer implements DNSService, DNSServerMBean, LogEnabled, Config
     }
     
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#findTXTRecords(String)
+     * @see org.apache.james.dnsservice.DNSService#findTXTRecords(String)
      */
     public Collection<String> findTXTRecords(String hostname){
         List<String> txtR = new ArrayList<String>();
@@ -576,7 +576,7 @@ public class DNSServer implements DNSService, DNSServerMBean, LogEnabled, Config
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getHostName(java.net.InetAddress)
+     * @see org.apache.james.dnsservice.DNSService#getHostName(java.net.InetAddress)
      */
     public String getHostName(InetAddress addr){
         String result = null;
@@ -593,7 +593,7 @@ public class DNSServer implements DNSService, DNSServerMBean, LogEnabled, Config
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getLocalHost()
+     * @see org.apache.james.dnsservice.DNSService#getLocalHost()
      */
     public InetAddress getLocalHost() throws UnknownHostException {
         return InetAddress.getLocalHost();

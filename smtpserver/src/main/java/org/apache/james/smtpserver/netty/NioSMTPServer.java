@@ -22,7 +22,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.james.dnsservice.impl.util.NetMatcher;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;

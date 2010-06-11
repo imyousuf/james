@@ -27,6 +27,7 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.james.dnsservice.DNSService;
 import org.apache.mailet.HostAddress;
 
 /**
@@ -35,49 +36,49 @@ import org.apache.mailet.HostAddress;
 public class AbstractDNSServer implements DNSService {
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#findMXRecords(String)
+     * @see org.apache.james.dnsservice.DNSService#findMXRecords(String)
      */
     public Collection<String> findMXRecords(String hostname) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#findTXTRecords(String)
+     * @see org.apache.james.dnsservice.DNSService#findTXTRecords(String)
      */
     public Collection<String> findTXTRecords(String hostname) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getAllByName(String)
+     * @see org.apache.james.dnsservice.DNSService#getAllByName(String)
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getByName(String)
+     * @see org.apache.james.dnsservice.DNSService#getByName(String)
      */
     public InetAddress getByName(String host) throws UnknownHostException {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getSMTPHostAddresses(String)
+     * @see org.apache.james.dnsservice.DNSService#getSMTPHostAddresses(String)
      */
     public Iterator<HostAddress> getSMTPHostAddresses(String domainName) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getHostName(java.net.InetAddress)
+     * @see org.apache.james.dnsservice.DNSService#getHostName(java.net.InetAddress)
      */
     public String getHostName(InetAddress addr) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
     /**
-     * @see org.apache.james.api.dnsservice.DNSService#getLocalHost()
+     * @see org.apache.james.dnsservice.DNSService#getLocalHost()
      */
     public InetAddress getLocalHost() throws UnknownHostException {
         throw new UnsupportedOperationException("Unimplemented Stub Method");

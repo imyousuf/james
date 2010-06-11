@@ -37,7 +37,7 @@ import javax.mail.internet.ParseException;
 import junit.framework.TestCase;
 
 import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.DNSService;
 import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.base.test.FakeMatcherConfig;
 import org.apache.mailet.Mail;

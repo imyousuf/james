@@ -29,10 +29,10 @@ import org.apache.mailet.HostAddress;
 
 public class SMTPServerDNSServiceAdapter implements DNSService{
 
-    private org.apache.james.api.dnsservice.DNSService dns;
+    private org.apache.james.dnsservice.DNSService dns;
 
     
-    public SMTPServerDNSServiceAdapter(org.apache.james.api.dnsservice.DNSService dns) {    
+    public SMTPServerDNSServiceAdapter(org.apache.james.dnsservice.DNSService dns) {    
         this.dns = dns;
     }
     
@@ -42,7 +42,7 @@ public class SMTPServerDNSServiceAdapter implements DNSService{
     public Collection<String> findMXRecords(String hostname) throws TemporaryResolutionException {
         try {
             return dns.findMXRecords(hostname);
-        } catch (org.apache.james.api.dnsservice.TemporaryResolutionException e) {
+        } catch (org.apache.james.dnsservice.TemporaryResolutionException e) {
             throw new TemporaryResolutionException(e.getMessage());
         }
     }
@@ -88,7 +88,7 @@ public class SMTPServerDNSServiceAdapter implements DNSService{
     public Iterator<HostAddress> getSMTPHostAddresses(String domainName) throws TemporaryResolutionException {
         try {
             return dns.getSMTPHostAddresses(domainName);
-        } catch (org.apache.james.api.dnsservice.TemporaryResolutionException e) {
+        } catch (org.apache.james.dnsservice.TemporaryResolutionException e) {
             throw new TemporaryResolutionException(e.getMessage());
         }
     }

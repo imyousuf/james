@@ -25,11 +25,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
+import org.apache.james.dnsservice.DNSService;
+import org.apache.james.dnsservice.TemporaryResolutionException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.lifecycle.LifecycleUtil;
 

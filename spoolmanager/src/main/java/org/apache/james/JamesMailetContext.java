@@ -41,11 +41,11 @@ import javax.mail.internet.ParseException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
+import org.apache.james.dnsservice.DNSService;
+import org.apache.james.dnsservice.TemporaryResolutionException;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
@@ -301,7 +301,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
      * sorted by MX priority. If no host is found for domainName, the Iterator
      * returned will be empty and the first call to hasNext() will return false.
      * 
-     * @see org.apache.james.api.dnsservice.DNSService#getSMTPHostAddresses(String)
+     * @see org.apache.james.dnsservice.DNSService#getSMTPHostAddresses(String)
      * @since Mailet API v2.2.0a16-unstable
      * @param domainName
      *            - the domain for which to find mail servers

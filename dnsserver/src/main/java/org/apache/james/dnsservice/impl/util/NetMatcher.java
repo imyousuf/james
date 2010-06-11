@@ -17,14 +17,14 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.api.dnsservice.util;
+package org.apache.james.dnsservice.impl.util;
 
 import java.net.InetAddress;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.DNSService;
 
 /**
  * Class which can be used to check if an ipAddress match a network

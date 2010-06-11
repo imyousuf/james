@@ -33,7 +33,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.DNSService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.protocols.impl.AbstractAsyncServer;

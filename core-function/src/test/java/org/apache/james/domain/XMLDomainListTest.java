@@ -31,7 +31,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.DNSService;
 
 import junit.framework.TestCase;
 
