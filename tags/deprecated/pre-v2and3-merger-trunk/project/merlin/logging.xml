@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<logging>
+
+    <factories>
+      <factory type="file" 
+          class="org.apache.avalon.logging.logkit.factory.FileTargetFactory"/>
+    </factories>
+
+    <targets>
+      <file id="standard">
+        <filename>logs/kernel.log</filename>
+        <append>true</append>
+        <rotation type="revolving" init="1" max="10">
+          <size>100k</size>
+        </rotation>
+      </file>
+    </targets>
+
+    <categories priority="info" target="standard">
+      <categories name="kernel">
+        <category name="logger" priority="warn"/>
+      </categories>
+    </categories>
+
+    <logger name="kernel.logger"/>
+
+</logging>
+

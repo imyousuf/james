@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="james-supplemental" default="install" basedir="." 
+    xmlns:x="antlib:org.apache.avalon.tools">
+
+  <property name="supplemental.bar" value="james-supplemental-1.0.bar"/>
+  <property name="mailapi.jar" value="javamail-1.3.1.jar"/>
+  <available property="mailet.etc.available" 
+      file="etc/deliverables/jars/${mailapi.jar}"/>
+
+  <x:home index="index.xml"/>
+  <import file="../standard.xml"/>
+
+  <target name="package" depends="info,verify,bar">
+  </target>
+
+  <target name="verify" depends="info" unless="mailet.etc.available">
+    <echo>
+#=====================================================================#
+# Connot proceed.                                                     #
+# Dependent resources have not been installed.                        #
+# Please see README.TXT for instructions.                             #
+#=====================================================================#
+    </echo>
+    <fail message="Missing resources."/>
+  </target>
+
+  <target name="bar" depends="info,prepare" if="mailet.etc.available">
+    <x:bar/>
+    <delete dir="target/deliverables/jars"/>
+    <delete dir="target/deliverables/licenses"/>
+  </target>
+
+</project>
+

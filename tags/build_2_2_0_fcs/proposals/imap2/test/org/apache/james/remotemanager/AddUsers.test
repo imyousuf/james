@@ -1,0 +1,9 @@
+# This is a comment line
+C: adduser user1 password
+S: User user1 added
+C: adduser user2 password
+S: User user2 added
+C: listusers
+S: Existing accounts 2
+S: user: user1
+S: user: user2

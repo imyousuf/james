@@ -1,0 +1,45 @@
+C: a1 CREATE statustest
+S: a1 OK CREATE completed
+
+# Tests for the STATUS command
+C: a001 STATUS statustest (MESSAGES)
+S: \* STATUS statustest \(MESSAGES 0\)
+S: a001 OK STATUS completed
+
+C: a001 STATUS statustest (  MESSAGES  )
+S: \* STATUS statustest \(MESSAGES 0\)
+S: a001 OK STATUS completed
+
+C: a001 STATUS statustest (MESSAGES RECENT UIDNEXT UIDVALIDITY UNSEEN)
+S: \* STATUS statustest \(MESSAGES 0 RECENT 0 UIDNEXT \d+ UIDVALIDITY \d+ UNSEEN 0\)
+S: a001 OK STATUS completed
+
+C: a001 STATUS statustest (UNSEEN RECENT )
+S: \* STATUS statustest \(RECENT 0 UNSEEN 0\)
+S: a001 OK STATUS completed
+
+C: A003 APPEND statustest {254+}
+C: Date: Mon, 7 Feb 1994 21:52:25 -0800 (PST)
+C: From: Fred Foobar <foobar@Blurdybloop.COM>
+C: Subject: Test 01
+C: To: mooch@owatagu.siam.edu
+C: Message-Id: <B27397-0100000@Blurdybloop.COM>
+C: MIME-Version: 1.0
+C: Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+C:
+C: Test 01
+C:
+S: A003 OK APPEND completed
+
+C: a001 STATUS statustest (UNSEEN RECENT )
+S: \* STATUS statustest \(RECENT 1 UNSEEN 1\)
+S: a001 OK STATUS completed
+
+# Make sure that the recent flag isn't unset
+C: a001 STATUS statustest (UNSEEN RECENT )
+S: \* STATUS statustest \(RECENT 1 UNSEEN 1\)
+S: a001 OK STATUS completed
+
+# Cleanup
+C: a1 DELETE statustest
+S: a1 OK DELETE completed

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="avalon-spring-bridge-library">
+  <description>Builds avalon-spring-bridge-library module. This is an library module.</description>
+  <property name="name.module" value="avalon-spring-bridge-library" />
+  <import file="../build-tools/library-build.xml" optional="no" />
+</project>

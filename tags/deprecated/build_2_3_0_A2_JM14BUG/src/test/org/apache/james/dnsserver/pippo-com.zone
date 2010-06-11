@@ -1,0 +1,12 @@
+pippo.com.		14440	IN	SOA	ns1.hyperdrivedns.net. admin.hyperdrivedns.com. 2004121207 14400 7200 3600000 86400
+pippo.com.		14400	IN	MX	0 pippo.com.inbound.mxlogic.net.
+pippo.com.		14400	IN	NS	ns1.hyperdrivedns.net.
+pippo.com.		14400	IN	A	204.11.236.232
+mail.pippo.com.		14400	IN	A	216.183.119.114
+hk.pippo.com.		14400	IN	A	204.11.236.232
+www.pippo.com.		14400	IN	CNAME	pippo.com.
+localhost.pippo.com.	14400	IN	A	127.0.0.1
+www.pluto.pippo.com.	14400	IN	A	204.11.236.232
+pluto.pippo.com.	14400	IN	A	204.11.236.232
+www.hk.pippo.com.	14400	IN	A	204.11.236.232
+ftp.pippo.com.		14400	IN	A	204.11.236.232

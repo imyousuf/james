@@ -1,0 +1,35 @@
+Manifest-Version: 1.0
+Created-By: Apache Avalon Project
+
+Name: org/apache/james/James.class
+Avalon-Block: true
+
+Name: org/apache/james/core/AvalonMailStore.class
+Avalon-Block: true
+
+Name: org/apache/james/core/AvalonUsersStore.class
+Avalon-Block: true
+
+Name: org/apache/james/nntpserver/NNTPServer.class
+Avalon-Block: true
+
+Name: org/apache/james/nntpserver/repository/NNTPRepositoryImpl.class
+Avalon-Block: true
+
+Name: org/apache/james/smtpserver/SMTPServer.class
+Avalon-Block: true
+
+Name: org/apache/james/pop3server/POP3Server.class
+Avalon-Block: true
+
+Name: org/apache/james/remotemanager/RemoteManager.class
+Avalon-Block: true
+
+Name: org/apache/james/dnsserver/DNSServer.class
+Avalon-Block: true
+
+Name: org/apache/james/transport/JamesSpoolManager.class
+Avalon-Block: true
+
+Name: org/apache/james/nntpserver/AuthServiceImpl.class
+Avalon-Block: true

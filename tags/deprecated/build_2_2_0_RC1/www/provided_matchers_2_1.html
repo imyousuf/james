@@ -1,0 +1,693 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Apache Jakarta James - James 2.1 - Provided Matchers - Java Mail and News server, SMTP POP3 NNTP</title>
+<meta content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
+<meta content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
+<meta content="ALL" name="ROBOTS">
+<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
+</head>
+<body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
+<table cellspacing="4" width="100%" border="0">
+<!--PAGE HEADER-->
+<tr>
+<td colspan="2">
+<!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james/images/james-logo.jpg"></a></td>
+</tr>
+<!--HEADER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<tr>
+<!--LEFT SIDE NAVIGATION-->
+<td nowrap="true" valign="top" width="20%">
+<p>
+<strong>James</strong>
+</p>
+<ul>
+<li>
+<a href="./index.html">Overview</a>
+</li>
+<li>
+<a href="./FAQ.html">James FAQ</a>
+</li>
+</ul>
+<p>
+<strong>Translated</strong>
+</p>
+<ul>
+<li>
+<a href="http://james.terra-intl.com/">Japanese (web)</a>
+</li>
+</ul>
+<p>
+<strong>Downloads</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/binindex.cgi">Binaries</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/sourceindex.cgi">Source Code</a>
+</li>
+</ul>
+<p>
+<strong>Current Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./documentation_2_1.html">James 2.1 Documentation</a>
+</li>
+<li>
+<a href="./javadocs/index.html">James Javadocs</a>
+</li>
+<li>
+<a href="./mailet/index.html">Mailet API</a>
+</li>
+<li>
+<a href="./james_and_sendmail.html">James and sendmail</a>
+</li>
+<li>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
+</ul>
+<p>
+<strong>Older Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./document_archive.html">James Document Archive</a>
+</li>
+</ul>
+<p>
+<strong>Project</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/bugs.html">Bug Database </a>
+</li>
+<li>
+<a href="./contribute.html">How Can I Contribute?</a>
+</li>
+<li>
+<a href="./code-standards.html">Coding Standards</a>
+</li>
+<li>
+<a href="./license.html">License</a>
+</li>
+<li>
+<a href="./todo.html">TODO</a>
+</li>
+<li>
+<a href="./changelog.html">Changelog</a>
+</li>
+<li>
+<a href="./weare.html">Who We Are</a>
+</li>
+</ul>
+<p>
+<strong>Jakarta Information (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Front Page</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/news.html">News &amp; Status</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/mail.html">Mailing Lists</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/getinvolved.html">Get Involved</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/cvsindex.html">CVS Repositories</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/library.html">Reference Library</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/faqs.html">FAQs</a>
+</li>
+</ul>
+<p>
+<strong>Related Projects (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Jakarta</a>
+</li>
+<li>
+<a href="http://ant.apache.org/index.html">Ant</a>
+</li>
+<li>
+<a href="http://avalon.apache.org/index.html">Avalon</a>
+</li>
+</ul>
+</td>
+<!--RIGHT SIDE MAIN BODY--><td align="left" valign="top" width="80%">
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Matchers"><strong>Matchers</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+
+<p>James provides a number of implemented Matchers for use by James administrators in their 
+configurations.  These are primarily matchers that members of the James developer or user 
+communities have found useful in their own configurations.  A description of how to configure 
+Matchers and use them in the James SpoolManager can be found <a href="spoolmanager_configuration_2_1.html">here</a>.</p>
+
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="All"><strong>All</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: This matcher is the trivial one - it matches all mails being processed.  All recipients are returned.</p>
+
+<p>Configuration string: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="AttachmentFileNameIs"><strong>AttachmentFileNameIs</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: It can be used to refuse emails with SCR, PIF, EXE etc. attachments.
+It matches mails that has a file attachment with a file name meeting one of the supplied filters.
+All recipients are returned.</p>
+
+<p>Configuration string: A comma or space delimited list of file names. 
+File names may start with a wildcard '*'. Example: *.scr,*.bat,*.pif,*.pi,*.com,*.exe</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="CommandForListserv"><strong>CommandForListserv</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: The CommandForListserv matcher is used as a simple filter to recognize emails that are list server 
+commands.  It will match any email addressed to the list server host, as well as any email that is addressed
+to a user named &lt;prefix&gt;-on or &lt;prefix&gt;-off on any host.  Only those matching recipients will be returned.</p>
+
+<p>Configuration string: An email address of the form &lt;prefix&gt;@&lt;host&gt;, where host is the hostname used for the listserver and prefix is the command prefix.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="FetchedFrom"><strong>FetchedFrom</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: A matcher intended for use with the FetchPOP server.  It matches a custom header (X-fetched-from) that is 
+set by the FetchPOP server.  FetchPOP sets this header to the name of the FetchPOP task which originally fetched
+the message.  All recipients are returned.</p>
+
+<p>Configuration string: The name of the FetchPOP task which originally fetched the message.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasAttachment"><strong>HasAttachment</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches those messages with a MIME type of "multipart/mixed".  All recipients are returned.</p>
+
+<p>Configuration string: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasHabeasWarrantMark"><strong>HasHabeasWarrantMark</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the Habeas Warrant (see http://www.habeas.com for details).  All recipients are returned.</p>
+
+<p>Configuration string: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasHeader"><strong>HasHeader</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified header.  All recipients are returned.</p>
+
+<p>Configuration string: The name of the header whose presence determines the match.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasMailAttribute"><strong>HasMailAttribute</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified Mail Attribute.  All 
+recipients are returned.</p>
+
+<p>Configuration string: The name of the Mail Attribute to match. For example:<br>
+
+<pre>
+<code>
+&lt;mailet match="HasMailAttribute=name" class="&lt;any-class&gt;"&gt;
+</code>
+</pre>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasMailAttributeWithValue"><strong>HasMailAttributeWithValue</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified Mail Attribute and the
+specified MailAttribute value. All recipients are returned.</p>
+
+<p>MailAttributes are types of Object whereas the value specified in the Matcher
+condition is of type String. The toString() method is used to obtain a String
+representation of the Mail Attribute value for matching. The 
+String.equals(String) method tests for a match.</p>
+
+<p>Configuration string: The name of the Mail Attribute to be matched,  a comma
+and then the String value to be matched. For example:<br>
+
+<pre>
+<code>
+&lt;mailet match="HasMailAttributeWithValue=name, value" class="&lt;any-class&gt;"&gt;
+</code>
+</pre>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HasMailAttributeWithValueRegex"><strong>HasMailAttributeWithValueRegex</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that have the specified Mail Attribute and 
+a MailAttribute value that matches the specified regular expression.
+All recipients are returned.</p>
+
+<p>MailAttributes are types of Object whereas the value specified in the Matcher
+condition is of type String. The toString() method is used to obtain a String
+representation of the Mail Attribute value for matching. The regular
+expression must follow Perl5 syntax.</p>
+
+<p>Configuration string: The name of the Mail Attribute to be matched,  a comma
+and then the regular expression used to match the value against. For example:<br>
+
+<pre>
+<code>
+&lt;mailet match="HasMailAttributeWithValueRegex=name, regex" class="&lt;any-class&gt;"&gt;
+</code>
+</pre>
+
+</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HostIs"><strong>HostIs</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that are sent to email addresses on hosts that are in the configuration list.  Only 
+recipients that are on one of the hosts are returned.</p>
+
+<p>Configuration string: A list of host names, comma or space delimited.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="HostIsLocal"><strong>HostIsLocal</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that are sent to email addresses on local hosts.  Only 
+recipients that are on one of the local hosts are returned.</p>
+
+<p>Configuration string: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="InSpammerBlacklist"><strong>InSpammerBlacklist</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Checks the mail against one of a number of mail-abuse.org IP lists.</p>
+
+<p>Configuration string: One of three strings - "blackholes.mail-abuse.org", "relays.mail-abuse.org", or "dialups.mail-abuse.org".</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="IsSingleRecipient"><strong>IsSingleRecipient</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches those messages sent to only a single recipient.  The single recipient is returned.</p>
+
+<p>Configuration string: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="NESSpamCheck"><strong>NESSpamCheck</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: A matcher derived from a Netscape Mail Server spam filter.  If the matcher detects headers that 
+indicate spam, the message is matched.  All recipients are returned.</p>
+
+<p>Configuration string: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="RecipientIs"><strong>RecipientIs</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that are sent to one of the recipients on a specified list.  Only 
+matching recipients are returned.</p>
+
+<p>Configuration string: A list of recipient addresses, comma, tab, or space delimited.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="RecipientIsLocal"><strong>RecipientIsLocal</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that are sent to email addresses on local hosts with users that have local acccunts.  Only 
+matching recipients are returned.</p>
+
+<p>Configuration string: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="RelayLimit"><strong>RelayLimit</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Counts the number of Received headers in the mail (each of which represents a server 
+in the relay chain).  If the number equals or exceeds the specified limit, the mail is 
+matched.  All recipients are returned.</p>
+
+<p>Configuration string: a positive integer that is the limit on the number of relays.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="RemoteAddrInNetwork"><strong>RemoteAddrInNetwork</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Checks the remote address from which the mail was received against the configured list.  If the address matches one on the list, the matcher considers it a match.  All recipients are returned.</p>
+
+<p>Configuration string: A list of domain names, IP addresses, or wildcarded IP subnets of any class.  The 
+list may be comma or space delimited.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="RemoteAddrNotInNetwork"><strong>RemoteAddrNotInNetwork</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Checks the remote address from which the mail was received against the configured list.  If the address doesn't match one on the list, the matcher considers it a match.  All recipients are returned.</p>
+
+<p>Configuration string: A list of domain names, IP addresses, or wildcarded IP subnets of any class.  The 
+list may be comma or space delimited.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="SenderInFakeDomain"><strong>SenderInFakeDomain</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails where the host name in the address of the sender cannot be resolved.  All 
+recipients are returned.</p>
+
+<p>Configuration string: None.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="SenderIs"><strong>SenderIs</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that are sent by one of the senders on a specified list.  All 
+recipients are returned.</p>
+
+<p>Configuration string: A list of sender addresses, comma, tab, or space delimited.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="SizeGreaterThan"><strong>SizeGreaterThan</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches emails with a total message size (headers and body) greater than the specified limit.  All recipients are returned.</p>
+
+<p>Configuration string: a positive integer followed by an 'm' or a 'k'.  This is the maximum message size permitted specified in megabytes or kilobytes respectively.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="SubjectIs"><strong>SubjectIs</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches emails with the specified subject.  All recipients are returned.</p>
+
+<p>Configuration string: The string against which mail subject headers are matched.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="SubjectStartsWith"><strong>SubjectStartsWith</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches emails whose subject header starts with the specified string.  All recipients are returned.</p>
+
+<p>Configuration string: The string against which mail subject headers are matched.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="UserIs"><strong>UserIs</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Description: Matches mails that are sent to email addresses that have userids that are in the configuration list.  Only 
+matching recipients are returned.</p>
+
+<p>Configuration string: A list of user names, comma or space delimited.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+</blockquote>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<!--FOOTER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<!--PAGE FOOTER-->
+<tr>
+<td colspan="2">
+<div align="center">
+<font size="-1" color="#525D76"><em>
+        Copyright &copy; 1999-2002, Apache Software Foundation
+        </em></font>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>

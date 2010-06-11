@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+  <services>
+    <service name="org.apache.avalon.framework.component.Component" version="1.0"/>
+  </services>
+
+  <dependencies>
+    <dependency>
+      <role>org.apache.james.services.MailStore</role>
+      <service name="org.apache.james.services.MailStore" version="1.0"/>
+    </dependency>
+    <dependency>
+      <role>org.apache.james.services.UsersStore</role>
+      <service name="org.apache.james.services.UsersStore" version="1.0"/>
+    </dependency>
+    <dependency>
+      <role>org.apache.avalon.cornerstone.services.connection.ConnectionManager</role>
+      <service name="org.apache.avalon.cornerstone.services.connection.ConnectionManager" 
+               version="1.0"/>
+    </dependency>
+    <dependency>
+      <role>org.apache.avalon.cornerstone.services.sockets.SocketManager</role>
+      <service name="org.apache.avalon.cornerstone.services.sockets.SocketManager" version="1.0"/>
+    </dependency>
+    <dependency>
+      <role>org.apache.avalon.cornerstone.services.scheduler.TimeScheduler</role>
+      <service name="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler" version="1.0"/>
+    </dependency> 
+    <dependency>
+      <role>org.apache.james.services.MailServer</role>
+      <service name="org.apache.james.services.MailServer" version="1.0"/>
+    </dependency> 
+  </dependencies>  
+</blockinfo>

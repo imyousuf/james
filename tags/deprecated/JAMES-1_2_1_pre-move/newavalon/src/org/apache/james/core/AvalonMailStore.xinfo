@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+
+  <meta>
+
+    <contributors>
+      <author name="Federico Barbier" email="fede@apache.org"/>
+    </contributors>
+
+  </meta>
+
+  <!-- services that are offered by this block -->
+  <services>
+    <service name="org.apache.james.services.MailStore" version="1.0" />
+  </services>
+
+  <dependencies>
+    <dependency>
+      <role>org.apache.avalon.services.Store</role>
+      <service name="org.apache.avalon.services.Store" version="1.0"/>
+    </dependency>
+  </dependencies>
+
+</blockinfo>

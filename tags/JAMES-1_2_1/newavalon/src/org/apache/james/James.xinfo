@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+
+  <meta>
+
+    <contributors>
+        <author name="Federico Barbieri" email="?"/>
+        <author name="Serge" email="?"/>
+        <author name="Charles Benett" email="charles@benett1.demon.co.uk"/>
+    </contributors>
+
+  </meta>
+
+  <!-- services that are offered by this block -->
+  <services>
+    <service name="org.apache.james.services.MailServer" version="1.0" />
+  </services>
+
+  <dependencies>
+
+    <dependency>
+      <role>org.apache.james.services.MailStore</role>
+      <service name="org.apache.james.services.MailStore" version="1.0"/>
+    </dependency>
+    <dependency>
+      <role>org.apache.james.services.UsersStore</role>
+      <service name="org.apache.james.services.UsersStore" version="1.0"/>
+    </dependency>
+<!--
+    <dependency>
+      <name>org.apache.avalon.services.Store</name>
+      <service name="org.apache.avalon.services.Store" version="1.0"/>
+    </dependency>
+-->
+    <dependency>
+      <role>org.apache.avalon.services.SocketServer</role>
+      <service name="org.apache.avalon.services.SocketServer" version="1.0"/>
+    </dependency>
+    <dependency>
+      <role>org.apache.avalon.services.Scheduler</role>
+      <service name="org.apache.avalon.services.Scheduler" version="1.0"/>
+    </dependency>
+  </dependencies>
+</blockinfo>

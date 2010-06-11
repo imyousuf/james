@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<title>Java Apache Mail Enterprise Server</title>
+</head>
+
+<body BGCOLOR="#FFFFFF">
+<!--
+<h2 align="center"><img SRC="images/java-apache-project.gif" BORDER="0" HEIGHT="100"
+WIDTH="609"></h2>
+-->
+<h3 align = left><a href="index.html">Up to Index</a></h3>
+<h1 align="center">Installation</h1>
+
+<h4 align="center">JAMES 1.2</h4>
+
+<h3>Installation</h3>
+<blockquote>
+  <p>Download distibution. You will find the last update in the java.apache.org download page.
+  Extract all files in your favorite folder.</p>
+</blockquote>
+
+<h3>Startup</h3>
+<blockquote>
+    <p>Microsoft Windows 95/98/NT/2k users should just run /bin/run.bat. Unix users will find run.sh
+    in the same folder (use chmod to make it executable). A JVM must be in the path.
+    The Loader will extract the configuration template from the jar (James.jar)
+    and place it under /conf/. Then will prompt you to fill the template with
+    needed values.
+<br>
+    Edit /conf/JAMES.conf.xml and fill it with needed configuration following
+    instructions inside. The configuration file is filled with defaults. Values
+    which cannot be set as default needs to be filled. Basically to make it work
+    just replace any FILL ME tag with the appropriate value.
+    The current distribution requires you to set only two values: the address of  (at least) one DNS server in the dnsserver configuration; and a password for access via RemoteManager, in the remotemanager section.
+<br> All other .conf files belongs to others Blocks that
+    cooperate with JAMES to make it work. They do not need specific configurations
+    since they are filled with defaults but a fast look may help.</p>
+
+    <p>Running [run* -help] will provide a simple command line help.
+    By default Avalon will use Xerces.jar as XML parser, place the log file
+    in /logs/ and uses as configuration file /conf/avalon.conf.xml.
+    You can override these defaults using run [options].</p>
+    <p>Most UNIX systems require superuser privileges to open sockets below
+    1024, which includes the IANA-standard SMTP (on port 25) and POP3
+    (on port 110). These default ports can be changed in the conf.xml file.
+    (Obviously, you would then need to reconfigure your clients. This may not
+     be an option if you want to receive mail from external mailservers.)</p>
+</blockquote>
+
+<h3>Kickstart</h3>
+<blockquote>
+    <p>Once started you'll see a message saying Avalon is running. This means Avalon
+    has loaded JAMES and every other needed Block (see /logs/avalon.log) and is
+    now waiting for a socket request.
+
+    At first run James will not have any local users set so it will only relay mail to remote servers.
+    To register a local user open a telnet session with localhost (assumming you have not changed the default servernames in the conf.xml file) on port 4555, log in
+    as root ("root[enter] <password-you-set-in-conf.xml>[enter]") and type "help" for a list of availale
+    command in the "JAMES remote administrator tool". It is really a basic set but
+    should allow you to test installation. An improved managing tool will be available as
+    soon as someone can help writing it :).
+
+    Once you have some local users registered try sending mail to one of them @localhost
+    with SMTP (port 25). You'll see the mail appear under ../var//mail/localinbox/[user] (or whatever you have specified for the inbox repository).
+    Try now to retrive that mail using POP3 (port 110).
+    Trace out JAMES actions in /logs/*info.log.
+    Action that will be taken by JAMES on incoming mail are configured in the mailet
+    pipe line (/conf/james.conf.xml). Look there if you want to understand what's happening.</p>
+
+</blockquote>
+<p>  Good luck :)
+<br> The Apache JAMES team</p>
+<h3 align = left><a href="index.html">Up to Index</a></h3>
+<p align="center"><font SIZE="-1">Copyright (c) 1997-2000 <a HREF="http://java.apache.org">The
+Java Apache Project</a>.<br>
+All rights reserved.</font></p>
+
+</body>
+</html>

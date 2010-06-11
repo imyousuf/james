@@ -1,0 +1,1 @@
+This differs from the original distributed jar because we removed the <schema> definition from the DefaultSocketFactory.xinfo

@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
+
+<project name='james-tools-build' default='usage'>
+     <description>
+Build utilities and builds for tools. Generation of new modules.
+     </description>
+    
+    <import file='../build-tools/common-build.xml' optional='no'/>
+    
+<!--
+Build macros
+-->
+    <macrodef name="CheckModuleGenerationEnvironment">
+        <attribute name='module-path'/>
+        <sequential>
+            <condition property='module.path.exists'>
+                <available file='@{module-path}'/>
+            </condition>
+            <fail if='module.path.exists'>@{module-path} already exists.</fail>
+            <echo>Creating module at @{module-path}</echo>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="GenerateBuildFile">
+        <attribute name='module-build-file'/>
+        <attribute name='module-type'/>
+        <attribute name='module-name'/>
+        <sequential>
+    <echoxml file='@{module-build-file}'>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.    
+-->
+
+<project name='@{module-name}' default='main'>
+<description>
+Builds @{module-name} module. This is an @{module-type} module.
+</description>
+<property name='name.module' value='@{module-name}'/>   
+<import file="../build-tools/@{module-type}-build.xml" optional='no'/>
+</project>
+    </echoxml>
+        </sequential>
+    </macrodef>
+    
+    <macrodef name="GenerateNotice">
+        <attribute name='notice-file'/>
+        <sequential>
+            <tstamp>
+                <format property='year.current' pattern='yyyy'/>
+            </tstamp>
+            <echo file='@{notice-file}'>
+=========================================================================
+==      NOTICE file for use with the Apache License, Version 2.0,      ==
+=========================================================================
+
+Apache JAMES 
+Copyright ${year.current} The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+            </echo>
+            <echo>
+The contents of NOTICE.txt may need appropriate editing to accurately
+reflect the contents of this module.
+            </echo>
+        </sequential>
+    </macrodef>
+    
+    <macrodef name="GenerateModule">
+        <attribute name='module-name'/>
+        <attribute name='module-type'/>
+        <attribute name='module-path' default='../@{module-name}'/>
+        <attribute name='module-build-file' default='@{module-path}/build.xml'/>
+        <sequential>
+            <CheckModuleGenerationEnvironment module-path="@{module-path}"/>
+            <mkdir dir='@{module-path}'/>
+            <mkdir dir='@{module-path}/${dir.src.java}'/>
+            <mkdir dir='@{module-path}/${dir.src.resources}'/>
+            <mkdir dir='@{module-path}/${dir.src.conf}'/>
+            <mkdir dir='@{module-path}/${dir.src.test}'/>
+            <mkdir dir='@{module-path}/${dir.src.test-resources}'/>
+            <mkdir dir='@{module-path}/${dir.src.test-conf}'/>   
+            <GenerateBuildFile 
+                module-build-file='@{module-build-file}' 
+                module-type='@{module-type}'
+                module-name='@{module-name}'/>
+            <copy todir='@{module-path}'>
+                <fileset dir='..'>
+                    <include name="${filename.license}"/>
+                </fileset>
+            </copy>
+            <GenerateNotice notice-file='@{module-path}/${filename.notice}'/>
+        </sequential>
+    </macrodef>
+    
+    <macrodef name="GenerateModuleOfType">
+        <attribute name='type'/>
+        <sequential>
+            <fail unless='MODULE'>Error: Required parameter is missing.
+Usage: 
+    ant -DMODULE=&lt;modulename&gt; generate-@{type}-module
+Where
+    &lt;modulename&gt; is the name of the new build to be generated
+            </fail>
+            <condition property='module.name.end_with_type'>
+                <matches string='${MODULE}' pattern='(.*)-@{type}'/>   
+            </condition>   
+            <fail if='module.name.end_with_type'>Error: Name includes type
+MODULE name ('${MODULE}') must not end with the module type (@{type})   
+            </fail>   
+            <GenerateModule module-type='@{type}' 
+                module-name="${MODULE}-@{type}"/>
+        </sequential>
+    </macrodef>
+    
+<!--
+User Targets
+-->
+    <target 
+        name='generate-api-module'
+        description='Generates API module outline.
+ Usage: ant -DMODULE=&lt;modulename&gt; generate-api-module.'>
+        <GenerateModuleOfType type='api'/>
+    </target>
+ 
+    <target 
+        name='generate-util-module'
+        description='Generates util module outline.
+ Usage: ant -DMODULE=&lt;modulename&gt; generate-util-module.'>
+        <GenerateModuleOfType type='util'/>
+    </target>
+    
+    <target 
+        name='generate-library-module'
+        description='Generates library module outline.
+Usage: ant -DMODULE=&lt;modulename&gt; generate-library-module.'>
+        <GenerateModuleOfType type='library'/>
+    </target> 
+    
+    <target 
+        name='generate-function-module'
+    description='Generates function module outline.
+Usage: ant -DMODULE=&lt;modulename&gt; generate-function-module.'>
+        <GenerateModuleOfType type='function'/>
+    </target>    
+ 
+    <target 
+        name='generate-deployment-module'
+    description='Generates deployment module outline.
+Usage: ant -DMODULE=&lt;modulename&gt; generate-deployment-module.'>
+        <GenerateModuleOfType type='deployment'/>
+    </target>     
+</project>

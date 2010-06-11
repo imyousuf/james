@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config xmlns:cnf="http://config.loader/" >
+	<mailboxmanager bean="true">
+		<torque-properties>
+			<property cardinality="0..n" factory="false">
+				<cnf:attr name="name" type="String" />
+				<cnf:attr name="value" type="String" />
+			</property>
+		</torque-properties>
+	</mailboxmanager>
+	<James bean="true">
+		<cnf:desc> CHECKME! This is the postmaster email address for this mail server. Set
+			this to the appropriate email address for error reports If this is set to a
+			non-local email address, the mail server will still function, but will generate
+			a warning on startup. </cnf:desc>
+		<postmaster>
+			<cnf:content type="String"/>
+		</postmaster>
+		<servernames>
+			<cnf:attr name="autodetect" type="Boolean"/>
+			<cnf:attr name="autodetectIP" type="Boolean"/>
+			<servername cardinality="1..n" keyPrefix="name">
+				<cnf:content type="String"/>
+			</servername>
+		</servernames>
+		<usernames>
+			<cnf:attr name="ignoreCase" type="Boolean"/>
+			<cnf:attr name="enableAliases" type="Boolean"/>
+			<cnf:attr name="enableForwarding" type="Boolean"/>
+		</usernames>
+	  <inboxRepository>
+         <repository>
+ 			<cnf:attr name="destinationURL" type="String"/>
+			<cnf:attr name="type" type="String"/>
+ 		</repository>	 
+      </inboxRepository>		
+	</James>
+	<spoolmanager bean="true">
+		<threads>
+			<cnf:content type="Integer"/>
+		</threads>
+		<processor cardinality="0..n">
+			<cnf:attr name="name" type="String"/>
+			<mailet cardinality="0..n">
+				<cnf:attr name="match" type="String"/>
+				<cnf:attr name="class" type="String"/>
+				<property cardinality="0..n" factory="false">
+					<cnf:attr name="name" type="String"/>
+					<cnf:attr name="value" type="String"/>
+				</property>
+				<processor required="false">
+					<cnf:content type="String"/>
+				</processor>
+				<notice required="false">
+					<cnf:content type="String"/>
+				</notice>
+			</mailet>
+			<!-- what to do with remote delivery mailet??? -->
+		</processor>
+	</spoolmanager>
+	<dnsserver bean="true">
+		<servers>
+			<server cardinality="0..n">127.0.0.1</server>
+		</servers>
+		<autodiscover>
+			<cnf:content type="Boolean"/>
+		</autodiscover>
+		<authoritative>
+			<cnf:content type="Boolean"/>
+		</authoritative>
+		<maxcachesize>
+			<cnf:content type="Integer"/>
+		</maxcachesize>
+	</dnsserver>
+	<bayesiananalyzermanagement bean="true">
+		<repositoryPath>
+			<cnf:content type="String"/>
+		</repositoryPath>
+	</bayesiananalyzermanagement>
+	<remotemanager bean="true">
+		<cnf:attr name="enabled" type="Boolean"/>
+		<port>
+			<cnf:content type="Integer"/>
+		</port>
+		<handler bean="true">
+			<helloName>
+				<cnf:attr name="autodetect" type="Boolean"/>
+			</helloName>
+			<administrator_accounts>
+				<account cardinality="1..n">
+					<cnf:attr name="login" type="String"/>
+					<cnf:attr name="password" type="String"/>
+				</account>	
+			</administrator_accounts>
+			<connectiontimeout>
+				<cnf:content type="String"/>
+			</connectiontimeout>
+		</handler>
+	</remotemanager>
+	<imapserver  bean="true">
+		<cnf:attr name="enabled" type="Boolean"/>
+		<port>
+			<cnf:content type="Integer"/>
+		</port>
+		<handler bean="true">
+			<streamdump>
+				<cnf:attr name="enabled" type="Boolean"/>
+				<cnf:attr directory="enabled" type="String"/>
+			</streamdump>
+		</handler>
+	</imapserver>
+	<pop3server bean="true">
+		<cnf:attr name="enabled" type="Boolean"/>
+		<port>
+			<cnf:content type="Integer"/>
+		</port>
+		<handler bean="true">
+			
+			<helloName>
+				<cnf:attr name="autodetect" type="Boolean"/>
+				<cnf:content type="String"/>
+			</helloName>
+			<connectiontimeout>
+				<cnf:content type="Integer"/>
+			</connectiontimeout>
+		</handler>
+	</pop3server>
+	
+	<smtpserver bean="true">
+		<cnf:attr name="enabled" type="Boolean"/>
+		<port>
+			<cnf:content type="Integer"/>
+		</port>
+		<handler bean="true">
+			<helloName>
+				<cnf:content type="String"/>
+			</helloName>
+			<connectiontimeout>
+				<cnf:content type="Integer"/>
+			</connectiontimeout>
+			<authorizedAddresses>
+				<cnf:content type="String"/>
+			</authorizedAddresses>
+			<maxmessagesize>
+				<cnf:content type="Integer"/>
+			</maxmessagesize>
+		</handler>
+	</smtpserver>
+	<nntpserver bean="true">
+		<cnf:attr name="enabled" type="Boolean"/>
+		<port>
+			<cnf:content type="Integer"/>
+		</port>
+		<handler bean="true">
+			<helloName>
+				<cnf:attr name="autodetect" type="Boolean"/>
+				<cnf:content type="String"/>
+			</helloName>
+			<connectiontimeout>
+				<cnf:content type="Integer"/>
+			</connectiontimeout>
+			<authRequired>
+				<cnf:content type="Boolean"/>
+			</authRequired>
+		</handler>
+	</nntpserver>
+	
+	<nntp-repository bean="true">
+		<!-- If this is set to true, posting will be disallowed. -->
+		<readOnly>
+			<cnf:content type="Boolean"/>
+		</readOnly>
+		
+		<rootPath>
+			<cnf:content type="String" />
+		</rootPath>
+		<tempPath>
+			<cnf:content type="String" />
+		</tempPath>
+		<articleIDPath>
+			<cnf:content type="String" />
+		</articleIDPath>
+		<articleIDDomainSuffix>
+			<cnf:content type="String" />
+		</articleIDDomainSuffix>
+		<newsgroups>
+			<newsgroup cardinality="0..n" keyPrefix="name">
+				<cnf:content type="String"/>
+			</newsgroup>
+		</newsgroups>
+		<spool bean="true">
+			<configuration>
+				<spoolPath>
+					<cnf:content type="String"/>
+				</spoolPath>
+				<threadCount>
+					<cnf:content type="Integer"/>
+				</threadCount>
+				<threadIdleTime>
+					<cnf:content type="Integer"/>
+				</threadIdleTime>
+			</configuration>
+		</spool>
+	</nntp-repository>
+	<spoolrepository  bean="true">
+		<cnf:attr name="destinationURL" type="String" />
+		<cnf:attr name="type" type="String" />
+	</spoolrepository>>
+	<mailstore bean="true">
+		<repositories>
+			<repository cardinality="0..n">
+				<cnf:attr name="class" type="String"/>
+				<protocols>
+					<protocol cardinality="1..n" keyPrefix="name">
+						<cnf:content type="String"/>
+					</protocol>
+				</protocols>
+				<types>
+					<type cardinality="1..n" keyPrefix="name">
+						<cnf:content type="String"/>
+					</type>
+				</types>
+				<models required="false">
+					<model cardinality="0..n" keyPrefix="name">
+						<cnf:content type="String"/>
+					</model>
+				</models>
+				<properties required="false">
+					<property cardinality="0..n" factory="false">
+						<cnf:attr name="name" type="String"/>
+						<cnf:attr name="value" type="String"/>
+					</property>
+				</properties>	
+			</repository>
+		</repositories>
+	</mailstore>
+	<users-store bean="true">
+		<repository>
+			<cnf:attr name="name" type="String"/>
+			<cnf:attr name="class" type="String"/>
+			<cnf:attr name="destinationURL" type="String"/>
+			<sqlFile><cnf:content type="String"/></sqlFile>  
+		</repository>
+	</users-store>
+	<database-connections bean="true">
+		<data-source>
+			<cnf:attr name="name" type="String"/>
+			<cnf:attr name="class" type="String"/>
+			<driver>
+				<cnf:content type="String"/>
+			</driver>
+			<dburl>
+				<cnf:content type="String"/>
+			</dburl>
+			<user>
+				<cnf:content type="String"/>
+			</user>
+			<password>
+				<cnf:content type="String"/>
+			</password>
+			<poolPreparedStatements>
+				<cnf:content type="Boolan"/>
+			</poolPreparedStatements>
+			<max>
+				<cnf:content type="Integer"/>
+			</max>
+		</data-source>
+	</database-connections>
+	<connections  bean="true">
+		<idle-timeout>
+			<cnf:content type="Integer"/>
+		</idle-timeout>
+		<max-connections>
+			<cnf:content type="Integer"/>
+		</max-connections>
+	</connections>
+	<sockets bean="true">
+		<server-sockets>
+			<factory>
+				<cnf:attr name="name" type="String"/>
+				<cnf:attr name="class" type="String"/>
+			</factory>
+		</server-sockets>
+		<client-sockets>
+			<factory>
+				<cnf:attr name="name" type="String"/>
+				<cnf:attr name="class" type="String"/>
+			</factory>
+		</client-sockets>
+	</sockets>
+	<thread-manager bean="true">
+		<thread-group>
+			<name>
+				<cnf:content type="String"/>
+			</name>
+			<priority>
+				<cnf:content type="Integer"/>
+			</priority>
+			<is-daemon>
+				<cnf:content type="Boolean"/>
+			</is-daemon>
+			<max-threads>
+				<cnf:content type="Integer"/>
+			</max-threads>
+			<min-threads>
+				<cnf:content type="Integer"/>
+			</min-threads>
+			<min-spare-threads>
+				<cnf:content type="Integer"/>
+			</min-spare-threads>
+		</thread-group>
+	</thread-manager>
+</config>
+

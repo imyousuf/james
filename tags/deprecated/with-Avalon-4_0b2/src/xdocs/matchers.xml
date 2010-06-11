@@ -1,0 +1,253 @@
+<?xml version="1.0"?>
+
+<document>
+
+ <properties>
+  <title>James 1.2.1 - Matchers</title>
+  <author email="sergek@lokitech.com">Serge Knystautas</author>
+ </properties>
+
+<body>
+
+<section name="Matchers">
+
+  <p>
+  Several matchers are included with James 1.2.1, they are described below.
+  </p>
+</section>
+
+<section name="All">
+
+  <p>
+    <b>Universal match</b>
+    Matches all recipients of all mails reaching it.
+  </p>
+  <p>
+    Condition:
+    <br>
+      none
+    </br>
+  </p>
+</section>
+
+<section name="CommandForListserv">
+
+  <p>
+    <b>Intercept commands for Listserv Manager</b>
+    Matches the on and off version of the address specified.
+    <br>
+      For instance, if the match was specified as
+      CommandForListserv=james@list.working-dogs.com, then this match would
+      match james-on@list.working-dogs.com and james-off@list.working-dogs.com.
+    </br>
+    <br>
+      Useful to channel listserv commands to a different mailet.
+    </br>
+  </p>
+  <p>
+    Condition:
+    <br>
+     listserv address to use as base.
+    </br>
+  </p>
+</section>
+ 
+<section name="HostIs">
+
+  <p>
+    <b>Match by Recipient Host</b>
+      Matches recipients where the domain of the recipient's email address
+      matches the host specified in the condition.
+    <br>
+      This is a string comparison and does not check DNS information.
+    </br>
+  </p>
+  <p>
+    Condition:
+    <br>
+      the hostname to compare to the recipient's  domain name.
+    </br>
+  </p>
+</section>
+
+<section name="HostIsLocal">
+
+  <p>
+    <b>Match by Recipient Host</b>
+      Matches recipients where the domain of the recipient's email
+      address matches one of the hosts handled by this server.
+  </p>
+  <p>
+    Condition:
+    <br>
+      none
+    </br>
+  </p>
+</section>
+
+<section name="RecipientIs">
+
+  <p>
+    <b>Match by Recipient</b>
+      Matches recipients where the domain of  the recipient's email address
+      matches the host specified in the condition.
+  </p>
+  <p>
+    Condition:
+    <br>
+       a comma or space delimited list of email addresses.
+    </br>
+  </p>
+</section>
+
+<section name="RecipientIsLocal">
+
+  <p>
+    <b>Match by Recipient User and Host</b>
+    Matches the recipient's domain against the hosts handled by this server
+    and the recipient's user against the user accounts of this server.
+  </p>
+  <p>
+    Condition:
+    <br>
+      none
+    </br>
+  </p>
+</section>
+
+<section name="RelayLimit">
+
+  <p>
+    <b>Match by Hops</b>
+      Matches mail is it has been relayed more than the number
+      specified in the condition.
+    <br>
+     Determines number of hops by counting the number of Received
+     headers in the message. 
+    </br>
+  </p>
+  <p>
+    Condition:
+    <br>
+       the number of hops at which this message should start matching.
+    </br>
+  </p>
+</section>
+
+<section name="RemoteInNetwork">
+
+  <p>
+    <b>Match by SMTP Sender</b>
+      Matches mail if the IP address of the sending machine
+      is in one of the networks specified in the condition.
+  </p>
+  <p>
+    Condition:
+    <br>
+      a comma or space delimited list of IP addresses and networks. 
+      Networks are specified by leaving off the appropriate subnet mask as is
+      done in /etc/hosts.allow and /etc/hosts.deny in unix,
+      e.g., 38.177.223.
+    </br>
+  </p>
+</section>
+
+<section name="RemoteNotInNetwork">
+
+  <p>
+    <b>Match by SMTP Sender</b>
+    Matches mail if the IP address of the sending machine
+    is not in one of the networks specified in the condition.
+  </p>
+  <p>
+    Condition:
+    <br>
+      a comma or space delimited list of IP addresses and networks. 
+      Networks are specified by leaving off the appropriate subnet mask as is
+      done in /etc/hosts.allow and /etc/hosts.deny in unix,
+      e.g., 38.177.223.
+    </br>
+  </p>
+</section>
+
+<section name="SenderInFakeDomain">
+
+  <p>
+    <b>Verify Sender's Domain</b>
+      Does a DNS lookup for MX, A or CNAME record on the sending email
+      address's domain part. If no DNS records are found, the mail is matche d.
+     (useful for blocking mail with forged email addresses.)
+  </p>
+  <p>
+    Condition:
+    <br>
+      none
+    </br>
+  </p>
+</section>
+
+<section name="SenderIs">
+
+  <p>
+    <b>Match by Sender</b>
+      Matches mail if sender is one of the email addresses
+      specified in the condition.
+  </p>
+  <p>
+    Condition:
+    <br>
+       a comma or space delimited list of email addresses.
+    </br>
+  </p>
+</section>
+
+
+<section name="SubjectIs">
+
+  <p>
+    <b>Match by Subject</b>
+      Matches mail if the subject is the same as the one specified
+      in the condition.
+  </p>
+  <p>
+    Condition:
+    <br>
+       a subject to match.
+    </br>
+  </p>
+</section>
+
+
+<section name="SubjectStartsWith">
+
+  <p>
+    <b>Match by Subject</b>
+      Matches mail if the subject starts with the one specified
+      in the condition.
+  </p>
+  <p>
+    Condition:
+    <br>
+       a subject fragment to match.
+    </br>
+  </p>
+</section>
+
+<section name="UserIs">
+
+  <p>
+    <b>Match by Recipient</b>
+     Matches mail if the user part of a recipient's email address matches one 
+     of the users specified in the condition.  The user portion of an email
+     address is the part before the  @ symbol.
+  </p>
+  <p>
+    Condition:
+    <br>
+       a comma or space delimited list of users.
+    </br>
+  </p>
+</section>
+
+</body>
+</document>

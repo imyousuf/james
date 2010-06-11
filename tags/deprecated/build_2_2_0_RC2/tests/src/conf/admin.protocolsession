@@ -1,0 +1,25 @@
+# Remote Admin.
+# create users.
+#
+# first remote admin sends a greeting.
+S: JAMES Remote.*
+S: Please enter your login and password
+S: Login id:.*
+C: root
+S: Password:.*
+C: root
+S: Welcome root.*
+C: adduser test test
+S: User test added.*
+# try to add user test again
+C: adduser test test
+S: User test already exists
+S: Error.*
+C: adduser test1 test1
+S: User test1 added.*
+C: adduser test2 test2
+S: User test2 added.*
+C: adduser test3 test3
+S: User test3 added.*
+C: quit
+S: Bye

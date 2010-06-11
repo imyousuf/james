@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE todo SYSTEM "./dtd/todo-v10.dtd">
+
+<todo title="JAMES Things To Do">
+ <devs>
+    <person name="Federico Barbieri" email="scoobie@systemy.it" id="FB"/>
+    <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
+ </devs>
+
+ <actions priority="high">
+  <action context="design">
+    Beta test interface and implementation of MailServlet.
+  </action>
+  <action context="code">
+    Improve exception management in RemoteDerivery Servlet.
+  </action>
+  <action context="code">
+    Add more match class to allow fine tuning of mail servlet processor pipe.
+  </action>
+ </actions>
+ 
+ <actions priority="medium">
+  <action context="code">
+    Add full support of "TOP" command in POP3Handler.
+  </action>
+  <action context="code">
+    Improve matching syntax in JamesSpoolManager (Maybe split in a different class).
+  </action>
+  <action context="code">
+    Add needed functions to RemoteManager.
+  </action>
+  <action context="docs">
+   Write all documentation.
+  </action>
+ </actions>
+ 
+</todo>

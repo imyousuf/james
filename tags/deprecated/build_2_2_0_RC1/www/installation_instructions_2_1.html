@@ -1,0 +1,350 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Apache Jakarta James - James 2.1 - Installation - Java Mail and News server, SMTP POP3 NNTP</title>
+<meta content="mail,email,SMTP,POP3,NNTP,IMAP,MAILET,JAVA,WINDOWS,LINUX,server,Windows,2k,NT,98,ME,XP,Linux." name="keywords">
+<meta content="Java mail server (mailserver) providing SMTP POP3 IMAP and News NNTP runs on Microsoft Windows 2k,NT,98,ME,XP, and most flavours of Linux." name="description">
+<meta content="ALL" name="ROBOTS">
+<LINK TITLE="Style" HREF="stylesheet.css" TYPE="text/css" REL="stylesheet">
+</head>
+<body vlink="#525D76" alink="#525D76" link="#525D76" text="#000000" bgcolor="#ffffff">
+<table cellspacing="4" width="100%" border="0">
+<!--PAGE HEADER-->
+<tr>
+<td colspan="2">
+<!--JAKARTA LOGO--><a href="http://jakarta.apache.org/"><img border="0" alt="The Jakarta Project" align="left" src="http://jakarta.apache.org/images/jakarta-logo.gif"></a>
+<!--PROJECT LOGO--><a href="http://jakarta.apache.org/james"><img border="0" alt="James - Java Apache Mail Enterprise Server" align="right" src="http://jakarta.apache.org/james/images/james-logo.jpg"></a></td>
+</tr>
+<!--HEADER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<tr>
+<!--LEFT SIDE NAVIGATION-->
+<td nowrap="true" valign="top" width="20%">
+<p>
+<strong>James</strong>
+</p>
+<ul>
+<li>
+<a href="./index.html">Overview</a>
+</li>
+<li>
+<a href="./FAQ.html">James FAQ</a>
+</li>
+</ul>
+<p>
+<strong>Translated</strong>
+</p>
+<ul>
+<li>
+<a href="http://james.terra-intl.com/">Japanese (web)</a>
+</li>
+</ul>
+<p>
+<strong>Downloads</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/binindex.cgi">Binaries</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/sourceindex.cgi">Source Code</a>
+</li>
+</ul>
+<p>
+<strong>Current Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./documentation_2_1.html">James 2.1 Documentation</a>
+</li>
+<li>
+<a href="./javadocs/index.html">James Javadocs</a>
+</li>
+<li>
+<a href="./mailet/index.html">Mailet API</a>
+</li>
+<li>
+<a href="./james_and_sendmail.html">James and sendmail</a>
+</li>
+<li>
+<a href="./rfclist.html">Useful RFCs</a>
+</li>
+</ul>
+<p>
+<strong>Older Documentation</strong>
+</p>
+<ul>
+<li>
+<a href="./document_archive.html">James Document Archive</a>
+</li>
+</ul>
+<p>
+<strong>Project</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/site/bugs.html">Bug Database </a>
+</li>
+<li>
+<a href="./contribute.html">How Can I Contribute?</a>
+</li>
+<li>
+<a href="./code-standards.html">Coding Standards</a>
+</li>
+<li>
+<a href="./license.html">License</a>
+</li>
+<li>
+<a href="./todo.html">TODO</a>
+</li>
+<li>
+<a href="./changelog.html">Changelog</a>
+</li>
+<li>
+<a href="./weare.html">Who We Are</a>
+</li>
+</ul>
+<p>
+<strong>Jakarta Information (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Front Page</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/news.html">News &amp; Status</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/mail.html">Mailing Lists</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/getinvolved.html">Get Involved</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/cvsindex.html">CVS Repositories</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/library.html">Reference Library</a>
+</li>
+<li>
+<a href="http://jakarta.apache.org/site/faqs.html">FAQs</a>
+</li>
+</ul>
+<p>
+<strong>Related Projects (web)</strong>
+</p>
+<ul>
+<li>
+<a href="http://jakarta.apache.org/index.html">Jakarta</a>
+</li>
+<li>
+<a href="http://ant.apache.org/index.html">Ant</a>
+</li>
+<li>
+<a href="http://avalon.apache.org/index.html">Avalon</a>
+</li>
+</ul>
+</td>
+<!--RIGHT SIDE MAIN BODY--><td align="left" valign="top" width="80%">
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Requirements"><strong>Requirements</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>James requires a Java Runtime Environment of Java version 1.3 or higher installed to run the 
+James application.  The exact JREs available depend on the platform.  A JRE must be downloaded and
+installed before James can run.  In addition, the environment variable JAVA_HOME must be set to
+the JRE home directory before running James.</p>
+
+<p>
+
+<strong>Warning!</strong> - Issues have been observed when using Sun's Java 1.3.0 on older Linux 
+distributions.  It is recommended that users of these platforms run James using a more recent 
+Sun JRE or a JRE produced by an alternate vendor.
+</p>
+
+<p>
+On Unix platforms, root access will be required to run James.  On these platforms, access to ports 
+below 1024 is generally restricted to the root user.  As SMTP, POP3, and NNTP all need to open 
+server sockets on such ports in standard configurations, James requires root access.
+</p>
+
+<p>
+Obviously James also requires sufficient disk space, processor power, and network bandwidth.  But, 
+other than what's been discussed here, it has no additional special requirements.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Installation%20Comments"><strong>Installation Comments</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>James installation involves a number of steps, each of which is described in some detail in the 
+following sections.  But as this sequence of steps has confused some users in the past, additional 
+comments seem warranted.</p>
+
+<p>It is important to realize that the James configuration files are not unpacked from the James 
+distribution until the first time James is started.  This is a consequence of the design of the 
+Avalon Phoenix container used to run James.  Once James has been started, the distribution will 
+be unpacked.  The server should be stopped, the configuration files edited, and the server restarted.</p>
+
+<p>So the installation sequence is: <b>1) Start, 2) Stop, 3) Edit, 4) Restart</b>.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Installing%20the%20Binary"><strong>Installing the Binary</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Installing%20a%20Stand-alone%20James%20Server"><strong>Installing a Stand-alone James Server</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Obtain the full James binary distribution from the <a href="http://jakarta.apache.org/builds/jakarta-james/">James 
+download directory</a>.  It can be found in the bin subdirectory of the distribution directory for the particular 
+build you are downloading.  Unpack the archive into your James installation directory.  Go to the bin subdirectory of the 
+installation directory and run the "run" script (either run.sh or run.bat, depending on your platform).  The configuration
+file is now unpacked and available for editing.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#828DA6"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Deploying%20a%20James%20Server%20in%20a%20Pre-Existing%20Phoenix%20Container"><strong>Deploying a James Server in a Pre-Existing Phoenix Container</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>
+<strong>Warning!</strong> - James requires Phoenix version 4.0.x to run.  There is a known issue with logging in Phoenix 4.0, so version 
+4.0.1 or higher is strongly recommended.  Before attempting to deploy James in a Phoenix container, please make sure
+it meets these version criteria.</p>
+
+<p>Deploying James in Phoenix is fairly easy.  Obtain the james.sar file from the 
+<a href="http://jakarta.apache.org/builds/jakarta-james/">James download directory</a>.  It can be found in the bin 
+subdirectory of the distribution directory for the particular build you are downloading.  After downloading the james.sar,
+simply place it in the apps subdirectory of your Phoenix installation.  Restart Phoenix, and the james.sar should unpack and you
+will be ready to configure your James installation.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Initial%20Configuration"><strong>Initial Configuration</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>
+After installing the binary, the next step is to adjust the initial configuration.  The server should be stopped, and then 
+configuration can proceed.  The most essential configuration is set in the config.xml file.  This file can be 
+found in the apps/james/SAR-INF subdirectory of the installation directory.</p>
+
+<p>The out of the box configuration makes certain assumptions and has some default values that are unlikely to 
+be appropriate for real-world servers.  There are a few issues that should be addressed immediately upon installation:
+</p>
+
+<ul>
+
+<li>RemoteManager Administrator Account - Before the RemoteManager service can be used to add users to this server 
+installation an administrator account must be created.  More information can be found <a href="remotemanager_configuration_2_1.html">here</a>.</li>
+
+<li>DNS Servers - James needs to have access to a DNS server for domain resolution.  The out of the box 
+configuration assumes that there is a DNS server on localhost.  In general administrators will have to change 
+the configuration to point to a valid DNS server.  This can be done by adjusting the dnsserver configuration 
+block in the config.xml.  More information can be found <a href="serverwide_configuration_2_1.html">here</a>.</li>
+
+<li>Managed Domain Names/IP Addresses - Out of the box, James only handles mail that is sent to recipients at 
+localhost.  It will attempt to deliver all other email to remote SMTP servers.  To allow James to handle email 
+for your domain or IP address, you simply need to add the appropriate domain name or IP address to the servernames 
+section of the config.xml.  More information can be found <a href="serverwide_configuration_2_1.html">here</a>.</li>
+
+<li>Postmaster Address - More information can be found <a href="serverwide_configuration_2_1.html">here</a>.</li>
+
+</ul>
+
+<p>In addition to adjusting these parameters, you may wish to consult the documentation for a discussion of
+common configurations.  A list of such configurations, as well as the steps necessary to configure them, can
+be found <a href="documentation_2_1.html">here</a>.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+<tr>
+<td bgcolor="#525D76"><font face="arial,helvetica.sanserif" color="#ffffff"><a name="Starting%20James%20with%20Your%20Configuration"><strong>Starting James with Your Configuration</strong></a></font></td>
+</tr>
+<tr>
+<td>
+<blockquote>
+
+<p>Once you have edited the configuration file you will need to restart James so that the changes take 
+effect.  When James starts, a list of the James services and the ports on which they are listening should 
+be displayed on the console.  Additional information about the system configuration is printed in the James log files 
+upon startup.</p>
+
+<p>Finally, after configuration is complete, it will be necessary to create user accounts before the James server 
+will be fully operational.  Instructions on creating user accounts can be found 
+<a href="adding_users_2_1.html">here</a>.</p>
+
+</blockquote>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<!--FOOTER SEPARATOR-->
+<tr>
+<td colspan="2">
+<hr size="1" noshade="">
+</td>
+</tr>
+<!--PAGE FOOTER-->
+<tr>
+<td colspan="2">
+<div align="center">
+<font size="-1" color="#525D76"><em>
+        Copyright &copy; 1999-2002, Apache Software Foundation
+        </em></font>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>

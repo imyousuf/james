@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<index>
+
+  <!-- <import index="avalon-runtime-3.3.0.xml"/> -->
+  <import href="http://svn.apache.org/repos/asf/avalon/trunk/planet/cornerstone/index.xml"/>
+
+  <resource>
+    <info>
+      <name>oro</name>
+      <group>oro</group>
+      <version>2.0.6</version>
+    </info>
+    <gump>
+      <alias>jakarta-oro</alias>
+      <id>oro</id>
+    </gump>
+  </resource>
+
+  <resource>
+    <info>
+      <group>commons-net</group>
+      <name>commons-net</name>
+      <version>1.2.1</version>
+    </info>
+  </resource>
+
+  <resource>
+    <info>
+      <group>commons-dbcp</group>
+      <name>commons-dbcp</name>
+      <version>1.2</version>
+      <type>jar</type>
+    </info>
+  </resource>
+
+  <resource>
+    <info>
+      <group>commons-pool</group>
+      <name>commons-pool</name>
+      <version>1.1</version>
+      <type>jar</type>
+    </info>
+  </resource>
+
+  <resource>
+    <info>
+      <name>dnsjava</name>
+      <group>dnsjava</group>
+      <version>1.4.3</version>
+    </info>
+  </resource>
+
+  <resource>
+    <info>
+      <group>james</group>
+      <name>activation</name>
+      <version>1.0.2</version>
+      <type>jar</type>
+    </info>
+    <gump>
+      <alias>jaf</alias>
+    </gump>
+  </resource>
+
+  <resource>
+    <info>
+      <group>james</group>
+      <name>javamail</name>
+      <version>1.3.1</version>
+      <type>jar</type>
+    </info>
+    <gump>
+      <id>javamail</id>
+    </gump>
+  </resource>
+
+  <resource>
+    <info>
+      <group>bouncycastle</group>
+      <name>bcmail</name>
+      <version>jdk13-124</version>
+      <type>jar</type>
+    </info>
+  </resource>
+
+  <resource>
+    <info>
+      <group>bouncycastle</group>
+      <name>bcprov</name>
+      <version>jdk13-124</version>
+      <type>jar</type>
+    </info>
+  </resource>
+
+  <resource>
+    <info>
+      <group>bouncycastle</group>
+      <name>jce</name>
+      <version>jdk13-124</version>
+      <type>jar</type>
+    </info>
+  </resource>
+
+  <project basedir="..">
+    <info>
+      <group>james</group>
+      <name>james-server</name>
+      <version>3.0</version>
+      <status>SNAPSHOT</status>
+    </info>
+    <dependencies>
+      <include key="avalon-framework-api"/>
+      <include key="avalon-framework-impl"/>
+      <include key="excalibur-datasource"/>
+      <include key="cornerstone-threads-api"/>
+      <include key="cornerstone-connection-api"/>
+      <include key="cornerstone-connection-impl"/>
+      <include key="cornerstone-threads-api"/>
+      <include key="cornerstone-datasources-api"/>
+      <include key="cornerstone-scheduler-api"/>
+      <include key="cornerstone-store-api"/>
+      <include key="commons-collections"/>
+      <include key="commons-net"/>
+      <include key="commons-dbcp"/>
+      <include key="commons-pool"/>
+      <include key="oro"/>
+      <!--<include key="town"/>--> <!-- no repo download? -->
+      <include key="dnsjava"/>
+      <include key="javamail"/>
+      <include key="activation"/>
+      <include key="bcmail"/>
+      <include key="bcprov"/>
+      <include key="jce"/>
+    </dependencies>
+    <plugins>
+      <include key="avalon-meta-tools"/>
+    </plugins>
+  </project>
+
+</index>

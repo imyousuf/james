@@ -1,0 +1,108 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.guiceyfruit</groupId>
+    <artifactId>parent</artifactId>
+    <version>2.0</version>
+  </parent>
+  <artifactId>guiceyfruit-core</artifactId>
+  <packaging>bundle</packaging>
+  <name>GuiceyFruit :: Core</name>
+
+  <properties>
+    <guiceyfruit.osgi.export.pkg>
+      org.guiceyfruit.*
+    </guiceyfruit.osgi.export.pkg>
+    <guiceyfruit.osgi.import>
+      javax.naming;resolution:=optional,
+      javax.naming.spi;resolution:=optional,
+      *
+    </guiceyfruit.osgi.import>
+  </properties>
+  <repositories>
+    <repository>
+      <id>guiceyfruit.release</id>
+      <name>GuiceyFruit Release Repository</name>
+      <url>http://guiceyfruit.googlecode.com/svn/repo/releases/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
+    <repository>
+      <id>com.springsource.repository.bundles.external</id>
+      <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+      <url>http://repository.springsource.com/maven/bundles/external</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>${groupId}</groupId>
+      <artifactId>guice-all</artifactId>
+      <version>${guice-version}</version>
+    </dependency>
+    <!-- OSGi bundles of Guice dependencies -->
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>com.springsource.javax.annotation</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.aopalliance</groupId>
+      <artifactId>com.springsource.org.aopalliance</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <!--
+        <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
+        </dependency>
+    -->
+    <!-- switch to the real google collections distro when its OSGi-ified -->
+<!--
+    <dependency>
+      <groupId>com.google.collect</groupId>
+      <artifactId>com.springsource.com.google.common.collect</artifactId>
+      <version>0.8.0.20080820</version>
+    </dependency>
+-->
+
+    <!-- testing -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <!--
+              I think this is by design see the issue
+              http://code.google.com/p/guiceyfruit/issues/detail?id=4
+            -->
+            <exclude>**/ResourceWithParentInjectorTest.*</exclude>
+
+            <!--
+              This is not yet supported but would be an interesting approach
+              -->
+            <exclude>**/InjectionPointInjectTest.*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

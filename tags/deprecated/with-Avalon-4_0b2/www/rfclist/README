@@ -1,0 +1,25 @@
+This Document contains references to relevant RFCs and Drafts.
+
+Basic RFC
+---------
+RFC 822: Mail Message Format
+
+SMTP
+----
+
+POP3
+----
+
+IMAP
+----
+
+NNTP
+----
+RFC 977 : NNTP Protocol.
+draft-ietf-nntpext-base-13.txt: Latest draft of NNTP protocol
+RFC 2980: Common NNTP Extensions
+RFC 1036: Format of News Messages
+NNTP Working group: http://www.academ.com/academ/nntp/
+
+LDAP
+----

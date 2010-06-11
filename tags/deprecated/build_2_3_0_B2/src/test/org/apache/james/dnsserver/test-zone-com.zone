@@ -1,0 +1,5 @@
+test-zone.com.		14440	IN	SOA	ns1.hyperdrivedns.net. admin.hyperdrivedns.com. 2004121207 14400 7200 3600000 86400
+test-zone.com.		14400	IN	CNAME	alt.test-zone.com.
+alt.test-zone.com.	14400	IN	MX	10	mail.test-zone.com.
+test-zone.com.		14400	IN	NS	ns1.hyperdrivedns.net.
+mail.test-zone.com.	14400	IN	A	201.202.203.204

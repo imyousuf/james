@@ -1,0 +1,9 @@
+# Change the URL and username/password to match your configuration
+# This driver is available for free at http://www.worldserver.com/mm.mysql/
+# This only requires the JDBC 1.12 compatible driver
+jdbcDriver=org.gjt.mm.mysql.Driver
+jdbcURL=jdbc:mysql://myhost.domain.com/MyDatabase
+jdbcUsername=root
+jdbcPassword=mypassword
+minconn=1
+maxconn=2

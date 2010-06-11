@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+kernel.xml
+-->
+
+<kernel>
+
+  <repository>
+    <hosts>
+      <host path="http://www.dpml.net/"/>
+      <host path="http://www.ibiblio.org/maven/"/>
+    </hosts>
+  </repository>
+
+  <container>
+
+    <include name="james" artifact="block:james/james-server#SNAPSHOT">
+
+      <!--
+      =================================================================================
+      the remaining should work out of the box
+      =================================================================================
+      -->
+
+      <target path="connections">
+        <configuration>
+          <idle-timeout>300000</idle-timeout>
+          <max-connections>30</max-connections>
+        </configuration>
+      </target>
+
+      <target path="store/manager">
+        <configuration>
+          <repositories>
+            <repository
+  class="org.apache.james.mailrepository.filepair.File_Persistent_Object_Repository"> 
+              <protocols>
+                <protocol>file</protocol>
+              </protocols>
+              <types>
+                <type>OBJECT</type>
+              </types>
+              <models>
+                <model>SYNCHRONOUS</model>
+                <model>ASYNCHRONOUS</model>
+                <model>CACHE</model>
+              </models>
+            </repository>
+            <repository 
+  class="org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository">
+              <protocols>
+                <protocol>file</protocol>
+              </protocols>
+              <types>
+                <type>STREAM</type>
+              </types>
+              <models>
+                <model>SYNCHRONOUS</model>
+                <model>ASYNCHRONOUS</model>
+                <model>CACHE</model>
+              </models>
+            </repository>
+          </repositories>
+        </configuration>
+      </target>
+
+      <target path="pop3">
+        <configuration enabled="true">
+          <port>110</port>
+          <handler>
+            <helloName autodetect="true"/>
+            <connectiontimeout>120000</connectiontimeout>
+          </handler>
+        </configuration>
+      </target>
+
+      <target path="smtp">
+        <configuration enabled="true">
+          <port>25</port>
+          <handler>
+            <helloName autodetect="true"/>
+            <connectiontimeout>360000</connectiontimeout>
+            <maxmessagesize>0</maxmessagesize>
+          </handler>
+        </configuration>
+      </target>
+
+      <target path="mailstore">
+        <configuration enabled="true">
+           <repositories>
+             <repository class="org.apache.james.mailrepository.AvalonMailRepository">
+               <protocols>
+                 <protocol>file</protocol>
+               </protocols>
+               <types>
+                 <type>MAIL</type>
+               </types>
+             </repository>
+             <repository class="org.apache.james.mailrepository.AvalonSpoolRepository">
+               <protocols>
+                 <protocol>file</protocol>
+               </protocols>
+               <types>
+                 <type>SPOOL</type>
+               </types>
+             </repository>
+
+             <!-- These repositories store the entire message in the database -->
+             <repository class="org.apache.james.mailrepository.JDBCMailRepository">
+               <protocols>
+                 <protocol>db</protocol>
+               </protocols>
+               <types>
+                 <type>MAIL</type>
+               </types>
+               <config>
+                 <sqlFile>file://conf/sqlResources.xml</sqlFile>
+               </config>
+             </repository>
+             <repository class="org.apache.james.mailrepository.JDBCSpoolRepository">
+               <protocols>
+                 <protocol>db</protocol>
+               </protocols>
+               <types>
+                  <type>SPOOL</type>
+               </types>
+               <config>
+                  <sqlFile>file://conf/sqlResources.xml</sqlFile>
+               </config>
+             </repository>
+
+             <!-- These repositories store message delivery and headers in the DB, and 
+                  the body to the filesystem -->
+             <repository class="org.apache.james.mailrepository.JDBCMailRepository">
+               <protocols>
+                 <protocol>dbfile</protocol>
+               </protocols>
+               <types>
+                 <type>MAIL</type>
+               </types>
+               <config>
+                 <sqlFile>file://conf/sqlResources.xml</sqlFile>
+                 <filestore>file://var/dbmail</filestore>
+               </config>
+             </repository>
+             <repository class="org.apache.james.mailrepository.JDBCSpoolRepository">
+               <protocols>
+                 <protocol>dbfile</protocol>
+               </protocols>
+               <types>
+                 <type>SPOOL</type>
+               </types>
+               <config>
+                 <sqlFile>file://conf/sqlResources.xml</sqlFile>
+                 <filestore>file://var/dbmail</filestore>
+               </config>
+             </repository>
+           </repositories>
+           <spoolRepository>
+             <repository destinationURL="file://var/mail/spool/" type="SPOOL"/>
+           </spoolRepository>
+        </configuration>
+      </target>
+
+      <target path="userstore">
+        <configuration>
+           <repository name="LocalUsers" 
+              class="org.apache.james.userrepository.UsersFileRepository">
+             <destination URL="file://var/users/"/>
+           </repository>
+        </configuration>
+      </target>
+
+      <target path="spool">
+        <configuration>
+           <threads> 10 </threads>
+           <mailetpackages>
+             <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
+           </mailetpackages>
+           <matcherpackages>
+             <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
+           </matcherpackages>
+
+           <processor name="root">
+             <mailet match="RelayLimit=30" class="Null">
+               <debug>false</debug>
+             </mailet>
+             <mailet match="InSpammerBlacklist=blackholes.mail-abuse.org" class="ToProcessor">
+               <processor> spam </processor>
+               <notice> Rejected - see  http://www.mail-abuse.org/rbl/ </notice>
+               <debug>false</debug>
+             </mailet>
+             <mailet match="InSpammerBlacklist=dialups.mail-abuse.org" class="ToProcessor">
+               <processor> spam </processor>
+               <notice> Dialup - see http://www.mail-abuse.org/dul/ </notice>
+               <debug>false</debug>
+             </mailet>
+             <mailet match="InSpammerBlacklist=relays.mail-abuse.org" class="ToProcessor">
+               <processor> spam </processor>
+               <notice> Open spam relay - see http://www.mail-abuse.org/rss/ </notice>
+               <debug>false</debug>
+             </mailet>
+             <mailet match="All" class="ToProcessor">
+               <processor> transport </processor>
+               <debug>false</debug>
+             </mailet>
+           </processor>
+
+           <processor name="error">
+             <mailet match="All" class="ToRepository">
+               <repositoryPath> file://var/mail/error/</repositoryPath>
+               <passThrough> true </passThrough>
+               <debug>false</debug>
+             </mailet>
+           </processor>
+
+           <processor name="transport">
+             <mailet match="RecipientIsLocal" class="LocalDelivery">
+               <debug>true</debug>
+             </mailet>
+             <mailet match="HostIsLocal" class="ToProcessor">
+               <processor>error</processor>
+               <debug>true</debug>
+             </mailet>
+             <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
+               <processor> spam </processor>
+               <debug>true</debug>
+             </mailet>
+             <mailet match="All" class="RemoteDelivery">
+               <outgoing> file://var/mail/outgoing/ </outgoing>
+               <delayTime> 21600000 </delayTime>
+               <maxRetries> 5 </maxRetries>
+               <deliveryThreads> 1 </deliveryThreads>
+               <debug>true</debug>
+               <!--<gateway> otherserver.mydomain.com </gateway>-->
+               <!--<gatewayPort> 25 </gatewayPort>-->
+             </mailet>
+           </processor>
+
+           <processor name="spam">
+             <!--<mailet match="All" class="Null"/>-->
+             <!--<mailet match="All" class="NotifySender"/>-->
+             <!--<mailet match="All" class="NotifyPostmaster"/>-->
+             <mailet match="All" class="ToRepository">
+               <repositoryPath>file://var/mail/spam/</repositoryPath>
+               <debug>false</debug>
+             </mailet>
+           </processor>
+        </configuration>
+
+      </target>
+
+      <target path="nntp-repository">
+        <configuration>
+           <readOnly>false</readOnly>
+           <rootPath>file://var/nntp/groups</rootPath>
+           <tempPath>file://var/nntp/temp</tempPath>
+           <articleIDPath>file://var/nntp/articleid</articleIDPath>
+           <articleIDDomainSuffix>news.james.apache.org</articleIDDomainSuffix>
+
+           <!-- The news groups hosted in this NNTP repository. -->
+           <newsgroups>
+             <newsgroup>org.apache.james.dev</newsgroup>
+             <newsgroup>org.apache.james.user</newsgroup>
+             <newsgroup>org.apache.avalon.dev</newsgroup>
+             <newsgroup>org.apache.avalon.user</newsgroup>
+           </newsgroups>
+
+           <spool>
+             <configuration>
+               <spoolPath>file://var/nntp/spool</spoolPath>
+               <threadCount>1</threadCount>
+               <threadIdleTime>1000</threadIdleTime>
+             </configuration>
+           </spool>
+        </configuration>
+      </target>
+
+      <target path="nntp">
+         <configuration enabled="false">
+           <port>119</port>
+           <handler>
+             <helloName autodetect="true"/>
+             <connectiontimeout>120000</connectiontimeout>
+             <authRequired>false</authRequired>
+           </handler>
+         </configuration>
+      </target>
+
+      <target path="fetchpop">
+        <configuration enabled="false">
+          <fetch name="mydomain.com">
+            <host>mail.mydomain.com</host>
+            <!-- Account login username -->
+            <user>username</user>
+            <!-- Account login password -->
+            <password>pass</password>
+            <interval>600000</interval>
+          </fetch>
+         </configuration>
+      </target>
+
+    </include>
+
+  </container>
+
+
+</kernel>
+

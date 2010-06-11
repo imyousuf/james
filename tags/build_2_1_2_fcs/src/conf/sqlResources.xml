@@ -1,0 +1,423 @@
+<!-- SQL Statements used by James for database access. -->
+<sqlResources>
+
+<!--
+     This section provided configuration to determine the determine the
+     database product which is being used for storage. Different database
+     products may require different SQL syntax.
+
+     The jdbc database connection is examined to see if it matches with the
+     regular expressions specified in any of the defined matchers. The matchers
+     are processed in the over provided here, with the first successful match
+     defining the "db" value for this connection.
+
+     This value is then used to choose between different definitions for various
+     named sql statements, defined below. If no match is found,
+     the default sql statements are used.
+-->
+<dbMatchers>
+    <dbMatcher db="mssql" databaseProductName="microsoft sql server"/>
+    <dbMatcher db="oracle" databaseProductName="oracle.*"/>
+    <dbMatcher db="mysql" databaseProductName="my.*"/>
+    <dbMatcher db="postgresql" databaseProductName="postgres.*"/>
+    <dbMatcher db="sapdb" databaseProductName="sap.*"/>
+    <dbMatcher db="hypersonic" databaseProductName="HypersonicSQL"/>
+</dbMatchers>
+
+<!-- SQL statements to use for various components. -->
+<!-- -->
+<!-- Parameter definitions ${param} are replaced with parameter values -->
+<!-- read from the configuration file. -->
+<!-- -->
+<!-- If a named statement has a definition defined for the current database product, -->
+<!-- then that statement is used. Otherwise the default statement is used. -->
+
+<!-- SQL statements for the JamesUsersJdbcRepository -->
+<!-- -->
+<!-- The JamesUsersJdbcRepository allows James to use a JDBC compliant database -->
+<!-- to hold user related data.  This includes aliases, forward addresses, -->
+<!-- and password data.  The last is stored as an irreversible hash. -->
+<sqlDefs name="org.apache.james.userrepository.JamesUsersJdbcRepository">
+    <sql name="tableName">${table}</sql>
+
+    <!-- Statements used to retrieve all user information for a user from this repository. -->
+    <sql name="select">SELECT username, pwdHash, pwdAlgorithm, useForwarding,
+                        forwardDestination, useAlias, alias
+                 FROM ${table}
+                 ORDER BY username
+    </sql>
+
+    <!-- Statements used to get all user information for a user with a particular user name in a -->
+    <!-- case-insensitive fashion from this repository. -->
+    <sql name="selectByLowercaseName">
+                SELECT username, pwdHash, pwdAlgorithm, useForwarding,
+                        forwardDestination, useAlias, alias
+                FROM ${table}
+                WHERE lower(username) = ?
+    </sql>
+
+    <!-- Statements used to insert a user into this repository. -->
+    <sql name="insert">INSERT INTO ${table}
+                    (username, pwdHash, pwdAlgorithm, useForwarding, forwardDestination, useAlias, alias)
+                VALUES (?,?,?,?,?,?,?)
+    </sql>
+
+    <!-- Statements used to update information for a user from this repository. -->
+    <sql name="update">UPDATE ${table} SET
+                    pwdHash = ?, pwdAlgorithm = ?, useForwarding = ?, forwardDestination = ?, useAlias = ?, alias = ?
+                WHERE username = ?
+    </sql>
+
+    <!-- Statements used to delete a user from this repository. -->
+    <sql name="delete">DELETE FROM ${table} WHERE username = ?</sql>
+
+    <!-- Statements used to create the table associated with this class. -->
+    <sql name="createTable" db="hypersonic">CREATE CACHED TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding INTEGER, forwardDestination VARCHAR(255), useAlias INTEGER, alias VARCHAR(255), PRIMARY KEY(username))</sql>
+    <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(255), useAlias SMALLINT, alias VARCHAR(255), PRIMARY KEY(username))</sql>
+    <!-- An example of a database-specific sql statement
+    <sql name="createTable" db="mssql">CREATE TABLE ${table} (uniqueId UNIQUEIDENTIFIER, username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(255), useAlias SMALLINT, alias VARCHAR(255), PRIMARY KEY(username))</sql>
+    -->
+</sqlDefs>
+
+<!-- SQL statements for the DefaultUsersJdbcRepository -->
+<!-- -->
+<!-- The DefaultUsersJdbcRepository allows James to use a JDBC compliant database -->
+<!-- to hold user ids and password data. The password is stored as an irreversible hash. -->
+<!-- Unlike the JamesUsersJdbcRepository, this repository implementation doesn't support -->
+<!-- aliases or forwards. -->
+<sqlDefs name="org.apache.james.userrepository.DefaultUsersJdbcRepository">
+    <sql name="tableName">${table}</sql>
+
+    <!-- Statements used to retrieve all user information for a user from this repository. -->
+    <sql name="select">SELECT username, pwdHash, pwdAlgorithm
+                 FROM ${table}
+    </sql>
+
+    <!-- Statements used to insert a user into this repository. -->
+    <sql name="insert">INSERT INTO ${table}
+                    (username, pwdHash, pwdAlgorithm)
+                VALUES (?,?,?)
+    </sql>
+
+    <!-- Statements used to update information for a user from this repository. -->
+    <sql name="update">UPDATE ${table} SET
+                    pwdHash = ?, pwdAlgorithm = ?
+                WHERE username = ?
+    </sql>
+
+    <!-- Statements used to delete a user from this repository. -->
+    <sql name="delete">DELETE FROM ${table} WHERE username = ?</sql>
+
+    <!-- Statements used to create the table associated with this class. -->
+    <sql name="createTable" db="hypersonic">CREATE CACHED TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), PRIMARY KEY(username))</sql>
+    <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(64) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), PRIMARY KEY(username))</sql>
+</sqlDefs>
+
+<!-- SQL statements for the ListUsersJdbcRepository -->
+<!-- -->
+<!-- This class is used for basic list management.  The database table can -->
+<!-- be used to store subscriber data for mulitple lists.  -->
+<sqlDefs name="org.apache.james.userrepository.ListUsersJdbcRepository">
+    <!-- An example of defining "default" parameters within the definition file.
+         This is used if no key parameter is specified in config. -->
+    <parameters key="unknownList"/>
+
+    <sql name="tableName">${table}</sql>
+
+    <!-- Statements used to retrieve all users on a particular list from this repository. -->
+    <sql name="select">SELECT listSubscriber
+                 FROM ${table}
+                 WHERE listName = '${key}'
+    </sql>
+
+    <!-- Statements used to insert a user/list mapping into this repository. -->
+    <sql name="insert">INSERT INTO ${table}
+                    (listSubscriber, listName)
+                VALUES (?, '${key}')
+    </sql>
+
+    <!-- Statements used to update a user/list mapping in this repository. -->
+    <sql name="update">UPDATE ${table} SET
+                    listSubscriber = ?
+                WHERE listSubscriber = ? AND listName = '${key}'
+    </sql>
+
+    <!-- Statements used to delete a user/list mapping from this repository. -->
+    <sql name="delete">DELETE FROM ${table}
+                WHERE listSubscriber = ? AND listName = '${key}'
+    </sql>
+
+    <!-- Statements used to create the table associated with this class. -->
+    <sql name="createTable" db="hypersonic">CREATE CACHED TABLE ${table} (listName VARCHAR(64) NOT NULL, listSubscriber VARCHAR(255) NOT NULL, PRIMARY KEY(listName, listSubscriber))</sql>
+    <sql name="createTable">CREATE TABLE ${table} (listName VARCHAR(64) NOT NULL, listSubscriber VARCHAR(255) NOT NULL, PRIMARY KEY(listName, listSubscriber))</sql>
+</sqlDefs>
+
+<!-- SQL statements for the JdbcMailRepository  -->
+<sqlDefs name="org.apache.james.mailrepository.JDBCMailRepository">
+
+    <!-- Statements used to check whether a particular message exists in this repository. -->
+    <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to update a message stored in this repository. -->
+    <sql name="updateMessageSQL">UPDATE ${table} SET message_state = ?, error_message = ?, sender = ?, recipients = ?, remote_host = ?, remote_addr = ?, last_updated = ? WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to update the body of a message stored in this repository. -->
+    <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to insert a message into this repository. -->
+    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name, repository_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+
+    <!-- Statements used to retrieve a message stored in this repository. -->
+    <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to retrieve the body of a message stored in this repository. -->
+    <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to retrieve the size of the body of a message stored in this repository. -->
+    <!-- NOTE: This statement is optional and need not be implemented for a particular database to be supported. -->
+    <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to delete a message stored in this repository. -->
+    <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to list all messages stored in this repository. -->
+    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
+
+    <!-- Statements used to create the table associated with this class. -->
+    <sql name="createTable" db="mysql">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients text NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body longblob NOT NULL ,
+            last_updated datetime NOT NULL,
+            PRIMARY KEY (repository_name, message_name)
+        )
+    </sql>
+    <sql name="createTable" db="hypersonic">
+        CREATE CACHED TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients varchar NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body varchar NOT NULL ,
+            last_updated timestamp NOT NULL,
+            PRIMARY KEY (repository_name, message_name)
+        )
+    </sql>
+    <sql name="createTable" db="mssql">
+        CREATE TABLE [${table}] (
+            [message_name] [varchar] (200) NOT NULL,
+            [repository_name] [varchar] (255) NOT NULL,
+            [message_state] [varchar] (30) NOT NULL ,
+            [error_message] [varchar] (1000) NULL ,
+            [sender] [varchar] (255) NULL ,
+            [recipients] [text] NOT NULL ,
+            [remote_host] [varchar] (255) NOT NULL ,
+            [remote_addr] [varchar] (20) NOT NULL ,
+            [message_body] [image] NOT NULL ,
+            [last_updated] [datetime] NOT NULL
+        )
+        ALTER TABLE [${table}] WITH NOCHECK ADD
+            CONSTRAINT [PK_${table}] PRIMARY KEY
+            (
+                [repository_name],
+                [message_name]
+            )
+    </sql>
+    <sql name="createTable" db="oracle">
+        CREATE TABLE ${table} (
+        message_name varchar2(200) NOT NULL ,
+        repository_name varchar2(255) NOT NULL ,
+        message_state varchar2(30) NOT NULL ,
+        error_message varchar2(200) NULL ,
+        sender varchar2(255) ,
+        recipients varchar2(1000) NOT NULL ,
+        remote_host varchar2(100) NOT NULL ,
+        remote_addr varchar2(20) NOT NULL ,
+        message_body long raw NOT NULL ,
+        last_updated date NOT NULL ,
+        PRIMARY KEY (repository_name, message_name)
+        )
+        TABLESPACE system
+    </sql>
+    <sql name="createTable" db="postgresql">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients text NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body bytea NOT NULL ,
+            last_updated timestamp NOT NULL,
+            PRIMARY KEY (repository_name, message_name)
+        )
+    </sql>
+    <sql name="createTable" db="sapdb">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (200) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (200) NULL ,
+            recipients long NOT NULL ,
+            remote_host varchar (100) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body long byte NOT NULL ,
+            last_updated date NOT NULL,
+            PRIMARY KEY (repository_name, message_name)
+        )
+    </sql>
+</sqlDefs>
+
+<!-- SQL statements to support the JDBCSpoolRepository class -->
+<!-- -->
+<!-- The JDBCSpoolRepository allows James to use a JDBC compliant database -->
+<!-- to hold messages that are on the spool. -->
+<sqlDefs name="org.apache.james.mailrepository.JDBCSpoolRepository">
+
+    <!-- Statements used to check whether a particular message exists in this repository. -->
+    <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to update a message stored in this repository. -->
+    <sql name="updateMessageSQL">UPDATE ${table} SET message_state = ?, error_message = ?, sender = ?, recipients = ?, remote_host = ?, remote_addr = ?, last_updated = ? WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to update the body of a message stored in this repository. -->
+    <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to insert a message into this repository. -->
+    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name, repository_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+
+    <!-- Statements used to retrieve a message stored in this repository. -->
+    <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to retrieve the body of a message stored in this repository. -->
+    <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to retrieve the size of the body of a message stored in this repository. -->
+    <!-- NOTE: This statement is optional and need not be implemented for a particular database to be supported. -->
+    <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="hypersonic">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="postgresql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to delete a message stored in this repository. -->
+    <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+
+    <!-- Statements used to list all messages stored in this repository. -->
+    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
+
+    <!-- Statements used to create the table associated with this class. -->
+    <sql name="createTable" db="hypersonic">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients varchar NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body varchar NOT NULL ,
+            last_updated timestamp NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="mysql">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients text NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body longblob NOT NULL ,
+            last_updated datetime NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="mssql">
+        CREATE TABLE [${table}] (
+            [message_name] [varchar] (200) NOT NULL,
+            [repository_name] [varchar] (255) NOT NULL,
+            [message_state] [varchar] (30) NOT NULL ,
+            [error_message] [varchar] (1000) NULL ,
+            [sender] [varchar] (255) NULL ,
+            [recipients] [text] NOT NULL ,
+            [remote_host] [varchar] (255) NOT NULL ,
+            [remote_addr] [varchar] (20) NOT NULL ,
+            [message_body] [image] NOT NULL ,
+            [last_updated] [datetime] NOT NULL
+        )
+        ALTER TABLE [${table}] WITH NOCHECK ADD
+            CONSTRAINT [PK_${table}] PRIMARY KEY
+            (
+                [message_name],
+                [repository_name]
+            )
+    </sql>
+    <sql name="createTable" db="oracle">
+        CREATE TABLE ${table} (
+        message_name varchar2(200) NOT NULL ,
+        repository_name varchar2(255) NOT NULL ,
+        message_state varchar2(30) NOT NULL ,
+        error_message varchar2(200) NULL ,
+        sender varchar2(255) NULL ,
+        recipients varchar2(1000) NOT NULL ,
+        remote_host varchar2(255) NOT NULL ,
+        remote_addr varchar2(20) NOT NULL ,
+        message_body long raw NOT NULL ,
+        last_updated date NOT NULL ,
+        PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="postgresql">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients text NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body bytea NOT NULL ,
+            last_updated timestamp NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="sapdb">
+        CREATE TABLE ${table} (
+            message_name varchar (200) NOT NULL,
+            repository_name varchar (255) NOT NULL,
+            message_state varchar (30) NOT NULL ,
+            error_message varchar (200) NULL ,
+            sender varchar (255) NULL ,
+            recipients long NOT NULL ,
+            remote_host varchar (255) NOT NULL ,
+            remote_addr varchar (20) NOT NULL ,
+            message_body long byte NOT NULL ,
+            last_updated date NOT NULL,
+            PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+</sqlDefs>
+
+</sqlResources>

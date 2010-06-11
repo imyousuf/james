@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<project name="spring_integration" default="everything">
+
+    <property file="../include.properties"/>
+    <property file="../default.properties"/>
+    
+    <property name="spring-deployment.artefact.name" value="${name}-spring-deployment-${version}" />
+
+    <property name="spring-deployment.target.basedir" value="${basedir}/target" />
+    <property name="spring-deployment.target.dir" value="${spring-deployment.target.basedir}/${spring-deployment.artefact.name}" />
+    <property name="spring-deployment.target.bin.dir" value="${spring-deployment.target.dir}/bin" />
+    <property name="spring-deployment.target.lib.dir" value="${spring-deployment.target.dir}/lib" />
+    <property name="spring-deployment.target.config.dir" value="${spring-deployment.target.dir}/conf" />
+    <property name="spring-deployment.target.jar" value="${spring-deployment.target.lib.dir}/${name}-spring-deployment-${version}.jar" />
+    <property name="spring-deployment.target.var.dir" value="${spring-deployment.target.dir}/var"/>
+
+    <property name="spring-deployment.dist.dir" value="${basedir}/dist/" />
+    <property name="spring-deployment.dist.bin.zip" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.zip" />
+    <property name="spring-deployment.dist.bin.tar" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.tar" />
+    <property name="spring-deployment.dist.bin.tgz" value="${spring-deployment.dist.dir}/${spring-deployment.artefact.name}.tgz" />
+    
+    <!-- Compiler options -->
+
+    <property name="compiler.debug" value="on"/>
+    <property name="compiler.generate.no.warnings" value="off"/>
+    <property name="compiler.args" value=""/>
+    <property name="compiler.max.memory" value="128m"/>
+    <patternset id="ignored.files">
+        <exclude name="**/CVS/**"/>
+        <exclude name="**/SCCS/**"/>
+        <exclude name="**/RCS/**"/>
+        <exclude name="**/rcs/**"/>
+        <exclude name="**/.DS_Store/**"/>
+        <exclude name="**/.svn/**"/>
+    </patternset>
+    <patternset id="compiler.resources">
+        <include name="**/?*.properties"/>
+        <include name="**/?*.xml"/>
+        <include name="**/?*.gif"/>
+        <include name="**/?*.png"/>
+        <include name="**/?*.jpeg"/>
+        <include name="**/?*.jpg"/>
+        <include name="**/?*.html"/>
+        <include name="**/?*.dtd"/>
+        <include name="**/?*.tld"/>
+    </patternset>
+
+    <dirname property="basedir" file="${ant.file}"/>
+
+    <property name="compiler.args" value="${compiler.args}"/>
+
+    <property name="output.dir" value="${basedir}/build/classes"/>
+
+    <path id="bootclasspath">
+        <!-- Paths to be included in compilation bootclasspath -->
+    </path>
+
+    <!-- from phoenix-deployment build.xml -->
+    <path id="classpath.james.target">
+        <fileset dir="${lib.dir}">
+            <include name="${avalon-framework.jar}"/>
+            <include name="${avalon-framework-impl.jar}"/>
+            <include name="${dns.jar}"/>
+            <include name="${commons-collections.jar}"/>
+            <include name="${commons-dbcp.jar}"/>
+            <include name="${commons-pool.jar}"/>
+            <include name="${jakarta-oro.jar}"/>
+            <include name="${excalibur-pool-api.jar}"/>
+            <include name="${excalibur-pool-impl.jar}"/>
+            <include name="${excalibur-thread-api.jar}"/>
+            <include name="${excalibur-datasource.jar}"/>
+            <include name="${cornerstone-threads-api.jar}"/>
+            <include name="${cornerstone-connection-api.jar}"/>
+            <include name="${cornerstone-connection-impl.jar}"/>
+            <include name="${cornerstone-store-api.jar}"/>
+            <include name="${cornerstone-scheduler-api.jar}"/>
+            <include name="${cornerstone-sockets-api.jar}"/>
+            <include name="${cornerstone-datasources-api.jar}"/>
+            <include name="${derby.jar}"/>
+            <include name="${javax-mail.jar}"/>
+            <include name="${javax-activation.jar}"/>
+            <include name="${bcmail.jar}"/>
+            <include name="${bcmail-workaround.jar}"/>
+            <include name="${javax.management}"/>
+            <include name="${jspf.jar}"/>
+            <include name="${mstor.jar}"/>
+            <include name="${commons-logging.jar}"/>
+            <include name="${jdom.jar}"/>
+            <include name="${xstream.jar}"/>
+
+            <include name="${torque.jar}"/>
+            <include name="${village.jar}"/>
+            <include name="${commons-lang.jar}"/>
+            <include name="${commons-configuration.jar}"/>
+
+            <include name="${jsieve.jar}"/>
+			<include name="${mailet.jar}"/>
+            <include name="${commons-digester.jar}"/>
+            <!-- TODO: include libraries without wildcards -->
+            <include name="${path.lib.james}/${jars-prefix}*-api-${version}.jar"/>
+            <include name="${path.lib.james}/${jars-prefix}*-library-${version}.jar"/>
+            <include name="${path.lib.james}/${jars-prefix}*-function-${version}.jar"/>
+        </fileset>
+        <!--<pathelement path="${java.class.path}" />-->
+        <!--<pathelement path="${build.classes}" />-->
+    </path>
+
+    <path id="classpath.phoenix.implementations">
+        <fileset dir="${lib.dir}">
+            <include name="${cornerstone-threads-impl.jar}"/>
+            <include name="${cornerstone-connection-impl.jar}"/>
+            <!-- TODO MISSING FROM STAGE <include name="${cornerstone-store-impl.jar}"/>-->
+            <include name="${cornerstone-scheduler-impl.jar}"/>
+            <include name="${cornerstone-sockets-impl.jar}"/>
+            <include name="${cornerstone-datasources-impl.jar}"/>
+            <include name="${excalibur-thread-impl.jar}"/>
+        </fileset>
+    </path>
+    
+    <path id="classpath.phoenix.runtime">
+        <fileset dir="${basedir}/lib/phoenix-runtime">
+            <include name="avalon-logkit-2.1.jar"/>
+            <include name="concurrent-1.3.4.jar"/>
+            <!-- TODO shouldn't cornerstone-store-impl.jar be available from stage dir? -->
+            <include name="cornerstone-store-impl-2.1.jar"/>
+            <include name="excalibur-cli-1.0.jar"/>
+            <include name="excalibur-extension-1.0a.jar"/>
+            <include name="excalibur-instrument-api-2.1.jar"/>
+            <include name="excalibur-instrument-manager-1.0.jar"/>
+            <include name="excalibur-io-1.1.jar"/>
+            <include name="excalibur-logger-2.1.jar"/>
+            <include name="excalibur-monitor-2.1.jar"/>
+            <include name="phoenix-client.jar"/>
+            <include name="phoenix-engine.jar"/>
+            <include name="spice-classman-1.0.jar"/>
+            <include name="spice-configkit-1.1.2.jar"/>
+            <include name="spice-loggerstore-0.5.jar"/>
+            <include name="spice-salt-0.8.jar"/>
+            <include name="spice-xmlpolicy-1.0.jar"/>
+        </fileset> 
+    </path>
+
+    <path id="classpath.spring">
+        <fileset dir="${basedir}/lib/spring">
+        <!-- TODO: remove from commons lists non-spring required libs --> 
+            <include name="commons-attributes-api.jar"/>
+            <include name="commons-attributes-compiler.jar"/>
+            <include name="commons-beanutils.jar"/>
+            <include name="commons-codec.jar"/>
+<!--            <include name="${basedir}/lib/commons-digester.jar"/>
+            <include name="${basedir}/lib/commons-lang.jar"/>
+            <include name="${basedir}/lib/commons-logging.jar"/>-->
+            <include name="commons-discovery.jar"/>
+            <include name="commons-fileupload.jar"/>
+            <include name="commons-httpclient.jar"/>
+            <include name="commons-io.jar"/>
+            <include name="commons-javaflow.jar"/>
+            <include name="commons-validator.jar"/>
+            <include name="spring.jar"/>
+        </fileset>
+    </path>
+
+    <path id="classpath.misc">
+        <fileset dir="${basedir}/lib/log4j">
+            <include name="log4j-1.2.15.jar"/>
+        </fileset>
+    </path>
+
+    <path id="classpath.all.libs">
+        <path refid="classpath.phoenix.runtime" />
+        <path refid="classpath.phoenix.implementations" />
+        <path refid="classpath.james.target" />
+        <path refid="classpath.spring" />
+        <path refid="classpath.misc" />
+    </path>
+
+    <path id="runclasspath">
+        <path refid="classpath.all.libs" />
+        <pathelement location="${basedir}/src/main/config/"/>
+        <pathelement location="${spring-deployment.target.jar}"/>
+    </path>
+
+    <patternset id="excluded.from">
+        <patternset refid="ignored.files"/>
+    </patternset>
+
+    <patternset id="excluded.from.compilation">
+        <patternset refid="excluded.from"/>
+    </patternset>
+
+    <path id="sourcepath">
+        <dirset dir="${basedir}">
+            <include name="src/main/java"/>
+        </dirset>
+    </path>
+
+
+    <target name="clean">
+        <delete dir="${output.dir}"/>
+        <delete dir="${spring-deployment.target.basedir}"/>
+        <delete dir="${spring-deployment.dist.dir}"/>
+    </target>
+
+    <target name="init" description="Build initialization">
+        <!-- Perform any build initialization in this target -->
+    </target>
+
+    <target name="dist-lite" depends="everything" description="forwards to everything - exists for compatibility with parent build.xml"/>
+    <target name="dist" depends="everything" description="forwards to everything - exists for compatibility with parent build.xml"/>
+    
+    <target name="everything" depends="init, clean, compile, package, dist-binary" description="build all"/>
+
+    <target name="compile" description="compile .java">
+        <mkdir dir="${output.dir}"/>
+        <javac destdir="${output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}"
+               memoryMaximumSize="${compiler.max.memory}" fork="true">
+            <compilerarg line="${compiler.args}"/>
+            <bootclasspath refid="bootclasspath"/>
+            <classpath refid="classpath.all.libs"/>
+            <src refid="sourcepath"/>
+        </javac>
+
+        <copy todir="${output.dir}">
+            <fileset dir="${basedir}/src/main/java">
+                <patternset refid="compiler.resources"/>
+                <type type="file"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="package" depends="package-prepare, package-aquire-notes, package-aquire-libs, package-aquire-config-files, package-james-spring-jar, generate-run-executable" />
+
+    <target name="package-prepare">
+        <mkdir dir="${spring-deployment.target.basedir}"/>
+        <mkdir dir="${spring-deployment.target.dir}"/>
+        <mkdir dir="${spring-deployment.target.lib.dir}"/>
+        <mkdir dir="${spring-deployment.target.bin.dir}"/>
+        <mkdir dir="${spring-deployment.target.config.dir}"/>
+        
+        <mkdir dir="${spring-deployment.target.var.dir}"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/groups"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/articleid"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/temp"/>
+        <mkdir dir="${spring-deployment.target.var.dir}/nntp/spool"/>
+    </target>
+    
+    <target name="package-james-spring-jar">
+        <jar jarfile="${spring-deployment.target.jar}" basedir="${output.dir}" >
+            <include name="org/apache/james/**/*.class"/>
+        </jar>
+    </target>
+    
+    <target name="package-aquire-notes" >
+        <copy todir="${spring-deployment.target.dir}" flatten="true">
+            <fileset dir="${basedir}">
+                <include name="HOW-TO.txt" />
+            </fileset>
+            <fileset dir="${basedir}/..">
+                <include name="LICENSE.txt" />
+                <include name="NOTICE.txt" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="package-aquire-libs" >
+        <copy todir="${spring-deployment.target.lib.dir}" flatten="true">
+            <fileset dir="${lib.dir}">
+                <include name="**/*.jar" />
+                <include name="**/*.LICENSE" />
+                <include name="**/LICENSE*" />
+            </fileset>
+            <fileset dir="${basedir}/lib">
+                <include name="**/*.jar" />
+                <include name="**/*.LICENSE" />
+                <include name="**/LICENSE*" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="package-aquire-config-files" >
+        <copy todir="${spring-deployment.target.config.dir}" flatten="true">
+            <fileset dir="${basedir}/src/main/config">
+                <include name="*.xml" />
+                <include name="*.properties" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="run" depends="compile, package">
+        <java classname="org.apache.james.container.spring.Main"
+              classpathref="runclasspath"
+              dir="${spring-deployment.target.bin.dir}"
+              fork="true" />
+    </target>
+
+    <target name="generate-run-executable" >
+        <path id="targetlibs">
+            <fileset dir="${spring-deployment.target.lib.dir}">
+                <include name="*.jar" />
+            </fileset>
+        </path>
+        <property name="exe-classpath" refid="targetlibs" />
+
+        <mkdir dir="${spring-deployment.target.bin.dir}" />
+
+        <!-- create unix startup script-->
+        <echo file="${spring-deployment.target.bin.dir}/run.sh" append="false">#! /bin/sh
+java -cp ${exe-classpath}:../conf org.apache.james.container.spring.Main             
+        </echo>
+        <replace file="${spring-deployment.target.bin.dir}/run.sh" token="${spring-deployment.target.lib.dir}" value="../lib" />
+        <replace file="${spring-deployment.target.bin.dir}/run.sh" token=";" value=":" />
+        <chmod file="${spring-deployment.target.bin.dir}/run.sh" perm="a+rx" />
+
+        <!-- create windows startup script-->
+        <echo file="${spring-deployment.target.bin.dir}/run.bat" append="false">
+echo This batch file is untested. Please report to server-dev@james.apache.org if it works or not. Thank you!
+pause
+java -cp ${exe-classpath};../conf org.apache.james.container.spring.Main             
+        </echo>
+        <replace file="${spring-deployment.target.bin.dir}/run.bat" token="${spring-deployment.target.lib.dir}" value="../lib" />
+        <replace file="${spring-deployment.target.bin.dir}/run.bat" token=":" value=";" />
+    </target>
+    
+    <target name="dist-binary" >
+        <mkdir dir="${spring-deployment.dist.dir}" />
+        <zip compress="true" destfile="${spring-deployment.dist.bin.zip}" >
+            <zipfileset dir="${spring-deployment.target.dir}" prefix="${name}-spring-deployment-${version}">
+                <include name="**" /> 
+            </zipfileset>
+        </zip>     
+        <tar longfile="gnu" destfile="${spring-deployment.dist.bin.tar}" >
+            <tarfileset dir="${spring-deployment.target.dir}" prefix="${name}-spring-deployment-${version}">
+                <include name="**" /> 
+            </tarfileset>
+        </tar>
+        <gzip destfile="${spring-deployment.dist.bin.tgz}/" 
+             src="${spring-deployment.dist.bin.tar}"/>
+    </target>
+    
+</project>

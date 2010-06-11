@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<blockinfo>
+
+  <meta>
+
+    <contributors>
+      <author name="Federico Barbier" email="fede@apache.org"/>
+    </contributors>
+
+  </meta>
+
+  <!-- services that are offered by this block -->
+  <services>
+    <service name="org.apache.avalon.services.Store" version="1.0" />
+  </services>
+
+</blockinfo>

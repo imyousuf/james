@@ -1,0 +1,23 @@
+C: a1 CREATE test
+S: a1 OK CREATE completed
+
+# Tests for the STATUS command
+C: a001 STATUS test (MESSAGES)
+S: \* STATUS test \(MESSAGES \d+\)
+S: a001 OK STATUS completed
+
+C: a001 STATUS test (  MESSAGES  )
+S: \* STATUS test \(MESSAGES \d+\)
+S: a001 OK STATUS completed
+
+C: a001 STATUS test (MESSAGES RECENT UIDNEXT UIDVALIDITY UNSEEN)
+S: \* STATUS test \(MESSAGES \d+ RECENT \d+ UIDNEXT \d+ UIDVALIDITY \d+ UNSEEN \d+\)
+S: a001 OK STATUS completed
+
+C: a001 STATUS test (UNSEEN RECENT )
+S: \* STATUS test \(RECENT \d+ UNSEEN \d+\)
+S: a001 OK STATUS completed
+
+# Cleanup
+C: a1 DELETE test
+S: a1 OK DELETE completed

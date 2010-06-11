@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="verify">
+
+  <property environment="ENV"/>
+
+  <available property="magic.available" classname="org.apache.avalon.tools.model.Home" >
+    <classpath >
+      <pathelement location="${user.home}/.ant/lib/avalon-tools-magic.jar"/>
+    </classpath>
+  </available>
+
+  <target name="verify" unless="magic.available">
+    <echo>
+#--------------------------------------------------------------------------------
+# Please invoke the bootstrap target in order to install prerequisite resources
+# and tools necessary to build avalon.
+#
+# $ ant setup
+#
+# Once the bootstrap resources have been build you can proceed with any of the 
+# classic build targets.
+#--------------------------------------------------------------------------------      
+    </echo>
+    <fail message="Bootstrap resources not present."/>
+  </target>
+
+  <condition property="magic.env.declared" value="false">
+    <isset property="ENV.MAGIC_HOME"/>
+  </condition>
+
+  <target name="declare-magic-home" if="magic.env.declared">
+    <property name="magic.home" value="${ENV.MAGIC_HOME}"/>
+  </target>
+
+  <target name="check-magic-home" unless="magic.env.declared">
+    <property name="magic.home" value="${user.home}/.magic"/>
+  </target>
+
+  <target name="setup" depends="check-magic-home,declare-magic-home">
+    <ant dir="." antfile="project/setup.xml"/>
+    <taskdef name="unbar"
+             classname="org.apache.avalon.tools.tasks.UnbarTask">
+      <classpath>
+        <pathelement location="${user.home}/.ant/lib/avalon-tools-magic.jar"/>
+      </classpath>
+    </taskdef>
+    <property name="magic.cache" value="${magic.home}/main"/>
+    <unbar repository="${magic.cache}"
+      href="http://www.dpml.net/james/bars/james-supplemental-1.0.bar"/>
+    <unbar repository="${magic.cache}" 
+      href="http://www.dpml.net/avalonx/supplemental/bars/avalonx-supplemental-1.0.bar"/>
+  </target>
+
+</project>

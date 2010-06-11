@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<title>Java Apache Mail Enterprise Server</title>
+</head>
+
+<body BGCOLOR="#FFFFFF">
+<!--
+<h2 align="center"><img SRC="images/java-apache-project.gif" BORDER="0" HEIGHT="100"
+WIDTH="609"></h2>
+-->
+<h1 align="center">Using a Database Mail Repository</h1>
+<h4 align="center">JAMES 1.2</h4>
+
+<h3>Summary</h3>
+<blockquote>
+    <p>This document explains how to enable JAMES to use a database to store mail messages for spools, user accounts, and other usages.</p>
+</blockquote>
+
+
+<h3>Obtain a JDBC driver</h3>
+<blockquote>
+    <p>Obtain a suitable JDBC driver for a suitable vendor.  A non-production grade JDBC-ODBC is included in the JDK, and many commercial and free drivers are available.  See <a href="http://java.sun.com/products/jdbc/drivers/">http://java.sun.com/products/jdbc/drivers/</a> for a list of suitable drivers.  JAMES uses the Town library (<a href="http://www.working-dogs.com/town/">http://www.working-dogs.com/town/</a>) to access a database, and you can use any JDBC 1.X or greater compliant database driver.  Town also handles connection pooling.</p>
+    <p>Note that as JAMES will repeatedly send large amounts of text and binary across this driver, we recommend production grade drivers whenever possible.</p>
+</blockquote>
+
+<h3>Define a database connection</h3>
+<blockquote>
+    <p>In the <i>var</i> directory of the JAMES distribution, you will find several sample database connection definition files.  These are sample Properties files that define the necessary information to connect to a database.  You may either rename one of these to <i>maildatabase</i>, or you may create your own database connection definition file.  Important properties to set are the driver classname, the JDBC URL, and the username and password.</p>
+</blockquote>
+</h3>
+
+<h3>Create a table in your database</h3>
+<blockquote>
+    <p>JAMES expects to use a table named "Message" in whatever database you've specified.  Sample SQL scripts to create this table in SQL Server and MySQL are available in this docs directory.  If you are using another database, you can hopefully see the necessary structure and can create it for your database.  Please submit these to us! (we'll include them in future distributions)</p>
+</blockquote>
+</h3>
+
+<h3>Enable a Database Mail Repository</h3>
+<blockquote>
+    <p>After the bootstrap startup, when you edit the JAMES.conf.xml file, you will see several places that specify a mail or spool repository.  Commented out next to several of these entries are alternate settings to use the database connection definition defined above.</p>
+    <p>The format of the URL to use the database mail or spool repository is town://&lt;repositoryname&gt;@&lt;conndef-filename&gt;  The alternate settings for the database repository expect the filename to be <i>maildatabase</i>, which is why above we recommended you rename it.
+    </p>
+</blockquote>
+
+<h3>Verify JAMES establishes a database connection</h3>
+<blockquote>
+    <p>In the bin directory where run.bat and run.sh (or whatever directory you were in when you started JAMES), you should see a file named something like DCB_970616938320.log.  If this file does not exist, JAMES was unable to find the connection definition file or it was unable to find the database driver.</p>
+    <p>Open this file, and you will see the server's attempt to connect to the server.  If successful, you will see the log shows one or two open connections were established.  If you are seeing repeated attempts to reconnect to the database, either the JDBC URL is incorrect, or the username and password are incorrect.
+    </p>
+</blockquote>
+
+
+<p align="center"><font SIZE="-1">Copyright (c) 1997-2000 <a HREF="http://java.apache.org">The
+Java Apache Project</a>.<br>
+All rights reserved.</font></p>
+
+</body>
+</html>

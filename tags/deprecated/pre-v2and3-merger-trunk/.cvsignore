@@ -1,0 +1,9 @@
+.ant.properties
+ant.properties
+*.el
+dist
+build
+velocity.log
+.classpath
+.project
+target

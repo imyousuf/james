@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="imap-api">
+  <description>Builds imap-api module. This is an api module.</description>
+  <property name="name.module" value="imap-api" />
+  <import file="../build-tools/api-build.xml" optional="no" />
+</project>

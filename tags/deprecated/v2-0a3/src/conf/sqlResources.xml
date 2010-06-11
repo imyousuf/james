@@ -1,0 +1,267 @@
+<!-- SQL Statements used by James for database access. -->
+<sqlResources>
+
+<!--
+     This section provided configuration to determine the determine the
+     database product which is being used for storage. Different database
+     products may require different SQL syntax.
+
+     The jdbc database connection is examined to see if it matches with the
+     regular expressions specified in any of the defined matchers. The matchers
+     are processed in the over provided here, with the first successful match
+     defining the "db" value for this connection.
+
+     This value is then used to choose between different definitions for various
+     named sql statements, defined below. If no match is found,
+     the default sql statements are used.
+-->
+<dbMatchers>
+    <dbMatcher db="mssql" databaseProductName="microsoft sql server"/>
+    <dbMatcher db="oracle" databaseProductName="oracle.*"/>
+    <dbMatcher db="mysql" databaseProductName="my.*"/>
+    <dbMatcher db="postgresql" databaseProductName="postgres.*"/>
+    <dbMatcher db="sapdb" databaseProductName="sap.*"/>
+</dbMatchers>
+
+<!-- SQL statements to use for various components.
+
+     Parameter definitions ${param} are replaced with parameter values
+     from the configuration file.
+
+     If a named statement has a definition defined for the current database product,
+     then that statement is used. Otherwise the default statement is used.
+-->
+<!-- SQL statements for the JamesUsersJdbcRepository -->
+<sqlDefs name="org.apache.james.userrepository.JamesUsersJdbcRepository">
+    <sql name="tableName">${table}</sql>
+    <sql name="select">SELECT username, pwdHash, pwdAlgorithm, useForwarding,
+                        forwardDestination, useAlias, alias
+                 FROM ${table}
+                 ORDER BY username
+    </sql>
+    <sql name="selectByLowercaseName">
+                SELECT username, pwdHash, pwdAlgorithm, useForwarding,
+                        forwardDestination, useAlias, alias
+                FROM ${table}
+                WHERE lower(username) = ?
+    </sql>
+    <sql name="insert">INSERT INTO ${table}
+                    (username, pwdHash, pwdAlgorithm, useForwarding, forwardDestination, useAlias, alias)
+                VALUES (?,?,?,?,?,?,?)
+    </sql>
+    <sql name="update">UPDATE ${table} SET
+                    pwdHash = ?, pwdAlgorithm = ?, useForwarding = ?, forwardDestination = ?, useAlias = ?, alias = ?
+                WHERE username = ?
+    </sql>
+    <sql name="delete">DELETE FROM ${table} WHERE username = ?</sql>
+    <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(50) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(250), useAlias SMALLINT, alias VARCHAR(250), PRIMARY KEY(username))</sql>
+    <!-- An example of a database-specific sql statement
+    <sql name="createTable" db="mssql">CREATE TABLE ${table} (uniqueId UNIQUEIDENTIFIER, username VARCHAR(50) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), useForwarding SMALLINT, forwardDestination VARCHAR(250), useAlias SMALLINT, alias VARCHAR(250), PRIMARY KEY(username))</sql>
+    -->
+</sqlDefs>
+
+<!-- SQL statements for the DefaultUsersJdbcRepository -->
+<sqlDefs name="org.apache.james.userrepository.DefaultUsersJdbcRepository">
+    <sql name="tableName">${table}</sql>
+    <sql name="select">SELECT username, pwdHash, pwdAlgorithm
+                 FROM ${table}
+    </sql>
+    <sql name="insert">INSERT INTO ${table}
+                    (username, pwdHash, pwdAlgorithm)
+                VALUES (?,?,?)
+    </sql>
+    <sql name="update">UPDATE ${table} SET
+                    pwdHash = ?, pwdAlgorithm = ?
+                WHERE username = ?
+    </sql>
+    <sql name="delete">DELETE FROM ${table} WHERE username = ?</sql>
+    <sql name="createTable">CREATE TABLE ${table} (username VARCHAR(50) NOT NULL, pwdHash VARCHAR(50), pwdAlgorithm VARCHAR(20), PRIMARY KEY(username))</sql>
+</sqlDefs>
+
+<!-- SQL statements for the ListUsersJdbcRepository
+        (allowing multiple lists in one table) -->
+<sqlDefs name="org.apache.james.userrepository.ListUsersJdbcRepository">
+    <!-- An example of defining "default" parameters within the definition file.
+         This is used if no key parameter is specified in config. -->
+    <parameters key="unknownList"/>
+
+    <sql name="tableName">${table}</sql>
+    <sql name="select">SELECT listSubscriber
+                 FROM ${table}
+                 WHERE listName = '${key}'
+    </sql>
+    <sql name="insert">INSERT INTO ${table}
+                    (listSubscriber, listName)
+                VALUES (?, '${key}')
+    </sql>
+    <sql name="update">UPDATE ${table} SET
+                    listSubscriber = ?
+                WHERE listSubscriber = ? AND listName = '${key}'
+    </sql>
+    <sql name="delete">DELETE FROM ${table}
+                WHERE listSubscriber = ? AND listName = '${key}'
+    </sql>
+    <sql name="createTable">CREATE TABLE ${table} (listName VARCHAR(50) NOT NULL, listSubscriber VARCHAR(50) NOT NULL)</sql>
+</sqlDefs>
+
+<!-- SQL statements for the JdbcMailRepository  -->
+<sqlDefs name="org.apache.james.mailrepository.JDBCMailRepository">
+    <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="updateMessageSQL">UPDATE ${table} SET message_state = ?, error_message = ?, sender = ?, recipients = ?, remote_host = ?, remote_addr = ?, last_updated = ? WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name, repository_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+    <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
+    <sql name="createTable" db="mysql">
+        CREATE TABLE ${table} (
+        	message_name varchar (200) NOT NULL,
+        	repository_name varchar (200) NOT NULL,
+        	message_state varchar (30) NOT NULL ,
+        	error_message varchar (200) NULL ,
+        	sender varchar (200) NULL ,
+        	recipients text NOT NULL ,
+        	remote_host varchar (100) NOT NULL ,
+        	remote_addr varchar (20) NOT NULL ,
+        	message_body longblob NOT NULL ,
+        	last_updated datetime NOT NULL,
+        	PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="mssql">
+        CREATE TABLE [${table}] (
+        	[message_name] [varchar] (200) NOT NULL,
+        	[repository_name] [varchar] (200) NOT NULL,
+        	[message_state] [varchar] (30) NOT NULL ,
+        	[error_message] [varchar] (1000) NULL ,
+        	[sender] [varchar] (200) NULL ,
+        	[recipients] [text] NOT NULL ,
+        	[remote_host] [varchar] (100) NOT NULL ,
+        	[remote_addr] [varchar] (20) NOT NULL ,
+        	[message_body] [image] NOT NULL ,
+        	[last_updated] [datetime] NOT NULL
+        )
+		ALTER TABLE [${table}] WITH NOCHECK ADD
+			CONSTRAINT [PK_${table}] PRIMARY KEY
+			(
+				[message_name],
+				[repository_name]
+			)
+
+    </sql>
+	<sql name="createTable" db="oracle">
+        CREATE TABLE ${table} (
+        message_name varchar2(200) NOT NULL ,
+        repository_name varchar2(200) NOT NULL ,
+        message_state varchar2(30) NOT NULL ,
+        error_message varchar2(200) NULL ,
+        sender varchar2(200) ,
+        recipients varchar2(1000) NOT NULL ,
+        remote_host varchar2(100) NOT NULL ,
+        remote_addr varchar2(20) NOT NULL ,
+        message_body long raw NOT NULL ,
+        last_updated date NOT NULL ,
+        PRIMARY KEY (message_name, repository_name)
+        )
+        TABLESPACE system
+    </sql>
+    <sql name="createTable" db="sapdb">
+		CREATE TABLE ${table} (
+			message_name varchar (200) NOT NULL,
+			repository_name varchar (200) NOT NULL,
+			message_state varchar (30) NOT NULL ,
+			error_message varchar (200) NULL ,
+			sender varchar (200) NULL ,
+			recipients long NOT NULL ,
+			remote_host varchar (100) NOT NULL ,
+			remote_addr varchar (20) NOT NULL ,
+			message_body long byte NOT NULL ,
+			last_updated date NOT NULL,
+			PRIMARY KEY (message_name, repository_name)
+		)
+	</sql>
+</sqlDefs>
+
+<sqlDefs name="org.apache.james.mailrepository.JDBCSpoolRepository">
+    <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="updateMessageSQL">UPDATE ${table} SET message_state = ?, error_message = ?, sender = ?, recipients = ?, remote_host = ?, remote_addr = ?, last_updated = ? WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="updateMessageBodySQL">UPDATE ${table} SET message_body = ? WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="insertMessageSQL">INSERT INTO ${table} (message_name, repository_name, message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated, message_body) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</sql>
+    <sql name="retrieveMessageSQL">SELECT message_state, error_message, sender, recipients, remote_host, remote_addr, last_updated FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySQL">SELECT message_body FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="mssql">SELECT datalength(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="retrieveMessageBodySizeSQL" db="mysql">SELECT length(message_body) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="removeMessageSQL">DELETE FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
+    <sql name="listMessagesSQL">SELECT message_name, message_state, last_updated FROM ${table} WHERE repository_name = ? ORDER BY last_updated ASC</sql>
+    <sql name="createTable" db="mysql">
+        CREATE TABLE ${table} (
+        	message_name varchar (200) NOT NULL,
+        	repository_name varchar (200) NOT NULL,
+        	message_state varchar (30) NOT NULL ,
+        	error_message varchar (200) NULL ,
+        	sender varchar (200) NULL ,
+        	recipients text NOT NULL ,
+        	remote_host varchar (100) NOT NULL ,
+        	remote_addr varchar (20) NOT NULL ,
+        	message_body longblob NOT NULL ,
+        	last_updated datetime NOT NULL,
+        	PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="mssql">
+        CREATE TABLE [${table}] (
+        	[message_name] [varchar] (200) NOT NULL,
+        	[repository_name] [varchar] (200) NOT NULL,
+        	[message_state] [varchar] (30) NOT NULL ,
+        	[error_message] [varchar] (1000) NULL ,
+        	[sender] [varchar] (200) NULL ,
+        	[recipients] [text] NOT NULL ,
+        	[remote_host] [varchar] (100) NOT NULL ,
+        	[remote_addr] [varchar] (20) NOT NULL ,
+        	[message_body] [image] NOT NULL ,
+        	[last_updated] [datetime] NOT NULL
+        )
+		ALTER TABLE [${table}] WITH NOCHECK ADD
+			CONSTRAINT [PK_${table}] PRIMARY KEY
+			(
+				[message_name],
+				[repository_name]
+			)
+
+    </sql>
+	<sql name="createTable" db="oracle">
+        CREATE TABLE ${table} (
+        message_name varchar2(200) NOT NULL ,
+        repository_name varchar2(200) NOT NULL ,
+        message_state varchar2(30) NOT NULL ,
+        error_message varchar2(200) NULL ,
+        sender varchar2(200) NULL ,
+        recipients varchar2(1000) NOT NULL ,
+        remote_host varchar2(100) NOT NULL ,
+        remote_addr varchar2(20) NOT NULL ,
+        message_body long raw NOT NULL ,
+        last_updated date NOT NULL ,
+        PRIMARY KEY (message_name, repository_name)
+        )
+    </sql>
+    <sql name="createTable" db="sapdb">
+		CREATE TABLE ${table} (
+			message_name varchar (200) NOT NULL,
+			repository_name varchar (200) NOT NULL,
+			message_state varchar (30) NOT NULL ,
+			error_message varchar (200) NULL ,
+			sender varchar (200) NULL ,
+			recipients long NOT NULL ,
+			remote_host varchar (100) NOT NULL ,
+			remote_addr varchar (20) NOT NULL ,
+			message_body long byte NOT NULL ,
+			last_updated date NOT NULL,
+			PRIMARY KEY (message_name, repository_name)
+		)
+	</sql>
+</sqlDefs>
+
+</sqlResources>

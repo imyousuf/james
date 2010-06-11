@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="standard" xmlns:x="antlib:org.apache.avalon.tools">
+
+  <!--
+  ==============================================================================
+  Declare james specific properties used within the build.
+  ==============================================================================
+  -->
+  <import file="verify.xml"/>
+
+  <x:home index="project/index.xml"/>
+
+  <target name="info">
+    <x:info/>
+  </target>
+
+  <target name="init" depends="info">
+    <x:init/>
+  </target>
+
+  <target name="clean" depends="info">
+    <x:clean/>
+  </target>
+
+  <target name="prepare" depends="init">
+    <x:prepare/>
+  </target>
+
+  <target name="build" depends="prepare">
+    <x:javac/>
+  </target>
+
+  <target name="package" depends="build">
+    <x:jar/>
+  </target>
+
+  <target name="test" depends="package">
+    <x:junit/>
+  </target>
+
+  <target name="install" depends="test">
+    <x:install/>
+  </target>
+
+  <target name="javadoc" depends="prepare">
+    <x:javadoc/>
+  </target>
+
+  <target name="xdoc" depends="prepare">
+    <x:xdoc theme="modern"/>
+  </target>
+
+  <target name="site" depends="javadoc,xdoc"/>
+
+  <target name="dist" depends="install,site"/>
+  
+</project>
+

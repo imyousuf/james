@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry including="**/*.java" excluding="**/.svn/**|**/CVS/**" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.EXECUTION_ENVIRONMENT_CONTAINER"/>
+	<classpathentry kind="con" path="org.knopflerfish.eclipse.core.FRAMEWORK_CONTAINER">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/osgi/framework/"/>
+			<accessrule kind="nonaccessible" pattern="**/*"/>
+		</accessrules>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jdom.jar"/>
+	<classpathentry kind="lib" path="/common/java/knopflerfish/knopflerfish_osgi_2.0.0/knopflerfish.org/osgi/jars/cm/cm_all-2.0.0.jar"/>
+	<classpathentry kind="output" path="out"/>
+</classpath>

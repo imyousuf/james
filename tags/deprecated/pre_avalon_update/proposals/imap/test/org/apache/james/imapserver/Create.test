@@ -1,0 +1,12 @@
+// Create a simple name
+C: 10 CREATE test
+S: 10 OK CREATE completed
+// Create a subfolder with simple name
+C: 11 CREATE test.subfolder
+S: 11 OK CREATE completed
+// Create a fully qualified folder
+C: 12 CREATE test1
+S: 12 OK CREATE completed
+// Create a fully qualified sub folder
+C: 13 CREATE test1.subfolder1
+S: 13 OK CREATE completed

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE todo SYSTEM "./dtd/todo-v10.dtd">
+
+<todo title="JAMES Things To Do">
+ <devs>
+    <person name="Federico Barbieri" email="scoobie@systemy.it" id="FB"/>
+    <person name="Serge Knystautas" email="sergek@lokitech.com" id="SK"/>
+ </devs>
+
+ <actions priority="high">
+  <action context="code">
+    Upgrade to Avalon 3.0
+  </action>
+  <action context="code">
+    Add support for DRAC login/relay allowing
+  </action>
+ </actions>
+
+ <actions priority="medium">
+  <action context="code">
+    Improve exception management in RemoteDelivery mailet.
+  </action>
+  <action context="code">
+    Add support for better mailet router/processing (maybe like RequestDispatcher)
+  </action>
+  <action context="code">
+    Add integration with MAPS and RBL and ORBS spam relay detection systems.
+  </action>
+
+  <action context="code">
+    Improve matching syntax in JamesSpoolManager (Maybe split in a different class).
+  </action>
+  <action context="code">
+    Add needed functions to RemoteManager.
+  </action>
+  <action context="docs">
+   Write all documentation.
+  </action>
+ </actions>
+
+</todo>

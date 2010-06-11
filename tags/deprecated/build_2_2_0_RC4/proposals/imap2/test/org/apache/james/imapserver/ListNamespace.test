@@ -1,0 +1,37 @@
+# Empty 2nd arg retrieves hierarchy delimiter and root name of 1st argument
+# Rooted in private namespace
+C: e1 LIST "" ""
+S: \* LIST \(\\Noselect\) \"\.\" \"\"
+S: e1 OK LIST completed
+C: e1 LIST "anything" ""
+S: \* LIST \(\\Noselect\) \"\.\" \"\"
+S: e1 OK LIST completed
+C: e1 LIST test ""
+S: \* LIST \(\\Noselect\) \"\.\" \"\"
+S: e1 OK LIST completed
+
+# Rooted in users namespace
+C: e2 LIST "#mail" ""
+S: \* LIST \(\\Noselect\) \"\.\" \#mail
+S: e2 OK LIST completed
+C: e3 LIST "#mail.someone" ""
+S: \* LIST \(\\Noselect\) \"\.\" \#mail
+S: e3 OK LIST completed
+
+# Rooted in shared namespace
+# TODO: shared namespace doesn't currently exist.
+#C: e2 LIST "#share" ""
+#S: * LIST (\Noselect) "." #share
+#S: e2 OK LIST completed
+#C: e3 LIST "#share.something" ""
+#S: * LIST (\Noselect) "." #share
+#S: e3 OK LIST completed
+
+# Rooted in unknown namespace
+C: e2 LIST "#unknown" ""
+S: \* LIST \(\\Noselect\) \"\.\" \"\"
+S: e2 OK LIST completed
+C: e3 LIST "#unknown.something" ""
+S: \* LIST \(\\Noselect\) \"\.\" \"\"
+S: e3 OK LIST completed
+

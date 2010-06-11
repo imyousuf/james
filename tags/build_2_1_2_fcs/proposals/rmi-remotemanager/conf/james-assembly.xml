@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+
+<assembly>
+
+  <!-- The James block  -->
+  <block class="org.apache.james.James" name="James" >
+
+    <!-- Specify which components will provide the services required by this
+    block. The roles are specified in the code and the .xinfo file. The names
+    here must match the names specified for  a Block in this xml file.   -->
+    <provide name="dnsserver" role="org.apache.james.services.DNSServer"/>
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+             role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections"
+             role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+             role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
+  </block>
+
+  <!-- The James Spool Manager block  -->
+  <block class="org.apache.james.transport.JamesSpoolManager"
+         name="spoolmanager" >
+    <provide name="James" role="org.apache.mailet.MailetContext"/>
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+  </block>
+
+  <block class="org.apache.james.dnsserver.DNSServer" name="dnsserver"/>
+
+  <block class="org.apache.james.remotemanager.RemoteManager" name="remotemanager" >
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+        role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections"
+        role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+  </block>
+  <block class="org.apache.james.remotemanager.RMIRemoteManager" name="rmiremotemanager" >
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+  </block>
+
+  <!-- POP3 Server -->
+  <block class="org.apache.james.pop3server.POP3Server" name="pop3server" >
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+        role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections"
+        role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+  </block>
+
+  <!-- SMTP Server -->
+  <block class="org.apache.james.smtpserver.SMTPServer" name="smtpserver" >
+    <provide name="mailstore" role="org.apache.james.services.MailStore"/>
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+    <provide name="sockets"
+        role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections"
+        role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="James" role="org.apache.james.services.MailServer"/>
+  </block>
+
+  <!-- NNTP Server -->
+  <block class="org.apache.james.nntpserver.NNTPServer" name="nntpserver" >
+    <provide name="nntpauth" role="org.apache.james.nntpserver.AuthService"/>
+    <provide name="sockets"
+        role="org.apache.avalon.cornerstone.services.sockets.SocketManager"/>
+    <provide name="connections"
+        role="org.apache.avalon.cornerstone.services.connection.ConnectionManager"/>
+    <provide name="scheduler"
+        role="org.apache.avalon.cornerstone.services.scheduler.TimeScheduler"/>
+    <provide name="nntp-repository"
+        role="org.apache.james.nntpserver.repository.NNTPRepository"/>
+  </block>
+
+  <!-- NNTP Authentication Service -->
+  <block class="org.apache.james.nntpserver.AuthServiceImpl" name="nntpauth" >
+    <provide name="users-store" role="org.apache.james.services.UsersStore"/>
+  </block>
+
+  <!-- NNTP Repository -->
+  <block class="org.apache.james.nntpserver.repository.NNTPRepositoryImpl" name="nntp-repository" >
+  </block>
+
+  <!-- The High Level Storage block -->
+  <block class="org.apache.james.core.AvalonMailStore" name="mailstore" >
+    <provide name="objectstorage"
+             role="org.apache.avalon.cornerstone.services.store.Store"/>
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
+  </block>
+
+  <!-- The User Storage block -->
+  <block class="org.apache.james.core.AvalonUsersStore" name="users-store" >
+    <!-- Configure file based user store here, defaults should be fine -->
+    <provide name="objectstorage"
+             role="org.apache.avalon.cornerstone.services.store.Store"/>
+    <provide name="database-connections"
+             role="org.apache.avalon.cornerstone.services.datasource.DataSourceSelector" />
+  </block>
+
+
+  <!-- Configuration for Cornerstone Blocks only after here
+       NOTHING BELOW THIS SHOULD NEED CHANGING,
+       (unless you want secure sockets (TLS)) -->
+
+  <!-- The Storage block -->
+  <block class="org.apache.avalon.cornerstone.blocks.masterstore.RepositoryManager"
+         name="objectstorage">
+  </block>
+
+  <!-- The Connection Manager block -->
+  <block class="org.apache.avalon.cornerstone.blocks.connection.DefaultConnectionManager"
+           name="connections">
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+  </block>
+
+  <!-- The Socket Manager block -->
+  <block class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketManager"
+         name="sockets"/>
+
+  <!-- The Time Manager block -->
+  <block class="org.apache.avalon.cornerstone.blocks.scheduler.DefaultTimeScheduler"
+         name="scheduler">
+    <provide name="thread-manager"
+             role="org.apache.avalon.cornerstone.services.threads.ThreadManager" />
+  </block>
+
+  <!-- The DataSourceSelector block -->
+  <block class="org.apache.avalon.cornerstone.blocks.datasource.DefaultDataSourceSelector"
+         name="database-connections"/>
+
+  <!-- The ThreadManager block -->
+  <block class="org.apache.avalon.cornerstone.blocks.threads.DefaultThreadManager"
+         name="thread-manager" />
+
+</assembly>
+

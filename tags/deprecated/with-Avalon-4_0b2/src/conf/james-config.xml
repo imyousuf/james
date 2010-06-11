@@ -1,0 +1,567 @@
+<?xml version="1.0"?>
+<!--
+                                README!
+
+    This configuration file is designed to run without alteration, for simple
+    tests.
+    It assumes you have a DNS server on localhost and assigns a root pasword
+    of root.
+
+    For production use, or in case the defaults do not suit you, the items
+    you are most likely to need to change are preceeded by a
+    CHECKME! or
+    CONFIRM? comment in the left
+    margin.
+
+-->
+<config>
+
+  <!-- The James block  -->
+  <James>
+<!-- CHECKME! Set this to the right email address for error reports -->
+      <postmaster> Postmaster@localhost </postmaster>
+
+<!-- CONFIRM? -->
+      <!-- servernames identifies the DNS namespace served by this instance
+      of James.
+      If autodetect is TRUE, James wil attempt to discover its own name AND use
+      any specified servernames.  If autodetect is FALSE, James will use only
+      the specified servernames.  By default, the servername 'localhost' is
+      specified. This can be removed, if required. -->
+      <servernames autodetect="TRUE">
+        <!--
+        <servername>To override autodetected server names
+                    uncomment this.  </servername>-->
+        <servername>localhost</servername>
+      </servernames>
+
+      <!-- Set the type of permanent mailfolders to be used.
+      If IMAP service is to be provided, storage must be 'IMAP'; if only POP3
+      service is being provided then use must be 'basic' (default) . At some
+      stage POP3 will, hopefully, be able to use IMAP storage as well.  This
+      choice is irrelevant if the only service provided is SMTP. -->
+      <storage>basic</storage>
+
+      <!-- If storage is set to IMAP, systemClass and hostClass must point to
+      the appropriate classes. -->
+      <imapSetup systemClass="org.apache.james.imapserver.SimpleSystem"
+                 hostClass="org.apache.james.imapserver.JamesHost"/>
+      <imapHost>
+        <recordRepository>var/mail/folderRecords/</recordRepository>
+        <mailboxRepository>var/mail/mailboxes/</mailboxRepository>
+        <namespaces token="#">
+          <privateNamespace separator=".">#mail</privateNamespace>
+          <otherusersNamespace separator=".">#users</otherusersNamespace>
+          <sharedNamespace separator=".">#shared</sharedNamespace>
+        </namespaces>
+      </imapHost> 
+
+      <!-- The spool repository is a singular location where incoming mails
+      are temporarily stored before being processed.
+     (ex. file://c:/james/spool/) -->
+      <spoolRepository>
+        <repository destinationURL="file://var/mail/spool/"
+                    type="SPOOL"
+                    model="SYNCHRONOUS">
+        </repository>
+      </spoolRepository>
+
+      <!-- Alternative spool repository definition for Town use
+      <spoolRepository>
+        <repository destinationURL="town://mainspool"
+                    type="SPOOL"
+                    model="SYNCHRONOUS">
+          <conn>file:///dev/james/dist/var/maildatabase</conn>
+          <table>Message</table>
+        </repository>
+      </spoolRepository>
+      -->
+
+      <!-- The inbox repository is the location for users inboxes -->
+      <inboxRepository>
+        <repository destinationURL="file://var/mail/inboxes/"
+                    type="MAIL"
+                    model="SYNCHRONOUS">
+        </repository>
+      </inboxRepository>
+
+      <!-- Alternative inbox repository definition for Town use
+      <inboxRepository>
+        <repository destinationURL="town://inbox"
+                    type="SPOOL"
+                    model="SYNCHRONOUS">
+          <conn>file:///dev/james/dist/var/maildatabase</conn>
+          <table>Message</table>
+        </repository>
+      </inboxRepository>
+      -->
+  </James>
+
+  <!-- The James Spool Manager block  -->
+  <spoolmanager>
+      <!-- The spool repository is a singular location where incoming mails
+      are temporarily stored before being processed.
+     (ex. file://c:/james/spool/) 
+	The Spoool Manager and James Block must point to the same repository
+	to add and process same messages. -->
+      <spoolRepository>
+        <repository destinationURL="file://var/mail/spool/"
+                    type="SPOOL"
+                    model="SYNCHRONOUS">
+        </repository>
+      </spoolRepository>
+
+      <!-- Alternative spool repository definition for Town use
+      <spoolRepository>
+        <repository destinationURL="town://mainspool"
+                    type="SPOOL"
+                    model="SYNCHRONOUS">
+          <conn>file:///dev/james/dist/../../store/maildatabase</conn>
+          <table>Message</table>
+        </repository>
+      </spoolRepository>
+      -->
+
+      <!-- number of spool threads -->
+      <threads> 1 </threads>
+
+        <!-- Set the packages from which to load mailets and matches -->
+        <mailetpackages>
+          <mailetpackage>org.apache.james.transport.mailets.</mailetpackage>
+        </mailetpackages>
+        <matcherpackages>
+          <matcherpackage>org.apache.james.transport.matchers.</matcherpackage>
+        </matcherpackages>
+
+        <!-- Processor CONFIGURATION SAMPLE:
+             root is the first processor all mails enter -->
+        <processor name="root">
+          <!-- Checks that the MAIL FROM command was for a valid domain. 
+          Important for spam prevention. -->
+          <!-- 
+          <mailet match="SenderInFakeDomain" class="ToProcessor">
+            <processor> spam </processor>
+          </mailet>
+          -->
+          <!-- Important check to avoid race conditions -->
+          <mailet match="RelayLimit=30" class="Null">
+          </mailet>
+          
+          <!-- Check for delivery from a known spam server -->
+          <mailet match="InSpammerBlacklist=blackholes.mail-abuse.org"
+                  class="ToProcessor">
+            <processor> spam </processor>
+            <notice> Rejected - see  http://www.mail-abuse.org/rbl/ </notice>
+          </mailet>
+
+          <mailet match="InSpammerBlacklist=dialups.mail-abuse.org"
+                  class="ToProcessor">
+            <processor> spam </processor>
+            <notice> Dialup - see http://www.mail-abuse.org/dul/ </notice>
+          </mailet>
+
+          <mailet match="InSpammerBlacklist=relays.mail-abuse.org"
+                  class="ToProcessor">
+            <processor> spam </processor>
+            <notice> Open spam relay - see http://www.mail-abuse.org/rss/ </notice>
+          </mailet>
+
+          <!-- Sample matching to kill a message (send to Null) -->
+          <mailet match="RecipientIs=badboy@badhost" class="Null">
+          </mailet>
+
+          <!-- Sample listserv wrapping a local avalon list of users. -->
+          <mailet match="CommandForListserv=james@localhost"
+                  class="AvalonListservManager">
+            <membersPath> file://var/users/list-james </membersPath>
+          </mailet>
+
+          <mailet match="RecipientIs=james@localhost" class="AvalonListserv">
+            <membersonly> false </membersonly>
+            <attachmentsallowed> true </attachmentsallowed>
+            <replytolist> true </replytolist>
+            <membersPath>file://var/users/list-james</membersPath>
+          </mailet>
+
+          <!-- Sends remaining mails to the transport processor for either
+          local or remote delivery -->
+          <mailet match="All" class="ToProcessor">
+            <processor> transport </processor>
+          </mailet>
+        </processor>
+
+        <!-- Processor CONFIGURATION SAMPLE: error is the processor mails with 
+        failure conditions enter -->
+        <processor name="error">
+          <!-- Logs any messages to the repository specified -->
+          <mailet match="All" class="ToRepository">
+            <repositoryPath> file://var/mail/error/</repositoryPath>
+            <!-- <repositoryPath> town://mail-error </repositoryPath>-->
+            <passThrough> true </passThrough>
+          </mailet>
+
+          <!-- If you want to notify the sender their message was marked as
+          spam, uncomment this
+          <mailet match="All" class="NotifySender">
+          </mailet> 
+          -->
+
+          <!-- If you want to notify the postmaster that a message was marked
+          as spam, uncomment this
+          <mailet match="All" class="NotifyPostmaster">
+          </mailet> 
+          -->
+        </processor>
+
+        <!--  Processor CONFIGURATION SAMPLE: transport is a sample custom 
+        processor for local or remote delivery -->
+        <processor name="transport">
+          <!-- Is the recipient is for a local account, deliver it locally -->
+          <mailet match="RecipientIsLocal" class="LocalDelivery">
+          </mailet>
+
+          <!-- If the host is handled by this server and it did not get
+          locally delivered,  this is an invalid recipient -->
+          <mailet match="HostIsLocal" class="ToProcessor">
+            <processor>error</processor>
+          </mailet>
+
+<!-- CHECKME! 
+    Anti-relay mailet: Add your network address here, 
+    e.g. "RemoteAddrNotInNetwork=127.0.0.1, abc.de.*"
+-->
+
+          <!-- This matcher-mailet pair can prevent relaying... if you change
+          this,  you risk making your mail server an open relay point for
+          spammers .
+          NOTE 1: the order of matcher-mailets is important: it must come after 
+          valid local recipients have been dealt with but before any attempt is 
+          made to delivery the mail remotely.
+          NOTE 2: Add your own network, if you want to relay mail outwards -->
+          <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
+            <processor> spam </processor>
+          </mailet>
+
+          <!-- Attempt remote delivery using the specified repository for the
+          spool,
+          using delay time to retry delivery and the maximum number of
+          retries -->
+          <mailet match="All" class="RemoteDelivery">
+            <outgoing> file://var/mail/outgoing/ </outgoing>
+            <!-- <outgoing> town://mail-outgoing </outgoing>-->
+            <delayTime> 21600000 </delayTime>
+            <maxRetries> 5 </maxRetries>
+          </mailet>
+        </processor>
+
+        <!--  Processor CONFIGURATION SAMPLE: spam is where messages detected
+        as relaying or other problems will get sent.  You can either log these,
+        bounce these, or just ignore them. -->
+        <processor name="spam">
+          <!-- If you wanted, you could just destroy messages, uncomment this
+          matcher/mailet
+          <mailet match="All" class="Null">
+          </mailet> 
+          -->
+
+          <!-- If you want to notify the sender their message was marked as 
+          spam, uncomment this
+          <mailet match="All" class="NotifySender">
+          </mailet> 
+          -->
+
+          <!-- If you want to notify the postmaster that a message was marked
+          as  spam, uncomment this
+          <mailet match="All" class="NotifyPostmaster">
+          </mailet> 
+          -->
+
+          <!-- Out of the box, this will log the message to a repository -->
+          <mailet match="All" class="ToRepository">
+            <repositoryPath>file://var/mail/spam/</repositoryPath>
+            <!-- <repositoryPath> town://spam </repositoryPath> -->
+          </mailet>
+        </processor>
+  </spoolmanager>
+
+
+<!-- CONFIRM? Enter ip address of your DNS server, one per element -->
+  <dnsserver>
+        <servers>
+          <server>127.0.0.1</server>
+          <!--<server> put extra dns server address here </server>-->
+        </servers>
+        <authoritative>false</authoritative>
+  </dnsserver>
+
+<!-- CHECKME! Change the default password! -->
+  <remotemanager>
+        <port>4555</port>
+        <!-- <bind>  </bind> uncomment this if you want to bind to a specific
+        inetaddress -->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+           identify itself  for example, in SMTP and POP3 greetings.
+           If autodetect is TRUE, James will attempt to discover its own name OR
+           use 'localhost'. If autodetect is FALSE, James will use the value given
+           OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
+          <administrator_accounts>
+
+            <!-- FILL ME!!!!!!  You must provide a password for your
+             administrator accounts (cannot be blank) -->
+            <account login="root" password="root"/>
+
+           </administrator_accounts>
+           <connectiontimeout> 60000 </connectiontimeout>
+	</handler>
+  </remotemanager>
+
+  <!-- WARNING - The IMAP server is only experimental, ie pre-alpha -->
+  <imapserver>
+
+        <port>143</port>
+        <!-- <port>995</port> -->
+        <!-- need to check what if any IMAP over SSL uses -->
+        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
+        inetaddress-->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+            identify itself  for example, in SMTP and POP3 greetings.
+            If autodetect is TRUE, James will attempt to discover its own name OR
+            use 'localhost'. If autodetect is FALSE, James will use the value given
+            OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
+          <connectiontimeout>1800000</connectiontimeout>
+	</handler>
+  </imapserver>
+
+  <pop3server>
+        <port>110</port>
+        <!-- <port>995</port> -->
+        <!-- port 995 is the well-known/IANA registered port for POP3S
+        ie over SSL/TLS -->
+        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
+        inetaddress-->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+            identify itself  for example, in SMTP and POP3 greetings.
+            If autodetect is TRUE, James will attempt to discover its own name OR
+            use 'localhost'. If autodetect is FALSE, James will use the value given
+            OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
+          <connectiontimeout>120000</connectiontimeout>
+        </handler>
+  </pop3server>
+
+  <smtpserver>
+        <port>25</port>
+        <!--<bind></bind> uncomment this if you want to bind to a specific
+        inetaddress -->
+        <!--<useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+            identify itself  for example, in SMTP and POP3 greetings.
+            If autodetect is TRUE, James will attempt to discover its own name OR
+            use 'localhost'. If autodetect is FALSE, James will use the value given
+            OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
+          <connectiontimeout>360000</connectiontimeout>
+          <!-- This sets the maximum allowed message size for the smtphandler
+          in KBytes.
+          The value defaults to 0, which means no limit.
+          <maxmessagesize>0</maxmessagesize>
+           -->
+        </handler>
+  </smtpserver>
+
+  <nntpserver>
+        <port>119</port>
+        <!-- <port>563</port> -->
+        <!-- port 563 is the well-known/IANA registered port for NNTPS
+        ie over SSL/TLS -->
+        <!-- <bind>  </bind>  uncomment this if you want to bind to a specific
+        inetaddress-->
+        <!-- <useTLS>TRUE</useTLS> uncomment this if you want to use TLS (SSL)
+        on this port -->
+        <handler>
+          <!-- helloName is the single host name this instance of James will use to
+            identify itself  for example, in SMTP and POP3 greetings.
+            If autodetect is TRUE, James will attempt to discover its own name OR
+            use 'localhost'. If autodetect is FALSE, James will use the value given
+            OR 'localhost' -->
+          <helloName autodetect="TRUE">myMailServer</helloName>
+          <connectiontimeout>120000</connectiontimeout>
+	  <!-- make this true, if you want only authenticated users to access NNTP-->
+          <authRequired>false</authRequired>
+        </handler>
+  </nntpserver>
+
+  <nntp-repository>
+        <!-- make this true to disallow posting to all newsgroups-->
+	<readOnly>false</readOnly>
+	<rootPath>file:///var/nntp/groups</rootPath>
+	<tempPath>file:///var/nntp/temp</tempPath>
+	<articleIDPath>file:///var/nntp/articleid</articleIDPath>
+	<articleIDDomainSuffix>news.james.apache.org</articleIDDomainSuffix>
+	<!-- these additional news groups would be created and exposed-->
+	<newsgroups>
+	  <newsgroup>org.apache.james.dev</newsgroup>
+	  <newsgroup>org.apache.james.user</newsgroup>
+	  <newsgroup>org.apache.avalon.dev</newsgroup>
+	  <newsgroup>org.apache.avalon.user</newsgroup>
+	</newsgroups>
+	<spool>
+          <configuration>
+	    <spoolPath>file:///var/nntp/spool</spoolPath>
+	    <!-- number of threads that process spooler related tasks -->
+	    <threadCount>1</threadCount>
+	    <!-- the spool thread(s) should idle for some time, 
+	        if it has nothing to do  -->
+	    <threadIdleTime>1000</threadIdleTime>
+          </configuration>
+	</spool>
+  </nntp-repository>
+
+  <!-- The High Level Storage block -->
+  <mailstore>
+      <repositories>
+        <repository
+            class="org.apache.james.mailrepository.AvalonMailRepository">
+          <protocols>
+            <protocol>file</protocol>
+          </protocols>
+          <types>
+            <type>MAIL</type>
+          </types>
+          <models>
+            <model>SYNCHRONOUS</model>
+            <model>ASYNCHRONOUS</model>
+            <model>CACHE</model>
+          </models>
+        </repository>
+        <repository
+            class="org.apache.james.mailrepository.AvalonSpoolRepository">
+          <protocols>
+            <protocol>file</protocol>
+          </protocols>
+          <types>
+            <type>SPOOL</type>
+          </types>
+          <models>
+            <model>SYNCHRONOUS</model>
+            <model>ASYNCHRONOUS</model>
+            <model>CACHE</model>
+          </models>
+        </repository>
+
+        <repository
+            class="org.apache.james.mailrepository.TownSpoolRepository">
+          <protocols>
+            <protocol>town</protocol>
+          </protocols>
+          <types>
+            <type>SPOOL</type>
+            <type>MAIL</type>
+          </types>
+          <models>
+            <model>SYNCHRONOUS</model>
+            <model>ASYNCHRONOUS</model>
+            <model>CACHE</model>
+          </models>
+        </repository>
+      </repositories>
+  </mailstore>
+       
+  <!-- The User Storage block -->
+  <users-store>
+      <repository name="LocalUsers"
+                  class="org.apache.james.userrepository.UsersFileRepository">
+        <destination URL="file://var/users/"/>
+      </repository>
+      
+      <!-- Uncomment this to store users in an RDBMS
+      <repository name="LocalUsers"
+                  class="org.apache.james.userrepository.UsersTownRepository">
+        <destination URL="town://users/">
+        <conn>file:///var/maildatabase</conn>
+        <table>Users</table>
+      </repository>
+      -->
+      
+      <repository name="list-james"
+                  class="org.apache.james.userrepository.UsersFileRepository">
+        <destination URL="file://var/lists/list-james/"/>
+      </repository>
+  </users-store>
+
+  <!-- Configuration for Cornerstone Blocks only after here
+       NOTHING BELOW THIS SHOULD NEED CHANGING,
+       (unless you want secure sockets (TLS)) -->
+
+  <!-- The Storage block -->
+  <objectstorage>
+      <repositories>
+        <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Object_Repository">
+        <protocols>
+          <protocol>file</protocol>
+        </protocols>
+        <types>
+          <type>OBJECT</type>
+        </types>
+        <models>
+          <model>SYNCHRONOUS</model>
+          <model>ASYNCHRONOUS</model>
+          <model>CACHE</model>
+        </models>
+      </repository>
+      <repository class="org.apache.avalon.cornerstone.blocks.masterstore.File_Persistent_Stream_Repository">
+        <protocols>
+          <protocol>file</protocol>
+        </protocols>
+        <types>
+          <type>STREAM</type>
+        </types>
+        <models>
+          <model>SYNCHRONOUS</model>
+          <model>ASYNCHRONOUS</model>
+          <model>CACHE</model>
+        </models>
+      </repository>
+    </repositories>
+  </objectstorage>
+
+  <!-- The Socket Manager block -->
+  <sockets>
+      <server-sockets>
+        <factory name="plain"
+                 class="org.apache.avalon.cornerstone.blocks.sockets.DefaultServerSocketFactory" />
+        <!--
+        <factory name="ssl" 
+                 class="org.apache.avalon.cornerstone.blocks.sockets.TLSServerSocketFactory">
+          <keystore>
+            <file>conf/keystore</file> 
+            <password>secret</password> 
+            <type>JKS</type> 
+            <protocol>TLS</protocol> 
+            <algorithm>SunX509</algorithm> 
+            <authenticate-client>false</authenticate-client> 
+          </keystore>
+        </factory>
+        -->
+      </server-sockets>
+
+      <client-sockets>
+        <factory name="plain" 
+                 class="org.apache.avalon.cornerstone.blocks.sockets.DefaultSocketFactory" />
+      </client-sockets>
+  </sockets>
+
+</config>

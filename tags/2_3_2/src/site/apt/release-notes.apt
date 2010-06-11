@@ -1,0 +1,150 @@
+ ------
+ Release Notes
+ ------
+ Apache JAMES Project Team
+ ------
+ 2009-05-23
+ ------
+  
+~~ Licensed to the Apache Software Foundation (ASF) under one
+~~ or more contributor license agreements.  See the NOTICE file
+~~ distributed with this work for additional information
+~~ regarding copyright ownership.  The ASF licenses this file
+~~ to you under the Apache License, Version 2.0 (the
+~~ "License"); you may not use this file except in compliance
+~~ with the License.  You may obtain a copy of the License at
+~~
+~~   http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing,
+~~ software distributed under the License is distributed on an
+~~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~~ KIND, either express or implied.  See the License for the
+~~ specific language governing permissions and limitations
+~~ under the License.
+
+Release Notes - Apache JAMES Server
+
+ The Apache James Server is a 100% pure Java SMTP and POP3 Mail server 
+ and NNTP News server designed to be a complete and portable enterprise 
+ mail engine solution. James is based on currently available open protocols.
+
+ The James server also serves as a mail application platform. The James 
+ project hosts the Apache Mailet API, and the James server is a Mailet 
+ container. This feature makes it easy to design, write, and deploy custom 
+ applications for mail processing. This modularity and ease of customization 
+ is one of James' strengths, and can allow administrators to produce powerful 
+ applications surprisingly easily. 
+
+
+*Version 3.2.2
+
+ Is a compatible, point release
+
+**Notes
+ 
+  * The Mordred data source is deprecated and will be removed in a future minor release.
+  
+  * The cryptography mailets and matchers are now available as a 
+  {{{http://james.apache.org/mailet/crypto/}separate library}}. The
+  versions included will be replaced by this library in a future minor release. Users
+  should upgrade to the library versions.
+ 
+**Since 3.2.1
+        
+***Bug Fixes
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-435}JAMES-435}}] -         James Service Wrapper displays wrong James version
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-770}JAMES-770}}] -         Exception when runnning JAMES with run.sh
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-787}JAMES-787}}] -         Unable to resolv 127.0.0.1/localhost  [was: Fetchmail not use 127.0.0.1 as RemoteAddress when using index=-1]
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-801}JAMES-801}}] -         "Using database" documentation should reflect removal of mysql jdbc driver.
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-814}JAMES-814}}] -         tools/bin/ant has malformed line endings
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-815}JAMES-815}}] -         The build process should auto-create the www directory
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-846}JAMES-846}}] -         RemoteDelivery convertTo7Bit() can corrupt message content. 
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-851}JAMES-851}}] -         RemoteManagerTest fails because of bugs in the test
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-875}JAMES-875}}] -         Message-ID changed by mailets (MSGID_FROM_MTA_HEADER changed)
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-899}JAMES-899}}] -         RemoteDelivery sends a message again and again if transport.close() throws a MessagingException
+ 
+        
+*** New Features
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-849}JAMES-849}}] -         Support PostgreSQL for BayesianAnalysis
+
+*** Tasks Completed
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-693}JAMES-693}}] -         Update javamail to 1.4.1 final when available
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-800}JAMES-800}}] -         UPGRADE.txt in trunk (and in 2.3.x branch) provides docs for updating from 2.2.0 to 2.3.0: should be updated or made clear
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-812}JAMES-812}}] -         Fix JIRA versions. next-minor and next-major do not have anymore meaning.
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-816}JAMES-816}}] -         Update to dnsjava 2.0.6
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-903}JAMES-903}}] -         Subversion Caretaking
+ 
+ * [{{{https://issues.apache.org/jira/browse/JAMES-907}JAMES-907}}] -         Run RAT
+ 
+* Version 3.2.1
+
+**Since 3.2.0
+    
+*** Sub-tasks Completed
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-718}JAMES-718}}] -         Add warning to config.xml to explain the problems which can happen with matchers which extend AbstractStorageQuota
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-790}JAMES-790}}] -         Remove ordb.org from docs
+    
+*** Bugs Fixed
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-592}JAMES-592}}] -         OOM caused by unbounded cache in InetAddress (was James leaks memory slowly)
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-662}JAMES-662}}] -         sendmail.py doesn't handle multiple TO-recipients
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-663}JAMES-663}}] -         sendmail.py crashes on line "from_addr = os.environ['USER'] + '@' + socket.getfqdn()"
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-671}JAMES-671}}] -         ServerConnection doesn't properly handle the TCP/IP backlog
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-691}JAMES-691}}] -         Search &amp; Fix broken links on the new website
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-721}JAMES-721}}] -         MBoxMailRepository.remove(String key) causes ClassCastException
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-735}JAMES-735}}] -         Failure to correctly set mail.smtp.localhost leads to mail servers being listed on cbl.abuseat.org and mail being rejected by Spamhaus.
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-757}JAMES-757}}] -         MailAddress not check for valid syntax if new MailAddress(user, domain) is used
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-759}JAMES-759}}] -         sendmail.py use localhost to connect to local smtpserver. We should use 127.0.0.1
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-778}JAMES-778}}] -         exporting variables using build.sh on solaris breaks
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-781}JAMES-781}}] -         James will not start if there is directory with too many files and folders in the repostiory path
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-783}JAMES-783}}] -         python/sendmail.py is not added to the binary distribution package
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-830}JAMES-830}}] -         How can I connect Repository to Oracle DB server
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-853}JAMES-853}}] -         Server sends Mail without body while using gateway configuration  for the RemoteDelivery Mailet 
+    
+***Improvements Made
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-679}JAMES-679}}] -         Make sure our container use an expiration for cached dns data
+
+                    
+***Tasks Completed
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-677}JAMES-677}}] -         Update license headers to follow the latest ASF requirements as of November the 1st
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-682}JAMES-682}}] -         Merge 2.3.0a1 to 2.3.0 final releases on JIRA
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-694}JAMES-694}}] -         Upgrade dnsjava to 2.0.3 when available
+
+ * [{{{https://issues.apache.org/jira/browse/JAMES-774}JAMES-774}}] -         Add documentation for the dns ttl issue
+            
