@@ -364,9 +364,17 @@
         <constructor-arg index="2" value="james"/>
         <constructor-arg index="3" value="james"/>
     </bean>
-    
+  
+    <bean id="nodeLocker" class="org.apache.james.imap.jcr.JCRVmNodeLocker"/>
+
+    <bean id="uidConsumer" class="org.apache.james.imap.jcr.JCRUidConsumer">
+        <constructor-arg index="0" ref="sessionJcrRepository"/>
+        <constructor-arg index="1" ref="nodeLocker"/>
+    </bean>
+
     <bean id="sessionMapperFactory" class="org.apache.james.imap.jcr.JCRMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="sessionJcrRepository"/>
+        <constructor-arg index="1" ref="nodeLocker"/>
     </bean>
 
     <bean id ="subscriper" class="org.apache.james.imap.jcr.JCRSubscriptionManager">
@@ -377,6 +385,8 @@
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
         <constructor-arg index="2" ref="subscriper"/>
+        <constructor-arg index="3" ref="nodeLocker"/>
+        <constructor-arg index="4" ref="uidConsumer"/>
     </bean>
 
     -->
