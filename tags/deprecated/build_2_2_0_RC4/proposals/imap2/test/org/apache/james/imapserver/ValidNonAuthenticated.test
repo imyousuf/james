@@ -1,5 +1,0 @@
-# Valid in non-authenticated only
-C: a001 LOGIN daz daz
-S: a001 NO LOGIN failed. Command not valid in this state
-C: abcd AUTHENTICATE KERBEROS_V4
-S: abcd NO AUTHENTICATE failed. Command not valid in this state

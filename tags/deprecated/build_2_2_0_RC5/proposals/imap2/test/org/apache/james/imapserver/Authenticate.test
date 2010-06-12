@@ -1,9 +1,0 @@
-# Unsupported Authentication mechanism
-C: abcd AUTHENTICATE KERBEROS_V4
-S: abcd NO AUTHENTICATE failed. Unsupported authentication mechanism 'KERBEROS_V4'
-
-C: abcd AUTHENTICATE
-S: abcd BAD Missing argument. Command should be '<tag> AUTHENTICATE <auth_type> \*\(CRLF base64\)'
-
-C: abcd AUTHENTICATE KERBEROS_V4 extra
-S: abcd BAD Expected end-of-line, found more characters. Command should be '<tag> AUTHENTICATE <auth_type> \*\(CRLF base64\)'

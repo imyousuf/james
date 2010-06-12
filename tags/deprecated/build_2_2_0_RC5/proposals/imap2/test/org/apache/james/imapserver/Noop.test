@@ -1,3 +1,0 @@
-# TODO make sure we get unsolicited responses on NOOP
-C: a01 NOOP
-S: a01 OK NOOP completed

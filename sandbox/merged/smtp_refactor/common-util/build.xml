@@ -1,6 +1,0 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<project default="main" name="common-util">
-  <description>Builds common-util module. This is an util module.</description>
-  <property name="name.module" value="common-util" />
-  <import file="../build-tools/util-build.xml" optional="no" />
-</project>

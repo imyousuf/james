@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project default="main" name="user-library">
-  <description>Builds user-library module. This is an library module.</description>
-  <property name="name.module" value="user-library" />
-  <import file="../build-tools/library-build.xml" optional="no" />
-</project>

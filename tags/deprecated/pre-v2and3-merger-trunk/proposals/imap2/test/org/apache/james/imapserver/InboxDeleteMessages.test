@@ -1,6 +1,0 @@
-# Rename the INBOX - this copied all of the messages out
-C: a RENAME INBOX tobedeleted
-S: a OK RENAME completed
-
-C: a DELETE tobedeleted
-S: OK DELETE completed

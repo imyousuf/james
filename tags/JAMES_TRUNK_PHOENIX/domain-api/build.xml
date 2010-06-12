@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project default="main" name="domain-api">
-  <description>Builds domain-api module. This is an api module.</description>
-  <property name="name.module" value="domain-api" />
-  <import file="../build-tools/api-build.xml" optional="no" />
-</project>

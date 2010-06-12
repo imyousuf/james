@@ -1,7 +1,0 @@
-C: deluser user2
-S: User user2 deleted
-C: listusers
-S: Existing accounts 1
-S: user: user1
-C: deluser user1
-S: User user1 deleted
