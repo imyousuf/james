@@ -36,7 +36,7 @@
             <!--  create foreign keys on startup -->
             <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
             <!--  reorder SQL statements to satisfy database foreign key constraints -->
-			<property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
+            <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
         </properties>
 
     </persistence-unit>
