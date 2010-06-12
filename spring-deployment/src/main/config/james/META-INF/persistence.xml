@@ -2,7 +2,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
     version="2.0">
+
     <persistence-unit name="James" transaction-type="RESOURCE_LOCAL">
+
         <!-- Mailbox stuff-->
         <class>org.apache.james.imap.jpa.mail.model.JPAHeader</class>
         <class>org.apache.james.imap.jpa.mail.model.JPAMailbox</class>
@@ -31,7 +33,12 @@
         <properties>
             <!--  create tables on startup -->
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-        
+            <!--  create foreign keys on startup -->
+            <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
+            <!--  reorder SQL statements to satisfy database foreign key constraints -->
+			<property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
         </properties>
+
     </persistence-unit>
+
 </persistence>
