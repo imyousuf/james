@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
+<project>
+  <parent>
+    <artifactId>james-server</artifactId>
+    <groupId>org.apache.james</groupId>
+    <version>3.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.james</groupId>
+  <artifactId>james-server-spring-deployment</artifactId>
+  <name>Apache JAMES Server Spring Deployment</name>
+  <build>
+  
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <optimize>true</optimize>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <!-- Include etc/ in the beginning of the classpath declaration in the bin scripts -->
+          <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+          <configurationDirectory>conf</configurationDirectory>
+          <target>${project.build.directory}/appassembler</target>
+          <repositoryLayout>flat</repositoryLayout>
+		  <repositoryName>lib</repositoryName>
+          <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+          <environmentSetupFileName>setenv</environmentSetupFileName>
+          <!--  set some sane defaults for memory -->
+          <extraJvmArguments>-Xms128m -Xmx512m -Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader</extraJvmArguments>
+          <!-- Generate bin scripts for windows and unix per default -->
+          <platforms>
+            <platform>windows</platform>
+            <platform>unix</platform>
+          </platforms>
+          <programs>
+            <program>
+              <mainClass>org.apache.james.container.spring.Main</mainClass>
+              <!-- call it only run because appassemble will add .bat by default on windows -->              
+              <name>run</name>
+              <!-- Only generate windows bat script for this application -->
+              <platforms>
+                <platform>windows</platform>
+              </platforms>
+            </program>
+            <program>
+              <mainClass>org.apache.james.container.spring.Main</mainClass>
+              <name>run.sh</name>
+              <!-- Only generate unix shell script for this application -->
+              <platforms>
+                <platform>unix</platform>
+              </platforms>
+            </program>
+          </programs>
+                   
+          <daemons>
+            <daemon>
+              <id>james</id>
+              <mainClass>org.apache.james.container.spring.Main</mainClass>
+              <commandLineArguments>
+                <commandLineArgument>start</commandLineArgument>
+              </commandLineArguments>
+              <platforms>
+                <platform>jsw</platform>
+              </platforms>   
+              <generatorConfigurations>
+                <generatorConfiguration>
+                  <generator>jsw</generator>
+                  <includes>
+                    <include>linux-x86-32</include>
+                    <include>linux-x86-64</include>
+                    <include>linux-ppc-64</include>
+                    <include>macosx-x86-universal-32</include>
+                    <include>macosx-ppc-32</include>
+                    <include>solaris-sparc-32</include>
+                    <include>solaris-sparc-64</include>
+                    <include>solaris-x86-32</include>
+                    <include>windows-x86-32</include>  
+                  </includes>
+                  
+                  <configuration>
+                    <property>
+                      <name>configuration.directory.in.classpath.first</name>
+                      <value>../conf</value>
+                    </property>
+                    <property>
+                      <name>set.default.REPO_DIR</name>
+                      <value>../lib</value>
+                    </property>
+                    <property>
+                      <name>wrapper.working.dir</name>
+                      <value>.</value>
+                    </property>
+                    <property>
+                      <name>wrapper.logfile</name>
+                      <value>log/wrapper.log</value>
+                    </property>
+                    <property>
+                      <name>wrapper.java.library.path</name>
+                      <value>../lib</value>
+                    </property>
+                    <property>
+                      <name>wrapper.java.initmemory</name>
+                      <value>128</value>
+                    </property>
+                    <property>
+                      <name>wrapper.java.maxmemory</name>
+                      <value>512</value>
+                    </property>
+                    <property>
+                      <name>wrapper.java.additional.1</name>
+                      <value>-Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader</value>
+                    </property>
+                  </configuration>
+                </generatorConfiguration>
+              </generatorConfigurations>
+                         
+            </daemon>
+          </daemons>
+          
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-appassemble</id>
+            <phase>package</phase>
+            <goals>
+              <goal>assemble</goal>
+              <goal>generate-daemons</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+
+              <tasks>
+                <!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
+                     from the lib dir to make windows happy again
+                -->
+                <replace file="${project.build.directory}/appassembler/bin/run.bat" token="%BASEDIR%\lib" value="..\lib"/>
+                <replace file="${project.build.directory}/appassembler/bin/run.sh" token="setenv" value="setenv.sh"/>
+                
+                <!-- this is needed because appassembler is not really smart on some settings -->
+                <replace file="${project.build.directory}/appassembler/jsw/james/conf/wrapper.conf" token="lib/wrapper.jar" value="%REPO_DIR%/wrapper.jar"/>
+                <replace file="${project.build.directory}/appassembler/jsw/james/bin/james" token="logs" value="var"/>
+                
+                <!--  copy the linux wrapper-linux-x86-32 to wrapper, so use it as default if no matching wrapper was found-->
+                <copy file="${project.build.directory}/appassembler/jsw/james/bin/wrapper-linux-x86-32" tofile="${project.build.directory}/appassembler/jsw/james/bin/wrapper"/>
+              </tasks>
+
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+	  <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptorSourceDirectory>src/assemble/</descriptorSourceDirectory>
+          <tarLongFileMode>gnu</tarLongFileMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>src/main/config/james</directory>
+              <!-- override the destination directory for this resource -->
+              <targetPath>WEB-INF/conf/</targetPath>
+              <excludes>
+                <exclude>log4j.properties</exclude>
+                <exclude>META-INF/persistence.xml</exclude> 
+                <exclude>**/lib/**</exclude>
+              </excludes>
+            </resource>
+            <resource>
+              <directory>src/main/config/james</directory>
+              <!-- override the destination directory for this resource -->
+              <targetPath>WEB-INF/classes/</targetPath>
+              <includes>
+                <include>log4j.properties</include>
+                <include>META-INF/persistence.xml</include> 
+              </includes>
+            </resource>
+            <resource>
+              <directory>src/main/config/war</directory>
+              <!-- override the destination directory for this resource -->
+              <targetPath>WEB-INF/conf/</targetPath>
+              
+            </resource>
+
+          </webResources>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-war</id>
+            <phase>package</phase>
+            <goals>
+              <goal>war</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      
+      <!--  be sure to start up james before run it -->
+      <!--  
+       <plugin>
+        <groupId>org.apache.james</groupId>
+        <artifactId>maven-mpt-plugin</artifactId>
+        <version>0.2-SNAPSHOT</version>
+         <configuration>
+          <mailProtocolTests>
+            <mailProtocolTest>
+              <host>127.0.0.1</host>
+              <port>110</port>
+              <scriptFile>src/mpt/pop3.mpt</scriptFile>
+              <addUsers>
+                <addUser>
+                  <host>127.0.0.1</host>
+                  <port>4555</port>
+                  <scriptFile>src/mpt/adduser.mpt</scriptFile>
+                  <user>root</user>
+                  <passwd>root</passwd>
+                </addUser>
+              </addUsers>
+            </mailProtocolTest>
+            <mailProtocolTest>
+              <host>127.0.0.1</host>
+              <port>143</port>
+              <scriptFile>src/mpt/imap.mpt</scriptFile>
+              <addUsers>
+                <addUser>
+                  <host>127.0.0.1</host>
+                  <port>4555</port>
+                  <scriptFile>src/mpt/adduser.mpt</scriptFile>
+                  <user>root</user>
+                  <passwd>root</passwd>
+                </addUser>
+              </addUsers>
+            </mailProtocolTest>
+            <mailProtocolTest>
+              <host>127.0.0.1</host>
+              <port>25</port>
+              <scriptFile>src/mpt/smtp.mpt</scriptFile>
+              <addUsers>
+                <addUser>
+                  <host>127.0.0.1</host>
+                  <port>4555</port>
+                  <scriptFile>src/mpt/adduser.mpt</scriptFile>
+                  <user>root</user>
+                  <passwd>root</passwd>
+                </addUser>
+              </addUsers>
+            </mailProtocolTest>
+          </mailProtocolTests>
+         
+        </configuration>
+      </plugin>
+      -->
+      <!-- use version 2.4 of the plugin. This is needed as workaround for
+           http://jira.codehaus.org/browse/MAPPASM-96 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.4</version>
+      </plugin>
+      
+    </plugins>
+      
+  </build>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jms</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+     <groupId>org.apache.camel</groupId>
+     <artifactId>camel-spring</artifactId>
+     <scope>runtime</scope>
+    </dependency>
+   <dependency>
+     <groupId>org.apache.activemq</groupId>
+     <artifactId>activemq-camel</artifactId>
+     <scope>runtime</scope>
+   </dependency>
+  
+   <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-spring</artifactId>
+       <scope>runtime</scope>
+    </dependency>
+   
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-netty-socket</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-javamail-util</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-common-util</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-api</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-management</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+  
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-function</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-smtpserver</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-imapserver</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-function</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-pop3server</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-fetchmail</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-spoolmanager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailets</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-remotemanager</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-jcr-store</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-core</artifactId>
+      <scope>compile</scope>
+    </dependency>    
+       <dependency>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-jpa</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-jcr</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-imap-processor</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-jpa-store</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-api</artifactId>
+    </dependency>
+  </dependencies>
+</project>
