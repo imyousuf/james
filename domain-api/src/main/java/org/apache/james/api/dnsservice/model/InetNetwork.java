@@ -16,21 +16,25 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.api.dnsservice;
+package org.apache.james.api.dnsservice.model;
 
-import java.io.IOException;
+import java.net.InetAddress;
 
 /**
- * Exception to throw when a temporary DNS resolution problem occurs.
+ * An InetNetwork represents a IPv4 or IPv6 address with a subnet mask.<br/>
+ * The subnet mask allows to represent one or more host (a "network of hosts").
+ * 
+ * Do not confuse the InetAddress.toString() returning a "hostname/ip_address" (optional hostname)
+ * with the InetNetwork.toString() that returns a "ip_address/subnet_mask".
  */
-@SuppressWarnings("serial")
-public class TemporaryResolutionException extends IOException {
+public interface InetNetwork {
 
-    public TemporaryResolutionException() {
-        super();
-    }
+    /**
+     * Return true if the network contains the given name
+     * 
+     * @param name hostname or ipAddress
+     * @return true if the network contains the ip address
+     */
+    boolean contains(InetAddress ip);
 
-    public TemporaryResolutionException(String message) {
-        super(message);
-    }
 }

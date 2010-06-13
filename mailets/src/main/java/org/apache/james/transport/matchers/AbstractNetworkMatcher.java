@@ -16,40 +16,33 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.transport.matchers;
 
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.util.NetMatcher;
+import java.util.Collection;
+import java.util.StringTokenizer;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
-import java.util.StringTokenizer;
-import java.util.Collection;
+
+import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.dnsservice.util.NetMatcher;
+import org.apache.mailet.base.GenericMatcher;
 
 /**
-  * AbstractNetworkMatcher makes writing IP Address matchers easier.
+  * AbstractNetworkMatcher makes writing IP Address matchers easier.<br/>
+  * <br/>
+  * This class extends the GenericMatcher, and as such, has access to the 
+  * matcher condition via GenericMatcher.getCondition().<br/>
+  * On initialization, the init method retrieves the condition from the
+  * defined matcher and create a corresponding NetMatcher.<br/>
+  * The marcher condition has to respect the syntax waited by the NetMacher.<br/>
+  * <br/>
+  * This abstract network matcher needs to be implemented by a concrete class.<br/>
+  * The implementing concrete class will call the allowedNetworks or matchNetwork methods.
   *
-  * AbstractNetworkMatcher provides a means for checking to see whether
-  * a particular IP address or domain is within a set of subnets
-  * These subnets may be expressed in one of several formats:
-  * 
-  *     Format                          Example
-  *     explicit address                127.0.0.1
-  *     address with a wildcard         127.0.0.*
-  *     domain name                     myHost.com
-  *     domain name + prefix-length     myHost.com/24
-  *     domain name + mask              myHost.com/255.255.255.0
-  *     IP address + prefix-length      127.0.0.0/8
-  *     IP + mask                       127.0.0.0/255.0.0.0
-  *
-  * For more information, see also: RFC 1518 and RFC 1519.
-  * 
-  * @version $ID$
+  * @see org.apache.james.api.dnsservice.util.NetMatcher
   */
-public abstract class AbstractNetworkMatcher extends org.apache.mailet.base.GenericMatcher {
+public abstract class AbstractNetworkMatcher extends GenericMatcher {
 
     /**
      * This is a Network Matcher that should be configured to contain
@@ -62,18 +55,16 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.base.Gene
      */
     private DNSService dnsServer;
     
- 
     public void init() throws MessagingException {
         
         Collection<String> nets = allowedNetworks();
         
         if (nets != null) {
-            authorizedNetworks = new NetMatcher(allowedNetworks(),dnsServer) {
+            authorizedNetworks = new NetMatcher(allowedNetworks(), dnsServer) {
                 protected void log(String s) {
                     AbstractNetworkMatcher.this.log(s);
                 }
             };
-            authorizedNetworks.initInetNetworks(allowedNetworks());
             log("Authorized addresses: " + authorizedNetworks.toString());
         }
     }
@@ -96,7 +87,11 @@ public abstract class AbstractNetworkMatcher extends org.apache.mailet.base.Gene
         return authorizedNetworks == null ? false : authorizedNetworks.matchInetNetwork(addr);
     }
     
-    
+    /**
+     * Injection setter for the DNSService.
+     * 
+     * @param dnsService
+     */
     @Resource(name="dnsserver")
     public void setDNSService(DNSService dnsService) {
         this.dnsServer = dnsService;

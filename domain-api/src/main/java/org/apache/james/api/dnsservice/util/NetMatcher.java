@@ -16,139 +16,96 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.api.dnsservice.util;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.api.dnsservice.model.InetNetwork;
 
 /**
- * Class which can be used to check if an ipAddress match a network
+ * NetMatcher Class is used to check if an ipAddress match a network.
+ * 
+ * NetMatcher provides a means for checking whether
+ * a particular IPv4 or IPv6 address or domain name is within a set of subnets.
  */
-public class NetMatcher
-{
-    private DNSService dnsServer;
+public class NetMatcher {
     
-    private ArrayList<InetNetwork> networks;
-
-
     /**
-     * Init the class with the given networks 
-     *
-     * @param nets a Collection which holds all networks
+     * The DNS Service used to build InetNetworks.
      */
-    public void initInetNetworks(final Collection<String> nets)
-    {
-        networks = new ArrayList<InetNetwork>();
-        
-        InetNetwork in = new InetNetwork(dnsServer);
-        
-        for (Iterator<String> iter = nets.iterator(); iter.hasNext(); ) try
-        {
-            InetNetwork net = in.getFromString(iter.next());
-            if (!networks.contains(net)) networks.add(net);
-        }
-        catch (java.net.UnknownHostException uhe)
-        {
-            log("Cannot resolve address: " + uhe.getMessage());
-        }
-        networks.trimToSize();
-    }
+    private DNSService dnsServer;
 
     /**
-     * Init the class with the given networks 
-     *
-     * @param nets a String[] which holds all networks
+     * The Set of InetNetwork to match against.
      */
-    public void initInetNetworks(final String[] nets)
-    {
-        
-        networks = new ArrayList<InetNetwork>();
-        
-        InetNetwork in = new InetNetwork(dnsServer);
-        
-        for (int i = 0; i < nets.length; i++) try
-        {
-            InetNetwork net = in.getFromString(nets[i]);
-            if (!networks.contains(net)) networks.add(net);
-        }
-        catch (java.net.UnknownHostException uhe)
-        {
-            log("Cannot resolve address: " + uhe.getMessage());
-        }
-        networks.trimToSize();
-    }
+    private Set<InetNetwork> networks;
 
     /**
-     * Return true if passed host match a network which was used to init the Netmatcher
+     * Create a new instance of Netmatcher.
      * 
-     * @param hostIP the ipAddress or hostname to check
-     * @return true if match the network
+     * @param nets a String[] which holds all networks
+     * @param dnsServer the DNSService which will be used in this class
      */
-    public boolean matchInetNetwork(final String hostIP)
-    {
+    public NetMatcher(final String[] nets, DNSService dnsServer) {
+        this.dnsServer = dnsServer;
+        initInetNetworks(nets);
+    }
+
+    /**
+     * Create a new instance of Netmatcher.
+     * 
+     * @param nets a Collection which holds all networks
+     * @param dnsServer the DNSService which will be used in this class
+     */
+    public NetMatcher(final Collection<String> nets, DNSService dnsServer) {
+        this.dnsServer = dnsServer;
+        initInetNetworks(nets);
+    }
+
+    /**
+     * The given String may represent an IP address or a host name.
+     * 
+     * @param hostIP the ipAddress or host name to check
+     * @see #matchInetNetwork(InetAddress)
+     */
+    public boolean matchInetNetwork(final String hostIP) {
+        
         InetAddress ip = null;
 
-        try
-        {
+        try {
             ip = dnsServer.getByName(hostIP);
-        }
-        catch (java.net.UnknownHostException uhe)
-        {
+        } catch (UnknownHostException uhe) {
             log("Cannot resolve address for " + hostIP + ": " + uhe.getMessage());
         }
 
+        return matchInetNetwork(ip);
+
+    }
+
+    /**
+     * Return true if passed InetAddress match a network which 
+     * was used to construct the Netmatcher.
+     * 
+     * @param an InetAddress
+     * @return true if match the network
+     */
+    public boolean matchInetNetwork(final InetAddress ip) {
+        
         boolean sameNet = false;
 
-        if (ip != null) for (Iterator<InetNetwork> iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
-        {
+        for (Iterator<InetNetwork> iter = networks.iterator(); (!sameNet) && iter.hasNext();) {
             InetNetwork network = iter.next();
             sameNet = network.contains(ip);
         }
+        
         return sameNet;
-    }
-
-    /**
-     * @see #matchInetNetwork(String)
-     */
-    public boolean matchInetNetwork(final InetAddress ip)
-    {
-        boolean sameNet = false;
-
-        for (Iterator<InetNetwork> iter = networks.iterator(); (!sameNet) && iter.hasNext(); )
-        {
-            InetNetwork network = iter.next();
-            sameNet = network.contains(ip);
-        }
-        return sameNet;
-    }
-
-    /**
-     * Create a new instance of Netmatcher
-     * 
-     * @param nets a String[] which holds all networks
-     * @param dnsServer the DNSService which will be used in this class
-     */
-    public NetMatcher(final String[] nets,DNSService dnsServer)
-    {
-        this.dnsServer = dnsServer;
-        initInetNetworks(nets);
-    }
-
-    /**
-     * Create a new instance of Netmatcher
-     * 
-     * @param nets a Collection which holds all networks
-     * @param dnsServer the DNSService which will be used in this class
-     */ 
-    public NetMatcher(final Collection<String> nets,DNSService dnsServer)
-    {
-        this.dnsServer = dnsServer;
-        initInetNetworks(nets);
+    
     }
 
     /**
@@ -159,9 +116,42 @@ public class NetMatcher
     }
 
     /**
-     * Can be overwritten for loggin
+     * Can be overwritten for logging
      * 
-     * @param s the String to log
+     * @param s  the String to log
      */
-    protected void log(String s) { }
+    protected void log(String s) {
+    }
+    
+    /**
+     * Init the class with the given networks.
+     * 
+     * @param nets a Collection which holds all networks
+     */
+    private void initInetNetworks(final Collection<String> nets) {
+        initInetNetworks(nets.toArray(new String[]{}));
+    }
+
+    /**
+     * Init the class with the given networks.
+     * 
+     * @param nets a String[] which holds all networks
+     */
+    private void initInetNetworks(final String[] nets) {
+
+        networks = new HashSet<InetNetwork>();
+
+        final InetNetworkBuilder inetNetwork = new InetNetworkBuilder(dnsServer);
+
+        for (String net: nets) {
+            try {
+                InetNetwork inet = inetNetwork.getFromString(net);
+                networks.add(inet);
+            } catch (UnknownHostException uhe) {
+                log("Cannot resolve address: " + uhe.getMessage());
+            }
+        }
+        
+    }
+
 }

@@ -16,15 +16,13 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
 package org.apache.james.api.domainlist;
 
 import java.util.List;
 
 /**
- * This interface provide should be implementated by services which
- * offer domains for which email will accepted
+ * This interface should be implemented by services which
+ * offer domains for which email will accepted.
  *
  */
 public interface DomainList {
@@ -32,11 +30,11 @@ public interface DomainList {
     /**
      * The component role used by components implementing this service
      */
-    public final static String ROLE ="org.apache.james.api.domainlist.DomainList";
+    public final static String ROLE = DomainList.class.getName();
     
     /**
-     * Return List of domains which should be used as localdomains. Return null if no
-     * domains were found
+     * Return List of domains which should be used as localdomains.
+     * Return null if no domain is found.
      * 
      * @return domains
      */
@@ -52,7 +50,7 @@ public interface DomainList {
 
     /**
      * Set to true to autodetect the hostname of the host on which
-     * james is runnin, and add this to the domain service 
+     * james is running, and add this to the domain service 
      * Default is true
      * 
      * @param autodetect set to false for disable

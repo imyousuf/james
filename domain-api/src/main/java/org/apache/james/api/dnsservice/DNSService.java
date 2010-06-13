@@ -16,9 +16,6 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.api.dnsservice;
 
 import java.net.InetAddress;
@@ -28,25 +25,23 @@ import java.util.Iterator;
 
 import org.apache.mailet.HostAddress;
 
-
 /**
  * Provides abstraction for DNS resolutions. The interface is Mail specific.
  * It may be a good idea to make the interface more generic or expose 
  * commonly needed DNS methods.
- *
  */
 public interface DNSService {
 
     /**
      * The component role used by components implementing this service
      */
-    String ROLE = "org.apache.james.api.dnsservice.DNSService";
+    String ROLE = DNSService.class.getName();
 
     /**
      * <p>Return a prioritized unmodifiable list of host handling mail
      * for the domain.</p>
      * 
-     * <p>First lookup MX hosts, then MX hosts of the CNAME adress, and
+     * <p>First lookup MX hosts, then MX hosts of the CNAME address, and
      * if no server is found return the IP of the hostname</p>
      *
      * @param hostname domain name to look up
@@ -79,7 +74,6 @@ public interface DNSService {
      * potentially multiple A records for each MX record.  DNS lookups
      * are deferred until actually needed.
      *
-     * @since v2.2.0a16-unstable
      * @param domainName - the domain for which to find mail servers
      * @return an Iterator over HostAddress instances, sorted by priority
      * @throws TemporaryResolutionException get thrown on temporary problems
@@ -97,11 +91,13 @@ public interface DNSService {
     public InetAddress getByName(String host) throws UnknownHostException;
 
     /**
+     * @see java.net.InetAddress#getLocalHost()
+     */
+    public InetAddress getLocalHost() throws UnknownHostException;
+
+    /**
      * @see org.xbill.DNS.Address#getHostName(InetAddress)
      */
     public String getHostName(InetAddress addr);
     
-    /**
-     */
-    public InetAddress getLocalHost() throws UnknownHostException;
 }

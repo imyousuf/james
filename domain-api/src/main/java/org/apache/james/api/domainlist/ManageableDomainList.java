@@ -16,24 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.api.domainlist;
 
-
 /**
- * Services which allow to manage the DomainList should implement this interface
+ * Services which allow to manage the DomainList should implement this interface.
  */
 public interface ManageableDomainList extends DomainList {
 
-    public final static String ROLE = "org.apache.james.api.domainlist.ManageableDomainList";
+    public final static String ROLE = ManageableDomainList.class.getName();
     
     /**
      * Add domain to the service
      * 
      * @param domain domain to add
-     * @return true if successfully
+     * @return true if successfull
      */
     public boolean addDomain(String domain);
     
@@ -41,7 +37,8 @@ public interface ManageableDomainList extends DomainList {
      * Remove domain from the service
      *  
      * @param domain domain to remove
-     * @return true if succesfully
+     * @return true if successfull
      */
     public boolean removeDomain(String domain);
+
 }
