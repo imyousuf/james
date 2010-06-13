@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository.filepair;
+package org.apache.james.filepair;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;

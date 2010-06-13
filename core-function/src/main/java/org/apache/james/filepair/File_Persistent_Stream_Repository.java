@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository.filepair;
+package org.apache.james.filepair;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class File_Persistent_Stream_Repository
 {
  
     /**
-     * @see org.apache.james.mailrepository.filepair.AbstractFileRepository#getExtensionDecorator()
+     * @see org.apache.james.filepair.AbstractFileRepository#getExtensionDecorator()
      */
     protected String getExtensionDecorator()
     {

@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository.filepair;
+package org.apache.james.filepair;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -39,7 +39,7 @@ public class File_Persistent_Object_Repository
     implements ObjectRepository
 {
     /**
-     * @see org.apache.james.mailrepository.filepair.AbstractFileRepository#getExtensionDecorator()
+     * @see org.apache.james.filepair.AbstractFileRepository#getExtensionDecorator()
      */
     protected String getExtensionDecorator()
     {

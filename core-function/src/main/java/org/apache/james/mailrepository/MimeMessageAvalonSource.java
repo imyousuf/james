@@ -92,8 +92,8 @@ public class MimeMessageAvalonSource extends MimeMessageSource {
      */
     public long getMessageSize() throws IOException {
         if (size == -1) {
-            if (sr instanceof org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository) {
-                size = ((org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository) sr).getSize(key);
+            if (sr instanceof org.apache.james.filepair.File_Persistent_Stream_Repository) {
+                size = ((org.apache.james.filepair.File_Persistent_Stream_Repository) sr).getSize(key);
             } else size = super.getMessageSize();
         }
         return size;

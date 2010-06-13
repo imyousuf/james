@@ -22,7 +22,7 @@ package org.apache.james.mailrepository;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.mailrepository.filepair.File_Persistent_Stream_Repository;
+import org.apache.james.filepair.File_Persistent_Stream_Repository;
 import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.MailRepository;
 import org.apache.james.test.mock.avalon.MockStore;

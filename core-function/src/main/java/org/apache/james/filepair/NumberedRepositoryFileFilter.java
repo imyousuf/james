@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository.filepair;
+package org.apache.james.filepair;
 
 import java.io.File;
 import java.io.FilenameFilter;
