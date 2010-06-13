@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.api.kernel;
+package org.apache.james.services;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

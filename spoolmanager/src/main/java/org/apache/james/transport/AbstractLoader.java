@@ -28,10 +28,10 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.kernel.InstanceFactory;
-import org.apache.james.api.kernel.InstanceFactory.InstanceException;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.services.InstanceFactory;
+import org.apache.james.services.InstanceFactory.InstanceException;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
 

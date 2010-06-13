@@ -19,7 +19,7 @@
 
 package org.apache.james.container.spring;
 
-import org.apache.james.api.kernel.InstanceFactory;
+import org.apache.james.services.InstanceFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;

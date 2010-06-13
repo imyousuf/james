@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.api.kernel;
+package org.apache.james.services;
 
 /**
  * Loads instances of given types.

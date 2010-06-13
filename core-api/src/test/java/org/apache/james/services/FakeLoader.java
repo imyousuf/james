@@ -22,7 +22,7 @@ package org.apache.james.api.kernel.mock;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.james.api.kernel.AbstractJSR250InstanceFactory;
+import org.apache.james.services.AbstractJSR250InstanceFactory;
 
 public class FakeLoader extends AbstractJSR250InstanceFactory {
 
