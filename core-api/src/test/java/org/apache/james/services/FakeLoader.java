@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.api.kernel.mock;
+package org.apache.james.services;
 
 import java.util.HashMap;
 import java.util.Map;

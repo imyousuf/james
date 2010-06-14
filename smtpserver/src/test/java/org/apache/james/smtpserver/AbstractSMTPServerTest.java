@@ -42,7 +42,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.kernel.mock.FakeLoader;
+import org.apache.james.services.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.lifecycle.LifecycleUtil;

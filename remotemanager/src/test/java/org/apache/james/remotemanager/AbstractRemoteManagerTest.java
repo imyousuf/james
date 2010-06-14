@@ -40,7 +40,7 @@ import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.api.domainlist.SimpleDomainList;
-import org.apache.james.api.kernel.mock.FakeLoader;
+import org.apache.james.services.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.MockVirtualUserTableManagementService;
