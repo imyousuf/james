@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.server.jpa;
+package org.apache.james.userrepository;
 
 import java.util.HashMap;
 
@@ -25,6 +25,8 @@ import javax.persistence.PersistenceException;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.userrepository.JPAUser;
+import org.apache.james.userrepository.JPAUsersRepository;
 import org.apache.james.userrepository.MockUsersRepositoryTest;
 import org.apache.openjpa.persistence.OpenJPAEntityManager;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;

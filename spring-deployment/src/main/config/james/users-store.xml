@@ -71,7 +71,7 @@
     <!-- JPA based backend. Support password algorithm are:
          MD5, SHA-256, SHA-512, NONE
      -->
-    <repository name="LocalUsers" class="org.apache.james.server.jpa.JPAUsersRepository">
+    <repository name="LocalUsers" class="org.apache.james.userrepository.JPAUsersRepository">
         <algorithm>MD5</algorithm>
     </repository>
     
