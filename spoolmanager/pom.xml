@@ -29,17 +29,8 @@
   <name>Apache JAMES Server SpoolManager</name>
   <dependencies>
     <dependency>
-      <groupId>${javax.mail.groupId}</groupId>
-      <artifactId>${javax.mail.artifactId}</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -61,25 +52,23 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
     </dependency>
+     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mailet</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>
-    </dependency>
-
-    <dependency>
-       <groupId>org.apache.geronimo.specs</groupId>
-       <artifactId>geronimo-annotation_1.0_spec</artifactId>
+    </dependency>   
+     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-jsieve-mailet</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-imap-mailbox</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-jsieve-mailet</artifactId>
-    </dependency>
-
+  
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging-api</artifactId>
@@ -88,7 +77,15 @@
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
     </dependency>
-
+      
+    <dependency>
+      <groupId>${javax.mail.groupId}</groupId>
+      <artifactId>${javax.mail.artifactId}</artifactId>
+    </dependency>
+    <dependency>
+       <groupId>org.apache.geronimo.specs</groupId>
+       <artifactId>geronimo-annotation_1.0_spec</artifactId>
+    </dependency>
    <dependency>
      <groupId>org.apache.camel</groupId>
      <artifactId>camel-core</artifactId>
@@ -97,13 +94,14 @@
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
     </dependency>
+    
+    <!-- Test dependencies -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
       <type>test-jar</type>
       <scope>runtime</scope>
     </dependency>
-
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>

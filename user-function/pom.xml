@@ -29,14 +29,6 @@
   <name>Apache JAMES Server User function</name>
   <dependencies>
     <dependency>
-      <groupId>${javax.mail.groupId}</groupId>
-      <artifactId>${javax.mail.artifactId}</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
     </dependency>
@@ -55,11 +47,14 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-function</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mailet</artifactId>
     </dependency>
      <dependency>
       <groupId>commons-configuration</groupId>
@@ -70,10 +65,16 @@
       <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
+      <groupId>${javax.mail.groupId}</groupId>
+      <artifactId>${javax.mail.artifactId}</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>jsr250-api</artifactId>
     </dependency>
         
+        
+    <!-- Test dependencies -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
@@ -86,7 +87,6 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>

@@ -38,7 +38,6 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.protocols.impl.AbstractAsyncServer;
 import org.apache.james.services.FileSystem;
-import org.apache.james.services.MailServer;
 
 
 /**
@@ -72,11 +71,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     public static final String HELLO_NAME = "helloName";
     
     private FileSystem fileSystem;
-    
-    /**
-     * The internal mail server service.
-     */
-    private MailServer mailServer;
 
     private Log logger;
 
@@ -109,11 +103,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         this.fileSystem = filesystem;
     }
     
-    @Resource(name="James")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
-    
+
     /*
      * (non-Javadoc)
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
@@ -280,14 +270,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return dns;
     }
     
-    /**
-     * Return the MailServer
-     * 
-     * @return mailServer
-     */
-    protected MailServer getMailServer() {
-        return mailServer;
-    }
+
     
     /**
      * Return the FileSystem

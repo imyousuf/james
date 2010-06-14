@@ -23,12 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.remotemanager.RemoteManagerMBean;
+import org.apache.james.services.MailServer;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
@@ -47,11 +50,17 @@ public class NioRemoteManager extends AbstractConfigurableAsyncServer implements
     private RemoteManagerHandlerConfigurationData configData = new RemoteManagerHandlerConfigurationDataImpl();
    
     private ProtocolHandlerChain handlerChain;
+    private MailServer mailServer;
 
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
+    
 
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
     
     @Override
     protected int getDefaultPort() {
@@ -86,7 +95,7 @@ public class NioRemoteManager extends AbstractConfigurableAsyncServer implements
          */
         public String getHelloName() {
             if (getHelloName() == null) {
-                return NioRemoteManager.this.getMailServer().getHelloName();
+                return NioRemoteManager.this.mailServer.getHelloName();
             } else {
                 return NioRemoteManager.this.getHelloName();
             }

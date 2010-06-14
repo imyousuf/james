@@ -28,17 +28,6 @@
   <artifactId>james-server-management</artifactId>
   <name>Apache JAMES Server Management</name>
   <dependencies>
-  
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet</artifactId>
-    </dependency>
-
-    <dependency>
-       <groupId>org.apache.geronimo.specs</groupId>
-       <artifactId>geronimo-annotation_1.0_spec</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
@@ -50,18 +39,23 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
-    </dependency>
-
+    </dependency> 
     <dependency>
-      <groupId>${javax.mail.groupId}</groupId>
-      <artifactId>${javax.mail.artifactId}</artifactId>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mailet</artifactId>
     </dependency>
-
     <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
     </dependency>
-    
+    <dependency>
+       <groupId>org.apache.geronimo.specs</groupId>
+       <artifactId>geronimo-annotation_1.0_spec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${javax.mail.groupId}</groupId>
+      <artifactId>${javax.mail.artifactId}</artifactId>
+    </dependency>
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>

@@ -28,7 +28,15 @@
   <artifactId>james-server-core-library</artifactId>
   <name>Apache JAMES Server Core Library</name>
   <dependencies>
-  
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+    </dependency>
+     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-common-util</artifactId>
+    </dependency>   
+    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
@@ -38,15 +46,14 @@
       <artifactId>apache-mailet-base</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-common-util</artifactId>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
     </dependency>
-
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-api</artifactId>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
     </dependency>
-
+    
     <dependency>
       <groupId>${javax.mail.groupId}</groupId>
       <artifactId>${javax.mail.artifactId}</artifactId>
@@ -55,19 +62,18 @@
       <groupId>${javax.activation.groupId}</groupId>
       <artifactId>${javax.activation.artifactId}</artifactId>
     </dependency>
-   
-   
-    <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>jsr250-api</artifactId>
+    </dependency>
+    
+    
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-api</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -78,12 +84,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-   
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-api</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -97,6 +97,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  
   <build>
     <plugins>
       <plugin>

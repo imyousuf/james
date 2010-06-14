@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.netty;
 
+import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -27,6 +28,7 @@ import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPServerMBean;
+import org.apache.james.services.MailServer;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
@@ -93,6 +95,12 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
 
     private boolean addressBracketsEnforcement = true;
 
+    private MailServer mailServer;
+
+    @Resource(name="James")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
     
 
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
@@ -199,7 +207,7 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
          */
         public String getHelloName() {
             if (NioSMTPServer.this.getHelloName() == null) {
-                return NioSMTPServer.this.getMailServer().getHelloName();
+                return NioSMTPServer.this.mailServer.getHelloName();
             } else {
                 return NioSMTPServer.this.getHelloName();
             }

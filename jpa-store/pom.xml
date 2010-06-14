@@ -29,7 +29,6 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-jpa-store</artifactId>
   <name>Apache JAMES Server JPA Backend</name>
-  <version>3.0-SNAPSHOT</version>
 
   <build>
     <plugins>
@@ -52,8 +51,7 @@
               <value>jpa(Types=org.apache.james.server.jpa.JPAUser)</value>
             </property>           
           </toolProperties>
-        </configuration>
-        
+        </configuration>  
         <executions>
           <execution>
             <id>enhancer</id>
@@ -69,7 +67,6 @@
           <artifactId>james-server-user-api</artifactId>
           <version>${pom.version}</version>
         </dependency>
-  
     </dependencies>
       </plugin>
     </plugins>
@@ -80,12 +77,14 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-api</artifactId>
     </dependency>
-  
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+    </dependency> 
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-    
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
@@ -95,15 +94,11 @@
       <artifactId>commons-configuration</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-api</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jpa_2.0_spec</artifactId>
     </dependency>
 
+    <!-- test dependencies -->
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
@@ -126,5 +121,4 @@
       <scope>runtime</scope>
     </dependency>
   </dependencies>
-
 </project>

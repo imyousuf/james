@@ -30,18 +30,6 @@
   <packaging>jar</packaging>
   <dependencies>
     <dependency>
-      <groupId>${javax.mail.groupId}</groupId>
-      <artifactId>${javax.mail.artifactId}</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${javax.activation.groupId}</groupId>
-      <artifactId>${javax.activation.artifactId}</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-javamail-util</artifactId>
     </dependency>
@@ -70,6 +58,11 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mailet</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-smtp</artifactId>
@@ -83,12 +76,16 @@
       <artifactId>apache-mailet-base</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-standard-mailets</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${javax.mail.groupId}</groupId>
+      <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-standard-mailets</artifactId>
+      <artifactId>apache-jspf</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-configuration</groupId>
@@ -99,16 +96,15 @@
       <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-jspf</artifactId>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
     </dependency>
-
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
     </dependency>
    
-   
+    <!-- Test dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

@@ -16,11 +16,11 @@
  */
 package org.apache.james.jcr;
 
-import org.apache.jackrabbit.rmi.client.ClientRepositoryFactory;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 
+import javax.annotation.Resource;
 import javax.jcr.Credentials;
 import javax.jcr.Item;
 import javax.jcr.Node;
@@ -63,6 +63,10 @@ public class JCRStoreMailet implements Mailet {
         return config;
     }
 
+    @Resource(name="jcrRepository")
+    public void setJCRRepository(Repository repository) {
+        this.repository = repository;
+    }
     /**
      * Initializes this mailet by connecting to the configured JCR repository.
      *
@@ -72,14 +76,6 @@ public class JCRStoreMailet implements Mailet {
     public void init(MailetConfig config) throws MessagingException {
         this.config = config;
 
-        String url = config.getInitParameter("url");
-        try {
-            ClientRepositoryFactory factory = new ClientRepositoryFactory();
-            this.repository = factory.getRepository(url);
-        } catch (Exception e) {
-            throw new MessagingException(
-                    "Error accessing the content repository: " + url, e);
-        }
     }
 
     /**
