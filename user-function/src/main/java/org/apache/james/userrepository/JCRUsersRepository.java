@@ -17,60 +17,78 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.jcr;
+package org.apache.james.userrepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.jcr.Credentials;
+import javax.annotation.Resource;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.jackrabbit.util.ISO9075;
+import org.apache.jackrabbit.util.Text;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 
 
-public class JCRUsersRepository extends AbstractJCRRepository implements UsersRepository {
+/**
+ * {@link UsersRepository} implementation which stores users to a JCR {@link Repository}
+ *
+ */
+public class JCRUsersRepository implements UsersRepository, Configurable, LogEnabled {
     
     //TODO: Add namespacing
     private static final String PASSWD_PROPERTY = "passwd";
 
     private static final String USERNAME_PROPERTY = "username";
-    
-    /**
-     * For setter injection.
-     */    
-    public JCRUsersRepository() {
-        super("users");
-    }
+    private static final String USERS_PATH = "users";
 
-    /**
-     * Maximal constructor for injection.
-     * @param repository not null
-     * @param credentials login credentials for accessing the repository
-     * or null to use default credentials
-     * @param workspace name of the workspace used as the mail repository.
-     * or null to use default workspace
-     * @param path path (relative to root) of the user node within the workspace,
-     * or null to use default.
-     */
-    public JCRUsersRepository(Repository repository, Credentials credentials, String workspace, String path) {
-        super(repository, credentials, workspace, path);
+	private Repository repository;
+	private SimpleCredentials creds;
+	private String workspace;
+
+	private Log logger;
+	
+    @Resource(name="jcrRepository")
+    public void setRepository(Repository repository) {
+    	this.repository = repository;
     }
     
-    /**
-     * Minimal constructor for injection.
-     * @param repository not null
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public JCRUsersRepository(Repository repository) {
-        super(repository);
-        this.path = "users";
-    }
+	public void configure(HierarchicalConfiguration config)
+			throws ConfigurationException {
+		this.workspace = config.getString("workspace",null);
+		String username = config.getString("username", null);
+		String password = config.getString("password",null);
+		
+		if (username != null && password != null) {
+			this.creds = new SimpleCredentials(username, password.toCharArray());
+		}
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+	 */
+	public void setLog(Log log) {		
+		this.logger = log;
+	}
 
     /**
      * Adds a user to the repository with the specified User object.
@@ -78,7 +96,6 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
      * @param user the user to be added
      *
      * @return true if succesful, false otherwise
-     * @since James 1.2.2
      * 
      * @deprecated James 2.4 user should be added using username/password
      * because specific implementations of UsersRepository will support specific 
@@ -113,7 +130,6 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
      * @param password the password of the user to add
      * @return true if succesful, false otherwise
      * 
-     * @since James 2.3.0
      */
     public boolean addUser(String username, String password) {
 
@@ -121,7 +137,7 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
             final Session session = login();
             try {
                 final String name = toSafeName(username);
-                final String path = this.path + "/" + name;
+                final String path = USERS_PATH + "/" + name;
                 final Node rootNode = session.getRootNode();
                 try {
                     rootNode.getNode(path);
@@ -132,11 +148,11 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
                 }
                 Node parent;
                 try {
-                    parent = rootNode.getNode(this.path);
+                    parent = rootNode.getNode(USERS_PATH);
                 } catch (PathNotFoundException e) {
                     // TODO: Need to consider whether should insist that parent
                     // TODO: path exists.
-                    parent = rootNode.addNode(this.path);
+                    parent = rootNode.addNode(USERS_PATH);
                 }
                 
                 Node node = parent.addNode(name);
@@ -166,7 +182,16 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
 
         return false;
     }
-
+    
+    protected String toSafeName(String key) {
+        String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
+        return name;
+    }
+    
+    private Session login() throws RepositoryException{
+    	return repository.login(creds, workspace);
+    }
+    
     /**
      * Get the user object with the specified user name.  Return null if no
      * such user.
@@ -174,7 +199,6 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
      * @param name the name of the user to retrieve
      * @return the user being retrieved, null if the user doesn't exist
      *
-     * @since James 1.2.2
      */
     public User getUserByName(String username) {
         User user;
@@ -182,7 +206,7 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
             final Session session = login();
             try {
                 final String name = toSafeName(username);
-                final String path = this.path + "/" + name;
+                final String path = USERS_PATH + "/" + name;
                 final Node rootNode = session.getRootNode();
                 
                 try {
@@ -247,7 +271,7 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
                 final Session session = login();
                 try {
                     final String name = toSafeName(userName);
-                    final String path = this.path + "/" + name;
+                    final String path = USERS_PATH + "/" + name;
                     final Node rootNode = session.getRootNode();
                     
                     try {
@@ -282,7 +306,7 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
             final Session session = login();
             try {
                 final String name = toSafeName(username);
-                final String path = this.path + "/" + name;
+                final String path = USERS_PATH + "/" + name;
                 try {
                     session.getRootNode().getNode(path).remove();
                     session.save();
@@ -311,7 +335,7 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
             final Session session = login();
             try {
                 final Node rootNode = session.getRootNode();
-                final String path = this.path + "/" + toSafeName(name);                
+                final String path = USERS_PATH + "/" + toSafeName(name);                
                 rootNode.getNode(path);
                 return true;
             } finally {
@@ -357,7 +381,7 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
             final Session session = login();
             try {
                 final String name = toSafeName(username);
-                final String path = this.path + "/" + name;
+                final String path = USERS_PATH + "/" + name;
                 final Node rootNode = session.getRootNode();
                 
                 try {
@@ -398,7 +422,7 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
             try {
                 final Node rootNode = session.getRootNode();
                 try {
-                    final Node node = rootNode.getNode(path);
+                    final Node node = rootNode.getNode(USERS_PATH);
                     //TODO: Use query
                     //TODO: Use namespacing to avoid unwanted nodes
                     NodeIterator it = node.getNodes();
@@ -429,7 +453,7 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
             try {
                 final Node rootNode = session.getRootNode();
                 try {
-                    final Node baseNode = rootNode.getNode(path);
+                    final Node baseNode = rootNode.getNode(USERS_PATH);
                     //TODO: Use query
                     final NodeIterator it = baseNode.getNodes();
                     while(it.hasNext()) {
@@ -454,4 +478,5 @@ public class JCRUsersRepository extends AbstractJCRRepository implements UsersRe
         }
         return userNames.iterator();
     }
+
 }

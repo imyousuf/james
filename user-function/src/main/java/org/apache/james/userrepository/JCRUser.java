@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.jcr;
+package org.apache.james.userrepository;
 
 import org.apache.jackrabbit.util.Text;
 import org.apache.james.api.user.User;

@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.james.jcr;
+package org.apache.james.mailrepository;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
@@ -33,7 +34,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.jcr.Credentials;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -43,12 +45,17 @@ import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 import javax.jcr.Value;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
 import org.apache.james.core.MailImpl;
@@ -59,39 +66,54 @@ import org.apache.mailet.MailAddress;
 /**
  * Mail repository that is backed by a JCR content repository.
  */
-public class JCRMailRepository extends AbstractJCRRepository implements MailRepository {
+public class JCRMailRepository extends AbstractMailRepository implements MailRepository {
 
-    /**
-     * For setter injection.
-     */
-    public JCRMailRepository() {
-        super("james/mail");
+	private final static String MAIL_PATH = "mailrepository";
+
+
+	private Repository repository;
+	private SimpleCredentials creds;
+	private String workspace;
+
+	private Log logger;
+	
+    @Resource(name="jcrRepository")
+    public void setRepository(Repository repository) {
+    	this.repository = repository;
     }
     
-    /**
-     * Maximal constructor for injection.
-     * @param repository not null
-     * @param credentials login credentials for accessing the repository
-     * or null to use default credentials
-     * @param workspace name of the workspace used as the mail repository.
-     * or null to use default workspace
-     * @param path path (relative to root) of the user node within the workspace,
-     * or null to use default.
-     */
-    public JCRMailRepository(Repository repository, Credentials credentials, String workspace, String path) {
-        super(repository, credentials, workspace, path);
+    @PostConstruct
+    public void init() throws Exception {
+    	// register the nodetype
+    	CndImporter.registerNodeTypes(new InputStreamReader(Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("org/apache/james/imap/jcr/james.cnd")), login());
     }
-
-    /**
-     * Minimal constructor for injection.
-     * @param repository not null
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailrepository.AbstractMailRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public JCRMailRepository(Repository repository) {
-        super(repository);
+	public void doConfigure(HierarchicalConfiguration config)
+			throws ConfigurationException {
+		this.workspace = config.getString("workspace",null);
+		String username = config.getString("username", null);
+		String password = config.getString("password",null);
+		
+		if (username != null && password != null) {
+			this.creds = new SimpleCredentials(username, password.toCharArray());
+		}
+	}
+
+    
+    protected String toSafeName(String key) {
+        String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
+        return name;
     }
-
-
-
+    
+    private Session login() throws RepositoryException{
+    	return repository.login(creds, workspace);
+    }
+    
     public Iterator<String> list() throws MessagingException {
         try {
             Session session = login();
@@ -99,7 +121,7 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
                 Collection<String> keys = new ArrayList<String>();
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Query query = manager.createQuery(
-                        "/jcr:root/" + path + "//element(*,james:mail)",
+                        "/jcr:root/" + MAIL_PATH + "//element(*,james:mail)",
                         Query.XPATH);
                 NodeIterator iterator = query.execute().getNodes();
                 while (iterator.hasNext()) {
@@ -122,7 +144,7 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
                 String name = toSafeName(key);
                 QueryManager manager = session.getWorkspace().getQueryManager();
                 Query query = manager.createQuery(
-                        "/jcr:root/" + path + "//element(" + name + ",james:mail)",
+                        "/jcr:root/" + MAIL_PATH + "//element(" + name + ",james:mail)",
                         Query.XPATH);
                 NodeIterator iterator = query.execute().getNodes();
                 if (iterator.hasNext()) {
@@ -142,108 +164,6 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
         } 
     }
 
-    public void store(Mail mail) throws MessagingException {
-        try {
-            Session session = login();
-            try {
-                String name = Text.escapeIllegalJcrChars(mail.getName());
-                final String xpath = "/jcr:root/" + path + "//element(" + name + ",james:mail)";
-                NodeIterator iterator = query(session, xpath);
-                if (iterator.hasNext()) {
-                    while (iterator.hasNext()) {
-                        setMail(iterator.nextNode(), mail);
-                    }
-                } else {
-                    Node parent = session.getRootNode().getNode(path);
-                    Node node = parent.addNode(name, "james:mail");
-                    Node resource = node.addNode("jcr:content", "nt:resource");
-                    resource.setProperty("jcr:mimeType", "message/rfc822");
-                    setMail(node, mail);
-                }
-                session.save();
-                logger.info("Mail " + mail.getName() + " stored in repository");
-            } finally {
-                session.logout();
-            }
-        } catch (IOException e) {
-            throw new MessagingException(
-                    "Unable to store message: " + mail.getName(), e);
-        } catch (RepositoryException e) {
-            throw new MessagingException(
-                    "Unable to store message: " + mail.getName(), e);
-        }
-    }
-
-    public void remove(String key) throws MessagingException {
-        try {
-            Session session = login();
-            try {
-                String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
-                QueryManager manager = session.getWorkspace().getQueryManager();
-                Query query = manager.createQuery(
-                        "/jcr:root/" + path + "//element(" + name + ",james:mail)",
-                        Query.XPATH);
-                NodeIterator nodes = query.execute().getNodes();
-                if (nodes.hasNext()) {
-                    while (nodes.hasNext()) {
-                        nodes.nextNode().remove();
-                    }
-                    session.save();
-                    logger.info("Mail " + key + " removed from repository");
-                } else {
-                    logger.warn("Mail " + key + " not found");
-                }
-            } finally {
-                session.logout();
-            }
-        } catch (RepositoryException e) {
-            throw new MessagingException("Unable to remove message: " + key, e);
-        }
-    }
-
-    public void remove(Mail mail) throws MessagingException {
-        remove(mail.getName());
-    }
-
-    public void remove(Collection<Mail> mails) throws MessagingException {
-        try {
-            Session session = login();
-            try {
-                QueryManager manager = session.getWorkspace().getQueryManager();
-                Iterator<Mail> iterator = mails.iterator();
-                while (iterator.hasNext()) {
-                    Mail mail = iterator.next();
-                    try {
-                        String name = ISO9075.encode(
-                                Text.escapeIllegalJcrChars(mail.getName()));
-                        Query query = manager.createQuery(
-                                "/jcr:root/" + path + "//element(" + name + ",james:mail)",
-                                Query.XPATH);
-                        NodeIterator nodes = query.execute().getNodes();
-                        while (nodes.hasNext()) {
-                            nodes.nextNode().remove();
-                        }
-                    } catch (PathNotFoundException e) {
-                        logger.warn("Mail " + mail.getName() + " not found");
-                    }
-                }
-                session.save();
-                logger.info("Mail collection removed from repository");
-            } finally {
-                session.logout();
-            }
-        } catch (RepositoryException e) {
-            throw new MessagingException("Unable to remove messages", e);
-        }
-    }
-
-    public boolean lock(String key) throws MessagingException {
-        return false;
-    }
-
-    public boolean unlock(String key) throws MessagingException {
-        return false;
-    }
 
     //-------------------------------------------------------------< private >
 
@@ -630,5 +550,71 @@ public class JCRMailRepository extends AbstractJCRRepository implements MailRepo
             }
         }
     }
+
+	@Override
+	protected void internalRemove(String key) throws MessagingException {
+		try {
+            Session session = login();
+            try {
+                String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
+                QueryManager manager = session.getWorkspace().getQueryManager();
+                Query query = manager.createQuery(
+                        "/jcr:root/" + MAIL_PATH + "//element(" + name + ",james:mail)",
+                        Query.XPATH);
+                NodeIterator nodes = query.execute().getNodes();
+                if (nodes.hasNext()) {
+                    while (nodes.hasNext()) {
+                        nodes.nextNode().remove();
+                    }
+                    session.save();
+                    logger.info("Mail " + key + " removed from repository");
+                } else {
+                    logger.warn("Mail " + key + " not found");
+                }
+            } finally {
+                session.logout();
+            }
+        } catch (RepositoryException e) {
+            throw new MessagingException("Unable to remove message: " + key, e);
+        }		
+	}
+
+	@Override
+	protected void internalStore(Mail mail) throws MessagingException,
+			IOException {
+		try {
+            Session session = login();
+            try {
+                String name = Text.escapeIllegalJcrChars(mail.getName());
+                final String xpath = "/jcr:root/" + MAIL_PATH + "//element(" + name + ",james:mail)";
+                
+                QueryManager manager = session.getWorkspace().getQueryManager();
+                Query query = manager.createQuery(xpath, Query.XPATH);
+                NodeIterator iterator = query.execute().getNodes();
+                
+                if (iterator.hasNext()) {
+                    while (iterator.hasNext()) {
+                        setMail(iterator.nextNode(), mail);
+                    }
+                } else {
+                    Node parent = session.getRootNode().getNode(MAIL_PATH);
+                    Node node = parent.addNode(name, "james:mail");
+                    Node resource = node.addNode("jcr:content", "nt:resource");
+                    resource.setProperty("jcr:mimeType", "message/rfc822");
+                    setMail(node, mail);
+                }
+                session.save();
+                logger.info("Mail " + mail.getName() + " stored in repository");
+            } finally {
+                session.logout();
+            }
+        } catch (IOException e) {
+            throw new MessagingException(
+                    "Unable to store message: " + mail.getName(), e);
+        } catch (RepositoryException e) {
+            throw new MessagingException(
+                    "Unable to store message: " + mail.getName(), e);
+        }		
+	}
 
 }

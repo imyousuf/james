@@ -50,7 +50,6 @@
     <module>remotemanager</module>
     <module>mailets</module>
     <module>fetchmail</module>
-    <module>jcr-store</module>
     <module>spring-deployment</module>
     <module>netty-socket</module>
     
@@ -521,11 +520,6 @@
       <version>${pom.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-jcr-store</artifactId>
-      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>

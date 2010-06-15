@@ -17,10 +17,11 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.jcr;
+package org.apache.james.userrepository;
 
 import java.io.File;
 
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
@@ -34,7 +35,12 @@ public class JcrUserRepositoryTest extends MockUsersRepositoryTest {
     private RepositoryImpl repository;
         
     protected UsersRepository getUsersRepository() throws Exception {
-        JCRUsersRepository repos = new JCRUsersRepository(repository);
+        JCRUsersRepository repos = new JCRUsersRepository();
+        repos.setRepository(repository);
+        DefaultConfigurationBuilder config = new DefaultConfigurationBuilder();
+        config.addProperty("username", "admin");
+        config.addProperty("password", "test");
+        repos.configure(config);
         repos.setLog(new SimpleLog("MockLog"));
         return repos;
     }
