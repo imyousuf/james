@@ -23,7 +23,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.mailrepository.AbstractMailStore;
 import org.apache.james.services.MailRepository;
 import org.apache.james.services.store.Store;
 import org.springframework.beans.BeansException;

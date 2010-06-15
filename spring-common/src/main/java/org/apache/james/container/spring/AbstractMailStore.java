@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository;
+package org.apache.james.container.spring;
 
 import java.util.HashMap;
 import java.util.List;

@@ -52,7 +52,7 @@
     <module>fetchmail</module>
     <module>spring-deployment</module>
     <module>netty-socket</module>
-    
+    <module>spring-common</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -206,6 +206,11 @@
   </distributionManagement>
   <dependencyManagement>
     <dependencies>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-spring-common</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-netty-socket</artifactId>
