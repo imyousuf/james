@@ -44,6 +44,15 @@
       </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
+         <configuration>       
+           <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> 
+            <manifest>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+        </configuration>       
         <executions>
           <execution>
             <goals>
