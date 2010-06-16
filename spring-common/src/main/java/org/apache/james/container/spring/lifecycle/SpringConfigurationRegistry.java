@@ -66,6 +66,12 @@ public class SpringConfigurationRegistry implements Registry<HierarchicalConfigu
 	}
 
 
+	/**
+	 * Return the configuration prefix to load the config. In this case its
+	 * file://conf/
+	 * 
+	 * @return prefix
+	 */
 	protected String getConfigPrefix() {
 		return "file://conf/";
 	}
@@ -82,7 +88,9 @@ public class SpringConfigurationRegistry implements Registry<HierarchicalConfigu
     private XMLConfiguration getConfig(Resource r) throws ConfigurationException, IOException {
         XMLConfiguration config = new XMLConfiguration();
         config.setDelimiterParsingDisabled(true);
-        config.load(r.getFile());
+        
+        // Use InputStream so we are not bound to File implementations of the config
+        config.load(r.getInputStream());
         return config;
     }
 

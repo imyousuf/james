@@ -47,8 +47,18 @@ public class SpringLogRegistry implements Registry<Log>, InitializingBean {
 	    if (log != null) {
 	        return log;
 	    } else {
-	        return new Log4JLogger(PREFIX + componentname);
+	        return createLog(PREFIX + componentname);
 	    }
+	}
+	
+	/**
+	 * Use {@link Log4JLogger} to create the Log
+	 * 
+	 * @param loggerName
+	 * @return log
+	 */
+	protected Log createLog(String loggerName) {
+		return new Log4JLogger(loggerName);
 	}
 	
 	/*

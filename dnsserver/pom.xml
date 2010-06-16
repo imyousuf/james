@@ -25,10 +25,23 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-spring-common</artifactId>
-  <name>Apache JAMES Server Spring Common</name>
+  <artifactId>james-server-dnsserver</artifactId>
+  <name>Apache JAMES Server DNSSerice Implementation</name>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> 
+            <manifest>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
          <configuration>       
@@ -38,15 +51,11 @@
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
             </manifest>
-            <manifestEntries>
-              <Fragment-Host>org.springframework.osgi.extender</Fragment-Host>
-           </manifestEntries>
           </archive>
         </configuration>       
         <executions>
           <execution>
             <goals>
-              <goal>jar</goal>
               <goal>test-jar</goal>
             </goals>
           </execution>
@@ -67,38 +76,29 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Export-Package>org.apache.james.container.spring.*</Export-Package>
+            <Export-Package>org.apache.james.api.dnsservice.*</Export-Package>
             <Embed-Dependency>*;scope=runtime</Embed-Dependency>
           </instructions>
         </configuration>
       </plugin>
     </plugins>
   </build>
-  
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-api</artifactId>
+      <artifactId>apache-mailet</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-api</artifactId>
+    </dependency>
+     <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
-    </dependency>
+    </dependency> 
     <dependency>
-      <groupId>org.apache.james.protocols</groupId>
-      <artifactId>protocols-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
+      <groupId>${javax.mail.groupId}</groupId>
+      <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-configuration</groupId>
@@ -107,10 +107,15 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-    </dependency>   
+    </dependency>
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>dnsjava</groupId>
+      <artifactId>dnsjava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
