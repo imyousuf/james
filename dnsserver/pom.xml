@@ -26,22 +26,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-dnsserver</artifactId>
-  <name>Apache JAMES Server DNSSerice Implementation</name>
+  <name>Apache JAMES Server DNSService Implementation</name>
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> 
-            <manifest>
-              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
          <configuration>       
@@ -56,6 +43,7 @@
         <executions>
           <execution>
             <goals>
+              <goal>jar</goal>
               <goal>test-jar</goal>
             </goals>
           </execution>
@@ -76,6 +64,8 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <!-- We need to import the lifecycle methods of james and spring stuff just to me sure it works -->
+            <Import-Package>org.apache.james.container.spring.lifecycle.*,org.springframework.*,*</Import-Package>
             <Export-Package>org.apache.james.api.dnsservice.*</Export-Package>
             <Embed-Dependency>*;scope=runtime</Embed-Dependency>
           </instructions>
