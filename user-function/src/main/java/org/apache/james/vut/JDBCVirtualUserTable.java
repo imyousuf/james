@@ -501,7 +501,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
                 mappingRS = mappingStmt.executeQuery();
                 while (mappingRS.next()) {
                     String domain = mappingRS.getString(1).toLowerCase();
-                    if(domains.equals(WILDCARD) == false && domains.contains(domains) == false) {
+                    if(domain.equals(WILDCARD) == false && domains.contains(domains) == false) {
                         domains.add(domain);
                     }
                 }
