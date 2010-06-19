@@ -33,6 +33,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -74,6 +76,7 @@ import org.apache.james.lifecycle.LogEnabled;
  *      credentials=&quot;password&quot;
  *      userBase=&quot;ou=People,o=myorg.com,ou=system&quot;
  *      userIdAttribute=&quot;uid&quot;/&gt;
+ *      userObjectClass=&quot;inetOrgPerson&quot;/&gt;
  *  &lt;/users-store&gt;
  * </pre>
  * 
@@ -94,6 +97,11 @@ import org.apache.james.lifecycle.LogEnabled;
  * <b>userIdAttribute:</b>The name of the LDAP attribute which holds user ids.
  * For example &quot;uid&quot; for Apache DS, or &quot;sAMAccountName&quot; for
  * Microsoft Active Directory.</li>
+ * <li>
+ * <b>userObjectClass:</b>The objectClass value for user nodes below the userBase.
+ * For example &quot;inetOrgPerson&quot; for Apache DS, or &quot;user&quot; for
+ * Microsoft Active Directory.
+ * </li>
  * </ul>
  * </p>
  * 
@@ -150,6 +158,15 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * </p>
      */
     private String userIdAttribute;
+    
+    /**
+     * <p>
+     * The value of this field is taken from the configuration attribute
+     * &quot;userObjectClass&quot;.  This is the LDAP object class to use
+     * in the search filter for user nodes under the userBase value.
+     * </p>
+     */
+    private String userObjectClass;
 
     /**
      * <p>
@@ -215,6 +232,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         credentials = configuration.getString("[@credentials]");
         userBase = configuration.getString("[@userBase]");
         userIdAttribute = configuration.getString("[@userIdAttribute]");
+        userObjectClass = configuration.getString("[@userObjectClass]");
 
         restriction = new ReadOnlyLDAPGroupRestriction(configuration.configurationAt("restriction"));
 
@@ -295,12 +313,15 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      */
     private Set<String> getAllUsersFromLDAP() throws NamingException {
         Set<String> result = new HashSet<String>();
-        NamingEnumeration<?> boundNames = ldapConnection.getLdapContext().list(userBase);
 
-        NameClassPair elementInfo;
-        while (boundNames.hasMore()) {
-            elementInfo = (NameClassPair) boundNames.next();
-            result.add(elementInfo.getNameInNamespace());
+        SearchControls sc = new SearchControls ();
+        sc.setSearchScope (SearchControls.SUBTREE_SCOPE);
+        sc.setReturningAttributes (new String[] { "distinguishedName" });
+        NamingEnumeration <SearchResult> sr = ldapConnection.getLdapContext ().search (userBase, "(objectClass=" + userObjectClass + ")", sc);
+        while(sr.hasMore ())
+        {
+            SearchResult r = sr.next ();
+            result.add (r.getNameInNamespace ());
         }
 
         return result;
