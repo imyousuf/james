@@ -28,7 +28,7 @@
         <class>org.apache.james.imap.jpa.user.model.JPASubscription</class>
 
         <!-- UsersRepository -->
-        <class>org.apache.james.server.jpa.JPAUser</class>
+        <class>org.apache.james.userrepository.JPAUser</class>
 
         <properties>
             <!--  create tables on startup -->
