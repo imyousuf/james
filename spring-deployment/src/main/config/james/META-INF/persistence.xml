@@ -38,7 +38,7 @@
             <!--  reorder SQL statements to satisfy database foreign key constraints -->
             <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
             <!--  Uncomment this if you want to see the generated SQL in the console.
-            <property name="openjpa.Log" value=""SQL=TRACE"/>
+            <property name="openjpa.Log" value="SQL=TRACE"/>
             -->
         </properties>
 
