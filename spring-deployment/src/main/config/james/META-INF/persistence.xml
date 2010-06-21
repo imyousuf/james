@@ -31,14 +31,17 @@
         <class>org.apache.james.userrepository.JPAUser</class>
 
         <properties>
-            <!--  create tables on startup -->
+            <!--  Create tables on startup -->
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-            <!--  create foreign keys on startup -->
+            <!--  Create foreign keys on startup -->
             <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
-            <!--  reorder SQL statements to satisfy database foreign key constraints -->
+            <!--  Reorder SQL statements to satisfy database foreign key constraints -->
             <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
             <!--  Uncomment this if you want to see the generated SQL in the console.
             <property name="openjpa.Log" value="SQL=TRACE"/>
+            -->
+            <!--  Uncomment this if you want to get verbose OpenJPA log the console.
+            <property name="openjpa.Log" value="DefaultLevel=TRACE"/>
             -->
         </properties>
 
