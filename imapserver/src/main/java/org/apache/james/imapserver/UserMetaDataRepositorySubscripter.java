@@ -29,7 +29,7 @@ import javax.annotation.Resource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.api.user.UserMetaDataRespository;
-import org.apache.james.api.user.UserRepositoryException;
+import org.apache.james.api.user.UsersRepositoryException;
 import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.mailbox.SubscriptionException;
@@ -65,7 +65,7 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
         try {
             final UserSubscription subscription = getUserSubscription(session.getUser().getUserName());
             subscription.subscribe(mailbox);
-        } catch (UserRepositoryException e) {
+        } catch (UsersRepositoryException e) {
             throw new SubscriptionException(HumanReadableText.GENERIC_SUBSCRIPTION_FAILURE, e);
         }
     }
@@ -82,7 +82,7 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
             final UserSubscription subscription = getUserSubscription(session.getUser().getUserName());
             final Collection<String> results = (Collection) subscription.subscriptions().clone();
             return results;
-        } catch (UserRepositoryException e) {
+        } catch (UsersRepositoryException e) {
             throw new SubscriptionException(HumanReadableText.GENERIC_SUBSCRIPTION_FAILURE, e);
         }
     }
@@ -95,7 +95,7 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
         try {
             final UserSubscription subscription = getUserSubscription(session.getUser().getUserName());
             subscription.unsubscribe(mailbox);
-        } catch (UserRepositoryException e) {
+        } catch (UsersRepositoryException e) {
             throw new SubscriptionException(HumanReadableText.GENERIC_UNSUBSCRIPTION_FAILURE, e);
         }
     }
@@ -124,7 +124,7 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
             this.repository = repository;
         }
 
-        public synchronized void subscribe(String mailbox) throws UserRepositoryException {
+        public synchronized void subscribe(String mailbox) throws UsersRepositoryException {
             final HashSet<String> existingSubscriptions = subscriptions();
             if (!existingSubscriptions.contains(mailbox)) {
                 final HashSet<String> newSubscriptions;
@@ -138,7 +138,7 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
             }
         }
 
-        public synchronized void unsubscribe(String mailbox) throws UserRepositoryException {
+        public synchronized void unsubscribe(String mailbox) throws UsersRepositoryException {
             final HashSet<String> subscriptions = subscriptions();
             if (subscriptions.remove(mailbox)) {
                 repository.setAttribute(user, subscriptions, META_DATA_KEY);
@@ -146,7 +146,7 @@ public class UserMetaDataRepositorySubscripter implements Subscriber {
         }
 
         @SuppressWarnings("unchecked")
-        public HashSet<String> subscriptions() throws UserRepositoryException {
+        public HashSet<String> subscriptions() throws UsersRepositoryException {
             try {
                 final HashSet<String> storedSubscriptions = (HashSet<String>) repository.getAttribute(user, META_DATA_KEY);
                 final HashSet<String> results;

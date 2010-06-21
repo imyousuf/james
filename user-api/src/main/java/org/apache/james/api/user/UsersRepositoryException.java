@@ -22,23 +22,23 @@ package org.apache.james.api.user;
 /**
  * Basic user repository exception.
  */
-public class UserRepositoryException extends Exception {
+public class UsersRepositoryException extends Exception {
 
     private static final long serialVersionUID = 6758478375823762715L;
 
-    public UserRepositoryException() {
+    public UsersRepositoryException() {
         super();
     }
 
-    public UserRepositoryException(String message, Throwable cause) {
+    public UsersRepositoryException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public UserRepositoryException(String message) {
+    public UsersRepositoryException(String message) {
         super(message);
     }
 
-    public UserRepositoryException(Throwable cause) {
+    public UsersRepositoryException(Throwable cause) {
         super(cause);
     }
 }

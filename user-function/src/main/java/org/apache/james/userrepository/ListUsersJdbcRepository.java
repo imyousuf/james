@@ -39,12 +39,6 @@ import javax.annotation.PostConstruct;
 public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
 
-    // REMOVE ME!
-    @PostConstruct
-    @Override
-    public void init() throws Exception {
-        super.init();
-    }
     
     /**
      * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#test(java.lang.String, java.lang.String)

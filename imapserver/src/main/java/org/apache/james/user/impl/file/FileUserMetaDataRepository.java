@@ -35,7 +35,7 @@ import javax.annotation.Resource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.james.api.user.UserMetaDataRespository;
-import org.apache.james.api.user.UserRepositoryException;
+import org.apache.james.api.user.UsersRepositoryException;
 import org.apache.james.services.FileSystem;
 
 /**
@@ -90,12 +90,12 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
      * (non-Javadoc)
      * @see org.apache.james.api.user.UserMetaDataRespository#clear(java.lang.String)
      */
-    public void clear(String username) throws UserRepositoryException {
+    public void clear(String username) throws UsersRepositoryException {
         final File userDir = userDirectory(username);
         try {
             FileUtils.deleteDirectory(userDir);
         } catch (IOException e) {
-            throw new UserRepositoryException("Cannot delete " + userDir.getAbsolutePath(), e);
+            throw new UsersRepositoryException("Cannot delete " + userDir.getAbsolutePath(), e);
         }
     }
 
@@ -104,7 +104,7 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
      * @see org.apache.james.api.user.UserMetaDataRespository#getAttribute(java.lang.String, java.lang.String)
      */
     public Serializable getAttribute(String username, String key)
-            throws UserRepositoryException {
+            throws UsersRepositoryException {
         final File valueFile = valueFile(username, key);
         final Serializable result;
         if (valueFile.exists()) {
@@ -113,9 +113,9 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
                 in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(valueFile)));
                 result = (Serializable) in.readObject();
             } catch (IOException e) {
-                throw new UserRepositoryException(e);
+                throw new UsersRepositoryException(e);
             } catch (ClassNotFoundException e) {
-                throw new UserRepositoryException(e);
+                throw new UsersRepositoryException(e);
             } finally {
                 IOUtils.closeQuietly(in);
             }
@@ -131,7 +131,7 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
      * @see org.apache.james.api.user.UserMetaDataRespository#setAttribute(java.lang.String, java.io.Serializable, java.lang.String)
      */
     public void setAttribute(String username, Serializable value, String key)
-            throws UserRepositoryException {
+            throws UsersRepositoryException {
 
         final File valueFile = valueFile(username, key);
         ObjectOutputStream out = null;
@@ -141,13 +141,13 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
             out.writeObject(value);
             
         } catch (IOException e) {
-            throw new UserRepositoryException(e);
+            throw new UsersRepositoryException(e);
         } finally {
             IOUtils.closeQuietly(out);
         }
     }
 
-    private File valueFile(String username, String key) throws UserRepositoryException {
+    private File valueFile(String username, String key) throws UsersRepositoryException {
         final File userDir = userDirectory(username);
         
         final String valueFileName = fileSystemSafeName(key, SERIALIZED_FILE_TYPE_NAME);
@@ -155,12 +155,12 @@ public class FileUserMetaDataRepository implements UserMetaDataRespository {
         return valueFile;
     }
 
-    private File userDirectory(String username) throws UserRepositoryException {        
+    private File userDirectory(String username) throws UsersRepositoryException {        
         final String userDirectoryName = fileSystemSafeName(username);
         final File userDir = new File(baseDirectory, userDirectoryName);
         if (!userDir.exists()) {
             if (!userDir.mkdir()) {
-                throw new UserRepositoryException("Cannot create directory: " + userDir.getAbsolutePath());
+                throw new UsersRepositoryException("Cannot create directory: " + userDir.getAbsolutePath());
             }
         }
         return userDir;

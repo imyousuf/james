@@ -43,7 +43,7 @@ public interface UserMetaDataRespository {
      * @return value, or null if the keyed attribute has 
      * no associated value.
      */
-    public Serializable getAttribute(String username, String key) throws UserRepositoryException;
+    public Serializable getAttribute(String username, String key) throws UsersRepositoryException;
     
     /**
      * Sets the attribute keyed to the given value.
@@ -51,12 +51,12 @@ public interface UserMetaDataRespository {
      * @param value <code>Serializable</code> value, possibly null
      * @param key conventionally an URI, not null
      */
-    public void setAttribute(String username, Serializable value, String key) throws UserRepositoryException;
+    public void setAttribute(String username, Serializable value, String key) throws UsersRepositoryException;
     
     /**
      * Clears all attributes for the given user.
      * @param username the name of the user who meta data is to be cleared, not null
-     * @throws UserRepositoryException
+     * @throws UsersRepositoryException
      */
-    public void clear(String username) throws UserRepositoryException;
+    public void clear(String username) throws UsersRepositoryException;
 }
