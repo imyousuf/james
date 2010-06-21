@@ -31,7 +31,6 @@ import org.apache.james.services.store.Store;
 import org.apache.james.util.Lock;
 import org.apache.mailet.Mail;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
