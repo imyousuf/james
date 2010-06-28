@@ -157,13 +157,14 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
         this.logger = log;
     }
 
-	/**
-	 * {@link InputStream} which contains the headers and the Body of the wrapped {@link MimeMessage}
-	 *
-	 */
+    /**
+     * {@link InputStream} which contains the headers and the Body of the
+     * wrapped {@link MimeMessage}
+     * 
+     */
     private final class MimeMessageInputStream extends InputStream {
-        private InputStream headersInputStream;
-        private InputStream bodyInputStream;
+        private final InputStream headersInputStream;
+        private final InputStream bodyInputStream;
         private int cStream = 0;
 
         boolean nextCR = false;
@@ -179,7 +180,9 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
                     headersOut.write("\r\n".getBytes());
                 }
                 headersInputStream = new ByteArrayInputStream(headersOut.toByteArray());
-                this.bodyInputStream = message.getInputStream();
+                
+                // use the raw InputStream because we want to have no conversion here and just obtain the original message body
+                this.bodyInputStream = message.getRawInputStream();
             } catch (MessagingException e) {
                 throw new IOException("Unable to read MimeMessage: " + e.getMessage());
             }
