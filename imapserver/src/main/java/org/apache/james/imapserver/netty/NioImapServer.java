@@ -109,7 +109,12 @@ public class NioImapServer extends AbstractConfigurableAsyncServer implements Im
                 }
                 final ImapRequestStreamHandler handler = new ImapRequestStreamHandler(decoder, processor, encoder);
                 
-                pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), NioImapServer.this.getTimeout()));
+                if (isStartTLSSupported())  {
+                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), NioImapServer.this.getTimeout(), getSSLContext().createSSLEngine()));
+                } else {
+                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), NioImapServer.this.getTimeout()));
+                }
+                
                 return pipeline;
             }
            

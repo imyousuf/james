@@ -22,8 +22,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLEngine;
+
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.ImapConstants;
+import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -31,6 +34,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.StreamHandler;
 import org.jboss.netty.util.HashedWheelTimer;
 
@@ -47,13 +51,21 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
 
     private final ImapRequestStreamHandler handler;
 
+    private SSLEngine engine;
+
     private final static String IMAP_SESSION = "IMAP_SESSION"; 
     
     public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final long readTimeout) {
+        this(hello, handler, logger, readTimeout, null);
+    }
+    
+
+    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final long readTimeout, SSLEngine engine) {
         super(new HashedWheelTimer(), readTimeout, TimeUnit.SECONDS);
         this.logger = logger;
         this.hello = hello;
         this.handler = handler;
+        this.engine = engine;
     }
     
     @Override
@@ -72,10 +84,28 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
     
 
     @Override
-    public void channelBound(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+    public void channelBound(final ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         
         // create the imap session and store it in the IoSession for later usage
-        final ImapSessionImpl imapsession = new ImapSessionImpl();
+        ImapSessionImpl imapsession = new ImapSessionImpl() {
+
+            @Override
+            public boolean startTLS() {
+                if (supportStartTLS() == false) return false; 
+                ctx.getChannel().setReadable(false);
+                SslHandler filter = new SslHandler(engine);
+                filter.getEngine().setUseClientMode(false);
+                ctx.getPipeline().addFirst("sslHandler", filter);
+                ctx.getChannel().setReadable(true);        
+                return true;
+            }
+
+            @Override
+            public boolean supportStartTLS() {
+                 return engine != null;
+            }
+            
+        };
         imapsession.setLog(logger);
         
         getAttachment(ctx).put(IMAP_SESSION, imapsession);
@@ -97,7 +127,7 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
         logger.debug("Error while processing imap request" ,e.getCause());
         
         // logout on error not sure if that is the best way to handle it
-        final ImapSessionImpl imapSession = (ImapSessionImpl) getAttachment(ctx).get(IMAP_SESSION);     
+        final ImapSession imapSession = (ImapSessionImpl) getAttachment(ctx).get(IMAP_SESSION);     
         if (imapSession != null) imapSession.logout();
 
         // just close the channel now!
