@@ -18,6 +18,8 @@
  ****************************************************************/
 package org.apache.james.imapserver.netty;
 
+import java.io.FilterOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +31,7 @@ import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -54,6 +57,7 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
     private SSLEngine engine;
 
     private final static String IMAP_SESSION = "IMAP_SESSION"; 
+    private final static String BUFFERED_OUT = "BUFFERED_OUT";
     
     public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final long readTimeout) {
         this(hello, handler, logger, readTimeout, null);
@@ -71,12 +75,17 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
     @Override
     protected void processStreamIo(final ChannelHandlerContext ctx, final InputStream in, final OutputStream out) {
         final ImapSessionImpl imapSession = (ImapSessionImpl) getAttachment(ctx).get(IMAP_SESSION);
-
+        Channel channel = ctx.getChannel();
+        
+        // Store the stream as attachment
+        OutputStream bufferedOut = new StartTLSOutputStream(out);
+        getAttachment(ctx).put(BUFFERED_OUT, bufferedOut);
+        
         // handle requests in a loop
-        while (handler.handleRequest(in, out, imapSession));
+        while (channel.isConnected() && handler.handleRequest(in, bufferedOut, imapSession));
+        
         if (imapSession != null) imapSession.logout();
         
-        Channel channel = ctx.getChannel();
         logger.debug("Thread execution complete for session " + channel.getId());
 
         channel.close();
@@ -92,11 +101,14 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
             @Override
             public boolean startTLS() {
                 if (supportStartTLS() == false) return false; 
-                ctx.getChannel().setReadable(false);
-                SslHandler filter = new SslHandler(engine);
+                
+                // enable buffering of the stream
+                ((StartTLSOutputStream)getAttachment(ctx).get(BUFFERED_OUT)).bufferTillCRLF();
+
+                SslHandler filter = new SslHandler(engine, true);
                 filter.getEngine().setUseClientMode(false);
                 ctx.getPipeline().addFirst("sslHandler", filter);
-                ctx.getChannel().setReadable(true);        
+
                 return true;
             }
 
@@ -136,5 +148,63 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
         super.exceptionCaught(ctx, e);
     }
 
-    
+    /**
+     * Because Netty {@link SslHandler} need to NOT encrypt the first response send to client this {@link FilterOutputStream} is needed. It
+     * buffer the data till the complete response was written to the stream (searching for the CRLF). 
+     * 
+     * Once this was done it just pass the data to the wrapped {@link OutputStream} without doing any more buffering
+     *
+     */
+    private final class StartTLSOutputStream extends FilterOutputStream {
+        private int lastChar;
+        private boolean bufferData = false;
+        private final ChannelBuffer buffer = ChannelBuffers.dynamicBuffer();
+        
+        public StartTLSOutputStream(OutputStream out) {
+            super(out);   
+        }
+        
+        /**
+         * Buffer the data till the next CLRF was found
+         */
+        public synchronized final void bufferTillCRLF() {
+            bufferData = true;
+        }
+
+        @Override
+        public synchronized void write(byte[] b, int off, int len) throws IOException {
+            if (bufferData) {
+                for (int i = off; i < len; i++) {
+                    write(b[i]);
+                }
+            } else {
+                out.write(b, off, len);
+            }
+        }
+
+        @Override
+        public void write(byte[] b) throws IOException {
+            write(b, 0, b.length);
+        }
+
+        @Override
+        public synchronized void write(int b) throws IOException {
+            if (bufferData) {
+                buffer.writeByte((byte)b);
+                // check for CLRF and if found write the data and disable buffering
+                if (b == '\n' && lastChar == '\r') {
+                    byte[] line = new byte[buffer.capacity()];
+                    buffer.getBytes(0, line);
+                    out.write(line);
+                    bufferData = false;
+                }
+                lastChar = b;
+
+            } else {
+                out.write(b);
+            }
+        }
+        
+        
+    }
 }

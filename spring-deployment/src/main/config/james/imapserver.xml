@@ -36,13 +36,13 @@
     <!-- Set to true to use TLS for the Socket.
          To use this you need to copy sunjce_provider.jar to /path/james/lib directory.
     -->
-    <tls socketTLS="false">
-        <!-- To create a new keystore execute:
-             keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore
-        -->
-        <keystore>file://conf/keystore</keystore>
-        <secret>yoursecret</secret>
-        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+    <tls socketTLS="false" startTLS="false">
+      <!-- To create a new keystore execute:
+      keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore
+       -->
+      <keystore>file://conf/keystore</keystore>
+      <secret>yoursecret</secret>
+      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
     </tls>
       
     <handler>
