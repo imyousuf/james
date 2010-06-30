@@ -97,6 +97,8 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
 
     private MailServer mailServer;
 
+    private boolean verifyIdentity;
+
     @Resource(name="James")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
@@ -179,6 +181,9 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
             smtpGreeting = handlerConfiguration.getString("smtpGreeting",null);
 
             addressBracketsEnforcement = handlerConfiguration.getBoolean("addressBracketsEnforcement",true);
+            
+            verifyIdentity = handlerConfiguration.getBoolean("verifyIdentity",true);
+
         }
     }
 
@@ -200,7 +205,7 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
     /**
      * A class to provide SMTP handler configuration to the handlers
      */
-    private class SMTPHandlerConfigurationDataImpl implements SMTPConfiguration {
+    public class SMTPHandlerConfigurationDataImpl implements SMTPConfiguration {
 
         /**
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getHelloName()
@@ -277,6 +282,15 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
          */
         public boolean isStartTLSSupported() {
             return NioSMTPServer.this.isStartTLSSupported();
+        }
+
+        /**
+         * Return true if the username and mail from must match for a authorized user
+         * 
+         * @return verify
+         */
+        public boolean verifyIdentity() {
+            return NioSMTPServer.this.verifyIdentity;
         }
 
     }

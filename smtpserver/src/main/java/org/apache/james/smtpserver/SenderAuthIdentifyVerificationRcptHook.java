@@ -20,8 +20,13 @@ package org.apache.james.smtpserver;
 
 import javax.annotation.Resource;
 
+import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook;
+import org.apache.james.protocols.smtp.hook.HookResult;
+import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.netty.SMTPNettySession;
+import org.apache.mailet.MailAddress;
 
 /**
  * Handler which check if the authenticated user is incorrect
@@ -45,6 +50,17 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
     @Resource(name="James")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
+    }
+
+    @Override
+    public HookResult doRcpt(SMTPSession session, MailAddress sender,
+            MailAddress rcpt) {
+        SMTPNettySession nSession =(SMTPNettySession) session;
+        if (nSession.verifyIdentity()) {
+            return super.doRcpt(session, sender, rcpt);
+        } else {
+            return new HookResult(HookReturnCode.DECLINED);
+        }
     }
 
     /**

@@ -31,6 +31,7 @@ import org.apache.james.protocols.impl.AbstractSession;
 import org.apache.james.protocols.impl.LineHandlerUpstreamHandler;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.smtpserver.netty.NioSMTPServer.SMTPHandlerConfigurationDataImpl;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
 /**
@@ -216,8 +217,20 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
         return theConfigData.useHeloEhloEnforcement();
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.smtp.SMTPSession#getPushedLineHandlerCount()
+     */
     public int getPushedLineHandlerCount() {
         return lineHandlerCount;
+    }
+
+    public boolean verifyIdentity() {
+        if (theConfigData instanceof SMTPHandlerConfigurationDataImpl) {
+            return ((SMTPHandlerConfigurationDataImpl)theConfigData).verifyIdentity();
+        } else {
+            return true;
+        }
     }
 
 }
