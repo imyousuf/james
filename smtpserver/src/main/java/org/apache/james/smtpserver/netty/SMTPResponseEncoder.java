@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.netty;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import org.apache.james.protocols.smtp.SMTPResponse;
 public class SMTPResponseEncoder extends AbstractResponseEncoder<SMTPResponse>{
 
     public SMTPResponseEncoder() {
-        super(SMTPResponse.class, "US-ASCII");
+        super(SMTPResponse.class, Charset.forName("US-ASCII"));
     }
 
     @Override

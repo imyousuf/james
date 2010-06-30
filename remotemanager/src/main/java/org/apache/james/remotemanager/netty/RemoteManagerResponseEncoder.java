@@ -19,6 +19,7 @@
 
 package org.apache.james.remotemanager.netty;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ import org.apache.james.remotemanager.RemoteManagerResponse;
 public class RemoteManagerResponseEncoder extends AbstractResponseEncoder<RemoteManagerResponse>{
 
     public RemoteManagerResponseEncoder() {
-        super(RemoteManagerResponse.class, "UTF-8");
+        super(RemoteManagerResponse.class, Charset.forName("UTF-8"));
     }
 
     @Override

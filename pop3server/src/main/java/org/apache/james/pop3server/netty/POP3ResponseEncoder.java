@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import org.apache.james.protocols.impl.AbstractResponseEncoder;
 public class POP3ResponseEncoder extends AbstractResponseEncoder<POP3Response>{
 
     public POP3ResponseEncoder() {
-        super(POP3Response.class, "US-ASCII");
+        super(POP3Response.class, Charset.forName("US-ASCII"));
     }
 
     @Override
