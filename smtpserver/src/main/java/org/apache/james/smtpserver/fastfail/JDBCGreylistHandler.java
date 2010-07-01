@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -207,7 +208,6 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     /**
      * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#configure(org.apache.commons.configuration.Configuration)
      */
-    @SuppressWarnings("unchecked")
 	public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
 	    try {
             setTempBlockTime(handlerConfiguration.getString("tempBlockTime"));
@@ -229,13 +229,16 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
         } catch (NumberFormatException e) {
             throw new ConfigurationException(e.getMessage());
         }
-        Collection<String> nets  = handlerConfiguration.getList("whitelistedNetworks");
+        String nets  = handlerConfiguration.getString("whitelistedNetworks");
         if (nets != null) {
-
-            if (nets != null) {
-                setWhiteListedNetworks( new NetMatcher(nets ,dnsService));
-                serviceLog.info("Whitelisted addresses: " + getWhiteListedNetworks().toString());
+            String[] whitelistArray = nets.split(",");
+            List<String> wList = new ArrayList<String>(whitelistArray.length);
+            for (int i = 0 ; i< whitelistArray.length; i++) {
+                wList.add(whitelistArray[i].trim());
             }
+            setWhiteListedNetworks( new NetMatcher(wList ,dnsService));
+            serviceLog.info("Whitelisted addresses: " + getWhiteListedNetworks().toString());
+            
         }    	
         String configRepositoryPath = handlerConfiguration.getString("repositoryPath", null);
         if (configRepositoryPath != null) {
