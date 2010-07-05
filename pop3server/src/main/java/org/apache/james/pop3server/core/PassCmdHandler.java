@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 
 import org.apache.james.imap.mailbox.BadCredentialsException;
 import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MailboxConstants;
 import org.apache.james.imap.mailbox.MailboxException;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
@@ -62,7 +63,7 @@ public class PassCmdHandler extends RsetCmdHandler {
             try {
                 MailboxSession mSession = mailboxManager.login(session.getUser(), passArg, session.getLogger());
                 StringBuffer sb = new StringBuffer();
-                sb.append(mailboxManager.getUserNameSpacePrefix());
+                sb.append(MailboxConstants.USER_NAMESPACE);
                 sb.append(mailboxManager.getDelimiter());
                 sb.append(session.getUser());
                 sb.append(mailboxManager.getDelimiter());

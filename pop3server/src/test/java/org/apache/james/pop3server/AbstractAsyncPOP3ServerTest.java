@@ -251,7 +251,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         assertEquals("Found unexpected messages", 0, list.length);
 
         m_pop3Protocol.disconnect();
-        String mailboxName = "#mail.foo.INBOX";
+        String mailboxName = "#private.foo.INBOX";
         MailboxSession session = manager.login("foo", "bar", new SimpleLog("Test"));
         if (manager.mailboxExists(mailboxName, session) == false) {
             manager.createMailbox(mailboxName, session);
@@ -267,7 +267,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         POP3MessageInfo p3i = m_pop3Protocol.listUniqueIdentifier(1);
         assertNotNull(p3i);
         
-        manager.deleteMailbox("#mail.foo.INBOX", session);
+        manager.deleteMailbox("#private.foo.INBOX", session);
 
 
     }
@@ -333,7 +333,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
 
         m_usersRepository.addUser("foo2", "bar2");
         
-        String mailboxName = "#mail.foo2.INBOX";
+        String mailboxName = "#private.foo2.INBOX";
         MailboxSession session = manager.login("foo2", "bar2", new SimpleLog("Test"));
         
         if (manager.mailboxExists(mailboxName, session) == false) {
