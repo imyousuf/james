@@ -32,6 +32,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MailboxConstants;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.lifecycle.LogEnabled;
@@ -104,7 +105,7 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
                         mailboxManager.startProcessingRequest(session);
 
                         // This allows Sieve scripts to use a standard delimiter regardless of mailbox implementation
-                        String destination = urlPath.replace('/', session.getPersonalSpace().getDeliminator());
+                        String destination = urlPath.replace('/', MailboxConstants.DEFAULT_DELIMITER);
                         
                         if (destination == null || "".equals(destination)) {
                             destination = "INBOX";
