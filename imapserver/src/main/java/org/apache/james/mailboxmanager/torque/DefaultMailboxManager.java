@@ -137,13 +137,4 @@ public class DefaultMailboxManager extends TorqueMailboxManager implements LogEn
             }
         }
     }
-
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
-     */
-    public void setLog(Log log) {
-        this.log = log;
-    }
 }
