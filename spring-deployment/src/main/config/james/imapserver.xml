@@ -21,6 +21,7 @@
 <!-- Disabling blocks will stop them from listening, -->
 <!-- but does not free as many resources as removing them would -->
 <imapserver enabled="true">
+    <!-- port 993 is the well-known/IANA registered port for IMAPS  ie over SSL/TLS -->
     <!-- port 143 is the well-known/IANA registered port for IMAP -->
     <port>143</port>
 

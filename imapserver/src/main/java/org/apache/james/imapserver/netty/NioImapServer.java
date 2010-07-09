@@ -21,6 +21,7 @@ package org.apache.james.imapserver.netty;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 import javax.annotation.Resource;
+import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -105,7 +106,12 @@ public class NioImapServer extends AbstractConfigurableAsyncServer implements Im
                 pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(NioImapServer.this.connPerIP));
 
                 if (isSSLSocket()) {
-                    pipeline.addFirst("sslHandler", new SslHandler(getSSLContext().createSSLEngine()));
+                    // We need to set clientMode to false.
+                    // See https://issues.apache.org/jira/browse/JAMES-1025
+                    SSLEngine engine = getSSLContext().createSSLEngine();
+                    engine.setUseClientMode(false);
+                    pipeline.addFirst("sslHandler", new SslHandler(engine));
+                    
                 }
                 final ImapRequestStreamHandler handler = new ImapRequestStreamHandler(decoder, processor, encoder);
                 
