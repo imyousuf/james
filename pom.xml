@@ -1112,7 +1112,7 @@
     <camel.version>2.2.0</camel.version>
     <spring.version>3.0.2.RELEASE</spring.version>
     <imap.version>0.1-M2-SNAPSHOT</imap.version>
-    <protocols.version>1.1-SNAPSHOT</protocols.version>
+    <protocols.version>1.1</protocols.version>
     <jsieve.version>0.4</jsieve.version>
 
   </properties>
