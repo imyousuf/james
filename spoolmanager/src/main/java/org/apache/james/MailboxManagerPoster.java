@@ -31,6 +31,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.imap.api.MailboxPath;
 import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxConstants;
 import org.apache.james.imap.mailbox.MailboxManager;
@@ -64,7 +65,7 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
     /**
      * @see org.apache.jsieve.mailet.Poster#post(java.lang.String, javax.mail.internet.MimeMessage)
      */
-    public void post(String url, MimeMessage mail)throws MessagingException {
+    public void post(String url, MimeMessage mail) throws MessagingException {
         final int endOfScheme = url.indexOf(':');
         if (endOfScheme < 0) {
             throw new MessagingException("Malformed URI");
@@ -110,13 +111,15 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
                         if (destination == null || "".equals(destination)) {
                             destination = "INBOX";
                         }
-                        final String name = mailboxManager.resolve(user, destination);
+                        if (destination.startsWith(MailboxConstants.DEFAULT_DELIMITER_STRING))
+                            destination = destination.substring(1);
+                        final MailboxPath path = new MailboxPath(MailboxConstants.USER_NAMESPACE, user, destination);
                         try
                         {
-                            if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(name, session))) {
-                                mailboxManager.createMailbox(name, session);
+                            if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(path, session))) {
+                                mailboxManager.createMailbox(path, session);
                             }
-                            final Mailbox mailbox = mailboxManager.getMailbox(name, session);
+                            final Mailbox mailbox = mailboxManager.getMailbox(path, session);
                             
                             if (mailbox == null) {
                                 final String error = "Mailbox for user " + user

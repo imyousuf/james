@@ -40,10 +40,12 @@ import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.FakeLoader;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.imap.api.MailboxPath;
 import org.apache.james.imap.inmemory.InMemoryMailboxManager;
 import org.apache.james.imap.inmemory.InMemoryMailboxSessionMapperFactory;
 import org.apache.james.imap.inmemory.InMemorySubscriptionManager;
 import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MailboxConstants;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.store.Authenticator;
 import org.apache.james.lifecycle.LifecycleUtil;
@@ -251,12 +253,12 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         assertEquals("Found unexpected messages", 0, list.length);
 
         m_pop3Protocol.disconnect();
-        String mailboxName = "#private.foo.INBOX";
+        MailboxPath mailboxPath = new MailboxPath(MailboxConstants.USER_NAMESPACE, "foo", "INBOX");
         MailboxSession session = manager.login("foo", "bar", new SimpleLog("Test"));
-        if (manager.mailboxExists(mailboxName, session) == false) {
-            manager.createMailbox(mailboxName, session);
+        if (manager.mailboxExists(mailboxPath, session) == false) {
+            manager.createMailbox(mailboxPath, session);
         }
-        setupTestMails(session,manager.getMailbox(mailboxName, session));
+        setupTestMails(session,manager.getMailbox(mailboxPath, session));
         
         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
         m_pop3Protocol.login("foo", "bar");
@@ -267,7 +269,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         POP3MessageInfo p3i = m_pop3Protocol.listUniqueIdentifier(1);
         assertNotNull(p3i);
         
-        manager.deleteMailbox("#private.foo.INBOX", session);
+        manager.deleteMailbox(mailboxPath, session);
 
 
     }
@@ -332,15 +334,15 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
 
         m_usersRepository.addUser("foo2", "bar2");
-        
-        String mailboxName = "#private.foo2.INBOX";
+
+        MailboxPath mailboxPath = new MailboxPath(MailboxConstants.USER_NAMESPACE, "foo2", "INBOX");
         MailboxSession session = manager.login("foo2", "bar2", new SimpleLog("Test"));
         
-        if (manager.mailboxExists(mailboxName, session) == false) {
-            manager.createMailbox(mailboxName, session);
+        if (manager.mailboxExists(mailboxPath, session) == false) {
+            manager.createMailbox(mailboxPath, session);
         }
         
-        setupTestMails(session,manager.getMailbox(mailboxName, session));
+        setupTestMails(session,manager.getMailbox(mailboxPath, session));
         
         m_pop3Protocol.sendCommand("retr","1");
         assertEquals(0, m_pop3Protocol.getState());
@@ -406,7 +408,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         Reader r3 = m_pop3Protocol.retrieveMessageTop(entries[0].number, 0);
         assertNotNull(r3);
         r3.close();
-        manager.deleteMailbox(mailboxName, session);
+        manager.deleteMailbox(mailboxPath, session);
     }
 
     private void setupTestMails(MailboxSession session, Mailbox mailbox) throws MessagingException {

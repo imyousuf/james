@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.james.imap.api.MailboxPath;
 import org.apache.james.imap.mailbox.BadCredentialsException;
 import org.apache.james.imap.mailbox.Mailbox;
 import org.apache.james.imap.mailbox.MailboxConstants;
@@ -62,20 +63,13 @@ public class PassCmdHandler extends RsetCmdHandler {
             String passArg = parameters;
             try {
                 MailboxSession mSession = mailboxManager.login(session.getUser(), passArg, session.getLogger());
-                StringBuffer sb = new StringBuffer();
-                sb.append(MailboxConstants.USER_NAMESPACE);
-                sb.append(mailboxManager.getDelimiter());
-                sb.append(session.getUser());
-                sb.append(mailboxManager.getDelimiter());
-                sb.append("INBOX");
-                ;
-                String mailboxName = sb.toString();
-
+                MailboxPath mailboxPath = new MailboxPath(MailboxConstants.USER_NAMESPACE, session.getUser(), "INBOX");
+                
                 // check if mailbox exists.. if not just create it
-                if (mailboxManager.mailboxExists(mailboxName, mSession) == false) {
-                    mailboxManager.createMailbox(mailboxName, mSession);
+                if (mailboxManager.mailboxExists(mailboxPath, mSession) == false) {
+                    mailboxManager.createMailbox(mailboxPath, mSession);
                 }
-                Mailbox mailbox = mailboxManager.getMailbox(mailboxName, mSession);
+                Mailbox mailbox = mailboxManager.getMailbox(mailboxPath, mSession);
 
                 session.getState().put(POP3Session.MAILBOX_SESSION, mSession);
                 session.setUserMailbox(mailbox);
