@@ -1109,7 +1109,7 @@
     <javax.mail.artifactId>mail</javax.mail.artifactId>
     <productName>Apache-James Mail Server</productName>
     <derby.version>10.5.3.0_1</derby.version>
-    <camel.version>2.2.0</camel.version>
+    <camel.version>2.4.0</camel.version>
     <spring.version>3.0.2.RELEASE</spring.version>
     <imap.version>0.1-M2-SNAPSHOT</imap.version>
     <protocols.version>1.1</protocols.version>

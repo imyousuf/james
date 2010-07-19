@@ -32,6 +32,7 @@ import javax.mail.MessagingException;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.ChoiceDefinition;
+import org.apache.camel.processor.aggregate.UseLatestAggregationStrategy;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
@@ -77,6 +78,7 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
         this.mailetLoader = mailetLoader;
     }
 
+    private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
     /*
      * (non-Javadoc)
      * @see org.apache.camel.builder.RouteBuilder#configure()
@@ -197,9 +199,15 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                             // do splitting of the mail based on the stored matcher
                             .split().method(MatcherSplitter.class)
                             
+                            // set the aggregationStrategy. This is needed because the default has
+                            // change. 
+                            // See:
+                            //        https://issues.apache.org/jira/browse/JAMES-1013
+                            //        http://camel.apache.org/camel-230-release.html 
+                            .aggregationStrategy(aggr)
+                            
                             // speed up things by processing in parallel
                             .parallelProcessing()
-                            
                             // start first choice
                             .choice()
                             
