@@ -565,21 +565,9 @@
 
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcmail-jdk14</artifactId>
-      <version>129</version>
+      <artifactId>bcmail-jdk15</artifactId>
+      <version>1.45</version>
     </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcmail-jdk14-workaround</artifactId>
-      <version>129</version>
-    </dependency>
-    <!-- TODO test the updated version
-    <dependency>
-      <groupId>bouncycastle</groupId>
-      <artifactId>bcmail-jdk14</artifactId>
-      <version>136</version>
-    </dependency>
-     -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-jspf</artifactId>
@@ -656,12 +644,12 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging-api</artifactId>
-      <version>1.1</version>
+      <version>${commons.logging.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.1</version>
+      <version>${commons.logging.version}</version>
       <exclusions>
         <exclusion>
           <artifactId>logkit</artifactId>
@@ -966,18 +954,18 @@
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-rmi</artifactId>
-      <version>2.1.0</version>
+      <version>${jackrabbit.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-commons</artifactId>
-      <version>2.1.0</version>
+      <version>${jackrabbit.version}</version>
     </dependency>
 	<dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-core</artifactId>
-      <version>2.1.0</version>
+      <version>${jackrabbit.version}</version>
     </dependency>
    
     <dependency>
@@ -1115,6 +1103,8 @@
     <imap.version>0.1-M2-SNAPSHOT</imap.version>
     <protocols.version>1.1</protocols.version>
     <jsieve.version>0.4</jsieve.version>
+    <jackrabbit.version>2.1.0</jackrabbit.version>
+    <commons.logging.version>1.1</commons.logging.version>
 
   </properties>
 
