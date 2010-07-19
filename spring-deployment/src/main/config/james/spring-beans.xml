@@ -308,23 +308,6 @@
     <bean id="authenticator" class="org.apache.james.imapserver.UserRepositoryAuthenticator"/>
 
 
-    <!--  Torque implementation of IMAP Storage-->
-    <!--  
-    <bean id="subscriper" class="org.apache.james.imapserver.UserMetaDataRepositorySubscripter"/>
-
-    <bean id="userMetaDataRepository" class="org.apache.james.user.impl.file.FileUserMetaDataRepository">
-        <property name="baseDirectory" value="file://var/users"/>
-    </bean>
-
-
-    <bean id="mailboxmanager" class="org.apache.james.mailboxmanager.torque.DefaultMailboxManager">
-        <constructor-arg index="0" ref="authenticator"/>
-        <constructor-arg index="1" ref="subscriper"/>
-        <property name="torqueConfig" value="file://conf/torque.properties" />
-        <property name="sqlFile" value="file://conf/mailboxManagerSqlResources.xml"/>
-    </bean>
-    -->
-
     <!-- JPA implementation of IMAP Storage-->
     <bean id="sessionMapperFactory" class="org.apache.james.imap.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
