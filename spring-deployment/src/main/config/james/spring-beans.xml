@@ -25,9 +25,6 @@
 
     <!--
         ** JMX part ** to enable exposure of JMX, activate the following beans
-
-        NOTE: if you are running JDK < 1.5, you'd have to make a MBeanServer
-        implementation available on the classpath, for example mx4j
     -->
 
     <!--
