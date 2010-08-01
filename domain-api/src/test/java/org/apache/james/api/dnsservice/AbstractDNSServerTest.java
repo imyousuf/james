@@ -60,7 +60,7 @@ public class AbstractDNSServerTest extends TestCase {
      */
     public void testLocalhost() throws UnknownHostException {
         assertEquals("localhost/127.0.0.1", DNS_SERVER.getByName("localhost").toString());
-        assertEquals("localhost", DNS_SERVER.getHostName(InetAddress.getByName("localhost")).toString());
+        assertEquals("127.0.0.1", DNS_SERVER.getHostName(InetAddress.getByName("127.0.0.1")).toString());
     }
     
     /**
