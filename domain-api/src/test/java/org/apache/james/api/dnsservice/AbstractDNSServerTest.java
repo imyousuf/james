@@ -60,7 +60,14 @@ public class AbstractDNSServerTest extends TestCase {
      */
     public void testLocalhost() throws UnknownHostException {
         assertEquals("localhost/127.0.0.1", DNS_SERVER.getByName("localhost").toString());
-        assertEquals("127.0.0.1", DNS_SERVER.getHostName(InetAddress.getByName("127.0.0.1")).toString());
+        String localHost = DNS_SERVER.getHostName(InetAddress.getByName("127.0.0.1")).toString();
+        boolean match = false;
+        
+        // it may be possible that it return localhost or 127.0.0.1.
+        // This depends on the OS
+        if (localHost.equals("localhost") || localHost.equals("127.0.0.1")) match = true;
+        
+        assertTrue("Was not localhost and not 127.0.0.1", match);
     }
     
     /**
