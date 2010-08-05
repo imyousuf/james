@@ -51,18 +51,19 @@ public class MimeMessageInputStreamSource
     implements Disposable {
 
     private final List<InputStream> streams = new ArrayList<InputStream>();
-    private final List<OutputStream> streamsOut = new ArrayList<OutputStream>();
 
+    private OutputStream out;
+    
     
     /**
      * A temporary file used to hold the message stream
      */
-    File file;
+    private File file;
 
     /**
      * The full path of the temporary file
      */
-    String sourceId;
+    private String sourceId;
 
     /**
      * Construct a new MimeMessageInputStreamSource from an
@@ -168,13 +169,15 @@ public class MimeMessageInputStreamSource
      * @throws FileNotFoundException
      */
     public synchronized OutputStream getWritableOutputStream() throws FileNotFoundException {
-        FileOutputStream out = new FileOutputStream(file);
-        streamsOut.add(out);
+        if (out == null) {
+            out = new FileOutputStream(file);
+        }
         return out;
     }
-    
-    /**
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Disposable#dispose()
      */
     public void dispose() {
         // explicit close all streams
@@ -185,11 +188,12 @@ public class MimeMessageInputStreamSource
                 // ignore on dispose
             }
         }
-        for (int i = 0; i < streamsOut.size(); i++) {
+        if (out != null) {
             try {
-                streamsOut.get(i).close();
+                out.close();
             } catch (IOException e) {
-                // ignore on dispose
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
         try {
