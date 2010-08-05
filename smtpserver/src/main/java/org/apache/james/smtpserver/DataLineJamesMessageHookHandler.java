@@ -100,9 +100,10 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
      */
     public void onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
         MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
-        OutputStream out = (OutputStream)  session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_OUTPUTSTREAM);
 
         try {
+            OutputStream out = mmiss.getWritableOutputStream();
+
             // 46 is "."
             // Stream terminated
             if (line.length == 3 && line[0] == 46) {
@@ -151,6 +152,8 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
             }
             out.flush();
         } catch (IOException e) {
+            LifecycleUtil.dispose(mmiss);
+
             SMTPResponse response;
             response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,
                             DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
@@ -159,7 +162,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                     "Unknown error occurred while processing DATA.", e);
             session.writeResponse(response);
             return;
-        }
+        }  
     }
 
 	/**

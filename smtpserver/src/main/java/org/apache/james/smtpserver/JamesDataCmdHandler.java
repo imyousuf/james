@@ -18,8 +18,6 @@
  ****************************************************************/
 package org.apache.james.smtpserver;
 
-import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -69,14 +67,7 @@ public class JamesDataCmdHandler extends DataCmdHandler {
     protected SMTPResponse doDATA(SMTPSession session, String argument) {
         try {
             MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(mailServer.getId());
-            OutputStream out = mmiss.getWritableOutputStream();
-
             session.getState().put(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE, mmiss);
-            session.getState().put(SMTPConstants.DATA_MIMEMESSAGE_OUTPUTSTREAM, out);
-
-        } catch (IOException e) {
-            session.getLogger().warn("Error creating temporary outputstream for incoming data",e);
-            return new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error preparing to receive DATA.");
         } catch (MessagingException e) {
             session.getLogger().warn("Error creating mimemessagesource for incoming data",e);
             return new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error preparing to receive DATA.");

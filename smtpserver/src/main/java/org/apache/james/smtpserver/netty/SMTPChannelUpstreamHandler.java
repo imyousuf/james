@@ -104,7 +104,6 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
         if (smtpSession != null) {
             LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.MAIL));
             LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE));
-            LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_OUTPUTSTREAM));
         }
         
         super.cleanup(channel);
