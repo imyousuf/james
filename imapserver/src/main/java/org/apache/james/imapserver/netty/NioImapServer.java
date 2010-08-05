@@ -31,6 +31,7 @@ import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.protocols.impl.ChannelGroupHandler;
+import org.apache.james.protocols.impl.TimeoutHandler;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -38,6 +39,7 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.connection.ConnectionLimitUpstreamHandler;
 import org.jboss.netty.handler.connection.ConnectionPerIpLimitUpstreamHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
+import org.jboss.netty.util.HashedWheelTimer;
 
 /**
  * NIO IMAP Server which use Netty
@@ -95,12 +97,16 @@ public class NioImapServer extends AbstractConfigurableAsyncServer implements Im
     @Override
     protected ChannelPipelineFactory createPipelineFactory(final ChannelGroup group) {
         return new ChannelPipelineFactory() {
-            private ChannelGroupHandler groupHandler = new ChannelGroupHandler(group);
-
+            private final ChannelGroupHandler groupHandler = new ChannelGroupHandler(group);
+            private final HashedWheelTimer timer = new HashedWheelTimer();
+            
+            // Timeout of 30 minutes See rfc2060 5.4 for details
+            private final static int TIMEOUT = 30 * 60;
+            
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
                 pipeline.addLast("groupHandler", groupHandler);
-
+                pipeline.addLast("timeoutHandler", new TimeoutHandler(timer, TIMEOUT , TIMEOUT, 0));
                 pipeline.addLast("connectionLimit", new ConnectionLimitUpstreamHandler(NioImapServer.this.connectionLimit));
 
                 pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(NioImapServer.this.connPerIP));
