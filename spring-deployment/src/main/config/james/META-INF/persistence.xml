@@ -22,8 +22,8 @@
          -->
          
          <!-- Comment if you want to use streaming -->
-        <class>org.apache.james.imap.jpa.mail.model.JPAMailboxMembership</class>
-        <class>org.apache.james.imap.jpa.mail.model.JPAMessage</class>
+        <class>org.apache.james.imap.jpa.mail.model.openjpa.JPAMailboxMembership</class>
+        <class>org.apache.james.imap.jpa.mail.model.openjpa.JPAMessage</class>
         <class>org.apache.james.imap.jpa.mail.model.JPAProperty</class>
         <class>org.apache.james.imap.jpa.user.model.JPASubscription</class>
 
