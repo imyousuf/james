@@ -303,12 +303,12 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
                     .append(hostName);
         getLogger().info(infoBuffer.toString());
 
-        boolean autodetect = handlerConfiguration.getBoolean(HELLO_NAME + "/[@autodetect]", true);
+        boolean autodetect = handlerConfiguration.getBoolean(HELLO_NAME + ".[@autodetect]", true);
         if (autodetect) {
             helloName = hostName;
         } else {
             // Should we use the defaultdomain here ?
-            helloName = handlerConfiguration.getString(HELLO_NAME + "/localhost");
+            helloName = handlerConfiguration.getString(HELLO_NAME + ".localhost");
         }
 
         infoBuffer =
