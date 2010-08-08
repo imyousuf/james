@@ -106,7 +106,7 @@ public class NioImapServer extends AbstractConfigurableAsyncServer implements Im
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
                 pipeline.addLast("groupHandler", groupHandler);
-                pipeline.addLast("timeoutHandler", new TimeoutHandler(timer, TIMEOUT , TIMEOUT, 0));
+                pipeline.addLast("timeoutHandler", new TimeoutHandler(timer, TIMEOUT));
                 pipeline.addLast("connectionLimit", new ConnectionLimitUpstreamHandler(NioImapServer.this.connectionLimit));
 
                 pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(NioImapServer.this.connPerIP));
