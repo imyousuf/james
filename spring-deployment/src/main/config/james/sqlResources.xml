@@ -689,6 +689,86 @@
 
 </sqlDefs>
 
+<sqlDefs name="NetworkWhiteList">
+
+    <sql name="networkWhiteListTableName">networkWhitelist</sql>
+
+    <!-- Statements used to retrieve a single entry. -->
+    <sql name="selectNetwork">SELECT network FROM networkWhitelist where (localUser=? AND localHost=?)</sql>
+
+    <!-- Statements used to create the "whitelist" table. -->
+    <sql name="createNetworkWhiteListTable" db="hypersonic">
+        CREATE TABLE networkWhitelist (
+            localUser varchar (64) NOT NULL,
+            localHost varchar (255) NOT NULL,
+            network varchar (255) NOT NULL,
+            PRIMARY KEY (localUser, localHost)
+        )    </sql>
+    <sql name="createNetworkWhiteListTable" db="hsqldb">
+        CREATE CACHED TABLE ${table} (
+        CREATE TABLE networkWhitelist (
+            localUser varchar (64) NOT NULL,
+            localHost varchar (255) NOT NULL,
+            network varchar (255) NOT NULL
+        )    </sql>
+    <sql name="createNetworkWhiteListTable" db="mysql">
+        CREATE TABLE networkWhitelist (
+            localUser varchar (64) NOT NULL,
+            localHost varchar (255) character set latin1 NOT NULL,
+            network varchar (255) NOT NULL
+        ) TYPE=InnoDB
+    </sql>
+    <sql name="createNetworkWhiteListTable" db="mssql">
+        CREATE TABLE [networkWhitelist] (
+            [localUser] [varchar] (64) NOT NULL,
+            [localHost] [varchar] (255) NOT NULL,
+            [network] [varchar] (255) NOT NULL
+        )
+    </sql>
+    <sql name="createNetworkWhiteListTable" db="oracle">
+        CREATE TABLE networkWhitelist (
+            localUser varchar (64) NOT NULL,
+            localHost varchar (255) NOT NULL,
+            network varchar (255) NOT NULL
+        )
+    </sql>
+    <sql name="createNetworkWhiteListTable" db="postgresql">
+        CREATE TABLE networkWhitelist (
+            localUser varchar (64) NOT NULL,
+            localHost varchar (255) NOT NULL,
+            network varchar (255) NOT NULL
+        )
+    </sql>
+    <sql name="createNetworkWhiteListTable" db="sapdb">
+        CREATE TABLE networkWhitelist (
+            localUser varchar (64) NOT NULL,
+            localHost varchar (255) NOT NULL,
+            network varchar (255) NOT NULL
+        )
+    </sql>
+    <sql name="createNetworkWhiteListTable" db="db2">
+        CREATE TABLE networkWhitelist (
+            localUser varchar (64) NOT NULL,
+            localHost varchar (255) NOT NULL,
+            network varchar (255) NOT NULL
+        )
+    </sql>
+    <sql name="createNetworkWhiteListTable" db="ingres">
+        CREATE TABLE networkWhitelist (
+            localUser varchar (64) NOT NULL,
+            localHost varchar (255) NOT NULL,
+            network varchar (255) NOT NULL
+        )
+    </sql>
+    <sql name="createNetworkWhiteListTable" db="derby">
+        CREATE TABLE networkWhitelist (
+            localUser varchar (64) NOT NULL,
+            localHost varchar (255) NOT NULL,
+            network varchar (255) NOT NULL
+        )
+    </sql>
+
+</sqlDefs>
 <!-- SQL statements to support the GreyList Handler-->
 <!-- -->
 <sqlDefs name="GreyList">
