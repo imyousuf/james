@@ -110,6 +110,20 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
                     // This address was already in the list
                     return true;
                 }
+                
+                
+                // check for wildcard domain entries 
+                selectStmt = conn.prepareStatement(selectByPK);
+                
+                selectStmt.setString(1, recipientUser);
+                selectStmt.setString(2, recipientHost);
+                selectStmt.setString(3, "*");
+                selectStmt.setString(4, senderHost);
+                selectRS = selectStmt.executeQuery();
+                if (selectRS.next()) {
+                    // This address was already in the list
+                    return true;
+                }
 
             } finally {
                 theJDBCUtil.closeJDBCResultSet(selectRS);
