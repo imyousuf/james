@@ -39,8 +39,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
      */
     private Map<String,String> mappings;
     
-    private List<String> domains;
-    
     private final static String WILDCARD = "*";
 
     /**
@@ -51,7 +49,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
         List<String> mapConf = arg0.getList("mapping");
     
         mappings = new HashMap<String,String>();
-        domains = new ArrayList<String>();
         
         if (mapConf != null && mapConf.size() > 0) {
             for (int i = 0; i < mapConf.size(); i ++) {       
@@ -63,21 +60,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
         
         // Add domains of the mappings map to the domains List
         Iterator<String> keys = mappings.keySet().iterator();
-        
-        while (keys.hasNext()) {
-            String key = keys.next().toString();
-
-            String[] args1 = key.split("@");
-            if (args1 != null && args1.length > 1) {
-                String domain = args1[1].toLowerCase();
-                if (domains.contains(domain) == false && domain.equals(WILDCARD) == false) {
-                    domains.add(domain);
-                }
-            }
-        }
-        
-        setAutoDetect(arg0.getBoolean("autodetect",true));  
-        setAutoDetectIP(arg0.getBoolean("autodetectIP", true));  
         
     }
     
@@ -122,24 +104,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
             } else {
                 return null;
             }
-        }
-    }
-
-    /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getDomainsInternal()
-     */
-    protected List<String> getDomainsInternal() {
-        return domains;
-    }
-
-    /**
-     * @see org.apache.james.api.domainlist.DomainList#containsDomain(java.lang.String)
-     */
-    public boolean containsDomain(String domain) {
-        if (domains == null) {
-            return false;
-        } else {
-            return domains.contains(domain);
         }
     }
 

@@ -129,9 +129,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     
         sqlFileName = arg0.getString("sqlFile");
         
-        setAutoDetect(arg0.getBoolean("autodetect",true));  
-        setAutoDetectIP(arg0.getBoolean("autodetectIP", true));  
-
     }
 
     @PostConstruct
@@ -235,7 +232,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
      */
-    public String mapAddressInternal(String user, String domain) {
+    protected String mapAddressInternal(String user, String domain) {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         try {
@@ -482,75 +479,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             theJDBCUtil.closeJDBCConnection(conn);
         }
         return null;
-    }
-
-    /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getDomainsInternal()
-     */
-    protected List<String> getDomainsInternal() {
-        List<String> domains = new ArrayList<String>();
-        Connection conn = null;
-        PreparedStatement mappingStmt = null;
-        
-        try {
-            conn = dataSourceComponent.getConnection();
-            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectDomains", true));
-
-            ResultSet mappingRS = null;
-            try {
-                mappingRS = mappingStmt.executeQuery();
-                while (mappingRS.next()) {
-                    String domain = mappingRS.getString(1).toLowerCase();
-                    if(domain.equals(WILDCARD) == false && domains.contains(domains) == false) {
-                        domains.add(domain);
-                    }
-                }
-            } finally {
-                theJDBCUtil.closeJDBCResultSet(mappingRS);
-            }
-            
-        } catch (SQLException sqle) {
-            getLogger().error("Error accessing database", sqle);
-        } finally {
-            theJDBCUtil.closeJDBCStatement(mappingStmt);
-            theJDBCUtil.closeJDBCConnection(conn);
-        }
-        if (domains.size() == 0) {
-            return null;
-        } else {
-            return domains;
-        }
-    }
-
-    /**
-     * @see org.apache.james.api.domainlist.DomainList#containsDomain(java.lang.String)
-     */
-    public boolean containsDomain(String domain) {
-        Connection conn = null;
-        PreparedStatement mappingStmt = null;
-        
-        try {
-            conn = dataSourceComponent.getConnection();
-            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectDomain", true));
-
-            ResultSet mappingRS = null;
-            try {
-                mappingStmt.setString(1, domain);
-                mappingRS = mappingStmt.executeQuery();
-                if (mappingRS.next()) {
-                    return true;
-                }
-            } finally {
-                theJDBCUtil.closeJDBCResultSet(mappingRS);
-            }
-            
-        } catch (SQLException sqle) {
-            getLogger().error("Error accessing database", sqle);
-        } finally {
-            theJDBCUtil.closeJDBCStatement(mappingStmt);
-            theJDBCUtil.closeJDBCConnection(conn);
-        }
-        return false;
     }
 
     /**

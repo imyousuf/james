@@ -150,10 +150,6 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertEquals("Two mappings",virtualUserTable.getMappings(user, domain).size(), 2);           
             assertEquals("One mappingline",virtualUserTable.getAllMappings().size(),1);
            
-            // Test DomainList implementations!
-            assertEquals("Three domains",virtualUserTable.getDomains().size(), 3);
-            assertTrue("Contains Domain",virtualUserTable.containsDomain(domain));
-            
             assertTrue("remove virtual mapping", removeMapping(user, domain, regex, REGEX_TYPE));
         
             try {

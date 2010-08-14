@@ -272,15 +272,6 @@
     <bean id="domainlist" class="org.apache.james.domain.JDBCDomainList"/>
     -->
 
-    <!-- JDBC VirtualUserTable implementation of the domainlist service -->
-    <!--
-    <bean id="domainlist" class="org.apache.james.vut.JDBCVirtualUserTable" />
-    -->
-
-    <!-- XML VirtualUserTable implementation of the domainlist service -->
-    <!--
-    <bean id="domainlist" class="org.apache.james.vut.XMLVirtualUserTable"/>
-    -->
     <!-- Poster -->
     <bean id="poster" name="org.apache.jsieve.mailet.Poster" class="org.apache.james.MailboxManagerPoster"/>
 

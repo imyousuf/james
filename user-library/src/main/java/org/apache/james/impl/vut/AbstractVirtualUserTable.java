@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.mail.internet.ParseException;
 
@@ -38,7 +38,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
@@ -52,10 +51,8 @@ import org.apache.oro.text.regex.Perl5Compiler;
 /**
  * 
  */
-public abstract class AbstractVirtualUserTable implements VirtualUserTable, VirtualUserTableManagement, DomainList, LogEnabled, Configurable {
+public abstract class AbstractVirtualUserTable implements VirtualUserTable, VirtualUserTableManagement, LogEnabled, Configurable {
     
-    private boolean autoDetect = true;
-    private boolean autoDetectIP = true;
     private DNSService dns;
     
     // The maximum mappings which will process before throwing exception
@@ -335,48 +332,6 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
 
  
     /**
-     * @see org.apache.james.api.domainlist.DomainList#getDomains()
-     */
-    public List<String> getDomains() {
-        List<String> domains = getDomainsInternal();
-        if (domains != null) {
-            
-            String hostName = null;
-            try {
-                hostName = dns.getHostName(dns.getLocalHost());
-            } catch  (UnknownHostException ue) {
-                hostName = "localhost";
-            }
-            
-            getLogger().info("Local host is: " + hostName);
-            
-            hostName = hostName.toLowerCase(Locale.US);
-            
-            if (autoDetect == true && hostName.equals("localhost") == false && domains.contains(hostName) == false) {
-                domains.add(hostName);
-            }
-           
-            if (autoDetectIP == true) {
-                List<String> ipList = getDomainsIP(domains,dns,getLogger());
-                for(int i = 0; i < ipList.size(); i++) {
-                    if (domains.contains(ipList.get(i)) == false) {
-                        domains.add(ipList.get(i));
-                    }
-                }
-            }
-       
-            if (getLogger().isInfoEnabled()) {
-                for (Iterator<String> i = domains.iterator(); i.hasNext(); ) {
-                    getLogger().info("Handling mail for: " + i.next());
-                }
-            }  
-            return domains;
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Return a List which holds all ipAddress of the domains in the given List
      * 
      * @param domains List of domains
@@ -422,22 +377,6 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
      */
     public Collection<String> getUserDomainMappings(String user, String domain) {
         return getUserDomainMappingsInternal(user, domain);
-    }
-    
-    /**
-     * @see org.apache.james.api.domainlist.DomainList#setAutoDetect(boolean)
-     */
-    public synchronized void setAutoDetect(boolean autoDetect) {
-        getLogger().info("Set autodetect to: " + autoDetect);
-        this.autoDetect = autoDetect;
-    }
-    
-    /**
-     * @see org.apache.james.api.domainlist.DomainList#setAutoDetectIP(boolean)
-     */
-    public synchronized void setAutoDetectIP(boolean autoDetectIP) {
-        getLogger().info("Set autodetectIP to: " + autoDetectIP);
-        this.autoDetectIP = autoDetectIP;
     }
 
     /**
@@ -517,13 +456,6 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
      */
     protected abstract boolean  removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException;
 
-    /**
-     * Return List of all domains for which email should accepted
-     * 
-     * @return domains  the domains
-     */
-    protected abstract List<String> getDomainsInternal();
-    
     /**
      * Return Collection of all mappings for the given username and domain
      * 
