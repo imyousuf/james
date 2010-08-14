@@ -157,7 +157,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
                         String domainName = null;
                         String args[] = target.split("@");
                                         
-                        if (args != null && args.length > 0) {
+                        if (args != null && args.length > 1) {
                     
                             userName = args[0];
                             domainName = args[1];
