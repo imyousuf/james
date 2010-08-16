@@ -124,6 +124,32 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
                     // This address was already in the list
                     return true;
                 }
+                
+                
+                // check for wildcard recipient domain entries 
+                selectStmt = conn.prepareStatement(selectByPK);
+                
+                selectStmt.setString(1, "*");
+                selectStmt.setString(2, recipientHost);
+                selectStmt.setString(3, senderUser);
+                selectStmt.setString(4, senderHost);
+                selectRS = selectStmt.executeQuery();
+                if (selectRS.next()) {
+                    // This address was already in the list
+                    return true;
+                }
+                // check for wildcard domain entries on both 
+                selectStmt = conn.prepareStatement(selectByPK);
+                
+                selectStmt.setString(1, "*");
+                selectStmt.setString(2, recipientHost);
+                selectStmt.setString(3, "*");
+                selectStmt.setString(4, senderHost);
+                selectRS = selectStmt.executeQuery();
+                if (selectRS.next()) {
+                    // This address was already in the list
+                    return true;
+                }
 
             } finally {
                 theJDBCUtil.closeJDBCResultSet(selectRS);
