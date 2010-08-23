@@ -282,7 +282,9 @@
     </bean>
 
     <bean id="imapProcessor" class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory" factory-method="createDefaultProcessor">
-        <constructor-arg ref="mailboxmanager"/>
+        <constructor-arg index="0" ref="mailboxmanager"/>
+        <constructor-arg index="1" ref="subscriptionManager"/>
+        
     </bean>
 
     <bean id="imapDecoderFactory" class="org.apache.james.imap.main.DefaultImapDecoderFactory"/>
@@ -300,15 +302,14 @@
     <bean id="sessionMapperFactory" class="org.apache.james.imap.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
     </bean>
-    <bean id ="subscriper" class="org.apache.james.imap.jpa.JPASubscriptionManager">
+    <bean id ="subscriptionManager" class="org.apache.james.imap.jpa.JPASubscriptionManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
     </bean>
 
     <bean id="mailboxmanager" class="org.apache.james.imap.jpa.openjpa.OpenJPAMailboxManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
-        <constructor-arg index="2" ref="subscriper"/>
-        <constructor-arg index="3" value="${openjpa.streaming}"/>
+        <constructor-arg index="2" value="${openjpa.streaming}"/>
     </bean>
 
 
@@ -348,16 +349,15 @@
         <constructor-arg index="1" ref="nodeLocker"/>
     </bean>
 
-    <bean id ="subscriper" class="org.apache.james.imap.jcr.JCRSubscriptionManager">
+    <bean id ="subscriptionManager" class="org.apache.james.imap.jcr.JCRSubscriptionManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
     </bean>
 
     <bean id="mailboxmanager" class="org.apache.james.imap.jcr.JCRMailboxManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
-        <constructor-arg index="2" ref="subscriper"/>
-        <constructor-arg index="3" ref="nodeLocker"/>
-        <constructor-arg index="4" ref="uidConsumer"/>
+        <constructor-arg index="2" ref="nodeLocker"/>
+        <constructor-arg index="3" ref="uidConsumer"/>
     </bean>
 
     -->

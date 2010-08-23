@@ -33,12 +33,12 @@ import org.apache.james.api.user.UsersRepositoryException;
 import org.apache.james.imap.api.display.HumanReadableText;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.mailbox.SubscriptionException;
-import org.apache.james.imap.store.Subscriber;
+import org.apache.james.imap.mailbox.SubscriptionManager;
 
 /**
  *
  */
-public class UserMetaDataRepositorySubscripter implements Subscriber {
+public class UserMetaDataRepositorySubscripter implements SubscriptionManager {
 
     public static final String META_DATA_KEY = "org.apache.james.IMAP_SUBSCRIPTIONS";
 
