@@ -30,7 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.api.MailboxPath;
-import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MessageManager;
 import org.apache.james.imap.mailbox.MailboxConstants;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
@@ -171,7 +171,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
         	
         });
         manager.startProcessingRequest(session);
-        Mailbox mailbox = manager.getMailbox(new MailboxPath(MailboxConstants.USER_NAMESPACE,
+        MessageManager mailbox = manager.getMailbox(new MailboxPath(MailboxConstants.USER_NAMESPACE,
                                             session.getUser().getUserName(), "INBOX"),
                                             session);
         Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);

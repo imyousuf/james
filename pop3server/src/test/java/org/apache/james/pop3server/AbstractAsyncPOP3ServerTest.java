@@ -43,7 +43,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.imap.api.MailboxPath;
 import org.apache.james.imap.inmemory.InMemoryMailboxManager;
 import org.apache.james.imap.inmemory.InMemoryMailboxSessionMapperFactory;
-import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MessageManager;
 import org.apache.james.imap.mailbox.MailboxConstants;
 import org.apache.james.imap.mailbox.MailboxSession;
 import org.apache.james.imap.store.Authenticator;
@@ -410,7 +410,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         manager.deleteMailbox(mailboxPath, session);
     }
 
-    private void setupTestMails(MailboxSession session, Mailbox mailbox) throws MessagingException {
+    private void setupTestMails(MailboxSession session, MessageManager mailbox) throws MessagingException {
         byte[] content =        ("Return-path: return@test.com\r\n"+
                                  "Content-Transfer-Encoding: plain\r\n"+
                                  "Subject: test\r\n\r\n"+

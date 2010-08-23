@@ -32,7 +32,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.MailboxPath;
-import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MessageManager;
 import org.apache.james.imap.mailbox.MailboxConstants;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
@@ -119,7 +119,7 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
                             if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(path, session))) {
                                 mailboxManager.createMailbox(path, session);
                             }
-                            final Mailbox mailbox = mailboxManager.getMailbox(path, session);
+                            final MessageManager mailbox = mailboxManager.getMailbox(path, session);
                             
                             if (mailbox == null) {
                                 final String error = "Mailbox for user " + user

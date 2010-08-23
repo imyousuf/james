@@ -27,7 +27,7 @@ import javax.annotation.Resource;
 
 import org.apache.james.imap.api.MailboxPath;
 import org.apache.james.imap.mailbox.BadCredentialsException;
-import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MessageManager;
 import org.apache.james.imap.mailbox.MailboxConstants;
 import org.apache.james.imap.mailbox.MailboxException;
 import org.apache.james.imap.mailbox.MailboxManager;
@@ -69,7 +69,7 @@ public class PassCmdHandler extends RsetCmdHandler {
                 if (mailboxManager.mailboxExists(mailboxPath, mSession) == false) {
                     mailboxManager.createMailbox(mailboxPath, mSession);
                 }
-                Mailbox mailbox = mailboxManager.getMailbox(mailboxPath, mSession);
+                MessageManager mailbox = mailboxManager.getMailbox(mailboxPath, mSession);
 
                 session.getState().put(POP3Session.MAILBOX_SESSION, mSession);
                 session.setUserMailbox(mailbox);

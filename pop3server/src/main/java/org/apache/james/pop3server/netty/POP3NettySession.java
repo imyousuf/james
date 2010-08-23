@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MessageManager;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.impl.AbstractSession;
@@ -41,7 +41,7 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
 
     private int handlerState;
 
-    private Mailbox mailbox;
+    private MessageManager mailbox;
 
     public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext) {
         super(logger, handlerContext);
@@ -106,7 +106,7 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
      * (non-Javadoc)
      * @see org.apache.james.pop3server.POP3Session#getUserMailbox()
      */
-    public Mailbox getUserMailbox() {
+    public MessageManager getUserMailbox() {
         return mailbox;
     }
 
@@ -114,7 +114,7 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
      * (non-Javadoc)
      * @see org.apache.james.pop3server.POP3Session#setUserMailbox(org.apache.james.imap.mailbox.Mailbox)
      */
-    public void setUserMailbox(Mailbox mailbox) {
+    public void setUserMailbox(MessageManager mailbox) {
         this.mailbox = mailbox;
     }
 

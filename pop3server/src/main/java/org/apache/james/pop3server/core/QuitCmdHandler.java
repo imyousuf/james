@@ -26,7 +26,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.mail.Flags;
 
-import org.apache.james.imap.mailbox.Mailbox;
+import org.apache.james.imap.mailbox.MessageManager;
 import org.apache.james.imap.mailbox.MailboxException;
 import org.apache.james.imap.mailbox.MailboxManager;
 import org.apache.james.imap.mailbox.MailboxSession;
@@ -66,7 +66,7 @@ public class QuitCmdHandler implements CommandHandler<POP3Session> {
 
         List<Long> toBeRemoved = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
         try {
-            Mailbox mailbox = session.getUserMailbox();
+            MessageManager mailbox = session.getUserMailbox();
 
             for (int i = 0; i < toBeRemoved.size(); i++) {
                 MessageRange range = MessageRange.one(toBeRemoved.get(i));
