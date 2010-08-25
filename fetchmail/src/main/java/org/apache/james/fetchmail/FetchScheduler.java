@@ -137,12 +137,10 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
             }
 
             if (logger.isInfoEnabled()) logger.info("FetchMail Started");
-            System.out.println("FetchMail Started");
         }
         else
         {
             if (logger.isInfoEnabled()) logger.info("FetchMail Disabled");
-            System.out.println("FetchMail Disabled");
         }
     }
 
