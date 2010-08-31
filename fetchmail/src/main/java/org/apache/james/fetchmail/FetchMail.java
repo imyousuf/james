@@ -33,8 +33,8 @@ import java.util.Properties;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.Session;
-import javax.security.auth.login.Configuration;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration.Node;
@@ -196,7 +196,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
          */
         public ParsedDynamicAccountParameters(
             int sequenceNumber,
-            org.apache.commons.configuration.Configuration configuration)
+            Configuration configuration)
             throws ConfigurationException
         {
             this();
