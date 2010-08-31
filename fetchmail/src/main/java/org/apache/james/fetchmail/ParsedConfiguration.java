@@ -357,7 +357,7 @@ class ParsedConfiguration
             recipientNotFound.getBoolean("[@leaveonserver]"));
         setMarkRecipientNotFoundSeen(
             recipientNotFound.getBoolean("[@markseen]"));
-        setDefaultDomainName(conf.getString("defaultdomain"));
+        setDefaultDomainName(conf.getString("defaultdomain", "localhost"));
 
         setFetchAll(conf.getBoolean("fetchall"));
 

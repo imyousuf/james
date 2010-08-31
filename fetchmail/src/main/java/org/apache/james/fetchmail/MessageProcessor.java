@@ -886,10 +886,9 @@ public class MessageProcessor extends ProcessorAbstract
      * @param recipient
      * @return boolean
      */
-    @SuppressWarnings("deprecation")
     protected boolean isLocalRecipient(MailAddress recipient)
     {
-        return isLocalServer(recipient) && getLocalUsers().contains(recipient.getUser());
+        return isLocalServer(recipient) && getLocalUsers().contains(recipient.toString());
     }
     
     /**

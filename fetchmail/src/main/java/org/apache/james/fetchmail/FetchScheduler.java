@@ -75,8 +75,7 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
 
 
     private UsersRepository urepos;
-
-
+    
     private Log logger;
 
     @Resource(name="scheduler")
@@ -105,7 +104,6 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
         this.logger = logger;
     }
     
-    
     public final void configure(HierarchicalConfiguration config) throws ConfigurationException{
         this.conf = config;
     }
@@ -127,11 +125,14 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
                 Long interval = fetchConf.getLong("interval");
 
                 FetchMail fetcher = new FetchMail();
+                    
                 fetcher.setLog(logger);
-                fetcher.configure(fetchConf);
                 fetcher.setDNSService(dns);
                 fetcher.setMailServer(mailserver);
                 fetcher.setUsersRepository(urepos);
+                
+                fetcher.configure(fetchConf);
+                
                 // initialize scheduling
                 schedulers.add(scheduler.scheduleWithFixedDelay(fetcher, 0, interval, TimeUnit.MILLISECONDS));
             }

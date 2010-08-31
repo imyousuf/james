@@ -33,9 +33,11 @@ import java.util.Properties;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.Session;
+import javax.security.auth.login.Configuration;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.HierarchicalConfiguration.Node;
 import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.user.UsersRepository;
@@ -448,20 +450,21 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
         if (accounts.getKeys().hasNext() == false)
             throw new ConfigurationException("Missing <account> section.");
 
-        // Create an Account for every configured account
-        Iterator<String> accountsChildren = accounts.getKeys();
-        
+        List<Node> accountsChildren = accounts.getRoot().getChildren();
         int i = 0;
-        while (accountsChildren.hasNext()){
-            String accountsChildName = accountsChildren.next();
 
-            HierarchicalConfiguration accountsChild = accounts.configurationAt(accountsChildName);
+        // Create an Account for every configured account
+        for (Node accountsChild: accountsChildren) {
+            
+            String accountsChildName = accountsChild.getName();
+        
+            HierarchicalConfiguration accountsChildConfig = accounts.configurationAt(accountsChildName);
             if ("alllocal".equals(accountsChildName))
             {
                 // <allLocal> is dynamic, save the parameters for accounts to
                 // be created when the task is triggered
                 getParsedDynamicAccountParameters().add(
-                    new ParsedDynamicAccountParameters(i, accountsChild));
+                    new ParsedDynamicAccountParameters(i, accountsChildConfig));
                 continue;
             }
 
@@ -473,12 +476,12 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
                     new Account(
                         i,
                         parsedConfiguration,
-                        accountsChild.getString("[@user]"),
-                        accountsChild.getString("[@password]"),
-                        accountsChild.getString("[@recipient]"),
-                        accountsChild.getBoolean(
+                        accountsChildConfig.getString("[@user]"),
+                        accountsChildConfig.getString("[@password]"),
+                        accountsChildConfig.getString("[@recipient]"),
+                        accountsChildConfig.getBoolean(
                             "[@ignorercpt-header]"),
-                        accountsChild.getString("[@customrcpt-header]",""),
+                        accountsChildConfig.getString("[@customrcpt-header]",""),
                         getSession()));
                 continue;
             }
