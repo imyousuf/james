@@ -30,6 +30,10 @@
         <!-- UsersRepository -->
         <class>org.apache.james.userrepository.JPAUser</class>
 
+
+        <!-- DomainList -->
+        <class>org.apache.james.domain.JPADomain</class>
+
         <properties>
             <!--  Create tables on startup -->
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>

@@ -45,7 +45,9 @@ import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 
 /**
- * Allow to query a costum table for domains
+ * Allow to query a custom table for domains
+ * 
+ * @deprecated use the JPA 
  */
 public class JDBCDomainList extends AbstractDomainList implements Configurable{
 

@@ -267,7 +267,14 @@
     <!-- The context domainlist implementation -->
     <bean id="domainlist" class="org.apache.james.domain.XMLDomainList" />
 
-    <!--  JDBC implementation of the domainlist service-->
+    <!--  JPA implementation of the domainlist service -->
+    <!--
+    <bean id="domainlist" class="org.apache.james.domain.JPADomainList">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+    </bean>
+    -->
+
+    <!--  JDBC implementation of the domainlist service - deprecated, use the JPADomainList -->
     <!--
     <bean id="domainlist" class="org.apache.james.domain.JDBCDomainList"/>
     -->
