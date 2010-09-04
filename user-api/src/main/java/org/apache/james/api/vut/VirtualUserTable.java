@@ -16,24 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.api.vut;
 
 import java.util.Collection;
 
-
 /**
- * Interface which should be implemented of classes which map recipients
- *
+ * Interface which should be implemented of classes which map recipients.
  */
 public interface VirtualUserTable {
     
     /**
      * The component role used by components implementing this service
      */
-    public static final String ROLE = "org.apache.james.api.vut.VirtualUserTable";
+    public static final String ROLE = VirtualUserTable.class.getName();
     
     /**
      * The prefix which is used for error mappings
@@ -51,6 +46,11 @@ public interface VirtualUserTable {
     public static final String ALIASDOMAIN_PREFIX = "domain:";
     
     /**
+     * The wildcard used for alias domain mappings
+     */
+    public final static String WILDCARD = "*";
+
+    /**
      * Return the mapped MailAddress for the given address. Return null if no 
      * matched mapping was found
      * 
@@ -59,4 +59,5 @@ public interface VirtualUserTable {
      * @throws ErrorMappingException get thrown if an error mapping was found
      */
     public Collection<String> getMappings(String user, String domain) throws ErrorMappingException;
+
 }

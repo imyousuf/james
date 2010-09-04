@@ -16,10 +16,6 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
-
 package org.apache.james.vut;
 
 import java.io.InputStream;
@@ -55,11 +51,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
     private DataSourceSelector datasources = null;
     private DataSource dataSourceComponent = null;
-    private String tableName = "VirtualUserTable";
     private String dataSourceName = null;
     
-    private static String WILDCARD = "%";
-
+    private String tableName = "VirtualUserTable";
 
     /**
      * Contains all of the sql strings for this component.
@@ -73,12 +67,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     
     private FileSystem fileSystem;
 
-    protected String datasourceName;
-    
-    
-    
-    public void doConfigure(HierarchicalConfiguration arg0) throws ConfigurationException {
-        String destination = arg0.getString("[@destinationURL]",null);
+    public void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
+        
+        String destination = conf.getString("[@destinationURL]",null);
     
         if (destination == null) {
             throw new ConfigurationException("destinationURL must configured");
@@ -107,16 +98,17 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
                 new StringBuffer(256)
                         .append("Malformed destinationURL - Must be of the format '")
                         .append("db://<data-source>'.  Was passed ")
-                        .append(arg0.getString("[@destinationURL]"));
+                        .append(conf.getString("[@destinationURL]"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
+        
         if (urlParams.size() >= 1) {
             dataSourceName = (String)urlParams.get(0);
         }
+        
         if (urlParams.size() >= 2) {
             tableName = (String)urlParams.get(1);
         }
-
 
         if (getLogger().isDebugEnabled()) {
             StringBuffer logBuffer =
@@ -127,12 +119,13 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             getLogger().debug(logBuffer.toString());
         }
     
-        sqlFileName = arg0.getString("sqlFile");
+        sqlFileName = conf.getString("sqlFile");
         
     }
 
     @PostConstruct
     public void init() throws Exception {
+        
         setDataSource(datasources.getDataSource(dataSourceName));
     
         StringBuffer logBuffer = null;
@@ -148,6 +141,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             // Initialise the sql strings.
 
             InputStream sqlFile = null;
+            
             try {
                 sqlFile = fileSystem.getResource(sqlFileName);
             } catch (Exception e) {
@@ -178,9 +172,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
             // Check if the required table exists. If not, create it.
             DatabaseMetaData dbMetaData = conn.getMetaData();
+            
             // Need to ask in the case that identifiers are stored, ask the DatabaseMetaInfo.
             // Try UPPER, lower, and MixedCase, to see if the table is there.
-           
             if (!(theJDBCUtil.tableExists(dbMetaData, tableName))) {
             
                 // Users table doesn't exist - create it.
@@ -213,7 +207,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             getLogger().debug("JDBCVirtualUserTable: " + logString);
         }
     };
-    
     
     public void setDataSource(DataSource dataSourceComponent) {
         this.dataSourceComponent = dataSourceComponent;
@@ -281,16 +274,18 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#addMappingInternal(String, String, String)
      */
     public boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
+
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
         Collection<String> map =  getUserDomainMappings(newUser,newDomain);
 
         if (map != null && map.size() != 0) {
             map.add(regex);
-        
             return updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
         }
+    
         return addRawMapping(newUser,newDomain,regex);
+    
     }
     
     /**
@@ -517,5 +512,5 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         }
         return null;
     }
+    
 }
-

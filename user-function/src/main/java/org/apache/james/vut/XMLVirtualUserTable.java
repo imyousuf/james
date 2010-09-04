@@ -16,12 +16,8 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.vut;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,19 +29,22 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
 
+/**
+ *
+ */
 public class XMLVirtualUserTable extends AbstractVirtualUserTable {
+    
     /**
      * Holds the configured mappings
      */
     private Map<String,String> mappings;
     
-    private final static String WILDCARD = "*";
-
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     public void doConfigure(HierarchicalConfiguration arg0) throws ConfigurationException {
+
         List<String> mapConf = arg0.getList("mapping");
     
         mappings = new HashMap<String,String>();
@@ -57,9 +56,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
         } else {
             throw new ConfigurationException("No mapping configured");
         }
-        
-        // Add domains of the mappings map to the domains List
-        Iterator<String> keys = mappings.keySet().iterator();
         
     }
     
@@ -79,7 +75,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
             return null;
         } else {
             return VirtualUserTableUtil.getTargetString(user, domain, mappings);
-    
         }
     }
 
@@ -114,7 +109,6 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
         if ( mappings != null && mappings.size() > 0) {
             Map<String,Collection<String>> mappingsNew = new HashMap<String,Collection<String>>();
             Iterator<String> maps = mappings.keySet().iterator();
-                
             while (maps.hasNext()) {
                 String key = maps.next();
                 mappingsNew.put(key, VirtualUserTableUtil.mappingToCollection(mappings.get(key).toString()));
@@ -124,4 +118,5 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
             return null;
         }
     }
+    
 }

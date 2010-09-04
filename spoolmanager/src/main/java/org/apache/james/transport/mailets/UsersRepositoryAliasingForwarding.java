@@ -48,7 +48,11 @@ import org.apache.mailet.MailAddress;
  * 
  * <usersRepository>LocalAdmins</usersRepository>: specific users repository
  * name. Default to empty. If empty does lookup the default userRepository.
+ * 
+ * @deprecated use org.apache.james.transport.mailets.VirtualUserTable
+ * 
  */
+@Deprecated
 public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableMailet {
 
     /**

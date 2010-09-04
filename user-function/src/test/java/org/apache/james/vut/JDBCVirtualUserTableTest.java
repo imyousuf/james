@@ -16,9 +16,6 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.vut;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
@@ -31,9 +28,9 @@ import org.apache.james.test.util.Util;
 public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTableTest#getVirtalUserTable()
+     * @see org.apache.james.vut.AbstractVirtualUserTableTest#getVirtualUserTable()
      */
-    protected AbstractVirtualUserTable getVirtalUserTable() throws Exception {
+    protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
         JDBCVirtualUserTable mr = new JDBCVirtualUserTable();
         mr.setLog(new SimpleLog("MockLog"));
         mr.setDataSourceSelector(Util.getDataSourceSelector());

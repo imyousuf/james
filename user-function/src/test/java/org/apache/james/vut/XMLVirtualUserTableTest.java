@@ -16,8 +16,6 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
 package org.apache.james.vut;
 
 import java.util.ArrayList;
@@ -31,37 +29,28 @@ import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
 
-
 public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
+
     private DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
-    
     
     @Override
     protected void setUp() throws Exception {
         defaultConfiguration.setDelimiterParsingDisabled(true);
-        
         super.setUp();
     }
 
-
-
-    protected AbstractVirtualUserTable getVirtalUserTable() throws Exception {
+    protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
         mr.setDNSService(setUpDNSServer());
         mr.setLog(new SimpleLog("MockLog"));
-       
         return mr;
     }
     
-    
-
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
     protected boolean addMapping(String user, String domain, String mapping, int type) throws InvalidMappingException {
-        if (user == null) user = "*";
-        if (domain == null) domain = "*";
-        
+
         Collection<String> mappings = virtualUserTable.getUserDomainMappings(user, domain);
 
         if (mappings == null) {
@@ -81,7 +70,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         }
         
         if (mappings.size() > 0) { 
-            defaultConfiguration.addProperty("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings));
+            defaultConfiguration.addProperty("mapping",user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings));
         }
     
         try {
@@ -93,21 +82,21 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
                 return true;
             }
         }
+            
         return true;
+    
     }
 
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
     protected boolean removeMapping(String user, String domain, String mapping, int type) throws InvalidMappingException {       
-        if (user == null) user = "*";
-        if (domain == null) domain = "*";
-        
+
         Collection<String> mappings = virtualUserTable.getUserDomainMappings(user, domain);
         
         if (mappings == null) {
             return false;
-        }  
+        }
     
         removeMappingsFromConfig(user,domain, mappings);
     
@@ -134,9 +123,10 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
                return true;
            }
         }
+            
         return true;
+
     }
-    
     
     @SuppressWarnings("unchecked")
     private void removeMappingsFromConfig(String user, String domain, Collection<String> mappings) {
@@ -152,7 +142,6 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         }
         // clear old values
         defaultConfiguration.clear();
-        
         // add stored mappings
         for (int i = 0; i < stored.size(); i++) {
             defaultConfiguration.addProperty("mapping", stored.get(i));

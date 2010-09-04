@@ -56,7 +56,11 @@ import org.apache.mailet.MailAddress;
  * 2. user@*         - catchall mapping for user anywhere
  * 3. *@domain       - catchall mapping for anyone at domain
  * 4. null           - no valid mapping
+ * 
+ * @deprecated use the definitions in virtualusertable-store.xml instead
+ * 
  */
+@Deprecated
 public class XMLVirtualUserTable extends AbstractVirtualUserTable
 {
   /**

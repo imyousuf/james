@@ -16,9 +16,6 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.impl.vut;
 
 import java.util.ArrayList;
@@ -44,8 +41,8 @@ public class VirtualUserTableUtil {
 
     private VirtualUserTableUtil() {}
     
-
-    public static String QUERY = "select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1";
+    // @deprecated QUERY is deprecated - SQL queries are now located in sqlResources.xml
+    public static String QUERY = "select VirtualUserTable.target_address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '%*%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1";
     
     /**
      * Processes regex virtual user mapping
@@ -58,7 +55,7 @@ public class VirtualUserTableUtil {
      * @param targetString a String specifying the mapping
      * @throws MalformedPatternException 
      */
-     public static String regexMap( MailAddress address, String targetString) throws MalformedPatternException {
+    public static String regexMap( MailAddress address, String targetString) throws MalformedPatternException {
         String result = null;
         int identifierLength = VirtualUserTable.REGEX_PREFIX.length();
 
@@ -85,16 +82,16 @@ public class VirtualUserTableUtil {
             result = XMLResources.replaceParameters(targetString.substring(msgPos + 1), parameters);
         }    
         return result;
-    }
+     }
      
-     /**
-      * Returns the real recipient given a virtual username and domain.
-      * 
-      * @param user the virtual user
-      * @param domain the virtual domain
-      * @return the real recipient address, or <code>null</code> if no mapping exists
-      */
-     public static String getTargetString(String user, String domain, Map mappings) {
+    /**
+     * Returns the real recipient given a virtual username and domain.
+     * 
+     * @param user the virtual user
+     * @param domain the virtual domain
+     * @return the real recipient address, or <code>null</code> if no mapping exists
+     */
+    public static String getTargetString(String user, String domain, Map mappings) {
          StringBuffer buf;
          String target;
          
@@ -162,7 +159,7 @@ public class VirtualUserTableUtil {
      */
      public static Collection<String> getMappings(String rawMapping) {
         return mappingToCollection(rawMapping);
-    }
+     }
      
      /**
       * Convert a raw mapping String to a Collection
@@ -180,9 +177,8 @@ public class VirtualUserTableUtil {
              map.add(raw);
          }
          return map;
-    }
+     }
      
-
      /**
       * Convert a Collection which holds mappings to a raw mapping String
       * 
@@ -203,4 +199,5 @@ public class VirtualUserTableUtil {
          }  
          return mapping.toString();  
     }
+     
 }

@@ -16,9 +16,6 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.impl.vut;
 
 import java.net.InetAddress;
@@ -27,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -60,7 +56,9 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
        
     // TODO: Should we use true or false as default ?
     private boolean recursive = true;
+
     private HierarchicalConfiguration config;
+    
     private Log logger;
 
     @Resource(name="dnsserver")
@@ -82,15 +80,12 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         this.logger = logger;
     }
     
-    
     protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
-        
     }
     
     public void setRecursiveMapping(boolean recursive) {
         this.recursive = recursive;
     }
-    
     
     /**
      * Set the mappingLimit
@@ -110,8 +105,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         return getMappings(user,domain,mappingLimit);
     }
     
-
-    public Collection<String> getMappings(String user,String domain,int mappingLimit) throws ErrorMappingException {
+    public Collection<String> getMappings(String user, String domain, int mappingLimit) throws ErrorMappingException {
 
         // We have to much mappings throw ErrorMappingException to avoid infinity loop
         if (mappingLimit == 0) throw new ErrorMappingException("554 Too many mappings to process");
@@ -186,8 +180,11 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
                     }
                 } 
             }
+        
             return mappings;
+        
         }
+        
         return null;
     }
     
@@ -274,6 +271,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
+
         String map = mapping.toLowerCase();
         
         if (map.startsWith(VirtualUserTable.ERROR_PREFIX)) {
@@ -286,12 +284,14 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         } else {
             return addAddressMapping(user,domain,map);
         }
+        
     }
     
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public synchronized boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
+
         String map = mapping.toLowerCase();
     
         if (map.startsWith(VirtualUserTable.ERROR_PREFIX)) {
@@ -304,6 +304,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         } else {
             return removeAddressMapping(user,domain,map);
         }
+        
     }
     
     /**
@@ -321,38 +322,15 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     }
     
     
-   private boolean checkMapping(String user,String domain, String mapping) {
+    private boolean checkMapping(String user,String domain, String mapping) {
        Collection<String> mappings = getUserDomainMappings(user,domain);
        if (mappings != null && mappings.contains(mapping)) {
            return false;
        } else {
            return true;
        }
-   }
-
- 
-    /**
-     * Return a List which holds all ipAddress of the domains in the given List
-     * 
-     * @param domains List of domains
-     * @return domainIP List of ipaddress for domains
-     */
-    private static List<String> getDomainsIP(List<String> domains,DNSService dns,Log log) {
-        List<String> domainIP = new ArrayList<String>();
-        if (domains.size() > 0 ) {
-            for (int i = 0; i < domains.size(); i++) {
-                List<String> domList = getDomainIP(domains.get(i).toString(),dns,log);
-                
-                for(int i2 = 0; i2 < domList.size();i2++) {
-                    if(domainIP.contains(domList.get(i2)) == false) {
-                        domainIP.add(domList.get(i2));
-                    }
-                }
-            }
-        }
-        return domainIP;    
     }
-    
+
     /**
      * @see #getDomainsIP(List, DNSService, Logger)
      */
@@ -402,8 +380,9 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
      * @param domain the domain
      * @return the mappings
      */
-    private String mapAddress(String user,String domain) {
-       String mappings = mapAddressInternal(user, domain);
+    private String mapAddress(String user, String domain) {
+
+        String mappings = mapAddressInternal(user, domain);
 
         // check if we need to sort
         // TODO: Maybe we should just return the aliasdomain mapping
@@ -486,4 +465,5 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
      *    <code>MailAddress</code>es to <code>String</code>s.
      */
     protected abstract String mapAddressInternal(String user, String domain);
+    
 }

@@ -89,7 +89,10 @@ import java.util.Map;
  *   &lt;table&gt;db://maildb/VirtualUserTable&lt;/table&gt;
  *   &lt;sqlquery&gt;sqlquery&lt;/sqlquery&gt;
  * &lt;/mailet&gt;
+ * 
+ * @deprecated use the definitions in virtualusertable-store.xml instead
  */
+@Deprecated
 public class JDBCVirtualUserTable extends AbstractVirtualUserTable
 {
     protected DataSource datasource;

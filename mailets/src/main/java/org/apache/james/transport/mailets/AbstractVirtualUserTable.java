@@ -47,7 +47,10 @@ import org.apache.oro.text.regex.MalformedPatternException;
  * Provides an abstraction of common functionality needed for implementing
  * a Virtual User Table. Override the <code>mapRecipients</code> method to
  * map virtual recipients to real recipients.
+ * 
+ * @deprecated use the definitions in virtualusertable-store.xml instead
  */
+@Deprecated
 public abstract class AbstractVirtualUserTable extends GenericMailet
 {
     static private final String MARKER = "org.apache.james.transport.mailets.AbstractVirtualUserTable.mapped";

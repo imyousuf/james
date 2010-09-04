@@ -33,7 +33,7 @@
          <!-- This mailet redirects mail for the user 'postmaster' at any local domain to -->
          <!-- the postmaster address specified for the server. The postmaster address -->
          <!-- is required by rfc822. Do not remove this mailet unless you are meeting -->
-         <!-- this requirement through other means (e.g. a XML/JDBCVirtualUserTable mailet) -->
+         <!-- this requirement through other means (e.g. a XML/JDBCVirtualUserTable defined in virtualusertable-store.xml) -->
          <mailet match="All" class="PostmasterAlias"/>
 
          <!-- Checks that the email Sender is associated with a valid domain. -->
@@ -180,6 +180,9 @@ Regards, Postmaster XXX.YYY
          -->
 
          <!--
+         
+         XMLVirtualUserTable is deprecated - Use the definitions in virtualusertable-store.xml
+         
          <mailet match="All" class="XMLVirtualUserTable">
             <!- 1:1 mapping ->
             <mapping>morgoth@middle-earth=sauron@mordor</mapping>
@@ -196,6 +199,7 @@ Regards, Postmaster XXX.YYY
                                   regex:(.*)-off@listserver:${1}-unsubscribe@listserver
             </mapping>
          </mailet>
+         
          -->
 
          <!-- Anti-spam processing -->
@@ -393,11 +397,10 @@ Regards, Postmaster XXX.YYY
          </mailet>
          -->
 
-
+         <!--  The VirtualUserTable will use the definitions found in virtualusertable-store.xml -->
          <mailet match="All" class="VirtualUserTable">
              <virtualusertable>DefaultVirtualUserTable</virtualusertable>
          </mailet>
-
 
          <!-- Is the recipient is for a local account, deliver it locally -->
          <mailet match="RecipientIsLocal" class="LocalDelivery"/>
