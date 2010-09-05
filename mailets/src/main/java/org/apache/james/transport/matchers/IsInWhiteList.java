@@ -73,7 +73,7 @@ public class IsInWhiteList extends AbstractSQLWhitelistMatcher {
      * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getSQLSectionName()
      */
     protected String getSQLSectionName() {
-        return "Whitelist";
+        return "WhiteList";
     }
 
     /*

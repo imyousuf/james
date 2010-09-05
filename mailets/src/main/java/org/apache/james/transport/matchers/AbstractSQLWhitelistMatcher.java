@@ -38,6 +38,7 @@ import javax.sql.DataSource;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.services.DataSourceSelector;
+import org.apache.james.services.FileSystem;
 import org.apache.james.transport.mailets.WhiteListManager;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -102,6 +103,12 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
      */
     protected SqlResources sqlQueries = new SqlResources();
 
+    private FileSystem fs;
+
+    @Resource(name="filesystem")
+    public void setFilesystem(FileSystem fs) {
+        this.fs = fs;
+    }
     
     @Override
     public void init() throws MessagingException {
@@ -215,7 +222,7 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
                 conn.setAutoCommit(false);
             }
             
-            this.sqlFile = new File((String) mailetContext.getAttribute("confDir"), "sqlResources.xml").getCanonicalFile();
+            this.sqlFile = fs.getFile("classpath:sqlResources.xml");
             sqlQueries.init(this.sqlFile, getSQLSectionName(), conn, getSqlParameters());
             checkTables(conn);
         } finally {
