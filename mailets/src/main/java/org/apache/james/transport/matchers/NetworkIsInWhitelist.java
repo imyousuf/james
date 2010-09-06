@@ -64,7 +64,7 @@ public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
      * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#getSQLSectionName()
      */
     protected String getSQLSectionName() {
-        return "NetworkWhitelist";
+        return "NetworkWhiteList";
     }
 
     @Override
