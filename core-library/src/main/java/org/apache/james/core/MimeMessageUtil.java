@@ -20,8 +20,8 @@
 
 package org.apache.james.core;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.io.IOUtil;
 
 import javax.activation.UnsupportedDataTypeException;
 import javax.mail.MessagingException;
@@ -174,31 +174,12 @@ public class MimeMessageUtil {
         }
 
         try {
-            copyStream(bis, bos);
+            IOUtils.copy(bis, bos);
         }
         finally {
-            IOUtil.shutdownStream(bis);
+            IOUtils.closeQuietly(bis);
         }
     }
-
-    /**
-     * Convenience method to copy streams
-     *
-     * @param in the InputStream used as copy source 
-     * @param out the OutputStram used as copy destination
-     * @throws IOException
-     */
-    public static void copyStream(InputStream in, OutputStream out) throws IOException {
-        // TODO: This is really a bad way to do this sort of thing.  A shared buffer to
-        //       allow simultaneous read/writes would be a substantial improvement
-        byte[] block = new byte[1024];
-        int read = 0;
-        while ((read = in.read(block)) > -1) {
-            out.write(block, 0, read);
-        }
-        out.flush();
-    }
-
 
     /**
      * Write the message headers to the given outputstream

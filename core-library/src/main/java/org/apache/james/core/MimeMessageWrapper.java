@@ -21,10 +21,10 @@
 
 package org.apache.james.core;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.io.IOUtil;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
@@ -179,7 +179,7 @@ public class MimeMessageWrapper
                 try {
                     headers = createInternetHeaders(in);
                 } finally {
-                    IOUtil.shutdownStream(in);
+                    IOUtils.closeQuietly(in);
                 }
             } catch (IOException ioe) {
                 throw new MessagingException("Unable to parse headers from stream: " + ioe.getMessage(), ioe);
@@ -209,7 +209,7 @@ public class MimeMessageWrapper
                 saved = true;
                 
             } catch (IOException ioe) {
-                IOUtil.shutdownStream(sourceIn);
+                IOUtils.closeQuietly(sourceIn);
                 sourceIn = null;
                 throw new MessagingException("Unable to parse stream: " + ioe.getMessage(), ioe);
             }
@@ -236,9 +236,9 @@ public class MimeMessageWrapper
             // and write to this outputstream
             InputStream in = source.getInputStream();
             try {
-                MimeMessageUtil.copyStream(in, os);
+                IOUtils.copy(in, os);
             } finally {
-                IOUtil.shutdownStream(in);
+                IOUtils.closeQuietly(in);
             }
         } else {
             writeTo(os, os);
@@ -275,9 +275,9 @@ public class MimeMessageWrapper
                 }
                 pos.println();
                 pos.flush();
-                MimeMessageUtil.copyStream(in, bodyOs);
+                IOUtils.copy(in, bodyOs);
             } finally {
-                IOUtil.shutdownStream(in);
+                IOUtils.closeQuietly(in);
             }
         } else {
             MimeMessageUtil.writeToInternal(this, headerOs, bodyOs, ignoreList);
@@ -329,7 +329,7 @@ public class MimeMessageWrapper
         } catch (IOException ioe) {
             return -1;
         } finally {
-            IOUtil.shutdownStream(in);
+            IOUtils.closeQuietly(in);
         }
     }
 
@@ -463,7 +463,7 @@ public class MimeMessageWrapper
      */
     public void dispose() {
         if (sourceIn != null) {
-            IOUtil.shutdownStream(sourceIn);
+            IOUtils.closeQuietly(sourceIn);
         }
         if (source != null) {
             LifecycleUtil.dispose(source);
