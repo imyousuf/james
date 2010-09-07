@@ -306,14 +306,14 @@
 
 
     <!-- JPA implementation of IMAP Storage-->
-    <bean id="sessionMapperFactory" class="org.apache.james.imap.jpa.JPAMailboxSessionMapperFactory">
+    <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
     </bean>
-    <bean id ="subscriptionManager" class="org.apache.james.imap.jpa.JPASubscriptionManager">
+    <bean id ="subscriptionManager" class="org.apache.james.mailbox.jpa.JPASubscriptionManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
     </bean>
 
-    <bean id="mailboxmanager" class="org.apache.james.imap.jpa.openjpa.OpenJPAMailboxManager">
+    <bean id="mailboxmanager" class="org.apache.james.mailbox.jpa.openjpa.OpenJPAMailboxManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
         <constructor-arg index="2" value="${openjpa.streaming}"/>
@@ -337,30 +337,30 @@
 
     <bean id="jcrUtils" class="org.apache.james.imap.jcr.JCRUtils"/>    
 
-    <bean id ="sessionJcrRepository" 	class="org.apache.james.imap.jcr.GlobalMailboxSessionJCRRepository" depends-on="imapCndLoader">
+    <bean id ="sessionJcrRepository" 	class="org.apache.james.mailbox.jcr.GlobalMailboxSessionJCRRepository" depends-on="imapCndLoader">
         <constructor-arg index="0" ref="jcrRepository"/>
         <constructor-arg index="1" value="james"/>
         <constructor-arg index="2" value="james"/>
         <constructor-arg index="3" value="james"/>
     </bean>
   
-    <bean id="nodeLocker" class="org.apache.james.imap.jcr.JCRVmNodeLocker"/>
+    <bean id="nodeLocker" class="org.apache.james.mailbox.jcr.JCRVmNodeLocker"/>
 
-    <bean id="uidConsumer" class="org.apache.james.imap.jcr.JCRUidConsumer">
+    <bean id="uidConsumer" class="org.apache.james.mailbox.jcr.JCRUidConsumer">
         <constructor-arg index="0" ref="sessionJcrRepository"/>
         <constructor-arg index="1" ref="nodeLocker"/>
     </bean>
 
-    <bean id="sessionMapperFactory" class="org.apache.james.imap.jcr.JCRMailboxSessionMapperFactory">
+    <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jcr.JCRMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="sessionJcrRepository"/>
         <constructor-arg index="1" ref="nodeLocker"/>
     </bean>
 
-    <bean id ="subscriptionManager" class="org.apache.james.imap.jcr.JCRSubscriptionManager">
+    <bean id ="subscriptionManager" class="org.apache.james.mailbox.jcr.JCRSubscriptionManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
     </bean>
 
-    <bean id="mailboxmanager" class="org.apache.james.imap.jcr.JCRMailboxManager">
+    <bean id="mailboxmanager" class="org.apache.james.mailbox.jcr.JCRMailboxManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
         <constructor-arg index="2" ref="nodeLocker"/>
