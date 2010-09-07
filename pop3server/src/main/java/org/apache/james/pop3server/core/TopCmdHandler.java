@@ -31,12 +31,12 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.imap.mailbox.MailboxSession;
-import org.apache.james.imap.mailbox.MessageRange;
-import org.apache.james.imap.mailbox.MessageResult;
-import org.apache.james.imap.mailbox.MessageResult.FetchGroup;
-import org.apache.james.imap.mailbox.MessageResult.Header;
-import org.apache.james.imap.mailbox.util.FetchGroupImpl;
+import org.apache.james.mailbox.MailboxSession;
+import org.apache.james.mailbox.MessageRange;
+import org.apache.james.mailbox.MessageResult;
+import org.apache.james.mailbox.MessageResult.FetchGroup;
+import org.apache.james.mailbox.MessageResult.Header;
+import org.apache.james.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;

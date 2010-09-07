@@ -26,11 +26,11 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.mail.Flags;
 
-import org.apache.james.imap.mailbox.MessageManager;
-import org.apache.james.imap.mailbox.MailboxException;
-import org.apache.james.imap.mailbox.MailboxManager;
-import org.apache.james.imap.mailbox.MailboxSession;
-import org.apache.james.imap.mailbox.MessageRange;
+import org.apache.james.mailbox.MessageManager;
+import org.apache.james.mailbox.MailboxManager;
+import org.apache.james.mailbox.MailboxSession;
+import org.apache.james.mailbox.MessageRange;
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;

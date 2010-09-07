@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.imap.mailbox.MessageManager;
+import org.apache.james.mailbox.MessageManager;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.impl.AbstractSession;

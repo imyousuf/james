@@ -25,13 +25,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.james.imap.api.MailboxPath;
-import org.apache.james.imap.mailbox.BadCredentialsException;
-import org.apache.james.imap.mailbox.MessageManager;
-import org.apache.james.imap.mailbox.MailboxConstants;
-import org.apache.james.imap.mailbox.MailboxException;
-import org.apache.james.imap.mailbox.MailboxManager;
-import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.mailbox.BadCredentialsException;
+import org.apache.james.mailbox.MailboxPath;
+import org.apache.james.mailbox.MessageManager;
+import org.apache.james.mailbox.MailboxConstants;
+import org.apache.james.mailbox.MailboxManager;
+import org.apache.james.mailbox.MailboxSession;
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;

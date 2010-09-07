@@ -22,7 +22,7 @@
 package org.apache.james.pop3server;
 
 
-import org.apache.james.imap.mailbox.MessageManager;
+import org.apache.james.mailbox.MessageManager;
 import org.apache.james.protocols.api.TLSSupportedSession;
 
 /**

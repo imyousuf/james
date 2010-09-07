@@ -31,11 +31,11 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.imap.api.MailboxPath;
-import org.apache.james.imap.mailbox.MessageManager;
-import org.apache.james.imap.mailbox.MailboxConstants;
-import org.apache.james.imap.mailbox.MailboxManager;
-import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.mailbox.MailboxPath;
+import org.apache.james.mailbox.MessageManager;
+import org.apache.james.mailbox.MailboxConstants;
+import org.apache.james.mailbox.MailboxManager;
+import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
 import org.apache.jsieve.mailet.Poster;

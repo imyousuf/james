@@ -22,7 +22,7 @@ package org.apache.james.imapserver;
 import javax.annotation.Resource;
 
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.imap.store.Authenticator;
+import org.apache.james.mailbox.store.Authenticator;
 
 /**
  * Authenticator which use an UsersRepository to check if the user and password match
@@ -39,7 +39,7 @@ public class UserRepositoryAuthenticator implements Authenticator{
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.imap.store.Authenticator#isAuthentic(java.lang.String, java.lang.CharSequence)
+     * @see org.apache.james.mailbox.store.Authenticator#isAuthentic(java.lang.String, java.lang.CharSequence)
      */
     public boolean isAuthentic(String userid, CharSequence passwd) {
         return repos.test(userid, passwd.toString());

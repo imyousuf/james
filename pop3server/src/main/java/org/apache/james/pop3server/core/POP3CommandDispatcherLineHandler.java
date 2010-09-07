@@ -24,8 +24,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.james.imap.mailbox.MailboxManager;
-import org.apache.james.imap.mailbox.MailboxSession;
+import org.apache.james.mailbox.MailboxManager;
+import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.AbstractCommandDispatcher;
 import org.apache.james.protocols.api.CommandHandler;
