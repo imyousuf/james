@@ -18,22 +18,17 @@
  ****************************************************************/
 package org.apache.james.impl.vut;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
-import javax.annotation.Resource;
 import javax.mail.internet.ParseException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
@@ -47,25 +42,18 @@ import org.apache.oro.text.regex.Perl5Compiler;
 /**
  * 
  */
-public abstract class AbstractVirtualUserTable implements VirtualUserTable, VirtualUserTableManagement, LogEnabled, Configurable {
-    
-    private DNSService dns;
-    
+public abstract class AbstractVirtualUserTable implements VirtualUserTable, VirtualUserTableManagement, LogEnabled, Configurable {       
     // The maximum mappings which will process before throwing exception
     private int mappingLimit = 10;
        
-    // TODO: Should we use true or false as default ?
     private boolean recursive = true;
-
-    private HierarchicalConfiguration config;
     
     private Log logger;
 
-    @Resource(name="dnsserver")
-    public void setDNSService(DNSService dns) {
-        this.dns = dns;
-    }
-
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
     	setRecursiveMapping(config.getBoolean("recursiveMapping", true));
         try {
@@ -80,7 +68,14 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         this.logger = logger;
     }
     
+    /**
+     * Override to handle config
+     * 
+     * @param conf
+     * @throws ConfigurationException
+     */
     protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
+    	
     }
     
     public void setRecursiveMapping(boolean recursive) {
@@ -191,7 +186,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {     
+    public boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {     
         try {
             new Perl5Compiler().compile(regex);
         } catch (MalformedPatternException e) {
@@ -210,7 +205,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
+    public boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
         getLogger().info("Remove regex mapping => " + regex + " for user: " + user + " domain: " + domain);
         return removeMappingInternal(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
     }
@@ -218,7 +213,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
+    public boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
         } 
@@ -238,7 +233,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized boolean removeAddressMapping(String user, String domain, String address) throws InvalidMappingException {
+    public boolean removeAddressMapping(String user, String domain, String address) throws InvalidMappingException {
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
         } 
@@ -249,7 +244,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {   
+    public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {   
         if (checkMapping(user,domain,error) == true) {          
             getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);
             return addMappingInternal(user,domain, VirtualUserTable.ERROR_PREFIX + error);
@@ -261,7 +256,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
+    public boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
         getLogger().info("Remove error mapping => " + error + " for user: " + user + " domain: " + domain);     
         return removeMappingInternal(user,domain,VirtualUserTable.ERROR_PREFIX + error);
     }
@@ -270,7 +265,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#addMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
+    public boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
 
         String map = mapping.toLowerCase();
         
@@ -290,7 +285,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#removeMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public synchronized boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
+    public boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
 
         String map = mapping.toLowerCase();
     
@@ -329,25 +324,6 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
        } else {
            return true;
        }
-    }
-
-    /**
-     * @see #getDomainsIP(List, DNSService, Logger)
-     */
-    private static List<String> getDomainIP(String domain, DNSService dns, Log log) {
-        List<String> domainIP = new ArrayList<String>();
-        try {
-            InetAddress[]  addrs = dns.getAllByName(domain);
-            for (int j = 0; j < addrs.length ; j++) {
-                String ip = addrs[j].getHostAddress();
-                if (domainIP.contains(ip) == false) {
-                    domainIP.add(ip);
-                }
-            }
-        } catch (UnknownHostException e) {
-            log.error("Cannot get IP address(es) for " + domain);
-        }
-        return domainIP;
     }
 
     /**

@@ -41,7 +41,6 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
 
     protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
         XMLVirtualUserTable mr = new XMLVirtualUserTable();
-        mr.setDNSService(setUpDNSServer());
         mr.setLog(new SimpleLog("MockLog"));
         return mr;
     }

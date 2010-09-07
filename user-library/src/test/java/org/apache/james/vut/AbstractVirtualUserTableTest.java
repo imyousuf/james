@@ -18,16 +18,12 @@
  ****************************************************************/
 package org.apache.james.vut;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.api.vut.management.InvalidMappingException;
@@ -95,41 +91,6 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
     protected abstract boolean removeMapping(String user, String domain, String mapping, int type) throws InvalidMappingException;
 
-    protected DNSService setUpDNSServer() {
-        
-        DNSService dns = new DNSService() {
-            public String getHostName(InetAddress inet) {
-                return "test";
-            }
-            public InetAddress[] getAllByName(String name) throws UnknownHostException {
-                return new InetAddress[] { InetAddress.getByName("127.0.0.1")};        
-            }
-            public InetAddress getLocalHost() throws UnknownHostException {
-                return InetAddress.getLocalHost();
-            }
-            @SuppressWarnings("unchecked")
-            public Collection findMXRecords(String hostname)
-            throws TemporaryResolutionException {
-                throw new UnsupportedOperationException("Should never be called");
-            }
-            @SuppressWarnings("unchecked")
-            public Collection findTXTRecords(String hostname) {
-                throw new UnsupportedOperationException("Should never be called");
-            }
-            public InetAddress getByName(String host)
-            throws UnknownHostException {
-                throw new UnsupportedOperationException("Should never be called");
-            }
-            @SuppressWarnings("unchecked")
-            public Iterator getSMTPHostAddresses(String domainName)
-            throws TemporaryResolutionException {
-                throw new UnsupportedOperationException("Should never be called");
-            }
-        };
-        
-        return dns;
-    
-    }
 
     public void testStoreAndRetrieveRegexMapping() throws ErrorMappingException {
         
