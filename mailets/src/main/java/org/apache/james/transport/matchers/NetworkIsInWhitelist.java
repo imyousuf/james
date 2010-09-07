@@ -80,11 +80,6 @@ public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
      * @see org.apache.james.transport.matchers.AbstractSQLWhitelistMatcher#matchedWhitelist(org.apache.mailet.MailAddress, org.apache.mailet.Mail)
      */
     protected boolean matchedWhitelist(MailAddress recipientMailAddress, Mail mail) throws MessagingException {
-        // check if it's a local sender
-        MailAddress senderMailAddress = mail.getSender();
-        String senderUser = senderMailAddress.getLocalPart().toLowerCase(Locale.US);
-        String senderHost = senderMailAddress.getDomain().toLowerCase(Locale.US);
-        
         Connection conn = null;
         PreparedStatement selectStmt = null;
         ResultSet selectRS = null;
@@ -103,16 +98,27 @@ public class NetworkIsInWhitelist extends AbstractSQLWhitelistMatcher {
                 }
                 selectStmt.setString(1, recipientUser);
                 selectStmt.setString(2, recipientHost);
-                selectStmt.setString(3, senderUser);
-                selectStmt.setString(4, senderHost);
                 selectRS = selectStmt.executeQuery();
                 List<String> nets = new ArrayList<String>();
                 while (selectRS.next()) {
                     nets.add(selectRS.getString(1));
                 }
                 NetMatcher matcher = new NetMatcher(nets, dns);
-                return matcher.matchInetNetwork(mail.getRemoteAddr());
+                boolean matched = matcher.matchInetNetwork(mail.getRemoteAddr());
 
+                if (matched == false) {
+                    selectStmt = conn.prepareStatement(selectNetworks);
+                    selectStmt.setString(1, "*");
+                    selectStmt.setString(2, recipientHost);
+                    selectRS = selectStmt.executeQuery();
+                    nets = new ArrayList<String>();
+                    while (selectRS.next()) {
+                        nets.add(selectRS.getString(1));
+                    }
+                    matcher = new NetMatcher(nets, dns);
+                    matched = matcher.matchInetNetwork(mail.getRemoteAddr());
+                }
+                return matched;
             } finally {
                 theJDBCUtil.closeJDBCResultSet(selectRS);
             }
