@@ -33,7 +33,6 @@
   <inceptionYear>2002</inceptionYear>
   <packaging>pom</packaging>
   <modules>
-    <module>javamail-util</module>
     <module>common-util</module>
     <module>core-api</module>
     <module>user-api</module>
@@ -290,11 +289,6 @@
           <artifactId>mail</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-javamail-util</artifactId>
-      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
