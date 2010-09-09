@@ -54,11 +54,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-mailbox</artifactId>
+      <artifactId>apache-james-mailbox-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-store</artifactId>
+      <artifactId>apache-james-mailbox-store</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>

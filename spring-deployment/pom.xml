@@ -504,12 +504,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-jpa</artifactId>
+      <artifactId>apache-james-mailbox-jpa</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-jcr</artifactId>
+      <artifactId>apache-james-mailbox-jcr</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
