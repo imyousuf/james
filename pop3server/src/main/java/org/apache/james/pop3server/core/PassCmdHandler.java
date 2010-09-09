@@ -28,7 +28,6 @@ import javax.annotation.Resource;
 import org.apache.james.mailbox.BadCredentialsException;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MessageManager;
-import org.apache.james.mailbox.MailboxConstants;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MailboxException;
@@ -63,7 +62,11 @@ public class PassCmdHandler extends RsetCmdHandler {
             String passArg = parameters;
             try {
                 MailboxSession mSession = mailboxManager.login(session.getUser(), passArg, session.getLogger());
-                MailboxPath mailboxPath = new MailboxPath(MailboxConstants.USER_NAMESPACE, session.getUser(), "INBOX");
+                
+                // explicit call start processing because it was not stored before in the session
+                mailboxManager.startProcessingRequest(mSession);
+                
+                MailboxPath mailboxPath = MailboxPath.inbox(session.getUser());
                 
                 // check if mailbox exists.. if not just create it
                 if (mailboxManager.mailboxExists(mailboxPath, mSession) == false) {
