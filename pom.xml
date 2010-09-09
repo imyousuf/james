@@ -385,13 +385,13 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-memory</artifactId>
+      <artifactId>apache-james-mailbox-memory</artifactId>
       <version>${imap.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-mailbox</artifactId>
+      <artifactId>apache-james-mailbox-api</artifactId>
       <version>${imap.version}</version>
     </dependency>
     <dependency>
@@ -454,17 +454,17 @@
 
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-jpa</artifactId>
+      <artifactId>apache-james-mailbox-jpa</artifactId>
       <version>${imap.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-jcr</artifactId>
+      <artifactId>apache-james-mailbox-jcr</artifactId>
       <version>${imap.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-imap-store</artifactId>
+      <artifactId>apache-james-mailbox-store</artifactId>
       <version>${imap.version}</version>
       <exclusions>
         <exclusion>
