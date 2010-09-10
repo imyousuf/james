@@ -19,24 +19,21 @@
 
 package org.apache.james;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
-import java.util.Enumeration;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.mailbox.MailboxPath;
-import org.apache.james.mailbox.MessageManager;
+import org.apache.james.core.MimeMessageInputStream;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.mailbox.MailboxConstants;
 import org.apache.james.mailbox.MailboxManager;
+import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxSession;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.mailbox.MessageManager;
 import org.apache.james.services.MailServer;
 import org.apache.jsieve.mailet.Poster;
 
@@ -161,78 +158,5 @@ public class MailboxManagerPoster implements Poster, LogEnabled{
         this.logger = log;
     }
 
-    /**
-     * {@link InputStream} which contains the headers and the Body of the
-     * wrapped {@link MimeMessage}
-     * 
-     */
-    private final class MimeMessageInputStream extends InputStream {
-        private final InputStream headersInputStream;
-        private final InputStream bodyInputStream;
-        private int cStream = 0;
 
-        boolean nextCR = false;
-        boolean nextLF = false;
-
-        @SuppressWarnings("unchecked")
-        public MimeMessageInputStream(MimeMessage message) throws IOException {
-            try {
-                ByteArrayOutputStream headersOut = new ByteArrayOutputStream();
-                Enumeration headers = message.getAllHeaderLines();
-                while (headers.hasMoreElements()) {
-                    headersOut.write(headers.nextElement().toString().getBytes("US-ASCII"));
-                    headersOut.write("\r\n".getBytes());
-                }
-                headersInputStream = new ByteArrayInputStream(headersOut.toByteArray());
-                
-                // use the raw InputStream because we want to have no conversion here and just obtain the original message body
-                this.bodyInputStream = message.getRawInputStream();
-            } catch (MessagingException e) {
-                throw new IOException("Unable to read MimeMessage: " + e.getMessage());
-            }
-        }
-
-        @Override
-        public int read() throws IOException {
-            if (nextCR) {
-                nextCR = false;
-                nextLF = true;
-                return '\r';
-            } else if (nextLF) {
-                nextLF = false;
-                return '\n';
-            } else {
-                int i = -1;
-                if (cStream == 0) {
-                    i = headersInputStream.read();
-                } else {
-                    i = bodyInputStream.read();
-                }
-
-                if (i == -1 && cStream == 0) {
-                    cStream++;
-                    nextCR = true;
-                    return read();
-                }
-                return i;
-            }
-
-        }
-
-        /** Closes all streams */
-        public void close() throws IOException {
-            headersInputStream.close();
-            bodyInputStream.close();
-        }
-
-        /** Is there more data to read */
-        public int available() throws IOException {
-            if (cStream == 0) {
-                return headersInputStream.available() + bodyInputStream.available() + 2;
-            } else {
-                return bodyInputStream.available();
-            }
-        }
-
-    }
 }

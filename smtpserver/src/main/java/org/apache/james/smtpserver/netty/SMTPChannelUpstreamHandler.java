@@ -83,8 +83,9 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
             ctx.getChannel().write(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
         } else {
             if (channel.isConnected()) {
-                ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process smtp request"));
+                ctx.getChannel().write(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unable to process request"));
             }
+            logger.debug("Unable to process request", e.getCause());
             cleanup(channel);
             channel.close();
         }

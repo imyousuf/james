@@ -44,6 +44,7 @@
     <module>core-function</module>
     <module>imapserver</module>
     <module>smtpserver</module>
+    <module>lmtpserver</module>
     <module>pop3server</module>
     <module>spoolmanager</module>
     <module>remotemanager</module>
@@ -410,7 +411,13 @@
       <artifactId>james-server-user-function</artifactId>
       <version>${pom.version}</version>
     </dependency>
-  
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-lmtpserver</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+      
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-smtpserver</artifactId>

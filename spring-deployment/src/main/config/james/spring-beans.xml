@@ -74,6 +74,7 @@
             <map>
                 <entry key="mailboxmanager" value="imapserver" />
                 <entry key="mailetcontext" value="James"/>
+                <entry key="lmtpProtocolHandlerChain" value="lmtpserver"/>
                 <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remotemanager"/>
@@ -95,6 +96,7 @@
     <bean id="logRegistry" class="org.apache.james.container.spring.lifecycle.SpringLogRegistry">
         <property name="logMappings">
             <map>
+                <entry key="lmtpProtocolHandlerChain" value="lmtpserver"/>
                 <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remoteManager"/>
@@ -220,6 +222,17 @@
         <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
     </bean>
 
+    <!-- Async LMTP Server -->
+    <bean id="lmtpserver" class="org.apache.james.lmtpserver.NioLMTPServer">
+        <property name="protocolHandlerChain" ref="lmtpProtocolHandlerChain"/>
+    </bean>
+
+    <bean id="lmtpProtocolHandlerChain" class="org.apache.james.container.spring.SpringProtocolHandlerChain">
+        <property name="logRegistry" ref="logRegistry"/>
+        <property name="configurationRegistry" ref="configurationRegistry"/>
+        <property name="coreHandlersPackage" value="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
+    </bean>
+    
     <!-- FetchMail Service -->
     <bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 
