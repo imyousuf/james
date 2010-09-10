@@ -49,8 +49,9 @@
     </table>
     -->
     <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
-    <table name="DefaultVirtualUserTable" class="org.apache.james.vut.JPAVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
+    <table name="DefaultVirtualUserTable" class="org.apache.james.vut.JPAVirtualUserTable">
         <recursiveMapping> true </recursiveMapping>
         <mappingLimit> 10 </mappingLimit>
     </table>
+
 </virtualusertable-store>
