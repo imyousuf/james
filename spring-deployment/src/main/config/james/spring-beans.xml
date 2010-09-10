@@ -269,9 +269,7 @@
 
     <!--  JPA implementation of the domainlist service -->
     <!--
-    <bean id="domainlist" class="org.apache.james.domain.JPADomainList">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
-    </bean>
+    <bean id="domainlist" class="org.apache.james.domain.JPADomainList"/>
     -->
 
     <!--  JDBC implementation of the domainlist service - deprecated, use the JPADomainList -->
