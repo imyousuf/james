@@ -29,6 +29,9 @@ import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
 
+/**
+ * Test the XML Virtual User Table implementation.
+ */
 public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
 
     private DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
@@ -40,9 +43,9 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
 
     protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
-        XMLVirtualUserTable mr = new XMLVirtualUserTable();
-        mr.setLog(new SimpleLog("MockLog"));
-        return mr;
+        XMLVirtualUserTable virtualUserTable = new XMLVirtualUserTable();
+        virtualUserTable.setLog(new SimpleLog("MockLog"));
+        return virtualUserTable;
     }
     
     /**

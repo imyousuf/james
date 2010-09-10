@@ -171,7 +171,6 @@ public class VirtualUserTableUtil {
          ArrayList<String> map = new ArrayList<String>();
          StringTokenizer tokenizer = new StringTokenizer(rawMapping,
          VirtualUserTableUtil.getSeparator(rawMapping));
-
          while (tokenizer.hasMoreTokens()) {
              final String raw = tokenizer.nextToken().trim();
              map.add(raw);
@@ -187,12 +186,9 @@ public class VirtualUserTableUtil {
       */
      public static String CollectionToMapping(Collection map) {
          StringBuffer mapping = new StringBuffer();
-     
          Iterator mappings = map.iterator();
-     
          while (mappings.hasNext()) {
              mapping.append(mappings.next());
-         
              if (mappings.hasNext()) {
                  mapping.append(";");
              }

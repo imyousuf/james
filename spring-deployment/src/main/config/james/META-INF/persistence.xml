@@ -30,9 +30,11 @@
         <!-- UsersRepository -->
         <class>org.apache.james.userrepository.JPAUser</class>
 
-
         <!-- DomainList -->
         <class>org.apache.james.domain.JPADomain</class>
+
+        <!-- VirtualUser -->
+        <class>org.apache.james.vut.model.JPAVirtualUser</class>
 
         <properties>
             <!--  Create tables on startup -->

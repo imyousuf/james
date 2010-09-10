@@ -45,8 +45,11 @@ import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 
 /**
+ * Class responsible to implement the Virtual User Table in database with JDBC access.
  * 
+ * @deprecated use JPAVirtualUserTable
  */
+@Deprecated
 public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
     private DataSourceSelector datasources = null;
@@ -58,7 +61,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * Contains all of the sql strings for this component.
      */
-    protected SqlResources sqlQueries;
+    private SqlResources sqlQueries;
     
     /**
      * The name of the SQL configuration file to be used to configure this repository.
@@ -67,61 +70,14 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     
     private FileSystem fileSystem;
 
-    public void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
-        
-        String destination = conf.getString("[@destinationURL]",null);
-    
-        if (destination == null) {
-            throw new ConfigurationException("destinationURL must configured");
+    /**
+     * The JDBCUtil helper class
+     */
+    private final JDBCUtil theJDBCUtil = new JDBCUtil() {
+        protected void delegatedLog(String logString) {
+            getLogger().debug("JDBCVirtualUserTable: " + logString);
         }
-
-        // normalize the destination, to simplify processing.
-        if ( ! destination.endsWith("/") ) {
-            destination += "/";
-        }
-        // Parse the DestinationURL for the name of the datasource,
-        // the table to use, and the (optional) repository Key.
-        // Split on "/", starting after "db://"
-        List<String> urlParams = new ArrayList<String>();
-        int start = 5;
-        
-        int end = destination.indexOf('/', start);
-        while ( end > -1 ) {
-            urlParams.add(destination.substring(start, end));
-            start = end + 1;
-            end = destination.indexOf('/', start);
-        }
-
-        // Build SqlParameters and get datasource name from URL parameters
-        if (urlParams.size() == 0) {
-            StringBuffer exceptionBuffer =
-                new StringBuffer(256)
-                        .append("Malformed destinationURL - Must be of the format '")
-                        .append("db://<data-source>'.  Was passed ")
-                        .append(conf.getString("[@destinationURL]"));
-            throw new ConfigurationException(exceptionBuffer.toString());
-        }
-        
-        if (urlParams.size() >= 1) {
-            dataSourceName = (String)urlParams.get(0);
-        }
-        
-        if (urlParams.size() >= 2) {
-            tableName = (String)urlParams.get(1);
-        }
-
-        if (getLogger().isDebugEnabled()) {
-            StringBuffer logBuffer =
-                new StringBuffer(128)
-                        .append("Parsed URL: table = '")
-                        .append(tableName)
-                        .append("'");
-            getLogger().debug(logBuffer.toString());
-        }
-    
-        sqlFileName = conf.getString("sqlFile");
-        
-    }
+    };
 
     @PostConstruct
     public void init() throws Exception {
@@ -199,14 +155,10 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         }
     }
     
-    /**
-     * The JDBCUtil helper class
-     */
-    private final JDBCUtil theJDBCUtil = new JDBCUtil() {
-        protected void delegatedLog(String logString) {
-            getLogger().debug("JDBCVirtualUserTable: " + logString);
-        }
-    };
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
     
     public void setDataSource(DataSource dataSourceComponent) {
         this.dataSourceComponent = dataSourceComponent;
@@ -217,9 +169,78 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         this.datasources = datasources;
     }
 
-    @Resource(name="filesystem")
-    public void setFileSystem(FileSystem fileSystem) {
-        this.fileSystem = fileSystem;
+    protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
+        
+        String destination = conf.getString("[@destinationURL]",null);
+    
+        if (destination == null) {
+            throw new ConfigurationException("destinationURL must configured");
+        }
+    
+        // normalize the destination, to simplify processing.
+        if ( ! destination.endsWith("/") ) {
+            destination += "/";
+        }
+        // Parse the DestinationURL for the name of the datasource,
+        // the table to use, and the (optional) repository Key.
+        // Split on "/", starting after "db://"
+        List<String> urlParams = new ArrayList<String>();
+        int start = 5;
+        
+        int end = destination.indexOf('/', start);
+        while ( end > -1 ) {
+            urlParams.add(destination.substring(start, end));
+            start = end + 1;
+            end = destination.indexOf('/', start);
+        }
+    
+        // Build SqlParameters and get datasource name from URL parameters
+        if (urlParams.size() == 0) {
+            StringBuffer exceptionBuffer =
+                new StringBuffer(256)
+                        .append("Malformed destinationURL - Must be of the format '")
+                        .append("db://<data-source>'.  Was passed ")
+                        .append(conf.getString("[@destinationURL]"));
+            throw new ConfigurationException(exceptionBuffer.toString());
+        }
+        
+        if (urlParams.size() >= 1) {
+            dataSourceName = (String)urlParams.get(0);
+        }
+        
+        if (urlParams.size() >= 2) {
+            tableName = (String)urlParams.get(1);
+        }
+    
+        if (getLogger().isDebugEnabled()) {
+            StringBuffer logBuffer =
+                new StringBuffer(128)
+                        .append("Parsed URL: table = '")
+                        .append(tableName)
+                        .append("'");
+            getLogger().debug(logBuffer.toString());
+        }
+    
+        sqlFileName = conf.getString("sqlFile");
+        
+    }
+
+    /**
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#addMappingInternal(String, String, String)
+     */
+    protected boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
+
+        String newUser = getUserString(user);
+        String newDomain = getDomainString(domain);
+        Collection<String> map =  getUserDomainMappings(newUser,newDomain);
+
+        if (map != null && map.size() != 0) {
+            map.add(regex);
+            return updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
+        }
+    
+        return addRawMapping(newUser,newDomain,regex);
+    
     }
     
     /**
@@ -254,13 +275,74 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
     
     /**
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
+     */
+    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) {
+        Connection conn = null;
+        PreparedStatement mappingStmt = null;
+        try {
+            conn = dataSourceComponent.getConnection();
+            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectUserDomainMapping", true));
+            ResultSet mappingRS = null;
+            try {
+                mappingStmt.setString(1, user);
+                mappingStmt.setString(2, domain);
+                mappingRS = mappingStmt.executeQuery();
+                if (mappingRS.next()) {
+                    return VirtualUserTableUtil.mappingToCollection(mappingRS.getString(1));
+                }
+            } finally {
+                theJDBCUtil.closeJDBCResultSet(mappingRS);
+            }
+        } catch (SQLException sqle) {
+            getLogger().error("Error accessing database", sqle);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(mappingStmt);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
+        return null;
+    }
+
+    /**
+     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getAllMappingsInternal()
+     */
+    protected Map<String,Collection<String>> getAllMappingsInternal() {
+        Connection conn = null;
+        PreparedStatement mappingStmt = null;
+        Map<String,Collection<String>> mapping = new HashMap<String,Collection<String>>();
+        try {
+            conn = dataSourceComponent.getConnection();
+            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectAllMappings", true));
+            ResultSet mappingRS = null;
+            try {
+                mappingRS = mappingStmt.executeQuery();
+                while(mappingRS.next()) {
+                    String user = mappingRS.getString(1);
+                    String domain = mappingRS.getString(2);
+                    String map = mappingRS.getString(3);
+                    mapping.put(user + "@" + domain, VirtualUserTableUtil.mappingToCollection(map));
+                }
+                if (mapping.size() > 0 ) return mapping;
+            } finally {
+                theJDBCUtil.closeJDBCResultSet(mappingRS);
+            }
+            
+        } catch (SQLException sqle) {
+            getLogger().error("Error accessing database", sqle);
+        } finally {
+            theJDBCUtil.closeJDBCStatement(mappingStmt);
+            theJDBCUtil.closeJDBCConnection(conn);
+        }
+        return null;
+    }
+    
+    /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
      */
-    public boolean removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException {
+    protected boolean removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException {
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
         Collection<String> map = getUserDomainMappings(newUser,newDomain);
-
         if (map != null && map.size() > 1) {
             map.remove(mapping);
             return updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
@@ -269,26 +351,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         }
     }
 
-
-    /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#addMappingInternal(String, String, String)
-     */
-    public boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
-
-        String newUser = getUserString(user);
-        String newDomain = getDomainString(domain);
-        Collection<String> map =  getUserDomainMappings(newUser,newDomain);
-
-        if (map != null && map.size() != 0) {
-            map.add(regex);
-            return updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
-        }
-    
-        return addRawMapping(newUser,newDomain,regex);
-    
-    }
-    
-    /**
+   /**
      * Update the mapping for the given user and domain
      * 
      * @param user the user
@@ -442,75 +505,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         } else {
             return WILDCARD;
         }
-    }
-    
-    /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
-     */
-    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) {
-        Connection conn = null;
-        PreparedStatement mappingStmt = null;
-        
-        try {
-            conn = dataSourceComponent.getConnection();
-            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectUserDomainMapping", true));
-
-            ResultSet mappingRS = null;
-            try {
-                mappingStmt.setString(1, user);
-                mappingStmt.setString(2, domain);
-                mappingRS = mappingStmt.executeQuery();
-                if (mappingRS.next()) {
-                    return VirtualUserTableUtil.mappingToCollection(mappingRS.getString(1));
-                }
-            } finally {
-                theJDBCUtil.closeJDBCResultSet(mappingRS);
-            }
-            
-        } catch (SQLException sqle) {
-            getLogger().error("Error accessing database", sqle);
-        } finally {
-            theJDBCUtil.closeJDBCStatement(mappingStmt);
-            theJDBCUtil.closeJDBCConnection(conn);
-        }
-        return null;
-    }
-
-    /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getAllMappingsInternal()
-     */
-    public Map<String,Collection<String>> getAllMappingsInternal() {
-        Connection conn = null;
-        PreparedStatement mappingStmt = null;
-        Map<String,Collection<String>> mapping = new HashMap<String,Collection<String>>();
-        
-        try {
-            conn = dataSourceComponent.getConnection();
-            mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectAllMappings", true));
-
-            ResultSet mappingRS = null;
-            try {
-                mappingRS = mappingStmt.executeQuery();
-                while(mappingRS.next()) {
-                    String user = mappingRS.getString(1);
-                    String domain = mappingRS.getString(2);
-                    String map = mappingRS.getString(3);
-                    
-                    mapping.put(user + "@" + domain,VirtualUserTableUtil.mappingToCollection(map));
-                }
-                
-                if (mapping.size() > 0 ) return mapping;
-            } finally {
-                theJDBCUtil.closeJDBCResultSet(mappingRS);
-            }
-            
-        } catch (SQLException sqle) {
-            getLogger().error("Error accessing database", sqle);
-        } finally {
-            theJDBCUtil.closeJDBCStatement(mappingStmt);
-            theJDBCUtil.closeJDBCConnection(conn);
-        }
-        return null;
     }
     
 }

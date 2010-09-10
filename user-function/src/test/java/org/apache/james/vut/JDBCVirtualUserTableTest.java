@@ -25,22 +25,25 @@ import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.test.mock.james.MockFileSystem;
 import org.apache.james.test.util.Util;
 
+/**
+ * Test the JDBC Virtual User Table implementation.
+ */
 public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTableTest#getVirtualUserTable()
      */
     protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
-        JDBCVirtualUserTable mr = new JDBCVirtualUserTable();
-        mr.setLog(new SimpleLog("MockLog"));
-        mr.setDataSourceSelector(Util.getDataSourceSelector());
-        mr.setFileSystem(new MockFileSystem());
+        JDBCVirtualUserTable virtualUserTable = new JDBCVirtualUserTable();
+        virtualUserTable.setLog(new SimpleLog("MockLog"));
+        virtualUserTable.setDataSourceSelector(Util.getDataSourceSelector());
+        virtualUserTable.setFileSystem(new MockFileSystem());
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
         defaultConfiguration.addProperty("[@destinationURL]","db://maildb/VirtualUserTable");
         defaultConfiguration.addProperty("sqlFile","file://conf/sqlResources.xml");
-        mr.configure(defaultConfiguration);
-        mr.init();
-        return mr;
+        virtualUserTable.configure(defaultConfiguration);
+        virtualUserTable.init();
+        return virtualUserTable;
     }    
     
     /**

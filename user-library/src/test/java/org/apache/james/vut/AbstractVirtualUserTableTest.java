@@ -30,6 +30,11 @@ import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.lifecycle.LifecycleUtil;
 
+/**
+ * The abstract test for the virtual user table.
+ * Contains tests related to simple, regexp, wildcard, error,...
+ * Extend this and instanciate the needed virtualUserTable implementation.
+ */
 public abstract class AbstractVirtualUserTableTest extends TestCase {
 
     protected AbstractVirtualUserTable virtualUserTable;
@@ -48,8 +53,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
         Map<String,Collection<String>> mappings = virtualUserTable.getAllMappings();
 
         if (mappings != null) {
+            
             Iterator<String> mappingsIt = virtualUserTable.getAllMappings().keySet().iterator();
-
 
             while(mappingsIt.hasNext()) {
                 String key = mappingsIt.next().toString();
@@ -73,25 +78,6 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
     
     }
 
-    private void removeMapping(String user, String domain, String rawMapping) throws InvalidMappingException {
-        if (rawMapping.startsWith(VirtualUserTable.ERROR_PREFIX)) {
-            removeMapping(user, domain, rawMapping.substring(VirtualUserTable.ERROR_PREFIX.length()), ERROR_TYPE);
-        } else if (rawMapping.startsWith(VirtualUserTable.REGEX_PREFIX)) {
-            removeMapping(user, domain, rawMapping.substring(VirtualUserTable.REGEX_PREFIX.length()), REGEX_TYPE);
-        } else if (rawMapping.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
-            removeMapping(user, domain, rawMapping.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length()), ALIASDOMAIN_TYPE);
-        } else {
-            removeMapping(user, domain, rawMapping, ADDRESS_TYPE);
-        }
-    }
-
-    protected abstract AbstractVirtualUserTable getVirtualUserTable() throws Exception;
-
-    protected abstract boolean addMapping(String user , String domain, String mapping,int type)throws InvalidMappingException;
-
-    protected abstract boolean removeMapping(String user, String domain, String mapping, int type) throws InvalidMappingException;
-
-
     public void testStoreAndRetrieveRegexMapping() throws ErrorMappingException {
         
         String user = "test";
@@ -107,9 +93,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
             assertTrue("Added virtual mapping", addMapping(user, domain, regex, REGEX_TYPE));
             assertTrue("Added virtual mapping", addMapping(user, domain, regex2, REGEX_TYPE));
-
-            assertEquals("Two mappings",virtualUserTable.getMappings(user, domain).size(), 2);           
-            assertEquals("One mappingline",virtualUserTable.getAllMappings().size(),1);
+            assertEquals("Two mappings", virtualUserTable.getMappings(user, domain).size(), 2);           
+            assertEquals("One mappingline", virtualUserTable.getAllMappings().size(), 1);
 
             assertTrue("remove virtual mapping", removeMapping(user, domain, regex, REGEX_TYPE));
 
@@ -121,9 +106,10 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Invalid Mapping throw exception" , catched);
 
             assertTrue("remove virtual mapping", removeMapping(user, domain, regex2, REGEX_TYPE));
-            assertNull("No mapping",virtualUserTable.getMappings(user, domain));
 
-            assertNull("No mappings",virtualUserTable.getAllMappings());
+            assertNull("No mapping", virtualUserTable.getMappings(user, domain));
+
+            assertNull("No mappings", virtualUserTable.getAllMappings());
 
         } catch (InvalidMappingException e) {
             fail("Storing failed");
@@ -146,8 +132,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Added virtual mapping", addMapping(user, domain, address, ADDRESS_TYPE));
             assertTrue("Added virtual mapping", addMapping(user, domain, address2, ADDRESS_TYPE));
 
-            assertEquals("Two mappings",virtualUserTable.getMappings(user, domain).size(),2);
-            assertEquals("One mappingline",virtualUserTable.getAllMappings().size(),1);
+            assertEquals("Two mappings", virtualUserTable.getMappings(user, domain).size(),2);
+            assertEquals("One mappingline", virtualUserTable.getAllMappings().size(),1);
 
             assertTrue("remove virtual mapping", removeMapping(user, domain, address, ADDRESS_TYPE));
 
@@ -166,8 +152,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
             assertTrue("remove virtual mapping", removeMapping(user, domain, address2, ADDRESS_TYPE));
 
-            assertNull("No mapping",virtualUserTable.getMappings(user, domain));
-            assertNull("No mappings",virtualUserTable.getAllMappings());
+            assertNull("No mapping", virtualUserTable.getMappings(user, domain));
+            assertNull("No mappings", virtualUserTable.getAllMappings());
 
         } catch (InvalidMappingException e) {
             fail("Storing failed");
@@ -188,7 +174,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertNull("No mapping",virtualUserTable.getMappings(user, domain));
 
             assertTrue("Added virtual mapping", addMapping(user, domain, error, ERROR_TYPE));
-            assertEquals("One mappingline",virtualUserTable.getAllMappings().size(),1);
+            assertEquals("One mappingline", virtualUserTable.getAllMappings().size(),1);
 
             try {
                 virtualUserTable.getMappings(user, domain);
@@ -198,8 +184,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("Error Mapping throw exception" , catched);
 
             assertTrue("remove virtual mapping", removeMapping(user, domain, error, ERROR_TYPE));
-            assertNull("No mapping",virtualUserTable.getMappings(user, domain));
-            assertNull("No mappings",virtualUserTable.getAllMappings());
+            assertNull("No mapping", virtualUserTable.getMappings(user, domain));
+            assertNull("No mappings", virtualUserTable.getAllMappings());
 
         } catch (InvalidMappingException e) {
             fail("Storing failed");
@@ -298,6 +284,24 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             fail("Storing failed");
         }
 
+    }
+
+    protected abstract AbstractVirtualUserTable getVirtualUserTable() throws Exception;
+
+    protected abstract boolean addMapping(String user , String domain, String mapping,int type)throws InvalidMappingException;
+
+    protected abstract boolean removeMapping(String user, String domain, String mapping, int type) throws InvalidMappingException;
+
+    private void removeMapping(String user, String domain, String rawMapping) throws InvalidMappingException {
+        if (rawMapping.startsWith(VirtualUserTable.ERROR_PREFIX)) {
+            removeMapping(user, domain, rawMapping.substring(VirtualUserTable.ERROR_PREFIX.length()), ERROR_TYPE);
+        } else if (rawMapping.startsWith(VirtualUserTable.REGEX_PREFIX)) {
+            removeMapping(user, domain, rawMapping.substring(VirtualUserTable.REGEX_PREFIX.length()), REGEX_TYPE);
+        } else if (rawMapping.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
+            removeMapping(user, domain, rawMapping.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length()), ALIASDOMAIN_TYPE);
+        } else {
+            removeMapping(user, domain, rawMapping, ADDRESS_TYPE);
+        }
     }
 
 }

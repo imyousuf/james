@@ -57,7 +57,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
     	setRecursiveMapping(config.getBoolean("recursiveMapping", true));
         try {
-            setMappingLimit(config.getInt("mappingLimit",10));
+            setMappingLimit(config.getInt("mappingLimit", 10));
         } catch (IllegalArgumentException e) {
             throw new ConfigurationException(e.getMessage());
         }
@@ -316,16 +316,6 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         return mappings;
     }
     
-    
-    private boolean checkMapping(String user,String domain, String mapping) {
-       Collection<String> mappings = getUserDomainMappings(user,domain);
-       if (mappings != null && mappings.contains(mapping)) {
-           return false;
-       } else {
-           return true;
-       }
-    }
-
     /**
      * @see org.apache.james.api.vut.management.VirtualUserTableManagement#getUserDomainMappings(java.lang.String, java.lang.String)
      */
@@ -349,42 +339,6 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
         return removeMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
     
-    /**
-     * Get all mappings for the given user and domain. If a aliasdomain mapping was found get sure it is in the map as first mapping. 
-     * 
-     * @param user the username
-     * @param domain the domain
-     * @return the mappings
-     */
-    private String mapAddress(String user, String domain) {
-
-        String mappings = mapAddressInternal(user, domain);
-
-        // check if we need to sort
-        // TODO: Maybe we should just return the aliasdomain mapping
-        if (mappings != null && mappings.indexOf(VirtualUserTable.ALIASDOMAIN_PREFIX) > -1) {
-            Collection<String> mapCol = VirtualUserTableUtil.mappingToCollection(mappings);
-            Iterator<String> mapIt = mapCol.iterator();
-        
-            List<String> col = new ArrayList<String>(mapCol.size());
-        
-            while (mapIt.hasNext()) {
-                int i = 0;
-                String mapping = mapIt.next().toString();
-        
-                if (mapping.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
-                    col.add(i,mapping);
-                    i++;
-                } else {
-                    col.add(mapping);
-                }
-            }
-            return VirtualUserTableUtil.CollectionToMapping(col);
-        } else {  
-            return mappings;
-        }
-    }
-      
     protected Log getLogger() {
         return logger;
     }
@@ -442,4 +396,49 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Virt
      */
     protected abstract String mapAddressInternal(String user, String domain);
     
+    /**
+     * Get all mappings for the given user and domain. If a aliasdomain mapping was found get sure it is in the map as first mapping. 
+     * 
+     * @param user the username
+     * @param domain the domain
+     * @return the mappings
+     */
+    private String mapAddress(String user, String domain) {
+
+        String mappings = mapAddressInternal(user, domain);
+
+        // check if we need to sort
+        // TODO: Maybe we should just return the aliasdomain mapping
+        if (mappings != null && mappings.indexOf(VirtualUserTable.ALIASDOMAIN_PREFIX) > -1) {
+            Collection<String> mapCol = VirtualUserTableUtil.mappingToCollection(mappings);
+            Iterator<String> mapIt = mapCol.iterator();
+        
+            List<String> col = new ArrayList<String>(mapCol.size());
+        
+            while (mapIt.hasNext()) {
+                int i = 0;
+                String mapping = mapIt.next().toString();
+        
+                if (mapping.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
+                    col.add(i,mapping);
+                    i++;
+                } else {
+                    col.add(mapping);
+                }
+            }
+            return VirtualUserTableUtil.CollectionToMapping(col);
+        } else {  
+            return mappings;
+        }
+    }
+      
+    private boolean checkMapping(String user,String domain, String mapping) {
+        Collection<String> mappings = getUserDomainMappings(user,domain);
+        if (mappings != null && mappings.contains(mapping)) {
+            return false;
+        } else {
+            return true;
+        }
+     }
+
 }

@@ -30,7 +30,7 @@ import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
 
 /**
- *
+ * Class responsible to implement the Virtual User Table in XML disk file.
  */
 public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     
@@ -43,7 +43,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
-    public void doConfigure(HierarchicalConfiguration arg0) throws ConfigurationException {
+    protected void doConfigure(HierarchicalConfiguration arg0) throws ConfigurationException {
 
         List<String> mapConf = arg0.getList("mapping");
     
@@ -62,7 +62,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * Not implemented
      */
-    public boolean addMappingInternal(String user, String domain, String mapping) {
+    protected boolean addMappingInternal(String user, String domain, String mapping) {
         // Not supported
         return false;
     }
@@ -81,7 +81,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * Not implemented
      */
-    public boolean removeMappingInternal(String user, String domain, String mapping) {
+    protected boolean removeMappingInternal(String user, String domain, String mapping) {
         // Not supported
         return false;
     }
@@ -89,7 +89,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getUserDomainMappingsInternal(java.lang.String, java.lang.String)
      */
-    public Collection<String> getUserDomainMappingsInternal(String user, String domain) {
+    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) {
         if (mappings == null) {
             return null;
         } else {
@@ -105,7 +105,7 @@ public class XMLVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getAllMappingsInternal()
      */
-    public Map<String,Collection<String>> getAllMappingsInternal() {
+    protected Map<String,Collection<String>> getAllMappingsInternal() {
         if ( mappings != null && mappings.size() > 0) {
             Map<String,Collection<String>> mappingsNew = new HashMap<String,Collection<String>>();
             Iterator<String> maps = mappings.keySet().iterator();
