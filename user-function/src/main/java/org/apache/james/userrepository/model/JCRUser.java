@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.userrepository.model;
 
 import org.apache.jackrabbit.util.Text;
 import org.apache.james.api.user.User;
@@ -27,7 +27,7 @@ import org.apache.james.api.user.User;
  * Differs from standard James by improved hash.
  * TODO: think about improving DefaultUser.
  */
-class JCRUser implements User {
+public class JCRUser implements User {
 
     /** 
      * Static salt for hashing password.

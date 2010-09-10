@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.userrepository.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;

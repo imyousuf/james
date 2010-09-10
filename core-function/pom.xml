@@ -139,7 +139,7 @@
         <artifactId>openjpa-maven-plugin</artifactId>
         <version>1.0</version>
         <configuration>
-          <includes>org/apache/james/domain/JPADomain.class</includes>
+          <includes>org/apache/james/domain/model/JPADomain.class</includes>
           <addDefaultConstructor>true</addDefaultConstructor>
           <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
           <toolProperties>
@@ -149,7 +149,7 @@
             </property>   
             <property>
               <name>metaDataFactory</name>
-              <value>jpa(Types=org.apache.james.domain.JPADomain)</value>
+              <value>jpa(Types=org.apache.james.domain.model.JPADomain)</value>
             </property>           
           </toolProperties>
         </configuration>  

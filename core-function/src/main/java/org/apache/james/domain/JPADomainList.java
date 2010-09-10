@@ -29,6 +29,7 @@ import javax.persistence.PersistenceUnit;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.domain.model.JPADomain;
 import org.apache.james.lifecycle.Configurable;
 
 /**

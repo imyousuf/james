@@ -41,7 +41,7 @@ import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-
+import org.apache.james.userrepository.model.JCRUser;
 
 /**
  * {@link UsersRepository} implementation which stores users to a JCR {@link Repository}
