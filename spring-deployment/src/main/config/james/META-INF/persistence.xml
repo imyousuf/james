@@ -34,7 +34,7 @@
         <class>org.apache.james.domain.model.JPADomain</class>
 
         <!-- VirtualUser -->
-        <class>org.apache.james.vut.model.model.JPAVirtualUser</class>
+        <class>org.apache.james.vut.model.JPAVirtualUser</class>
 
         <properties>
             <!--  Create tables on startup -->
