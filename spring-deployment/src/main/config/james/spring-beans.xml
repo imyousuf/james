@@ -223,7 +223,7 @@
     </bean>
 
     <!-- Async LMTP Server -->
-    <bean id="lmtpserver" class="org.apache.james.lmtpserver.NioLMTPServer">
+    <bean id="lmtpserver" class="org.apache.james.lmtpserver.netty.NioLMTPServer">
         <property name="protocolHandlerChain" ref="lmtpProtocolHandlerChain"/>
     </bean>
 
