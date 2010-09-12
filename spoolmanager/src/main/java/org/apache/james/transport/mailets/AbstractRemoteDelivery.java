@@ -36,7 +36,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Random;
 import java.util.StringTokenizer;
 
 import javax.annotation.Resource;
@@ -62,7 +61,6 @@ import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.core.MailImpl;
 import org.apache.james.services.MailServer;
-import org.apache.james.transport.camel.DisposeProcessor;
 import org.apache.james.transport.camel.JamesCamelConstants;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.HostAddress;
@@ -153,7 +151,7 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
     /** If false then ANY address errors will cause the transmission to fail */
     private boolean sendPartial = false;
 
-    private String outgoingQueueInjectorEndpoint = "direct:outgoingQueueInjectorEndpoint" + instance++;
+    protected String outgoingQueueInjectorEndpoint = "direct:outgoingQueueInjectorEndpoint" + instance++;
     
     /**
      * The amount of time JavaMail will wait before giving up on a socket
@@ -197,9 +195,7 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
 
     private CamelContext context;
 
-    private String outgoingQueue;
-
-    private String outgoingRetryQueue;
+    protected String outgoingQueue;
 
     @Resource(name = "producerTemplate")
     public void setProducerTemplate(ProducerTemplate producerTemplate) {
@@ -292,11 +288,6 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
             outgoingQueue = "outgoing";
         }
 
-        outgoingRetryQueue = getInitParameter("outgoingRetryQueue");
-        if (outgoingRetryQueue == null) {
-            outgoingRetryQueue = "outgoing.retry";
-        }
-
         try {
             if (getInitParameter("timeout") != null) {
                 smtpTimeout = Integer.parseInt(getInitParameter("timeout"));
@@ -367,12 +358,13 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
         }
 
         try {
-            getCamelContext().addRoutes(new RemoteDeliveryRouteBuilder());
+            getCamelContext().addRoutes(createRouteBuilder());
         } catch (Exception e) {
             throw new MessagingException("Unable to add camel route");
         }
     }
 
+    protected abstract RouteBuilder createRouteBuilder();
     /**
      * Calculates Total no. of attempts for the specified delayList.
      * 
@@ -1544,48 +1536,5 @@ public abstract class AbstractRemoteDelivery extends GenericMailet implements Ca
     public void setCamelContext(CamelContext context) {
         this.context = context;
     }
-
-    /**
-     * RouteBuilder which builds the Camel Route for the whole RemoteDelivery
-     * Process.
-     * 
-     * 
-     * 
-     */
-    private final class RemoteDeliveryRouteBuilder extends RouteBuilder {
-        private Processor disposeProcessor = new DisposeProcessor();
-
-        @Override
-        public void configure() throws Exception {
-            
-            // we need to store the message to offsite storage so use claimcheck
-            from(outgoingQueueInjectorEndpoint).inOnly().beanRef("mailClaimCheck").to(getOutgoingQueueEndpoint(outgoingQueue));
-            
-            from(getOutgoingQueueEndpoint(outgoingQueue)).inOnly().transacted()
-            .beanRef("mailEnricher")
-            .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).to(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().beanRef("mailClaimCheck").process(disposeProcessor).stop().end();
-
-            fromF("pollingjms:queue?delay=30000&consumer.endpointUri=%s", getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).inOnly().transacted()
-            .beanRef("mailEnricher")
-            .process(new DeliveryProcessor()).choice().when(header(JamesCamelConstants.JAMES_RETRY_DELIVERY).isNotNull()).beanRef("mailClaimCheck").toF(getOutgoingRetryQueueEndpoint(outgoingRetryQueue)).otherwise().process(disposeProcessor).stop().end();
-        }
-
-    }
-
-    /**
-     * Return the Endpoint for the outgoing queue with the given name
-     * 
-     * @param outgoingQueue
-     * @return endpointUri
-     */
-    protected abstract String getOutgoingQueueEndpoint(String outgoingQueue);
-
-    /**
-     * Return the Endpoint for the outgoing retry queue with the given name
-     * 
-     * @param outgoingRetryQueue
-     * @return endpointUri
-     */
-    protected abstract String getOutgoingRetryQueueEndpoint(String outgoingRetryQueue);
 
 }
