@@ -150,15 +150,17 @@ public class SpringProtocolHandlerChain implements BeanFactoryPostProcessor, Pro
             }
 
         } else {
-            confProvider.registerForComponent(className, config);
-            logProvider.registerForComponent(className, log);
+        	String beanName = name + ":" + className;
+        	
+            confProvider.registerForComponent(beanName, config);
+            logProvider.registerForComponent(beanName, log);
             
-            registry.registerBeanDefinition(className, BeanDefinitionBuilder.genericBeanDefinition(className).setLazyInit(false).getBeanDefinition());
+            registry.registerBeanDefinition(beanName, BeanDefinitionBuilder.genericBeanDefinition(className).setLazyInit(false).getBeanDefinition());
             // fill the big handler table
-            handlers.add(className);
+            handlers.add(beanName);
             
             if (log.isInfoEnabled()) {
-                log.info("Added Handler: " + className);
+                log.info("Added Handler: " + beanName);
             }
 
         }
@@ -175,7 +177,7 @@ public class SpringProtocolHandlerChain implements BeanFactoryPostProcessor, Pro
      */
     private HierarchicalConfiguration addHandler(String className) throws ConfigurationException {
         HierarchicalConfiguration hConf = new DefaultConfigurationBuilder();
-        hConf.addProperty("handler/@class", className);
+        hConf.addProperty("handler.[@class]", className);
         return hConf;
     }
     
