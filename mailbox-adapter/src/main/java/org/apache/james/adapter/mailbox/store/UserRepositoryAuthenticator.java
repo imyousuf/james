@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.imapserver;
+package org.apache.james.adapter.mailbox.store;
 
 import javax.annotation.Resource;
 

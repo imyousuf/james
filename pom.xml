@@ -54,6 +54,8 @@
     <module>netty-socket</module>
     <module>spring-common</module>
     <module>dnsserver</module>
+    <module>mailbox-adapter</module>
+    
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -293,6 +295,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailbox-adapter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -458,7 +465,11 @@
       <artifactId>james-server-remotemanager</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mailbox-maildir</artifactId>
+      <version>${imap.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-jpa</artifactId>

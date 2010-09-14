@@ -313,7 +313,10 @@
 
     <bean id="imapEncoder" factory-bean="imapEncoderFactory"  factory-method="buildImapEncoder"/>
 
-    <bean id="authenticator" class="org.apache.james.imapserver.UserRepositoryAuthenticator"/>
+
+
+    
+    <bean id="authenticator" class="org.apache.james.adapter.mailbox.store.UserRepositoryAuthenticator"/>
 
 
     <!-- JPA implementation of IMAP Storage-->
@@ -329,6 +332,24 @@
         <constructor-arg index="1" ref="authenticator"/>
         <constructor-arg index="2" value="${openjpa.streaming}"/>
     </bean>
+
+    <!-- Maildir implementation of IMAP Storage -->
+    <!-- WARNING: Maildir does only work on UNIX like operation systems -->
+    <!-- 
+    <bean id="sessionMapperFactory" class="org.apache.james.adapter.mailbox.maildir.MaildirMailboxSessionMapperFactoryUtil" factory-method="create">        
+        <constructor-arg index="0" ref="filesystem"/>
+        <constructor-arg index="1" ref="James"/>
+        <constructor-arg index="2" value="file://var/mail/maildir/"/>
+    </bean>
+    <bean id ="subscriptionManager" class="org.apache.james.mailbox.maildir.MaildirSubscriptionManager">
+        <constructor-arg index="0" ref="sessionMapperFactory"/>
+    </bean>
+
+    <bean id="mailboxmanager" class="org.apache.james.mailbox.maildir.MaildirMailboxManager">
+        <constructor-arg index="0" ref="sessionMapperFactory"/>
+        <constructor-arg index="1" ref="authenticator"/>
+    </bean>
+    -->
 
 
     <!-- JCR implementation of IMAP Storage-->
