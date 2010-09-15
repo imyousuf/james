@@ -33,13 +33,12 @@ public class ActiveMQProcessorRouteBuilder extends AbstractProcessorRouteBuilder
     }
 	
     @Override
-    protected String getFromUri(String processorName) {
-        return "activemq:queue:processor." + processorName+"?maxConcurrentConsumers=" + maxConcurrentConsumers;
+    protected String getFromUri() {
+        return "activemq:queue:spool?" + getOptions();
     }
 
-    @Override
-    protected Class<?> getRecipientList() {
-        return ActiveMQRecipientList.class;
-    }
-
+	
+	protected String getOptions() {
+		return "maxConcurrentConsumers=" + maxConcurrentConsumers;
+	}
 }

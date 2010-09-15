@@ -41,7 +41,6 @@ import javax.mail.internet.ParseException;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
-import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
@@ -61,6 +60,7 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
 import org.apache.james.transport.camel.DisposeProcessor;
+import org.apache.james.transport.camel.JamesCamelConstants;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -309,7 +309,7 @@ public abstract class AbstractMailServer
      */
     public void sendMail(Mail mail) throws MessagingException {
         try {
-            producerTemplate.sendBody("direct:mailserver", ExchangePattern.InOnly, mail);
+            producerTemplate.sendBodyAndHeader("direct:mailserver", ExchangePattern.InOnly, mail, JamesCamelConstants.JAMES_MAIL_STATE, mail.getState());
                         
         } catch (Exception e) {
             logger.error("Error storing message: " + e.getMessage(),e);
@@ -437,13 +437,12 @@ public abstract class AbstractMailServer
     }
     
     /**
-     * Return the camel endpoint uri which should get used for the given mail
+     * Return the camel endpoint uri which should get used
      * 
-     * @param mail
      * @return toUri
      * 
      */
-    protected abstract String getToUri(Mail mail);
+    protected abstract String getToUri();
     
     
 
@@ -465,7 +464,6 @@ public abstract class AbstractMailServer
     
        
     private final class InjectionRouteBuilder extends RouteBuilder {
-        private final static String SLIP ="JAMES_TO_SLIP";
         @Override
         public void configure() throws Exception {
             Processor disposeProcessor = new DisposeProcessor();
@@ -479,13 +477,7 @@ public abstract class AbstractMailServer
             // dispose the mail object if route processing was complete
            .onCompletion().process(disposeProcessor).end()
 
-           .transacted().pipeline().beanRef("mailClaimCheck").process(new Processor() {
-
-               public void process(Exchange ex) throws Exception {
-
-                   ex.getIn().setHeader(SLIP, getToUri(ex.getIn().getBody(Mail.class)));
-               }
-           }).routingSlip(SLIP);
+           .transacted().pipeline().beanRef("mailClaimCheck").to(getToUri());
         }
 
     }

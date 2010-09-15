@@ -21,24 +21,9 @@ package org.apache.james.transport.camel;
 import org.apache.camel.Body;
 import org.apache.mailet.Mail;
 
-/**
- * RecipientList implementation which route the mail to a ActiveMQ Queue with the name of 
- * processor.$mailstate
- * 
- * $mailstate is the what get returned by Mail.getState() 
- */
-public class ActiveMQRecipientList {
-    
-    /**
-     * Route Mail to the right JMS queue based on the state of the mail
-     * 
-     * @param mail
-     * @return camel endpoint uri
-     */
-    public String to(@Body Mail mail) {
-        String queueName = "activemq:queue:processor."+ mail.getState();
-        return queueName;
-    }
-    
-
+public final class ProcessorRecipientList {
+	
+	public String to(@Body Mail mail) {
+		return "direct:processor." + mail.getState();
+	}
 }

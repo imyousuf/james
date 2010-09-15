@@ -36,4 +36,5 @@ public interface JamesCamelConstants {
     public final static String JAMES_RETRY_DELIVERY = "JAMES_RETRY_DELIVERY";
 
 
+    public final static String JAMES_MAIL_STATE = "JAMES_MAIL_STATE";
 }

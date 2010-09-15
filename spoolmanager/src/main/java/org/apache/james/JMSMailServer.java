@@ -21,10 +21,8 @@
 package org.apache.james;
 
 
-import org.apache.mailet.Mail;
-
 /**
- * MailServer implementation which use JMS to spool mails#
+ * MailServer implementation which use JMS to spool mails
  * 
  * If you use ActiveMQ for JMS you should use {@link ActiveMQMailServer}
  * 
@@ -33,7 +31,7 @@ import org.apache.mailet.Mail;
 public class JMSMailServer extends AbstractMailServer{
 
     @Override
-    protected String getToUri(Mail mail) {
-        return "jms:queue:processor."+ mail.getState();
+    protected String getToUri() {
+        return "jms:queue:spool";
     }
 }

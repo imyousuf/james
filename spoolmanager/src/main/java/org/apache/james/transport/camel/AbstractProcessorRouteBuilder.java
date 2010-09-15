@@ -90,6 +90,10 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
         Processor terminatingMailetProcessor = new MailetProcessor(new TerminatingMailet(), logger);
         Processor disposeProcessor = new DisposeProcessor();
         
+        
+        from(getFromUri()).recipientList().method(ProcessorRecipientList.class);
+        
+        
         List<HierarchicalConfiguration> processorConfs = config.configurationsAt("processor");
         for (int i = 0; i < processorConfs.size(); i++) {
             final HierarchicalConfiguration processorConf = processorConfs.get(i);
@@ -101,7 +105,7 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
             matchers.put(processorName, new ArrayList<Matcher>());
 
             // Check which route we need to go
-            ChoiceDefinition processorDef = fromF(getFromUri(processorName))
+            ChoiceDefinition processorDef = from("direct:processor." + processorName)
             
                 // exchange mode is inOnly
                 .inOnly()
@@ -224,8 +228,8 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                             .when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop()
                              
                             // check if the state of the mail is the same as the
-                            // current processor. If not just route it to the right endpoint via recipientList and stop processing.
-                            .when(new MailStateNotEquals(processorName)).beanRef("mailClaimCheck").recipientList().method(getRecipientList()).stop()
+                            // current processor. If not just route it to the spool again
+                            .when(new MailStateNotEquals(processorName)).beanRef("mailClaimCheck").recipientList().method(ProcessorRecipientList.class).stop()
                             
                             // end first choice
                             .end()
@@ -258,8 +262,8 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                     // end the choice
                     .end()
                     
-                     // route it to the right processor
-                    .beanRef("mailClaimCheck").recipientList().method(getRecipientList());
+                     // route it to the spool again
+                    .beanRef("mailClaimCheck").recipientList().method(ProcessorRecipientList.class);
                   
         }
     }
@@ -404,17 +408,11 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
     }
     
     /**
-     * Return the uri for the processor to use for consuming mails
+     * Return the uri for consuming mail
      * 
-     * @param processor
      * @return consumerUri
      */
-    protected abstract String getFromUri(String processor);
+    protected abstract String getFromUri();
 
-    /**
-     * Return the class which get used for dynamic lookup the ToUris for the mails (producers)
-     * 
-     * @return recipientListClass
-     */
-    protected abstract Class<?> getRecipientList();
+  
 }

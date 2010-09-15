@@ -124,11 +124,12 @@
         <camel:routeBuilder ref="processorRoute" /> 
     </camel:camelContext>
 
+    
     <bean id="pollingjms"  class="org.apache.james.transport.camel.JMSSelectorPollingComponent"/>
     
     <!-- Build the camelroute from the spoolmanager.xml using ActiveMQ as producer and consumer-->
     <bean id="spoolmanager" name="processorRoute" class="org.apache.james.transport.camel.ActiveMQProcessorRouteBuilder">
-        <property name="maxConcurrentConsumers" value="200"/>
+        <property name="maxConcurrentConsumers" value="500"/>
     </bean>
 
 

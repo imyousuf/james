@@ -21,8 +21,6 @@
 package org.apache.james;
 
 
-import org.apache.mailet.Mail;
-
 /**
  * MailServer implementation which use ActiveMQ to spool mails
  * 
@@ -31,7 +29,7 @@ import org.apache.mailet.Mail;
 public class ActiveMQMailServer extends AbstractMailServer{
 
     @Override
-    protected String getToUri(Mail mail) {
-        return "activemq:queue:processor."+ mail.getState();
+    protected String getToUri() {
+        return "activemq:queue:spool";
     }
 }

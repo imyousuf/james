@@ -23,22 +23,11 @@ package org.apache.james.transport.camel;
  * 
  * If you want to use ActiveMQ as JMS implementation you should use {@link ActiveMQProcessorRouteBuilder}
  */
-public class JMSProcessorRouteBuilder extends AbstractProcessorRouteBuilder{
+public class JMSProcessorRouteBuilder extends ActiveMQProcessorRouteBuilder{
 
-	private int maxConcurrentConsumers = 20;
 
-	public void setMaxConcurrentConsumers(int maxConcurrentConsumers) {
-		this.maxConcurrentConsumers = maxConcurrentConsumers;
-	}
-	
-    @Override
-    protected String getFromUri(String processorName) {
-        return "jms:queue:processor." + processorName+"?maxConcurrentConsumers=" + maxConcurrentConsumers;
+	@Override
+    protected String getFromUri() {
+        return "jms:queue:spool ?" + getOptions();
     }
-
-    @Override
-    protected Class<?> getRecipientList() {
-        return JMSRecipientList.class;
-    }
-
 }
