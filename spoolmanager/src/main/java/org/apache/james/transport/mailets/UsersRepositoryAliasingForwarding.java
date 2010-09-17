@@ -117,12 +117,6 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
             if (mappings != null) {
                 return handleMappings(mappings, sender, recipient, message);
             }
-        } else {
-            StringBuilder errorBuffer = new StringBuilder(128)
-                .append("Warning: the repository ")
-                .append(usersRepository.getClass().getName())
-                .append(" does not implement VirtualUserTable interface).");
-            getMailetContext().log(errorBuffer.toString());
         }
         String realName = usersRepository.getRealName(recipient.getLocalPart());
       
