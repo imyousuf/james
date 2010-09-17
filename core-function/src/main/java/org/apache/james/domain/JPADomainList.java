@@ -44,6 +44,16 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
      */
     private EntityManagerFactory entityManagerFactory;
 
+    /**
+     * Set the entity manager to use.
+     * 
+     * @param entityManagerFactory
+     */
+    @PersistenceUnit
+    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
+
     /*
      * (non-Javadoc)
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
@@ -61,11 +71,17 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
     protected List<String> getDomainListInternal() {
         List<String> domains = new ArrayList<String>();
         EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final EntityTransaction transaction = entityManager.getTransaction();
         try {
+            transaction.begin();
             domains = entityManager.createNamedQuery("listDomainNames").getResultList();
         } catch (PersistenceException e) {
             getLogger().debug("Failed to list domains", e);
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
         } finally {
+            transaction.commit();
             entityManager.close();
         }
         if (domains.size() == 0) {
@@ -80,12 +96,18 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
      */
     public boolean containsDomain(String domain) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final EntityTransaction transaction = entityManager.getTransaction();
         try {
+            transaction.begin();
             JPADomain jpaDomain = (JPADomain) entityManager.createNamedQuery("findDomainByName").setParameter("name", domain).getSingleResult();
             return (jpaDomain != null) ? true : false;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to find domain", e);
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
         } finally {
+            transaction.commit();
             entityManager.close();
         }    
         return false;
@@ -101,7 +123,6 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             transaction.begin();
             JPADomain jpaDomain = new JPADomain(domain);
             entityManager.persist(jpaDomain);
-            transaction.commit();
             return true;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to save domain", e);
@@ -109,6 +130,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
                 transaction.rollback();
             }
         } finally {
+            transaction.commit();
             entityManager.close();
         }
         return false;
@@ -123,7 +145,6 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
         try {
             transaction.begin();
             entityManager.createNamedQuery("deleteDomainByName").setParameter("name", domain).executeUpdate();
-            transaction.commit();
             return true;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to remove domain", e);
@@ -131,19 +152,10 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
                 transaction.rollback();
             }
         } finally {
+            transaction.commit();
             entityManager.close();
         }
         return false;
-    }
-
-    /**
-     * Set the entity manager to use.
-     * 
-     * @param entityManagerFactory
-     */
-    @PersistenceUnit
-    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
-        this.entityManagerFactory = entityManagerFactory;
     }
 
 }
