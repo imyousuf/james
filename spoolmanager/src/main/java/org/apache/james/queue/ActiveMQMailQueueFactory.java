@@ -16,20 +16,45 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.queue;
 
+import java.util.HashMap;
+import java.util.Map;
 
-package org.apache.james;
+import javax.annotation.Resource;
+import javax.jms.ConnectionFactory;
 
 
 /**
- * MailServer implementation which use ActiveMQ to spool mails
+ * {@link MailQueueFactory} implementations which return {@link ActiveMQMailQueue} instances
  * 
  *
  */
-public class ActiveMQMailServer extends AbstractMailServer{
+public class ActiveMQMailQueueFactory implements MailQueueFactory{
 
-    @Override
-    protected String getToUri() {
-        return "activemq:queue:spool";
+    
+    private final Map<String, MailQueue> queues = new HashMap<String, MailQueue>();
+    private ConnectionFactory connectionFactory;
+    
+    @Resource(name="jmsConnectionFactory")
+    public void setConnectionFactory(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
     }
+    
+    
+    /*
+     * 
+     * (non-Javadoc)
+     * @see org.apache.james.queue.MailQueueFactory#getQueue(java.lang.String)
+     */
+    public synchronized MailQueue getQueue(String name) {
+        MailQueue queue = queues.get(name);
+        if (queue == null) {
+            queue = new ActiveMQMailQueue(connectionFactory, name);
+            queues.put(name, queue);
+        }
+
+        return queue;
+    }
+
 }

@@ -78,7 +78,7 @@
                 <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remotemanager"/>
-                <entry key="spool" value="spoolmanager"/>
+                <entry key="mailProcessor" value="spoolmanager"/>                
                 <entry key="mailserver" value="James"/>	
             </map>
         </property>
@@ -100,7 +100,7 @@
                 <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remoteManager"/>
-                <entry key="spool" value="spoolmanager"/>
+                <entry key="mailProcessor" value="spoolmanager"/>                
                 <entry key="mailserver" value="James"/>
                 <entry key="poster" value="James"/>
             </map>
@@ -124,16 +124,7 @@
         <camel:routeBuilder ref="processorRoute" /> 
     </camel:camelContext>
 
-    
-    <bean id="pollingjms"  class="org.apache.james.transport.camel.JMSSelectorPollingComponent"/>
-    
-    <!-- Build the camelroute from the spoolmanager.xml using ActiveMQ as producer and consumer-->
-    <bean id="spoolmanager" name="processorRoute" class="org.apache.james.transport.camel.ActiveMQProcessorRouteBuilder">
-        <property name="maxConcurrentConsumers" value="500"/>
-    </bean>
-
-
-
+   
     <!-- jms connection pooling  -->
     <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
         <property name="connectionFactory">
@@ -141,17 +132,14 @@
                 <property name="brokerURL" value="vm://localhost?broker.useJmx=false"/>
             </bean>
         </property>
+        <!--
+        <property name="transactionManager" ref="jmsTransactionManager"/>
+        -->
     </bean>
 
     <!-- setup spring jms TX manager -->
     <bean id="jmsTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    </bean>
-
-    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent" depends-on="broker">
-        <property name="connectionFactory" ref="jmsConnectionFactory"/>
-        <property name="transacted" value="true"/>
-        <property name="transactionManager" ref="jmsTransactionManager"/>  
     </bean>
     
     <bean id="broker" class="org.apache.activemq.xbean.BrokerFactoryBean">
@@ -159,16 +147,16 @@
         <property name="start" value="true" />
     </bean>
 
-    <bean id ="spoolMessageStore" class="org.apache.james.FileSpoolMessageStore">
-        <property name="spoolDirectory" value="file://var/mail/spool"/>
-    </bean> 
+    <bean id="mailQueueFactory" class="org.apache.james.queue.ActiveMQMailQueueFactory"/>
+        
+    <!-- Build the camelroute from the spoolmanager.xml 
+    <bean id="mailProcessor" name="processorRoute" class="org.apache.james.transport.camel.CamelMailProcessorList"/>
+
+    <bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager"/>
     
-    <bean id ="mailClaimCheck" class="org.apache.james.transport.camel.MailClaimCheck"/>
-    <bean id ="mailEnricher" class="org.apache.james.transport.camel.MailEnricher"/>
-
-
+    
     <!-- mailserver implementation which use activemq for spooling the mail -->
-    <bean id="mailserver" name="James" class="org.apache.james.ActiveMQMailServer"/>
+    <bean id="mailserver" name="James" class="org.apache.james.JamesMailServer"/>
 
     <bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
 

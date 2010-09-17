@@ -368,13 +368,7 @@
      <artifactId>camel-spring</artifactId>
      <scope>runtime</scope>
     </dependency>
-   <dependency>
-     <groupId>org.apache.activemq</groupId>
-     <artifactId>activemq-camel</artifactId>
-     <scope>runtime</scope>
-   </dependency>
-  
-   <dependency>
+    <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-spring</artifactId>
        <scope>runtime</scope>

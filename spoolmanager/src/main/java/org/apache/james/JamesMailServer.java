@@ -39,12 +39,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.CamelContextAware;
-import org.apache.camel.ExchangePattern;
-import org.apache.camel.Processor;
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.builder.RouteBuilder;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
@@ -58,9 +52,9 @@ import org.apache.james.impl.jamesuser.JamesUsersRepository;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.queue.MailQueue;
+import org.apache.james.queue.MailQueueFactory;
 import org.apache.james.services.MailServer;
-import org.apache.james.transport.camel.DisposeProcessor;
-import org.apache.james.transport.camel.JamesCamelConstants;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -76,8 +70,8 @@ import org.apache.mailet.MailAddress;
 
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractMailServer
-    implements MailServer, LogEnabled, Configurable, CamelContextAware {
+public class JamesMailServer
+    implements MailServer, LogEnabled, Configurable {
 
     /**
      * The software name and version
@@ -121,9 +115,9 @@ public abstract class AbstractMailServer
 
     private DNSService dns;
 
-    private ProducerTemplate producerTemplate;
-
-    private CamelContext context;
+    private MailQueueFactory queueFactory;
+    
+    private MailQueue queue;
 
     @Resource(name="domainlist")
     public void setDomainList(DomainList domains) {
@@ -135,9 +129,9 @@ public abstract class AbstractMailServer
         this.dns = dns;
     }
     
-    @Resource(name="producerTemplate")
-    public void setProducerTemplate(ProducerTemplate producerTemplate) {
-        this.producerTemplate = producerTemplate;
+    @Resource(name="mailQueueFactory")
+    public void setMailQueueFactory(MailQueueFactory queueFactory) {
+        this.queueFactory = queueFactory;
     }
     
     /*
@@ -160,11 +154,10 @@ public abstract class AbstractMailServer
     @PostConstruct
     public void init() throws Exception {
 
-        logger.info("JAMES init...");
-        // Add camel route
-        getCamelContext().addRoutes(new InjectionRouteBuilder());
-                
+        logger.info("JAMES init...");                
 
+        queue = queueFactory.getQueue("spool");
+        
         if (conf.getKeys("usernames").hasNext()) {
             HierarchicalConfiguration userNamesConf = conf.configurationAt("usernames");
 
@@ -309,7 +302,7 @@ public abstract class AbstractMailServer
      */
     public void sendMail(Mail mail) throws MessagingException {
         try {
-            producerTemplate.sendBodyAndHeader("direct:mailserver", ExchangePattern.InOnly, mail, JamesCamelConstants.JAMES_MAIL_STATE, mail.getState());
+            queue.enQueue(mail);
                         
         } catch (Exception e) {
             logger.error("Error storing message: " + e.getMessage(),e);
@@ -436,50 +429,5 @@ public abstract class AbstractMailServer
         }
     }
     
-    /**
-     * Return the camel endpoint uri which should get used
-     * 
-     * @return toUri
-     * 
-     */
-    protected abstract String getToUri();
-    
-    
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.camel.CamelContextAware#getCamelContext()
-     */
-    public CamelContext getCamelContext() {
-        return context;
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.CamelContext)
-     */
-    public void setCamelContext(CamelContext context) {      
-        this.context = context;
-    }
-    
-       
-    private final class InjectionRouteBuilder extends RouteBuilder {
-        @Override
-        public void configure() throws Exception {
-            Processor disposeProcessor = new DisposeProcessor();
-
-            from("direct:mailserver").inOnly()
-
-            // dispose the mail object if an exception was thrown while
-            // processing this route
-            .onException(Exception.class).process(disposeProcessor).end()
-
-            // dispose the mail object if route processing was complete
-           .onCompletion().process(disposeProcessor).end()
-
-           .transacted().pipeline().beanRef("mailClaimCheck").to(getToUri());
-        }
-
-    }
 
 }

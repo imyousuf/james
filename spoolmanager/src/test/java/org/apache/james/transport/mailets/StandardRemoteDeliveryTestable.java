@@ -30,7 +30,7 @@ import java.util.Properties;
 /**
  * RemoteDelivery extension to publish test-aware interfaces
  */
-public class StandardRemoteDeliveryTestable extends ActiveMQRemoteDelivery implements RemoteDeliveryTestable {
+public class StandardRemoteDeliveryTestable extends RemoteDelivery implements RemoteDeliveryTestable {
     
     public boolean logEnabled = true;
     private Tester tester;

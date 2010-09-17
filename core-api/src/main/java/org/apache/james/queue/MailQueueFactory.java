@@ -16,18 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.transport.camel;
+
+package org.apache.james.queue;
 
 /**
- * JMS based ProcessorRouteBuilder which use a JMS to consume and produce mails
+ * Factory for {@link MailQueue} 
  * 
- * If you want to use ActiveMQ as JMS implementation you should use {@link ActiveMQProcessorRouteBuilder}
+ *
  */
-public class JMSProcessorRouteBuilder extends ActiveMQProcessorRouteBuilder{
+public interface MailQueueFactory {
 
-
-	@Override
-    protected String getFromUri() {
-        return "jms:queue:spool ?" + getOptions();
-    }
+    /**
+     * {@link MailQueue} which is used for spooling the messages 
+     */
+    public final static String SPOOL = "spool";
+    
+    /**
+     * Return the {@link MailQueue} for the name. 
+     * 
+     * @param name
+     * @return queue
+     */
+    public MailQueue getQueue(String name);
 }

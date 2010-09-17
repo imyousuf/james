@@ -965,26 +965,7 @@
       <version>${camel.version}</version>
       <scope>runtime</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
-      <version>${activemq.version}</version>
-      <scope>runtime</scope>
-       <exclusions>
-        <exclusion>
-          <groupId>com.sun.jersey.contribs</groupId>
-          <artifactId>jersey-spring</artifactId>
-        </exclusion>  
-        <exclusion>
-          <groupId>org.apache.camel</groupId>
-          <artifactId>camel-ruby</artifactId>
-        </exclusion>  
-         <exclusion>
-          <groupId>org.apache.camel</groupId>
-          <artifactId>camel-web</artifactId>
-        </exclusion>          
-      </exclusions>
-    </dependency>
+    
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
@@ -1032,10 +1013,10 @@
     <profile>
       <id>geronimo</id>
       <properties>
-		    <javax.mail.groupId>org.apache.geronimo.javamail</javax.mail.groupId>
-		    <javax.mail.artifactId>geronimo-javamail_1.4_mail</javax.mail.artifactId>
-		    <javax.activation.groupId>org.apache.geronimo.specs</javax.activation.groupId>
-		    <javax.activation.artifactId>geronimo-activation_1.1_spec</javax.activation.artifactId>
+        <javax.mail.groupId>org.apache.geronimo.javamail</javax.mail.groupId>
+        <javax.mail.artifactId>geronimo-javamail_1.4_mail</javax.mail.artifactId>
+        <javax.activation.groupId>org.apache.geronimo.specs</javax.activation.groupId>
+        <javax.activation.artifactId>geronimo-activation_1.1_spec</javax.activation.artifactId>
       </properties>
     </profile>
   </profiles>

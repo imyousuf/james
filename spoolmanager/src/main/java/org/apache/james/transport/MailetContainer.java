@@ -16,22 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.transport;
 
+import java.util.List;
 
-package org.apache.james;
+import org.apache.mailet.MailetConfig;
+import org.apache.mailet.MatcherConfig;
 
 
 /**
- * MailServer implementation which use JMS to spool mails
- * 
- * If you use ActiveMQ for JMS you should use {@link ActiveMQMailServer}
- * 
- *
+ * interface for mailet/matcher-containing processors.
  */
-public class JMSMailServer extends AbstractMailServer{
+public interface MailetContainer {
+    /**
+     * retrieve mailet configuration data for introspection
+     * @return List<MailetConfig>
+     */
+    List<MailetConfig> getMailetConfigs();
 
-    @Override
-    protected String getToUri() {
-        return "jms:queue:spool";
-    }
+    /**
+     * retrieve matcher configuration data for introspection
+     * @return List<MatcherConfig>
+     */
+    List<MatcherConfig> getMatcherConfigs();
+
 }
+

@@ -21,7 +21,6 @@ package org.apache.james.transport.remotedeliverytester;
 
 import javax.mail.MessagingException;
 
-import org.apache.camel.CamelContextAware;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.Mail;
@@ -33,7 +32,7 @@ import org.apache.mailet.MailetConfig;
  * <p>Each RemoteDelivery to be tested should be estended throuth this and 
  * it should take the session from Tester.obtainSession(Properties)</p>
  */
-public interface RemoteDeliveryTestable extends CamelContextAware{
+public interface RemoteDeliveryTestable{
     
     void setRemoteDeliveryTester(Tester tester);
     void setDNSService(DNSService dnsServer);

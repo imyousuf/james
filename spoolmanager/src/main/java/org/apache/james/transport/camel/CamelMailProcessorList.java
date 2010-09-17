@@ -29,7 +29,10 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
+import org.apache.camel.CamelExecutionException;
+import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.ChoiceDefinition;
 import org.apache.camel.processor.aggregate.UseLatestAggregationStrategy;
@@ -38,11 +41,13 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.services.SpoolManager;
+import org.apache.james.transport.MailProcessor;
 import org.apache.james.transport.MailetConfigImpl;
+import org.apache.james.transport.MailetContainer;
 import org.apache.james.transport.MailetLoader;
 import org.apache.james.transport.MatcherConfigImpl;
 import org.apache.james.transport.MatcherLoader;
+import org.apache.james.transport.MailProcessorList;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
@@ -52,10 +57,12 @@ import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.base.MatcherInverter;
 
 /**
- * Build up the Camel Route by parsing the spoolmanager.xml configuration file. 
+ * Build up the Camel Routes by parsing the spoolmanager.xml configuration file. 
+ * 
+ * It also offer the {@link MailProcessorList} implementation which allow to inject {@link Mail} into the routes
  * 
  */
-public abstract class AbstractProcessorRouteBuilder extends RouteBuilder implements SpoolManager, Configurable, LogEnabled {
+public class CamelMailProcessorList extends RouteBuilder implements Configurable, LogEnabled, MailProcessorList {
 
     private MatcherLoader matcherLoader;
     private HierarchicalConfiguration config;
@@ -79,6 +86,7 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
     }
 
     private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
+    private ProducerTemplate producerTemplate;
     /*
      * (non-Javadoc)
      * @see org.apache.camel.builder.RouteBuilder#configure()
@@ -86,13 +94,9 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
     @SuppressWarnings("unchecked")
     @Override
     public void configure() throws Exception {
-
         Processor terminatingMailetProcessor = new MailetProcessor(new TerminatingMailet(), logger);
         Processor disposeProcessor = new DisposeProcessor();
-        
-        
-        from(getFromUri()).recipientList().method(ProcessorRecipientList.class);
-        
+        Processor mailProcessor = new MailCamelProcessor();
         
         List<HierarchicalConfiguration> processorConfs = config.configurationsAt("processor");
         for (int i = 0; i < processorConfs.size(); i++) {
@@ -105,7 +109,7 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
             matchers.put(processorName, new ArrayList<Matcher>());
 
             // Check which route we need to go
-            ChoiceDefinition processorDef = from("direct:processor." + processorName)
+            ChoiceDefinition processorDef = from(getEndpoint(processorName))
             
                 // exchange mode is inOnly
                 .inOnly()
@@ -114,7 +118,7 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                 .transacted()
                
                 // check that body is not null, just to be sure...
-                .choice().when(body().isNotNull()).beanRef("mailEnricher");
+                .choice().when(body().isNotNull());
             
             final List<HierarchicalConfiguration> mailetConfs = processorConf.configurationsAt("mailet");
             // Loop through the mailet configuration, load
@@ -228,8 +232,8 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                             .when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop()
                              
                             // check if the state of the mail is the same as the
-                            // current processor. If not just route it to the spool again
-                            .when(new MailStateNotEquals(processorName)).beanRef("mailClaimCheck").recipientList().method(ProcessorRecipientList.class).stop()
+                            // current processor.
+                            .when(new MailStateNotEquals(processorName)).process(mailProcessor).stop()
                             
                             // end first choice
                             .end()
@@ -262,10 +266,12 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
                     // end the choice
                     .end()
                     
-                     // route it to the spool again
-                    .beanRef("mailClaimCheck").recipientList().method(ProcessorRecipientList.class);
+                     // route it to the next processor
+                    .process(mailProcessor);
                   
         }
+                
+        producerTemplate = getContext().createProducerTemplate();
     }
 
 
@@ -320,37 +326,6 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.services.SpoolManager#getMailetConfigs(java.lang.String)
-     */
-    public List<MailetConfig> getMailetConfigs(String processorName) {
-        List<MailetConfig> mailetConfigs = new ArrayList<MailetConfig>();
-        Iterator<Mailet> iterator = mailets.get(processorName).iterator();
-        while (iterator.hasNext()) {
-            Mailet mailet = (Mailet) iterator.next();
-            MailetConfig mailetConfig = mailet.getMailetConfig();
-            if (mailetConfig == null) mailetConfigs.add(new MailetConfigImpl()); // placeholder
-            else mailetConfigs.add(mailetConfig);
-        }
-        return mailetConfigs; 
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.services.SpoolManager#getMatcherConfigs(java.lang.String)
-     */
-    public List<MatcherConfig> getMatcherConfigs(String processorName) {
-        List<MatcherConfig> matcherConfigs = new ArrayList<MatcherConfig>();
-        Iterator<Matcher> iterator = matchers.get(processorName).iterator();
-        while (iterator.hasNext()) {
-            Matcher matcher = (Matcher) iterator.next();
-            MatcherConfig matcherConfig = matcher.getMatcherConfig();
-            if (matcherConfig == null) matcherConfigs.add(new MatcherConfigImpl()); // placeholder
-            else matcherConfigs.add(matcherConfig);
-        }      
-        return matcherConfigs;
-    }
 
     /*
      * (non-Javadoc)
@@ -406,13 +381,101 @@ public abstract class AbstractProcessorRouteBuilder extends RouteBuilder impleme
             return TERMINATING_MAILET_NAME;
         }
     }
+
+    /**
+     * Return the endpoint for the processorname. 
+     * 
+     * This will return a "direct" endpoint. 
+     * 
+     * @param processorName
+     * @return endPoint
+     */
+    protected String getEndpoint(String processorName) {
+        return "direct:processor." + processorName;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.transport.MailProcessor#service(org.apache.mailet.Mail)
+     */
+    public void service(Mail mail) throws MessagingException {
+        try {
+            producerTemplate.sendBody(getEndpoint(mail.getState()), mail);
+        } catch (CamelExecutionException ex) {
+            throw new MessagingException("Unable to process mail " + mail.getName(),ex);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.transport.ProcessorList#getProcessor(java.lang.String)
+     */
+    public MailProcessor getProcessor(String name) {
+        return new ChildMailProcessor(name);
+    }
+    
     
     /**
-     * Return the uri for consuming mail
+     * {@link Processor} which just call the {@link CamelMailProcessorList#service(Mail) method
      * 
-     * @return consumerUri
+     *
      */
-    protected abstract String getFromUri();
+    private final class MailCamelProcessor implements Processor {
 
-  
+        public void process(Exchange exchange) throws Exception {
+            service(exchange.getIn().getBody(Mail.class));
+        }
+
+    }
+
+    /*
+     * 
+     */
+    private final class ChildMailProcessor implements MailProcessor, MailetContainer {
+
+        private String processorName;
+
+        public ChildMailProcessor(String processorName) {
+            this.processorName = processorName;
+        }
+        
+        public void service(Mail mail) throws MessagingException {
+            // TODO: Allow to only run a part of the route
+            
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.transport.MailetContainer#getMailetConfigs()
+         */
+        public List<MailetConfig> getMailetConfigs() {
+            List<MailetConfig> mailetConfigs = new ArrayList<MailetConfig>();
+            Iterator<Mailet> iterator = mailets.get(processorName).iterator();
+            while (iterator.hasNext()) {
+                Mailet mailet = (Mailet) iterator.next();
+                MailetConfig mailetConfig = mailet.getMailetConfig();
+                if (mailetConfig == null) mailetConfigs.add(new MailetConfigImpl()); // placeholder
+                else mailetConfigs.add(mailetConfig);
+            }
+            return mailetConfigs; 
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.transport.MailetContainer#getMatcherConfigs()
+         */
+        public List<MatcherConfig> getMatcherConfigs() {
+            List<MatcherConfig> matcherConfigs = new ArrayList<MatcherConfig>();
+            Iterator<Matcher> iterator = matchers.get(processorName).iterator();
+            while (iterator.hasNext()) {
+                Matcher matcher = (Matcher) iterator.next();
+                MatcherConfig matcherConfig = matcher.getMatcherConfig();
+                if (matcherConfig == null) matcherConfigs.add(new MatcherConfigImpl()); // placeholder
+                else matcherConfigs.add(matcherConfig);
+            }      
+            return matcherConfigs;
+        }
+        
+    }
+
 }
