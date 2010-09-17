@@ -83,6 +83,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             List<JPAVirtualUser> virtualUsers = entityManager.createNamedQuery("selectMappings")
                 .setParameter("user", user)
                 .setParameter("domain", domain).getResultList();
+            transaction.commit();
             if(virtualUsers.size() > 0) {
                 return virtualUsers.get(0).getTargetAddress();
             }
@@ -92,7 +93,6 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 transaction.rollback();
             }
         } finally {
-            transaction.commit();
             entityManager.close();
         }
         return null;
@@ -109,6 +109,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             List<JPAVirtualUser> virtualUsers = entityManager.createNamedQuery("selectUserDomainMapping")
                 .setParameter("user", user)
                 .setParameter("domain", domain).getResultList();
+            transaction.commit();
             if (virtualUsers.size() > 0) {
                 return VirtualUserTableUtil.mappingToCollection(virtualUsers.get(0).getTargetAddress());
             }
@@ -118,7 +119,6 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 transaction.rollback();
             }
         } finally {
-            transaction.commit();
             entityManager.close();
         }
         return null;
@@ -134,6 +134,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
         try {
             transaction.begin();
             List<JPAVirtualUser> virtualUsers = entityManager.createNamedQuery("selectAllMappings").getResultList();
+            transaction.commit();
             for (JPAVirtualUser virtualUser: virtualUsers) {
                 mapping.put(virtualUser.getUser()+ "@" + virtualUser.getDomain(), VirtualUserTableUtil.mappingToCollection(virtualUser.getTargetAddress()));
             }
@@ -144,7 +145,6 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 transaction.rollback();
             }
         } finally {
-            transaction.commit();
             entityManager.close();
         }
         return null;
@@ -182,6 +182,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 .setParameter("targetAddress", mapping)
                 .setParameter("user", user)
                 .setParameter("domain", domain).executeUpdate();
+            transaction.commit();
             if (updated > 0) {
                 return true;
             }
@@ -191,7 +192,6 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 transaction.rollback();
             }
         } finally {
-            transaction.commit();
             entityManager.close();
         }
         return false;
@@ -215,6 +215,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 .setParameter("user", user)
                 .setParameter("domain", domain)
                 .setParameter("targetAddress", mapping).executeUpdate();
+            transaction.commit();
             if (deleted > 0) {
                 return true;
             }
@@ -224,7 +225,6 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 transaction.rollback();
             }
         } finally {
-            transaction.commit();
             entityManager.close();
         }
         return false;
@@ -245,6 +245,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             transaction.begin();
             JPAVirtualUser jpaVirtualUser = new JPAVirtualUser(user, domain, mapping);
             entityManager.persist(jpaVirtualUser);
+            transaction.commit();
             return true;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to save virtual user", e);
@@ -252,7 +253,6 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 transaction.rollback();
             }
         } finally {
-            transaction.commit();
             entityManager.close();
         }
         return false;
