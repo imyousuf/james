@@ -149,7 +149,7 @@
 
     <bean id="mailQueueFactory" class="org.apache.james.queue.ActiveMQMailQueueFactory"/>
         
-    <!-- Build the camelroute from the spoolmanager.xml 
+    <!-- Build the camelroute from the spoolmanager.xml -->
     <bean id="mailProcessor" name="processorRoute" class="org.apache.james.transport.camel.CamelMailProcessorList"/>
 
     <bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager"/>
