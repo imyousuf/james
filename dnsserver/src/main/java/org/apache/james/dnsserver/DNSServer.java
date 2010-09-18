@@ -16,10 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.dnsserver;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -45,20 +55,6 @@ import org.xbill.DNS.ReverseMap;
 import org.xbill.DNS.TXTRecord;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 /**
  * Provides DNS client functionality to services running

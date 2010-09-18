@@ -60,15 +60,14 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer{
 
     
     @Override
-    protected int getDefaultPort() {
+    public int getDefaultPort() {
         return 24;
     }
 
     @Override
-    protected String getServiceType() {
+    public String getServiceType() {
         return "LMTP";
     }
-
     
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {

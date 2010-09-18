@@ -93,6 +93,10 @@
       <artifactId>james-server-core-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-dnsserver-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-api</artifactId>
     </dependency>
