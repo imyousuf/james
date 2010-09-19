@@ -43,6 +43,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
+import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.activemq.pool.PooledSession;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
@@ -127,6 +128,7 @@ public class ActiveMQMailQueue implements MailQueue {
     public void deQueue(DequeueOperation operation) throws MailboxException, MessagingException {   
         Connection connection = null;
         Session session = null;
+        Message message;
         try {
             connection = connectionFactory.createConnection();
             connection.start();
@@ -134,10 +136,19 @@ public class ActiveMQMailQueue implements MailQueue {
             session = connection.createSession(true, Session.SESSION_TRANSACTED);
             Queue queue = session.createQueue(queuename);
             MessageConsumer consumer = session.createConsumer(queue);
-            
-            Mail mail = createMail(consumer.receive());
+            message = consumer.receive();
+            Mail mail = createMail(message);
             operation.process(mail);
             session.commit();
+            if (message instanceof ActiveMQBlobMessage) {
+                
+                // delete the file
+                try {
+                    ((ActiveMQBlobMessage) message).deleteFile();
+                } catch (IOException e) {
+                    logger.info("Unable to delete blob message file for mail " + mail.getName());
+                }
+            }
         } catch (JMSException e) {
             throw new MailboxException("Unable to dequeue next message", e);
         } catch (MessagingException e) {
