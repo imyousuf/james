@@ -50,7 +50,7 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
         properties = new HashMap<String, String>();
         properties.put("openjpa.ConnectionDriverName", org.apache.derby.jdbc.EmbeddedDriver.class.getName());
         properties.put("openjpa.ConnectionURL", "jdbc:derby:memory:JPAVirtualUserTableTestDB;create=true");
-        properties.put("openjpa.Log", "JDBC=WARN, SQL=TRACE, Runtime=WARN");
+        properties.put("openjpa.Log", "JDBC=WARN, SQL=WARN, Runtime=WARN");
         properties.put("openjpa.ConnectionFactoryProperties", "PrettyPrint=true, PrettyPrintLineLength=72");
         properties.put("openjpa.jdbc.SynchronizeMappings", "buildSchema(ForeignKeys=true)");
         properties.put("openjpa.MetaDataFactory", "jpa(Types=" + JPAVirtualUser.class.getName() +")");
