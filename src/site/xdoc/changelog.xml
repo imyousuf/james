@@ -29,11 +29,11 @@
 <p>This document records what was done between releases.  As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.
 </p>
 
-<section name="Version 2.3.0 Final">
+<section name="Version 3.0.0 Final">
 <p>Released 23 October 2006</p>
 </section>
 
-<section name="Version 2.3.0rc5">
+<section name="Version 3.0.0rc5">
 <p>Released 12 October 2006</p>
 <p>Detail</p>
 <subsection name="Bug"></subsection>
@@ -45,7 +45,7 @@
 </ul>
 </section>
 
-<section name="Version 2.3.0rc4">
+<section name="Version 3.0.0rc4">
 <p>Released 2 October 2006</p>
 <p>Detail</p>
 <subsection name="Bug"></subsection>
@@ -58,11 +58,11 @@
 <subsection name="Task"></subsection>
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-618'>JAMES-618</a>] - Move server-site documents from james/server repository to james/site/server repository</li>
-<li>[<a href='http://issues.apache.org/jira/browse/JAMES-634'>JAMES-634</a>] - Fix m2 projects to not lookup dependencies on ibiblio, to simplify the website build and to include 2.2.0 and 2.3.0 docs</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-634'>JAMES-634</a>] - Fix m2 projects to not lookup dependencies on ibiblio, to simplify the website build and to include 2.2.0 and 3.0.0 docs</li>
 </ul>
 </section>
 
-<section name="Version 2.3.0rc3">
+<section name="Version 3.0.0rc3">
 <p>Released 15 September 2006</p>
 <p>Detail</p>
 <subsection name="Bug"></subsection>
@@ -72,7 +72,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-591'>JAMES-591</a>] - LogMessage mailet use wrong configutre option</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-594'>JAMES-594</a>] - JVM_OPTS get passed two times</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-603'>JAMES-603</a>] - Outgoing spooling stuck over old mails when more than 1000 old mails are present in outgoing.</li>
-<li>[<a href='http://issues.apache.org/jira/browse/JAMES-609'>JAMES-609</a>] - MailImpl.setMessage and possible NPE: regression from 2.2.0 and 2.3.0rc1</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-609'>JAMES-609</a>] - MailImpl.setMessage and possible NPE: regression from 2.2.0 and 3.0.0rc1</li>
 </ul>
 <subsection name="Task"></subsection>
 <ul>
@@ -81,11 +81,11 @@
 </ul>
 <subsection name="Wish"></subsection>
 <ul>
-<li>[<a href='http://issues.apache.org/jira/browse/JAMES-581'>JAMES-581</a>] - Add an "Upgrade documentation" to our docs explaining the upgrade from 2.2.0 to 2.3.0</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-581'>JAMES-581</a>] - Add an "Upgrade documentation" to our docs explaining the upgrade from 2.2.0 to 3.0.0</li>
 </ul>
 </section>
 
-<section name="Version 2.3.0rc2">
+<section name="Version 3.0.0rc2">
 <p>Released 12 August 2006</p>
 <p>Detail</p>
 <subsection name="Bug"></subsection>
@@ -107,7 +107,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-582'>JAMES-582</a>] - Released packages confusions (name, artifacts)</li>
 </ul>
 </section>
-<section name="Version 2.3.0rc1">
+<section name="Version 3.0.0rc1">
 <p>Released 25 July 2006</p>
 <p>Detail</p>
 <subsection name="Bug"></subsection>
@@ -120,7 +120,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-568'>JAMES-568</a>] - reorganize download area structure</li>
 </ul>
 </section>
-<section name="Version 2.3.0b3">
+<section name="Version 3.0.0b3">
 <p>Released 15 July 2006</p>
 <p>Detail</p>
 <subsection name="Bug"></subsection>
@@ -131,7 +131,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-561'>JAMES-561</a>] - User aliasing does not work</li>
 </ul>
 </section>
-<section name="Version 2.3.0b2">
+<section name="Version 3.0.0b2">
 <p>Unreleased</p>
 <p>Detail</p>
 <subsection name="Bug"></subsection>
@@ -156,7 +156,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-536'>JAMES-536</a>] - Decide what to do with repository implementations configured by default (db/dbfile/file)</li>
 </ul>
 </section>
-<section name="Version 2.3.0b1">
+<section name="Version 3.0.0b1">
 <p>Released 9 June 2006</p>
 <p>Details</p>
 <subsection name="Bug"></subsection>
@@ -173,7 +173,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-513'>JAMES-513</a>] - Rename AddHeader and AddHeaderHandler</li>
 </ul>
 </section>
-<section name="Version 2.3.0a3">
+<section name="Version 3.0.0a3">
 <p>Details</p>
 <subsection name="Bug"></subsection>
 <ul>
@@ -186,7 +186,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-504'>JAMES-504</a>] - RemoteDelivery threads do not unlock delayed mails</li>
 </ul>
 </section>
-<section name="Version 2.3.0a2">
+<section name="Version 3.0.0a2">
 <p>Details</p>
 <subsection name="Bug"></subsection>
 <ul>
@@ -198,10 +198,10 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-447'>JAMES-447</a>] - ClassCastException when storing multipart message without Msg ID</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-452'>JAMES-452</a>] - Broken messages after passing james</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-455'>JAMES-455</a>] - AddFooter mailet throw UnsupportedEncodingException</li>
-<li>[<a href='http://issues.apache.org/jira/browse/JAMES-458'>JAMES-458</a>] - SSL not working in James 2.3.0a1</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-458'>JAMES-458</a>] - SSL not working in James 3.0.0a1</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-459'>JAMES-459</a>] - Incompatible/Duplicate excalibur-cli-1.0.jar library in classpath</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-460'>JAMES-460</a>] - Running James as an NT service</li>
-<li>[<a href='http://issues.apache.org/jira/browse/JAMES-462'>JAMES-462</a>] - Error in message.getLineCount (Error using NotifyPostmaster with James 2.3)</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-462'>JAMES-462</a>] - Error in message.getLineCount (Error using NotifyPostmaster with James 3.0)</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-466'>JAMES-466</a>] - java.sql.SQLException: Error reading from InputStream java.io.IOException in current trunk</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-467'>JAMES-467</a>] - corrupt messages in james trunk</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-470'>JAMES-470</a>] - DNSRBLHandler config error</li>
@@ -222,7 +222,7 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-445'>JAMES-445</a>] - Enforcement for HELO/EHLO commands before MAIL</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-450'>JAMES-450</a>] - "LocalUsers" user repository should be wired in the assembly and not hardcoded in components</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-469'>JAMES-469</a>] - Make SMTP message queuing configurable (as an Handler)</li>
-<li>[<a href='http://issues.apache.org/jira/browse/JAMES-477'>JAMES-477</a>] - Configure option to disable heloEhloEnforcement to be compatible with james &lt; 2.3.0</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-477'>JAMES-477</a>] - Configure option to disable heloEhloEnforcement to be compatible with james &lt; 3.0.0</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-478'>JAMES-478</a>] - Only check against RBL if the client is not allowed to relay</li>
 </ul>
     
@@ -245,10 +245,10 @@
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-451'>JAMES-451</a>] - Check for valid domain in HELO</li>
 </ul>
 </section>
-<section name="Version 2.3.0a1">
+<section name="Version 3.0.0a1">
 <p>Released 15 February 2006</p>
 <p>
-James 2.3.0a1 is "storage" compatible with 2.2.0 (It uses the same files/db formats of James 2.2.0). Configuration should be updated following this instructions. Mailets developed against 2.2.0 are not binary compatible with 2.3.0 but rebuilding mailets in 2.3.0a1 should be an easy task: just replace "Component"s with "Service"s and replace "MailStore" with "Store" and rebuild. Below are some highlights of features and changes already available:
+James 3.0.0a1 is "storage" compatible with 2.2.0 (It uses the same files/db formats of James 2.2.0). Configuration should be updated following this instructions. Mailets developed against 2.2.0 are not binary compatible with 3.0.0 but rebuilding mailets in 3.0.0a1 should be an easy task: just replace "Component"s with "Service"s and replace "MailStore" with "Store" and rebuild. Below are some highlights of features and changes already available:
 <ul>
 <li>Phoenix container upgraded to the latest trunk: better classpath management for mailets</li>
 <li>Derby support: also made it the default storage engine</li>

@@ -20,15 +20,15 @@
 <document>
 
  <properties>
-  <title>James 2.3 - Using TLS</title>
+  <title>James 3.0 - Using TLS</title>
  </properties>
 
 <body>
 
-<section name="James 2.3 - Using TLS">
+<section name="James 3.0 - Using TLS">
 
 <p>
-This document explains how to enable James 2.3 services to use Transport Layer Security (TLS) for encrypted client-server communication.</p>
+This document explains how to enable James 3.0 services to use Transport Layer Security (TLS) for encrypted client-server communication.</p>
 
 <subsection name="Making TLS/SSL Server Sockets Available Inside James">
 <p>James uses the Sun Java Secure Sockets Extension (JSSE) infrastructure to provide TLS/SSL 

@@ -29,7 +29,7 @@
 James 3.0-M1 represents the leading edge of development. This codestream has many more
 features than the 2.x code, but is not as well tested in production. The internal APIs
 are under current validation and are expected to be subject to change. Reasonable
-configuration compatibility has been retained with 2.3.
+configuration compatibility has been retained with 3.0.
 </p>
 <p>
 The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure Java SMTP, IMAP4 and POP3 Mail 
@@ -52,10 +52,10 @@ The stable and robust Spring container provides a strong foundation for the Jame
 James 3.0-M1 requires Java 1.5 but Java 1.6 is recommended.
 </p>
 <p>
-A migration guide for users willing to upgrade from 2.3 to 3.0-M1 is under redaction.
+A migration guide for users willing to upgrade from 3.0 to 3.0-M1 is under redaction.
 </p>
 <p>
-The NNTP News server present in James 2.3 has been removed from the 3.0 release line.
+The NNTP News server present in James 3.0 has been removed from the 3.0 release line.
 </p>
 <p>
 This documentation is intended to be an introduction to the concepts behind the James implementation, as well 

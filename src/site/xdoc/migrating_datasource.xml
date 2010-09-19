@@ -29,7 +29,7 @@
 <section name="Migrating from Avalon database connections to DataSource">
 
 <p>
-  In James version 2.3, we expose database connections via the javax.sql.DataSource.  This document describes how to update code using James previous database connectivity (Avalon's DataSourceComponent).
+  In James version 3.0, we expose database connections via the javax.sql.DataSource.  This document describes how to update code using James previous database connectivity (Avalon's DataSourceComponent).
 </p>
 <ol>
 <li>Remove references to DataSourceSelector.</li>

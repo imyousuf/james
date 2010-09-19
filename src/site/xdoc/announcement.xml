@@ -19,12 +19,12 @@
 -->
 <document>
  <properties>
-  <title>James 2.3 - Release Announcement</title>
+  <title>James 3.0 - Release Announcement</title>
  </properties>
 <body>
 <section name="Release Announcement">
 <p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) Project is happy to announce the release 
-of version 2.3 of the Apache James server.</p>
+of version 3.0 of the Apache James server.</p>
 
 <p>James is a 100% pure Java Mail and News server designed to be a complete and portable enterprise 
 mail engine solution.  James supports currently available IETF protocols, including SMTP,POP3 and NNTP 
@@ -37,7 +37,7 @@ API.  With its Mailet pipeline architecture, James can be used not only to provi
 services, but also to implement custom e-mail applications.</p>
 
 <p>The James mail server is deployed in production environments and has proven itself to be a robust 
-and high performance mail solution.  Tests indicate that version 2.3 is able to maintain a constant 
+and high performance mail solution.  Tests indicate that version 3.0 is able to maintain a constant 
 mail throughput rate of thousands of messages/minute for continuous periods.</p>
 
 <p>The James Community is also happy to announce the beginning of the design phase for James version 

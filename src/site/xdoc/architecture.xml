@@ -45,7 +45,7 @@
 
   <p>
     James is built on top of Avalon, the Java Apache Server Framework.
-    Versions 2.3 of James use a modified trunk version of Avalon code.
+    Versions 3.0 of James use a modified trunk version of Avalon code.
     Please the JAMES_PHOENIX.txt file shipped with the src for information.
     
     The <code>lib</code> directory includes date-stamped jars of the various Avalon libraries.

@@ -20,7 +20,7 @@
 <document>
 
  <properties>
-  <title>James 2.3 - Upgrading</title>
+  <title>James 3.0 - Upgrading</title>
  </properties>
 <body>
 <section name="Upgrading Comments">
@@ -41,7 +41,7 @@ installation in this place.</p>
 </section>
 <section name="Copy and modify config.xml">
 <subsection name="Remove the fetchpop block">
-<p>It's necessary to remove the fetchpop block in config.xml because fetchpop was removed in 2.3.</p>
+<p>It's necessary to remove the fetchpop block in config.xml because fetchpop was removed in 3.0.</p>
 </subsection>
 <subsection name="Move mailet and matcher packages config">
 <p>Move &lt;mailetpackages&gt; and &lt;matcherpackages&gt; outside of the &lt;spoolmanager&gt; block.</p>

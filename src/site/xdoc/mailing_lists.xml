@@ -19,14 +19,14 @@
 -->
 <document>
  <properties>
-  <title>James 2.3 - Creating Mailing Lists</title>
+  <title>James 3.0 - Creating Mailing Lists</title>
  </properties>
 <body>
 
 <section name="How To Create Mailing Lists">
 <p>One of the frequent questions on the James-User Mailing List is how
 to create a mailing list. This document explains one way of using the
-currently supplied Matchers and Mailets in James v2.3.</p>
+currently supplied Matchers and Mailets in James v3.0.</p>
 
 <p>Basically, the process requires creating two &lt;mailet&gt; entries
 and a repository.  The first mailet handles list commands (currently
