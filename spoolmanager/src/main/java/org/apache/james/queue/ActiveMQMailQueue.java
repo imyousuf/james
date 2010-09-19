@@ -135,7 +135,7 @@ public class ActiveMQMailQueue implements MailQueue {
             Queue queue = session.createQueue(queuename);
             MessageConsumer consumer = session.createConsumer(queue);
             
-            Mail mail = createMail((BytesMessage)consumer.receive());
+            Mail mail = createMail(consumer.receive());
             operation.process(mail);
             session.commit();
         } catch (JMSException e) {
