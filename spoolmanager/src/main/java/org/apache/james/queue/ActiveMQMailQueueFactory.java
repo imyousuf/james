@@ -50,7 +50,7 @@ public class ActiveMQMailQueueFactory implements MailQueueFactory{
     public synchronized MailQueue getQueue(String name) {
         MailQueue queue = queues.get(name);
         if (queue == null) {
-            queue = new ActiveMQMailQueue(connectionFactory, name);
+            queue = new ActiveMQMailQueue(connectionFactory, name, -1);
             queues.put(name, queue);
         }
 

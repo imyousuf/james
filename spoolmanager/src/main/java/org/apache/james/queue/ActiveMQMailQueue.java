@@ -18,8 +18,6 @@
  ****************************************************************/
 package org.apache.james.queue;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,18 +27,19 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
+import org.apache.activemq.BlobMessage;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
@@ -56,12 +55,15 @@ import org.apache.mailet.MailAddress;
  * When a {@link Mail} attribute is found and is not one of the supported primitives, then the 
  * toString() method is called on the attribute value to convert it 
  * 
+ * TODO: Make it possible to use {@link BlobMessage} for large messages
+ * 
  *
  */
 public class ActiveMQMailQueue implements MailQueue {
 
     private final String queuename;
     private final ConnectionFactory connectionFactory;
+    private long messageTreshold = -1;
 
     private final static String JAMES_MAIL_RECIPIENTS = "JAMES_MAIL_RECIPIENTS";
     private final static String JAMES_MAIL_SENDER = "JAMES_MAIL_SENDER";
@@ -76,10 +78,12 @@ public class ActiveMQMailQueue implements MailQueue {
     private final static String JAMES_MAIL_ATTRIBUTE_NAMES = "JAMES_MAIL_ATTRIBUTE_NAMES";
     private final static int NO_DELAY = -1;
     
-    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename) {
+    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, long messageTreshold) {
         this.connectionFactory = connectionFactory;     
         this.queuename = queuename;
+        this.messageTreshold  = messageTreshold;
     }
+    
     
     /*
      * (non-Javadoc)
@@ -96,7 +100,7 @@ public class ActiveMQMailQueue implements MailQueue {
             Queue queue = session.createQueue(queuename);
             MessageConsumer consumer = session.createConsumer(queue);
             
-            Mail mail = createMail((ObjectMessage)consumer.receive());
+            Mail mail = createMail((BytesMessage)consumer.receive());
             operation.process(mail);
             session.commit();
         } catch (JMSException e) {
@@ -142,7 +146,6 @@ public class ActiveMQMailQueue implements MailQueue {
         Session session = null;
         try {
 
-            
             connection = connectionFactory.createConnection();
             connection.start();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -176,6 +179,7 @@ public class ActiveMQMailQueue implements MailQueue {
       
     }
 
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail)
@@ -190,8 +194,27 @@ public class ActiveMQMailQueue implements MailQueue {
         return "MailQueue:" + queuename;
     }
     
-    private Mail createMail(ObjectMessage message) throws MailQueueException, JMSException {
+    private Mail createMail(BytesMessage message) throws MailQueueException, JMSException {
         MailImpl mail = new MailImpl();
+        populateMail(message, mail);
+        
+        try {
+            
+            mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), new BytesMessageInputStream(message))));
+        } catch (MessagingException e) {
+            throw new MailQueueException("Unable to prepare Mail for dequeue", e);
+        }
+        return mail; 
+    }
+    
+    /**
+     * Populate Mail with values from Message. This exclude the Mail message
+     * 
+     * @param message
+     * @param mail
+     * @throws JMSException
+     */
+    private void populateMail(Message message, MailImpl mail) throws JMSException {
 
         mail.setErrorMessage(message.getStringProperty(JAMES_MAIL_ERROR_MESSAGE));
         mail.setLastUpdated(new Date(message.getLongProperty(JAMES_MAIL_LAST_UPDATED)));
@@ -235,74 +258,15 @@ public class ActiveMQMailQueue implements MailQueue {
         }
         
         mail.setState(message.getStringProperty(JAMES_MAIL_STATE));
-            
-        try {
-            mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), new ByteArrayInputStream((byte[])message.getObject()))));
-        } catch (MessagingException e) {
-            throw new MailQueueException("Unable to prepare Mail for dequeue", e);
-        }
-        return mail; 
+
     }
-    
-    @SuppressWarnings("unchecked")
     private Message createMessage(Session session, Mail mail, long delayInMillis) throws MailQueueException{
         try {
-            ObjectMessage message  = session.createObjectMessage();
+            BytesMessage message  = session.createBytesMessage();
      
-            
-            if (delayInMillis > 0) {
-                // This will get picked up by activemq for delay message
-                message.setLongProperty(org.apache.activemq.ScheduledMessage.AMQ_SCHEDULED_DELAY, delayInMillis);
-            }
-            
-            message.setStringProperty(JAMES_MAIL_ERROR_MESSAGE, mail.getErrorMessage());
-            message.setLongProperty(JAMES_MAIL_LAST_UPDATED, mail.getLastUpdated().getTime());
-            message.setLongProperty(JAMES_MAIL_MESSAGE_SIZE, mail.getMessageSize());
-            message.setStringProperty(JAMES_MAIL_NAME, mail.getName());
-            
-            StringBuilder recipientsBuilder = new StringBuilder();
-            
-            Iterator<MailAddress> recipients = mail.getRecipients().iterator();
-            while (recipients.hasNext()) {
-                String recipient = recipients.next().toString();
-                recipientsBuilder.append(recipient.trim());
-                if (recipients.hasNext()) {
-                    recipientsBuilder.append(JAMES_MAIL_SEPERATOR);
-                }
-            }
-            message.setStringProperty(JAMES_MAIL_RECIPIENTS, recipientsBuilder.toString());
-            message.setStringProperty(JAMES_MAIL_REMOTEADDR, mail.getRemoteAddr());
-            message.setStringProperty(JAMES_MAIL_REMOTEHOST, mail.getRemoteHost());
-            
-            String sender;
-            MailAddress s = mail.getSender();
-            if (s == null) {
-                sender = "";
-            } else {
-                sender = mail.getSender().toString();
-            }
-            
-            StringBuilder attrsBuilder = new StringBuilder();
-            Iterator<String> attrs = mail.getAttributeNames();
-            while (attrs.hasNext()) {
-                String attrName = attrs.next();
-                attrsBuilder.append(attrName);
-                
-                Object value = convertAttributeValue(mail.getAttribute(attrName));
-                message.setObjectProperty(attrName, value);
-                
-                if (attrs.hasNext()) {
-                    attrsBuilder.append(JAMES_MAIL_SEPERATOR);
-                }
-            }
-            message.setStringProperty(JAMES_MAIL_ATTRIBUTE_NAMES, attrsBuilder.toString());
-            message.setStringProperty(JAMES_MAIL_SENDER, sender);
-            message.setStringProperty(JAMES_MAIL_STATE, mail.getState());
-            
-            
-            ByteArrayOutputStream messageStream = new ByteArrayOutputStream();
-            mail.getMessage().writeTo(messageStream);
-            message.setObject(messageStream.toByteArray());
+            populateJMSProperties(message, mail, delayInMillis);
+                        
+            mail.getMessage().writeTo(new BytesMessageOutputStream(message));;
             return message;
 
         } catch (MessagingException e) {
@@ -314,6 +278,68 @@ public class ActiveMQMailQueue implements MailQueue {
         }
     }
     
+    
+    /**
+     * Populate JMS Message properties with values 
+     * 
+     * @param message
+     * @param mail
+     * @param delayInMillis
+     * @throws JMSException
+     * @throws MessagingException
+     */
+    @SuppressWarnings("unchecked")
+    private void populateJMSProperties(Message message, Mail mail, long delayInMillis) throws JMSException, MessagingException {
+        if (delayInMillis > 0) {
+            // This will get picked up by activemq for delay message
+            message.setLongProperty(org.apache.activemq.ScheduledMessage.AMQ_SCHEDULED_DELAY, delayInMillis);
+        }
+        
+        message.setStringProperty(JAMES_MAIL_ERROR_MESSAGE, mail.getErrorMessage());
+        message.setLongProperty(JAMES_MAIL_LAST_UPDATED, mail.getLastUpdated().getTime());
+        message.setLongProperty(JAMES_MAIL_MESSAGE_SIZE, mail.getMessageSize());
+        message.setStringProperty(JAMES_MAIL_NAME, mail.getName());
+        
+        StringBuilder recipientsBuilder = new StringBuilder();
+        
+        Iterator<MailAddress> recipients = mail.getRecipients().iterator();
+        while (recipients.hasNext()) {
+            String recipient = recipients.next().toString();
+            recipientsBuilder.append(recipient.trim());
+            if (recipients.hasNext()) {
+                recipientsBuilder.append(JAMES_MAIL_SEPERATOR);
+            }
+        }
+        message.setStringProperty(JAMES_MAIL_RECIPIENTS, recipientsBuilder.toString());
+        message.setStringProperty(JAMES_MAIL_REMOTEADDR, mail.getRemoteAddr());
+        message.setStringProperty(JAMES_MAIL_REMOTEHOST, mail.getRemoteHost());
+        
+        String sender;
+        MailAddress s = mail.getSender();
+        if (s == null) {
+            sender = "";
+        } else {
+            sender = mail.getSender().toString();
+        }
+        
+        StringBuilder attrsBuilder = new StringBuilder();
+        Iterator<String> attrs = mail.getAttributeNames();
+        while (attrs.hasNext()) {
+            String attrName = attrs.next();
+            attrsBuilder.append(attrName);
+            
+            Object value = convertAttributeValue(mail.getAttribute(attrName));
+            message.setObjectProperty(attrName, value);
+            
+            if (attrs.hasNext()) {
+                attrsBuilder.append(JAMES_MAIL_SEPERATOR);
+            }
+        }
+        message.setStringProperty(JAMES_MAIL_ATTRIBUTE_NAMES, attrsBuilder.toString());
+        message.setStringProperty(JAMES_MAIL_SENDER, sender);
+        message.setStringProperty(JAMES_MAIL_STATE, mail.getState());
+                   
+    }
     /**
      * Convert the attribute value if necessary. 
      * 
@@ -326,4 +352,5 @@ public class ActiveMQMailQueue implements MailQueue {
         }
         return value.toString();
     }
+    
 }
