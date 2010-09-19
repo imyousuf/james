@@ -41,25 +41,13 @@
   
     <menu name="Concepts">
       <item name="Summary" href="/summary.html" />
-      <item name="SpoolManager" href="/spoolmanager.html" />
       <item name="Repositories" href="/repositories.html" />
+      <item name="SpoolManager" href="/spoolmanager.html" />
       <item name="The Mailet API" href="/mailet_api.html" />
     </menu>
     
     <menu name="How to...">
-      <item name="Build James" href="/build_instructions.html" />
       <item name="Install James" href="/installation_instructions.html" />
-    </menu>
-    
-    <menu name='Mailets'>
-       <item name='Overview' href='http://james.apache.org/mailet/index.html'/>
-       <item name='API' href='http://james.apache.org/mailet/api/index.html'/>
-       <item name='Basic Toolkit' href='http://james.apache.org/mailet/base/index.html'/>
-       <item name='Crypto' href='http://james.apache.org/mailet/crypto/index.html'/>
-       <item name='Sieve' href='http://james.apache.org/mailet/standard/index.html'/>
-       <item name='MailetDocs' href='http://james.apache.org/mailet/maven-mailetdocs-plugin/index.html'/>
-       <item name='Server' href='/james-server-mailets-function/mailet-report.html'/>
-       <item name='Standard' href='http://james.apache.org/mailet/standard/index.html'/>
     </menu>
     
     <menu name="Configuration">
@@ -69,9 +57,7 @@
       <item name="NNTP Server" href="/nntp_configuration.html" />
       <item name="FetchMail" href="/fetchmail_configuration.html" />
       <item name="RemoteManager" href="/remotemanager_configuration.html" />
-      <!-- 
       <item name="Repository" href="/repositories.html" />
-       -->
       <item name="SpoolManager" href="/spoolmanager_configuration.html" />
       <item name="Server-wide" href="/serverwide_configuration.html" />
       <item name="Adding Users" href="/adding_users.html" />
@@ -86,11 +72,24 @@
       <item name="Creating Mailing Lists" href="/mailing_lists.html" />
     </menu>
     
-    <menu name="Customization">
-      <item name="How to write a custom Matcher" href="/custom_matcher.html" />
-      <item name="How to write a custom Mailet" href="/custom_mailet.html" />
+    <menu name="Developers Corner">
+      <item name="Build James" href="/build_instructions.html" />
+      <item name="Setup IDE" href="/setup_ide.html" />
+      <item name="Develop a custom Mailet" href="/custom_mailet.html" />
+      <item name="Develop a custom Matcher" href="/custom_matcher.html" />
     </menu>
 
+    <menu name='Mailets'>
+       <item name='Overview' href='http://james.apache.org/mailet/index.html'/>
+       <item name='API' href='http://james.apache.org/mailet/api/index.html'/>
+       <item name='Basic Toolkit' href='http://james.apache.org/mailet/base/index.html'/>
+       <item name='Crypto' href='http://james.apache.org/mailet/crypto/index.html'/>
+       <item name='Sieve' href='http://james.apache.org/mailet/standard/index.html'/>
+       <item name='MailetDocs' href='http://james.apache.org/mailet/maven-mailetdocs-plugin/index.html'/>
+       <item name='Server' href='/james-server-mailets-function/mailet-report.html'/>
+       <item name='Standard' href='http://james.apache.org/mailet/standard/index.html'/>
+    </menu>
+    
     ${reports}
 
   </body>  
