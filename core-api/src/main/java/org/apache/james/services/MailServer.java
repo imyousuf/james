@@ -21,13 +21,9 @@
 
 package org.apache.james.services;
 
-import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import java.io.InputStream;
-import java.util.Collection;
+
+import org.apache.mailet.Mail;
 
 /**
  * The interface for Phoenix blocks to the James MailServer
@@ -53,34 +49,6 @@ public interface MailServer
     String ALL = "AllMailUsers";
 
     /**
-     * Pass a MimeMessage to this MailServer for processing
-     *
-     * @param sender - the sender of the message
-     * @param recipients - a Collection of String objects of recipients
-     * @param msg - the MimeMessage of the headers and body content of
-     * the outgoing message
-     * @throws MessagingException - if the message fails to parse
-     * 
-     * @deprecated You can use MailetContext service for this purpose
-     */
-    void sendMail(MailAddress sender, Collection<MailAddress> recipients, MimeMessage msg)
-        throws MessagingException;
-
-    /**
-     * Pass a MimeMessage to this MailServer for processing
-     *
-     * @param sender - the sender of the message
-     * @param recipients - a Collection of String objects of recipients
-     * @param msg - an InputStream containing the headers and body content of
-     * the outgoing message
-     * @throws MessagingException - if the message fails to parse
-     * 
-     * @deprecated You can use MailetContext service for this purpose
-     */
-    void sendMail(MailAddress sender, Collection<MailAddress> recipients, InputStream msg)
-        throws MessagingException;
-
-    /**
      *  Pass a Mail to this MailServer for processing
      *  
      * @param mail the Mail to be processed
@@ -88,18 +56,7 @@ public interface MailServer
      */
     void sendMail(Mail mail)
         throws MessagingException;
-        
-    /**
-     * Pass a MimeMessage to this MailServer for processing
-     * 
-     * @param message the message
-     * @throws MessagingException
-     * 
-     * @deprecated You can use MailetContext service for this purpose
-     */
-    void sendMail(MimeMessage message)
-        throws MessagingException;        
-
+   
   
     /**
      * Generate a new identifier/name for a mail being processed by this server.
@@ -107,19 +64,6 @@ public interface MailServer
      * @return the new identifier
      */
     String getId();
-
-    /**
-     * Adds a new user to the mail system with userName. For POP3 style stores
-     * this may only involve adding the user to the UsersStore.
-     *
-     * @param userName - the name of the user
-     * @return a reference to an initialised mailbox
-     * 
-     * @deprecated addUser should not be considered a property of a MailServer
-     * We could have readonly userbases providing full MailServer implementations.
-     * Look at the UsersRepository.addUser(username, password) method.
-     */
-    boolean addUser(String userName, String password);
 
     /**
      * Checks if a server is serviced by mail context

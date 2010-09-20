@@ -57,44 +57,5 @@ abstract public class MailServerTestAllImplementations extends TestCase {
         assertFalse("next id is different", id1.equals(id2));
     }
     
-    public void testAddUser() throws Exception {
-        
-        // addUser acts on field localUsers for class org.apache.james.James 
-        // thus, it is unrelated to getUserInbox() for the only known implementation of MailServer
-        // TODO clarify this 
-        
-        MailServer mailServer = createMailServer();
-
-        String userName = "testUserName";
-
-        if (canTestUserExists())
-        {
-            assertFalse("this is a fresh user", isUserExisting(mailServer, userName+"@localhost"));
-        }
-        
-        boolean allowsPasswordlessUser = allowsPasswordlessUser();
-        try {
-            boolean success = mailServer.addUser(userName, null);
-            if (!allowsPasswordlessUser) fail("null pwd was accepted unexpectedly");
-            if (!success) fail("null pwd was not accepted unexpectedly"); 
-        } catch (Exception e) {
-            if (allowsPasswordlessUser) fail("null pwd not accepted unexpectedly (with exception)");
-        }
-
-        userName = userName + "_next"; 
-        String password = "password";
-        
-        boolean success = mailServer.addUser(userName, password);
-        if (!success) fail("user has not been added"); 
-        
-        if (canTestUserExists())
-        {
-            assertTrue("user is present now", isUserExisting(mailServer, userName));
-        }
-        
-        boolean successAgain = mailServer.addUser(userName, password);
-        if (successAgain) fail("user has been added two times"); 
-        
-    }
-
+  
 }

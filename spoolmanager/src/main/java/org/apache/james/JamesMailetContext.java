@@ -32,6 +32,7 @@ import java.util.Vector;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -352,12 +353,38 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         log.info(arg0, arg1);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mailet.MailetContext#sendMail(javax.mail.internet.MimeMessage)
+    /**
+     * Place a mail on the spool for processing
+     *
+     * @param message the message to send
+     *
+     * @throws MessagingException if an exception is caught while placing the mail
+     *                            on the spool
      */
     public void sendMail(MimeMessage message) throws MessagingException {
-        mailServer.sendMail(message);
+        MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
+        Collection<MailAddress> recipients = new HashSet<MailAddress>();
+        Address addresses[] = message.getAllRecipients();
+        if (addresses != null) {
+            for (int i = 0; i < addresses.length; i++) {
+                // Javamail treats the "newsgroups:" header field as a
+                // recipient, so we want to filter those out.
+                if ( addresses[i] instanceof InternetAddress ) {
+                    recipients.add(new MailAddress((InternetAddress)addresses[i]));
+                }
+            }
+        }
+        sendMail(sender, recipients, message);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress, java.util.Collection, javax.mail.internet.MimeMessage)
+     */
+    @SuppressWarnings("unchecked")
+	public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
+            throws MessagingException {
+            sendMail(sender, recipients, message, Mail.DEFAULT);
     }
 
     /*
@@ -370,17 +397,10 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
 
     /*
      * (non-Javadoc)
-     * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress, java.util.Collection, javax.mail.internet.MimeMessage)
-     */
-    public void sendMail(MailAddress sender, Collection recipients, MimeMessage msg) throws MessagingException {
-        mailServer.sendMail(sender, recipients, msg);
-    }
-
-    /*
-     * (non-Javadoc)
      * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.MailAddress, java.util.Collection, javax.mail.internet.MimeMessage, java.lang.String)
      */
-    public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state) throws MessagingException {
+    @SuppressWarnings("unchecked")
+	public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state) throws MessagingException {
         MailImpl mail = new MailImpl(mailServer.getId(), sender, recipients, message);
         try {
             mail.setState(state);

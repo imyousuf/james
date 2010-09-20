@@ -21,22 +21,14 @@
 
 package org.apache.james;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.mail.Address;
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -45,10 +37,6 @@ import org.apache.commons.logging.Log;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.domainlist.ManageableDomainList;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.core.MailHeaders;
-import org.apache.james.core.MailImpl;
-import org.apache.james.impl.jamesuser.JamesUsersRepository;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
@@ -56,20 +44,10 @@ import org.apache.james.queue.MailQueue;
 import org.apache.james.queue.MailQueueFactory;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 
 /**
- * Core class for JAMES. Provides three primary services:
- * <br> 1) Instantiates resources, such as user repository, and protocol
- * handlers
- * <br> 2) Handles interactions between components
- * <br> 3) Provides container services for Mailets
- *
- *
- * @version This is $Revision$
-
+ * 
  */
-@SuppressWarnings("unchecked")
 public class JamesMailServer
     implements MailServer, LogEnabled, Configurable {
 
@@ -82,13 +60,6 @@ public class JamesMailServer
      * The top level configuration object for this server.
      */
     private HierarchicalConfiguration conf = null;
-
-
-    /**
-     * The user repository for this mail server.  Contains all the users with inboxes
-     * on this server.
-     */
-    private UsersRepository localusers;
 
     /**
      * The collection of domain/server names for which this instance of James
@@ -151,7 +122,8 @@ public class JamesMailServer
     }
     
     
-    @PostConstruct
+    @SuppressWarnings("unchecked")
+	@PostConstruct
     public void init() throws Exception {
 
         logger.info("JAMES init...");                
@@ -159,16 +131,7 @@ public class JamesMailServer
         queue = queueFactory.getQueue("spool");
         
         if (conf.getKeys("usernames").hasNext()) {
-            HierarchicalConfiguration userNamesConf = conf.configurationAt("usernames");
-
-            if (localusers instanceof JamesUsersRepository) {
-                logger.warn("<usernames> parameter in James block is deprecated. Please configure this data in UsersRepository block: configuration injected for backward compatibility");
-                ((JamesUsersRepository) localusers).setIgnoreCase(userNamesConf.getBoolean("[@ignoreCase]", false));
-                ((JamesUsersRepository) localusers).setEnableAliases(userNamesConf.getBoolean("[@enableAliases]", false));
-                ((JamesUsersRepository) localusers).setEnableForwarding(userNamesConf.getBoolean("[@enableForwarding]", false));
-            } else {
-                logger.error("<usernames> parameter is no more supported. Backward compatibility is provided when using an AbstractUsersRepository but this repository is a "+localusers.getClass().toString());
-            }
+        	throw new ConfigurationException("<usernames> parameter in James block was removed. Please configure this data in UsersRepository block: configuration injected for backward compatibility");
         }
         
         if (conf.getKeys("servernames").hasNext()) {
@@ -243,59 +206,6 @@ public class JamesMailServer
     }
 
  
-
-    /**
-     * Place a mail on the spool for processing
-     *
-     * @param message the message to send
-     *
-     * @throws MessagingException if an exception is caught while placing the mail
-     *                            on the spool
-     */
-    public void sendMail(MimeMessage message) throws MessagingException {
-        MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
-        Collection<MailAddress> recipients = new HashSet<MailAddress>();
-        Address addresses[] = message.getAllRecipients();
-        if (addresses != null) {
-            for (int i = 0; i < addresses.length; i++) {
-                // Javamail treats the "newsgroups:" header field as a
-                // recipient, so we want to filter those out.
-                if ( addresses[i] instanceof InternetAddress ) {
-                    recipients.add(new MailAddress((InternetAddress)addresses[i]));
-                }
-            }
-        }
-        sendMail(sender, recipients, message);
-    }
-
-    /**
-     * @see org.apache.james.services.MailServer#sendMail(MailAddress, Collection, MimeMessage)
-     */
-    public void sendMail(MailAddress sender, Collection recipients, MimeMessage message)
-            throws MessagingException {
-        try {
-            sendMail(sender, recipients, message.getInputStream());
-        } catch (IOException e) {
-            throw new MessagingException("Unable to send message",e);
-        }
-    }
-
-
-    /**
-     * @see org.apache.james.services.MailServer#sendMail(MailAddress, Collection, InputStream)
-     */
-    public void sendMail(MailAddress sender, Collection recipients, InputStream msg)
-            throws MessagingException {
-        // parse headers
-        MailHeaders headers = new MailHeaders(msg);
-
-        // if headers do not contains minimum REQUIRED headers fields throw Exception
-        if (!headers.isValid()) {
-            throw new MessagingException("Some REQURED header field is missing. Invalid Message");
-        }
-        ByteArrayInputStream headersIn = new ByteArrayInputStream(headers.toByteArray());
-        sendMail(new MailImpl(getId(), sender, recipients, new SequenceInputStream(headersIn, msg)));
-    }
 
     /**
      * @see org.apache.james.services.MailServer#sendMail(Mail)
@@ -377,24 +287,6 @@ public class JamesMailServer
             return false;
         }
     }
-
-    /**
-     * Adds a user to this mail server. Currently just adds user to a
-     * UsersRepository.
-     *
-     * @param userName String representing user name, that is the portion of
-     * an email address before the '@<domain>'.
-     * @param password String plaintext password
-     * @return boolean true if user added succesfully, else false.
-     * 
-     * @deprecated we deprecated this in the MailServer interface and this is an implementation
-     * this component depends already depends on a UsersRepository: clients could directly 
-     * use the addUser of the usersRepository.
-     */
-    public boolean addUser(String userName, String password) {
-        return localusers.addUser(userName, password);
-    }
-
     /**
      * @see org.apache.james.services.MailServer#supportVirtualHosting()
      */
