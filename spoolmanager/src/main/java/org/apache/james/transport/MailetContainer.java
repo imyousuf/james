@@ -20,25 +20,26 @@ package org.apache.james.transport;
 
 import java.util.List;
 
-import org.apache.mailet.MailetConfig;
-import org.apache.mailet.MatcherConfig;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.Matcher;
 
 
 /**
  * interface for mailet/matcher-containing processors.
  */
 public interface MailetContainer {
+
     /**
      * retrieve mailet configuration data for introspection
      * @return List<MailetConfig>
      */
-    List<MailetConfig> getMailetConfigs();
+    List<Mailet> getMailets();
 
     /**
      * retrieve matcher configuration data for introspection
      * @return List<MatcherConfig>
      */
-    List<MatcherConfig> getMatcherConfigs();
+    List<Matcher> getMatchers();
 
 }
 

@@ -20,8 +20,8 @@ package org.apache.james.services;
 
 import java.util.List;
 
-import org.apache.mailet.MailetConfig;
-import org.apache.mailet.MatcherConfig;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.Matcher;
 
 /**
  * provide all the data needed to manage spool processors, mailets and matchers
@@ -39,12 +39,12 @@ public interface SpoolManager {
      * @param processorName - name of the processor who's mailets should be retrieved
      * @return List<MailetConfig>
      */
-    List<MailetConfig> getMailetConfigs(String processorName);
+    List<Mailet> getMailets(String processorName);
     
     /**
      * retrieve all matchers for given processor
      * @param processorName - name of the processor who's matchers should be retrieved
      * @return List<MatcherConfig>
      */
-    List<MatcherConfig> getMatcherConfigs(String processorName);
+    List<Matcher> getMatchers(String processorName);
 }

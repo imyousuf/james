@@ -42,8 +42,8 @@ import org.apache.james.queue.MailQueue.DequeueOperation;
 import org.apache.james.queue.MailQueue.MailQueueException;
 import org.apache.james.services.SpoolManager;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailetConfig;
-import org.apache.mailet.MatcherConfig;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.Matcher;
 
 /**
  * Manages the mail spool.  This class is responsible for retrieving
@@ -228,22 +228,24 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
         return mailProcessor.getProcessorNames();
     }
 
-    /**
-     * @see org.apache.james.services.SpoolManager#getMailetConfigs(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.SpoolManager#getMailets(java.lang.String)
      */
-    public List<MailetConfig> getMailetConfigs(String processorName) {
+    public List<Mailet> getMailets(String processorName) {
         MailetContainer mailetContainer = getMailetContainerByName(processorName);
-        if (mailetContainer == null) return new ArrayList<MailetConfig>();
-        return mailetContainer.getMailetConfigs();
+        if (mailetContainer == null) return new ArrayList<Mailet>();
+        return mailetContainer.getMailets();
     }
 
-    /**
-     * @see org.apache.james.services.SpoolManager#getMatcherConfigs(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.SpoolManager#getMatchers(java.lang.String)
      */
-    public List<MatcherConfig> getMatcherConfigs(String processorName) {
+    public List<Matcher> getMatchers(String processorName) {
         MailetContainer mailetContainer = getMailetContainerByName(processorName);
-        if (mailetContainer == null) return new ArrayList<MatcherConfig>();
-        return mailetContainer.getMatcherConfigs();
+        if (mailetContainer == null) return new ArrayList<Matcher>();
+        return mailetContainer.getMatchers();
     }
 
     private MailetContainer getMailetContainerByName(String processorName) {        

@@ -45,14 +45,12 @@ import org.apache.james.transport.MailProcessor;
 import org.apache.james.transport.MailetConfigImpl;
 import org.apache.james.transport.MailetContainer;
 import org.apache.james.transport.MailetLoader;
-import org.apache.james.transport.MatcherConfigImpl;
 import org.apache.james.transport.MatcherLoader;
 import org.apache.james.transport.MailProcessorList;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.Matcher;
-import org.apache.mailet.MatcherConfig;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.base.MatcherInverter;
 
@@ -407,37 +405,21 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
             // TODO: Allow to only run a part of the route
             
         }
-
+        
         /*
          * (non-Javadoc)
-         * @see org.apache.james.transport.MailetContainer#getMailetConfigs()
+         * @see org.apache.james.transport.MailetContainer#getMailets()
          */
-        public List<MailetConfig> getMailetConfigs() {
-            List<MailetConfig> mailetConfigs = new ArrayList<MailetConfig>();
-            Iterator<Mailet> iterator = mailets.get(processorName).iterator();
-            while (iterator.hasNext()) {
-                Mailet mailet = (Mailet) iterator.next();
-                MailetConfig mailetConfig = mailet.getMailetConfig();
-                if (mailetConfig == null) mailetConfigs.add(new MailetConfigImpl()); // placeholder
-                else mailetConfigs.add(mailetConfig);
-            }
-            return mailetConfigs; 
+        public List<Mailet> getMailets() {
+            return mailets.get(processorName);
         }
 
         /*
          * (non-Javadoc)
-         * @see org.apache.james.transport.MailetContainer#getMatcherConfigs()
+         * @see org.apache.james.transport.MailetContainer#getMatchers()
          */
-        public List<MatcherConfig> getMatcherConfigs() {
-            List<MatcherConfig> matcherConfigs = new ArrayList<MatcherConfig>();
-            Iterator<Matcher> iterator = matchers.get(processorName).iterator();
-            while (iterator.hasNext()) {
-                Matcher matcher = (Matcher) iterator.next();
-                MatcherConfig matcherConfig = matcher.getMatcherConfig();
-                if (matcherConfig == null) matcherConfigs.add(new MatcherConfigImpl()); // placeholder
-                else matcherConfigs.add(matcherConfig);
-            }      
-            return matcherConfigs;
+        public List<Matcher> getMatchers() {
+            return matchers.get(processorName);       
         }
         
     }
