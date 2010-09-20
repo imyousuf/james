@@ -39,6 +39,9 @@ public class DisposeProcessor implements Processor{
         Mail mail = arg0.getIn().getBody(Mail.class);
         LifecycleUtil.dispose(mail.getMessage());
         LifecycleUtil.dispose(mail);
+        
+        // stop routing
+        arg0.setProperty(Exchange.ROUTE_STOP, true);
 
     }
 

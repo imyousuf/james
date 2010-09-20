@@ -34,7 +34,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.ChoiceDefinition;
+import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.processor.aggregate.UseLatestAggregationStrategy;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -73,7 +73,7 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
     private final Map<String,List<Matcher>> matchers = new HashMap<String,List<Matcher>>();
 
     private final List<String> processors = new ArrayList<String>();
-    
+    private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
        
     @Resource(name = "matcherpackages")
     public void setMatcherLoader(MatcherLoader matcherLoader) {
@@ -85,7 +85,6 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
         this.mailetLoader = mailetLoader;
     }
 
-    private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
     private ProducerTemplate producerTemplate;
     /*
      * (non-Javadoc)
@@ -97,6 +96,7 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
         Processor terminatingMailetProcessor = new MailetProcessor(new TerminatingMailet(), logger);
         Processor disposeProcessor = new DisposeProcessor();
         Processor mailProcessor = new MailCamelProcessor();
+        Processor removePropsProcessor = new RemovePropertiesProcessor();
         
         List<HierarchicalConfiguration> processorConfs = config.configurationsAt("processor");
         for (int i = 0; i < processorConfs.size(); i++) {
@@ -108,17 +108,10 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
             mailets.put(processorName, new ArrayList<Mailet>());
             matchers.put(processorName, new ArrayList<Matcher>());
 
-            // Check which route we need to go
-            ChoiceDefinition processorDef = from(getEndpoint(processorName))
-            
-                // exchange mode is inOnly
-                .inOnly()
-                
-                // use transaction
-                .transacted()
+            RouteDefinition processorDef = from(getEndpoint(processorName)).inOnly()
+            // store the logger in properties
+            .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(logger));   
                
-                // check that body is not null, just to be sure...
-                .choice().when(body().isNotNull());
             
             final List<HierarchicalConfiguration> mailetConfs = processorConf.configurationsAt("mailet");
             // Loop through the mailet configuration, load
@@ -196,56 +189,17 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
                     }
                     
                     // Store the matcher to use for splitter in properties
-                    processorDef.setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher))
-                    
-                            // store the config in properties
-                            .setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException))
+                    processorDef
+                    		.setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException))
                             
-                            // store the logger in properties
-                            .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(logger))
-
                             // do splitting of the mail based on the stored matcher
-                            .split().method(MatcherSplitter.class)
-                            
-                            // set the aggregationStrategy. This is needed because the default has
-                            // change. 
-                            // See:
-                            //        https://issues.apache.org/jira/browse/JAMES-1013
-                            //        http://camel.apache.org/camel-230-release.html 
-                            .aggregationStrategy(aggr)
-                            
-                            // speed up things by processing in parallel
-                            .parallelProcessing()
-                            // start first choice
-                            .choice()
-                            
-                            // check if we need to execute the mailet. If so execute it and remove the header on the end
-                            .when(new MatcherMatch()).process(new MailetProcessor(mailet, logger))
-                                            
-                            
-                            // end second choice
-                            .end()
-                            
-                            .choice()
-               
-                            // if the mailstate is GHOST whe should just dispose and stop here.
-                            .when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop()
-                             
-                            // check if the state of the mail is the same as the
-                            // current processor.
-                            .when(new MailStateNotEquals(processorName)).process(mailProcessor).stop()
-                            
-                            // end first choice
-                            .end()
-                            
-                            // remove matcher from properties
-                            .removeProperty(MatcherSplitter.MATCHER_PROPERTY)
+                            .split().method(MatcherSplitter.class).aggregationStrategy(aggr).parallelProcessing()
 
-                            // remove config from properties
-                            .removeProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY)
-                    
-                            // remove logger from properties
-                            .removeProperty(MatcherSplitter.LOGGER_PROPERTY);
+                            .choice().when(new MatcherMatch()).process(new MailetProcessor(mailet, logger)).end()
+                            
+                            .choice().when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop().otherwise().process(removePropsProcessor).end()
+
+                            .choice().when(new MailStateNotEquals(processorName)).process(mailProcessor).stop().end();
 
                     // store mailet and matcher
                     mailets.get(processorName).add(mailet);
@@ -258,16 +212,17 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
             processorDef
                     // start choice
                     .choice()
-                    
+                 
                     // when the mail state did not change till yet ( the end of the route) we need to call the TerminatingMailet to
                     // make sure we don't fall into a endless loop
-                    .when(new MailStateEquals(processorName)).process(terminatingMailetProcessor)
+                    .when(new MailStateEquals(processorName)).process(terminatingMailetProcessor).stop()
                     
-                    // end the choice
-                    .end()
+                       
+                    // dispose when needed
+                    .when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop()
                     
                      // route it to the next processor
-                    .process(mailProcessor);
+                    .otherwise().process(mailProcessor).stop();
                   
         }
                 
@@ -428,6 +383,15 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
 
     }
 
+    private final class RemovePropertiesProcessor implements Processor {
+
+		public void process(Exchange exchange) throws Exception {
+			exchange.removeProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY);
+			exchange.removeProperty(MatcherSplitter.MATCHER_PROPERTY);
+		}
+    }
+    
+    
     /*
      * 
      */
