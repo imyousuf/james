@@ -73,7 +73,7 @@ public class BytesMessageInputStream extends InputStream {
             
             return i;
         } catch (JMSException e) {
-            throw new IOException("Unable to read from message", e);
+            throw new IOException("Unable to read from message");
         }
     }
 
@@ -86,7 +86,7 @@ public class BytesMessageInputStream extends InputStream {
         } catch (MessageEOFException e) {
             return -1;
         } catch (JMSException e) {
-            throw new IOException("Unable to read from message", e);
+            throw new IOException("Unable to read from message");
         }
     }
     

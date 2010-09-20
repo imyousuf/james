@@ -43,7 +43,7 @@ public class BytesMessageOutputStream extends OutputStream {
         try {
             message.writeInt(b);
         } catch (JMSException e) {
-            throw new IOException("Unable to write to message", e);
+            throw new IOException("Unable to write to message");
         }
     }
     @Override
@@ -51,7 +51,7 @@ public class BytesMessageOutputStream extends OutputStream {
         try {
             message.writeBytes(b, off, len);
         } catch (JMSException e) {
-            throw new IOException("Unable to write to message", e);
+            throw new IOException("Unable to write to message");
         }
     }
     @Override
@@ -59,7 +59,7 @@ public class BytesMessageOutputStream extends OutputStream {
         try {
             message.writeBytes(b);
         } catch (JMSException e) {
-            throw new IOException("Unable to write to message", e);
+            throw new IOException("Unable to write to message");
         }
     }
     
