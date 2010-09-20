@@ -88,7 +88,7 @@ public class ActiveMQMailQueue implements MailQueue {
     private final static String JAMES_MAIL_ATTRIBUTE_NAMES = "JAMES_MAIL_ATTRIBUTE_NAMES";
     private final static String JAMES_BLOB_URL = "JAMES_BLOB_URL";
     
-    private final static int NO_DELAY = -1;
+    public final static int NO_DELAY = -1;
     public final static int DISABLE_TRESHOLD = -1;
     public final static int BLOBMESSAGE_ONLY = 0;
 
@@ -141,8 +141,9 @@ public class ActiveMQMailQueue implements MailQueue {
             operation.process(mail);
             session.commit();
             if (message instanceof ActiveMQBlobMessage) {
-                
                 // delete the file
+            	// This should get removed once this jira issue was fixed
+            	// https://issues.apache.org/activemq/browse/AMQ-1529
                 try {
                     ((ActiveMQBlobMessage) message).deleteFile();
                 } catch (IOException e) {
