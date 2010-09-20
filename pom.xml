@@ -58,6 +58,8 @@
     <module>netty-socket</module>
     <module>spring-common</module>
     <module>mailbox-adapter</module>
+    <module>queue-api</module>
+    <module>queue-activemq</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -211,6 +213,16 @@
   </distributionManagement>
   <dependencyManagement>
     <dependencies>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-queue-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-queue-activemq</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsserver-api</artifactId>

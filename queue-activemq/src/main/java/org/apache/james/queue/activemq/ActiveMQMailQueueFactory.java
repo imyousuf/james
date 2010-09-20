@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.queue;
+package org.apache.james.queue.activemq;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +29,8 @@ import javax.jms.Message;
 import org.apache.activemq.BlobMessage;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.queue.MailQueue;
+import org.apache.james.queue.MailQueueFactory;
 
 
 /**
@@ -67,7 +69,7 @@ public class ActiveMQMailQueueFactory implements MailQueueFactory, LogEnabled{
     /*
      * 
      * (non-Javadoc)
-     * @see org.apache.james.queue.MailQueueFactory#getQueue(java.lang.String)
+     * @see org.apache.james.queue.activemq.MailQueueFactory#getQueue(java.lang.String)
      */
     public synchronized MailQueue getQueue(String name) {
         MailQueue queue = queues.get(name);

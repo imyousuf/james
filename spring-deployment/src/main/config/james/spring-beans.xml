@@ -147,7 +147,12 @@
         <property name="start" value="true" />
     </bean>
 
-    <bean id="mailQueueFactory" class="org.apache.james.queue.ActiveMQMailQueueFactory"/>
+    <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory">
+        <!-- Allow to specify if BlobMessage or BytesMessage should be used for storing the Mail in the queue-->
+        <!-- Please have a look at the javadocs of ActiveMQMailQueue for more information -->
+        <!-- By default only BytesMessage is used -->
+        <property name="sizeTreshold" value="-1"/>
+    </bean>
         
     <!-- Build the camelroute from the spoolmanager.xml -->
     <bean id="mailProcessor" name="processorRoute" class="org.apache.james.transport.camel.CamelMailProcessorList"/>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.queue;
+package org.apache.james.queue.activemq;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -50,7 +50,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.mailbox.MailboxException;
+import org.apache.james.queue.MailQueue;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -123,9 +123,9 @@ public class ActiveMQMailQueue implements MailQueue {
     
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.MailQueue#deQueue()
+     * @see org.apache.james.queue.activemq.MailQueue#deQueue()
      */
-    public void deQueue(DequeueOperation operation) throws MailboxException, MessagingException {   
+    public void deQueue(DequeueOperation operation) throws MailQueueException, MessagingException {   
         Connection connection = null;
         Session session = null;
         Message message;
@@ -150,7 +150,7 @@ public class ActiveMQMailQueue implements MailQueue {
                 }
             }
         } catch (JMSException e) {
-            throw new MailboxException("Unable to dequeue next message", e);
+            throw new MailQueueException("Unable to dequeue next message", e);
         } catch (MessagingException e) {
             if (session != null) {
                 try {
@@ -178,7 +178,7 @@ public class ActiveMQMailQueue implements MailQueue {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail, long, java.util.concurrent.TimeUnit)
+     * @see org.apache.james.queue.activemq.MailQueue#enQueue(org.apache.mailet.Mail, long, java.util.concurrent.TimeUnit)
      */
     public void enQueue(Mail mail, long delay, TimeUnit unit) throws MailQueueException, MessagingException {
         
@@ -200,7 +200,7 @@ public class ActiveMQMailQueue implements MailQueue {
 
             producer.send(createMessage(session, mail, mydelay));
         } catch (JMSException e) {
-            throw new MailboxException("Unable to enqueue mail " + mail, e);
+            throw new MailQueueException("Unable to enqueue mail " + mail, e);
         } catch (MessagingException e) {
             if (session != null) {
                 try {
@@ -228,7 +228,7 @@ public class ActiveMQMailQueue implements MailQueue {
     
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail)
+     * @see org.apache.james.queue.activemq.MailQueue#enQueue(org.apache.mailet.Mail)
      */
     public void enQueue(Mail mail) throws MailQueueException, MessagingException {
         enQueue(mail, NO_DELAY, null);

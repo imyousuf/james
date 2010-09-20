@@ -25,32 +25,16 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-spoolmanager</artifactId>
-  <name>Apache JAMES Server SpoolManager</name>
+  <artifactId>james-server-queue-activemq</artifactId>
+  <name>Apache JAMES Server ActiveMQ Queue</name>
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
+      <artifactId>james-server-queue-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-dnsserver-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-common-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -59,23 +43,15 @@
      <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet-base</artifactId>
     </dependency>   
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-jsieve-mailet</artifactId>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-core</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailbox-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-queue-api</artifactId>
-    </dependency>
+   <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pool</artifactId>
+   </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging-api</artifactId>
@@ -91,38 +67,6 @@
     <dependency>
        <groupId>org.apache.geronimo.specs</groupId>
        <artifactId>geronimo-annotation_1.0_spec</artifactId>
-    </dependency>
-   <dependency>
-     <groupId>org.apache.camel</groupId>
-     <artifactId>camel-core</artifactId>
-   </dependency>
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-    </dependency>
-    <!-- Test dependencies -->
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-library</artifactId>
-      <type>test-jar</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet-base</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
-      <type>test-jar</type>
-      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>

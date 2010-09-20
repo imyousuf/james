@@ -156,7 +156,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
                     
                     /*
                      * (non-Javadoc)
-                     * @see org.apache.james.queue.MailQueue.DequeueOperation#process(org.apache.mailet.Mail)
+                     * @see org.apache.james.queue.activemq.MailQueue.DequeueOperation#process(org.apache.mailet.Mail)
                      */
                     public void process(Mail mail) throws MailQueueException, MessagingException {
                         if (logger.isDebugEnabled()) {

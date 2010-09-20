@@ -16,77 +16,50 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.queue;
+package org.apache.james.queue.activemq;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
-import javax.jms.MessageEOFException;
 
 /**
- * Provide an {@link InputStream} around a {@link BytesMessage}
+ * Provide an {@link OutputStream} over an {@link BytesMessage}
  * 
  *
  */
-public class BytesMessageInputStream extends InputStream {
+public class BytesMessageOutputStream extends OutputStream {
 
     private BytesMessage message;
-    public BytesMessageInputStream(BytesMessage message) {
+   
+    public BytesMessageOutputStream(BytesMessage message) {
         this.message = message;
-        
     }
     
-
-
+    
     @Override
-    public boolean markSupported() {
-        return false;
-    }
-
-
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        int r = 0;
-        for (int i = 0; i < len; i++) {
-            int a = read();
-            if (a == -1) {
-                if (i == 0) {
-                    return -1;
-                } else {
-                    break;
-                }
-            }
-            
-            r += a;
-            b[off + i] = (byte) a;
-        }
-        return r;
-    }
-
-
-    @Override
-    public int read(byte[] b) throws IOException {
+    public void write(int b) throws IOException {
         try {
-            int i =  message.readBytes(b);
-            
-            return i;
+            message.writeInt(b);
         } catch (JMSException e) {
-            throw new IOException("Unable to read from message", e);
+            throw new IOException("Unable to write to message", e);
         }
     }
-
     @Override
-    public int read() throws IOException {
+    public void write(byte[] b, int off, int len) throws IOException {
         try {
-            int i =  message.readByte();
-           
-            return i;
-        } catch (MessageEOFException e) {
-            return -1;
+            message.writeBytes(b, off, len);
         } catch (JMSException e) {
-            throw new IOException("Unable to read from message", e);
+            throw new IOException("Unable to write to message", e);
+        }
+    }
+    @Override
+    public void write(byte[] b) throws IOException {
+        try {
+            message.writeBytes(b);
+        } catch (JMSException e) {
+            throw new IOException("Unable to write to message", e);
         }
     }
     
@@ -100,3 +73,5 @@ public class BytesMessageInputStream extends InputStream {
     }
     
 }
+
+
