@@ -45,7 +45,6 @@
     <module>domain-function</module>
     <module>core-library</module>
     <module>management</module>
-    <module>core-function</module>
     <module>imapserver</module>
     <module>smtpserver</module>
     <module>lmtpserver</module>
@@ -475,11 +474,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-imapserver</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-function</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
