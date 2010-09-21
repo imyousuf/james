@@ -21,6 +21,7 @@
 
 package org.apache.james.services;
 
+import org.apache.james.mailrepository.MailRepository;
 import org.apache.mailet.Mail;
 
 /**

@@ -24,7 +24,7 @@ package org.apache.james.test.mock.avalon;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.services.store.MailStore;
+import org.apache.james.mailrepository.MailStore;
 
 import java.util.HashMap;
 import java.util.Map;
