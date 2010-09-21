@@ -69,8 +69,7 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
 
     private final Map<String,List<Mailet>> mailets = new HashMap<String,List<Mailet>>();
     private final Map<String,List<Matcher>> matchers = new HashMap<String,List<Matcher>>();
-
-    private final List<String> processors = new ArrayList<String>();
+    private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
     private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
        
     @Resource(name = "matcherpackages")
@@ -102,7 +101,6 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
             String processorName = processorConf.getString("[@name]");
 
           
-            processors.add(processorName);
             mailets.put(processorName, new ArrayList<Mailet>());
             matchers.put(processorName, new ArrayList<Matcher>());
 
@@ -222,6 +220,7 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
                      // route it to the next processor
                     .otherwise().process(mailProcessor).stop();
                   
+            processors.put(processorName, new ChildMailProcessor(processorName));
         }
                 
         producerTemplate = getContext().createProducerTemplate();
@@ -285,7 +284,7 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
      * @see org.apache.james.services.SpoolManager#getProcessorNames()
      */
     public String[] getProcessorNames() {
-        return processors.toArray(new String[processors.size()]);
+        return processors.keySet().toArray(new String[processors.size()]);
     }
 
     
@@ -364,7 +363,7 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
      * @see org.apache.james.transport.ProcessorList#getProcessor(java.lang.String)
      */
     public MailProcessor getProcessor(String name) {
-        return new ChildMailProcessor(name);
+        return processors.get(name);
     }
     
     
@@ -390,9 +389,6 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
     }
     
     
-    /*
-     * 
-     */
     private final class ChildMailProcessor implements MailProcessor, MailetContainer {
 
         private String processorName;
@@ -401,10 +397,18 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
             this.processorName = processorName;
         }
         
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.transport.MailProcessor#service(org.apache.mailet.Mail)
+         */
         public void service(Mail mail) throws MessagingException {
-            // TODO: Allow to only run a part of the route
-            
-        }
+        	 try {
+                 producerTemplate.sendBody(getEndpoint(processorName), mail);
+             } catch (CamelExecutionException ex) {
+                 throw new MessagingException("Unable to process mail " + mail.getName(),ex);
+             }        
+         }
         
         /*
          * (non-Javadoc)
