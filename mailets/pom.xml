@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-mailets</artifactId>
-  <name>Apache JAMES Server Mailets</name>
+  <name>Apache James Server Mailets</name>
   <packaging>jar</packaging>
   <build>
     <plugins>

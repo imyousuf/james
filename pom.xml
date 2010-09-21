@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server</artifactId>
-  <name>Apache JAMES Server</name>
+  <name>Apache James Server</name>
   <version>3.0-SNAPSHOT</version>
   <description>The Apache Java Enterprise Mail Server (a.k.a. JAMES Server)</description>
   <url>http://james.apache.org/server/head/</url>
@@ -50,6 +50,7 @@
     <module>smtpserver</module>
     <module>lmtpserver</module>
     <module>pop3server</module>
+    <module>spool-api</module>
     <module>spoolmanager</module>
     <module>remotemanager</module>
     <module>mailets</module>
@@ -312,6 +313,23 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-api</artifactId>
+      <version>${protocols.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-impl</artifactId>
+      <version>${protocols.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james.protocols</groupId>
+      <artifactId>protocols-smtp</artifactId>
+      <version>${protocols.version}</version>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailbox-adapter</artifactId>
@@ -344,24 +362,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james.protocols</groupId>
-      <artifactId>protocols-api</artifactId>
-      <version>${protocols.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james.protocols</groupId>
-      <artifactId>protocols-impl</artifactId>
-      <version>${protocols.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-api</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -400,7 +400,19 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-library</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-management</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-spool-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -414,11 +426,6 @@
       <version>${project.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james.protocols</groupId>
-      <artifactId>protocols-smtp</artifactId>
-      <version>${protocols.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james.protocols</groupId>
@@ -517,6 +524,16 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mailbox-file</artifactId>
+      <version>${imap.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mailbox-jdbc</artifactId>
+      <version>${imap.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-store</artifactId>
       <version>${imap.version}</version>
       <exclusions>
@@ -563,13 +580,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-memory</artifactId>
       <version>${imap.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-library</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -1065,7 +1075,7 @@
     <camel.version>2.4.0</camel.version>
     <activemq.version>5.4.0</activemq.version>
     <spring.version>3.0.2.RELEASE</spring.version>
-    <imap.version>0.1-M2-SNAPSHOT</imap.version>
+    <imap.version>0.2-SNAPSHOT</imap.version>
     <protocols.version>1.2-SNAPSHOT</protocols.version>
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.1.0</jackrabbit.version>

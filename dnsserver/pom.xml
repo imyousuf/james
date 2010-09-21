@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-dnsserver</artifactId>
-  <name>Apache JAMES Server DNSService Implementation</name>
+  <name>Apache James Server DNSService Implementation</name>
   <build>
     <plugins>
       <plugin>

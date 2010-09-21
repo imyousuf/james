@@ -38,6 +38,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 public class SpringMailStore extends AbstractMailStore implements BeanFactoryAware{
 
     private Registry<HierarchicalConfiguration> confRegistry;
+    
     private Registry<Log> logRegistry;
     
     @Resource(name="configurationRegistry")

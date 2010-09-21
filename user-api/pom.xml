@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-user-api</artifactId>
-  <name>Apache JAMES Server User API</name>
+  <name>Apache James Server User API</name>
   <build>
     <plugins>
       <plugin>

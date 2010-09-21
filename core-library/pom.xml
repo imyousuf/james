@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-core-library</artifactId>
-  <name>Apache JAMES Server Core Library</name>
+  <name>Apache James Server Core Library</name>
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -36,7 +36,16 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
     </dependency>   
+     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-spool-api</artifactId>
+    </dependency>   
     
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mailbox-api</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
@@ -45,6 +54,7 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>
     </dependency>
+    
     <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>

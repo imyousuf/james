@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-spoolmanager</artifactId>
-  <name>Apache JAMES Server SpoolManager</name>
+  <name>Apache James Server SpoolManager</name>
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>

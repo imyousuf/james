@@ -21,12 +21,8 @@ package org.apache.james.userrepository;
 
 import java.util.HashMap;
 
-import javax.persistence.PersistenceException;
-
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.userrepository.JPAUsersRepository;
-import org.apache.james.userrepository.MockUsersRepositoryTest;
 import org.apache.james.userrepository.model.JPAUser;
 import org.apache.openjpa.persistence.OpenJPAEntityManager;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
@@ -61,12 +57,11 @@ public class JpaUsersRepositoryTest extends MockUsersRepositoryTest {
     private void deleteAll() {
         OpenJPAEntityManager manager = factory.createEntityManager();
         final OpenJPAEntityTransaction transaction = manager.getTransaction();
-        try
-        {
+        try {
             transaction.begin();
             manager.createQuery("DELETE FROM JamesUser user").executeUpdate();
             transaction.commit();
-        } catch (PersistenceException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -77,8 +72,7 @@ public class JpaUsersRepositoryTest extends MockUsersRepositoryTest {
     }
 
     @Override
-    protected UsersRepository getUsersRepository() throws Exception 
-    {
+    protected UsersRepository getUsersRepository() throws Exception  {
         factory = OpenJPAPersistence.getEntityManagerFactory(properties);
         JPAUsersRepository repos =  new JPAUsersRepository();
         repos.setLog(new SimpleLog("JPA"));
