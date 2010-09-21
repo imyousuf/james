@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.services.store;
+package org.apache.james.repository;
 
 import java.io.InputStream;
 import java.io.OutputStream;

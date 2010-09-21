@@ -26,7 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
-import org.apache.james.services.store.ObjectRepository;
+import org.apache.james.repository.ObjectRepository;
 import org.apache.james.util.io.ClassLoaderObjectInputStream;
 
 /**
@@ -47,7 +47,7 @@ public class File_Persistent_Object_Repository
     }
 
     /**
-     * @see org.apache.avalon.cornerstone.services.store.ObjectRepository#get(String)
+     * @see org.apache.james.repository.avalon.cornerstone.services.store.ObjectRepository#get(String)
      */
     public synchronized Object get( final String key )
     {
@@ -84,7 +84,7 @@ public class File_Persistent_Object_Repository
     }
 
     /**
-     * @see org.apache.avalon.cornerstone.services.store.ObjectRepository#get(String, ClassLoader)
+     * @see org.apache.james.repository.avalon.cornerstone.services.store.ObjectRepository#get(String, ClassLoader)
      */
     public synchronized Object get( final String key, final ClassLoader classLoader )
     {
@@ -125,7 +125,7 @@ public class File_Persistent_Object_Repository
     /**
      * Store the given object and associates it to the given key
      * 
-     * @see org.apache.avalon.cornerstone.services.store.ObjectRepository#put(String, Object)
+     * @see org.apache.james.repository.avalon.cornerstone.services.store.ObjectRepository#put(String, Object)
      */
     public synchronized void put( final String key, final Object value )
     {
