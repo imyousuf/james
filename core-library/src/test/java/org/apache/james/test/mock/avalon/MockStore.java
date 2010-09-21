@@ -24,12 +24,12 @@ package org.apache.james.test.mock.avalon;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.services.store.Store;
+import org.apache.james.services.store.MailStore;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MockStore implements Store {
+public class MockStore implements MailStore {
 
     Map m_storedObjectMap = new HashMap();
 

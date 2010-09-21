@@ -29,7 +29,7 @@ import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementMBean;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.services.store.Store;
+import org.apache.james.services.store.MailStore;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.Pattern;
@@ -50,7 +50,7 @@ import java.util.List;
  */
 public class SpoolManagement implements SpoolManagementService, SpoolManagementMBean {
 
-    private Store mailStore;
+    private MailStore mailStore;
 
     /**
      * Set the Store
@@ -58,7 +58,7 @@ public class SpoolManagement implements SpoolManagementService, SpoolManagementM
      * @param mailStore the store
      */
     @Resource(name="mailstore")
-    public void setStore(Store mailStore) {
+    public void setStore(MailStore mailStore) {
         this.mailStore = mailStore;
     }
 

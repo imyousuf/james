@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.SpoolRepository;
-import org.apache.james.services.store.Store;
+import org.apache.james.services.store.MailStore;
 import org.apache.mailet.Mail;
 
 import javax.annotation.PostConstruct;
@@ -59,7 +59,7 @@ public class MailStoreSpoolRepository implements SpoolRepository, LogEnabled, Co
     /**
      * The providing mailStore
      */
-    private Store mailStore;
+    private MailStore mailStore;
 
     /**
      * The repository configuration
@@ -78,7 +78,7 @@ public class MailStoreSpoolRepository implements SpoolRepository, LogEnabled, Co
     }
     
     @Resource(name="mailstore")
-    public void setStore(Store store) {
+    public void setStore(MailStore store) {
         mailStore = store;
     }
 

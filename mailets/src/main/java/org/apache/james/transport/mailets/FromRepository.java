@@ -24,7 +24,7 @@ package org.apache.james.transport.mailets;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MailRepository;
-import org.apache.james.services.store.Store;
+import org.apache.james.services.store.MailStore;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 
@@ -66,10 +66,10 @@ public class FromRepository extends GenericMailet {
      */
     private String processor;
 
-	private Store mailStore;
+	private MailStore mailStore;
 
     @Resource(name="mailstore")
-    public void setStore(Store mailStore) {
+    public void setStore(MailStore mailStore) {
     	this.mailStore = mailStore;
     }
     

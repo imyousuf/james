@@ -28,7 +28,7 @@ import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
 import org.apache.james.impl.user.DefaultJamesUser;
 import org.apache.james.repository.ObjectRepository;
-import org.apache.james.services.store.Store;
+import org.apache.james.services.store.MailStore;
 
 
 import java.util.Iterator;
@@ -57,7 +57,7 @@ public class UsersFileRepository
      */
     protected static boolean DEEP_DEBUG = false;
 
-    private Store store;
+    private MailStore store;
     private ObjectRepository objectRepository;
     private static String urlSeparator = "/"; 
 
@@ -72,7 +72,7 @@ public class UsersFileRepository
      * @param store the Store
      */
     @Resource(name="mailstore")
-    public void setStore(Store store) {
+    public void setStore(MailStore store) {
         this.store = store;
     }
 

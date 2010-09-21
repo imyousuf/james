@@ -24,14 +24,14 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.services.MailRepository;
-import org.apache.james.services.store.Store;
+import org.apache.james.services.store.MailStore;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
- * {@link Store} implementation which load {@link MailRepository} implementation on demand
+ * {@link MailStore} implementation which load {@link MailRepository} implementation on demand
  * 
  *
  */
