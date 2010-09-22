@@ -22,7 +22,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
-import org.apache.james.test.mock.james.MockFileSystem;
+import org.apache.james.services.MockFileSystem;
 import org.apache.james.test.util.Util;
 
 /**

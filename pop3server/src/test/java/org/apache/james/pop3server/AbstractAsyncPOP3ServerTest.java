@@ -38,7 +38,9 @@ import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.commons.net.pop3.POP3Reply;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.services.FakeLoader;
+import org.apache.james.services.FakeJSR250Loader;
+import org.apache.james.services.MockFileSystem;
+import org.apache.james.services.MockMailServer;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxManager;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxSessionMapperFactory;
@@ -50,8 +52,6 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
-import org.apache.james.test.mock.james.MockFileSystem;
-import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
@@ -63,7 +63,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     private POP3TestConfiguration m_testConfiguration;
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private POP3Client m_pop3Protocol = null;
-    private FakeLoader serviceManager;
+    private FakeJSR250Loader serviceManager;
     protected DNSService dnsservice;
     protected MockFileSystem fSystem;
     protected ProtocolHandlerChainImpl chain;
@@ -96,7 +96,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     
     
     protected void setUpServiceManager() throws Exception {
-        serviceManager = new FakeLoader();
+        serviceManager = new FakeJSR250Loader();
 
         m_mailServer = new MockMailServer(m_usersRepository);
         serviceManager.put(MailServer.ROLE, m_mailServer);

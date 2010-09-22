@@ -28,9 +28,9 @@ import javax.mail.MessagingException;
 import junit.framework.TestCase;
 
 import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.mailrepository.MockStore;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
-import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.base.test.FakeMail;

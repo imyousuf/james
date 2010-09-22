@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.mock.james;
+package org.apache.james.services;
 
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
@@ -25,6 +25,7 @@ import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailrepository.MailRepository;
 import org.apache.james.services.MailServer;
+import org.apache.james.test.mock.james.InMemorySpoolRepository;
 import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

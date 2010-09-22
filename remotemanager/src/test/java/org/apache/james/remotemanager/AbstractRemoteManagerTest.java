@@ -40,12 +40,15 @@ import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.api.domainlist.SimpleDomainList;
-import org.apache.james.services.FakeLoader;
+import org.apache.james.services.FakeJSR250Loader;
+import org.apache.james.services.MockFileSystem;
+import org.apache.james.services.MockMailServer;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.MockVirtualUserTableManagementService;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
 import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.mailrepository.MockStore;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementService;
 import org.apache.james.management.DomainListManagementException;
@@ -56,9 +59,6 @@ import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
-import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.test.mock.james.MockFileSystem;
-import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
@@ -73,7 +73,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	private TelnetClient m_telnetClient;
 	private MockUsersRepository m_mockUsersRepository;
 	protected MockMailServer mailServer;
-	private FakeLoader serviceManager;
+	private FakeJSR250Loader serviceManager;
 	private MockUsersStore usersStore;
 	protected DNSService dnsservice;
 	protected MockFileSystem filesystem;
@@ -178,7 +178,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	}
 
 	protected void setUpFakeLoader() throws Exception {
-		serviceManager = new FakeLoader();
+		serviceManager = new FakeJSR250Loader();
 
 		m_mockUsersRepository = new MockUsersRepository();
 

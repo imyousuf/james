@@ -24,11 +24,11 @@ import java.util.Map;
 
 import org.apache.james.services.AbstractJSR250InstanceFactory;
 
-public class FakeLoader extends AbstractJSR250InstanceFactory {
+public class FakeJSR250Loader extends AbstractJSR250InstanceFactory {
 
     private final Map<String, Object> servicesByName;
     private final Map<String, String> mappings = new HashMap<String, String>();
-    public FakeLoader() {
+    public FakeJSR250Loader() {
         servicesByName = new HashMap<String, Object>();
         servicesByName.put("org.apache.james.LoaderService", this);
         

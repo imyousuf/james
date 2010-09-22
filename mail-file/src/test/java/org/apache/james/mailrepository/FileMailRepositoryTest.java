@@ -24,8 +24,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.filepair.FilePersistentObjectRepository;
 import org.apache.james.filepair.FilePersistentStreamRepository;
-import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.test.mock.james.MockFileSystem;
+import org.apache.james.services.MockFileSystem;
 
 public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
 

@@ -39,7 +39,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.DataSourceSelector;
-import org.apache.james.test.mock.james.MockFileSystem;
+import org.apache.james.services.MockFileSystem;
 import org.apache.james.test.util.Util;
 import org.apache.james.util.sql.JDBCUtil;
 

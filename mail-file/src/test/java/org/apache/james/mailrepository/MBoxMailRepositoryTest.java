@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.test.mock.james.MockFileSystem;
+import org.apache.james.services.MockFileSystem;
 
 /**
  * NOTE this test *WAS* disabled because MBoxMailRepository does not

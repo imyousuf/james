@@ -34,8 +34,8 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.filepair.FilePersistentObjectRepository;
 import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.mailrepository.MockStore;
 import org.apache.james.services.FileSystem;
-import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.mailet.MailAddress;
 
 /**

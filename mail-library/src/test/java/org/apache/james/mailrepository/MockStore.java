@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.test.mock.avalon;
+package org.apache.james.mailrepository;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationUtils;

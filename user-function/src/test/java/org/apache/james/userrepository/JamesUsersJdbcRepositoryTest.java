@@ -27,7 +27,7 @@ import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.test.mock.james.MockFileSystem;
+import org.apache.james.services.MockFileSystem;
 import org.apache.james.test.util.Util;
 import org.apache.mailet.MailAddress;
 

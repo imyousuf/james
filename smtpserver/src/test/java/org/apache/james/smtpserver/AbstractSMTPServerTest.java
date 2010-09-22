@@ -42,17 +42,17 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.services.FakeLoader;
+import org.apache.james.services.FakeJSR250Loader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.mailrepository.MockStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
+import org.apache.james.services.MockFileSystem;
+import org.apache.james.services.MockMailServer;
 import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
-import org.apache.james.test.mock.avalon.MockStore;
-import org.apache.james.test.mock.james.MockFileSystem;
-import org.apache.james.test.mock.james.MockMailServer;
 import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.codec.Base64;
@@ -145,7 +145,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     //private SMTPServer m_smtpServer;
     protected SMTPTestConfiguration m_testConfiguration;
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
-    protected FakeLoader m_serviceManager;
+    protected FakeJSR250Loader m_serviceManager;
     protected AlterableDNSServer m_dnsServer;
     protected MockStore store;
     protected MockFileSystem fileSystem;
@@ -211,7 +211,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     }
 
     protected void setUpFakeLoader() throws Exception {
-        m_serviceManager = new FakeLoader();
+        m_serviceManager = new FakeJSR250Loader();
         m_mailServer = new MockMailServer(new MockUsersRepository());
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
