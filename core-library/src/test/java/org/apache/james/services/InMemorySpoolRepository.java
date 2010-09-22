@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.mock.james;
+package org.apache.james.services;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.SimpleLog;

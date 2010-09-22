@@ -52,13 +52,13 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
-import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
+import org.apache.james.util.TestUtil;
 
 public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
 
-    private int m_pop3ListenerPort = Util.getNonPrivilegedPort();
+    private int m_pop3ListenerPort = TestUtil.getNonPrivilegedPort();
     protected MockMailServer m_mailServer;
     private POP3TestConfiguration m_testConfiguration;
     private MockUsersRepository m_usersRepository = new MockUsersRepository();

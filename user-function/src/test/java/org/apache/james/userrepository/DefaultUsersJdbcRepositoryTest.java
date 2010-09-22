@@ -26,7 +26,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.MockFileSystem;
-import org.apache.james.test.util.Util;
+import org.apache.james.util.TestUtil;
 
 import java.util.Iterator;
 
@@ -56,7 +56,7 @@ public class DefaultUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        DataSourceSelector dataSourceSelector = Util.getDataSourceSelector();  
+        DataSourceSelector dataSourceSelector = TestUtil.getDataSourceSelector();  
         
         res.setDatasources(dataSourceSelector );
         

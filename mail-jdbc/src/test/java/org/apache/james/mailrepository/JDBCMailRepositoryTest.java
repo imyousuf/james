@@ -26,7 +26,7 @@ import org.apache.james.filepair.FilePersistentStreamRepository;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.MockFileSystem;
-import org.apache.james.test.util.Util;
+import org.apache.james.util.TestUtil;
 
 public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
 
@@ -38,7 +38,7 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
      */
     protected MailRepository getMailRepository() throws Exception {
         MockFileSystem fs =  new MockFileSystem();
-        DataSourceSelector selector = Util.getDataSourceSelector();
+        DataSourceSelector selector = TestUtil.getDataSourceSelector();
         JDBCMailRepository mr = new JDBCMailRepository();
         
         // only used for dbfile

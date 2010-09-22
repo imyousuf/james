@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.util;
+package org.apache.james.util;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.derby.jdbc.EmbeddedDriver;
@@ -32,7 +32,7 @@ import javax.sql.DataSource;
 /**
  * some utilities for James unit testing
  */
-public class Util {
+public class TestUtil {
 
     private static final int PORT_RANGE_START =  8000; // the lowest possible port number assigned for testing
     private static final int PORT_RANGE_END   = 11000; // the highest possible port number assigned for testing

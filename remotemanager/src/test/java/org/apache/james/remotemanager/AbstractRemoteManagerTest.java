@@ -60,12 +60,12 @@ import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.MailServer;
 import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
 import org.apache.james.test.mock.james.MockUsersStore;
-import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
+import org.apache.james.util.TestUtil;
 
 public abstract class AbstractRemoteManagerTest extends TestCase {
-    private int m_remoteManagerListenerPort = Util.getNonPrivilegedPort();
+    private int m_remoteManagerListenerPort = TestUtil.getNonPrivilegedPort();
 	private RemoteManagerTestConfiguration m_testConfiguration;
 	private String m_host = "127.0.0.1";
 	private BufferedReader m_reader;

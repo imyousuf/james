@@ -31,7 +31,7 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
-import org.apache.james.test.mock.james.InMemorySpoolRepository;
+import org.apache.james.services.InMemorySpoolRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.base.test.FakeMimeMessage;

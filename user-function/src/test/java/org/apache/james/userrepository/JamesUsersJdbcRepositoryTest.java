@@ -28,7 +28,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MockFileSystem;
-import org.apache.james.test.util.Util;
+import org.apache.james.util.TestUtil;
 import org.apache.mailet.MailAddress;
 
 import java.util.Collection;
@@ -60,7 +60,7 @@ public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        res.setDatasources(Util.getDataSourceSelector());
+        res.setDatasources(TestUtil.getDataSourceSelector());
         
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
         configuration.addProperty("[@destinationURL]", "db://maildb/"+tableString);

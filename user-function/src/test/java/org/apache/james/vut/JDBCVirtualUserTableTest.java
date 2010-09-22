@@ -23,7 +23,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.services.MockFileSystem;
-import org.apache.james.test.util.Util;
+import org.apache.james.util.TestUtil;
 
 /**
  * Test the JDBC Virtual User Table implementation.
@@ -36,7 +36,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
         JDBCVirtualUserTable virtualUserTable = new JDBCVirtualUserTable();
         virtualUserTable.setLog(new SimpleLog("MockLog"));
-        virtualUserTable.setDataSourceSelector(Util.getDataSourceSelector());
+        virtualUserTable.setDataSourceSelector(TestUtil.getDataSourceSelector());
         virtualUserTable.setFileSystem(new MockFileSystem());
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
         defaultConfiguration.addProperty("[@destinationURL]","db://maildb/VirtualUserTable");

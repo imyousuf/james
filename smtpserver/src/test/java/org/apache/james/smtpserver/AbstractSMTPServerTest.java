@@ -53,8 +53,8 @@ import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
 import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
-import org.apache.james.test.util.Util;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.util.TestUtil;
 import org.apache.james.util.codec.Base64;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
@@ -154,7 +154,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     
     public AbstractSMTPServerTest() {
         super("AsyncSMTPServerTest");
-        m_smtpListenerPort = Util.getNonPrivilegedPort();
+        m_smtpListenerPort = TestUtil.getNonPrivilegedPort();
     }
 
     protected void setUp() throws Exception {

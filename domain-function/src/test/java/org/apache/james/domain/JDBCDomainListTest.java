@@ -40,7 +40,7 @@ import org.apache.james.api.dnsservice.AbstractDNSServer;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.MockFileSystem;
-import org.apache.james.test.util.Util;
+import org.apache.james.util.TestUtil;
 import org.apache.james.util.sql.JDBCUtil;
 
 public class JDBCDomainListTest  extends TestCase {
@@ -50,7 +50,7 @@ public class JDBCDomainListTest  extends TestCase {
     private DataSource data;
     
     public void setUp() throws Exception {
-        dataSource = Util.getDataSourceSelector();
+        dataSource = TestUtil.getDataSourceSelector();
         data = dataSource.getDataSource("maildb");
     
         sqlQuery("create table " + table + " (domain VARCHAR (255))");
