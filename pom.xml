@@ -47,8 +47,8 @@
     <module>domain-function</module>
     <module>core-library</module>
     <module>management</module>
-    <module>file</module>
-    <module>jdbc</module>
+    <module>mail-file</module>
+    <module>mail-jdbc</module>
     <module>mail-jcr</module>
     <module>imapserver</module>
     <module>smtpserver</module>
