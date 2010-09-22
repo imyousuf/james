@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailstore;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +34,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.mailrepository.MailStore;
+import org.apache.james.mailstore.MailStore;
 
 /**
  * Provides a registry of mail repositories. A mail repository is uniquely

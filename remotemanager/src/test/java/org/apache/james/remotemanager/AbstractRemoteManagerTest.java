@@ -48,7 +48,7 @@ import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.MockVirtualUserTableManagementService;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
 import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.mailrepository.MockStore;
+import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementService;
 import org.apache.james.management.DomainListManagementException;
@@ -315,7 +315,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 						return null;
 					}
 				});
-		serviceManager.put("mailStore", new MockStore());
+		serviceManager.put("mailStore", new MockMailStore());
 		serviceManager.put(ProcessorManagementService.ROLE,
 				new ProcessorManagementService() {
 

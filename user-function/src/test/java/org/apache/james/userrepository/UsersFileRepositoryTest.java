@@ -34,7 +34,7 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.filepair.FilePersistentObjectRepository;
 import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.mailrepository.MockStore;
+import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.FileSystem;
 import org.apache.mailet.MailAddress;
 
@@ -68,7 +68,7 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
             }
             
         };
-        MockStore mockStore = new MockStore();
+        MockMailStore mockStore = new MockMailStore();
         FilePersistentObjectRepository filePersistentObjectRepository = new FilePersistentObjectRepository();
         filePersistentObjectRepository.setFileSystem(fs);
         filePersistentObjectRepository.setLog(new SimpleLog("MockLog"));

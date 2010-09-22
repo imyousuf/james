@@ -19,17 +19,17 @@
 
 
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailstore;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.mailrepository.MailStore;
+import org.apache.james.mailstore.MailStore;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MockStore implements MailStore {
+public class MockMailStore implements MailStore {
 
     Map m_storedObjectMap = new HashMap();
 

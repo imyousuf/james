@@ -24,7 +24,7 @@ package org.apache.james.transport.mailets;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailrepository.MailRepository;
-import org.apache.james.mailrepository.MailStore;
+import org.apache.james.mailstore.MailStore;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 

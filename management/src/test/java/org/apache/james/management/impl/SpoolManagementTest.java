@@ -28,7 +28,7 @@ import javax.mail.MessagingException;
 import junit.framework.TestCase;
 
 import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.mailrepository.MockStore;
+import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.test.mock.james.InMemorySpoolRepository;
@@ -45,13 +45,13 @@ public class SpoolManagementTest extends TestCase {
     protected static final String OUTGOING_SPOOL = "file://target/var/mail/outgoing";
 
     private SpoolManagement m_spoolManagement;
-    private MockStore m_mockStore;
+    private MockMailStore m_mockStore;
     private InMemorySpoolRepository m_mockSpoolRepository;
 
     protected void setUp() throws Exception {
         m_spoolManagement = new SpoolManagement();
         m_mockSpoolRepository = new InMemorySpoolRepository();
-        m_mockStore = new MockStore();
+        m_mockStore = new MockMailStore();
         m_mockStore.add("outgoing", m_mockSpoolRepository);
         m_spoolManagement.setStore(m_mockStore);
         

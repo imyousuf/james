@@ -24,7 +24,7 @@ package org.apache.james.management.impl;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.mailrepository.MailStore;
+import org.apache.james.mailstore.MailStore;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementMBean;

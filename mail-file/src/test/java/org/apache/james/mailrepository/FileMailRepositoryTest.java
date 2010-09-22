@@ -24,6 +24,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.filepair.FilePersistentObjectRepository;
 import org.apache.james.filepair.FilePersistentStreamRepository;
+import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.MockFileSystem;
 
 public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
@@ -37,7 +38,7 @@ public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
     protected MailRepository getMailRepository() throws Exception {
         MockFileSystem fs =  new MockFileSystem();
         FileMailRepository mr = new FileMailRepository();
-        MockStore mockStore = new MockStore();
+        MockMailStore mockStore = new MockMailStore();
         FilePersistentStreamRepository file_Persistent_Stream_Repository = new FilePersistentStreamRepository();
         file_Persistent_Stream_Repository.setFileSystem(fs);
         file_Persistent_Stream_Repository.setLog(new SimpleLog("MockLog"));

@@ -26,6 +26,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.mailstore.MailStore;
 import org.apache.james.repository.ObjectRepository;
 import org.apache.james.repository.StreamRepository;
 import org.apache.mailet.Mail;

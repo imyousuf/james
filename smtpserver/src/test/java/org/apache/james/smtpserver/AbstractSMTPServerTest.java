@@ -46,7 +46,7 @@ import org.apache.james.services.FakeJSR250Loader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.mailrepository.MockStore;
+import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MockFileSystem;
@@ -147,7 +147,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
     protected FakeJSR250Loader m_serviceManager;
     protected AlterableDNSServer m_dnsServer;
-    protected MockStore store;
+    protected MockMailStore store;
     protected MockFileSystem fileSystem;
     protected SMTPServerDNSServiceAdapter dnsAdapter;
     protected ProtocolHandlerChainImpl chain;
@@ -219,7 +219,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         m_dnsServer = new AlterableDNSServer();
         m_serviceManager.put(DNSService.ROLE, m_dnsServer);
 
-        store = new MockStore();
+        store = new MockMailStore();
         m_serviceManager.put("mailStore", store);
         fileSystem = new MockFileSystem();
 

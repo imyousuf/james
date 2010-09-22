@@ -27,7 +27,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
 import org.apache.james.impl.user.DefaultJamesUser;
-import org.apache.james.mailrepository.MailStore;
+import org.apache.james.mailstore.MailStore;
 import org.apache.james.repository.ObjectRepository;
 
 

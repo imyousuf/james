@@ -23,9 +23,9 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.mailrepository.AbstractMailStore;
 import org.apache.james.mailrepository.MailRepository;
-import org.apache.james.mailrepository.MailStore;
+import org.apache.james.mailstore.AbstractMailStore;
+import org.apache.james.mailstore.MailStore;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -36,7 +36,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * 
  *
  */
-public class SpringMailStore extends AbstractMailStore implements BeanFactoryAware{
+public class SpringMailStore extends AbstractMailStore implements BeanFactoryAware {
 
     private Registry<HierarchicalConfiguration> confRegistry;
     

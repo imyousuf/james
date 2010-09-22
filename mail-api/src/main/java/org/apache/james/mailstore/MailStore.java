@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailstore;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 

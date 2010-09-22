@@ -23,6 +23,7 @@ package org.apache.james.mailrepository;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.filepair.FilePersistentStreamRepository;
+import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.test.util.Util;
@@ -41,7 +42,7 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
         JDBCMailRepository mr = new JDBCMailRepository();
         
         // only used for dbfile
-        MockStore mockStore = new MockStore();
+        MockMailStore mockStore = new MockMailStore();
         FilePersistentStreamRepository file_Persistent_Stream_Repository = new FilePersistentStreamRepository();
         file_Persistent_Stream_Repository.setFileSystem(fs);
         file_Persistent_Stream_Repository.setLog(new SimpleLog("MockLog"));
