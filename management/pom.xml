@@ -46,6 +46,10 @@
     </dependency> 
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mail-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>
     <dependency>
@@ -70,10 +74,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailbox-store</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>
     <dependency>
@@ -95,7 +95,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-library</artifactId>
+      <artifactId>james-server-mail-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

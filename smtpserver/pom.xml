@@ -98,7 +98,6 @@
       <artifactId>jsr250-api</artifactId>
     </dependency>
 
-
     <!-- Test dependencies -->
     <dependency>
       <artifactId>dnsjava</artifactId>
@@ -147,7 +146,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-library</artifactId>
+      <artifactId>james-server-mail-library</artifactId>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>

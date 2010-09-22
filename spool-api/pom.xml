@@ -30,7 +30,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailbox-api</artifactId>
+      <artifactId>james-server-mail-api</artifactId>
     </dependency>
   </dependencies>
 </project>
