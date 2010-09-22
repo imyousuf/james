@@ -51,17 +51,21 @@ import javax.annotation.Resource;
  */
 public abstract class AbstractFileRepository
     implements Repository, Configurable, LogEnabled {
+    
     protected static final boolean DEBUG = false;
 
     protected static final int BYTE_MASK = 0x0f;
-    protected static final char[] HEX_DIGITS = new char[]
-    {
+    
+    protected static final char[] HEX_DIGITS = new char[] {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
     };
 
     protected String m_extension;
+    
     protected String m_name;
+    
     protected FilenameFilter m_filter;
+    
     protected File m_baseDirectory;
 
     private FileSystem fileSystem;
@@ -74,12 +78,10 @@ public abstract class AbstractFileRepository
         
     }
     
-    
     @Resource(name="filesystem")
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
-    
     
     public void setLog(Log logger) {
         this.logger = logger;
@@ -88,10 +90,8 @@ public abstract class AbstractFileRepository
     protected Log getLogger() {
         return logger;
     }
-      
     
     protected abstract String getExtensionDecorator();
-
 
     @PostConstruct
     public void init()
@@ -165,14 +165,12 @@ public abstract class AbstractFileRepository
      * @throws ConfigurationException get thrown on invalid destintion syntax
      */
     protected void setDestination( final String destination )
-        throws ConfigurationException
-    {
-        if( !destination.startsWith( FileSystem.FILE_PROTOCOL ) )
-        {
+        throws ConfigurationException {
+        
+        if( !destination.startsWith( FileSystem.FILE_PROTOCOL ) ){
             throw new ConfigurationException( "cannot handle destination " + destination);
         }
 
-        
         try {
             m_baseDirectory = fileSystem.getFile(destination);
         } catch (FileNotFoundException e) {

@@ -22,8 +22,8 @@ package org.apache.james.mailrepository;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.filepair.File_Persistent_Object_Repository;
-import org.apache.james.filepair.File_Persistent_Stream_Repository;
+import org.apache.james.filepair.FilePersistentObjectRepository;
+import org.apache.james.filepair.FilePersistentStreamRepository;
 import org.apache.james.test.mock.avalon.MockStore;
 import org.apache.james.test.mock.james.MockFileSystem;
 
@@ -39,7 +39,7 @@ public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
         MockFileSystem fs =  new MockFileSystem();
         FileMailRepository mr = new FileMailRepository();
         MockStore mockStore = new MockStore();
-        File_Persistent_Stream_Repository file_Persistent_Stream_Repository = new File_Persistent_Stream_Repository();
+        FilePersistentStreamRepository file_Persistent_Stream_Repository = new FilePersistentStreamRepository();
         file_Persistent_Stream_Repository.setFileSystem(fs);
         file_Persistent_Stream_Repository.setLog(new SimpleLog("MockLog"));
         
@@ -49,7 +49,7 @@ public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
         file_Persistent_Stream_Repository.init();
         
         mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
-        File_Persistent_Object_Repository file_Persistent_Object_Repository = new File_Persistent_Object_Repository();
+        FilePersistentObjectRepository file_Persistent_Object_Repository = new FilePersistentObjectRepository();
         file_Persistent_Object_Repository.setFileSystem(fs);
         file_Persistent_Object_Repository.setLog(new SimpleLog("MockLog"));
         DefaultConfigurationBuilder defaultConfiguration22 = new DefaultConfigurationBuilder();

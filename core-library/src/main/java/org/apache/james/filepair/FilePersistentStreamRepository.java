@@ -34,7 +34,7 @@ import org.apache.james.repository.StreamRepository;
  * mark and reset methods. (working not like BufferedInputStream!!!)
  *
  */
-public class File_Persistent_Stream_Repository
+public class FilePersistentStreamRepository
     extends AbstractFileRepository
     implements StreamRepository
 {

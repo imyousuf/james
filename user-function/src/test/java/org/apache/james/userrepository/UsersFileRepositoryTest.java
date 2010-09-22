@@ -32,7 +32,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTable;
-import org.apache.james.filepair.File_Persistent_Object_Repository;
+import org.apache.james.filepair.FilePersistentObjectRepository;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.FileSystem;
 import org.apache.james.test.mock.avalon.MockStore;
@@ -50,9 +50,9 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
      * @throws Exception 
      */
     protected UsersRepository getUsersRepository() throws Exception {
+        
         UsersFileRepository res = new UsersFileRepository();
 
-        
         FileSystem fs = new FileSystem() {
 
             public File getBasedir() throws FileNotFoundException {
@@ -69,15 +69,15 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
             
         };
         MockStore mockStore = new MockStore();
-        File_Persistent_Object_Repository file_Persistent_Object_Repository = new File_Persistent_Object_Repository();
-        file_Persistent_Object_Repository.setFileSystem(fs);
-        file_Persistent_Object_Repository.setLog(new SimpleLog("MockLog"));
+        FilePersistentObjectRepository filePersistentObjectRepository = new FilePersistentObjectRepository();
+        filePersistentObjectRepository.setFileSystem(fs);
+        filePersistentObjectRepository.setLog(new SimpleLog("MockLog"));
         DefaultConfigurationBuilder defaultConfiguration22 = new DefaultConfigurationBuilder();
         defaultConfiguration22.addProperty("[@destinationURL]", "file://target/var/users");
-        file_Persistent_Object_Repository.configure(defaultConfiguration22);
-        file_Persistent_Object_Repository.init();
+        filePersistentObjectRepository.configure(defaultConfiguration22);
+        filePersistentObjectRepository.init();
         
-        mockStore.add("OBJECT.users", file_Persistent_Object_Repository);
+        mockStore.add("OBJECT.users", filePersistentObjectRepository);
         res.setStore(mockStore);
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder("test");
         configuration.addProperty("destination.[@URL]", "file://target/var/users");
@@ -138,6 +138,5 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
         assertEquals("Alias found", mappings.next().toString(), alias + "@" + domain);
         assertEquals("Forward found", mappings.next().toString(), forward);
     }
-
 
 }

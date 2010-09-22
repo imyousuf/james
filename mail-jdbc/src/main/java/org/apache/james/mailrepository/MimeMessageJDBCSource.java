@@ -211,8 +211,8 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
             InputStream in = null;
             try {
                 if (sr != null) {
-                    if (sr instanceof org.apache.james.filepair.File_Persistent_Stream_Repository) {
-                        size += ((org.apache.james.filepair.File_Persistent_Stream_Repository) sr).getSize(key);
+                    if (sr instanceof org.apache.james.filepair.FilePersistentStreamRepository) {
+                        size += ((org.apache.james.filepair.FilePersistentStreamRepository) sr).getSize(key);
                     } else {
                         in = sr.get(key);
                         int len = 0;

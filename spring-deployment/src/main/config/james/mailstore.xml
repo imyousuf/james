@@ -80,7 +80,7 @@
             <config FIFO="false"/> 
         </repository>
         
-        <repository class="org.apache.james.filepair.File_Persistent_Object_Repository">
+        <repository class="org.apache.james.filepair.FilePersistentObjectRepository">
             <protocols>
                 <protocol>file</protocol>
             </protocols>
@@ -94,7 +94,7 @@
             </models>
         </repository>
 
-        <repository class="org.apache.james.filepair.File_Persistent_Stream_Repository">
+        <repository class="org.apache.james.filepair.FilePersistentStreamRepository">
             <protocols>
                 <protocol>file</protocol>
             </protocols>
@@ -108,7 +108,7 @@
             </models>
         </repository>
          
-        <repository class="org.apache.james.jcr.AvalonJCRMailRepository">
+        <repository class="org.apache.james.mailrepository.JCRMailRepository">
             <protocols>
                 <protocol>jcr</protocol>
             </protocols>

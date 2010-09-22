@@ -34,7 +34,7 @@ import org.apache.james.util.io.ClassLoaderObjectInputStream;
  * object serialization on the file system.
  *
  */
-public class File_Persistent_Object_Repository
+public class FilePersistentObjectRepository
     extends AbstractFileRepository
     implements ObjectRepository
 {
