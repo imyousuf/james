@@ -35,48 +35,45 @@
   
     <menu name="Overview">
       <item name='Introduction' href='/index.html'/>
-      <item name='Release Notes' href='release-notes.html'/>
-      <item name='Changes' href='/jira-report.html'/>
+      <item name='Release Notes' href='/release-notes.html'/>
+<!--      <item name='Changes' href='/jira-report.html'/>-->
     </menu>
   
     <menu name="Concepts">
       <item name="Summary" href="/summary.html" />
-      <item name="Repositories" href="/repositories.html" />
+      <item name="Stores" href="/stores.html" />
       <item name="SpoolManager" href="/spoolmanager.html" />
-      <item name="The Mailet API" href="/mailet_api.html" />
+      <item name="Mailet API" href="/mailet_api.html" />
     </menu>
     
     <menu name="How to...">
       <item name="Install James" href="/installation_instructions.html" />
-    </menu>
-    
-    <menu name="Configuration">
-      <item name="DNS Server" href="/dns_configuration.html" />
-      <item name="POP3 Server" href="/pop3_configuration.html" />
-      <item name="SMTP Server" href="/smtp_configuration.html" />
-      <item name="NNTP Server" href="/nntp_configuration.html" />
-      <item name="FetchMail" href="/fetchmail_configuration.html" />
-      <item name="RemoteManager" href="/remotemanager_configuration.html" />
-      <item name="Repository" href="/repositories.html" />
-      <item name="SpoolManager" href="/spoolmanager_configuration.html" />
-      <item name="Server-wide" href="/serverwide_configuration.html" />
-      <item name="Adding Users" href="/adding_users.html" />
-      <item name="Provided Matchers" href="/provided_matchers.html" />
-      <item name="Provided Mailets" href="/provided_mailets.html" />
-    </menu>
-    
-    <menu name="Common Configurations">
-      <item name="Using SMTP AUTH" href="/smtp_auth.html" />
-      <item name="Using a Database with James" href="/using_database.html" />
-      <item name="Using TLS/SSL" href="/usingTLS.html" />
-      <item name="Creating Mailing Lists" href="/mailing_lists.html" />
+      <item name="Configure James" href="/configuration_instructions.html" collapse="true" >
+        <item name="Server-wide" href="/serverwide_configuration.html" />
+        <item name="DNS Server" href="/dns_configuration.html" />
+        <item name="IMAP4 Server" href="/imap4_configuration.html" />
+        <item name="POP3 Server" href="/pop3_configuration.html" />
+        <item name="SMTP/LMTP Server" href="/smtp_configuration.html" />
+<!--      <item name="NNTP Server" href="/nntp_configuration.html" />-->
+        <item name="SpoolManager" href="/spoolmanager_configuration.html" />
+        <item name="FetchMail" href="/fetchmail_configuration.html" />
+        <item name="Repositories" href="/stores.html" />
+        <item name="Remote Manager" href="/remotemanager_configuration.html" />
+        <item name="Users and Domains" href="/adding_users.html" />
+        <item name="Provided Mailets" href="/provided_mailets.html" />
+        <item name="Provided Matchers" href="/provided_matchers.html" />
+        <item name="Common Configurations" href="/common_configurations.html" />
+        <item name="James and Sendmail" href="/james_and_sendmail.html" />
+      </item>
+      <item name="Upgrade from 2.3" href="/upgrade_instructions.html" />
     </menu>
     
     <menu name="Developers Corner">
-      <item name="Build James" href="/build_instructions.html" />
-      <item name="Setup IDE" href="/setup_ide.html" />
-      <item name="Develop a custom Mailet" href="/custom_mailet.html" />
-      <item name="Develop a custom Matcher" href="/custom_matcher.html" />
+      <item name="Build James" href="/build_james.html" />
+      <item name="James Architecture" href="/james_architecture.html" />
+      <item name="Develop your Mailet" href="/custom_mailet.html" />
+      <item name="Develop your Matcher" href="/custom_matcher.html" />
+      <item name="Extend James" href="/extend_james.html" />
     </menu>
 
     <menu name='Mailets'>
