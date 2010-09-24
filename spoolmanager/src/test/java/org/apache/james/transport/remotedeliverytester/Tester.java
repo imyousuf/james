@@ -22,7 +22,6 @@ package org.apache.james.transport.remotedeliverytester;
 import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.core.MailImpl;
-import org.apache.james.mailrepository.MailRepository;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
@@ -40,7 +39,6 @@ import javax.mail.URLName;
 import javax.mail.Provider.Type;
 import javax.mail.internet.MimeMessage;
 
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -136,25 +134,12 @@ public class Tester {
             public boolean supportVirtualHosting() {
                 return false;
             }
-            
-            public void sendMail(MimeMessage message) throws MessagingException {                
-            }
-            
             public void sendMail(Mail mail) throws MessagingException {                
             }
-            
-            public void sendMail(MailAddress sender, Collection<MailAddress> recipients, InputStream msg) throws MessagingException {                
-            }
-            
-            public void sendMail(MailAddress sender, Collection<MailAddress> recipients, MimeMessage msg) throws MessagingException {                
-            }
+
             
             public boolean isLocalServer(String serverName) {
                 return false;
-            }
-            
-            public MailRepository getUserInbox(String userName) {
-                return null;
             }
             
             public String getId() {
@@ -168,18 +153,9 @@ public class Tester {
             public String getDefaultDomain() {
                 return null;
             }
-            
-            public boolean addUser(String userName, String password) {
-                return false;
-            }
         });
         remoteDelivery.init(mailetConfig);
 
-        if (mailetConfig.getWrappedSpoolRepository() != null) log("DEBUG", "Init WrappedSpoolRepository OK");
-        else {
-            log("WARN", "Init WrappedSpoolRepository ERROR");
-            //throw new IllegalStateException();
-        }
         
         Session session = obtainSession(new Properties());
         Transport t = session.getTransport("smtp");

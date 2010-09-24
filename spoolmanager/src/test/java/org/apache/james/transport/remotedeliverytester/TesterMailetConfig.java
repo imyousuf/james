@@ -19,7 +19,7 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
-import org.apache.james.services.SpoolRepository;
+import org.apache.james.queue.MailQueue;
 import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
@@ -99,8 +99,8 @@ public class TesterMailetConfig implements MailetConfig {
     private Properties parameters;
     private MailetContextTester mailetContext;
     
-    // wrappedSpoolRepository will be set only when this manage the outgoing
-    private SpoolRepository wrappedSpoolRepository;
+    // wrappedMailQueue will be set only when this manage the outgoing
+    private MailQueue wrappedMailQueue;
 
     public TesterMailetConfig(Tester owner, Properties properties) {
         this.owner = owner;
@@ -108,12 +108,12 @@ public class TesterMailetConfig implements MailetConfig {
         mailetContext = new MailetContextTester(this);
     }
 
-    public SpoolRepository getWrappedSpoolRepository() {
-        return wrappedSpoolRepository;
+    public MailQueue getWrappedMailQueue() {
+        return wrappedMailQueue;
     }
 
-    public void setWrappedSpoolRepository(SpoolRepository wrappedSpoolRepository) {
-        this.wrappedSpoolRepository = wrappedSpoolRepository;
+    public void setWrappedMailQueue(MailQueue wrappedMailQueue) {
+        this.wrappedMailQueue = wrappedMailQueue;
     }
 
     public String getInitParameter(String name) {

@@ -182,7 +182,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 
 		m_mockUsersRepository = new MockUsersRepository();
 
-		mailServer = new MockMailServer(m_mockUsersRepository);
+		mailServer = new MockMailServer();
 		usersStore = new MockUsersStore(m_mockUsersRepository);
 
 		serviceManager.put(MailServer.ROLE, mailServer);

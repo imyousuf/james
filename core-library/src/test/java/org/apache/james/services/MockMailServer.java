@@ -19,114 +19,37 @@
 
 package org.apache.james.services;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.core.MailImpl;
+import java.util.concurrent.LinkedBlockingDeque;
+
+import javax.mail.MessagingException;
+
 import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.mailrepository.MailRepository;
-import org.apache.james.services.MailServer;
-import org.apache.mailet.base.test.MailUtil;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-
-import javax.mail.Address;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import org.apache.mailet.base.test.MailUtil;
 
 public class MockMailServer implements MailServer, Disposable {
 
-    private final UsersRepository m_users;
-
     private int m_maxMessageSizeBytes = 0;
 
-    // private final ArrayList mails = new ArrayList();
-    
-    private final InMemorySpoolRepository mails = new InMemorySpoolRepository();
-    private String lastMailKey = null; 
-
-    private HashMap<String,MailRepository> inboxes;
+    private final LinkedBlockingDeque<Mail> mails = new LinkedBlockingDeque<Mail>();
     
     private boolean virtualHosting;
 
-    public MockMailServer(UsersRepository usersRepository) {
-        this.m_users = usersRepository;
-    }
-
-    public void sendMail(MailAddress sender, Collection<MailAddress> recipients, MimeMessage msg) throws MessagingException {
-        //        Object[] mailObjects = new Object[]{sender, recipients, new MimeMessageCopyOnWriteProxy(msg)};
-//        mails.add(mailObjects);
-//        
-        String newId = MailUtil.newId();
-        MailImpl m = new MailImpl(newId, sender, recipients, msg);
-        sendMail(m);
-        m.dispose();
-    }
-
-    public void sendMail(MailAddress sender, Collection<MailAddress> recipients, InputStream msg) throws MessagingException {
-//        Object[] mailObjects = new Object[]{sender, recipients, msg};
-//        mails.add(mailObjects);
-        MailImpl m = new MailImpl(MailUtil.newId(), sender, recipients, msg);
-        sendMail(m);
-        m.dispose();
-    }
 
     public void sendMail(Mail mail) throws MessagingException {
         int bodySize = mail.getMessage().getSize();
         if (m_maxMessageSizeBytes != 0 && m_maxMessageSizeBytes < bodySize) throw new MessagingException("message size exception");
         
-        lastMailKey = mail.getName();
-        mails.store(mail);
-        // sendMail(mail.getSender(), mail.getRecipients(), mail.getMessage());
-    }
-
-    public void sendMail(MimeMessage message) throws MessagingException {
-        // taken from class org.apache.james.James 
-        MailAddress sender = new MailAddress((InternetAddress)message.getFrom()[0]);
-        Collection<MailAddress> recipients = new HashSet<MailAddress>();
-        Address addresses[] = message.getAllRecipients();
-        if (addresses != null) {
-            for (int i = 0; i < addresses.length; i++) {
-                // Javamail treats the "newsgroups:" header field as a
-                // recipient, so we want to filter those out.
-                if ( addresses[i] instanceof InternetAddress ) {
-                    recipients.add(new MailAddress((InternetAddress)addresses[i]));
-                }
-            }
+        try {
+            mails.put(mail);
+        } catch (InterruptedException e) {
+            throw new MessagingException("Unable to queue", e);
         }
-        sendMail(sender, recipients, message);
-    }
-
-    public MailRepository getUserInbox(String userName) {
-        if (inboxes==null) {
-            return null;
-        } else {
-            if ((userName.indexOf("@") < 0) == false && supportVirtualHosting() == false) userName = userName.split("@")[0]; 
-            return (MailRepository) inboxes.get(userName);
-        }
-        
-    }
-    
-    public void setUserInbox(String userName, MailRepository inbox) {
-        if (inboxes == null) {
-            inboxes = new HashMap<String,MailRepository>();
-        }
-        inboxes.put(userName,inbox);
     }
 
     public synchronized String getId() {
         return MailUtil.newId();
-    }
-
-    public boolean addUser(String userName, String password) {
-        m_users.addUser(userName, password);
-        return true;
     }
 
     public boolean isLocalServer(String serverName) {
@@ -135,13 +58,9 @@ public class MockMailServer implements MailServer, Disposable {
 
     public Mail getLastMail()
     {
-        if (mails.size() == 0) return null;
-        try {
-            return mails.retrieve(lastMailKey);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-        return null;
+        if (mails.size() == 0) return null; 
+        return mails.getLast();
+      
     }
 
     public void setMaxMessageSizeBytes(int maxMessageSizeBytes) {
@@ -149,27 +68,16 @@ public class MockMailServer implements MailServer, Disposable {
     }
 
     public void dispose() {
-//        if (mails != null) {
-//            Iterator i = mails.iterator();
-//            while (i.hasNext()) {
-//                Object[] obs = (Object[]) i.next();
-//                // this is needed to let the MimeMessageWrapper to dispose.
-//                ContainerUtil.dispose(obs[2]);
-//            }
-//        }
-        mails.dispose();
-        if (inboxes!=null) {
-            Iterator<MailRepository> i = inboxes.values().iterator();
-            while (i.hasNext()) {
-                MailRepository m = i.next();
-                LifecycleUtil.dispose(m);
+        while(mails.isEmpty() == false) {
+            try {
+                LifecycleUtil.dispose(mails.take());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
+        
     }
-    
-    public MailRepository getSentMailsRepository() {
-        return mails;
-    }
+
     
     public void setVirtualHosting(boolean virtualHosting) {
         this.virtualHosting = virtualHosting;

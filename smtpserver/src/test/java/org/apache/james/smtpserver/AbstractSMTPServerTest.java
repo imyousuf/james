@@ -212,7 +212,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
 
     protected void setUpFakeLoader() throws Exception {
         m_serviceManager = new FakeJSR250Loader();
-        m_mailServer = new MockMailServer(new MockUsersRepository());
+        m_mailServer = new MockMailServer();
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
 

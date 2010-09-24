@@ -98,7 +98,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     protected void setUpServiceManager() throws Exception {
         serviceManager = new FakeJSR250Loader();
 
-        m_mailServer = new MockMailServer(m_usersRepository);
+        m_mailServer = new MockMailServer();
         serviceManager.put(MailServer.ROLE, m_mailServer);
         serviceManager.put(UsersRepository.ROLE,
                 m_usersRepository);
