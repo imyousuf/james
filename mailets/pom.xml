@@ -86,7 +86,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-dnsserver-api</artifactId>
+      <artifactId>james-server-dnsservice-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -177,7 +177,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-dnsserver-api</artifactId>
+      <artifactId>james-server-dnsservice-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

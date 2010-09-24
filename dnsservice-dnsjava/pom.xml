@@ -25,7 +25,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-dnsserver</artifactId>
+  <artifactId>james-server-dnsservice-dnsjava</artifactId>
   <name>Apache James Server DNSService Implementation</name>
   <build>
     <plugins>
@@ -88,7 +88,7 @@
     </dependency> 
      <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-dnsserver-api</artifactId>
+      <artifactId>james-server-dnsservice-api</artifactId>
     </dependency> 
     <dependency>
       <groupId>commons-configuration</groupId>
