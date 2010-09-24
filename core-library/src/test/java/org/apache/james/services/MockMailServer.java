@@ -19,7 +19,7 @@
 
 package org.apache.james.services;
 
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.mail.MessagingException;
 
@@ -32,9 +32,11 @@ public class MockMailServer implements MailServer, Disposable {
 
     private int m_maxMessageSizeBytes = 0;
 
-    private final LinkedBlockingDeque<Mail> mails = new LinkedBlockingDeque<Mail>();
+    private final LinkedBlockingQueue<Mail> mails = new LinkedBlockingQueue<Mail>();
     
     private boolean virtualHosting;
+
+    private Mail lastMail;
 
 
     public void sendMail(Mail mail) throws MessagingException {
@@ -42,6 +44,7 @@ public class MockMailServer implements MailServer, Disposable {
         if (m_maxMessageSizeBytes != 0 && m_maxMessageSizeBytes < bodySize) throw new MessagingException("message size exception");
         
         try {
+            this.lastMail = mail;
             mails.put(mail);
         } catch (InterruptedException e) {
             throw new MessagingException("Unable to queue", e);
@@ -59,7 +62,7 @@ public class MockMailServer implements MailServer, Disposable {
     public Mail getLastMail()
     {
         if (mails.size() == 0) return null; 
-        return mails.getLast();
+        return lastMail;
       
     }
 
