@@ -163,7 +163,7 @@
     <!-- mailserver implementation which use activemq for spooling the mail -->
     <bean id="mailserver" name="James" class="org.apache.james.JamesMailServer"/>
 
-    <bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
+    <bean id="mailetcontext" class="org.apache.james.mailetcontainer.JamesMailetContext"/>
 
     <bean id="matcherpackages" class="org.apache.james.mailetcontainer.JamesMatcherLoader" />
 

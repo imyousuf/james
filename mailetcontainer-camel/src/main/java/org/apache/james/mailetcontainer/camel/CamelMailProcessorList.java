@@ -281,7 +281,7 @@ public class CamelMailProcessorList extends RouteBuilder implements Configurable
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.services.SpoolManager#getProcessorNames()
+     * @see org.apache.james.mailetcontainer.MailProcessorList#getProcessorNames()
      */
     public String[] getProcessorNames() {
         return processors.keySet().toArray(new String[processors.size()]);

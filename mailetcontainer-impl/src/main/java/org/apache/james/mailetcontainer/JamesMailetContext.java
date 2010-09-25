@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james;
+package org.apache.james.mailetcontainer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -146,8 +146,8 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
      */
     public Iterator<String> getAttributeNames() {
         Vector<String> names = new Vector<String>();
-        for (Enumeration e = attributes.keys(); e.hasMoreElements();) {
-            names.add(e.nextElement().toString());
+        for (Enumeration<String> e = attributes.keys(); e.hasMoreElements();) {
+            names.add(e.nextElement());
         }
         return names.iterator();
     }
