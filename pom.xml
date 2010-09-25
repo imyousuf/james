@@ -56,6 +56,9 @@
     <module>pop3server</module>
     <module>spool-api</module>
     <module>spoolmanager</module>
+    <module>mailetcontainer-api</module>
+    <module>mailetcontainer-impl</module>
+    <module>mailetcontainer-camel</module>
     <module>remotemanager</module>
     <module>mailets</module>
     <module>fetchmail</module>
@@ -333,7 +336,25 @@
       <artifactId>protocols-smtp</artifactId>
       <version>${protocols.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailetcontainer-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailetcontainer-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailetcontainer-camel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+       
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailbox-adapter</artifactId>

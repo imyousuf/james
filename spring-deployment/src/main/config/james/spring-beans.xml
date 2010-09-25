@@ -155,7 +155,7 @@
     </bean>
         
     <!-- Build the camelroute from the spoolmanager.xml -->
-    <bean id="mailProcessor" name="processorRoute" class="org.apache.james.transport.camel.CamelMailProcessorList"/>
+    <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
 
     <bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager"/>
     
@@ -165,9 +165,9 @@
 
     <bean id="mailetcontext" class="org.apache.james.JamesMailetContext"/>
 
-    <bean id="matcherpackages" class="org.apache.james.transport.JamesMatcherLoader" />
+    <bean id="matcherpackages" class="org.apache.james.mailetcontainer.JamesMatcherLoader" />
 
-    <bean id="mailetpackages" class="org.apache.james.transport.JamesMailetLoader" />
+    <bean id="mailetpackages" class="org.apache.james.mailetcontainer.JamesMailetLoader" />
 
     <bean id="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
 
@@ -283,9 +283,6 @@
     <!--
     <bean id="domainlist" class="org.apache.james.domain.JDBCDomainList"/>
     -->
-
-    <!-- Poster -->
-    <bean id="poster" name="org.apache.jsieve.mailet.Poster" class="org.apache.james.MailboxManagerPoster"/>
 
     <!-- IMAP server Beans -->
     <bean id="imapserver" class="org.apache.james.imapserver.netty.NioImapServer">

@@ -404,6 +404,17 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailetcontainer-impl</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mailetcontainer-camel</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-mailbox-adapter</artifactId>
       <scope>runtime</scope>
     </dependency>
