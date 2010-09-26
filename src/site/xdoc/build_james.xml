@@ -20,57 +20,155 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Building James</title>
+  <title>James 3.0 - Build James</title>
 </properties>
+
 <body>
-<p>This step is not necessary to use the standard out of the box version of James.  A 
-pre-built binary version of James is available from the James download directory.  But 
-if you wish to customize the James source code, it will be necessary for you to build the 
-distribution yourself.
-</p>
-<section name="Getting the Source Code">
-<p>There are two ways to get the James source code.</p>
-<p>1. Download the source distribution - the source is available from the 
-<a href="http://james.apache.org/download.cgi">James release mirrors</a>.
-Simply choose the version of James you'd like to download, and pick the source distribution appropriate for your platform.
-</p>
-<p>2. Get the source code using SVN - this method gives you access to the cutting edge code 
-base.  Instructions on how to use SVN to get the James source code (the jakarta-james distribution) 
-can be found <a href="http://www.apache.org/dev/version-control.html">here</a>.
-James server repository is <a href="http://svn.apache.org/repos/asf/james/server/">here</a>.
-</p>
-</section>
-<section name="Required Tools">
-<p>To run the build you need two third-party tools.</p>
-<p>1. Java Development Kit - You must have a JDK of Java version 1.4 or higher installed to build the 
-James distribution.  The exact JDKs available depend on the platform.  A JDK must be downloaded and
-installed before the build can run.</p>
-<p>2. Ant - This is a Java-tailored, XML-configured, extensible build or make system. You need ant (1.6+) in order
-to build James. You can get the latest version of Ant <a href="http://ant.apache.org/">here</a>. </p>
-</section>
-<section name="Building the Distribution">
-<p>In the top level directory of the source distribution you can use  ant, simple set the environment variable
-JAVA_HOME to the base directory of the  JDK.  Then run the build with any of the following command line arguments:
-<ul>
-<li>clean - deletes the build directory, making the system ready for a clean build.</li>
-<li>compile - compiles the source code.</li>
-<li>dist - generates all the James distributions, packed.</li>
-<li>dist-lite - generates all the James distributions, unpacked.  This is the default argument.</li>
-<li>javadocs - builds the James javadocs.</li>
-<li>usage - prints out the usage instructions for the script.</li>
-<li>website - builds the entirety of the James website.</li>
-<li>xdocs - creates the documentaion for James.</li>
-<li>run-unit-tests - run unit tests for James.</li>
-</ul>
-</p>
-<p>All build products are output in the dist subdirectory of the James source distribution directory.  There 
-is also a build subdirectory of the James source distribution directory that is created during the build process.  Both 
-of these directories will be deleted if you run build with the clean argument.</p>
-<p> <strong>Warning!</strong> Any changes you've made in the 'dist' directory 
-will be lost after a recompilation. If you are making changes to the config.xml 
-or other files, we recommend you backup and then change the copies in src to 
-avoid losing work. </p>
-</section>
+
+  <p>This step is not necessary to use the standard out of the box version of James.  A 
+  pre-built binary version of James is available from the James download directory.  But 
+  if you wish to customize the James source code, it will be necessary for you to build the 
+  distribution yourself.</p>
+  
+  <section name="Getting the Source Code">
+  
+    <p>There are two ways to get the James source code.</p>
+    <ol>
+      <li>1. Download the source distribution - the source is available from the 
+          <a href="http://james.apache.org/download.cgi">James release mirrors</a>.
+          Simply choose the version of James you'd like to download, and pick the source 
+          distribution appropriate for your platform.</li>
+      <li>2. Get the source code using SVN - this method gives you access to the cutting edge code 
+          base.  Instructions on how to use SVN to get the James source code (the jakarta-james distribution) 
+          can be found <a href="http://www.apache.org/dev/version-control.html">here</a>.
+          James server repository is <a href="http://svn.apache.org/repos/asf/james/server/">here</a>.</li>
+    </ol>
+    <p>Currently, only the second option is available for James 3.0</p>
+    <p>Consult the <a href="/james_architecture.html">architecture</a> page if you want to learn
+    more on the source structure.</p>
+
+  </section>
+  
+  <section name="Required Tools">
+
+    <p>To run the build you need two third-party tools.</p>
+    <ol>
+      <li>Java Development Kit - You must have a JDK of Java version 1.5 or higher installed to build the 
+          James distribution.  The exact JDKs available depend on the platform.  A JDK must be downloaded and
+          installed before the build can run.</li>
+      <li>Maven - This is a Java-tailored, XML-configured, extensible build or make system. You need ant (2.2.1+) in order
+          to build James. You can get the latest version of maven <a href="http://maven.apache.org/download.html">here</a>.
+          Installation instructions for maven are also available on the same page <a href="http://maven.apache.org/download.html">http://maven.apache.org/download.html</a>.</li>
+    </ol>
+
+  </section>
+  
+  <section name="Build James source from Command Line">
+
+    <p>In the top level directory (where the parent pom.xml resides), invoke maven with 'mvn' with any of the following command line arguments:
+    <ul>
+      <li>clean - deletes the target directory, making the system ready for a clean build.</li>
+      <li>compile - compiles the source code.</li>
+      <li>test - run unit tests for James.</li>
+      <li><b>package - generates all the James distributions, packed. From the root directory, cd to 'spring-deployment/target' to have the build distribution.</b></li>
+      <li>javadocs:javadocs - builds the James javadocs.</li>
+      <li>site - builds the entirety of the James website.</li>
+    </ul>
+    </p>
+    <p>All build products are output in the 'spring-deployment/target' 
+    subdirectory of the James source directory.  
+    This directory will be deleted if you run build with the clean argument.</p>
+    <p><strong>Warning!</strong> Any changes you've made in the 'dist' directory 
+    will be lost after a recompilation. If you are running James fro this directory
+    we recommend you backup to avoid losing work. </p>
+
+  </section>
+
+  <section name="Build James source from Eclipse">
+  
+    <subsection name="Import projects in Eclipse with m2eclipse">
+  
+	    <table>
+	      <tr valign="top">
+            <td>
+              <p>You should have Eclipse IDE with the <a href="http://m2eclipse.sonatype.org">m2eclipse</a> plugin installed.</p>
+              <p>You need to import the maven project in the Eclipse workspace.</p>
+              <p>Click on the 'File' menu and select 'Import'. Choose 'Existing Maven Project' and click on 'Next' button.</p>
+            </td>
+	        <td><img src="./images/eclipse_import_maven_view_1.gif"/></td>
+	      </tr>
+	    </table>
+    
+    </subsection>
+
+    <subsection name="Select projects to import">
+  
+	    <table>
+	      <tr valign="top">
+            <td>
+              <p>Select the directory where you have checked out the source code.</p>
+              <p>Eclipse should present you with the James modules.</p>
+              <p>Click on 'Finish' to execute the import.</p>
+            </td>
+	        <td><img src="./images/eclipse_import_maven_view_2.gif"/></td>
+	      </tr>
+	    </table>
+    
+    </subsection>
+
+    <subsection name="Enable Workspace Resolution">
+  
+        <table>
+          <tr valign="top">
+            <td>
+              <p>Check that 'Workspace resolution' is enable in m2eclipse plugin.</p>
+              <p>Your changes in code will be directdly taken into account.</p>
+            </td>
+            <td><img src="./images/eclipse_m2eclipse_project_dependencies.gif"/></td>
+          </tr>
+        </table>
+    
+    </subsection>
+
+    <subsection name="Prepare projects">
+  
+	    <table>
+	      <tr valign="top">
+            <td>
+              <p>Now you have James projects in Eclipse workspace, you still the following to prepare everything:</p>
+              <ol>
+                 <li>Copy the spring-beans.xml and log4j.properties from 'spring-deployment\src\main\config\james' directory to a source folder.</li>
+                 <li>Copy all files (except spring-beans.xml and log4j.properties) from 'spring-deployment\src\main\config\james' directory to a conf folder (subdirectory of the directory where you made the check-out).</li>
+              </ol>
+              </td>
+	        <td><img src="./images/eclipse_m2eclipse_projects.gif"/></td>
+	      </tr>
+	    </table>
+    
+    </subsection>
+
+    <subsection name="Run James from Eclipse">
+  
+	    <table>
+	      <tr valign="top">
+            <td>
+              <p>That's it. Run James and Have Fun!.</p>
+            </td>
+	        <td><img src="./images/eclipse_run_james.gif"/></td>
+	      </tr>
+	    </table>
+
+    </subsection>
+
+  </section>
+
+  <section name="Building the Distribution with other IDEs">
+  
+    <p>We will be happy to include on this page any other tutorial you could send 
+    use about developing James with your favorite Integrated Development Environment.</p>
+
+  </section>
 
 </body>
+
 </document>
