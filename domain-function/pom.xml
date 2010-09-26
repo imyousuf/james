@@ -46,10 +46,6 @@
       <artifactId>james-server-dnsservice-dnsjava</artifactId>
     </dependency>
     <dependency>
-      <groupId>${javax.mail.groupId}</groupId>
-      <artifactId>${javax.mail.artifactId}</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
     </dependency>
@@ -58,25 +54,10 @@
       <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
-      <groupId>dnsjava</groupId>
-      <artifactId>dnsjava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-    </dependency>
-    <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>jsr250-api</artifactId>
     </dependency>    
-    <dependency>
-      <groupId>javax.jcr</groupId>
-      <artifactId>jcr</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.jackrabbit</groupId>
-      <artifactId>jackrabbit-jcr-commons</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jpa_2.0_spec</artifactId>
@@ -124,12 +105,6 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
-      <scope>test</scope>
-      <type>test-jar</type>
     </dependency>
   </dependencies>
 

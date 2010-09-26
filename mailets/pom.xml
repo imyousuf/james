@@ -98,10 +98,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-mail-api</artifactId>
     </dependency>
     <dependency>
@@ -157,7 +153,10 @@
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
     </dependency>
-   
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mailbox-api</artifactId>
+    </dependency>   
     <!-- Test dependencies -->
     <dependency>
       <groupId>junit</groupId>
@@ -175,12 +174,6 @@
       <artifactId>apache-standard-mailets</artifactId>
       <classifier>tests</classifier>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
-      <scope>test</scope>
-      <type>test-jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>

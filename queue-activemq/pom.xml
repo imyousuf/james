@@ -57,8 +57,8 @@
       <artifactId>commons-logging-api</artifactId>
     </dependency> 
     <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jms_1.1_spec</artifactId>
     </dependency>
     <dependency>
       <groupId>${javax.mail.groupId}</groupId>

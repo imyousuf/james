@@ -78,10 +78,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
-    </dependency>
      <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
@@ -101,6 +97,11 @@
     <dependency>
       <groupId>dnsjava</groupId>
       <artifactId>dnsjava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>jsr250-api</artifactId>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
