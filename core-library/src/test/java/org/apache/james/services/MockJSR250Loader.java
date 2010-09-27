@@ -1,0 +1,93 @@
+/****************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License.class.getName()); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *
+ * under the License.                                           *
+ ****************************************************************/
+
+package org.apache.james.services;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.james.services.AbstractJSR250InstanceFactory;
+
+public class MockJSR250Loader extends AbstractJSR250InstanceFactory {
+
+    private final Map<String, Object> servicesByName;
+    
+    private final Map<String, String> mappings = new HashMap<String, String>();
+
+    public MockJSR250Loader() {
+
+        servicesByName = new HashMap<String, Object>();
+
+// TODO Do we still need that?
+//        servicesByName.put(org.apache.james.LoaderService, this);
+
+        mappings.put("James", org.apache.james.services.MailServer.class.getName());
+        mappings.put("filesystem", org.apache.james.services.FileSystem.class.getName());
+        mappings.put("dnsservice", org.apache.james.dnsservice.api.DNSService.class.getName());
+        mappings.put("users-store", org.apache.james.api.user.UsersStore.class.getName());
+        mappings.put("localusersrepository", org.apache.james.api.user.UsersRepository.class.getName());
+        mappings.put("defaultvirtualusertable", org.apache.james.api.vut.VirtualUserTable.class.getName());
+        mappings.put("virtualusertablemanagement", org.apache.james.api.vut.management.VirtualUserTableManagement.class.getName());
+
+// TODO Review the needed services
+/*
+        mappings.put("domainlist", org.apache.james.api.domainlist.DomainList.class.getName());
+        mappings.put("mailstore", org.apache.avalon.cornerstone.services.store.Store.class.getName());
+        mappings.put("spoolrepository", org.apache.james.services.SpoolRepository.class.getName());
+        mappings.put("sockets", org.apache.avalon.cornerstone.services.sockets.SocketManager.class.getName());
+        mappings.put("scheduler", org.apache.avalon.cornerstone.services.scheduler.TimeScheduler.class.getName());
+        mappings.put("database-connections", org.apache.avalon.cornerstone.services.datasources.DataSourceSelector.class.getName());
+        mappings.put("spoolmanager", org.apache.james.services.SpoolManager.class.getName());
+        mappings.put("matcherpackages", org.apache.james.transport.MatcherLoader.class.getName());
+        mappings.put("mailetpackages", org.apache.james.transport.MailetLoader.class.getName());
+        mappings.put("virtualusertable-store", org.apache.james.api.vut.VirtualUserTableStore.class.getName());
+        mappings.put("imapserver", org.org.apache.jsieve.mailet.Poster.class.getName());
+        mappings.put("threadmanager", org.apache.avalon.cornerstone.services.threads.ThreadManager.class.getName());
+        mappings.put("spoolmanagement", org.apache.james.management.SpoolManagementService.class.getName());
+        mappings.put("bayesiananalyzermanagement", org.apache.james.management.BayesianAnalyzerManagementService.class.getName());
+        mappings.put("processormanagement", org.apache.james.management.ProcessorManagementService.class.getName());
+        mappings.put("virtualusertablemanagementservice", org.apache.james.api.vut.management.VirtualUserTableManagementService.class.getName());
+        mappings.put("domainlistmanagement", org.apache.james.management.DomainListManagementService.class.getName());
+        mappings.put("nntp-repository", org.apache.james.nntpserver.repository.NNTPRepository.class.getName());
+*/
+    }
+
+    public Object get(String name) { 
+        Object service = servicesByName.get(mapName(name));
+        return service;
+    }
+    
+    private String mapName(String name) {
+        String newName = mappings.get(name);
+        if(newName == null) {
+            newName = name;
+        }
+        return newName;
+    }
+   
+    public void put(String role, Object service) {
+        servicesByName.put(role, service);
+    }
+
+	@Override
+	public Object getObjectForName(String name) {
+		return get(name);
+	}
+
+}

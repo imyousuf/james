@@ -41,7 +41,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
-import org.apache.james.services.FakeJSR250Loader;
+import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.dnsservice.api.DNSService;
@@ -145,7 +145,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     //private SMTPServer m_smtpServer;
     protected SMTPTestConfiguration m_testConfiguration;
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
-    protected FakeJSR250Loader m_serviceManager;
+    protected MockJSR250Loader m_serviceManager;
     protected AlterableDNSServer m_dnsServer;
     protected MockMailStore store;
     protected MockFileSystem fileSystem;
@@ -211,7 +211,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     }
 
     protected void setUpFakeLoader() throws Exception {
-        m_serviceManager = new FakeJSR250Loader();
+        m_serviceManager = new MockJSR250Loader();
         m_mailServer = new MockMailServer();
         m_serviceManager.put(MailServer.ROLE, m_mailServer);
         m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);

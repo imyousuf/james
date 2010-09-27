@@ -36,7 +36,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.commons.net.pop3.POP3Reply;
-import org.apache.james.services.FakeJSR250Loader;
+import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
 import org.apache.james.api.user.UsersRepository;
@@ -63,7 +63,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     private POP3TestConfiguration m_testConfiguration;
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private POP3Client m_pop3Protocol = null;
-    private FakeJSR250Loader serviceManager;
+    private MockJSR250Loader serviceManager;
     protected DNSService dnsservice;
     protected MockFileSystem fSystem;
     protected ProtocolHandlerChainImpl chain;
@@ -96,7 +96,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     
     
     protected void setUpServiceManager() throws Exception {
-        serviceManager = new FakeJSR250Loader();
+        serviceManager = new MockJSR250Loader();
 
         m_mailServer = new MockMailServer();
         serviceManager.put(MailServer.ROLE, m_mailServer);

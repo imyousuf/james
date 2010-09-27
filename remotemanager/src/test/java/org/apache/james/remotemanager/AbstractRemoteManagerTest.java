@@ -38,7 +38,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.api.domainlist.SimpleDomainList;
-import org.apache.james.services.FakeJSR250Loader;
+import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
 import org.apache.james.api.user.UsersRepository;
@@ -73,7 +73,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	private TelnetClient m_telnetClient;
 	private MockUsersRepository m_mockUsersRepository;
 	protected MockMailServer mailServer;
-	private FakeJSR250Loader serviceManager;
+	private MockJSR250Loader serviceManager;
 	private MockUsersStore usersStore;
 	protected DNSService dnsservice;
 	protected MockFileSystem filesystem;
@@ -178,7 +178,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	}
 
 	protected void setUpFakeLoader() throws Exception {
-		serviceManager = new FakeJSR250Loader();
+		serviceManager = new MockJSR250Loader();
 
 		m_mockUsersRepository = new MockUsersRepository();
 
