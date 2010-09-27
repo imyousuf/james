@@ -56,8 +56,7 @@
         <helloName autodetect="true">myMailServer</helloName>
         -->
          
-        <!-- connection timeout in secconds -->
-        <connectiontimeout>360</connectiontimeout>
+        <!-- Connection timeout is 30 minutes and can not be changed - See rfc2060 5.4 for details -->
             
         <!-- Set the maximum simultaneous incoming connections for this service -->
         <connectionLimit> 0 </connectionLimit>
