@@ -44,28 +44,28 @@ public class MockJSR250Loader extends AbstractJSR250InstanceFactory {
         mappings.put("localusersrepository", org.apache.james.api.user.UsersRepository.class.getName());
         mappings.put("defaultvirtualusertable", org.apache.james.api.vut.VirtualUserTable.class.getName());
         mappings.put("virtualusertablemanagement", org.apache.james.api.vut.management.VirtualUserTableManagement.class.getName());
+        mappings.put("domainlist", org.apache.james.api.domainlist.DomainList.class.getName());
 
 // TODO Review the needed services
-/*
-        mappings.put("domainlist", org.apache.james.api.domainlist.DomainList.class.getName());
-        mappings.put("mailstore", org.apache.avalon.cornerstone.services.store.Store.class.getName());
-        mappings.put("spoolrepository", org.apache.james.services.SpoolRepository.class.getName());
-        mappings.put("sockets", org.apache.avalon.cornerstone.services.sockets.SocketManager.class.getName());
-        mappings.put("scheduler", org.apache.avalon.cornerstone.services.scheduler.TimeScheduler.class.getName());
-        mappings.put("database-connections", org.apache.avalon.cornerstone.services.datasources.DataSourceSelector.class.getName());
-        mappings.put("spoolmanager", org.apache.james.services.SpoolManager.class.getName());
-        mappings.put("matcherpackages", org.apache.james.transport.MatcherLoader.class.getName());
-        mappings.put("mailetpackages", org.apache.james.transport.MailetLoader.class.getName());
-        mappings.put("virtualusertable-store", org.apache.james.api.vut.VirtualUserTableStore.class.getName());
-        mappings.put("imapserver", org.org.apache.jsieve.mailet.Poster.class.getName());
-        mappings.put("threadmanager", org.apache.avalon.cornerstone.services.threads.ThreadManager.class.getName());
-        mappings.put("spoolmanagement", org.apache.james.management.SpoolManagementService.class.getName());
-        mappings.put("bayesiananalyzermanagement", org.apache.james.management.BayesianAnalyzerManagementService.class.getName());
-        mappings.put("processormanagement", org.apache.james.management.ProcessorManagementService.class.getName());
-        mappings.put("virtualusertablemanagementservice", org.apache.james.api.vut.management.VirtualUserTableManagementService.class.getName());
-        mappings.put("domainlistmanagement", org.apache.james.management.DomainListManagementService.class.getName());
-        mappings.put("nntp-repository", org.apache.james.nntpserver.repository.NNTPRepository.class.getName());
-*/
+
+        mappings.put("domainlistmanagement", "org.apache.james.management.DomainListManagementService");
+        mappings.put("mailstore", "org.apache.avalon.cornerstone.services.store.Store");
+        mappings.put("spoolrepository", "org.apache.james.services.SpoolRepository");
+        mappings.put("sockets", "org.apache.avalon.cornerstone.services.sockets.SocketManager");
+        mappings.put("scheduler", "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
+        mappings.put("database-connections", "org.apache.avalon.cornerstone.services.datasources.DataSourceSelector");
+        mappings.put("spoolmanager", "org.apache.james.services.SpoolManager");
+        mappings.put("matcherpackages", "org.apache.james.transport.MatcherLoader");
+        mappings.put("mailetpackages", "org.apache.james.transport.MailetLoader");
+        mappings.put("virtualusertable-store", "org.apache.james.api.vut.VirtualUserTableStore");
+        mappings.put("imapserver", "org.org.apache.jsieve.mailet.Poster");
+        mappings.put("threadmanager", "org.apache.avalon.cornerstone.services.threads.ThreadManager");
+        mappings.put("spoolmanagement", "org.apache.james.management.SpoolManagementService");
+        mappings.put("bayesiananalyzermanagement", "org.apache.james.management.BayesianAnalyzerManagementService");
+        mappings.put("processormanagement", "org.apache.james.management.ProcessorManagementService");
+        mappings.put("virtualusertablemanagementservice", "org.apache.james.api.vut.management.VirtualUserTableManagementService");
+        mappings.put("nntp-repository", "org.apache.james.nntpserver.repository.NNTPRepository");
+
     }
 
     public Object get(String name) { 
