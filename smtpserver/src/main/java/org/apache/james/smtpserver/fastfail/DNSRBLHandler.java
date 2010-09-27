@@ -79,7 +79,7 @@ public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail
         setGetDetail(handlerConfiguration.getBoolean("getDetail",false));
     }
     
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
     }

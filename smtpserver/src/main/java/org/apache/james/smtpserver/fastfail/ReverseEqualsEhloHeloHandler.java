@@ -26,7 +26,7 @@ import org.apache.james.smtpserver.SMTPServerDNSServiceAdapter;
 
 public class ReverseEqualsEhloHeloHandler extends org.apache.james.protocols.smtp.core.fastfail.ReverseEqualsEhloHeloHandler{
 
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
     }

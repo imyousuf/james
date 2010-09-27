@@ -26,8 +26,10 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.smtpserver.SMTPServerDNSServiceAdapter;
 
 public class ValidSenderDomainHandler extends org.apache.james.protocols.smtp.core.fastfail.ValidSenderDomainHandler{
-    @Resource(name="dnsserver")
+
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
     }
+
 }

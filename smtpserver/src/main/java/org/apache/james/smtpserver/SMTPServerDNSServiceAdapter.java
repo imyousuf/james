@@ -30,7 +30,6 @@ import org.apache.mailet.HostAddress;
 public class SMTPServerDNSServiceAdapter implements DNSService{
 
     private org.apache.james.dnsservice.api.DNSService dns;
-
     
     public SMTPServerDNSServiceAdapter(org.apache.james.dnsservice.api.DNSService dns) {    
         this.dns = dns;

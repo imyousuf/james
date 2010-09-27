@@ -190,7 +190,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
         setUnseenLifeTime(TimeConverter.getMilliSeconds(unseenLifeTime));
     }
     
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }
