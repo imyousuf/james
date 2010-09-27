@@ -36,12 +36,12 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.commons.net.pop3.POP3Reply;
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.services.FakeJSR250Loader;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
 import org.apache.james.api.user.UsersRepository;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxManager;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxSessionMapperFactory;
 import org.apache.james.mailbox.MailboxPath;
@@ -122,7 +122,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     }
 
     private DNSService setUpDNSServer() {
-        DNSService dns = new AbstractDNSServer() {
+        DNSService dns = new MockDNSService() {
             public String getHostName(InetAddress addr) {
                 return "localhost";
             }

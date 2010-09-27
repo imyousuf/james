@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.api.dnsservice;
+package org.apache.james.dnsservice.api;
 
 import java.io.IOException;
 

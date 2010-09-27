@@ -21,8 +21,8 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.TemporaryResolutionException;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.queue.MailQueue;
 import org.apache.james.queue.MailQueueFactory;

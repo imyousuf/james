@@ -169,7 +169,7 @@
 
     <bean id="mailetpackages" class="org.apache.james.mailetcontainer.JamesMailetLoader" />
 
-    <bean id="dnsserver" class="org.apache.james.dnsserver.DNSServer" />
+    <bean id="dnsserver" class="org.apache.james.dnsservice.dnsjava.DNSJavaServer" />
 
     <!-- The Spool Management block  -->
     <!-- 

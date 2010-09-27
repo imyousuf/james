@@ -30,8 +30,8 @@ import java.util.List;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.MockDNSService;
 
 import junit.framework.TestCase;
 
@@ -49,7 +49,7 @@ public class XMLDomainListTest extends TestCase {
     }
     
     private DNSService setUpDNSServer(final String hostName) {
-        DNSService dns = new AbstractDNSServer() {
+        DNSService dns = new MockDNSService() {
             public String getHostName(InetAddress inet) {
                 return hostName;
             }

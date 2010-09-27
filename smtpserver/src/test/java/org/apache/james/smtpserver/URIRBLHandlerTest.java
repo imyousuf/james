@@ -38,8 +38,8 @@ import javax.mail.internet.MimeMultipart;
 
 import junit.framework.TestCase;
 
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookResult;
@@ -133,7 +133,7 @@ public class URIRBLHandlerTest extends TestCase {
      *
      */
     private DNSService setupMockedDnsServer() {
-    	DNSService mockedDnsServer = new AbstractDNSServer() {
+    	DNSService mockedDnsServer = new MockDNSService() {
 
             public Collection findTXTRecords(String hostname) {
                 List res = new ArrayList();

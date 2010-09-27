@@ -36,8 +36,8 @@ import javax.mail.internet.ParseException;
 
 import junit.framework.TestCase;
 
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.base.test.FakeMatcherConfig;
 import org.apache.mailet.Mail;
@@ -187,7 +187,7 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
     }
 
     protected void setupDNSServer() {
-        dnsServer = new AbstractDNSServer() {
+        dnsServer = new MockDNSService() {
             public InetAddress getByName(String host)
                     throws UnknownHostException {
                 if ("192.168.200.0".equals(host) || "255.255.255.0".equals(host) || "192.168.200.1".equals(host) || "192.168.0.1".equals(host) || "192.168.1.1".equals(host)) {

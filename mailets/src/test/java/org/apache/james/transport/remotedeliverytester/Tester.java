@@ -19,9 +19,9 @@
 
 package org.apache.james.transport.remotedeliverytester;
 
-import org.apache.james.api.dnsservice.DNSService;
-import org.apache.james.api.dnsservice.TemporaryResolutionException;
 import org.apache.james.core.MailImpl;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;

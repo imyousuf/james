@@ -36,8 +36,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.api.domainlist.SimpleDomainList;
 import org.apache.james.services.FakeJSR250Loader;
@@ -47,6 +45,8 @@ import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.vut.management.MockVirtualUserTableManagementService;
 import org.apache.james.api.vut.management.VirtualUserTableManagementService;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.management.BayesianAnalyzerManagementException;
@@ -349,7 +349,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	}
 
 	private DNSService setUpDNSServer() {
-		DNSService dns = new AbstractDNSServer() {
+		DNSService dns = new MockDNSService() {
 			public String getHostName(InetAddress addr) {
 				return "localhost";
 			}

@@ -20,8 +20,8 @@
 
 package org.apache.james.transport.matchers;
 
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.mailet.base.test.FakeMail;
 import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.base.test.FakeMatcherConfig;
@@ -53,7 +53,7 @@ public class InSpammerBlacklistTest extends TestCase {
     }
 
     private DNSService setUpDNSServer() {
-        DNSService dns = new AbstractDNSServer() {
+        DNSService dns = new MockDNSService() {
             public InetAddress getByName(String name) throws UnknownHostException {
                 if (name.equals(LISTED_HOST.reverse() + "." + BLACKLIST)) {
                     return null;

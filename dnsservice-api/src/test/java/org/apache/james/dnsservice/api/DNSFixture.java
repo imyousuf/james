@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.api.dnsservice;
+package org.apache.james.dnsservice.api;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 
 /**
  * Some DNS Fixtures used by various Test related to DNS and InetNetwork.
@@ -40,7 +41,7 @@ public class DNSFixture {
     /**
      * A Mock DNS Server that handles IPv4-only InetAddress.
      */
-    public static final DNSService DNS_SERVER_IPV4_MOCK = new AbstractDNSServer() {
+    public static final DNSService DNS_SERVER_IPV4_MOCK = new MockDNSService() {
         
         public String getHostName(InetAddress inet) {
             return "localhost";
@@ -63,7 +64,7 @@ public class DNSFixture {
     /**
      * A Mock DNS Server that handles IPv6-only InetAddress.
      */
-    public static final DNSService DNS_SERVER_IPV6_MOCK = new AbstractDNSServer() {
+    public static final DNSService DNS_SERVER_IPV6_MOCK = new MockDNSService() {
         
         public String getHostName(InetAddress inet) {
             return "localhost";

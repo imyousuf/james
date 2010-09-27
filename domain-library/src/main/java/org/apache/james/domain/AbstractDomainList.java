@@ -31,8 +31,8 @@ import java.util.Locale;
 import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.domainlist.ManageableDomainList;
+import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.LogEnabled;
 
 /**

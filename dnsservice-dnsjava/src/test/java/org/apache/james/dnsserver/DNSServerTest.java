@@ -21,6 +21,7 @@ package org.apache.james.dnsserver;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.james.dnsservice.dnsjava.DNSJavaService;
 import org.apache.mailet.HostAddress;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.DClass;
@@ -232,7 +233,7 @@ public class DNSServerTest extends TestCase {
         }
     }
 
-    private final class TestableDNSServer extends DNSServer {
+    private final class TestableDNSServer extends DNSJavaService {
         
         public void setResolver(Resolver r) {
             resolver = r;

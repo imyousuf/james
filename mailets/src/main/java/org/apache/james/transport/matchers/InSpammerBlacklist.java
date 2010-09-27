@@ -28,7 +28,7 @@ import java.util.StringTokenizer;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.api.DNSService;
 import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

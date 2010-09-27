@@ -19,14 +19,14 @@
 
 
 
-package org.apache.james.dnsserver;
+package org.apache.james.dnsservice.api;
 
 /**
  * An interface to expose James management functionality through JMX.
  * 
  * @phoenix:mx-topic name="DNSService"
  */
-public interface DNSServerMBean {
+public interface DNSServiceMBean {
     /**
     * @phoenix:mx-operation
     * @phoenix:mx-description Returns the list of DNS servers

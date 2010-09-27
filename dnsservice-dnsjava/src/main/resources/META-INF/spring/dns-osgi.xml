@@ -10,5 +10,6 @@
 
     <!--  export the dnsserver as osgi service -->
     <service id="dnsserver" ref="dnsserver"                                 
-       interface="org.apache.james.api.dnsservice.DNSService" />
-</beans:beans>   
+       interface="org.apache.james.dnsservice.api.DNSService" />
+       
+</beans:beans>

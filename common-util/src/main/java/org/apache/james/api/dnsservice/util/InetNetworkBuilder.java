@@ -20,10 +20,10 @@ package org.apache.james.api.dnsservice.util;
 
 import java.net.UnknownHostException;
 
-import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.model.Inet4Network;
 import org.apache.james.api.dnsservice.model.Inet6Network;
 import org.apache.james.api.dnsservice.model.InetNetwork;
+import org.apache.james.dnsservice.api.DNSService;
 
 /**
  * Builds a InetNetwork (Inet4Network or Inet6Network) in function

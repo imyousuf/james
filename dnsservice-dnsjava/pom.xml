@@ -65,8 +65,8 @@
         <configuration>
           <instructions>
             <!-- We need to import the lifecycle methods of james and spring stuff just to me sure it works -->
-            <Import-Package>org.apache.james.container.spring.lifecycle.*,org.springframework.*,*</Import-Package>
-            <Export-Package>org.apache.james.api.dnsservice.*</Export-Package>
+            <Import-Package>org.apache.james.container.spring.lifecycle.*,org.springframework.*,org.apache.james.dnsservice.api.*,*</Import-Package>
+            <Export-Package>org.apache.james.dnsservice.dnsjava.*</Export-Package>
             <Embed-Dependency>*;scope=runtime</Embed-Dependency>
           </instructions>
         </configuration>

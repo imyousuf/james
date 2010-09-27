@@ -22,8 +22,8 @@ import java.net.UnknownHostException;
 
 import junit.framework.TestCase;
 
-import org.apache.james.api.dnsservice.DNSFixture;
 import org.apache.james.api.dnsservice.model.InetNetwork;
+import org.apache.james.dnsservice.api.DNSFixture;
 
 /**
  * Test the InetNetworkBuilder.

@@ -28,8 +28,8 @@ import java.util.Map;
 
 import javax.mail.internet.ParseException;
 
-import org.apache.james.api.dnsservice.AbstractDNSServer;
-import org.apache.james.api.dnsservice.DNSService;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
@@ -63,7 +63,7 @@ public class ValidRcptMXTest extends TestCase {
     }
 
     private DNSService setupMockedDNSServer() {
-    	DNSService dns = new AbstractDNSServer() {
+    	DNSService dns = new MockDNSService() {
 
             public Collection findMXRecords(String hostname) {
                 Collection mx = new ArrayList();

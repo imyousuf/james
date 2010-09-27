@@ -22,7 +22,7 @@ import java.net.UnknownHostException;
 
 import junit.framework.TestCase;
 
-import org.apache.james.api.dnsservice.DNSFixture;
+import org.apache.james.dnsservice.api.DNSFixture;
 
 /**
  * Test the NetMatcher class with various IPv4 and IPv6 parameters.

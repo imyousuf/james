@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.james.api.dnsservice.DNSService;
 import org.apache.james.api.dnsservice.model.InetNetwork;
+import org.apache.james.dnsservice.api.DNSService;
 
 /**
  * NetMatcher Class is used to check if an ipAddress match a network.

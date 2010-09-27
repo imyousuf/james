@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.api.dnsservice;
+package org.apache.james.dnsservice.api;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 
 import junit.framework.TestCase;
 
@@ -28,12 +29,12 @@ import junit.framework.TestCase;
  * The goal is to verify that the interface remains constants and
  * that the built platform has access to the Internet.
  */
-public class AbstractDNSServerTest extends TestCase {
+public class AbstractDNSServiceTest extends TestCase {
 
     /**
      * Simple Mock DNSService relaying on InetAddress.
      */
-    private static final DNSService DNS_SERVER = new AbstractDNSServer() {
+    private static final DNSService DNS_SERVER = new MockDNSService() {
         
         public String getHostName(InetAddress inet) {
             return inet.getCanonicalHostName();
