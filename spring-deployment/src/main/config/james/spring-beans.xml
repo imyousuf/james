@@ -38,7 +38,7 @@
                 <prop key="fetchmail"> bean:name=fetchmail</prop> 
                 <prop key="smtpserver">bean:name=smtpserver</prop> 
                 <prop key="James" >bean:name=James</prop>
-                <prop key="dnsserver" >bean:name=dnsserver</prop> 
+                <prop key="dnsservice" >bean:name=dnsservice</prop> 
                 <prop key="remotemanager" >bean:name=remotemanager</prop> 
                 <prop key="pop3server" >bean:name=pop3server</prop> 
                 <prop key="virtualusertablemanagement">bean:name=virtualusertablemanagement</prop> 
@@ -169,7 +169,7 @@
 
     <bean id="mailetpackages" class="org.apache.james.mailetcontainer.JamesMailetLoader" />
 
-    <bean id="dnsserver" class="org.apache.james.dnsservice.dnsjava.DNSJavaServer" />
+    <bean id="dnsservice" class="org.apache.james.dnsservice.dnsjava.DNSJavaService" />
 
     <!-- The Spool Management block  -->
     <!-- 

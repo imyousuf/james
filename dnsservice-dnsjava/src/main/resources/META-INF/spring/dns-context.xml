@@ -38,6 +38,6 @@
         <property name="order" value="3" />
     </bean>
     
-    <bean id="dnsserver" class="org.apache.james.dnsservice.dnsjava.DNSJavaServer" />
+    <bean id="dnsservice" class="org.apache.james.dnsservice.dnsjava.DNSJavaService" />
 
 </beans>

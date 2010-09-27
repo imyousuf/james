@@ -245,7 +245,7 @@ public abstract class AbstractRedirect extends GenericMailet {
     }
     
 
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }

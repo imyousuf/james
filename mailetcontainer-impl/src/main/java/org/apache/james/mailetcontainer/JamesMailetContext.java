@@ -85,7 +85,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         this.mailServer = mailServer;
     }
 
-    @Resource(name = "dnsserver")
+    @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }

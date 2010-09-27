@@ -93,7 +93,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     
     private SSLContext context;
 
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public final void setDNSService(DNSService dns) {
         this.dns = dns;
     }

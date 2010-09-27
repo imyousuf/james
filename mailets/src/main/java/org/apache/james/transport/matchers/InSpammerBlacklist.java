@@ -55,7 +55,7 @@ public class InSpammerBlacklist extends GenericMatcher {
 
   
     
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dnsService) {
         this.dnsServer = dnsService;
     }

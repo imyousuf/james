@@ -198,7 +198,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         this.queueFactory = queueFactory;
     }
     
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dnsService) {
         this.dnsServer = dnsService;
     }

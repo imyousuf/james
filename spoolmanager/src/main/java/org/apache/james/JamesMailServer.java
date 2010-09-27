@@ -95,7 +95,7 @@ public class JamesMailServer
         this.domains = domains;
     }
     
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }

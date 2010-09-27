@@ -44,7 +44,7 @@ public abstract class AbstractDomainList implements  ManageableDomainList, LogEn
     private boolean autoDetectIP = true;
     private Log logger;
     
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }

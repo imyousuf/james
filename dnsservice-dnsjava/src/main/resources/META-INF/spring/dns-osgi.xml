@@ -9,7 +9,7 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd">                   
 
     <!--  export the dnsserver as osgi service -->
-    <service id="dnsserver" ref="dnsserver"                                 
+    <service id="dnsservice" ref="dnsservice"                                 
        interface="org.apache.james.dnsservice.api.DNSService" />
        
 </beans:beans>

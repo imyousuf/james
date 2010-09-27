@@ -92,7 +92,7 @@ public abstract class AbstractNetworkMatcher extends GenericMatcher {
      * 
      * @param dnsService
      */
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dnsService) {
         this.dnsServer = dnsService;
     }

@@ -84,7 +84,7 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
     }
 
     
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }

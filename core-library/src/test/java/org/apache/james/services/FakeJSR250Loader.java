@@ -34,7 +34,7 @@ public class FakeJSR250Loader extends AbstractJSR250InstanceFactory {
         
         mappings.put("James", "org.apache.james.services.MailServer");
         mappings.put("filesystem", "org.apache.james.services.FileSystem");
-        mappings.put("dnsserver", "org.apache.james.api.dnsservice.DNSService");
+        mappings.put("dnsservice", "org.apache.james.api.dnsservice.DNSService");
         mappings.put("mailstore", "org.apache.avalon.cornerstone.services.store.Store");
         mappings.put("users-store", "org.apache.james.api.user.UsersStore");
         mappings.put("localusersrepository", "org.apache.james.api.user.UsersRepository");

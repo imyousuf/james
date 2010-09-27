@@ -657,7 +657,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     }
     
     
-    @Resource(name="dnsserver")
+    @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         this.dnsServer = dns;
     }
