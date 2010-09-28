@@ -74,7 +74,6 @@ public class ActiveMQMailQueue implements MailQueue {
     private final ConnectionFactory connectionFactory;
     private long messageTreshold = -1;
     private Log logger;
-
     private final static String JAMES_MAIL_RECIPIENTS = "JAMES_MAIL_RECIPIENTS";
     private final static String JAMES_MAIL_SENDER = "JAMES_MAIL_SENDER";
     private final static String JAMES_MAIL_ERROR_MESSAGE = "JAMES_MAIL_ERROR_MESSAGE";
@@ -128,15 +127,21 @@ public class ActiveMQMailQueue implements MailQueue {
     public void deQueue(DequeueOperation operation) throws MailQueueException, MessagingException {   
         Connection connection = null;
         Session session = null;
-        Message message;
+        Message message = null;
+        MessageConsumer consumer = null;
         try {
             connection = connectionFactory.createConnection();
             connection.start();
             
             session = connection.createSession(true, Session.SESSION_TRANSACTED);
             Queue queue = session.createQueue(queuename);
-            MessageConsumer consumer = session.createConsumer(queue);
+            consumer = session.createConsumer(queue);
             message = consumer.receive();
+            
+            if (message == null){
+            	return;
+            }
+            
             Mail mail = createMail(message);
             operation.process(mail);
             session.commit();
@@ -153,6 +158,7 @@ public class ActiveMQMailQueue implements MailQueue {
         } catch (JMSException e) {
             throw new MailQueueException("Unable to dequeue next message", e);
         } catch (MessagingException e) {
+        	
             if (session != null) {
                 try {
                     session.rollback();
@@ -161,6 +167,14 @@ public class ActiveMQMailQueue implements MailQueue {
                 }
             }
         } finally {
+        	if (consumer != null) {
+        		
+        		try {
+					consumer.close();
+				} catch (JMSException e1) {
+                    // ignore on rollback
+				}
+        	}
             try {
                 if (session != null) session.close();
             } catch (JMSException e) {
@@ -191,13 +205,15 @@ public class ActiveMQMailQueue implements MailQueue {
         
         Connection connection = null;
         Session session = null;
+        MessageProducer producer = null;
+        
         try {
 
             connection = connectionFactory.createConnection();
             connection.start();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Queue queue = session.createQueue(queuename);
-            MessageProducer producer = session.createProducer(queue);
+            producer = session.createProducer(queue);
 
             producer.send(createMessage(session, mail, mydelay));
         } catch (JMSException e) {
@@ -211,6 +227,11 @@ public class ActiveMQMailQueue implements MailQueue {
                 }
             }
         } finally {
+        	try {
+        		if (producer != null) producer.close();
+        	} catch (JMSException e) {
+                // ignore here
+        	}
             try {
                 if (session != null) session.close();
             } catch (JMSException e) {
@@ -440,5 +461,4 @@ public class ActiveMQMailQueue implements MailQueue {
         }
         return value.toString();
     }
-    
 }
