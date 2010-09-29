@@ -54,22 +54,25 @@
         <item name="Server-wide" href="/serverwide_configuration.html" />
         <item name="DNS" href="/dns_configuration.html" />
         <item name="Remote Manager" href="/remotemanager_configuration.html" />
-        <item name="Domains and Users" href="/adding_domains_users.html" />
         <item name="IMAP4" href="/imap4_configuration.html" />
         <item name="POP3" href="/pop3_configuration.html" />
         <item name="SMTP and LMTP" href="/smtp_configuration.html" />
 <!--      <item name="NNTP" href="/nntp_configuration.html" />-->
         <item name="SpoolManager" href="/spoolmanager_configuration.html" />
         <item name="FetchMail" href="/fetchmail_configuration.html" />
+        <item name="User Stores" href="/userstores_configuration.html" />
         <item name="Mail Stores" href="/mailstores_configuration.html" />
       </item>
-      <item name="Common Configurations" href="/common_configurations.html" />
+      <item name="Common Configs" href="/common_configurations.html" />
       <item name="Provided Mailets" href="/provided_mailets.html" />
       <item name="Provided Matchers" href="/provided_matchers.html" />
       <item name="James and Sendmail" href="/james_and_sendmail.html" />
       <item name="Upgrade from 2.3" href="/upgrade_instructions.html" />
+      <item name="Manage James" href="/management_instructions.html" collapse="true" >
+        <item name="Domains and Users" href="/adding_domains_users.html" />
+      </item>
     </menu>
-    
+
     <menu name="Developers Corner">
       <item name="Architecture" href="/james_architecture.html" />
       <item name="Build from source" href="/build_james.html" />

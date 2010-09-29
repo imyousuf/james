@@ -32,14 +32,24 @@
     be highly customizable, allowing administrators to configure James to process email in a 
     nearly endless variety of fashions.</p>
     
-    <p>The James server is built on top of the Avalon Framework.  The standard James distribution 
-    deploys inside the Phoenix Avalon Framework container.  In addition to providing a robust 
-    server architecuture for James, the use of Phoenix allows James administrators to deploy 
-    their own applications inside the container.  These applications can then be accessed during 
+    <p>The standard James distribution deploys inside the Spring dependency injection container.
+    In addition to providing a robust server architecture for James, the use of Spring allows James administrators 
+    to deploy their own applications inside the container.  These applications can then be accessed during 
     mail processing.</p>
     
     <p>The James server is implemented as a complete collection of servers and related components that, taken together,
     provide an email solution.  These components are described below.</p>
+    
+    <subsection name="SMTP Service">
+    
+      <p>SMTP (Simple Mail Transport Protocol) is the standard method of sending and delivering 
+      email on the internet.  James provides a full-function implementation of the SMTP specification,
+      with support for some optional features such as message size limits, SMTP auth, and encrypted 
+      client/server communication.</p>
+      
+      <p>More information on configuring the SMTP service can be found <a href="smtp_configuration.html">here</a>.</p>
+    
+    </subsection>
     
     <subsection name="POP3 Service">
     
@@ -55,14 +65,17 @@
     
     </subsection>
     
-    <subsection name="SMTP Service">
+    <subsection name="IMAP4 Service">
     
-      <p>SMTP (Simple Mail Transport Protocol) is the standard method of sending and delivering 
-      email on the internet.  James provides a full-function implementation of the SMTP specification,
-      with support for some optional features such as message size limits, SMTP auth, and encrypted 
-      client/server communication.</p>
+      <p>The IMAP4 protocol allows users to retrieve email messages.  It is the method
+      most commonly used by email clients to download and manage email messages.</p>
       
-      <p>More information on configuring the SMTP service can be found <a href="smtp_configuration.html">here</a>.</p>
+      <p>The James version of the IMAP4 service is a simple and straightforward implementation that 
+      provides full compliance with the specification and maximum compatibility with common
+      IMAP4 clients.  In addition, James can be configured to require SSL/TLS connections for
+      IMAP4 client connecting to the server.</p>
+      
+      <p>More information on configuring the POP3 service can be found <a href="imap4_configuration.html">here</a>.</p>
     
     </subsection>
     
@@ -77,7 +90,7 @@
 
     </subsection>
     
-    <subsection name="The SpoolManager, Matchers, and Mailets">
+    <subsection name="SpoolManager, Matchers, and Mailets">
     
       <p>James separates the services that deliver mail to James (i.e. SMTP, FetchMail) 
       from the engine that processes mail after it is received by James.  The 
@@ -88,15 +101,16 @@
     
     </subsection>
     
-    <subsection name="Repositories">
+    <subsection name="Stores">
     
-      <p>James uses a number of different repositories to both store message data (email, news messages) and 
-      user information.  User repositories store user information, including user names, authentication 
-      information, and aliases.  Mail repositories store messages that have been delivered locally.  Spool 
-      repositories store messages that are still being processed.  Finally, news repositories are used to
-      store news messages.  Aside from what type of data they store, repositories are distinguished by 
-      where they store data.  There are three types of storage - File, Database, and DBFile.</p>
+      <p>James uses a number of different stores/repositories to both store message data (email, news messages) and 
+      user information.  User stores/repositories contain user information, including user names, authentication 
+      information, and aliases.  Mail stores/repositories contain messages that have been delivered locally.  Spool 
+      Stores/repositories contain messages that are still being processed.  Aside from what type of data they store, 
+      repositories are distinguished by where they store data.  There are three types of storage - File, Database, and DBFile.</p>
     
+      <p>More information the stores can be found <a href="stores.html">here</a>.</p>
+
     </subsection>
     
     <subsection name="RemoteManager">

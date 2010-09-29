@@ -53,6 +53,25 @@
     <p>This documentation is intended to be an introduction to the concepts behind the James implementation, as well 
     as a guide to <a href="/installation_instructions.html">install</a>, <a href="/configuration_instructions.html">configure</a> 
     and <a href="/build_james.html">develop</a> the James server.</p>
+
+    <subsection name="Features">
+    
+       <ul>
+         <li>100% pure Java Mail and News server designed to be a complete and portable enterprise 
+             mail engine solution.</li>
+         <li>Supports currently available IETF protocols, including SMTP, POP3 and IMAP4 
+             James is able to store user and message data either in a file-system (Maildir), any JPA-compatible database
+             and even JCR, allowing fast, reliable, even real-time replicated storage.</li>
+         <li>Provides a powerful, flexible mail application engine through support for the Apache Mailet 
+             API.  With its Mailet pipeline architecture, James can be used not only to provide standard e-mail 
+             services, but also to implement custom e-mail applications.</li>
+         <li>Deployed in production environments and has proven itself to be a robust 
+             and high performance mail solution.  Tests indicate that version 3.0 
+             is able to maintain a constant mail throughput rate of thousands of 
+             messages/minute for continuous periods.</li>
+      </ul>
+
+    </subsection>
   
   <!-- This hierarchy is present in the menu. It will be easier to not replicate it here 
 

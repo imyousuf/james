@@ -34,18 +34,19 @@
   
     <p>There are two ways to get the James source code.</p>
     <ol>
-      <li>1. Download the source distribution - the source is available from the 
+      <li>Download the source distribution - the source is available from the 
           <a href="http://james.apache.org/download.cgi">James release mirrors</a>.
           Simply choose the version of James you'd like to download, and pick the source 
           distribution appropriate for your platform.</li>
-      <li>2. Get the source code using SVN - this method gives you access to the cutting edge code 
+      <li>Get the source code using SVN - this method gives you access to the cutting edge code 
           base.  Instructions on how to use SVN to get the James source code (the jakarta-james distribution) 
           can be found <a href="http://www.apache.org/dev/version-control.html">here</a>.
           James server repository is <a href="http://svn.apache.org/repos/asf/james/server/">here</a>.</li>
     </ol>
     <p>Currently, only the second option is available for James 3.0</p>
+    <p>We consider in this document that you have checked-out James source code in JAMES_SRC_HOME directory.</p>
     <p>Consult the <a href="/james_architecture.html">architecture</a> page if you want to learn
-    more on the source structure.</p>
+    more on the internal source structure.</p>
 
   </section>
   
@@ -65,7 +66,7 @@
   
   <section name="Build James source from Command Line">
 
-    <p>In the top level directory (where the parent pom.xml resides), invoke maven with 'mvn' with any of the following command line arguments:
+    <p>In the JAMES_SRC_HOME top level directory (where the parent pom.xml resides), invoke maven with 'mvn' with any of the following command line arguments:
     <ul>
       <li>clean - deletes the target directory, making the system ready for a clean build.</li>
       <li>compile - compiles the source code.</li>
@@ -75,7 +76,8 @@
       <li>site - builds the entirety of the James website.</li>
     </ul>
     </p>
-    <p>All build products are output in the 'spring-deployment/target' 
+    <p>For example, invoke 'mvn package' to get a zip/tar of James distribution.</p>
+    <p>All built products are output in the 'spring-deployment/target' 
     subdirectory of the James source directory.  
     This directory will be deleted if you run build with the clean argument.</p>
     <p><strong>Warning!</strong> Any changes you've made in the 'dist' directory 
@@ -88,31 +90,31 @@
   
     <subsection name="Import projects in Eclipse with m2eclipse">
   
-	    <table>
-	      <tr valign="top">
+      <table>
+        <tr valign="top">
+            <td><img src="./images/eclipse_import_maven_view_1.gif" width="300"/></td>
             <td>
-              <p>You should have Eclipse IDE with the <a href="http://m2eclipse.sonatype.org">m2eclipse</a> plugin installed.</p>
-              <p>You need to import the maven project in the Eclipse workspace.</p>
-              <p>Click on the 'File' menu and select 'Import'. Choose 'Existing Maven Project' and click on 'Next' button.</p>
+              <p>You should have Eclipse IDE with <a href="http://m2eclipse.sonatype.org">m2eclipse</a> plugin installed.</p>
+              <p>You now need to import the maven projects in the Eclipse workspace.</p>
+              <p>Therefore, click on the 'File' menu and select 'Import'. Choose 'Existing Maven Project' and click on 'Next' button.</p>
             </td>
-	        <td><img src="./images/eclipse_import_maven_view_1.gif"/></td>
-	      </tr>
-	    </table>
+        </tr>
+      </table>
     
     </subsection>
 
     <subsection name="Select projects to import">
   
-	    <table>
-	      <tr valign="top">
+      <table>
+        <tr valign="top">
+            <td><img src="./images/eclipse_import_maven_view_2.gif" width="300"/></td>
             <td>
-              <p>Select the directory where you have checked out the source code.</p>
-              <p>Eclipse should present you with the James modules.</p>
-              <p>Click on 'Finish' to execute the import.</p>
+              <p>Select the JAMES_SRC_HOME directory where you have checked out the source code.</p>
+              <p>Eclipse should present you with the list of James server modules.</p>
+              <p>Select the modules you want to import (by default, all) and click on 'Finish' to execute the import.</p>
             </td>
-	        <td><img src="./images/eclipse_import_maven_view_2.gif"/></td>
-	      </tr>
-	    </table>
+        </tr>
+      </table>
     
     </subsection>
 
@@ -120,11 +122,11 @@
   
         <table>
           <tr valign="top">
+            <td><img src="./images/eclipse_m2eclipse_project_dependencies.gif" width="300"/></td>
             <td>
               <p>Check that 'Workspace resolution' is enable in m2eclipse plugin.</p>
-              <p>Your changes in code will be directdly taken into account.</p>
+              <p>Your changes in code will be directly taken into account.</p>
             </td>
-            <td><img src="./images/eclipse_m2eclipse_project_dependencies.gif"/></td>
           </tr>
         </table>
     
@@ -132,31 +134,34 @@
 
     <subsection name="Prepare projects">
   
-	    <table>
-	      <tr valign="top">
+      <table>
+        <tr valign="top">
+            <td><img src="./images/eclipse_m2eclipse_projects.gif" width="300"/></td>
             <td>
-              <p>Now you have James projects in Eclipse workspace, you still the following to prepare everything:</p>
+              <p>Now you have James projects in Eclipse workspace.</p>
+              <p>You still have to prepare the following to be able to run from Eclipse:</p>
               <ol>
-                 <li>Copy the spring-beans.xml and log4j.properties from 'spring-deployment\src\main\config\james' directory to a source folder.</li>
-                 <li>Copy all files (except spring-beans.xml and log4j.properties) from 'spring-deployment\src\main\config\james' directory to a conf folder (subdirectory of the directory where you made the check-out).</li>
+                 <li>Copy the spring-beans.xml and log4j.properties from 'spring-deployment\src\main\config\james' directory 
+                 to a source folder of 'spring-deployment' project (you can use for example the 'stage' folder as Eclipse source folder).</li>
+                 <li>Copy all files (except spring-beans.xml and log4j.properties) from 'spring-deployment\src\main\config\james' 
+                 directory to a 'conf' folder ('conf' folder must be a subdirectory of the JAMES_SRC_HOME directory where you made the check-out).</li>
               </ol>
-              </td>
-	        <td><img src="./images/eclipse_m2eclipse_projects.gif"/></td>
-	      </tr>
-	    </table>
+            </td>
+        </tr>
+      </table>
     
     </subsection>
 
     <subsection name="Run James from Eclipse">
   
-	    <table>
-	      <tr valign="top">
+      <table>
+        <tr valign="top">
+            <td><img src="./images/eclipse_run_james.gif" width="300"/></td>
             <td>
               <p>That's it. Run James and Have Fun!.</p>
             </td>
-	        <td><img src="./images/eclipse_run_james.gif"/></td>
-	      </tr>
-	    </table>
+        </tr>
+      </table>
 
     </subsection>
 

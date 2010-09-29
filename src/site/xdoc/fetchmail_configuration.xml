@@ -42,10 +42,11 @@
     if it had been delivered via standard SMTP.</p>
     
     <p>
-    <a href="#How Fetchmail Works">How Fetchmail Works</a><br/>
-    <a href="#Fetchmail Configuration Parameters">Fetchmail Configuration Parameters</a><br/>
-    <a href="#Fetchmail Examples">Fetchmail Examples</a><br/>
-    <a href="#Fetchmail Caveats">Fetchmail Caveats</a>
+    <a href="#How_Fetchmail_Works">How Fetchmail Works</a><br/>
+    <a href="#Fetchmail_Configuration_Parameters">Fetchmail Configuration Parameters</a><br/>
+    <a href="#Fetchmail_Examples">Fetchmail Examples</a><br/>
+    <a href="#Fetchmail_Caveats">Fetchmail Caveats</a>
+    <a href="#Fetchmail_Gmail">Fetchmail Gmail</a>
     </p>
     
   </section>
@@ -969,10 +970,73 @@
       See <a href="http://support.microsoft.com/kb/816896/en-us"> Bug description and fix</a></li>
     </ul>
 
-  </p>
+    </p>
 
   </section>
 
+  <section name="Fetchmail Gmail">
+  
+    <p>Use this configuration to fetch Gmail via POP3. Please don't forget to enable POP3 in Gmail (<a href="http://mail.google.com/support/bin/answer.py?answer=13273">read how-to</a>).</p>
+  
+    <source>
+&lt;fetchmail enabled=&quot;true&quot;&gt;
+&lt;fetch name=&quot;gmail.com&quot;&gt;
+&lt;accounts&gt;
+&lt;account user=&quot;YOUR_USER@gmail.com&quot; password=&quot;YOUR_PASSWORD&quot; recipient=&quot;YOUR_EMAIL_ADDRESS_IN_JAMES&quot; ignorercpt-header=&quot;true&quot;/&gt;
+&lt;/accounts&gt;
+&lt;host&gt;pop.gmail.com&lt;/host&gt;
+&lt;interval&gt;600000&lt;/interval&gt;
+&lt;javaMailProviderName&gt;pop3&lt;/javaMailProviderName&gt;
+&lt;javaMailFolderName&gt;INBOX&lt;/javaMailFolderName&gt;
+&lt;javaMailProperties&gt;
+&lt;property name=&quot;mail.pop3.ssl.enable&quot; value=&quot;true&quot;/&gt;
+&lt;/javaMailProperties&gt;
+&lt;fetchall&gt;false&lt;/fetchall&gt;
+&lt;recursesubfolders&gt;false&lt;/recursesubfolders&gt;
+&lt;defaultdomain&gt;localhost&lt;/defaultdomain&gt;
+&lt;fetched leaveonserver=&quot;true&quot; markseen=&quot;true&quot;/&gt;
+&lt;remotereceivedheader index=&quot;1&quot; reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot;/&gt;
+&lt;maxmessagesize limit=&quot;0&quot; reject=&quot;false&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot;/&gt;
+&lt;undeliverable leaveonserver=&quot;true&quot; markseen=&quot;false&quot;/&gt;
+&lt;recipientnotfound defer=&quot;true&quot; reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot;/&gt;
+&lt;blacklist reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot;&gt; wibble@localhost, flobble@localhost&lt;/blacklist&gt;
+&lt;userundefined reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot; /&gt;
+&lt;remoterecipient reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot; /&gt;
+&lt;/fetch&gt;
+&lt;/fetchmail&gt;
+    </source>
+  
+    <p>Use this configuration to fetch Gmail via IMAP4. Please don't forget to enable IMAP4 in Gmail (<a href="http://mail.google.com/support/bin/answer.py?answer=77695">read how-to</a>).</p>
+  
+    <source>
+&lt;fetchmail enabled=&quot;true&quot;&gt;
+&lt;fetch name=&quot;gmail.com&quot;&gt;
+&lt;accounts&gt;
+&lt;account user=&quot;YOUR_USER@gmail.com&quot; password=&quot;YOUR_PASSWORD&quot; recipient=&quot;YOUR_EMAIL_ADDRESS_IN_JAMES&quot; ignorercpt-header=&quot;true"/&gt;
+&lt;/accounts&gt;
+&lt;host&gt;imap.gmail.com&lt;/host&gt;
+&lt;interval&gt;600000&lt;/interval&gt;
+&lt;javaMailProviderName&gt;imap&lt;/javaMailProviderName&gt;
+&lt;javaMailFolderName&gt;INBOX&lt;/javaMailFolderName&gt;
+&lt;javaMailProperties&gt;
+&lt;property name=&quot;mail.imap.ssl.enable&quot; value=&quot;true&quot;/&gt;
+&lt;/javaMailProperties&gt;
+&lt;fetchall&gt;false&lt;/fetchall&gt;
+&lt;recursesubfolders&gt;false&lt;/recursesubfolders&gt;
+&lt;defaultdomain&gt;localhost&lt;/defaultdomain&gt;
+&lt;fetched leaveonserver=&quot;true&quot; markseen=&quot;true&quot;/&gt;
+&lt;remotereceivedheader index=&quot;1&quot; reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot;/&gt;
+&lt;maxmessagesize limit=&quot;0&quot; reject=&quot;false&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot;/&gt;
+&lt;undeliverable leaveonserver=&quot;true&quot; markseen=&quot;false&quot;/&gt;
+&lt;recipientnotfound defer=&quot;true&quot; reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot;/&gt;
+&lt;blacklist reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot;&gt; wibble@localhost, flobble@localhost&lt;/blacklist&gt;
+&lt;userundefined reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot; /&gt;
+&lt;remoterecipient reject=&quot;true&quot; leaveonserver=&quot;true&quot; markseen=&quot;false&quot; /&gt;
+&lt;/fetch&gt;
+&lt;/fetchmail&gt;
+    </source>
+  
+  </section>
 
 </body>
 

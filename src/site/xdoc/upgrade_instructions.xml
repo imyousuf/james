@@ -25,6 +25,13 @@
  
 <body>
 
+  <section name="Migration Tool">
+
+    <p>Provide a tool to migrate 2.3 mail-repositories to 3.0 mailbox-stores</p>
+    <p><a href="https://issues.apache.org/jira/browse/JAMES-1052">https://issues.apache.org/jira/browse/JAMES-1052</a></p>
+
+  </section>
+
   <section name="Upgrading Comments">
     <p>James upgrading involves a number of steps, each of which is described in some detail in the 
     following sections.  But as this sequence of steps has confused some users in the past, additional 
