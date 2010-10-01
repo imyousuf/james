@@ -17,7 +17,7 @@
   specific language governing permissions and limitations      
   under the License.                                           
  -->
-<!-- DNS Server Block -->
+<!-- DNS Service Block -->
 <!-- -->
 <!-- Specifies DNS Server information for use by various components inside -->
 <!-- James. -->
@@ -33,7 +33,7 @@
 <!-- specified by the server elements, each of which is a child element of the -->
 <!-- servers element.  Each server element is the IP address of a single DNS server. -->
 <!-- The servers element can have multiple server children. -->
-<dnsserver>
+<dnsservice>
     <servers>
         <!--Enter ip address of your DNS server, one IP address per server -->
         <!-- element. -->
@@ -54,5 +54,4 @@
     <!--
     <singleIPperMX> true </singleIPperMX>
     -->
-</dnsserver>
-   
+</dnsservice>
