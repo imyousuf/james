@@ -244,7 +244,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     @PreDestroy
     public final void destroy() {
         getLogger().info("Dispose " + getServiceType());
-        super.stop();
+        if (isEnabled()) {
+            stop();
+        }
     }
     
     

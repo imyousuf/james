@@ -66,7 +66,7 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer{
 
     @Override
     public String getServiceType() {
-        return "LMTP";
+        return "LMTP Service";
     }
     
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
