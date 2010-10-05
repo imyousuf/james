@@ -150,7 +150,7 @@
         <property name="start" value="true" />
     </bean>
 
-    <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory">
+    <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker">
         <!-- Allow to specify if BlobMessage or BytesMessage should be used for storing the Mail in the queue-->
         <!-- Please have a look at the javadocs of ActiveMQMailQueue for more information -->
         <!-- By default only BytesMessage is used -->

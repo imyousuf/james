@@ -24,6 +24,7 @@ package org.apache.james.transport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -77,7 +78,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
     /**
      * Spool threads are active
      */
-    private boolean active;
+    private AtomicBoolean active = new AtomicBoolean(false);
 
     /**
      * Spool threads
@@ -130,7 +131,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
             logger.info(infoBuffer.toString());
         }
 
-        active = true;
+        active.set(true);
         numActive = 0;
         spoolThreads = new java.util.ArrayList<Thread>(numThreads);
         for ( int i = 0 ; i < numThreads ; i++ ) {
@@ -153,7 +154,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
         }
 
         numActive++;
-        while(active) {
+        while(active.get()) {
             try {
                 queue.deQueue(new DequeueOperation() {
                     
@@ -184,7 +185,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
                 
                
             } catch (Throwable e) {
-                if (logger.isErrorEnabled()) {
+                if (active.get() && logger.isErrorEnabled()) {
                     logger.error("Exception processing mail in JamesSpoolManager.run "
                                       + e.getMessage(), e);
                 }
@@ -209,7 +210,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
     @PreDestroy
     public void dispose() {
         logger.info("JamesSpoolManager dispose...");
-        active = false; // shutdown the threads
+        active.set(false); // shutdown the threads
         for (Thread thread: spoolThreads) {
             thread.interrupt(); // interrupt any waiting accept() calls.
         }
