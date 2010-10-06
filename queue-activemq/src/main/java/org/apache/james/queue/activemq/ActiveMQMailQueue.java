@@ -102,17 +102,17 @@ public class ActiveMQMailQueue implements MailQueue {
     /**
      * Handle mail with lowest priority
      */
-    public final static int LOW_PRIORITY = 1;
+    public final static int LOW_PRIORITY = 0;
     
     /**
      * Handle mail with normal priority (this is the default)
      */
-    public final static int NORMAL_PRIORITY = 2;
+    public final static int NORMAL_PRIORITY = 5;
     
     /**
      * Handle mail with highest priority
      */
-    public final static int HIGH_PRIORITY = 3;
+    public final static int HIGH_PRIORITY = 9;
     
     /**
      * Attribute name for support if priority. If the attribute is set and priority handling is enabled it will take care of move the Mails with
