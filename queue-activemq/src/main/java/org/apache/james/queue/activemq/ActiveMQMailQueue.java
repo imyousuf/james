@@ -122,7 +122,7 @@ public class ActiveMQMailQueue implements MailQueue {
      * 
      * http://activemq.apache.org/how-can-i-support-priority-queues.html
      */
-    public final static String MAIL_PRIORITY = "JMSPriority";
+    public final static String MAIL_PRIORITY = "MAIL_PRIORITY";
     
     /**
      * Construct a new ActiveMQ based {@link MailQueue}. 
