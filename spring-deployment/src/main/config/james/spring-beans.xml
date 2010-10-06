@@ -21,10 +21,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans" 
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:amq="http://activemq.apache.org/schema/core" 
        xsi:schemaLocation="
           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-
+          http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+          http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+          
 
     <!--
         ** JMX part ** to enable exposure of JMX, activate the following beans
@@ -124,30 +126,27 @@
     <camel:camelContext id="jamesCamelContext" trace="false" >
         <camel:jmxAgent id="agent" disabled="true"/>
         <camel:template id="producerTemplate"/>   
-        <camel:routeBuilder ref="processorRoute" /> 
     </camel:camelContext>
 
-   
-    <!-- jms connection pooling  -->
-    <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
-        <property name="connectionFactory">
-            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-                <property name="brokerURL" value="vm://localhost?broker.useJmx=false"/>
-            </bean>
-        </property>
-        <!--
-        <property name="transactionManager" ref="jmsTransactionManager"/>
-        -->
+    <!--  lets create an embedded ActiveMQ Broker -->
+    <amq:broker useJmx="false" persistent="true" dataDirectory="../data/" schedulerSupport="true" id="broker">
+        <amq:transportConnectors>
+            <amq:transportConnector uri="tcp://localhost:0" />
+        </amq:transportConnectors>
+    </amq:broker>
+
+
+    <amq:connectionFactory id="amqConnectionFactory" brokerURL="vm://localhost?create=false" />
+
+    <!-- CachingConnectionFactory Definition, sessionCacheSize property is the number of sessions to cache -->
+    <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <constructor-arg ref="amqConnectionFactory" />
+        <property name="sessionCacheSize" value="100" />
     </bean>
 
     <!-- setup spring jms TX manager -->
     <bean id="jmsTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    </bean>
-    
-    <bean id="broker" class="org.apache.activemq.xbean.BrokerFactoryBean">
-        <property name="config" value="file://conf/activemq.xml" />
-        <property name="start" value="true" />
     </bean>
 
     <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker">
@@ -156,6 +155,7 @@
         <!-- By default only BytesMessage is used -->
         <property name="sizeTreshold" value="-1"/>
     </bean>
+   
         
     <!-- Build the camelroute from the spoolmanager.xml -->
     <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>

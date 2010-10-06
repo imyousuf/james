@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -73,7 +74,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
     /**
      * Number of active threads
      */
-    private int numActive;
+    private AtomicInteger numActive = new AtomicInteger(0);;
 
     /**
      * Spool threads are active
@@ -132,7 +133,6 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
         }
 
         active.set(true);
-        numActive = 0;
         spoolThreads = new java.util.ArrayList<Thread>(numThreads);
         for ( int i = 0 ; i < numThreads ; i++ ) {
             Thread reader = new Thread(this, "Spool Thread #" + i);
@@ -153,8 +153,9 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
             logger.info("Spool=" + queue.getClass().getName());
         }
 
-        numActive++;
         while(active.get()) {
+            numActive.incrementAndGet();
+
             try {
                 queue.deQueue(new DequeueOperation() {
                     
@@ -189,12 +190,14 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
                     logger.error("Exception processing mail in JamesSpoolManager.run "
                                       + e.getMessage(), e);
                 }
+            } finally {
+                numActive.decrementAndGet();
             }
+
         }
         if (logger.isInfoEnabled()){
             logger.info("Stop JamesSpoolManager: " + Thread.currentThread().getName());
         }
-        numActive--;
     }
 
     /**
@@ -217,11 +220,13 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
 
         long stop = System.currentTimeMillis() + 60000;
         // give the spooler threads one minute to terminate gracefully
-        while (numActive != 0 && stop > System.currentTimeMillis()) {
+        /*
+        while (numActive.get() != 0 && stop > System.currentTimeMillis()) {
             try {
                 Thread.sleep(1000);
             } catch (Exception ignored) {}
         }
+        */
         logger.info("JamesSpoolManager thread shutdown completed.");
     }
 
