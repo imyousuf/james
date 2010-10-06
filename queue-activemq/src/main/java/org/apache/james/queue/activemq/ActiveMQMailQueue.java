@@ -66,6 +66,14 @@ import org.apache.mailet.MailAddress;
  * 
  * See http://activemq.apache.org/blob-messages.html for more details
  * 
+ * 
+ * Some other supported feature is handling of priorities. See:
+ * 
+ * http://activemq.apache.org/how-can-i-support-priority-queues.html 
+ * 
+ * For this just add a {@link Mail} attribute with name {@link #MAIL_PRIORITY} to it. It should use one of the following
+ * value {@link #LOW_PRIORITY}, {@link #NORMAL_PRIORITY}, {@link #HIGH_PRIORITY}
+ * 
  *
  */
 public class ActiveMQMailQueue implements MailQueue {
@@ -91,6 +99,31 @@ public class ActiveMQMailQueue implements MailQueue {
     public final static int DISABLE_TRESHOLD = -1;
     public final static int BLOBMESSAGE_ONLY = 0;
 
+    /**
+     * Handle mail with lowest priority
+     */
+    public final static int LOW_PRIORITY = 1;
+    
+    /**
+     * Handle mail with normal priority (this is the default)
+     */
+    public final static int NORMAL_PRIORITY = 2;
+    
+    /**
+     * Handle mail with highest priority
+     */
+    public final static int HIGH_PRIORITY = 3;
+    
+    /**
+     * Attribute name for support if priority. If the attribute is set and priority handling is enabled it will take care of move the Mails with
+     * higher priority to the head of the queue (so the mails are faster handled).
+     * 
+     * For enabling the feature in AMQ and get some more informations see:
+     * 
+     * http://activemq.apache.org/how-can-i-support-priority-queues.html
+     */
+    public final static String MAIL_PRIORITY = "JMSPriority";
+    
     /**
      * Construct a new ActiveMQ based {@link MailQueue}. 
      * The messageTreshold is used to calculate if a {@link BytesMessage} or a {@link BlobMessage} should be used when queuing the mail in
@@ -362,7 +395,7 @@ public class ActiveMQMailQueue implements MailQueue {
                 BytesMessage message  = session.createBytesMessage();
                 
                 populateJMSProperties(message, mail, delayInMillis);
-                            
+                populateJMSHeaders(message, mail);
                 mail.getMessage().writeTo(new BytesMessageOutputStream(message));;
                 return message;
             } else {
@@ -374,6 +407,8 @@ public class ActiveMQMailQueue implements MailQueue {
                 }
                 BlobMessage message  = amqSession.createBlobMessage(new MimeMessageInputStream(mail.getMessage()));
                 populateJMSProperties(message, mail, delayInMillis);
+                populateJMSHeaders(message, mail);
+
                 return message;
             }
             
@@ -447,8 +482,17 @@ public class ActiveMQMailQueue implements MailQueue {
         message.setStringProperty(JAMES_MAIL_ATTRIBUTE_NAMES, attrsBuilder.toString());
         message.setStringProperty(JAMES_MAIL_SENDER, sender);
         message.setStringProperty(JAMES_MAIL_STATE, mail.getState());
-                   
+        
+        
     }
+    
+    private void populateJMSHeaders(Message message, Mail mail) throws JMSException, MessagingException {
+    	Object prio = mail.getAttribute(MAIL_PRIORITY);
+    	if (prio instanceof Integer) {
+        	message.setJMSPriority((Integer) prio);
+    	}
+    }
+    
     /**
      * Convert the attribute value if necessary. 
      * 

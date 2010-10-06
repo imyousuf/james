@@ -130,6 +130,17 @@
 
     <!--  lets create an embedded ActiveMQ Broker -->
     <amq:broker useJmx="false" persistent="true" dataDirectory="../data/" schedulerSupport="true" id="broker">
+        <amq:destinationPolicy>
+            <amq:policyMap>
+                <amq:policyEntries>
+                    <!-- Support priority handling of messages -->
+                    <!-- http://activemq.apache.org/how-can-i-support-priority-queues.html -->
+                    <!-- 
+                    <amq:policyEntry queue=">" prioritizedMessages="true"/>
+                    -->
+                </amq:policyEntries>
+            </amq:policyMap>
+        </amq:destinationPolicy>
         <amq:transportConnectors>
             <amq:transportConnector uri="tcp://localhost:0" />
         </amq:transportConnectors>
