@@ -88,7 +88,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 return virtualUsers.get(0).getTargetAddress();
             }
         } catch (PersistenceException e) {
-            getLogger().debug("Failed to remove domain", e);
+            getLogger().debug("Failed to find mapping for  user=" + user + " and domain=" + domain, e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
