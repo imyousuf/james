@@ -49,7 +49,7 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>
-    <dependency>
+        <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>
     </dependency>
