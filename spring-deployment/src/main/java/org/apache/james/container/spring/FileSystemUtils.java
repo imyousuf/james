@@ -18,46 +18,25 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 
-import org.apache.jackrabbit.core.config.ConfigurationException;
-import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.james.services.FileSystem;
 
 /**
- * Factory which use the {@link FileSystem} to lookup the configuration file and root directory to build a 
- * {@link RepositoryConfig}
- * 
+ * Helper class for Spring 
  *
  */
-public class FileSystemRepositoryConfigFactory{
+public class FileSystemUtils {
 
     /**
-     * Create a new {@link RepositoryConfig} 
+     * Return the path for the given url from the {@link FileSystem}
      * 
-     * @param config
-     * @param root
      * @param fs
-     * @return repositoryConfig
-     * @throws ConfigurationException
+     * @param url
+     * @return path
+     * @throws FileNotFoundException
      */
-    public static RepositoryConfig create(String config, String root, FileSystem fs) throws ConfigurationException {
-        try {
-            File configFile = fs.getFile(config);
-            File rootDir = fs.getFile(root);
-            
-            // create the rootDir if it not exist already
-            if (rootDir.exists() == false) {
-                rootDir.mkdirs();
-            }
-            
-            return RepositoryConfig.create(configFile, rootDir);
-
-        } catch (FileNotFoundException e) {
-            throw new ConfigurationException("Unable to load configurationFile ", e);
-        }
-
-
+    public static String getFileNameFromUrl(FileSystem fs, String url) throws FileNotFoundException {
+        return fs.getFile(url).getAbsolutePath();
     }
 }

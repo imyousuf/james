@@ -444,10 +444,19 @@
     </bean>
     
     <!-- Jackrabbit config -->
-    <bean id="config" class="org.apache.james.container.spring.FileSystemRepositoryConfigFactory" factory-method="create">        
-        <constructor-arg index="0" value="file://conf/jcr-repository.xml"/>
-        <constructor-arg index="1" value="file://var/jackrabbit" />
-        <constructor-arg index="2" ref="filesystem"/>
+    <bean id="config" class="org.apache.jackrabbit.core.config.RepositoryConfig" factory-method="create">
+        <constructor-arg index="0">
+            <bean class="org.apache.james.container.spring.FileSystemUtils" factory-method="getFileNameFromUrl">
+                <constructor-arg index="0" ref="filesystem"/>
+                <constructor-arg index="1" value="file://conf/jcr-repository.xml" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg index="1">
+            <bean class="org.apache.james.container.spring.FileSystemUtils" factory-method="getFileNameFromUrl">
+                <constructor-arg index="0" ref="filesystem"/>
+                <constructor-arg index="1" value="file://var/jackrabbit" />
+            </bean>
+        </constructor-arg>
     </bean>
 
     <!-- #################################################################### -->
