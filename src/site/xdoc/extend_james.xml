@@ -27,6 +27,22 @@
 
 <section name="Extend James">
 
+  <subsection name="Mailbox Store">
+  
+  </subsection>
+ 
+  <subsection name="Mailbox Listeners">
+  
+  </subsection>
+ 
+  <subsection name="Queue">
+  
+  </subsection>
+ 
+  <subsection name="Queue Listeners">
+  
+  </subsection>
+ 
 </section>
 
 </body>

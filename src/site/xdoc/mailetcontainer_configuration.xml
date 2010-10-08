@@ -20,11 +20,11 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Configuring the SpoolManager</title>
+  <title>James 3.0 - Configuring the Mailet Container</title>
  </properties>
 
 <body>
-<section name="SpoolManager Configuration">
+<section name="Mailet Container Configuration">
 <p>The SpoolManager is controlled by a single configuration block in the config.xml.
 The spoolmanager tag defines the boundaries of the configuration block.  The behavior of 
 the SpoolManager, most importantly the routing of mail messages through the processor tree,
