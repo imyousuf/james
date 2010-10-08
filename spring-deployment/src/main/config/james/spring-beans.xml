@@ -89,6 +89,11 @@
         </property>
     </bean>
 
+    <!-- Take care of resolve filesystem= property values -->
+    <bean class="org.apache.james.container.spring.FileSystemResolver">
+        <property name="fileSystem" ref="filesystem" />
+    </bean>
+    
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name = "location" value="file://conf/database.properties"/>
     </bean>
@@ -129,7 +134,7 @@
     </camel:camelContext>
 
     <!--  lets create an embedded ActiveMQ Broker -->
-    <amq:broker useJmx="false" persistent="true" dataDirectory="../var/activemq-data/" schedulerSupport="true" id="broker">
+    <amq:broker useJmx="false" persistent="true" dataDirectory="filesystem=file://var/activemq-data/" schedulerSupport="true" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>
@@ -445,18 +450,8 @@
     
     <!-- Jackrabbit config -->
     <bean id="config" class="org.apache.jackrabbit.core.config.RepositoryConfig" factory-method="create">
-        <constructor-arg index="0">
-            <bean class="org.apache.james.container.spring.FileSystemUtils" factory-method="getFileNameFromUrl">
-                <constructor-arg index="0" ref="filesystem"/>
-                <constructor-arg index="1" value="file://conf/jcr-repository.xml" />
-            </bean>
-        </constructor-arg>
-        <constructor-arg index="1">
-            <bean class="org.apache.james.container.spring.FileSystemUtils" factory-method="getFileNameFromUrl">
-                <constructor-arg index="0" ref="filesystem"/>
-                <constructor-arg index="1" value="file://var/jackrabbit" />
-            </bean>
-        </constructor-arg>
+        <constructor-arg index="0" value="filesystem=file://conf/jcr-repository.xml"/>
+        <constructor-arg index="1" value="filesystem=file://var/jackrabbit" />
     </bean>
 
     <!-- #################################################################### -->
