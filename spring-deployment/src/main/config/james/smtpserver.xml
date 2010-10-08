@@ -103,6 +103,7 @@
          <!--  Uncomment this if you want to verify sender addresses, ensuring that -->
          <!--  the sender address matches the user who has authenticated. -->
          <!--  This prevents a user of your mail server from acting as someone else -->
+         <!--  If unspecified, default value is true -->
          <!--
          <verifyIdentity>true</verifyIdentity>
          -->
@@ -208,14 +209,13 @@
              <!--
              <handler class="org.apache.james.smtpserver.fastfail.ValidSenderDomainHandler"/>
              -->
-     
          
-             <!-- If activated all email will get rejected which has no valid user -->
+             <!-- With ValidRcptHandler, all email will get rejected which has no valid user -->
              <!-- You need to add the recipient to the validRecipient list if you want -->
              <!-- to accept email for a recipient which not exist on the server -->
-             <!-- 
+             <!-- If you want James to act as a spamtrap or honeypot, you may comment ValidRcptHandler -->
+             <!-- and implement the needed processors in spoolmanager.xml -->
              <handler class="org.apache.james.smtpserver.fastfail.ValidRcptHandler"/>
-             -->
             
              <!-- If activated you can limit the maximal recipients -->
              <!-- 
