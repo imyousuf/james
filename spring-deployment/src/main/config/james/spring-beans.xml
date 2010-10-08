@@ -70,14 +70,13 @@
     -->
 
     <bean class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
-        <property name="configurationRegistry" ref="configurationRegistry" />
+        <property name="configurationProvider" ref="configurationProvider" />
         <property name="order" value="1" />
     </bean>
 
-    <bean id="configurationRegistry" class="org.apache.james.container.spring.lifecycle.SpringConfigurationRegistry">
+    <bean id="configurationProvider" class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider">
         <property name="configurationMappings">
             <map>
-                <entry key="mailboxmanager" value="imapserver" />
                 <entry key="mailetcontext" value="James"/>
                 <entry key="lmtpProtocolHandlerChain" value="lmtpserver"/>
                 <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
@@ -99,11 +98,11 @@
     </bean>
 
     <bean class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
-        <property name="logRegistry" ref="logRegistry" />
+        <property name="logProvider" ref="logProvider" />
         <property name="order" value="0" />
     </bean>
 
-    <bean id="logRegistry" class="org.apache.james.container.spring.lifecycle.SpringLogRegistry">
+    <bean id="logProvider" class="org.apache.james.container.spring.lifecycle.SpringLogProvider">
         <property name="logMappings">
             <map>
                 <entry key="lmtpProtocolHandlerChain" value="lmtpserver"/>
@@ -112,7 +111,6 @@
                 <entry key="remoteProtocolHandlerChain" value="remoteManager"/>
                 <entry key="mailProcessor" value="spoolmanager"/>                
                 <entry key="mailserver" value="James"/>
-                <entry key="poster" value="James"/>
             </map>
         </property>
     </bean>
@@ -204,9 +202,7 @@
         <property name="protocolHandlerChain" ref="remoteProtocolHandlerChain"/>
     </bean>
 
-    <bean id="remoteProtocolHandlerChain" class="org.apache.james.container.spring.SpringProtocolHandlerChain">
-        <property name="logRegistry" ref="logRegistry"/>
-        <property name="configurationRegistry" ref="configurationRegistry"/>
+    <bean id="remoteProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
     </bean>
 
@@ -218,9 +214,7 @@
         <property name="protocolHandlerChain" ref="pop3ProtocolHandlerChain"/>
     </bean>
 
-    <bean id="pop3ProtocolHandlerChain" class="org.apache.james.container.spring.SpringProtocolHandlerChain">
-        <property name="logRegistry" ref="logRegistry"/>
-        <property name="configurationRegistry" ref="configurationRegistry"/>
+    <bean id="pop3ProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
     </bean>
 
@@ -229,9 +223,7 @@
         <property name="protocolHandlerChain" ref="smtpProtocolHandlerChain"/>
     </bean>
 
-    <bean id="smtpProtocolHandlerChain" class="org.apache.james.container.spring.SpringProtocolHandlerChain">
-        <property name="logRegistry" ref="logRegistry"/>
-        <property name="configurationRegistry" ref="configurationRegistry"/>
+    <bean id="smtpProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
     </bean>
 
@@ -240,9 +232,7 @@
         <property name="protocolHandlerChain" ref="lmtpProtocolHandlerChain"/>
     </bean>
 
-    <bean id="lmtpProtocolHandlerChain" class="org.apache.james.container.spring.SpringProtocolHandlerChain">
-        <property name="logRegistry" ref="logRegistry"/>
-        <property name="configurationRegistry" ref="configurationRegistry"/>
+    <bean id="lmtpProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
     </bean>
     
@@ -250,14 +240,12 @@
     <bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 
     <!-- The High Level Storage block -->
-    <bean id="mailstore" class="org.apache.james.container.spring.SpringMailStore" />
+    <bean id="mailstore" class="org.apache.james.mailstore.JamesMailStore" />
 
 
     <!-- The User Storage block -->
-    <bean id="users-store" class="org.apache.james.container.spring.SpringUsersStore" >
+    <bean id="users-store" class="org.apache.james.impl.user.JamesUsersStore" >
         <property name="defaultRepository" value="LocalUsers"/>
-        <property name="logRegistry" ref="logRegistry"/>
-        <property name="configurationRegistry" ref="configurationRegistry"/>
     </bean>
 
     <!-- This is needed to link the smtpserver to the local user repository
@@ -281,10 +269,8 @@
     <bean id="virtualusertablemanagementservice" class="org.apache.james.impl.vut.VirtualUserTableManagement" />
 
     <!-- VirtualUserTable Store -->
-    <bean id="virtualusertable-store" class="org.apache.james.container.spring.SpringVirtualUserTableStore">
+    <bean id="virtualusertable-store" class="org.apache.james.impl.vut.JamesVirtualUserTableStore">
         <property name="defaultTable" value="DefaultVirtualUserTable"/>
-        <property name="logRegistry" ref="logRegistry"/>
-        <property name="configurationRegistry" ref="configurationRegistry"/>
     </bean>
 
 

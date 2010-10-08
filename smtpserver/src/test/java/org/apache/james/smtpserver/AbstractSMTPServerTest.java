@@ -51,7 +51,7 @@ import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
-import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
+import org.apache.james.socket.JamesProtocolHandlerChain;
 import org.apache.james.test.mock.DummyVirtualUserTableStore;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.TestUtil;
@@ -150,7 +150,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     protected MockMailStore store;
     protected MockFileSystem fileSystem;
     protected SMTPServerDNSServiceAdapter dnsAdapter;
-    protected ProtocolHandlerChainImpl chain;
+    protected JamesProtocolHandlerChain chain;
     
     public AbstractSMTPServerTest() {
         super("AsyncSMTPServerTest");
@@ -164,7 +164,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
 
         
-        chain = new ProtocolHandlerChainImpl();
+        chain = new JamesProtocolHandlerChain();
         chain.setInstanceFactory(m_serviceManager);
         chain.setLog(log);
         setUpSMTPServer();
@@ -175,7 +175,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
 
     protected void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        chain.configure(testConfiguration.configurationAt("handler.handlerchain"));        
+        chain.configure(testConfiguration);        
         chain.init();
         
         initSMTPServer(testConfiguration);

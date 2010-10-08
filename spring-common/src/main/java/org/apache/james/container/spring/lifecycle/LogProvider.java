@@ -16,44 +16,22 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring;
+package org.apache.james.container.spring.lifecycle;
+
+import org.apache.commons.logging.Log;
 
 /**
- * Provide a Object for a Component
+ * Provide {@link Log} instances for Beans
  * 
  *
  */
-public interface Registry<E> {
+public interface LogProvider {
 
-	/**
-	 * Return the object which should get used for the Component with the given name
-	 * 
-	 * @param componentname
-	 * @return object
-	 */
-	public E getForComponent(String componentname) throws RegistryException;
-	
-	/**
-	 * Register the object for the componentname
-	 * 
-	 * @param componentName
-	 * @param object
-	 */
-	public void registerForComponent(String componentName, E object);
-	
-	
-    @SuppressWarnings("serial")
-    public final class RegistryException extends Exception {
-        public RegistryException(String msg, Throwable t) {
-            super(msg, t);
-        }
-
-        public RegistryException(Throwable t) {
-            super(t);
-        }
-
-        public RegistryException(String msg) {
-            super(msg);
-        }
-    }
+    /**
+     * Return the Log for the bean with the given name
+     * 
+     * @param name
+     * @return log
+     */
+    public Log getLog(String beanName);
 }

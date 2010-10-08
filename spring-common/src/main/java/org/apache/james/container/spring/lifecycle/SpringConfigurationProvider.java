@@ -26,7 +26,6 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.james.container.spring.Registry;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
@@ -37,33 +36,12 @@ import org.springframework.core.io.ResourceLoader;
  * 
  *
  */
-public class SpringConfigurationRegistry implements Registry<HierarchicalConfiguration>, ResourceLoaderAware, InitializingBean {
+public class SpringConfigurationProvider implements ConfigurationProvider, ResourceLoaderAware, InitializingBean {
 
 	private ResourceLoader loader;
 	private Map<String,HierarchicalConfiguration> confMap = new HashMap<String,HierarchicalConfiguration>();
     private Map<String,String> resources;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.container.spring.Registry#getForComponent(java.lang.String)
-	 */
-	public HierarchicalConfiguration getForComponent(String name)
-			throws RegistryException {
-	    HierarchicalConfiguration conf = confMap.get(name);
-	    if (conf != null) {
-	        return conf;
-	    } else {
-	        Resource r = loader.getResource(getConfigPrefix()+ name + ".xml");
-	        if (r.exists()) {
-	            try {
-                    return getConfig(r);
-                } catch (Exception e) {
-                    throw new RegistryException("Unable to load configuration for component " + name,e);                    
-                }
-	        }
-	    }
-	    throw new RegistryException("Unable to load configuration for component " + name);
-	}
 
 
 	/**
@@ -117,9 +95,26 @@ public class SpringConfigurationRegistry implements Registry<HierarchicalConfigu
             while (it.hasNext()) {
                 String key = it.next();
                 String value = resources.get(key);
-                confMap.put(key,getForComponent(value));
+                confMap.put(key,getConfiguration(value));
             }
         }
+    }
+
+    public HierarchicalConfiguration getConfiguration(String name) throws ConfigurationException {
+        HierarchicalConfiguration conf = confMap.get(name);
+        if (conf != null) {
+            return conf;
+        } else {
+            Resource r = loader.getResource(getConfigPrefix()+ name + ".xml");
+            if (r.exists()) {
+                try {
+                    return getConfig(r);
+                } catch (Exception e) {
+                    throw new ConfigurationException("Unable to load configuration for component " + name, e);                    
+                }
+            }
+        }
+        throw new ConfigurationException("Unable to load configuration for component " + name);
     }
 
 }

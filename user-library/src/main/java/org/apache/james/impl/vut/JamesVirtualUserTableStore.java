@@ -16,69 +16,55 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring;
+package org.apache.james.impl.vut;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.api.vut.VirtualUserTableStore;
+import org.apache.james.impl.AbstractStore;
 
-/**
- * UsersStore implementation which will parse the configuration file for users-store and add every configured repository
- * to the Spring BeanFactory.
- * @author norman
- *
- */
-public class SpringUsersStore extends AbstractStore implements UsersStore {
+public class JamesVirtualUserTableStore extends AbstractStore<VirtualUserTable> implements VirtualUserTableStore{
 
     private String defaultName;
 
 
     /*
      * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.UsersStore#getRepository(java.lang.String)
+     * @see org.apache.james.container.spring.AbstractStore#getSubConfigurations(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public UsersRepository getRepository(String name) {
-        if (name == null || name.trim().equals("")) {
-            name = defaultName;
-        }
-
-        UsersRepository response = null;
-
-        if (objects.contains(name)) {
-            try {
-                response = (UsersRepository) context.getBean(name, UsersRepository.class);
-            } catch (NoSuchBeanDefinitionException e) {
-                // Just catch the exception
-            }
-        }
-        if ((response == null) && (log.isWarnEnabled())) {
-            log.warn("No users repository called: " + name);
-        }
-        return response;
-    }
-
-    public void setDefaultRepository(String defaultName) {
-        this.defaultName = defaultName;
+    @SuppressWarnings("unchecked")
+    @Override
+    protected List<HierarchicalConfiguration> getSubConfigurations(HierarchicalConfiguration rootConf) {
+        return rootConf.configurationsAt("table");
     }
 
     /*
      * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.UsersStore#getRepositoryNames()
+     * @see org.apache.james.api.vut.VirtualUserTableStore#getTable(java.lang.String)
      */
-    public Iterator<String> getRepositoryNames() {
-        return objects.iterator();
+    public VirtualUserTable getTable(String name) {
+        if (name == null || name.trim().equals("")) {
+            name = defaultName;
+        }
+
+        VirtualUserTable response = objects.get(name);
+
+        if ((response == null) && (log.isWarnEnabled())) {
+            log.warn("No VirtualUserTable called: " + name);
+        }
+        return response;   
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected List<HierarchicalConfiguration> getSubConfigurations(HierarchicalConfiguration rootConf) {
-        return rootConf.configurationsAt("repository");
-    }
 
+    /**
+     * Set the default VirtualUserTable which will get returned when no name is given or the name is empty
+     * 
+     * @param defaultName
+     */
+    public void setDefaultTable(String defaultName) {
+        this.defaultName = defaultName;
+    }
+    
 }

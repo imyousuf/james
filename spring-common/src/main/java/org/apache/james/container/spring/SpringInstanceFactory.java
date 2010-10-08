@@ -19,22 +19,65 @@
 
 package org.apache.james.container.spring;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.InstanceFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
+/**
+ * {@link InstanceFactory} implementation which use a {@link BeanFactory} to handle the loading / injection of resources
+ * 
+ *
+ */
 public class SpringInstanceFactory implements InstanceFactory, BeanFactoryAware{
     private ConfigurableListableBeanFactory cFactory;
   
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.api.kernel.InstanceFactory#newInstance(java.lang.String)
+     * @see org.apache.james.services.InstanceFactory#newInstance(java.lang.Class)
      */
-    public Object newInstance(String className) throws InstanceException, ClassNotFoundException {
-        return cFactory.createBean(cFactory.getBeanClassLoader().loadClass(className));
+    public <T> T newInstance(Class<T> clazz) throws InstanceException {
+        return newInstance(clazz, null, null);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.InstanceFactory#newInstance(java.lang.Class, org.apache.commons.logging.Log, org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T newInstance(Class<T> clazz, Log log, HierarchicalConfiguration config) throws InstanceException {
+        try {
+            Object obj = clazz.newInstance();
+            if (log != null) {
+                if (obj instanceof LogEnabled) {
+                    ((LogEnabled) obj).setLog(log);
+                }
+            }
+            if (config != null) {
+                if (obj instanceof Configurable) {
+                    try {
+                        ((Configurable) obj).configure(config);
+                    } catch (ConfigurationException e) {
+                        throw new InstanceException("Unable to config " + obj);
+                    }
+                } 
+            }
+            cFactory.autowireBean(obj);
+            return (T)cFactory.initializeBean(obj, obj.toString());
+            
+        } catch (InstantiationException e) {
+            throw new InstanceException("Unable to instance " + clazz , e);
+        } catch (IllegalAccessException e) {
+            throw new InstanceException("Unable to instance " + clazz , e);
+        }
     }
 
     /*

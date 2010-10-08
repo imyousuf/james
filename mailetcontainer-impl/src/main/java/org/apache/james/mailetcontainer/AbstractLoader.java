@@ -31,7 +31,6 @@ import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.InstanceFactory;
-import org.apache.james.services.InstanceFactory.InstanceException;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.MailetException;
 
@@ -52,7 +51,7 @@ public abstract class AbstractLoader implements LogEnabled, Configurable {
 
     private Log logger;
 
-    private InstanceFactory factory;
+    protected InstanceFactory factory;
 
    
     /*
@@ -82,13 +81,6 @@ public abstract class AbstractLoader implements LogEnabled, Configurable {
         return logger;
     }
     
-    protected Object load(String className) throws ClassNotFoundException {
-        try {
-            return factory.newInstance(className);
-        } catch (InstanceException e) {
-            return null;
-        }    
-    }
 
     @SuppressWarnings("unchecked")
     protected void getPackages(HierarchicalConfiguration conf, String packageType)

@@ -71,12 +71,13 @@ public abstract class AbstractFileRepository
     private FileSystem fileSystem;
 
     private Log logger;
+
+    private String destination;
     
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{        
-        final String destination = configuration.getString( "[@destinationURL]" );
-        setDestination( destination );
-        
+        destination = configuration.getString( "[@destinationURL]" );
     }
+    
     
     @Resource(name="filesystem")
     public void setFileSystem(FileSystem fileSystem) {
@@ -97,8 +98,10 @@ public abstract class AbstractFileRepository
     public void init()
         throws Exception
     {
+
         getLogger().info( "Init " + getClass().getName() + " Store" );
-        
+        setDestination( destination );
+
         File directory;
 
         try

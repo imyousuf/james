@@ -58,7 +58,7 @@ import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementService;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
+import org.apache.james.socket.JamesProtocolHandlerChain;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
@@ -78,12 +78,12 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	protected DNSService dnsservice;
 	protected MockFileSystem filesystem;
 	private MockVirtualUserTableManagementService vutManagement;
-	protected ProtocolHandlerChainImpl chain;
+	protected JamesProtocolHandlerChain chain;
 	
 	protected void setUp() throws Exception {
 		setUpFakeLoader();
 
-		chain = new ProtocolHandlerChainImpl();
+        chain = new JamesProtocolHandlerChain();
 	    chain.setInstanceFactory(serviceManager);
 	    chain.setLog(new SimpleLog("ChainLog"));
 	        
@@ -100,7 +100,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration)
 			throws Exception {
 		testConfiguration.init();
-        chain.configure(testConfiguration.configurationAt("handler.handlerchain"));        
+        chain.configure(testConfiguration);        
 		chain.init();
 		initRemoteManager(testConfiguration);
 	}

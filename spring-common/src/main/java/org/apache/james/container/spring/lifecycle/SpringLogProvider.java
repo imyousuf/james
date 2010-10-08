@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.Log4JLogger;
-import org.apache.james.container.spring.Registry;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -32,25 +31,12 @@ import org.springframework.beans.factory.InitializingBean;
  * 
  *
  */
-public class SpringLogRegistry implements Registry<Log>, InitializingBean {
+public class SpringLogProvider implements LogProvider, InitializingBean {
 
     private final Map<String,Log> logMap = new HashMap<String,Log>();
     private Map<String, String> logs;
     private final static String PREFIX = "james.";
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.container.spring.Registry#getForComponent(java.lang.String)
-     */
-	public Log getForComponent(String componentname) throws RegistryException{
-	    Log log = logMap.get(componentname);
-	    if (log != null) {
-	        return log;
-	    } else {
-	        return createLog(PREFIX + componentname);
-	    }
-	}
-	
 	/**
 	 * Use {@link Log4JLogger} to create the Log
 	 * 
@@ -86,6 +72,15 @@ public class SpringLogRegistry implements Registry<Log>, InitializingBean {
                 
                 logMap.put(key, new Log4JLogger(PREFIX + value));
             }
+        }
+    }
+
+    public Log getLog(String name) {
+        Log log = logMap.get(name);
+        if (log != null) {
+            return log;
+        } else {
+            return createLog(PREFIX + name);
         }
     }
 }

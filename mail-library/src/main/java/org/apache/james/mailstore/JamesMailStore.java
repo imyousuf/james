@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.configuration.CombinedConfiguration;
@@ -35,14 +36,14 @@ import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.mailstore.MailStore;
+import org.apache.james.services.InstanceFactory;
 
 /**
  * Provides a registry of mail repositories. A mail repository is uniquely
  * identified by its destinationURL, type and model.
  *
  */
-public abstract class AbstractMailStore
-    implements MailStore, LogEnabled, Configurable {
+public class JamesMailStore implements MailStore, LogEnabled, Configurable {
 
     // Prefix for repository names
     private static final String REPOSITORY_NAME = "Repository";
@@ -68,6 +69,8 @@ public abstract class AbstractMailStore
 
     private Log logger;
 
+    private InstanceFactory factory;
+
 	//private LoaderService loader;
 
 
@@ -84,6 +87,11 @@ public abstract class AbstractMailStore
     }
 
 
+    @Resource(name="instanceFactory")
+    public void setInstanceFactory(InstanceFactory factory) {
+        this.factory = factory;
+    }
+    
     @PostConstruct
     @SuppressWarnings("unchecked")
     public void init()
@@ -243,8 +251,8 @@ public abstract class AbstractMailStore
                 config.addConfiguration(defConf);
             }
 
-            try {
-                reply = load(repClass, config, logger);
+            try {               
+                reply = factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(repClass), logger, config);
 
                 repositories.put(repID, reply);
                 if (getLogger().isInfoEnabled()) {
@@ -277,10 +285,8 @@ public abstract class AbstractMailStore
      * @return a new repository name
      */
     public static final String getName() {
-        synchronized (AbstractMailStore.class) {
+        synchronized (JamesMailStore.class) {
             return REPOSITORY_NAME + id++;
         }
     }
-    
-    protected abstract Object load(String className, HierarchicalConfiguration config, Log log) throws Exception;
 }

@@ -19,6 +19,9 @@
 
 package org.apache.james.services;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+
 /**
  * Loads instances of given types.
  */
@@ -31,7 +34,10 @@ public interface InstanceFactory {
      * @param type may be interface or concrete, not null
      * @return an instance of the type
      */
-    public Object newInstance(String className) throws InstanceException, ClassNotFoundException;
+    public <T> T newInstance(Class<T> clazz) throws InstanceException;
+    
+    public <T> T newInstance(Class<T> clazz, Log log, HierarchicalConfiguration config) throws InstanceException;
+
     
     @SuppressWarnings("serial")
     public class InstanceException extends Exception {

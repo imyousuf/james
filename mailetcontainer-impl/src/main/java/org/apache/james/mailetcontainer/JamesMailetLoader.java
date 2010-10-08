@@ -54,7 +54,7 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
             for (final String packageName:packages) {
                 final String className = packageName + mailetName;
                 try {
-                    final Mailet mailet = (Mailet) load(className);;
+                    final Mailet mailet = (Mailet)factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(className));
                     
                     final MailetConfigImpl configImpl = new MailetConfigImpl();
                     configImpl.setMailetName(mailetName);

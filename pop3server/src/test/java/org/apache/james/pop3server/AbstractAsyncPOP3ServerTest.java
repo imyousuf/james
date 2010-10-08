@@ -51,7 +51,7 @@ import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.netty.ProtocolHandlerChainImpl;
+import org.apache.james.socket.JamesProtocolHandlerChain;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.TestUtil;
@@ -66,7 +66,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     private MockJSR250Loader serviceManager;
     protected DNSService dnsservice;
     protected MockFileSystem fSystem;
-    protected ProtocolHandlerChainImpl chain;
+    protected JamesProtocolHandlerChain chain;
     private InMemoryMailboxManager manager;
     
     public AbstractAsyncPOP3ServerTest() {
@@ -76,7 +76,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     protected void setUp() throws Exception {
         setUpServiceManager();
         
-        chain = new ProtocolHandlerChainImpl();
+        chain = new JamesProtocolHandlerChain();
         chain.setInstanceFactory(serviceManager);
         chain.setLog(new SimpleLog("ChainLog"));
    
@@ -86,7 +86,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
 
     protected void finishSetUp(POP3TestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        chain.configure(testConfiguration.configurationAt("handler.handlerchain"));        
+        chain.configure(testConfiguration);        
         chain.init();
         initPOP3Server(testConfiguration);
     }

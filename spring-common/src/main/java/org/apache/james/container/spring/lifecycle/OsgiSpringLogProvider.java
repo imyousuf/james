@@ -18,15 +18,17 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
-public class OsgiSpringConfigurationRegistry extends SpringConfigurationRegistry{
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class OsgiSpringLogProvider extends SpringLogProvider{
 
 	/**
-	 * Load configuration from classpath.
-	 * 
-	 * TODO: We should allow to specify a different config location via osgi configuration service
+	 * Use {@link LogFactory} to create a Log
 	 */
-	protected String getConfigPrefix() {
-		return "classpath:";
+	protected Log createLog(String loggerName) {
+		return LogFactory.getLog(loggerName);
 	}
 
+	
 }

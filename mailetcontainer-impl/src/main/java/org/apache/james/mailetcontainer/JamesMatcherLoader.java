@@ -57,7 +57,7 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
             for (final String packageName: packages) {
                 final String className = packageName + matchName;
                 try {
-                    final Matcher matcher = (Matcher) load(className);
+                    final Matcher matcher = (Matcher) factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(className));
                     
                     final MatcherConfigImpl configImpl = new MatcherConfigImpl();
                     configImpl.setMatcherName(matchName);

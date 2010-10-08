@@ -27,6 +27,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+
 /**
  * Abstract base class which implements a JSR250 based LoaderService
  * 
@@ -41,19 +44,21 @@ public abstract class AbstractJSR250InstanceFactory implements InstanceFactory {
      * 
      * @see org.apache.james.api.kernel.Factory#newInstance(java.lang.String)
      */
-    public final Object newInstance(String className) throws InstanceException, ClassNotFoundException {
+    public final <T> T newInstance(Class<T> clazz) throws InstanceException {
+        return newInstance(clazz, null, null);
+    }
+
+    public  final <T> T newInstance(Class<T> clazz, Log log, HierarchicalConfiguration config) throws InstanceException {
         try {
-            Object obj = create(className);
+            T obj = clazz.newInstance();
             injectResources(obj);
             postConstruct(obj);
             synchronized (this) {
                 loaderRegistry.add(obj);
             }
             return obj;
-        } catch (ClassNotFoundException e) {
-            throw e;
         } catch (Exception e) {
-            throw new InstanceException("Unable to load instance of class " + className, e);
+            throw new InstanceException("Unable to load instance of class " + clazz, e);
         }
     }
 
