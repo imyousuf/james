@@ -129,7 +129,7 @@
     </camel:camelContext>
 
     <!--  lets create an embedded ActiveMQ Broker -->
-    <amq:broker useJmx="false" persistent="true" dataDirectory="filesystem=file://var/activemq-data/" schedulerSupport="true" useShutdownHook="false" id="broker">
+    <amq:broker useJmx="false" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" schedulerSupport="true" useShutdownHook="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>
@@ -147,7 +147,7 @@
     </amq:broker>
 
 
-    <amq:connectionFactory id="amqConnectionFactory" brokerURL="vm://localhost?create=false" />
+    <amq:connectionFactory id="amqConnectionFactory" brokerURL="vm://james?create=false" />
 
     <!-- CachingConnectionFactory Definition, sessionCacheSize property is the number of sessions to cache -->
     <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
