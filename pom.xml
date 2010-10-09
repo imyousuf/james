@@ -1141,7 +1141,7 @@
     <derby.version>10.5.3.0_1</derby.version>
     <camel.version>2.4.0</camel.version>
     <activemq.version>5.4.1</activemq.version>
-    <spring.version>3.0.2.RELEASE</spring.version>
+    <spring.version>3.0.4.RELEASE</spring.version>
     <imap.version>0.2-SNAPSHOT</imap.version>
     <protocols.version>1.2-SNAPSHOT</protocols.version>
     <jsieve.version>0.4</jsieve.version>
