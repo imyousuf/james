@@ -35,7 +35,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.mailrepository.MailRepository;
 import org.apache.james.mailstore.MailStore;
 import org.apache.james.services.InstanceFactory;
 
@@ -48,7 +47,7 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
 
 
     // map of [destinationURL + type]->Repository
-    private Map<String, MailRepository> repositories;
+    private Map<String, Object> repositories;
 
     // map of [protocol(destinationURL) + type ]->classname of repository;
     private Map<String,String> classes;
@@ -197,7 +196,7 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
 
         String type = repConf.getString("[@type]");
         String repID = destination + type;
-        MailRepository reply = repositories.get(repID);
+        Object reply = repositories.get(repID);
         StringBuffer logBuffer = null;
         if (reply != null) {
             if (getLogger().isDebugEnabled()) {
@@ -242,7 +241,7 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
             }
 
             try {               
-                reply = (MailRepository) factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(repClass), logger, config);
+                reply =  factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(repClass), logger, config);
 
                 repositories.put(repID, reply);
                 if (getLogger().isInfoEnabled()) {
