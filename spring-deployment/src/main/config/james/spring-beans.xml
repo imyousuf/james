@@ -129,7 +129,7 @@
     </camel:camelContext>
 
     <!--  lets create an embedded ActiveMQ Broker -->
-    <amq:broker useJmx="false" persistent="true" dataDirectory="filesystem=file://var/activemq-data/" schedulerSupport="true" id="broker">
+    <amq:broker useJmx="false" persistent="true" dataDirectory="filesystem=file://var/activemq-data/" schedulerSupport="true" useShutdownHook="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>
