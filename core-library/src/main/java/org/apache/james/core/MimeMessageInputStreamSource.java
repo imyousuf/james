@@ -24,6 +24,8 @@ package org.apache.james.core;
 import javax.mail.MessagingException;
 import javax.mail.util.SharedFileInputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.james.lifecycle.Disposable;
 
 import java.io.BufferedOutputStream;
@@ -182,27 +184,12 @@ public class MimeMessageInputStreamSource
     public void dispose() {
         // explicit close all streams
         for (int i = 0; i < streams.size(); i++) {
-            try {
-                streams.get(i).close();
-            } catch (IOException e) {
-                // ignore on dispose
-            }
+            IOUtils.closeQuietly(streams.get(i));
         }
-        if (out != null) {
-            try {
-                out.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        try {
-            if (file != null && file.exists()) {
-                file.delete();
-            }
-        } catch (Exception e) {
-            //ignore
-        }
+        IOUtils.closeQuietly(out);
+        out = null;
+        
+        FileUtils.deleteQuietly(file);
         file = null;
     }
 
