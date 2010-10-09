@@ -50,6 +50,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
+import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.queue.MailQueue;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -312,7 +313,7 @@ public class ActiveMQMailQueue implements MailQueue {
                     // Ignore on error
                     logger.debug("Unable to get url from blobmessage for mail " + mail.getName());
                 }
-                mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream())));
+                mail.setMessage(new MimeMessageWrapper(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream()))));
                 
             } else {
                 throw new MailQueueException("Not supported JMS Message received " + message);
