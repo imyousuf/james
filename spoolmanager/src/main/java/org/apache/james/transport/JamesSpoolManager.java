@@ -219,14 +219,13 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
         }
 
         long stop = System.currentTimeMillis() + 60000;
-        // give the spooler threads one minute to terminate gracefully
-        /*
+        // give the spooler threads one minute to terminate gracefully      
         while (numActive.get() != 0 && stop > System.currentTimeMillis()) {
             try {
                 Thread.sleep(1000);
             } catch (Exception ignored) {}
         }
-        */
+        
         logger.info("JamesSpoolManager thread shutdown completed.");
     }
 
