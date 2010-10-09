@@ -1147,7 +1147,20 @@
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.1.0</jackrabbit.version>
     <commons.logging.version>1.1</commons.logging.version>
-
+    <!-- For more details see -->
+    <!-- http://java.sun.com/products/javamail/javadocs/javax/mail/internet/package-summary.html -->
+    <javamail.system-properties>
+      -Dmail.mime.multipart.ignoremissingendboundary=true 
+      -Dmail.mime.multipart.ignoremissingboundaryparameter=true 
+      -Dmail.mime.ignoreunknownencoding=true 
+      -Dmail.mime.uudecode.ignoreerrors=true 
+      -Dmail.mime.uudecode.ignoremissingbeginend=true 
+      -Dmail.mime.multipart.allowempty=true 
+      -Dmail.mime.base64.ignoreerrors=true 
+      -Dmail.mime.encodeparameters=true 
+      -Dmail.mime.decodeparameters=true 
+      -Dmail.mime.address.strict=false
+    </javamail.system-properties>
   </properties>
 
 </project>
