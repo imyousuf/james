@@ -346,6 +346,7 @@
 
 
     <!-- JCR implementation of IMAP Storage-->
+    <!-- Make sure that Jackrabbit is configured as well -->
     <!--  
     <bean id="imapCndLoader" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetObject"><ref local="jcrUtils"/></property>
@@ -427,15 +428,16 @@
     </bean>
 
     <!-- Jackrabbit JCR Repository -->
+    <!-- 
     <bean id="jcrRepository" class="org.apache.jackrabbit.core.RepositoryImpl" destroy-method="shutdown">
         <constructor-arg index="0" ref="config" />
     </bean>
     
-    <!-- Jackrabbit config -->
     <bean id="config" class="org.apache.jackrabbit.core.config.RepositoryConfig" factory-method="create">
         <constructor-arg index="0" value="filesystem=file://conf/jcr-repository.xml"/>
         <constructor-arg index="1" value="filesystem=file://var/jackrabbit" />
     </bean>
+    -->
 
     <!-- #################################################################### -->
 </beans>

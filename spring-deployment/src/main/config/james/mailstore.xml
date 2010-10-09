@@ -107,7 +107,9 @@
                 <model>CACHE</model>
             </models>
         </repository>
-         
+        
+        <!-- If you enable this you need to make sure that embedded Jackrabbit instance is started as well. Check the container configuration -->  
+        <!--
         <repository class="org.apache.james.mailrepository.JCRMailRepository">
             <protocols>
                 <protocol>jcr</protocol>
@@ -122,5 +124,6 @@
                 <workspace>default</workspace>
             </config>
         </repository>
+        -->
     </repositories>
 </mailstore>
