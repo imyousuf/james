@@ -155,6 +155,18 @@ public class MimeMessageWrapper
     }
     
     /**
+     * Overrides default javamail behaviour by not altering the Message-ID by
+     * default. Ê Ê
+     *   Ê Ê 
+     * @see JAMES-875 / JAMES-1010
+     * @see javax.mail.internet.MimeMessage#updateMessageID()
+     */
+    protected void updateMessageID() throws MessagingException {
+        if (getMessageID() == null)
+            super.updateMessageID();
+    }
+
+    /**
      * Returns the source ID of the MimeMessageSource that is supplying this
      * with data.
      * @see MimeMessageSource
@@ -458,8 +470,10 @@ public class MimeMessageWrapper
         super.setDataHandler(arg0);
     }
 
-    /**
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Disposable#dispose()
      */
     public void dispose() {
         if (sourceIn != null) {
@@ -500,7 +514,7 @@ public class MimeMessageWrapper
          * future JavaMail.  But if there are other Return-Path header
          * values, let's drop our placeholder.
 
-        MailHeaders newHeaders = new MailHeaders(new ByteArrayInputStream((RFC2822Headers.RETURN_PATH + ": placeholder").getBytes()));
+        MailHeaders newHeaders = new MailHeaders(new ByteArrayInputStream((f.RETURN_PATH + ": placeholder").getBytes()));
         newHeaders.setHeader(RFC2822Headers.RETURN_PATH, null);
         newHeaders.load(is);
         String[] returnPathHeaders = newHeaders.getHeader(RFC2822Headers.RETURN_PATH);
