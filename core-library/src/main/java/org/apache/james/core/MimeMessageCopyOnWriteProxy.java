@@ -755,5 +755,14 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
     public long getMessageSize() throws MessagingException {
         return MimeMessageUtil.getMessageSize(getWrappedMessage());
     }
+    
+
+    /**
+     * Since javamail 1.4
+     */
+    @Override
+    public void setText(String text, String charset, String subtype) throws MessagingException {
+        getWrappedMessage().setText(text, charset, subtype);
+    }
 
 }
