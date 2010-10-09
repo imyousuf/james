@@ -35,6 +35,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.mailrepository.MailRepository;
 import org.apache.james.mailstore.MailStore;
 import org.apache.james.services.InstanceFactory;
 
@@ -45,16 +46,9 @@ import org.apache.james.services.InstanceFactory;
  */
 public class JamesMailStore implements MailStore, LogEnabled, Configurable {
 
-    // Prefix for repository names
-    private static final String REPOSITORY_NAME = "Repository";
-
-    // Static variable used to name individual repositories.  Should only
-    // be accessed when a lock on the AvalonMailStore.class is held
-    private static long id;
 
     // map of [destinationURL + type]->Repository
-    @SuppressWarnings("unchecked")
-    private Map repositories;
+    private Map<String, MailRepository> repositories;
 
     // map of [protocol(destinationURL) + type ]->classname of repository;
     private Map<String,String> classes;
@@ -70,9 +64,6 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
     private Log logger;
 
     private InstanceFactory factory;
-
-	//private LoaderService loader;
-
 
     public void setLog(Log logger) {
         this.logger = logger;
@@ -191,7 +182,6 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
      *                            Configuration or retrieving the 
      *                            MailRepository
      */
-    @SuppressWarnings("unchecked")
     public synchronized Object select(HierarchicalConfiguration repConf) throws StoreException {
  
         String destination = null;
@@ -207,7 +197,7 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
 
         String type = repConf.getString("[@type]");
         String repID = destination + type;
-        Object reply = repositories.get(repID);
+        MailRepository reply = repositories.get(repID);
         StringBuffer logBuffer = null;
         if (reply != null) {
             if (getLogger().isDebugEnabled()) {
@@ -252,7 +242,7 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
             }
 
             try {               
-                reply = factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(repClass), logger, config);
+                reply = (MailRepository) factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(repClass), logger, config);
 
                 repositories.put(repID, reply);
                 if (getLogger().isInfoEnabled()) {
@@ -274,19 +264,5 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
             }
         }
         
-    }
-
-    /**
-     * <p>Returns a new name for a repository.</p>
-     *
-     * <p>Synchronized on the AvalonMailStore.class object to ensure
-     * against duplication of the repository name</p>
-     *
-     * @return a new repository name
-     */
-    public static final String getName() {
-        synchronized (JamesMailStore.class) {
-            return REPOSITORY_NAME + id++;
-        }
     }
 }
