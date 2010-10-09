@@ -156,8 +156,8 @@ public class MimeMessageWrapper
     
     /**
      * Overrides default javamail behaviour by not altering the Message-ID by
-     * default. Ê Ê
-     *   Ê Ê 
+     * default
+     *  
      * @see JAMES-875 / JAMES-1010
      * @see javax.mail.internet.MimeMessage#updateMessageID()
      */
