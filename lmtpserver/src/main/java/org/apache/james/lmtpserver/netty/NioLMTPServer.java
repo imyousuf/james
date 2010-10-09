@@ -48,7 +48,7 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer{
     private String lmtpGreeting;
     
 
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

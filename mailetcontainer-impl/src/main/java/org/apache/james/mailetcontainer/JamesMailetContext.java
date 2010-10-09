@@ -80,7 +80,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
 
     private HierarchicalConfiguration conf;
 
-    @Resource(name = "James")
+    @Resource(name = "mailserver")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

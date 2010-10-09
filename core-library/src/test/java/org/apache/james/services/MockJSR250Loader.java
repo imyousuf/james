@@ -37,7 +37,7 @@ public class MockJSR250Loader extends AbstractJSR250InstanceFactory {
 // TODO Do we still need that?
 //        servicesByName.put(org.apache.james.LoaderService, this);
 
-        mappings.put("James", org.apache.james.services.MailServer.class.getName());
+        mappings.put("mailserver", org.apache.james.services.MailServer.class.getName());
         mappings.put("filesystem", org.apache.james.services.FileSystem.class.getName());
         mappings.put("dnsservice", org.apache.james.dnsservice.api.DNSService.class.getName());
         mappings.put("users-store", org.apache.james.api.user.UsersStore.class.getName());

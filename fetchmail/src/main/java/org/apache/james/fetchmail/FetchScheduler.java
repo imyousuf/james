@@ -90,7 +90,7 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
     }
 
 
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public void setMailServer(MailServer mailserver) {
         this.mailserver = mailserver;
     }

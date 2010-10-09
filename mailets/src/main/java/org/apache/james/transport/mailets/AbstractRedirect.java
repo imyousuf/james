@@ -239,7 +239,7 @@ public abstract class AbstractRedirect extends GenericMailet {
     protected DNSService dns;
 
     
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

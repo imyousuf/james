@@ -57,7 +57,7 @@ public class NioRemoteManager extends AbstractConfigurableAsyncServer implements
     }
     
 
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

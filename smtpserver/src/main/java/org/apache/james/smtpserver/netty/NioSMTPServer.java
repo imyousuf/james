@@ -99,7 +99,7 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
 
     private boolean verifyIdentity;
 
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

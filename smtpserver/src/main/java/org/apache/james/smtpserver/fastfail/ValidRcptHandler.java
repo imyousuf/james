@@ -92,7 +92,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 		this.tableStore = tableStore;
 	}
 	
-	@Resource(name = "James")
+	@Resource(name = "mailserver")
 	public void setMailServer(MailServer mailServer) {
 	    this.mailServer = mailServer;
 	}

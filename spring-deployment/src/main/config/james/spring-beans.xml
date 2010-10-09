@@ -42,7 +42,6 @@
             <props> 
                 <prop key="fetchmail"> bean:name=fetchmail</prop> 
                 <prop key="smtpserver">bean:name=smtpserver</prop> 
-                <prop key="James" >bean:name=James</prop>
                 <prop key="dnsservice" >bean:name=dnsservice</prop> 
                 <prop key="remotemanager" >bean:name=remotemanager</prop> 
                 <prop key="pop3server" >bean:name=pop3server</prop> 
@@ -77,13 +76,12 @@
     <bean id="configurationProvider" class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider">
         <property name="configurationMappings">
             <map>
-                <entry key="mailetcontext" value="James"/>
+                <entry key="mailetcontext" value="mailserver"/>
                 <entry key="lmtpProtocolHandlerChain" value="lmtpserver"/>
                 <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remotemanager"/>
                 <entry key="mailProcessor" value="spoolmanager"/>                
-                <entry key="mailserver" value="James"/>	
             </map>
         </property>
     </bean>
@@ -110,7 +108,6 @@
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remoteManager"/>
                 <entry key="mailProcessor" value="spoolmanager"/>                
-                <entry key="mailserver" value="James"/>
             </map>
         </property>
     </bean>
@@ -178,7 +175,7 @@
     
     
     <!-- mailserver implementation which use activemq for spooling the mail -->
-    <bean id="mailserver" name="James" class="org.apache.james.JamesMailServer"/>
+    <bean id="mailserver" class="org.apache.james.JamesMailServer"/>
 
     <bean id="mailetcontext" class="org.apache.james.mailetcontainer.JamesMailetContext"/>
 

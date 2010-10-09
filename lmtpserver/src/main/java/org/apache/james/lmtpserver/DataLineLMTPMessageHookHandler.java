@@ -60,7 +60,7 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
     * Sets the mail server.
     * @param mailServer the mailServer to
     */
-   @Resource(name="James")
+   @Resource(name="mailserver")
    public final void setMailServer(MailServer mailServer) {
        this.mailServer = mailServer;
    }

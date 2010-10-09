@@ -663,7 +663,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     }
 
 
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public void setMailServer(MailServer mailserver) {
         this.fieldServer = mailserver;
     }

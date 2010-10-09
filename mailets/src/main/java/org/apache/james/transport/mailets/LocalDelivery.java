@@ -77,7 +77,7 @@ public class LocalDelivery extends GenericMailet {
         this.usersStore = usersStore;
     }
     
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

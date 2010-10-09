@@ -59,7 +59,7 @@ public class NioPOP3Server extends AbstractConfigurableAsyncServer implements PO
         this.handlerChain = handlerChain;
     }
 
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

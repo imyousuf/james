@@ -203,7 +203,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         this.dnsServer = dnsService;
     }
     
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }

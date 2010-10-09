@@ -57,7 +57,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
     private MailServer mailServer;
     private DNSService dns;
 
-    @Resource(name="James")
+    @Resource(name="mailserver")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
