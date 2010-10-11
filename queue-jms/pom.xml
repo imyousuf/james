@@ -25,16 +25,12 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-queue-activemq</artifactId>
-  <name>Apache James Server ActiveMQ Queue</name>
+  <artifactId>james-server-queue-jms</artifactId>
+  <name>Apache James Server JMS Mail Queue</name>
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-queue-jms</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -48,16 +44,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>   
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-core</artifactId>
-      <version>5.4.1</version>
-    </dependency>
-   <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-pool</artifactId>
-      <version>5.4.1</version>
-   </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging-api</artifactId>

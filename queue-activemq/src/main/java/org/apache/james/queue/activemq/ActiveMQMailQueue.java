@@ -19,14 +19,7 @@
 package org.apache.james.queue.activemq;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -34,11 +27,9 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.activemq.ActiveMQSession;
@@ -46,14 +37,13 @@ import org.apache.activemq.BlobMessage;
 import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.activemq.pool.PooledSession;
 import org.apache.commons.logging.Log;
-import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.queue.MailQueue;
+import org.apache.james.queue.jms.JMSMailQueue;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 
 /**
  * *{@link MailQueue} implementation which use an ActiveMQ Queue.
@@ -77,53 +67,16 @@ import org.apache.mailet.MailAddress;
  * 
  *
  */
-public class ActiveMQMailQueue implements MailQueue {
+public class ActiveMQMailQueue extends JMSMailQueue {
 
-    private final String queuename;
-    private final ConnectionFactory connectionFactory;
     private long messageTreshold = -1;
-    private Log logger;
-    private final static String JAMES_MAIL_RECIPIENTS = "JAMES_MAIL_RECIPIENTS";
-    private final static String JAMES_MAIL_SENDER = "JAMES_MAIL_SENDER";
-    private final static String JAMES_MAIL_ERROR_MESSAGE = "JAMES_MAIL_ERROR_MESSAGE";
-    private final static String JAMES_MAIL_LAST_UPDATED = "JAMES_MAIL_LAST_UPDATED";
-    private final static String JAMES_MAIL_MESSAGE_SIZE = "JAMES_MAIL_MESSAGE_SIZE";
-    private final static String JAMES_MAIL_NAME = "JAMES_MAIL_NAME";
-    private final static String JAMES_MAIL_SEPERATOR = ";";
-    private final static String JAMES_MAIL_REMOTEHOST = "JAMES_MAIL_REMOTEHOST";
-    private final static String JAMES_MAIL_REMOTEADDR = "JAMES_MAIL_REMOTEADDR";
-    private final static String JAMES_MAIL_STATE = "JAMES_MAIL_STATE";
-    private final static String JAMES_MAIL_ATTRIBUTE_NAMES = "JAMES_MAIL_ATTRIBUTE_NAMES";
+    
     private final static String JAMES_BLOB_URL = "JAMES_BLOB_URL";
     
     public final static int NO_DELAY = -1;
     public final static int DISABLE_TRESHOLD = -1;
     public final static int BLOBMESSAGE_ONLY = 0;
 
-    /**
-     * Handle mail with lowest priority
-     */
-    public final static int LOW_PRIORITY = 0;
-    
-    /**
-     * Handle mail with normal priority (this is the default)
-     */
-    public final static int NORMAL_PRIORITY = 5;
-    
-    /**
-     * Handle mail with highest priority
-     */
-    public final static int HIGH_PRIORITY = 9;
-    
-    /**
-     * Attribute name for support if priority. If the attribute is set and priority handling is enabled it will take care of move the Mails with
-     * higher priority to the head of the queue (so the mails are faster handled).
-     * 
-     * For enabling the feature in AMQ and get some more informations see:
-     * 
-     * http://activemq.apache.org/how-can-i-support-priority-queues.html
-     */
-    public final static String MAIL_PRIORITY = "MAIL_PRIORITY";
     
     /**
      * Construct a new ActiveMQ based {@link MailQueue}. 
@@ -133,16 +86,18 @@ public class ActiveMQMailQueue implements MailQueue {
      * If you want to disable the usage of {@link BlobMessage} just use {@link #DISABLE_TRESHOLD} as value. If you want to use {@link BlobMessage} 
      * for every message (not depending of  the size) just use {@link #BLOBMESSAGE_ONLY} as value.
      * 
+     * For enabling the priority feature in AMQ see:
+     * 
+     * http://activemq.apache.org/how-can-i-support-priority-queues.html
+     * 
      * @param connectionFactory
      * @param queuename
      * @param messageTreshold
      * @param logger
      */
     public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final long messageTreshold, final Log logger) {
-        this.connectionFactory = connectionFactory;     
-        this.queuename = queuename;
+    	super(connectionFactory, queuename, logger);
         this.messageTreshold  = messageTreshold;
-        this.logger = logger;
     }
     
     /**
@@ -227,283 +182,80 @@ public class ActiveMQMailQueue implements MailQueue {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.activemq.MailQueue#enQueue(org.apache.mailet.Mail, long, java.util.concurrent.TimeUnit)
+     * @see org.apache.james.queue.jms.JMSMailQueue#populateMailMimeMessage(javax.jms.Message, org.apache.mailet.Mail)
      */
-    public void enQueue(Mail mail, long delay, TimeUnit unit) throws MailQueueException, MessagingException {
-        
-        long mydelay = NO_DELAY;
-        
-        if (delay >= 0) {
-            mydelay = TimeUnit.MILLISECONDS.convert(delay, unit);
-        }
-        
-        Connection connection = null;
-        Session session = null;
-        MessageProducer producer = null;
-        
-        try {
+	protected void populateMailMimeMessage(Message message, Mail mail)
+			throws MessagingException {
+		 if (message instanceof BlobMessage) {
+			 try {
+				 BlobMessage blobMessage = (BlobMessage) message;
+                 try {
+                     // store url for later usage. Maybe we can do something smart for RemoteDelivery here
+                     // TODO: Check if this makes sense at all
+                     mail.setAttribute(JAMES_BLOB_URL, blobMessage.getURL());
+                 } catch (MalformedURLException e) {
+                     // Ignore on error
+                     logger.debug("Unable to get url from blobmessage for mail " + mail.getName());
+                 }
+                 mail.setMessage(new MimeMessageWrapper(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream()))));
 
-            connection = connectionFactory.createConnection();
-            connection.start();
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Queue queue = session.createQueue(queuename);
-            producer = session.createProducer(queue);
+			 } catch (IOException e) {
+				 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
+			 } catch (JMSException e) {
+				 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
+			 }
+		 } else {
+             super.populateMailMimeMessage(message, mail);
+		 }
+	}
 
-            producer.send(createMessage(session, mail, mydelay));
-        } catch (JMSException e) {
-            throw new MailQueueException("Unable to enqueue mail " + mail, e);
-        } catch (MessagingException e) {
-            if (session != null) {
-                try {
-                    session.rollback();
-                } catch (JMSException e1) {
-                    // ignore on rollback
-                }
-            }
-        } finally {
-        	try {
-        		if (producer != null) producer.close();
-        	} catch (JMSException e) {
-                // ignore here
-        	}
-            try {
-                if (session != null) session.close();
-            } catch (JMSException e) {
-                // ignore here
-            }
-            
-            try {
-                if (connection != null)  connection.close();
-            } catch (JMSException e) {
-                // ignore here
-            }
-        }
-      
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.queue.jms.JMSMailQueue#createMessage(javax.jms.Session, org.apache.mailet.Mail, long)
+	 */
+	protected Message createMessage(Session session, Mail mail,
+			long delayInMillis) throws JMSException, IOException, MessagingException {
 
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.queue.activemq.MailQueue#enQueue(org.apache.mailet.Mail)
-     */
-    public void enQueue(Mail mail) throws MailQueueException, MessagingException {
-        enQueue(mail, NO_DELAY, null);
-    }
+		boolean useBlob = false;
+		if (messageTreshold != -1) {
+			try {
+				if (messageTreshold == 0 || mail.getMessageSize() > messageTreshold) {
+					useBlob = true;
+				}
+			} catch (MessagingException e) {
+				logger.info("Unable to calculate message size for mail " + mail.getName() + ". Use BytesMessage for JMS");
+				useBlob = false;
+			}
+		}
+		if (useBlob) {
+			ActiveMQSession amqSession;
+			if (session instanceof PooledSession) {
+				amqSession = ((PooledSession) session).getInternalSession();
+			} else {
+				amqSession = (ActiveMQSession) session;
+			}
+			BlobMessage message = amqSession.createBlobMessage(new MimeMessageInputStream(mail.getMessage()));
+			return message;
+		} else {
+			return super.createMessage(session, mail, delayInMillis);
+		}
 
-    
-    @Override
-    public String toString() {
-        return "MailQueue:" + queuename;
-    }
-    
-    private Mail createMail(Message message) throws MailQueueException, JMSException {
-        MailImpl mail = new MailImpl();
-        populateMail(message, mail);
-        
-        try {
-            if (message instanceof BytesMessage) {
-                mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), new BytesMessageInputStream((BytesMessage)message))));
-            } else if (message instanceof BlobMessage) {
-                BlobMessage blobMessage = (BlobMessage) message;
-                try {
-                    // store url for later usage. Maybe we can do something smart for RemoteDelivery here
-                    // TODO: Check if this makes sense at all
-                    mail.setAttribute(JAMES_BLOB_URL, blobMessage.getURL());
-                } catch (MalformedURLException e) {
-                    // Ignore on error
-                    logger.debug("Unable to get url from blobmessage for mail " + mail.getName());
-                }
-                mail.setMessage(new MimeMessageWrapper(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream()))));
-                
-            } else {
-                throw new MailQueueException("Not supported JMS Message received " + message);
-            }
-        } catch (IOException e) {
-            throw new MailQueueException("Unable to prepare Mail for dequeue", e);
-        } catch (MessagingException e) {
-            throw new MailQueueException("Unable to prepare Mail for dequeue", e);
-        }
-        return mail; 
-    }
-    
-    /**
-     * Populate Mail with values from Message. This exclude the Mail message
-     * 
-     * @param message
-     * @param mail
-     * @throws JMSException
-     */
-    private void populateMail(Message message, MailImpl mail) throws JMSException {
+	}
 
-        mail.setErrorMessage(message.getStringProperty(JAMES_MAIL_ERROR_MESSAGE));
-        mail.setLastUpdated(new Date(message.getLongProperty(JAMES_MAIL_LAST_UPDATED)));
-        mail.setName(message.getStringProperty(JAMES_MAIL_NAME));
-        
-        List<MailAddress> rcpts = new ArrayList<MailAddress>();       
-        String recipients = message.getStringProperty(JAMES_MAIL_RECIPIENTS);
-        StringTokenizer recipientTokenizer = new StringTokenizer(recipients, JAMES_MAIL_SEPERATOR);
-        while(recipientTokenizer.hasMoreTokens()) {
-            try {
-                MailAddress rcpt = new MailAddress(recipientTokenizer.nextToken());
-                rcpts.add(rcpt);
-            } catch (AddressException e) {
-                // Should never happen as long as the user does not modify the the header by himself
-                // Maybe we should log it anyway
-            }
-        }
-        mail.setRecipients(rcpts);
-        mail.setRemoteAddr(message.getStringProperty(JAMES_MAIL_REMOTEADDR));
-        mail.setRemoteHost(message.getStringProperty(JAMES_MAIL_REMOTEHOST));
-        
-        String attributeNames = message.getStringProperty(JAMES_MAIL_ATTRIBUTE_NAMES);
-        StringTokenizer namesTokenizer = new StringTokenizer(attributeNames, JAMES_MAIL_SEPERATOR);
-        while (namesTokenizer.hasMoreTokens()) {
-            String name = namesTokenizer.nextToken();
-            Serializable attrValue = message.getStringProperty(name);
-            
-            mail.setAttribute(name, attrValue);
-        }
-        
-        String sender = message.getStringProperty(JAMES_MAIL_SENDER);
-        if (sender == null || sender.trim().length() <= 0) {
-            mail.setSender(null);
-        } else {
-            try {
-                mail.setSender(new MailAddress(sender));
-            } catch (AddressException e) {
-             // Should never happen as long as the user does not modify the the header by himself
-             // Maybe we should log it anyway
-            }
-        }
-        
-        mail.setState(message.getStringProperty(JAMES_MAIL_STATE));
-
-    }
-    private Message createMessage(Session session, Mail mail, long delayInMillis) throws MailQueueException{
-        try {
-            boolean useBlob = false;
-            if (messageTreshold != -1) {
-                try {
-                if (messageTreshold == 0 || mail.getMessageSize() > messageTreshold) {
-                    useBlob = true;
-                }
-                } catch (MessagingException e) {
-                    logger.info("Unable to calculate message size for mail " + mail.getName() + ". Use BytesMessage for JMS");
-                    useBlob = false;
-                }
-            }
-            if (useBlob == false) {
-                BytesMessage message  = session.createBytesMessage();
-                
-                populateJMSProperties(message, mail, delayInMillis);
-                populateJMSHeaders(message, mail);
-                mail.getMessage().writeTo(new BytesMessageOutputStream(message));;
-                return message;
-            } else {
-                ActiveMQSession amqSession;
-                if (session instanceof PooledSession) {
-                    amqSession = ((PooledSession) session).getInternalSession();
-                } else {
-                    amqSession = (ActiveMQSession) session;
-                }
-                BlobMessage message  = amqSession.createBlobMessage(new MimeMessageInputStream(mail.getMessage()));
-                populateJMSProperties(message, mail, delayInMillis);
-                populateJMSHeaders(message, mail);
-
-                return message;
-            }
-            
-
-        } catch (MessagingException e) {
-            throw new MailQueueException("Unable to prepare Mail for enqueue" , e);
-        } catch (IOException e) {
-            throw new MailQueueException("Unable to prepare Mail for enqueue" , e);
-        } catch (JMSException e) {
-            throw new MailQueueException("Unable to prepare Mail for enqueue" , e);
-        }
-    }
-    
-    
-    /**
-     * Populate JMS Message properties with values 
-     * 
-     * @param message
-     * @param mail
-     * @param delayInMillis
-     * @throws JMSException
-     * @throws MessagingException
-     */
-    @SuppressWarnings("unchecked")
-    private void populateJMSProperties(Message message, Mail mail, long delayInMillis) throws JMSException, MessagingException {
-        if (delayInMillis > 0) {
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.queue.jms.JMSMailQueue#populateJMSProperties(javax.jms.Message, org.apache.mailet.Mail, long)
+	 */
+	protected void populateJMSProperties(Message message, Mail mail,
+			long delayInMillis) throws JMSException, MessagingException {
+		if (delayInMillis > 0) {
             // This will get picked up by activemq for delay message
             message.setLongProperty(org.apache.activemq.ScheduledMessage.AMQ_SCHEDULED_DELAY, delayInMillis);
         }
-        
-        message.setStringProperty(JAMES_MAIL_ERROR_MESSAGE, mail.getErrorMessage());
-        message.setLongProperty(JAMES_MAIL_LAST_UPDATED, mail.getLastUpdated().getTime());
-        message.setLongProperty(JAMES_MAIL_MESSAGE_SIZE, mail.getMessageSize());
-        message.setStringProperty(JAMES_MAIL_NAME, mail.getName());
-        
-        StringBuilder recipientsBuilder = new StringBuilder();
-        
-        Iterator<MailAddress> recipients = mail.getRecipients().iterator();
-        while (recipients.hasNext()) {
-            String recipient = recipients.next().toString();
-            recipientsBuilder.append(recipient.trim());
-            if (recipients.hasNext()) {
-                recipientsBuilder.append(JAMES_MAIL_SEPERATOR);
-            }
-        }
-        message.setStringProperty(JAMES_MAIL_RECIPIENTS, recipientsBuilder.toString());
-        message.setStringProperty(JAMES_MAIL_REMOTEADDR, mail.getRemoteAddr());
-        message.setStringProperty(JAMES_MAIL_REMOTEHOST, mail.getRemoteHost());
-        
-        String sender;
-        MailAddress s = mail.getSender();
-        if (s == null) {
-            sender = "";
-        } else {
-            sender = mail.getSender().toString();
-        }
-        
-        StringBuilder attrsBuilder = new StringBuilder();
-        Iterator<String> attrs = mail.getAttributeNames();
-        while (attrs.hasNext()) {
-            String attrName = attrs.next();
-            attrsBuilder.append(attrName);
-            
-            Object value = convertAttributeValue(mail.getAttribute(attrName));
-            message.setObjectProperty(attrName, value);
-            
-            if (attrs.hasNext()) {
-                attrsBuilder.append(JAMES_MAIL_SEPERATOR);
-            }
-        }
-        message.setStringProperty(JAMES_MAIL_ATTRIBUTE_NAMES, attrsBuilder.toString());
-        message.setStringProperty(JAMES_MAIL_SENDER, sender);
-        message.setStringProperty(JAMES_MAIL_STATE, mail.getState());
-        
-        
-    }
-    
-    private void populateJMSHeaders(Message message, Mail mail) throws JMSException, MessagingException {
-    	Object prio = mail.getAttribute(MAIL_PRIORITY);
-    	if (prio instanceof Integer) {
-        	message.setJMSPriority((Integer) prio);
-    	}
-    }
-    
-    /**
-     * Convert the attribute value if necessary. 
-     * 
-     * @param value
-     * @return convertedValue
-     */
-    protected Object convertAttributeValue(Object value){
-        if (value == null || value instanceof String || value instanceof Byte || value instanceof Long || value instanceof Double || value instanceof Boolean || value instanceof Integer || value instanceof Short || value instanceof Float) {
-            return value;
-        }
-        return value.toString();
-    }
+		
+		super.populateJMSProperties(message, mail, delayInMillis);
+	}
+	
+	
+
 }

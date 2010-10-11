@@ -129,11 +129,12 @@
     </camel:camelContext>
 
     <!--  lets create an embedded ActiveMQ Broker -->
-    <amq:broker useJmx="false" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" schedulerSupport="true" useShutdownHook="false" id="broker">
+    <amq:broker useJmx="false" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>
                     <!-- Support priority handling of messages -->
+                    <!-- This will not work till we use activemq 5.4+ -->
                     <!-- http://activemq.apache.org/how-can-i-support-priority-queues.html -->
                     <!-- 
                     <amq:policyEntry queue=">" prioritizedMessages="true"/>
@@ -149,24 +150,18 @@
 
     <amq:connectionFactory id="amqConnectionFactory" brokerURL="vm://james?create=false" />
 
-    <!-- CachingConnectionFactory Definition, sessionCacheSize property is the number of sessions to cache -->
-    <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
-        <constructor-arg ref="amqConnectionFactory" />
-        <property name="sessionCacheSize" value="100" />
+    <bean id="jmsConnectionFactory"  class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory" ref="amqConnectionFactory"/>
     </bean>
+
 
     <!-- setup spring jms TX manager -->
     <bean id="jmsTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
     </bean>
 
-    <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker">
-        <!-- Allow to specify if BlobMessage or BytesMessage should be used for storing the Mail in the queue-->
-        <!-- Please have a look at the javadocs of ActiveMQMailQueue for more information -->
-        <!-- By default only BytesMessage is used -->
-        <property name="sizeTreshold" value="-1"/>
-    </bean>
-   
+    <!-- Use JMSMailQueueFactory till activemq 5.5.0 is released -->
+    <bean id="mailQueueFactory" class="org.apache.james.queue.jms.JMSMailQueueFactory" depends-on="broker"/>
         
     <!-- Build the camelroute from the spoolmanager.xml -->
     <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
