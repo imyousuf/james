@@ -40,9 +40,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
      * @return true if successfully
-     * @throws InvalidMappingException get thrown if an invalid argument was given
+     * @throws VirtualUserTableManagementException get thrown if an invalid argument was given
      */
-    public boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException;
+    public boolean addRegexMapping(String user, String domain, String regex) throws VirtualUserTableManagementException;
     
     /**
      * Remove regex mapping
@@ -51,9 +51,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
      * @return true if successfully
-     * @throws InvalidMappingException get thrown if an invalid argument was given
+     * @throws VirtualUserTableManagementException get thrown if an invalid argument was given
      */
-    public boolean removeRegexMapping(String user,String domain, String regex) throws InvalidMappingException;
+    public boolean removeRegexMapping(String user,String domain, String regex) throws VirtualUserTableManagementException;
     
     /***
      * Add address mapping
@@ -62,9 +62,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param domain the domain. Null if no domain should be used
      * @param address 
      * @return true if successfully
-     * @throws InvalidMappingException get thrown if an invalid argument was given
+     * @throws VirtualUserTableManagementException get thrown if an invalid argument was given
      */
-    public boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException;
+    public boolean addAddressMapping(String user, String domain, String address) throws VirtualUserTableManagementException;
     
     /**
      * Remove address mapping
@@ -73,9 +73,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param domain the domain. Null if no domain should be used
      * @param address 
      * @return true if successfully
-     * @throws InvalidMappingException get thrown if an invalid argument was given
+     * @throws VirtualUserTableManagementException get thrown if an invalid argument was given
      */
-    public boolean removeAddressMapping(String user,String domain, String address) throws InvalidMappingException;
+    public boolean removeAddressMapping(String user,String domain, String address) throws VirtualUserTableManagementException;
     
     /**
      * Add error mapping
@@ -84,9 +84,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param domain the domain. Null if no domain should be used
      * @param error the regex.
      * @return true if successfully
-     * @throws InvalidMappingException get thrown if an invalid argument was given
+     * @throws VirtualUserTableManagementException get thrown if an invalid argument was given
      */
-    public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException;
+    public boolean addErrorMapping(String user, String domain, String error) throws VirtualUserTableManagementException;
 
     /**
      * Remove error mapping
@@ -95,9 +95,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param domain the domain. Null if no domain should be used
      * @param error
      * @return true if successfully
-     * @throws InvalidMappingException get thrown if an invalid argument was given
+     * @throws VirtualUserTableManagementException get thrown if an invalid argument was given
      */
-    public boolean removeErrorMapping(String user,String domain, String error) throws InvalidMappingException;
+    public boolean removeErrorMapping(String user,String domain, String error) throws VirtualUserTableManagementException;
     
     /**
      * Return the explicit mapping stored for the given user and domain. Return null
@@ -106,9 +106,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param user the username
      * @param domain the domain
      * @return the collection which holds the mappings. 
-     * @throws InvalidMappingException  get thrown if an invalid use or domain was given
+     * @throws VirtualUserTableManagementException  get thrown if an invalid use or domain was given
      */
-    public Collection<String> getUserDomainMappings(String user, String domain) throws InvalidMappingException;
+    public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableManagementException;
     
     /**
      * Add mapping
@@ -117,9 +117,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param domain the domain. Null if no domain should be used
      * @param mapping the mapping
      * @return true if successfully
-     * @throws InvalidMappingException
+     * @throws VirtualUserTableManagementException
      */
-    public boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException;
+    public boolean addMapping(String user, String domain, String mapping) throws VirtualUserTableManagementException;
     
     /**
      * Remove mapping
@@ -128,9 +128,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param domain the domain. Null if no domain should be used
      * @param mapping the mapping
      * @return true if successfully
-     * @throws InvalidMappingException
+     * @throws VirtualUserTableManagementException
      */
-    public boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException;
+    public boolean removeMapping(String user, String domain, String mapping) throws VirtualUserTableManagementException;
 
 
     /**
@@ -147,9 +147,9 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param aliasDomain the aliasdomain which should be mapped to the realDomain
      * @param realDomain the realDomain
      * @return true if successfilly
-     * @throws InvalidMappingException
+     * @throws VirtualUserTableManagementException
      */
-    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException;
+    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableManagementException;
     
     /**
      * Remove aliasDomain mapping
@@ -157,7 +157,7 @@ public interface VirtualUserTableManagement extends VirtualUserTable {
      * @param aliasDomain the aliasdomain which should be mapped to the realDomain
      * @param realDomain the realDomain
      * @return true if successfilly
-     * @throws InvalidMappingException
+     * @throws VirtualUserTableManagementException
      */
-    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException;
+    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableManagementException;
 }

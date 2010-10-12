@@ -28,57 +28,16 @@ public class MockJSR250Loader extends AbstractJSR250InstanceFactory {
 
     private final Map<String, Object> servicesByName;
     
-    private final Map<String, String> mappings = new HashMap<String, String>();
 
     public MockJSR250Loader() {
 
         servicesByName = new HashMap<String, Object>();
 
-// TODO Do we still need that?
-//        servicesByName.put(org.apache.james.LoaderService, this);
-
-        mappings.put("mailserver", org.apache.james.services.MailServer.class.getName());
-        mappings.put("filesystem", org.apache.james.services.FileSystem.class.getName());
-        mappings.put("dnsservice", org.apache.james.dnsservice.api.DNSService.class.getName());
-        mappings.put("users-store", org.apache.james.api.user.UsersStore.class.getName());
-        mappings.put("localusersrepository", org.apache.james.api.user.UsersRepository.class.getName());
-        mappings.put("defaultvirtualusertable", org.apache.james.api.vut.VirtualUserTable.class.getName());
-        mappings.put("virtualusertablemanagement", org.apache.james.api.vut.management.VirtualUserTableManagement.class.getName());
-        mappings.put("domainlist", org.apache.james.api.domainlist.DomainList.class.getName());
-
-// TODO Review the needed services
-
-        mappings.put("domainlistmanagement", "org.apache.james.management.DomainListManagementService");
-        mappings.put("mailstore", "org.apache.avalon.cornerstone.services.store.Store");
-        mappings.put("spoolrepository", "org.apache.james.services.SpoolRepository");
-        mappings.put("sockets", "org.apache.avalon.cornerstone.services.sockets.SocketManager");
-        mappings.put("scheduler", "org.apache.avalon.cornerstone.services.scheduler.TimeScheduler");
-        mappings.put("database-connections", "org.apache.avalon.cornerstone.services.datasources.DataSourceSelector");
-        mappings.put("spoolmanager", "org.apache.james.services.SpoolManager");
-        mappings.put("matcherpackages", "org.apache.james.transport.MatcherLoader");
-        mappings.put("mailetpackages", "org.apache.james.transport.MailetLoader");
-        mappings.put("virtualusertable-store", "org.apache.james.api.vut.VirtualUserTableStore");
-        mappings.put("imapserver", "org.org.apache.jsieve.mailet.Poster");
-        mappings.put("threadmanager", "org.apache.avalon.cornerstone.services.threads.ThreadManager");
-        mappings.put("spoolmanagement", "org.apache.james.management.SpoolManagementService");
-        mappings.put("bayesiananalyzermanagement", "org.apache.james.management.BayesianAnalyzerManagementService");
-        mappings.put("processormanagement", "org.apache.james.management.ProcessorManagementService");
-        mappings.put("virtualusertablemanagementservice", "org.apache.james.api.vut.management.VirtualUserTableManagementService");
-        mappings.put("nntp-repository", "org.apache.james.nntpserver.repository.NNTPRepository");
-
     }
 
     public Object get(String name) { 
-        Object service = servicesByName.get(mapName(name));
+        Object service = servicesByName.get(name);
         return service;
-    }
-    
-    private String mapName(String name) {
-        String newName = mappings.get(name);
-        if(newName == null) {
-            newName = name;
-        }
-        return newName;
     }
    
     public void put(String role, Object service) {

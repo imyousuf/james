@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.james.api.vut.management.VirtualUserTableManagement;
 import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
@@ -32,7 +33,7 @@ import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
 public class ListMappingCmdHandler extends AbstractMappingCmdHandler {
-    private CommandHelp help = new CommandHelp("listmapping ([table=virtualusertablename]) [user@domain]","list all mappings for the given emailaddress");
+    private CommandHelp help = new CommandHelp("listmapping [user@domain]","list all mappings for the given emailaddress");
 
     public final static String COMMAND_NAME = "LISTMAPPING";
 
@@ -44,7 +45,6 @@ public class ListMappingCmdHandler extends AbstractMappingCmdHandler {
         RemoteManagerResponse response;
         String parameters = request.getArgument();
         String[] args = null;
-        String table = null;
         String user = null;
         String domain = null;
 
@@ -52,43 +52,38 @@ public class ListMappingCmdHandler extends AbstractMappingCmdHandler {
             args = parameters.split(" ");
 
         // check if the command was called correct
-        if (parameters == null || parameters.trim().equals("") || args.length < 1 || args.length > 2) {
+        if (parameters == null || parameters.trim().equals("") || args.length  != 1) {
             response = new RemoteManagerResponse("Usage: " + help.getSyntax());
             return response;
         } else {
-            if (args[0].startsWith("table=")) {
-                table = args[0].substring("table=".length());
-                if (args[1].indexOf("@") > 0) {
-                    user = getMappingValue(args[1].split("@")[0]);
-                    domain = getMappingValue(args[1].split("@")[1]);
-                } else {
-                    response = new RemoteManagerResponse("Usage: " + help.getSyntax());
-                    return response;
+            
+			if (args[0].indexOf("@") > 0) {
+				user = getMappingValue(args[0].split("@")[0]);
+				domain = getMappingValue(args[0].split("@")[1]);
+			} else {
+				response = new RemoteManagerResponse("Usage: "
+						+ help.getSyntax());
+				return response;
 
-                }
-            } else {
-                if (args[0].indexOf("@") > 0) {
-                    user = getMappingValue(args[0].split("@")[0]);
-                    domain = getMappingValue(args[0].split("@")[1]);
-                } else {
-                    response = new RemoteManagerResponse("Usage: " + help.getSyntax());
-                    return response;
-
-                }
-            }
+			}
 
             try {
-                Collection<String> mappings = vutManagement.getUserDomainMappings(table, user, domain);
-                if (mappings == null) {
-                    response = new RemoteManagerResponse("No mappings found");
-                } else {
-                    response = new RemoteManagerResponse("Mappings:");
+            	if (vutManagement instanceof VirtualUserTableManagement) {
+            		Collection<String> mappings = ((VirtualUserTableManagement)vutManagement).getUserDomainMappings(user, domain);
+                    if (mappings == null) {
+                        response = new RemoteManagerResponse("No mappings found");
+                    } else {
+                        response = new RemoteManagerResponse("Mappings:");
 
-                    Iterator<String> m = mappings.iterator();
-                    while (m.hasNext()) {
-                        response.appendLine(m.next());
+                        Iterator<String> m = mappings.iterator();
+                        while (m.hasNext()) {
+                            response.appendLine(m.next());
+                        }
                     }
-                }
+            	} else {
+                    response = new RemoteManagerResponse("Listing mappings not supported");
+            	}
+                
             } catch (VirtualUserTableManagementException e) {
                 session.getLogger().error("Error on listing mapping: " + e);
                 response = new RemoteManagerResponse("Error on listing mapping: " + e);

@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.api.vut.management.InvalidMappingException;
+import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.vut.model.JPAVirtualUser;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
@@ -76,7 +76,7 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean addMapping(String user, String domain, String mapping, int type) throws InvalidMappingException {
+    protected boolean addMapping(String user, String domain, String mapping, int type) throws VirtualUserTableManagementException {
         if (type == ERROR_TYPE) {
             return virtualUserTable.addErrorMapping(user, domain, mapping);
         } else if (type == REGEX_TYPE) {
@@ -93,7 +93,7 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean removeMapping(String user, String domain, String mapping, int type) throws InvalidMappingException {
+    protected boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableManagementException {
         if (type == ERROR_TYPE) {
             return virtualUserTable.removeErrorMapping(user, domain, mapping);
         } else if (type == REGEX_TYPE) {

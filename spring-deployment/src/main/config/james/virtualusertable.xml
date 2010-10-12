@@ -17,18 +17,19 @@
   specific language governing permissions and limitations      
   under the License.                                           
  -->
-<!-- The VirtualUserTable Store block -->
-<virtualusertable-store>
-    <!-- Configure VirtualUserTable stores here. -->
+<!-- The VirtualUserTable block -->
+<virtualusertable>
+    <!-- Configure VirtualUserTable here. -->
+    <!-- Only one table can be active -->
+    
     <!-- -->
     <!-- If set recursiveMapping false only the first mapping will get processed. -->
     <!-- Default true. -->
     <!-- By setting the mappingLimit you can specify how much mapping will get processed -->
     <!-- before a bounce will send. This avoid infinity loops. Default 10.  -->
       
-    <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
     <!--
-    <table name="DefaultVirtualUserTable" class="org.apache.james.vut.XMLVirtualUserTable">
+    <table  class="org.apache.james.vut.XMLVirtualUserTable">
         <recursiveMapping> true </recursiveMapping>
         <mappingLimit> 10 </mappingLimit>
          
@@ -40,18 +41,18 @@
     <!-- -->
     <!-- Use these configurations to store the VirtualUserTable in a database. -->
 
-    <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
     <!-- 
-    <table name="DefaultVirtualUserTable" class="org.apache.james.vut.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
+    <table class="org.apache.james.vut.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
         <recursiveMapping> true </recursiveMapping>
         <mappingLimit> 10 </mappingLimit>
         <sqlFile>file://conf/sqlResources.xml</sqlFile>
     </table>
     -->
-    <!-- The DefaultVirtualUserTable  for storing James' VirtualUserTable mappings. -->
-    <table name="DefaultVirtualUserTable" class="org.apache.james.vut.JPAVirtualUserTable">
+    
+    <!-- The default table for storing James' VirtualUserTable mappings. -->
+    <table class="org.apache.james.vut.JPAVirtualUserTable">
         <recursiveMapping> true </recursiveMapping>
         <mappingLimit> 10 </mappingLimit>
     </table>
 
-</virtualusertable-store>
+</virtualusertable>

@@ -22,29 +22,24 @@
 
 package org.apache.james.smtpserver;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
-import org.apache.james.api.vut.VirtualUserTableStore;
-import org.apache.james.mailrepository.MailRepository;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
-import org.apache.james.test.mock.james.MockVirtualUserTableStore;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -66,13 +61,8 @@ public class ValidRcptHandlerTest extends TestCase {
         users.addUser(VALID_USER,"xxx");
         handler = new ValidRcptHandler();
         handler.setUsers(users);
-        handler.setTableStore(setUpVirtualUserTableStore());
+        handler.setVirtualUserTable(setUpVirtualUserTable());
         handler.setMailServer(new MailServer() {
-
-            public boolean addUser(String userName, String password) {
-                // TODO Auto-generated method stub
-                return false;
-            }
 
             public String getDefaultDomain() {
                 // TODO Auto-generated method stub
@@ -89,34 +79,19 @@ public class ValidRcptHandlerTest extends TestCase {
                 return null;
             }
 
-            public MailRepository getUserInbox(String userName) {
-                // TODO Auto-generated method stub
-                return null;
-            }
 
             public boolean isLocalServer(String serverName) {
                 return serverName.equals(VALID_DOMAIN);
             }
 
-            public void sendMail(MailAddress sender, Collection<MailAddress> recipients, MimeMessage msg) throws MessagingException {
-                // TODO Auto-generated method stub
-                
-            }
-
-            public void sendMail(MailAddress sender, Collection<MailAddress> recipients, InputStream msg) throws MessagingException {
-                // TODO Auto-generated method stub
-                
-            }
+       
 
             public void sendMail(Mail mail) throws MessagingException {
                 // TODO Auto-generated method stub
                 
             }
 
-            public void sendMail(MimeMessage message) throws MessagingException {
-                // TODO Auto-generated method stub
-                
-            }
+           
 
             public boolean supportVirtualHosting() {
                 // TODO Auto-generated method stub
@@ -124,7 +99,6 @@ public class ValidRcptHandlerTest extends TestCase {
             }
             
         });
-        handler.init();
     }
 
     private SMTPSession setupMockedSMTPSession(final SMTPConfiguration conf, final MailAddress rcpt, final boolean relayingAllowed) {
@@ -143,7 +117,7 @@ public class ValidRcptHandlerTest extends TestCase {
         return session;
     }
     
-    private VirtualUserTableStore setUpVirtualUserTableStore() {
+    private VirtualUserTable setUpVirtualUserTable() {
         final VirtualUserTable table = new VirtualUserTable() {
  
             public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
@@ -156,15 +130,7 @@ public class ValidRcptHandlerTest extends TestCase {
                 return mappings;
             }
         };
-        final MockVirtualUserTableStore store = new MockVirtualUserTableStore() {
-
-            @Override
-            public VirtualUserTable getTable(String name) {
-                return table;
-            }
-            
-        };
-        return store;
+        return table;
     }
     
     private SMTPConfiguration setupMockedSMTPConfiguration() {

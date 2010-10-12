@@ -257,16 +257,8 @@
     <!-- The context FileSystem implementation -->
     <bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
 
-    <!-- The VirtualUserTable Management block  -->
-    <bean id="virtualusertablemanagementservice" class="org.apache.james.impl.vut.VirtualUserTableManagement" />
 
-    <!-- VirtualUserTable Store -->
-    <bean id="virtualusertable-store" class="org.apache.james.impl.vut.JamesVirtualUserTableStore">
-        <property name="defaultTable" value="DefaultVirtualUserTable"/>
-    </bean>
-
-
-    <bean id="defaultvirtualusertable" name="virtualusertablemanagement" class="org.apache.james.impl.vut.DefaultVirtualUserTable" />
+    <bean id="virtualusertable" name="virtualusertablemanagement" class="org.apache.james.impl.vut.JamesVirtualUserTable" />
 
     <!-- The context domainlist implementation -->
     <bean id="domainlist" class="org.apache.james.domain.XMLDomainList" />

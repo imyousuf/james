@@ -42,17 +42,14 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.services.MockJSR250Loader;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.vut.VirtualUserTableStore;
+import org.apache.james.api.vut.ErrorMappingException;
+import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
-import org.apache.james.services.FileSystem;
-import org.apache.james.services.MailServer;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
 import org.apache.james.socket.JamesProtocolHandlerChain;
-import org.apache.james.test.mock.DummyVirtualUserTableStore;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.TestUtil;
 import org.apache.james.util.codec.Base64;
@@ -213,19 +210,26 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     protected void setUpFakeLoader() throws Exception {
         m_serviceManager = new MockJSR250Loader();
         m_mailServer = new MockMailServer();
-        m_serviceManager.put(MailServer.ROLE, m_mailServer);
-        m_serviceManager.put(UsersRepository.ROLE, m_usersRepository);
+        m_serviceManager.put("mailserver", m_mailServer);
+        m_serviceManager.put("localusersrepository", m_usersRepository);
 
         m_dnsServer = new AlterableDNSServer();
-        m_serviceManager.put(DNSService.ROLE, m_dnsServer);
+        m_serviceManager.put("dnsservice", m_dnsServer);
 
         store = new MockMailStore();
         m_serviceManager.put("mailStore", store);
         fileSystem = new MockFileSystem();
 
-        m_serviceManager.put(FileSystem.ROLE, fileSystem);
+        m_serviceManager.put("filesystem", fileSystem);
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
-        m_serviceManager.put(VirtualUserTableStore.ROLE, new DummyVirtualUserTableStore());
+        m_serviceManager.put("virtualusertable", new VirtualUserTable() {
+
+			public Collection<String> getMappings(String user, String domain)
+					throws ErrorMappingException {
+				return null;
+			}
+        	
+        });
 
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
     }

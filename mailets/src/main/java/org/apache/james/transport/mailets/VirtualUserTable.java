@@ -27,59 +27,26 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.mailet.MailAddress;
-import org.apache.mailet.MailetException;
 
 /**
  * Mailet which should get used when using VirtualUserTable-Store to implementations
  * for mappings of forwards and aliases. 
  * 
- * If no VirtualUsertable-Store name is given the default of DefaultVirtualUserTable
- * will get used.
- * 
- * eg. <virtualusertable>DefaultVirtualUserTable</virtualusertable>
  *
  */
 public class VirtualUserTable extends AbstractVirtualUserTableMailet {
-    private VirtualUserTableStore vutStore;
     private org.apache.james.api.vut.VirtualUserTable vut;
    
-
-    /**
-     * Gets the virtual user table store.
-     * @return the vutStore, possibly null
-     */
-    public final VirtualUserTableStore getVutStore() {
-        return vutStore;
-    }
-
     /**
      * Sets the virtual table store.
      * @param vutStore the vutStore to set, possibly null
      */
-    @Resource(name="virtualusertable-store")
-    public final void setVutStore(VirtualUserTableStore vutStore) {
-        this.vutStore = vutStore;
+    @Resource(name="virtualusertable")
+    public final void setVirtualUserTable(org.apache.james.api.vut.VirtualUserTable vut) {
+        this.vut = vut;
     }
 
-    /**
-     * @see org.apache.mailet.base.GenericMailet#init()
-     */
-    public void init() throws MessagingException {
-        super.init();
-        
-        if (vutStore == null) {
-            throw new MailetException("Not initialised. Please ensure that the mailet container supports either" +
-            " setter or constructor injection. ");
-        }
-        
-        String vutName = getInitParameter("virtualusertable");
-        vut = vutStore.getTable(vutName);
-        if (vut == null) {
-            throw new MailetException("Could not find VirtualUserTable with name " + vutName);
-        }
-    }
 
     /**
      * @see org.apache.james.transport.mailets.AbstractVirtualUserTable#processMail(org.apache.mailet.MailAddress, org.apache.mailet.MailAddress, javax.mail.internet.MimeMessage)

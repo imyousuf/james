@@ -27,8 +27,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.vut.management.VirtualUserTableManagementException;
-import org.apache.james.api.vut.management.VirtualUserTableManagementService;
+import org.apache.james.api.vut.management.VirtualUserTableManagement;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHandler;
@@ -37,14 +36,14 @@ import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
 public class ListAllMappingsCmdHandler implements CommandHandler {
-    private CommandHelp help = new CommandHelp("listallmappings ([table=virtualusertablename])","list all mappings");
+    private CommandHelp help = new CommandHelp("listallmappings","list all mappings");
 
     public final static String COMMAND_NAME = "LISTALLMAPPINGS";
 
-    protected VirtualUserTableManagementService vutManagement;
+    protected VirtualUserTableManagement vutManagement;
 
-    @Resource(name = "virtualusertablemanagementservice")
-    public final void setVirtualUserTableManagementService(VirtualUserTableManagementService vutManagement) {
+    @Resource(name = "virtualusertablemanagement")
+    public final void setVirtualUserTableManagementService(VirtualUserTableManagement vutManagement) {
         this.vutManagement = vutManagement;
     }
 
@@ -55,25 +54,19 @@ public class ListAllMappingsCmdHandler implements CommandHandler {
     public Response onCommand(RemoteManagerSession session, Request request) {
         RemoteManagerResponse response;
         String[] args = null;
-        String table = null;
         String parameters = request.getArgument();
         
         if (parameters != null)
             args = parameters.split(" ");
 
         // check if the command was called correct
-        if (args != null && args.length > 1) {
+        if (args != null && args.length > 0) {
             response = new RemoteManagerResponse("Usage: " + help.getSyntax());
             return response;
         }
 
-        if (args != null && args[0].startsWith("table=")) {
-            table = args[0].substring("table=".length());
-
-        }
-
         try {
-            Map<String,Collection<String>> mappings = vutManagement.getAllMappings(table);
+            Map<String,Collection<String>> mappings = vutManagement.getAllMappings();
             if (mappings == null) {
                 response = new RemoteManagerResponse("No mappings found");
             } else {
@@ -85,9 +78,6 @@ public class ListAllMappingsCmdHandler implements CommandHandler {
                     response.appendLine(key + "  -> " + mappings.get(key));
                 }
             }
-        } catch (VirtualUserTableManagementException e) {
-            session.getLogger().error("Error on listing all mapping: " + e);
-            response = new RemoteManagerResponse("Error on listing all mapping: " + e);
         } catch (IllegalArgumentException e) {
             session.getLogger().error("Error on listing all mapping: " + e);
             response = new RemoteManagerResponse("Error on listing all mapping: " + e);

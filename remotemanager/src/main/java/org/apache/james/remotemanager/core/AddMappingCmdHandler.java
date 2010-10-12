@@ -32,7 +32,7 @@ import org.apache.james.remotemanager.RemoteManagerSession;
 
 public class AddMappingCmdHandler extends AbstractMappingCmdHandler {
 
-    private CommandHelp help = new CommandHelp("addmapping ([table=virtualusertablename]) [toUser@toDomain] [fromMapping]","add mapping for the given emailaddress");
+    private CommandHelp help = new CommandHelp("addmapping [toUser@toDomain] [fromMapping]","add mapping for the given emailaddress");
   
     /*
      * (non-Javadoc)
@@ -46,7 +46,7 @@ public class AddMappingCmdHandler extends AbstractMappingCmdHandler {
             args = parameters.split(" ");
 
         // check if the command was called correct
-        if (parameters == null || parameters.trim().equals("") || args.length < 2 || args.length > 3) {
+        if (parameters == null || parameters.trim().equals("") || args.length != 2) {
             response = new RemoteManagerResponse("Usage: " + help.getSyntax());
         } else {
             try {

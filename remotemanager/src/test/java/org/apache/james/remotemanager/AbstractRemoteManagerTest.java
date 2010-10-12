@@ -41,10 +41,6 @@ import org.apache.james.api.domainlist.SimpleDomainList;
 import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
-import org.apache.james.api.vut.management.MockVirtualUserTableManagementService;
-import org.apache.james.api.vut.management.VirtualUserTableManagementService;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.lifecycle.LifecycleUtil;
@@ -57,9 +53,9 @@ import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementService;
-import org.apache.james.services.MailServer;
 import org.apache.james.socket.JamesProtocolHandlerChain;
 import org.apache.james.test.mock.james.MockUsersStore;
+import org.apache.james.test.mock.james.MockVirtualUserTableManagementImpl;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.TestUtil;
@@ -77,7 +73,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	private MockUsersStore usersStore;
 	protected DNSService dnsservice;
 	protected MockFileSystem filesystem;
-	private MockVirtualUserTableManagementService vutManagement;
+	private MockVirtualUserTableManagementImpl vutManagement;
 	protected JamesProtocolHandlerChain chain;
 	
 	protected void setUp() throws Exception {
@@ -181,29 +177,25 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 		serviceManager = new MockJSR250Loader();
 
 		m_mockUsersRepository = new MockUsersRepository();
+		serviceManager.put("localusersrepository", m_mockUsersRepository);
+
+
+		usersStore = new MockUsersStore(m_mockUsersRepository);
+		serviceManager.put("users-store", usersStore);
 
 		mailServer = new MockMailServer();
-		usersStore = new MockUsersStore(m_mockUsersRepository);
-
-		serviceManager.put(MailServer.ROLE, mailServer);
-		serviceManager.put(UsersRepository.ROLE, m_mockUsersRepository);
-
+		serviceManager.put("mailserver", mailServer);
+		
 		filesystem = new MockFileSystem();
-		serviceManager.put(MockFileSystem.ROLE, filesystem);
+		serviceManager.put("filesystem", filesystem);
 
-		serviceManager.put(UsersStore.ROLE, usersStore);
 
 		dnsservice = setUpDNSServer();
-		serviceManager.put(DNSService.ROLE, dnsservice);
-		vutManagement = new MockVirtualUserTableManagementService();
-		// VirtualUserTableManagementService vutManagement = new
-		// VirtualUserTableManagement();
-		// vutManagement.setVirtualUserTableStore(vutStore);
-		// vutManagement.setVirtualUserTableManagement(new
-		// MockVirtualUserTableManagementImpl());
-		serviceManager.put(VirtualUserTableManagementService.ROLE,
-				new MockVirtualUserTableManagementService());
-
+		serviceManager.put("dnsservice", dnsservice);
+		
+		vutManagement = new MockVirtualUserTableManagementImpl();
+		serviceManager.put("virtualusertablemanagement", vutManagement);
+	
 		ManageableDomainList xml = new SimpleDomainList();
 
 		DomainListManagementService domManagement = new DomainListManagementService() {
@@ -236,8 +228,8 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 
 		}.setDomainList(xml);
 
-		serviceManager.put(DomainListManagementService.ROLE, domManagement);
-		serviceManager.put(BayesianAnalyzerManagementService.ROLE,
+		serviceManager.put("domainlistmanagement", domManagement);
+		serviceManager.put("bayesiananalyzermanagement",
 				new BayesianAnalyzerManagementService() {
 
 					public void resetData()
@@ -316,7 +308,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 					}
 				});
 		serviceManager.put("mailStore", new MockMailStore());
-		serviceManager.put(ProcessorManagementService.ROLE,
+		serviceManager.put("processormanagement",
 				new ProcessorManagementService() {
 
 					public String[] getProcessorNames() {

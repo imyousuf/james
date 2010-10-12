@@ -48,9 +48,11 @@ public class CountUsersCmdHandler extends ListUsersCmdHandler{
     }
     
     @Override
-    public Response onCommand(RemoteManagerSession session, Request request) {        RemoteManagerResponse response;
+    public Response onCommand(RemoteManagerSession session, Request request) {      
+    	RemoteManagerResponse response;
         String parameters = request.getArgument();
         UsersRepository users = uStore.getRepository(((String) session.getState().get(RemoteManagerSession.CURRENT_USERREPOSITORY)));
+        System.out.println("users " +users);
         if (parameters == null) {
             response = new RemoteManagerResponse("Existing accounts " + users.countUsers());
             return response;

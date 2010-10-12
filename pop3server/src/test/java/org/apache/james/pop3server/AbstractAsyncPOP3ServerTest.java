@@ -39,7 +39,6 @@ import org.apache.commons.net.pop3.POP3Reply;
 import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxManager;
@@ -50,7 +49,6 @@ import org.apache.james.mailbox.MailboxConstants;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailbox.store.Authenticator;
-import org.apache.james.services.MailServer;
 import org.apache.james.socket.JamesProtocolHandlerChain;
 import org.apache.james.userrepository.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
@@ -99,8 +97,8 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         serviceManager = new MockJSR250Loader();
 
         m_mailServer = new MockMailServer();
-        serviceManager.put(MailServer.ROLE, m_mailServer);
-        serviceManager.put(UsersRepository.ROLE,
+        serviceManager.put("mailserver", m_mailServer);
+        serviceManager.put("localusersrepository",
                 m_usersRepository);
         
         InMemoryMailboxSessionMapperFactory factory = new InMemoryMailboxSessionMapperFactory();
@@ -115,9 +113,9 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         serviceManager.put("mailboxmanager", manager);
         
         dnsservice = setUpDNSServer();
-        serviceManager.put(DNSService.ROLE, setUpDNSServer());
+        serviceManager.put("dnsservice", setUpDNSServer());
         fSystem = new MockFileSystem();
-        serviceManager.put(MockFileSystem.ROLE,fSystem);
+        serviceManager.put("filesystem",fSystem);
       
     }
 

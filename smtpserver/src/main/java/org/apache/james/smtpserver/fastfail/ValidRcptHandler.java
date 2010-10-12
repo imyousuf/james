@@ -21,7 +21,6 @@ package org.apache.james.smtpserver.fastfail;
 
 import java.util.Collection;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -29,7 +28,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
-import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
@@ -44,11 +42,9 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 
 	private UsersRepository users;
 
-	private VirtualUserTableStore tableStore;
-	private VirtualUserTable table;
-	private String tableName = null;
+	private VirtualUserTable vut;
 
-    private boolean vut = true;
+    private boolean useVut = true;
 
     private MailServer mailServer;
 
@@ -73,33 +69,19 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	}
 
 	/**
-	 * Gets the virtual user table store.
-	 * 
-	 * @return the tableStore
-	 */
-	public final VirtualUserTableStore getTableStore() {
-		return tableStore;
-	}
-
-	/**
 	 * Sets the virtual user table store.
 	 * 
 	 * @param tableStore
 	 *            the tableStore to set
 	 */
-	@Resource(name = "virtualusertable-store")
-	public final void setTableStore(VirtualUserTableStore tableStore) {
-		this.tableStore = tableStore;
+	@Resource(name = "virtualusertable")
+	public final void setVirtualUserTable(VirtualUserTable vut) {
+		this.vut = vut;
 	}
 	
 	@Resource(name = "mailserver")
 	public void setMailServer(MailServer mailServer) {
 	    this.mailServer = mailServer;
-	}
-	
-	@PostConstruct
-	public void init() throws Exception{
-		loadTable();
 	}
 
 	/**
@@ -108,19 +90,10 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
 		setVirtualUserTableSupport(config.getBoolean("enableVirtualUserTable",
 				true));
-		setTableName(config.getString("table", null));
 	}
 
-	public void setVirtualUserTableSupport(boolean vut) {
-		this.vut = vut;
-	}
-
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
-
-	private void loadTable() throws Exception {
-        table = tableStore.getTable(this.tableName);	
+	public void setVirtualUserTableSupport(boolean useVut) {
+		this.useVut = useVut;
 	}
 
 
@@ -145,11 +118,11 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 			return true;
 		} else {
 
-			if (vut == true) {
+			if (useVut == true) {
 	            session.getLogger().debug("Unknown user " + username + " check if its an alias");
 
 				try {
-					Collection<String> targetString = table.getMappings(
+					Collection<String> targetString = vut.getMappings(
 							recipient.getLocalPart(), recipient.getDomain());
 
 					if (targetString != null && targetString.isEmpty() == false) {

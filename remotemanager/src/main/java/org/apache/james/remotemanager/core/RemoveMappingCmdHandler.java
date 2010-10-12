@@ -31,7 +31,7 @@ import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 
 public class RemoveMappingCmdHandler extends AbstractMappingCmdHandler {
-    private CommandHelp help = new CommandHelp("removemapping ([table=virtualusertablename]) [toUser@toDomain] [fromMapping]","remove mapping for the given emailaddress");
+    private CommandHelp help = new CommandHelp("removemapping [toUser@toDomain] [fromMapping]","remove mapping for the given emailaddress");
 
     /*
      * (non-Javadoc)
@@ -46,7 +46,7 @@ public class RemoveMappingCmdHandler extends AbstractMappingCmdHandler {
             args = parameters.split(" ");
 
         // check if the command was called correct
-        if (parameters == null || parameters.trim().equals("") || args.length < 2 || args.length > 3) {
+        if (parameters == null || parameters.trim().equals("") || args.length != 2) {
             response = new RemoteManagerResponse("Usage: " + help.getSyntax());
         } else {
             try {

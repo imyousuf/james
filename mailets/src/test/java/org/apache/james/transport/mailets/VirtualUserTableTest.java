@@ -30,7 +30,6 @@ import javax.mail.MessagingException;
 import junit.framework.TestCase;
 
 import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.api.vut.VirtualUserTableStore;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.test.FakeMail;
@@ -61,19 +60,16 @@ public class VirtualUserTableTest extends TestCase{
         FakeMailetConfig mockMailetConfig = new FakeMailetConfig("vut", mockMailetContext, new Properties());
         //mockMailetConfig.put("virtualusertable", "vut");
         
-        table.setVutStore(new VirtualUserTableStore() {
-            
-            public org.apache.james.api.vut.VirtualUserTable getTable(String name) {
-                return new org.apache.james.api.vut.VirtualUserTable() {
+		table.setVirtualUserTable(new org.apache.james.api.vut.VirtualUserTable() {
+					public Collection<String> getMappings(String user,
+							String domain) throws ErrorMappingException {
+						if (user.equals("test") && domain.equals("localhost"))
+							return Arrays.asList(new String[] {
+									"whatever@localhost", "blah@localhost" });
+						return null;
+					}
 
-                    public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
-                        if (user.equals("test") && domain.equals("localhost")) return Arrays.asList(new String[]{"whatever@localhost","blah@localhost"});
-                        return null;
-                    }
-                    
-                };
-            }
-        });
+				});
 
         table.init(mockMailetConfig);
 

@@ -29,7 +29,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnit;
 
-import org.apache.james.api.vut.management.InvalidMappingException;
+import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.james.vut.model.JPAVirtualUser;
@@ -57,7 +57,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#addMappingInternal(String, String, String)
      */
-    protected boolean addMappingInternal(String user, String domain, String regex) throws InvalidMappingException {
+    protected boolean addMappingInternal(String user, String domain, String regex) throws VirtualUserTableManagementException {
         
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
@@ -153,7 +153,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     /**
      * @see org.apache.james.impl.vut.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
      */
-    protected boolean removeMappingInternal(String user, String domain, String mapping) throws InvalidMappingException {
+    protected boolean removeMappingInternal(String user, String domain, String mapping) throws VirtualUserTableManagementException {
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
         Collection<String> map = getUserDomainMappings(newUser,newDomain);
@@ -265,12 +265,12 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
      * @return user the user String
      * @throws InvalidMappingException get thrown on invalid argument
      */
-    private String getUserString(String user) throws InvalidMappingException {
+    private String getUserString(String user) throws VirtualUserTableManagementException {
         if (user != null) {
             if(user.equals(WILDCARD) || user.indexOf("@") < 0) {
                 return user;
             } else {
-                throw new InvalidMappingException("Invalid user: " + user);
+                throw new VirtualUserTableManagementException("Invalid user: " + user);
             }
         } else {
             return WILDCARD;
@@ -284,12 +284,12 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
      * @return domainString the domain String
      * @throws InvalidMappingException get thrown on invalid argument
      */
-    private String getDomainString(String domain) throws InvalidMappingException {
+    private String getDomainString(String domain) throws VirtualUserTableManagementException {
         if(domain != null) {
             if (domain.equals(WILDCARD) || domain.indexOf("@") < 0) {
                 return domain;  
             } else {
-                throw new InvalidMappingException("Invalid domain: " + domain);
+                throw new VirtualUserTableManagementException("Invalid domain: " + domain);
             }
         } else {
             return WILDCARD;

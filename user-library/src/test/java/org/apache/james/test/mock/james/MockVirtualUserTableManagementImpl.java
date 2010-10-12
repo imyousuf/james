@@ -26,23 +26,23 @@ import java.util.Map;
 
 import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.api.vut.VirtualUserTable;
-import org.apache.james.api.vut.management.InvalidMappingException;
 import org.apache.james.api.vut.management.VirtualUserTableManagement;
+import org.apache.james.api.vut.management.VirtualUserTableManagementException;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
 
 public class MockVirtualUserTableManagementImpl implements VirtualUserTableManagement {
 
     HashMap store = new HashMap();
     
-    public boolean addAddressMapping(String user, String domain, String address) throws InvalidMappingException {
+    public boolean addAddressMapping(String user, String domain, String address) throws VirtualUserTableManagementException {
         return addRawMapping(user,domain,address);
     }
 
-    public boolean addErrorMapping(String user, String domain, String error) throws InvalidMappingException {
+    public boolean addErrorMapping(String user, String domain, String error) throws VirtualUserTableManagementException {
         return addRawMapping(user,domain,VirtualUserTable.ERROR_PREFIX + error);
     }
 
-    public boolean addMapping(String user, String domain, String mapping) throws InvalidMappingException {
+    public boolean addMapping(String user, String domain, String mapping) throws VirtualUserTableManagementException {
         if (mapping.startsWith(VirtualUserTable.ERROR_PREFIX)){
             return addErrorMapping(user,domain,mapping.substring(VirtualUserTable.ERROR_PREFIX.length()));
         } else if (mapping.startsWith(VirtualUserTable.REGEX_PREFIX)) {
@@ -52,7 +52,7 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTableManag
         }
     }
 
-    public boolean addRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
+    public boolean addRegexMapping(String user, String domain, String regex) throws VirtualUserTableManagementException {
         return addRawMapping(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
     }
 
@@ -64,7 +64,7 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTableManag
         }
     }
 
-    public Collection getUserDomainMappings(String user, String domain) throws InvalidMappingException {
+    public Collection getUserDomainMappings(String user, String domain) throws VirtualUserTableManagementException {
         String mapping = (String) store.get(user + "@" + domain);
         if (mapping != null) {
             return VirtualUserTableUtil.mappingToCollection(mapping);
@@ -73,15 +73,15 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTableManag
         }
     }
 
-    public boolean removeAddressMapping(String user, String domain, String address) throws InvalidMappingException {
+    public boolean removeAddressMapping(String user, String domain, String address) throws VirtualUserTableManagementException {
         return removeRawMapping(user,domain,address);
     }
 
-    public boolean removeErrorMapping(String user, String domain, String error) throws InvalidMappingException {
+    public boolean removeErrorMapping(String user, String domain, String error) throws VirtualUserTableManagementException {
         return removeRawMapping(user,domain,VirtualUserTable.ERROR_PREFIX + error);
     }
 
-    public boolean removeMapping(String user, String domain, String mapping) throws InvalidMappingException {
+    public boolean removeMapping(String user, String domain, String mapping) throws VirtualUserTableManagementException {
         if (mapping.startsWith(VirtualUserTable.ERROR_PREFIX)){
             return removeErrorMapping(user,domain,mapping.substring(VirtualUserTable.ERROR_PREFIX.length()));
         } else if (mapping.startsWith(VirtualUserTable.REGEX_PREFIX)) {
@@ -91,7 +91,7 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTableManag
         }
     }
 
-    public boolean removeRegexMapping(String user, String domain, String regex) throws InvalidMappingException {
+    public boolean removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableManagementException {
         return removeRawMapping(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
     }
 
@@ -134,11 +134,11 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTableManag
         return false;
     }
 
-    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableManagementException {
     return addRawMapping(null,aliasDomain,VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
 
-    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws InvalidMappingException {
+    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableManagementException {
         return removeRawMapping(null,aliasDomain,VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
 

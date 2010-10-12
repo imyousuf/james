@@ -37,84 +37,78 @@ public interface VirtualUserTableManagementMBean {
      * @phoenix:mx-operation
      * @phoenix:mx-description Add regex mapping
      * 
-     * @param virtualUserTable The virtualUserTable 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
      * @return true if successfully
      * @throws VirtualUserTableManagementException TODO
      */
-    public boolean addRegexMapping(String virtualUserTable, String user, String domain, String regex) throws VirtualUserTableManagementException;
+    public boolean addRegexMapping(String user, String domain, String regex) throws VirtualUserTableManagementException;
     
     /**
      * Remove regex mapping
      * @phoenix:mx-operation
      * @phoenix:mx-description Remove regex mapping
      * 
-     * @param virtualUserTable The virtualUserTable 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
      * @return true if successfully
      * @throws VirtualUserTableManagementException TODO
      */
-    public boolean removeRegexMapping(String virtualUserTable, String user,String domain, String regex) throws VirtualUserTableManagementException;
+    public boolean removeRegexMapping(String user,String domain, String regex) throws VirtualUserTableManagementException;
     
     /***
      * Add address mapping
      * @phoenix:mx-operation
      * @phoenix:mx-description Add address mapping
      * 
-     * @param virtualUserTable The virtualUserTable 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param address the address.
      * @return true if successfully
      * @throws VirtualUserTableManagementException TODO
      */
-    public boolean addAddressMapping(String virtualUserTable, String user, String domain, String address) throws VirtualUserTableManagementException;
+    public boolean addAddressMapping(String user, String domain, String address) throws VirtualUserTableManagementException;
     
     /**
      * Remove address mapping
      * @phoenix:mx-operation
      * @phoenix:mx-description Remove address mapping
      * 
-     * @param virtualUserTable The virtualUserTable 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param address
      * @return true if successfully
      * @throws VirtualUserTableManagementException TODO
      */
-    public boolean removeAddressMapping(String virtualUserTable, String user,String domain, String address) throws VirtualUserTableManagementException;
+    public boolean removeAddressMapping(String user,String domain, String address) throws VirtualUserTableManagementException;
     
     /**
      * Add error mapping
      * @phoenix:mx-operation
      * @phoenix:mx-description Add error mapping
      * 
-     * @param virtualUserTable The virtualUserTable 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param error
      * @return true if successfully
      * @throws VirtualUserTableManagementException TODO
      */
-    public boolean addErrorMapping(String virtualUserTable, String user, String domain, String error) throws VirtualUserTableManagementException;
+    public boolean addErrorMapping(String user, String domain, String error) throws VirtualUserTableManagementException;
 
     /**
      * Remove error mapping
      * @phoenix:mx-operation
      * @phoenix:mx-description Remove error mapping
      * 
-     * @param virtualUserTable The virtualUserTable 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param error
      * @return true if successfully
      * @throws VirtualUserTableManagementException TODO
      */
-    public boolean removeErrorMapping(String virtualUserTable, String user,String domain, String error) throws VirtualUserTableManagementException;
+    public boolean removeErrorMapping(String user,String domain, String error) throws VirtualUserTableManagementException;
     
     /**
      * Return the explicit mapping stored for the given user and domain. Return null
@@ -123,39 +117,36 @@ public interface VirtualUserTableManagementMBean {
      * @phoenix:mx-description Return the explicit mapping stored for the given user and domain. Return null
      *                         if no mapping was found
      *
-     * @param virtualUserTable The virtualUserTable     
      * @param user the username
      * @param domain the domain
      * @return the collection which holds the mappings. 
      * @throws VirtualUserTableManagementException TODO
      */
-    public Collection<String> getUserDomainMappings(String virtualUserTable, String user, String domain) throws VirtualUserTableManagementException;
+    public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableManagementException;
     
     /**
     * Try to identify the right method based on the prefix of the mapping and add it.
     * @phoenix:mx-operation
     * @phoenix:mx-description Try to identify the right method based on the prefix of the mapping and add it
     * 
-    * @param virtualUserTable The virtualUserTable 
     * @param user the username. Null if no username should be used
     * @param domain the domain. Null if no domain should be used
     * @param mapping the mapping.
     * @return true if successfully
      * @throws VirtualUserTableManagementException TODO
     */
-    public boolean addMapping(String virtualUserTable, String user, String domain, String mapping) throws VirtualUserTableManagementException;
+    public boolean addMapping(String user, String domain, String mapping) throws VirtualUserTableManagementException;
     
     /**
      * Try to identify the right method based on the prefix of the mapping and remove it.
      * @phoenix:mx-operation
      * @phoenix:mx-description Try to identify the right method based on the prefix of the mapping and remove it
      *
-     * @param virtualUserTable The virtualUserTable 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param mapping the mapping.
      * @return true if successfully
      * @throws VirtualUserTableManagementException TODO
      */
-    public boolean removeMapping(String virtualUserTable, String user, String domain, String mapping) throws VirtualUserTableManagementException;
+    public boolean removeMapping(String user, String domain, String mapping) throws VirtualUserTableManagementException;
 }

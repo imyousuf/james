@@ -21,50 +21,38 @@ package org.apache.james.remotemanager.core;
 
 import javax.annotation.Resource;
 
+import org.apache.james.api.vut.management.VirtualUserTableManagement;
 import org.apache.james.api.vut.management.VirtualUserTableManagementException;
-import org.apache.james.api.vut.management.VirtualUserTableManagementService;
 import org.apache.james.remotemanager.CommandHandler;
 
 public abstract class AbstractMappingCmdHandler implements CommandHandler {
 
     protected final static String ADD_MAPPING_ACTION = "ADDMAPPING";
     protected final static String REMOVE_MAPPING_ACTION = "REMOVEMAPPING";
-    protected VirtualUserTableManagementService vutManagement;
+    protected VirtualUserTableManagement vutManagement;
 
-    @Resource(name = "virtualusertablemanagementservice")
-    public final void setVirtualUserTableManagementService(VirtualUserTableManagementService vutManagement) {
+    @Resource(name = "virtualusertablemanagement")
+    public final void setVirtualUserTableManagement(VirtualUserTableManagement vutManagement) {
         this.vutManagement = vutManagement;
     }
 
     protected boolean mappingAction(String[] args, String action) throws IllegalArgumentException, VirtualUserTableManagementException {
-        String table = null;
         String user = null;
         String domain = null;
         String mapping = null;
 
-        if (args[0].startsWith("table=")) {
-            table = args[0].substring("table=".length());
-            if (args[1].indexOf("@") > 0) {
-                user = getMappingValue(args[1].split("@")[0]);
-                domain = getMappingValue(args[1].split("@")[1]);
-            } else {
-                throw new IllegalArgumentException("Invalid usage.");
-            }
-            mapping = args[2];
-        } else {
-            if (args[0].indexOf("@") > 0) {
-                user = getMappingValue(args[0].split("@")[0]);
-                domain = getMappingValue(args[0].split("@")[1]);
-            } else {
-                throw new IllegalArgumentException("Invalid usage.");
-            }
-            mapping = args[1];
-        }
+		if (args[0].indexOf("@") > 0) {
+			user = getMappingValue(args[0].split("@")[0]);
+			domain = getMappingValue(args[0].split("@")[1]);
+		} else {
+			throw new IllegalArgumentException("Invalid usage.");
+		}
+		mapping = args[1];
 
         if (action.equals(ADD_MAPPING_ACTION)) {
-            return vutManagement.addMapping(table, user, domain, mapping);
+            return vutManagement.addMapping(user, domain, mapping);
         } else if (action.equals(REMOVE_MAPPING_ACTION)) {
-            return vutManagement.removeMapping(table, user, domain, mapping);
+            return vutManagement.removeMapping(user, domain, mapping);
         } else {
             throw new IllegalArgumentException("Invalid action: " + action);
         }
