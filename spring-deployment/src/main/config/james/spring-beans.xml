@@ -81,8 +81,9 @@
                 <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remotemanager"/>
-                <entry key="mailProcessor" value="spoolmanager"/>                
-            </map>
+                <entry key="mailProcessor" value="mailetcontainer"/>
+                <entry key="spoolmanager" value="mailetcontainer"/>
+             </map>
         </property>
     </bean>
 
@@ -107,7 +108,8 @@
                 <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remoteManager"/>
-                <entry key="mailProcessor" value="spoolmanager"/>                
+                <entry key="mailProcessor" value="mailetcontainer"/>
+                <entry key="spoolmanager" value="mailetcontainer"/>
             </map>
         </property>
     </bean>
@@ -276,7 +278,7 @@
     <!-- IMAP server Beans -->
     <bean id="imapserver" class="org.apache.james.imapserver.netty.NioImapServer">
         <property name="imapDecoder" ref="imapDecoder"/>
-        <property name="imapEncoder" ref="imapEncoder"/>	
+        <property name="imapEncoder" ref="imapEncoder"/>    
     </bean>
 
     <bean id="imapProcessor" class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory" factory-method="createDefaultProcessor">
@@ -350,7 +352,7 @@
 
     <bean id="jcrUtils" class="org.apache.james.imap.jcr.JCRUtils"/>    
 
-    <bean id ="sessionJcrRepository" 	class="org.apache.james.mailbox.jcr.GlobalMailboxSessionJCRRepository" depends-on="imapCndLoader">
+    <bean id ="sessionJcrRepository"    class="org.apache.james.mailbox.jcr.GlobalMailboxSessionJCRRepository" depends-on="imapCndLoader">
         <constructor-arg index="0" ref="jcrRepository"/>
         <constructor-arg index="1" value="james"/>
         <constructor-arg index="2" value="james"/>

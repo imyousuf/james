@@ -20,9 +20,9 @@
  <!-- The James Spool Manager block  -->
    <!-- -->
    <!-- This block is responsible for processing messages on the spool. -->
-   <spoolmanager>
+   <mailetcontainer>
       <!-- Number of spool threads -->
-      <threads> 10 </threads>
+      <threads> 20 </threads>
 
       <!-- The root processor is a required processor - James routes all mail on the spool -->
       <!-- through this processor first. -->
@@ -638,4 +638,4 @@ Regards, Postmaster XXX.YYY
             -->
           </mailet>
       </processor>
-   </spoolmanager>
+   </mailetcontainer>
