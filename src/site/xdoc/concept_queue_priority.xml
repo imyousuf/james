@@ -25,11 +25,11 @@
 
 <body>
 
-  <section name="Queue">
+  <section name="Queueing System">
   
   </section>
   
-  <section name="Priority">
+  <section name="Priority in the Queue">
   
     <p>Priority is supported when James (de)queues the mails during the spooling process.</p>
     

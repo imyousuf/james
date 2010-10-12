@@ -20,15 +20,19 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Monitoring Instructions</title>
+  <title>James 3.0 - JMX Monitoring</title>
  </properties>
 
 <body>
 
-  <section name="Monitoring Instructions">
+  <section name="JMX Monitoring">
+  
+    <subsection name="Queues Monitoring">
+  
+    </subsection>
 
   </section>
-  
+
 </body>
 
 </document>

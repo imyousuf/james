@@ -37,71 +37,70 @@
       <item name="Introduction" href="/index.html"/>
       <item name="Release Notes" href="/release_notes.html"/>
       <item name="Changes" href="/changelog.html"/>
-      <item name="Security" href="/security.html" />
-      <item name="Performance" href="/perfomance.html" />
-<!--      <item name='JIRA Report' href='/jira-report.html'/>-->
+      <item name="Security" href="/james_security.html" />
+      <item name="Performance" href="/james_perfomance.html" />
+<!--      <item name="JIRA Report" href="/jira-report.html"/>-->
     </menu>
   
     <menu name="Concepts">
-      <item name="Summary" href="/summary.html" />
-      <item name="Stores" href="/stores.html" />
-      <item name="Mailet Container" href="/mailetcontainer.html" />
-      <item name="Queue Priority" href="/queue_priority.html" />
+      <item name="Summary" href="/concept_summary.html" />
+      <item name="Stores" href="/concept_stores.html" />
+      <item name="Mailet Container" href="/concept_mailetcontainer.html" collapse="true" >
+        <item name="Mailet Site" href="http://james.apache.org/mailet/index.html"/>
+        <item name="Mailet API" href="http://james.apache.org/mailet/api/index.html"/>
+        <item name="Mailet Toolkit" href="http://james.apache.org/mailet/base/index.html"/>
+        <item name="Mailet Crypto" href="http://james.apache.org/mailet/crypto/index.html"/>
+        <item name="Mailet Sieve" href="http://james.apache.org/mailet/standard/index.html"/>
+        <item name="Mailet Standard" href="http://james.apache.org/mailet/standard/index.html"/>
+        <item name="Mailet Docs" href="http://james.apache.org/mailet/maven-mailetdocs-plugin/index.html"/>
+        <item name="Server Mailets" href="/james-server-mailets-function/mailet-report.html"/>
+      </item>
+      <item name="Queue Priority" href="/concept_queue_priority.html" />
     </menu>
     
     <menu name="How to...">
-      <item name="1. Install James" href="/installation_instructions.html" />
-      <item name="2. Configure James" href="/configuration_instructions.html" collapse="true" >
-        <item name="Server-wide" href="/serverwide_configuration.html" />
-        <item name="Domains" href="/domains_configuration.html" />
-        <item name="Users" href="/users_configuration.html" />
-        <item name="Mail Stores" href="/mailstores_configuration.html" />
-        <item name="DNS" href="/dns_configuration.html" />
-        <item name="IMAP4" href="/imap4_configuration.html" />
-        <item name="POP3" href="/pop3_configuration.html" />
-        <item name="SMTP LMTP" href="/smtp_configuration.html" />
-<!--      <item name="NNTP" href="/nntp_configuration.html" />-->
-        <item name="Mailet Container" href="/mailetcontainer_configuration.html" />
-        <item name="FetchMail" href="/fetchmail_configuration.html" />
-        <item name="Remote Manager" href="/remotemanager_configuration.html" />
+      <item name="1. Install James" href="/installation.html" />
+      <item name="2. Configure James" href="/configuration.html" collapse="true" >
+        <item name="Server-wide" href="/configuration_serverwide.html" />
+        <item name="Domains" href="/configuration_domains.html" />
+        <item name="Users" href="/configuration_users.html" />
+        <item name="Mail Stores" href="/configuration_mailstores.html" />
+        <item name="DNS" href="/configuration_dns.html" />
+        <item name="IMAP4" href="/configuration_imap4.html" />
+        <item name="POP3" href="/configuration_pop3.html" />
+        <item name="SMTP LMTP" href="/configuration_smtp_lmtp.html" />
+        <item name="Mailet Container" href="/configuration_mailetcontainer.html" />
+        <item name="FetchMail" href="/configuration_fetchmail.html" />
+        <item name="Remote Manager" href="/configuration_remotemanager.html" />
+        <item name="List Manager" href="/configuration_listmanager.html" />
       </item>
-      <item name="3. Manage James" href="/management_instructions.html" collapse="true" >
-        <item name="Domains" href="/adding_domains.html" />
-        <item name="Users" href="/adding_users.html" />
-        <item name="Virtual Users" href="/adding_virtual_users.html" />
+      <item name="3. Manage James" href="/management.html" collapse="true" >
+        <item name="Domains" href="/management_domains.html" />
+        <item name="Users" href="/management_users.html" />
+        <item name="Virtual Users" href="/management_virtualusers.html" />
       </item>
-      <item name="4. Monitor James" href="/monitoring_instructions.html" collapse="true" >
-        <item name="Queues" href="/queues_monitoring.html" />
+      <item name="4. Monitor James" href="/monitoring.html" collapse="true" >
+        <item name="Logging" href="/monitoring_logging.html" />
+        <item name="JMX" href="/monitoring_jmx.html" />
       </item>
     </menu>
 
     <menu name="FAQ">
-      <item name="Upgrade from James 2.3" href="/upgrade_instructions.html" />
-      <item name="Common Configs" href="/common_configurations.html" />
-      <item name="James and Sendmail" href="/james_and_sendmail.html" />
+      <item name="Upgrade from James 2.3" href="/james_upgrade.html" />
+      <item name="Common Configs" href="/configuration_common.html" />
       <item name="Provided Mailets" href="/provided_mailets.html" />
       <item name="Provided Matchers" href="/provided_matchers.html" />
     </menu>
 
     <menu name="Developers Corner">
-      <item name="Architecture" href="/james_architecture.html" />
-      <item name="Build from source" href="/build_james.html" />
-      <item name="Develop a Mailet" href="/custom_mailet.html" />
-      <item name="Develop a Matcher" href="/custom_matcher.html" />
-      <item name="Extend James" href="/extend_james.html" />
+      <item name="Architecture" href="/dev_architecture.html" />
+      <item name="Build from source" href="/dev_build.html" />
+      <item name="Develop a Mailet" href="/dev_custom_mailet.html" />
+      <item name="Develop a Matcher" href="/dev_custom_matcher.html" />
+      <item name="Extend James" href="/dev_extend.html" />
+      <item name="Javadoc" href="./apidocs/index.html" />
     </menu>
 
-    <menu name='Mailets'>
-       <item name='Overview' href='http://james.apache.org/mailet/index.html'/>
-       <item name='API' href='http://james.apache.org/mailet/api/index.html'/>
-       <item name='Basic Toolkit' href='http://james.apache.org/mailet/base/index.html'/>
-       <item name='Crypto' href='http://james.apache.org/mailet/crypto/index.html'/>
-       <item name='Sieve' href='http://james.apache.org/mailet/standard/index.html'/>
-       <item name='MailetDocs' href='http://james.apache.org/mailet/maven-mailetdocs-plugin/index.html'/>
-       <item name='Server' href='/james-server-mailets-function/mailet-report.html'/>
-       <item name='Standard' href='http://james.apache.org/mailet/standard/index.html'/>
-    </menu>
-    
     ${reports}
 
   </body>  

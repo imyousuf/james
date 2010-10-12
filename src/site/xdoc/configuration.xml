@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
+<document>
+
+ <properties>
+  <title>James 3.0 - Configuration</title>
+ </properties>
+
+<body>
+
+  <section name="Configuration">
+  
+    <p>All configuration files resides in the conf and conf/META-INF directories.</p>
+    
+    <p>You can configure James for on the following:</p>
+    
+    <ul>
+        <li><a href="configuration_serverwide.html">Server-wide Configuration</a></li>
+        <li><a href="configuration_domains.html">Domains Configuration</a></li>
+        <li><a href="configuration_users.html">Users Configuration</a></li>
+        <li><a href="configuration_mailstores.html">Mail Stores Configuration</a></li>
+        <li><a href="configuration_dns.html">DNS Configuration</a></li>
+        <li><a href="configuration_imap4.html">IMAP4 Configuration</a></li>
+        <li><a href="configuration_pop3.html">POP3 Configuration</a></li>
+        <li><a href="configuration_smtp_lmtp.html">SMTP LMTP Configuration</a></li>
+        <li><a href="configuration_mailetcontainer.html">Mailet Container Configuration</a></li>
+        <li><a href="configuration_fetchmail.html">FetchMail Configuration</a></li>
+        <li><a href="configuration_remotemanager.html">Remote Manager Configuration</a></li>
+        <li><a href="configuration_listmanager.html">List Manager Configuration</a></li>
+    </ul>
+
+  </section>
+
+</body>
+
+</document>

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
+<document>
+
+ <properties>
+  <title>James 3.0 - Configuring the IMAP4 Service</title>
+ </properties>
+
+<body>
+
+<section name="IMAP4 Configuration">
+
+      <p>This block controls general connection management.  There are two elements.
+      <ul>
+        <li><strong>idle-timeout</strong> - the number of milliseconds that it will take for idle 
+            client connections managed by this connection manager to be marked at timed out.  If no 
+            value is specified, the value defaults to 5 minutes, 300000 milliseconds.  A value of 0 
+            means that client sockets will not timeout.</li>
+        <li><strong>max-connections</strong> - The max-connections parameter specifies the default 
+            maximum number of client connections that this connection manager will allow per managed 
+            server socket.  This value can be overridden by each individual service.  If no value is 
+            specified, the value defaults to 30.  A value of 0 means that there is no limit imposed 
+            by the connection manager, although resource limitations imposed by other components 
+            (i.e. max # of threads) may serve to limit the number of open connections.</li>
+      </ul>
+      </p>
+
+</section>
+
+</body>
+
+</document>

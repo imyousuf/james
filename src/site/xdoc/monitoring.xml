@@ -20,15 +20,18 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Queues Monitoring</title>
+  <title>James 3.0 - Monitoring Instructions</title>
  </properties>
 
 <body>
 
-  <section name="Queues Monitoring">
+  <section name="Monitoring Instructions">
   
-  </section>
+    <p>smtp/imap/lmtp/pop3/remotemanager/dnsservice/domainlist</p>
+    <p>connections are active per component, whats the limit,...</p>
 
+  </section>
+  
 </body>
 
 </document>

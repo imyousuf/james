@@ -20,10 +20,18 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Using Authenticated SMTP</title>
+  <title>James 3.0 - Common configurations</title>
  </properties>
 
 <body>
+
+  <section name="Use LDAP to store users">
+  
+  </section>
+
+  <section name="Configure Sieve">
+  
+  </section>
 
   <section name="Authenticated SMTP (SMTP AUTH)">
     <p>Authenticated SMTP is a method of securing your SMTP server.  With SMTP AUTH enabled senders who wish to 
