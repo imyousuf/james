@@ -119,16 +119,24 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
     
     private String localAddress;
     
-    private HierarchicalConfiguration configuration;
     
     private Log logger;
     
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
     public void setLog(Log logger) {
         this.logger = logger;
     }
     
-    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    @SuppressWarnings("unchecked")
+	public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
 
         final boolean autodiscover =
             configuration.getBoolean( "autodiscover", true );
@@ -191,7 +199,7 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
         //      docs I don't think so
         dnsCredibility = authoritative ? Credibility.AUTH_ANSWER : Credibility.NONAUTH_ANSWER;
 
-        maxCacheSize = (int)configuration.getLong( "maxcachesize",maxCacheSize );
+        maxCacheSize = configuration.getInt( "maxcachesize",maxCacheSize );
     }
     
     
@@ -595,5 +603,29 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
     public InetAddress getLocalHost() throws UnknownHostException {
         return InetAddress.getLocalHost();
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.dnsservice.api.DNSServiceMBean#getMaximumCacheSize()
+     */
+	public int getMaximumCacheSize() {
+		return maxCacheSize;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.dnsservice.api.DNSServiceMBean#getCurrentCacheSize()
+	 */
+	public int getCurrentCacheSize() {
+		return cache.getSize();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.dnsservice.api.DNSServiceMBean#clearCache()
+	 */
+	public void clearCache() {
+		cache.clearCache();
+	}
 
 }

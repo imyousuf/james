@@ -16,51 +16,23 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.api.domainlist;
 
+public interface ManageableDomainListMBean extends DomainListMBean{
 
-
-package org.apache.james.pop3server;
-
-/**
- * An interface to expose James management functionality through JMX.
- * 
- * @phoenix:mx-topic name="POP3Server"
- */
-public interface POP3ServerMBean {
+    /**
+     * Add domain to the service
+     * 
+     * @param domain domain to add
+     * @return true if successfull
+     */
+    public boolean addDomain(String domain);
     
     /**
-    * @phoenix:mx-attribute
-    * @phoenix:mx-description Returns flag indicating it this service is enabled 
-    * @phoenix:mx-isWriteable no
-    * 
-    * @return boolean The enabled flag     
-    */  
-    public boolean isEnabled();
-
-    /**
-    * @phoenix:mx-attribute
-    * @phoenix:mx-description Returns the port that the service is bound to 
-    * @phoenix:mx-isWriteable no
-    * 
-    * @return int The port number     
-    */  
-    public int  getPort();
-    
-    /**
-    * @phoenix:mx-attribute
-    * @phoenix:mx-description Returns the address if the network interface the socket is bound to 
-    * @phoenix:mx-isWriteable no
-    * 
-    * @return String The network interface name     
-    */  
-    public String  getNetworkInterface();
-    
-    /**
-    * @phoenix:mx-attribute
-    * @phoenix:mx-description Returns the server socket type, plain or SSL 
-    * @phoenix:mx-isWriteable no
-    * 
-    * @return String The scoekt type, plain or SSL     
-    */  
-    public String  getSocketType();
+     * Remove domain from the service
+     *  
+     * @param domain domain to remove
+     * @return true if successfull
+     */
+    public boolean removeDomain(String domain);
 }

@@ -26,9 +26,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
-import org.apache.james.management.DomainListManagementService;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHandler;
@@ -47,11 +47,12 @@ public class AddUserCmdHandler implements CommandHandler{
 
     private UsersStore uStore;
     private MailServer mailServer;
-    private DomainListManagementService domService;
+
+    private ManageableDomainList domList;
 
     @Resource(name="domainlistmanagement")
-    public final void setDomainListManagement(DomainListManagementService domService) {
-        this.domService = domService;
+    public final void setManageableDomainList(ManageableDomainList domList) {
+        this.domList = domList;
     }
     
     /**
@@ -117,7 +118,7 @@ public class AddUserCmdHandler implements CommandHandler{
                     return response;
                 }
                 String domain = username.split("@")[1];
-                if (domService.containsDomain(domain) == false) {
+                if (domList.containsDomain(domain) == false) {
                     response = new RemoteManagerResponse("Domain not exists: " + domain);
                     return response;
                 }

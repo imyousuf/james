@@ -130,7 +130,7 @@ public class JDBCDomainListTest  extends TestCase {
         dom.init();
         dom.addDomain("domain1.");
 
-        assertEquals("two domain found",dom.getDomains().size(),2);
+        assertEquals("two domain found",dom.getDomains().length,2);
         
         dom.removeDomain("domain1.");
         assertNull("two domain found",dom.getDomains());

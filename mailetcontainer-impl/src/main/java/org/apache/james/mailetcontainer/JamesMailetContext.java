@@ -457,13 +457,16 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
             String domainName = null; // the domain to use
             // loop through candidate domains until we find one or exhaust the
             // list
-            Iterator<String> i = domains.getDomains().iterator();
-            while (i.hasNext()) {
-                String serverName = i.next().toLowerCase(Locale.US);
-                if (!("localhost".equals(serverName))) {
-                    domainName = serverName; // ok, not localhost, so use it
-                    continue;
-                }
+            String[] doms = domains.getDomains();
+            if (doms != null) {
+            	for (int i = 0; i < doms.length; i++) {
+                    String serverName = doms[i].toLowerCase(Locale.US);
+                    if (!("localhost".equals(serverName))) {
+                        domainName = serverName; // ok, not localhost, so use it
+                        continue;
+                    }
+            	}
+            
             }
             // if we found a suitable domain, use it. Otherwise fallback to the
             // host name.

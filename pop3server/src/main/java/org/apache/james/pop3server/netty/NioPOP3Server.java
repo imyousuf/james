@@ -24,11 +24,13 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
-import org.apache.james.pop3server.POP3ServerMBean;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.ServerMBean;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.socket.netty.ConnectionCountHandler;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -39,7 +41,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
  * 
  *
  */
-public class NioPOP3Server extends AbstractConfigurableAsyncServer implements POP3ServerMBean{
+public class NioPOP3Server extends AbstractConfigurableAsyncServer implements ServerMBean{
     /**
      * The number of bytes to read before resetting the connection timeout
      * timer. Defaults to 20 KB.
@@ -51,10 +53,13 @@ public class NioPOP3Server extends AbstractConfigurableAsyncServer implements PO
      */
     private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
 
+    private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
+    
     private ProtocolHandlerChain handlerChain;
 
     private MailServer mailServer;
 
+    
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
@@ -68,8 +73,11 @@ public class NioPOP3Server extends AbstractConfigurableAsyncServer implements PO
         return 110;
     }
 
-    @Override
-    protected String getServiceType() {
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#getServiceType()
+     */
+    public String getServiceType() {
         return "POP3 Service";
     }
 
@@ -129,6 +137,13 @@ public class NioPOP3Server extends AbstractConfigurableAsyncServer implements PO
         }
 
         @Override
+		public ChannelPipeline getPipeline() throws Exception {
+			ChannelPipeline pipeLine =  super.getPipeline();
+			pipeLine.addBefore("coreHandler", "countHandler", countHandler);
+			return pipeLine;
+		}
+
+		@Override
         protected SSLContext getSSLContext() {
             return NioPOP3Server.this.getSSLContext();
 
@@ -152,4 +167,13 @@ public class NioPOP3Server extends AbstractConfigurableAsyncServer implements PO
         }
         
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
+     */
+	public int getCurrentConnections() {
+		return countHandler.getCurrentConnectionCount();
+	}
+
 }

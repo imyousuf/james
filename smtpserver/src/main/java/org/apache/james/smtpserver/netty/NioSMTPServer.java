@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.netty;
 
+
 import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 
@@ -26,10 +27,12 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
-import org.apache.james.protocols.smtp.SMTPServerMBean;
 import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.SMTPServerMBean;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.socket.netty.ConnectionCountHandler;
 import org.apache.james.util.netmatcher.NetMatcher;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -98,6 +101,9 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
     private MailServer mailServer;
 
     private boolean verifyIdentity;
+    
+    private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
+    
 
     @Resource(name="mailserver")
     public final void setMailServer(MailServer mailServer) {
@@ -194,8 +200,9 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
         return 25;
     }
 
-    /**
-     * @see org.apache.james.core.AbstractProtocolServer#getServiceType()
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#getServiceType()
      */
     public String getServiceType() {
         return "SMTP Service";
@@ -308,7 +315,17 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
             super(timeout, maxConnections, maxConnectsPerIp, group);
         }
 
+        
         @Override
+		public ChannelPipeline getPipeline() throws Exception {
+			ChannelPipeline pipeline = super.getPipeline();
+			pipeline.addBefore("coreHandler", "connectionCount", countHandler);
+			
+			return pipeline;
+		}
+
+
+		@Override
         protected SSLContext getSSLContext() {
             return NioSMTPServer.this.getSSLContext();
         }
@@ -329,4 +346,49 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
         }
         
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
+     */
+	public int getCurrentConnections() {
+		return countHandler.getCurrentConnectionCount();
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.smtpserver.SMTPServerMBean#getMaximalMessageSize()
+	 */
+	public long getMaximalMessageSize() {
+		return maxMessageSize;
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.smtpserver.SMTPServerMBean#getAddressBracketsEnforcement()
+	 */
+	public boolean getAddressBracketsEnforcement() {
+		return addressBracketsEnforcement;
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.smtpserver.SMTPServerMBean#getHeloEhloEnforcement()
+	 */
+	public boolean getHeloEhloEnforcement() {
+		return heloEhloEnforcement;
+	}
+
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
+	 */
+	public String getNetworkInterface() {
+		return "unknown";
+	}
 }

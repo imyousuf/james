@@ -30,9 +30,11 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
-import org.apache.james.remotemanager.RemoteManagerMBean;
 import org.apache.james.services.MailServer;
+import org.apache.james.socket.ServerMBean;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.socket.netty.ConnectionCountHandler;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -43,12 +45,12 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
  * NIO RemoteManager which use Netty
  *
  */
-public class NioRemoteManager extends AbstractConfigurableAsyncServer implements RemoteManagerMBean{
+public class NioRemoteManager extends AbstractConfigurableAsyncServer implements ServerMBean{
 
 
     private Map<String,String> adminAccounts = new HashMap<String, String>();
     private RemoteManagerHandlerConfigurationData configData = new RemoteManagerHandlerConfigurationDataImpl();
-   
+    private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
     private ProtocolHandlerChain handlerChain;
     private MailServer mailServer;
 
@@ -67,8 +69,12 @@ public class NioRemoteManager extends AbstractConfigurableAsyncServer implements
         return 4555;
     }
 
-    @Override
-    protected String getServiceType() {
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#getServiceType()
+     */
+    public String getServiceType() {
         return "RemoteManager Service";
     }
 
@@ -128,7 +134,17 @@ public class NioRemoteManager extends AbstractConfigurableAsyncServer implements
                 int maxConnections, int maxConnectsPerIp, ChannelGroup group) {
             super(timeout, maxConnections, maxConnectsPerIp, group);
         }
+        
+        
         @Override
+		public ChannelPipeline getPipeline() throws Exception {
+			ChannelPipeline pipeLine =  super.getPipeline();
+			pipeLine.addBefore("coreHandler", "countHandler", countHandler);
+			return pipeLine;
+		}
+
+
+		@Override
         protected OneToOneEncoder createEncoder() {
             return new RemoteManagerResponseEncoder();
         }
@@ -139,4 +155,15 @@ public class NioRemoteManager extends AbstractConfigurableAsyncServer implements
         }
         
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
+     */
+	public int getCurrentConnections() {
+		return countHandler.getCurrentConnectionCount();
+	}
+
+
+
 }

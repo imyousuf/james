@@ -34,8 +34,8 @@ public class SimpleDomainList implements ManageableDomainList {
         return domains.contains(domain);
     }
 
-    public List<String> getDomains() {
-        return domains;
+    public String[] getDomains() {
+        return domains.toArray(new String[domains.size()]);
     }
 
     public void setAutoDetect(boolean autodetect) {

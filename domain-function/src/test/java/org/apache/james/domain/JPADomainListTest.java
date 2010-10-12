@@ -98,7 +98,7 @@ public class JPADomainListTest extends TestCase {
         assertEquals(true, jpaDomainList.addDomain(DOMAIN_3));
         assertEquals(true, jpaDomainList.addDomain(DOMAIN_4));
         assertEquals(true, jpaDomainList.addDomain(DOMAIN_5));
-        assertEquals(3, jpaDomainList.getDomains().size());
+        assertEquals(3, jpaDomainList.getDomains().length);
     }
 
     /**
@@ -124,7 +124,7 @@ public class JPADomainListTest extends TestCase {
     public void testAddRemoveContainsDifferentDomain() {
         assertEquals(true, jpaDomainList.addDomain(DOMAIN_1));
         assertEquals(true, jpaDomainList.removeDomain(DOMAIN_2));
-        assertEquals(1, jpaDomainList.getDomains().size());
+        assertEquals(1, jpaDomainList.getDomains().length);
         assertEquals(true, jpaDomainList.containsDomain(DOMAIN_1));
     }
     

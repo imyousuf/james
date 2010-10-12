@@ -32,13 +32,14 @@ import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.api.domainlist.ManageableDomainList;
+import org.apache.james.api.domainlist.ManageableDomainListMBean;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.LogEnabled;
 
 /**
  * All implementations of the DomainList interface should extends this abstract class
  */
-public abstract class AbstractDomainList implements  ManageableDomainList, LogEnabled {
+public abstract class AbstractDomainList implements  ManageableDomainList, LogEnabled, ManageableDomainListMBean {
     private DNSService dns;
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
@@ -57,11 +58,12 @@ public abstract class AbstractDomainList implements  ManageableDomainList, LogEn
     protected Log getLogger() {
         return logger;
     }
-    
-    /**
+
+    /*
+     * (non-Javadoc)
      * @see org.apache.james.api.domainlist.DomainList#getDomains()
      */
-    public List<String> getDomains() {  
+    public String[] getDomains() {  
         List<String> domains = getDomainListInternal();
         if (domains != null) {
             
@@ -88,7 +90,11 @@ public abstract class AbstractDomainList implements  ManageableDomainList, LogEn
                     getLogger().debug("Handling mail for: " + i.next());
                 }
             }  
-            return domains;
+            if (domains.isEmpty()) {
+            	return null;
+            } else {
+                return domains.toArray(new String[domains.size()]);
+            }
         } else {
             return null;
         }

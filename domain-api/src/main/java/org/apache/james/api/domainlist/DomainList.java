@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.api.domainlist;
 
-import java.util.List;
 
 /**
  * This interface should be implemented by services which
@@ -26,19 +25,14 @@ import java.util.List;
  *
  */
 public interface DomainList {
-
-    /**
-     * The component role used by components implementing this service
-     */
-    public final static String ROLE = DomainList.class.getName();
     
     /**
-     * Return List of domains which should be used as localdomains.
+     * Return array of domains which should be used as localdomains.
      * Return null if no domain is found.
      * 
      * @return domains
      */
-    public List<String> getDomains();
+    public String[] getDomains();
     
     /**
      * Return true if the domain exists in the service 

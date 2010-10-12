@@ -25,8 +25,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.james.management.DomainListManagementException;
-import org.apache.james.management.DomainListManagementService;
+import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHandler;
@@ -43,11 +42,11 @@ public class AddDomainCmdHandler implements CommandHandler{
     private final static String COMMAND_NAME = "ADDDOMAIN";
     private CommandHelp help = new CommandHelp("adddomain [domainname]","add domain to local domains");
 
-    private DomainListManagementService domService;
+    private ManageableDomainList domList;
 
     @Resource(name="domainlistmanagement")
-    public final void setDomainListManagement(DomainListManagementService domService) {
-        this.domService = domService;
+    public final void setManageableDomainList(ManageableDomainList domList) {
+        this.domList = domList;
     }
     
     /**
@@ -70,17 +69,13 @@ public class AddDomainCmdHandler implements CommandHandler{
             response = new RemoteManagerResponse("Usage: " + help.getSyntax());
             return response;
         }
-        
-        try {
-            if(domService.addDomain(parameters)) {
-                response = new RemoteManagerResponse("Adding domain " + parameters + " successful");
-            } else {
-                response = new RemoteManagerResponse("Adding domain " + parameters + " fail");
-            }
-        } catch (DomainListManagementException e) {
-            session.getLogger().error("Error on adding domain: " + e);
-            response = new RemoteManagerResponse("Error on adding domain: " + e);
-        }
+
+		if (domList.addDomain(parameters)) {
+			response = new RemoteManagerResponse("Adding domain " + parameters + " successful");
+		} else {
+			response = new RemoteManagerResponse("Adding domain " + parameters + " fail");
+		}
+
         return response;
     }
 

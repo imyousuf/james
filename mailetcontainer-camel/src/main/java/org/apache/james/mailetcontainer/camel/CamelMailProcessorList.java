@@ -93,9 +93,9 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
 	@PostConstruct
 	public void init() throws Exception  {
 		getCamelContext().addRoutes(new SpoolRouteBuilder());
-
 		producerTemplate = getCamelContext().createProducerTemplate();
 	}
+	
     /**
      * Destroy all mailets and matchers
      */

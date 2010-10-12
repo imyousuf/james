@@ -27,15 +27,18 @@ import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.services.MailServer;
+import org.apache.james.smtpserver.SMTPServerMBean;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.apache.james.smtpserver.netty.SMTPResponseEncoder;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.socket.netty.ConnectionCountHandler;
+import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-public class NioLMTPServer extends AbstractConfigurableAsyncServer{
+public class NioLMTPServer extends AbstractConfigurableAsyncServer implements SMTPServerMBean{
 
     /**
      * The maximum message size allowed by this SMTP server.  The default
@@ -46,6 +49,7 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer{
     private ProtocolHandlerChain handlerChain;
     private LMTPConfiguration lmtpConfig = new LMTPConfiguration();
     private String lmtpGreeting;
+    private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
     
 
     @Resource(name="mailserver")
@@ -64,7 +68,10 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer{
         return 24;
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#getServiceType()
+     */
     public String getServiceType() {
         return "LMTP Service";
     }
@@ -177,6 +184,13 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer{
         }
 
         @Override
+		public ChannelPipeline getPipeline() throws Exception {
+			ChannelPipeline pipeLine = super.getPipeline();
+			pipeLine.addBefore("coreHandler", "countHandler", countHandler);
+			return pipeLine;
+		}
+
+		@Override
         protected SSLContext getSSLContext() {
             return null;
         }
@@ -197,5 +211,49 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer{
         }
         
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.SMTPServerMBean#getAddressBracketsEnforcement()
+     */
+	public boolean getAddressBracketsEnforcement() {
+		return lmtpConfig.useAddressBracketsEnforcement();
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.smtpserver.SMTPServerMBean#getHeloEhloEnforcement()
+	 */
+	public boolean getHeloEhloEnforcement() {
+		return lmtpConfig.useHeloEhloEnforcement();
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.smtpserver.SMTPServerMBean#getMaximalMessageSize()
+	 */
+	public long getMaximalMessageSize() {
+		return lmtpConfig.getMaxMessageSize();
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
+	 */
+	public int getCurrentConnections() {
+		return countHandler.getCurrentConnectionCount();
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
+	 */
+	public String getNetworkInterface() {
+		return "unknown";
+	}
 
 }

@@ -75,7 +75,7 @@ public class XMLDomainListTest extends TestCase {
         dom.configure(setUpConfiguration(false, false, domains));
         dom.setDNSService(setUpDNSServer("localhost"));
 
-        assertTrue("No domain found", dom.getDomains().isEmpty());
+        assertNull("No domain found", dom.getDomains());
     }
 
     public void testGetDomains() throws Exception {
@@ -88,7 +88,7 @@ public class XMLDomainListTest extends TestCase {
         dom.configure(setUpConfiguration(false,false,domains));
         dom.setDNSService(setUpDNSServer("localhost"));
         
-        assertTrue("Two domain found",dom.getDomains().size() ==2);
+        assertTrue("Two domain found",dom.getDomains().length ==2);
     }
     
     public void testGetDomainsAutoDetectNotLocalHost() throws Exception {
@@ -100,7 +100,7 @@ public class XMLDomainListTest extends TestCase {
         dom.configure(setUpConfiguration(true,false,domains));
 
         dom.setDNSService(setUpDNSServer("local"));
-        assertEquals("Two domains found",dom.getDomains().size(), 2);
+        assertEquals("Two domains found",dom.getDomains().length, 2);
     }
     
     public void testGetDomainsAutoDetectLocalHost() throws Exception {
@@ -113,6 +113,6 @@ public class XMLDomainListTest extends TestCase {
 
         dom.setDNSService(setUpDNSServer("localhost"));
         
-        assertEquals("One domain found",dom.getDomains().size(), 1);
+        assertEquals("One domain found",dom.getDomains().length, 1);
     }
 }

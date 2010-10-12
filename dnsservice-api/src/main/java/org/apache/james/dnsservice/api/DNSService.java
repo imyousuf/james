@@ -33,11 +33,6 @@ import org.apache.mailet.HostAddress;
 public interface DNSService {
 
     /**
-     * The component role used by components implementing this service
-     */
-    String ROLE = DNSService.class.getName();
-
-    /**
      * <p>Return a prioritized unmodifiable list of host handling mail
      * for the domain.</p>
      * 

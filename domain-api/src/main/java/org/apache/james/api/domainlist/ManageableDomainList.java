@@ -22,8 +22,6 @@ package org.apache.james.api.domainlist;
  * Services which allow to manage the DomainList should implement this interface.
  */
 public interface ManageableDomainList extends DomainList {
-
-    public final static String ROLE = ManageableDomainList.class.getName();
     
     /**
      * Add domain to the service
@@ -40,5 +38,5 @@ public interface ManageableDomainList extends DomainList {
      * @return true if successfull
      */
     public boolean removeDomain(String domain);
-
+    
 }

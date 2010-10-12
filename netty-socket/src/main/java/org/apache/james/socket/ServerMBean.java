@@ -16,52 +16,57 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
-package org.apache.james.remotemanager;
+package org.apache.james.socket;
 
 /**
- * An interface to expose James management functionality through JMX.
- * 
- * @phoenix:mx-topic name="RemoteManager"
+ * JMX MBean interface for servers
  */
-public interface RemoteManagerMBean {
-    
-    /**
-    * @phoenix:mx-attribute
-    * @phoenix:mx-description Returns flag indicating it this service is enabled 
-    * @phoenix:mx-isWriteable no
-    * 
-    * @return boolean The enabled flag     
-    */  
+public interface ServerMBean {
+	
+	/**
+	 * Return the maximum allowed concurrent connections for the server
+	 *  
+	 * @return maxConcurrentConnections
+	 */
+	public int getMaximumConcurrentConnections();
+	
+	/**
+	 * Return the current connection count
+	 * 
+	 * @return currentConnection
+	 */
+	public int getCurrentConnections();
+	
+	/**
+	 * Return true if the server is enabled
+	 * 
+	 * @return isEnabled
+	 */
     public boolean isEnabled();
 
     /**
-    * @phoenix:mx-attribute
-    * @phoenix:mx-description Returns the port that the service is bound to 
-    * @phoenix:mx-isWriteable no
-    * 
-    * @return int The port number     
-    */  
+     * Return true if startTLS is supported by the server
+     * 
+     * @return startTLS
+     */
+	public boolean getStartTLSSupported();
+
+	
+    /**
+     * Return the port number to which ther server is bound
+     * @return
+     */
     public int  getPort();
     
     /**
-    * @phoenix:mx-attribute
-    * @phoenix:mx-description Returns the address if the network interface the socket is bound to 
-    * @phoenix:mx-isWriteable no
-    * 
-    * @return String The network interface name     
-    */  
-    public String  getNetworkInterface();
+     * Return the socket type of the server. Which can either be plain or secure
+     * 
+     */  
+    public String getSocketType();
     
     /**
-    * @phoenix:mx-attribute
-    * @phoenix:mx-description Returns the server socket type, plain or SSL 
-    * @phoenix:mx-isWriteable no
-    * 
-    * @return String The scoekt type, plain or SSL     
-    */  
-    public String  getSocketType();
-
+     * Return the service type of the server
+     * 
+     */  
+    public String getServiceType();
 }

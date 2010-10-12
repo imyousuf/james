@@ -21,12 +21,11 @@ package org.apache.james.remotemanager.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.james.management.DomainListManagementService;
+import org.apache.james.api.domainlist.ManageableDomainList;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHandler;
@@ -42,13 +41,12 @@ public class ListDomainsCmdHandler implements CommandHandler{
     private final static String COMMAND_NAME = "LISTDOMAINS";
     private CommandHelp help = new CommandHelp("listdomains","list local domains");
 
-    private DomainListManagementService domService;
+    private ManageableDomainList domList;
 
     @Resource(name="domainlistmanagement")
-    public final void setDomainListManagement(DomainListManagementService domService) {
-        this.domService = domService;
+    public final void setManageableDomainList(ManageableDomainList domList) {
+        this.domList = domList;
     }
-    
     /**
      * @see org.apache.james.remotemanager.CommandHandler#getHelp()
      */
@@ -63,15 +61,15 @@ public class ListDomainsCmdHandler implements CommandHandler{
     public Response onCommand(RemoteManagerSession session, Request request) {
         RemoteManagerResponse response = null;
         
-        Collection<String> domains = domService.getDomains();
+        String[] domains = domList.getDomains();
         if (domains == null) {
             response = new RemoteManagerResponse("No domains found");
         } else {
             response = new RemoteManagerResponse("Domains:");
                 
-            Iterator<String> d = domains.iterator();
-            while(d.hasNext()) {
-                response.appendLine(d.next());
+            
+            for(int i = 0; i < domains.length; i++) {
+                response.appendLine(domains[i]);
             }
         }   
         return response;

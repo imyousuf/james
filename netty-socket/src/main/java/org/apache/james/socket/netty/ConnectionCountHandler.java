@@ -16,28 +16,43 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.socket.netty;
 
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
+/**
+ * Count active connections
+ *
+ */
+public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
 
-package org.apache.james.management;
+	public AtomicInteger currentConnectionCount = new AtomicInteger();
+	
+	@Override
+	public void channelClosed(ChannelHandlerContext ctx,
+			ChannelStateEvent e) throws Exception {
+		currentConnectionCount.decrementAndGet();
+		super.channelClosed(ctx, e);
+	}
 
-public class DomainListManagementException extends ManagementException {
+	@Override
+	public void channelOpen(ChannelHandlerContext ctx,
+			ChannelStateEvent e) throws Exception {
+		currentConnectionCount.incrementAndGet();
+		super.channelOpen(ctx, e);
+	}
 
-    public DomainListManagementException() {
-        super();
-    }
-
-    public DomainListManagementException(String message) {
-        super(message);
-    }
-
-    public DomainListManagementException(Exception e) {
-        super(e);
-    }
-    
-    public DomainListManagementException(String message, Exception e) {
-        super(message, e);
-    }
-
+	
+	/**
+	 * Return the count of the current open connections
+	 * 
+	 * @return count
+	 */
+	public int getCurrentConnectionCount() {
+		return currentConnectionCount.get();
+	}
 }

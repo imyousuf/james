@@ -38,13 +38,14 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.protocols.impl.AbstractAsyncServer;
 import org.apache.james.services.FileSystem;
+import org.apache.james.socket.ServerMBean;
 
 
 /**
  * Abstract base class for Servers for all James Servers
  *
  */
-public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServer implements LogEnabled, Configurable{
+public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServer implements LogEnabled, Configurable, ServerMBean{
     /**
      * The default value for the connection backlog.
      */
@@ -398,13 +399,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      */
     protected abstract int getDefaultPort();
     
-    /**
-     * Return textual representation of the service this server provide
-     * 
-     * @return serviceType
-     */
-    protected abstract String getServiceType();
-    
     
     /**
      * Return the SSLContext to use 
@@ -426,14 +420,22 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return "plain";
     }
     
-    /**
-     * Return the network interface on which server is bound. Default is to return
-     * unknown
-     * 
-     * @return interface
-     */
-    public String getNetworkInterface() {
-        return "unkown";
-    }
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.socket.ServerMBean#getStartTLSSupported()
+	 */
+	public boolean getStartTLSSupported() {
+		return isStartTLSSupported();
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.james.socket.ServerMBean#getMaximumConcurrentConnections()
+	 */
+	public int getMaximumConcurrentConnections() {
+		return connectionLimit;
+	}
     
 }

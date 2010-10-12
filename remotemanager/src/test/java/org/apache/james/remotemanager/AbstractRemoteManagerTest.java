@@ -47,8 +47,6 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementService;
-import org.apache.james.management.DomainListManagementException;
-import org.apache.james.management.DomainListManagementService;
 import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
@@ -198,37 +196,8 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	
 		ManageableDomainList xml = new SimpleDomainList();
 
-		DomainListManagementService domManagement = new DomainListManagementService() {
-
-			private ManageableDomainList domainList;
-
-			public boolean addDomain(String domain)
-					throws DomainListManagementException {
-				return domainList.addDomain(domain);
-			}
-
-			public DomainListManagementService setDomainList(
-					ManageableDomainList xml) {
-				this.domainList = xml;
-				return this;
-			}
-
-			public boolean containsDomain(String domain) {
-				return domainList.containsDomain(domain);
-			}
-
-			public List getDomains() {
-				return domainList.getDomains();
-			}
-
-			public boolean removeDomain(String domain)
-					throws DomainListManagementException {
-				return domainList.removeDomain(domain);
-			}
-
-		}.setDomainList(xml);
-
-		serviceManager.put("domainlistmanagement", domManagement);
+	
+		serviceManager.put("domainlistmanagement", xml);
 		serviceManager.put("bayesiananalyzermanagement",
 				new BayesianAnalyzerManagementService() {
 

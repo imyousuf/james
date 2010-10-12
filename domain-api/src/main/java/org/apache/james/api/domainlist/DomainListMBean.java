@@ -16,62 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.api.domainlist;
 
+public interface DomainListMBean {
 
-
-package org.apache.james.management;
-
-import java.util.List;
-
-import org.apache.james.management.DomainListManagementException;
-
-public interface DomainListManagementMBean {
-
-    /**
-     * Add domain to the service
-     * 
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Add domain to the service
-     *
-     * 
-     * @param domain domain to add
-     * @return true if successfully
-     * @throws DomainListManagementException 
-     */
-    public boolean addDomain(String domain) throws DomainListManagementException;
-    
-    /**
-     * Remove domain from the service     
-     *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Remove domain to the service  
-     * 
-     * @param domain domain to remove
-     * @return true if succesfully
-     * @throws DomainListManagementException 
-     */
-    public boolean removeDomain(String domain) throws DomainListManagementException;
-    
-    /**
-     * Return List of domains which should be used as localdomains. Return null if no
+	  /**
+     * Return an Array of domains which should be used as localdomains. Return null if no
      * domains were found
-     * 
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Return List of domains which should be used as localdomains. Return null if no
-     *                         domains were found
      * 
      * @return domains
      */
-    public List getDomains();
+    public String[] getDomains();
     
     /**
-     * Return true if the domain exists in the service 
+     * Return true if the domain exists in the domainlist 
      * 
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Return true if the domain exists in the service
      * 
      * @param domain the domain
      * @return true if the given domain exists in the service
      */
     public boolean containsDomain(String domain);
+    
+    
 }

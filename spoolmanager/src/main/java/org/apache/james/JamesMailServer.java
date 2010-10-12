@@ -22,7 +22,6 @@
 package org.apache.james;
 
 import java.net.UnknownHostException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -62,10 +61,10 @@ public class JamesMailServer
     private HierarchicalConfiguration conf = null;
 
     /**
-     * The collection of domain/server names for which this instance of James
+     * The array of domain/server names for which this instance of James
      * will receive and process mail.
      */
-    private Collection<String> serverNames;
+    private String[] serverNames;
 
     /**
      * The number of mails generated.  Access needs to be synchronized for
@@ -200,7 +199,7 @@ public class JamesMailServer
         }
         serverNames = domains.getDomains();
 
-        if (serverNames == null || serverNames.size() == 0) throw new ConfigurationException("No domainnames configured");
+        if (serverNames == null || serverNames.length == 0) throw new ConfigurationException("No domainnames configured");
         
        
     }
@@ -299,11 +298,11 @@ public class JamesMailServer
      */
     public String getDefaultDomain() {
         if (defaultDomain == null) {
-            List<String> domainList = domains.getDomains();
-            if (domainList == null || domainList.isEmpty()) {
+            String[] domainList = domains.getDomains();
+            if (domainList == null || domainList.length < 1) {
             	return conf.getString("defaultDomain", "localhost");
             } else {
-                return (String) domainList.get(0);
+                return domainList[0];
             }  
         } else {
             return defaultDomain;

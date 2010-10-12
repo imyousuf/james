@@ -16,49 +16,35 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.smtpserver;
 
+import org.apache.james.socket.ServerMBean;
 
+/**
+ * JMX MBean interface for the SMTPServer
+ * 
+ *
+ */
+public interface SMTPServerMBean extends org.apache.james.protocols.smtp.SMTPServerMBean, ServerMBean {
 
-package org.apache.james.management;
-
-import java.util.List;
-
-
-public interface DomainListManagementService {
-
-    public final static String ROLE = "org.apache.james.management.DomainListManagementService";
-    
-    /**
-     * Add domain to the service
-     * 
-     * @param domain domain to add
-     * @return true if successfully
-     * @throws DomainListManagementException 
-     */
-    public boolean addDomain(String domain) throws DomainListManagementException;
-    
-    /**
-     * Remove domain from the service
-     *  
-     * @param domain domain to remove
-     * @return true if succesfully
-     * @throws DomainListManagementException 
-     */
-    public boolean removeDomain(String domain) throws DomainListManagementException;
-    
-    /**
-     * Return List of domains which should be used as localdomains. Return null if no
-     * domains were found
-     * 
-     * @return domains
-     */
-    public List<String> getDomains();
-    
-    /**
-     * Return true if the domain exists in the service 
-     * 
-     * @param domain the domain
-     * @return true if the given domain exists in the service
-     */
-    public boolean containsDomain(String domain);
+	/**
+	 * Return the maximum allowed size of the message
+	 * 
+	 * @return maxMessageSize
+	 */
+	public long getMaximalMessageSize();
+	
+	/**
+	 * Return true if brackets around addresses in the MAIL and RCPT are required
+	 * 
+	 * @return bracketsEnforcement
+	 */
+	public boolean getAddressBracketsEnforcement();
+	
+	/**
+	 * Return true if a HELO/EHLO is required when connecting to this server
+	 * 
+	 * @return heloEhloEnforcement
+	 */
+	public boolean getHeloEhloEnforcement();
 }

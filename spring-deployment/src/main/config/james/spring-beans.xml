@@ -33,28 +33,25 @@
     -->
 
     <!--
-    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false"> 
-        <property name="autodetect" value="true" /> 
-        <property name="namingStrategy" ref="namingStrategy" /> 
-    </bean> 
-    <bean id="namingStrategy" class="org.springframework.jmx.export.naming.KeyNamingStrategy" >
-        <property name="mappings" >
-            <props> 
-                <prop key="fetchmail"> bean:name=fetchmail</prop> 
-                <prop key="smtpserver">bean:name=smtpserver</prop> 
-                <prop key="dnsservice" >bean:name=dnsservice</prop> 
-                <prop key="remotemanager" >bean:name=remotemanager</prop> 
-                <prop key="pop3server" >bean:name=pop3server</prop> 
-                <prop key="virtualusertablemanagement">bean:name=virtualusertablemanagement</prop> 
-                <prop key="spoolmanagement" >bean:name=spoolmanagement</prop> 
-                <prop key="domainlistmanagement" >bean:name=domainlistmanagement</prop>
-                <prop key="processormanagement" >bean:name=processormanagement</prop>
-                <prop key="bayesiananalyzermanagement">bean:name=bayesiananalyzermanagement</prop> 
-                <prop key="usermanagement" >bean:name=usermanagement</prop> 
-                <prop key="serverConnector" >bean:name=serverConnector</prop>
-            </props>
-        </property>
-    </bean> 
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+      <property name="beans">
+        <map>
+          <entry key="org.apache.james:type=server,name=smtpserver" value-ref="smtpserver"/>
+          <entry key="org.apache.james:type=server,name=lmtpserver" value-ref="lmtpserver"/>
+          <entry key="org.apache.james:type=server,name=pop3server" value-ref="pop3server"/>
+          <entry key="org.apache.james:type=server,name=imapserver" value-ref="imapserver"/>
+          <entry key="org.apache.james:type=server,name=remotemanager" value-ref="remotemanager"/>
+          <entry key="org.apache.james:type=components,name=domainlist" value-ref="domainlist"/>
+          <entry key="org.apache.james:type=components,name=dnsservice" value-ref="dnsservice"/>
+
+        </map>
+      </property>
+      <property name="assembler">
+          <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.SMTPServerMBean,org.apache.james.socket.ServerMBean,org.apache.james.api.domainlist.DomainListMBean,org.apache.james.api.domainlist.ManageableDomainListMBean,org.apache.james.dnsservice.api.DNSServiceMBean"/>
+          </bean>
+      </property>
+    </bean>
 
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
 
@@ -263,16 +260,16 @@
     <bean id="virtualusertable" name="virtualusertablemanagement" class="org.apache.james.impl.vut.JamesVirtualUserTable" />
 
     <!-- The context domainlist implementation -->
-    <bean id="domainlist" class="org.apache.james.domain.XMLDomainList" />
+    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.XMLDomainList" />
 
     <!--  JPA implementation of the domainlist service -->
     <!--
-    <bean id="domainlist" class="org.apache.james.domain.JPADomainList"/>
+    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.JPADomainList"/>
     -->
 
     <!--  JDBC implementation of the domainlist service - deprecated, use the JPADomainList -->
     <!--
-    <bean id="domainlist" class="org.apache.james.domain.JDBCDomainList"/>
+    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.JDBCDomainList"/>
     -->
 
     <!-- IMAP server Beans -->
@@ -383,8 +380,6 @@
     </bean>
 
     -->
-
-    <bean id="domainlistmanagement" class="org.apache.james.management.impl.DomainListManagement" />
 
 
     <!-- The Time Scheduler block -->

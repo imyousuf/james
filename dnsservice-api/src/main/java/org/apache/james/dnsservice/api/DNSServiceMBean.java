@@ -22,14 +22,34 @@
 package org.apache.james.dnsservice.api;
 
 /**
- * An interface to expose James management functionality through JMX.
+ * JMX MBean to manage the DNSService
  * 
- * @phoenix:mx-topic name="DNSService"
  */
 public interface DNSServiceMBean {
-    /**
-    * @phoenix:mx-operation
-    * @phoenix:mx-description Returns the list of DNS servers
-    */    
+
+	/**
+	 * Return the configured DNSServers
+	 * 
+	 * @return servers
+	 */
     public String[] getDNSServers();
+    
+    /**
+     * Return the maximum cache size
+     * 
+     * @return maxCacheSize
+     */
+    public int getMaximumCacheSize();
+    
+    /**
+     * Return the current size of the cache
+     * 
+     * @return currentCacheSize
+     */
+    public int getCurrentCacheSize();
+
+    /**
+     * Clear the cache of the service
+     */
+    public void clearCache();
 }
