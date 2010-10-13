@@ -35,7 +35,7 @@ import org.apache.mailet.MailetConfig;
  * 
  *
  */
-public final class MailetMBeanWrapper implements Mailet, MailetManagementMBean{
+public final class MailetManagement implements Mailet, MailetManagementMBean{
 
     private final Mailet mailet;
     private long errorCount = 0;
@@ -43,7 +43,7 @@ public final class MailetMBeanWrapper implements Mailet, MailetManagementMBean{
     private long fastestProcessing = -1;
     private long slowestProcessing = -1;
     
-    public MailetMBeanWrapper(final Mailet mailet) {
+    public MailetManagement(Mailet mailet) {
         this.mailet = mailet;
     }
     

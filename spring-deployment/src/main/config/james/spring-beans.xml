@@ -41,14 +41,15 @@
           <entry key="org.apache.james:type=server,name=pop3server" value-ref="pop3server"/>
           <entry key="org.apache.james:type=server,name=imapserver" value-ref="imapserver"/>
           <entry key="org.apache.james:type=server,name=remotemanager" value-ref="remotemanager"/>
-          <entry key="org.apache.james:type=components,name=domainlist" value-ref="domainlist"/>
-          <entry key="org.apache.james:type=components,name=dnsservice" value-ref="dnsservice"/>
+          <entry key="org.apache.james:type=component,name=domainlist" value-ref="domainlist"/>
+          <entry key="org.apache.james:type=component,name=dnsservice" value-ref="dnsservice"/>
+          <entry key="org.apache.james:type=component,name=processor" value-ref="mailProcessor"/>
 
         </map>
       </property>
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.SMTPServerMBean,org.apache.james.socket.ServerMBean,org.apache.james.api.domainlist.DomainListMBean,org.apache.james.api.domainlist.ManageableDomainListMBean,org.apache.james.dnsservice.api.DNSServiceMBean"/>
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.SMTPServerMBean,org.apache.james.socket.ServerMBean,org.apache.james.api.domainlist.DomainListMBean,org.apache.james.api.domainlist.ManageableDomainListMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.ProcessorManagementMBean"/>
           </bean>
       </property>
     </bean>

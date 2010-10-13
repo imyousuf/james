@@ -18,21 +18,162 @@
  ****************************************************************/
 package org.apache.james.mailetcontainer;
 
+import java.util.Collection;
+
+import javax.mail.MessagingException;
+
+import org.apache.mailet.Mail;
+import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 
-public class MatcherManagement implements MatcherManagementMBean {
-    private MatcherConfig matcherConfig;
-
-    public MatcherManagement(MatcherConfig matcherConfig) {
-        this.matcherConfig = matcherConfig;
+public final class MatcherManagement implements MatcherManagementMBean, Matcher{
+    private Matcher matcher;
+    private long slowestProcessing = -1;
+    private long fastestProcessing = -1;
+    private long successCount = 0;
+    private long errorCount = 0;
+    private long matched = 0;
+    private long notMatched = 0;
+    public MatcherManagement(Matcher matcher) {
+        this.matcher = matcher;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.MatcherManagementMBean#getMatcherName()
+     */
     public String getMatcherName() {
-        return matcherConfig.getMatcherName();
+        return matcher.getMatcherConfig().getMatcherName();
     }
     
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.MatcherManagementMBean#getMatcherCondition()
+     */
     public String getMatcherCondition() {
-        return matcherConfig.getCondition();
+        return matcher.getMatcherConfig().getCondition();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getErrorCount()
+     */
+    public long getErrorCount() {
+        return errorCount;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getFastestProcessing()
+     */
+    public long getFastestProcessing() {
+        return fastestProcessing;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getHandledMailCount()
+     */
+    public long getHandledMailCount() {
+        return getSuccessCount() + getErrorCount();
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getSlowestProcessing()
+     */
+    public long getSlowestProcessing() {
+        return slowestProcessing;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.MailProcessingMBean#getSuccessCount()
+     */
+    public long getSuccessCount() {
+        return successCount;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.mailet.Matcher#destroy()
+     */
+    public void destroy() {
+        matcher.destroy();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.mailet.Matcher#getMatcherConfig()
+     */
+    public MatcherConfig getMatcherConfig() {
+        return matcher.getMatcherConfig();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.mailet.Matcher#getMatcherInfo()
+     */
+    public String getMatcherInfo() {
+        return matcher.getMatcherInfo();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.mailet.Matcher#init(org.apache.mailet.MatcherConfig)
+     */
+    public void init(MatcherConfig config) throws MessagingException {
+        matcher.init(config);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection match(Mail mail) throws MessagingException {
+        try {
+            long startProcessing = System.currentTimeMillis();
+             Collection origRcpts = mail.getRecipients();
+             Collection rcpts =  matcher.match(mail);
+             
+             long processTime = System.currentTimeMillis() - startProcessing;
+             if (processTime > slowestProcessing) {
+                 slowestProcessing = processTime;
+             }
+             if (fastestProcessing == -1 || fastestProcessing > processTime) {
+                 fastestProcessing = processTime;
+             }
+             successCount++;
+             
+             long match = 0;
+             if (rcpts != null) {
+                  match = rcpts.size();
+                  matched =+ match;
+             }
+             
+             if (origRcpts != null) {
+                 notMatched =+ origRcpts.size() - match;
+             }
+             return rcpts;
+         } catch (MessagingException ex) {
+             errorCount++;
+             throw ex;
+         }              
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.MatcherManagementMBean#getMatchedRecipientCount()
+     */
+    public long getMatchedRecipientCount() {
+        return matched;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.MatcherManagementMBean#getNotMatchedRecipientCount()
+     */
+    public long getNotMatchedRecipientCount() {
+        return notMatched;
     }
 }
 
