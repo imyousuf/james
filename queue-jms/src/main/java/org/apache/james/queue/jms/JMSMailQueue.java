@@ -44,7 +44,6 @@ import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.queue.MailQueue;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -362,7 +361,7 @@ public class JMSMailQueue implements MailQueue{
 	protected void populateMailMimeMessage(Message message, Mail mail)
 			throws MessagingException {
 		if (message instanceof BytesMessage) {
-			mail.setMessage(new MimeMessageWrapper(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(),new BytesMessageInputStream((BytesMessage) message)))));
+			mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(),new BytesMessageInputStream((BytesMessage) message))));
 		} else {
 			throw new MailQueueException("Not supported JMS Message received "+ message);
 		}

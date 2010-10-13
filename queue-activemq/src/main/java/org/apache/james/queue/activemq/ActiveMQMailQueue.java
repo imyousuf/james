@@ -197,7 +197,7 @@ public class ActiveMQMailQueue extends JMSMailQueue {
                      // Ignore on error
                      logger.debug("Unable to get url from blobmessage for mail " + mail.getName());
                  }
-                 mail.setMessage(new MimeMessageWrapper(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream()))));
+                 mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream())));
 
 			 } catch (IOException e) {
 				 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);

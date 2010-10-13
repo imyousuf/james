@@ -173,14 +173,12 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
                             logger.debug(debugBuffer.toString());
                         }
 
-                        mailProcessor.service(mail);
-
-                        if ((Mail.GHOST.equals(mail.getState())) ||
-                            (mail.getRecipients() == null) ||
-                            (mail.getRecipients().size() == 0)) {
+                        try {
+                            mailProcessor.service(mail);             
+                        } finally {
                             LifecycleUtil.dispose(mail);
                             mail = null;
-                        }                        
+                        }
                     }
                 });
                 
