@@ -42,23 +42,5 @@ public interface DomainList {
      */
     public boolean containsDomain(String domain);
 
-    /**
-     * Set to true to autodetect the hostname of the host on which
-     * james is running, and add this to the domain service 
-     * Default is true
-     * 
-     * @param autodetect set to false for disable
-     */
-    public void setAutoDetect(boolean autodetect);
-    
-    
-    /**
-     * Set to true to lookup the ipaddresses for each given domain
-     * and add these to the domain service 
-     * Default is true
-     * 
-     * @param autodetectIP set to false for disable
-     */
-    public void setAutoDetectIP(boolean autodetectIP);
     
 }

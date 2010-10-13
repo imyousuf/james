@@ -18,21 +18,11 @@
  ****************************************************************/
 package org.apache.james.api.domainlist;
 
-public interface ManageableDomainListMBean extends DomainListMBean{
+/**
+ * JMX MBean for manage {@link ManageableDomainList}
+ * 
+ *
+ */
+public interface ManageableDomainListMBean extends DomainListMBean, ManageableDomainList{
 
-    /**
-     * Add domain to the service
-     * 
-     * @param domain domain to add
-     * @return true if successfull
-     */
-    public boolean addDomain(String domain);
-    
-    /**
-     * Remove domain from the service
-     *  
-     * @param domain domain to remove
-     * @return true if successfull
-     */
-    public boolean removeDomain(String domain);
 }

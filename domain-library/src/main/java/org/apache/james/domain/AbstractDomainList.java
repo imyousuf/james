@@ -59,6 +59,8 @@ public abstract class AbstractDomainList implements  ManageableDomainList, LogEn
         return logger;
     }
 
+    
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.api.domainlist.DomainList#getDomains()
@@ -163,16 +165,26 @@ public abstract class AbstractDomainList implements  ManageableDomainList, LogEn
         return removeDomainInternal(domain);
     }
     
+
     /**
-     * @see org.apache.james.api.domainlist.DomainList#setAutoDetect(boolean)
+     * Set to true to autodetect the hostname of the host on which
+     * james is running, and add this to the domain service 
+     * Default is true
+     * 
+     * @param autodetect set to false for disable
      */
     public synchronized void setAutoDetect(boolean autoDetect) {
         getLogger().info("Set autodetect to: " + autoDetect);
         this.autoDetect = autoDetect;
     }
     
+    
     /**
-     * @see org.apache.james.api.domainlist.DomainList#setAutoDetectIP(boolean)
+     * Set to true to lookup the ipaddresses for each given domain
+     * and add these to the domain service 
+     * Default is true
+     * 
+     * @param autodetectIP set to false for disable
      */
     public synchronized void setAutoDetectIP(boolean autoDetectIP) {
         getLogger().info("Set autodetectIP to: " + autoDetectIP);

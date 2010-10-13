@@ -18,24 +18,10 @@
  ****************************************************************/
 package org.apache.james.api.domainlist;
 
-public interface DomainListMBean {
-
-	  /**
-     * Return an Array of domains which should be used as localdomains. Return null if no
-     * domains were found
-     * 
-     * @return domains
-     */
-    public String[] getDomains();
-    
-    /**
-     * Return true if the domain exists in the domainlist 
-     * 
-     * 
-     * @param domain the domain
-     * @return true if the given domain exists in the service
-     */
-    public boolean containsDomain(String domain);
-    
+/**
+ * JMX MBean for DomainList
+ *
+ */
+public interface DomainListMBean extends DomainList{
     
 }

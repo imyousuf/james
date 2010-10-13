@@ -22,7 +22,6 @@
 package org.apache.james;
 
 import java.net.UnknownHostException;
-import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.PostConstruct;
@@ -130,24 +129,11 @@ public class JamesMailServer
         queue = queueFactory.getQueue("spool");
         
         if (conf.getKeys("usernames").hasNext()) {
-        	throw new ConfigurationException("<usernames> parameter in James block was removed. Please configure this data in UsersRepository block: configuration injected for backward compatibility");
+        	throw new ConfigurationException("<usernames> parameter in James block was removed. Please configure this data in UsersRepository block");
         }
         
         if (conf.getKeys("servernames").hasNext()) {
-            HierarchicalConfiguration serverConf = conf.configurationAt("servernames");
-            if (domains instanceof ManageableDomainList) {
-                logger.warn("<servernames> parameter in James block is deprecated. Please configure this data in domainlist block: configuration injected for backward compatibility");
-                ManageableDomainList dom = (ManageableDomainList) domains;
-                dom.setAutoDetect(serverConf.getBoolean("[@autodetect]",true));    
-                dom.setAutoDetectIP(serverConf.getBoolean("[@autodetectIP]", true));
-            
-                List<String> serverNameConfs = serverConf.getList( "servername" );
-                for ( int i = 0; i < serverNameConfs.size(); i++ ) {
-                    dom.addDomain( serverNameConfs.get(i).toLowerCase(Locale.US));
-                }
-            } else {
-                logger.error("<servernames> parameter is no more supported. Backward compatibility is provided when using an XMLDomainList");
-            }
+        	throw new ConfigurationException("<servernames> parameter in mailserver block was removed. Please configure this data in domainlist block");
         }
 
         initializeServernames();
