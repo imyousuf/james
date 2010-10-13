@@ -34,14 +34,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-dnsservice-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
-    </dependency>
-     <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-common-util</artifactId>
     </dependency>   
 
@@ -82,11 +74,6 @@
     
     
     <!-- Test dependencies -->
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-api</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>

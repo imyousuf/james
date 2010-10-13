@@ -29,6 +29,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
@@ -49,28 +52,33 @@ import org.apache.james.mailetcontainer.MailProcessorList;
 import org.apache.james.mailetcontainer.MailetConfigImpl;
 import org.apache.james.mailetcontainer.MailetContainer;
 import org.apache.james.mailetcontainer.MailetLoader;
+import org.apache.james.mailetcontainer.MailetMBeanWrapper;
 import org.apache.james.mailetcontainer.MatcherLoader;
+import org.apache.james.mailetcontainer.MatcherManagement;
+import org.apache.james.mailetcontainer.ProcessorDetailMBean;
+import org.apache.james.mailetcontainer.ProcessorManagementMBean;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.Matcher;
+import org.apache.mailet.MatcherConfig;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.base.MatcherInverter;
 
 /**
- * Build up the Camel Routes by parsing the spoolmanager.xml configuration file. 
+ * Build up the Camel Routes by parsing the mailetcontainer.xml configuration file. 
  * 
  * It also offer the {@link MailProcessorList} implementation which allow to inject {@link Mail} into the routes
  * 
  */
-public class CamelMailProcessorList implements Configurable, LogEnabled, MailProcessorList, CamelContextAware {
+public class CamelMailProcessorList implements Configurable, LogEnabled, MailProcessorList, CamelContextAware, ProcessorManagementMBean {
 
     private MatcherLoader matcherLoader;
     private HierarchicalConfiguration config;
     private MailetLoader mailetLoader;
     private Log logger;
 
-    private final Map<String,List<Mailet>> mailets = new HashMap<String,List<Mailet>>();
+    private final Map<String,List<MailetMBeanWrapper>> mailets = new HashMap<String,List<MailetMBeanWrapper>>();
     private final Map<String,List<Matcher>> matchers = new HashMap<String,List<Matcher>>();
     private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
     private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
@@ -87,14 +95,24 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
 
     private ProducerTemplate producerTemplate;
 	private CamelContext camelContext;
+	private MBeanServer mbeanserver;
     
 
 
 	@PostConstruct
-	public void init() throws Exception  {
-		getCamelContext().addRoutes(new SpoolRouteBuilder());
-		producerTemplate = getCamelContext().createProducerTemplate();
-	}
+    public void init() throws Exception {
+        getCamelContext().addRoutes(new SpoolRouteBuilder());
+        producerTemplate = getCamelContext().createProducerTemplate();
+
+        registerMBeans();
+
+    }
+
+    @Resource(name = "mbeanserver")
+    public void setMbeanServer(MBeanServer mbeanServer) {
+        this.mbeanserver = mbeanServer;
+    }
+	
 	
     /**
      * Destroy all mailets and matchers
@@ -103,11 +121,11 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     public void dispose() {
         boolean debugEnabled = logger.isDebugEnabled();
 
-        Iterator<List<Mailet>> it = mailets.values().iterator();
+        Iterator<List<MailetMBeanWrapper>> it = mailets.values().iterator();
         while (it.hasNext()) {
-            List<Mailet> mList = it.next();
+            List<MailetMBeanWrapper> mList = it.next();
             for (int i = 0; i < mList.size(); i++) {
-                Mailet m = mList.get(i);
+                Mailet m = mList.get(i).getMailet();
                 if (debugEnabled) {
                     logger.debug("Shutdown mailet " + m.getMailetInfo());
                 }
@@ -251,17 +269,20 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
 
     private final class RemovePropertiesProcessor implements Processor {
 
-		public void process(Exchange exchange) throws Exception {
-			exchange.removeProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY);
-			exchange.removeProperty(MatcherSplitter.MATCHER_PROPERTY);
-		}
+        public void process(Exchange exchange) throws Exception {
+            exchange.removeProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY);
+            exchange.removeProperty(MatcherSplitter.MATCHER_PROPERTY);
+        }
     }
     
     
-    private final class ChildMailProcessor implements MailProcessor, MailetContainer {
-
+    private final class ChildMailProcessor implements MailProcessor, MailetContainer, ProcessorDetailMBean {
         private String processorName;
-
+        private long slowestProcessing = -1;
+        private long fastestProcessing = -1;
+        private long successCount = 0;
+        private long errorCount = 0;
+        
         public ChildMailProcessor(String processorName) {
             this.processorName = processorName;
         }
@@ -272,9 +293,21 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
          * @see org.apache.james.transport.MailProcessor#service(org.apache.mailet.Mail)
          */
         public void service(Mail mail) throws MessagingException {
-        	 try {
-                 producerTemplate.sendBody(getEndpoint(processorName), mail);
+            try {
+                long startProcessing = System.currentTimeMillis();
+
+                producerTemplate.sendBody(getEndpoint(processorName), mail);
+                 
+                 long processTime = System.currentTimeMillis() - startProcessing;
+                 if (processTime > slowestProcessing) {
+                	 slowestProcessing = processTime;
+                 }
+                 if (fastestProcessing == -1 || fastestProcessing > processTime) {
+                     fastestProcessing = processTime;
+                 }
+                 successCount++;
              } catch (CamelExecutionException ex) {
+            	 errorCount++;
                  throw new MessagingException("Unable to process mail " + mail.getName(),ex);
              }        
          }
@@ -284,7 +317,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
          * @see org.apache.james.transport.MailetContainer#getMailets()
          */
         public List<Mailet> getMailets() {
-            return mailets.get(processorName);
+            return new ArrayList<Mailet>(mailets.get(processorName));
         }
 
         /*
@@ -294,17 +327,135 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
         public List<Matcher> getMatchers() {
             return matchers.get(processorName);       
         }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.apache.james.mailetcontainer.ProcessorDetailMBean#getHandledMailCount
+         * ()
+         */
+        public long getHandledMailCount() {
+            return getSuccessCount() + getErrorCount();
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.apache.james.mailetcontainer.ProcessorDetailMBean#getName()
+         */
+        public String getName() {
+            return processorName;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @seeorg.apache.james.mailetcontainer.ProcessorDetailMBean#
+         * getFastestProcessing()
+         */
+        public long getFastestProcessing() {
+            return fastestProcessing;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @seeorg.apache.james.mailetcontainer.ProcessorDetailMBean#
+         * getSlowestProcessing()
+         */
+        public long getSlowestProcessing() {
+            return slowestProcessing;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.apache.james.mailetcontainer.ProcessorDetailMBean#getErrorCount()
+         */
+        public long getErrorCount() {
+            return errorCount;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.apache.james.mailetcontainer.ProcessorDetailMBean#getSuccessCount
+         * ()
+         */
+        public long getSuccessCount() {
+            return successCount;
+        }
         
     }
 
 	public CamelContext getCamelContext() {
-		return camelContext;
-	}
+        return camelContext;
+    }
 
-	public void setCamelContext(CamelContext camelContext) {
-		this.camelContext = camelContext;
-	}
-	
+    public void setCamelContext(CamelContext camelContext) {
+        this.camelContext = camelContext;
+    }
+
+    
+    private void registerMBeans() {
+       
+        String baseObjectName = "org.apache.james:type=component,name=processor,";
+
+        String[] processorNames = getProcessorNames();
+        for (int i = 0; i < processorNames.length; i++) {
+            String processorName = processorNames[i];
+            createProcessorMBean(baseObjectName, processorName, mbeanserver);
+            continue;
+        }
+    }
+
+    private void createProcessorMBean(String baseObjectName, String processorName, MBeanServer mBeanServer) {
+        String processorMBeanName = baseObjectName + "processor=" + processorName;
+        registerMBean(mBeanServer, processorMBeanName, (ProcessorDetailMBean) getProcessor(processorName));
+
+
+        // add all mailets but the last, because that is a terminator (see LinearProcessor.closeProcessorLists())
+        List<MailetMBeanWrapper> mailets =  this.mailets.get(processorName);
+        for (int i = 0; i < mailets.size()-1; i++) {
+            MailetMBeanWrapper mailet = mailets.get(i);
+
+            String mailetMBeanName = processorMBeanName + ",subtype=mailet,index=" + (i+1) + ",mailetname=" + mailet.getMailetName();
+            registerMBean(mBeanServer, mailetMBeanName, mailet);
+        }
+
+        
+        // add all matchers but the last, because that is a terminator (see LinearProcessor.closeProcessorLists())
+        List<Matcher> matchers =  ((MailetContainer)getProcessor(processorName)).getMatchers();
+        for (int i = 0; i < matchers.size()-1; i++) {
+            MatcherConfig matcherConfig = matchers.get(i).getMatcherConfig();
+
+            String matcherMBeanName = processorMBeanName + ",subtype=matcher,index=" + (i+1) + ",matchername=" + matcherConfig.getMatcherName();
+            MatcherManagement matcherMBean = new MatcherManagement(matcherConfig);
+            registerMBean(mBeanServer, matcherMBeanName, matcherMBean);
+        }
+
+    }
+
+    private void registerMBean(MBeanServer mBeanServer, String mBeanName, Object object) {
+        ObjectName objectName = null;
+        try {
+            objectName = new ObjectName(mBeanName);
+        } catch (MalformedObjectNameException e) {
+        	logger.info("Unable to register mbean", e);
+
+            return;
+        }
+        try {
+            mBeanServer.registerMBean(object, objectName);
+        } catch (javax.management.JMException e) {
+        	logger.info("Unable to register mbean", e);
+        }
+    }
+
+    
 	private final class SpoolRouteBuilder extends RouteBuilder {
 		/*
 	     * (non-Javadoc)
@@ -324,7 +475,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
 	            String processorName = processorConf.getString("[@name]");
 
 	          
-	            mailets.put(processorName, new ArrayList<Mailet>());
+	            mailets.put(processorName, new ArrayList<MailetMBeanWrapper>());
 	            matchers.put(processorName, new ArrayList<Matcher>());
 
 	            RouteDefinition processorDef = from(getEndpoint(processorName)).inOnly()
@@ -400,28 +551,30 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
 	                    throw new ConfigurationException("Unable to init mailet", ex);
 	                }
 	                if (mailet != null && matcher != null) {
+	                    MailetMBeanWrapper wrappedMailet = new MailetMBeanWrapper(mailet);
 	                    String onMatchException = null;
-	                    MailetConfig mailetConfig = mailet.getMailetConfig();
+	                    MailetConfig mailetConfig = wrappedMailet.getMailetConfig();
 	                    
 	                    if (mailetConfig instanceof MailetConfigImpl) {
 	                        onMatchException = ((MailetConfigImpl) mailetConfig).getInitAttribute("onMatchException");
 	                    }
 	                    
+	                    MailetProcessor mailetProccessor = new MailetProcessor(wrappedMailet, logger);
 	                    // Store the matcher to use for splitter in properties
 	                    processorDef
-	                    		.setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException))
+	                            .setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException))
 	                            
 	                            // do splitting of the mail based on the stored matcher
 	                            .split().method(MatcherSplitter.class).aggregationStrategy(aggr).parallelProcessing()
 
-	                            .choice().when(new MatcherMatch()).process(new MailetProcessor(mailet, logger)).end()
+	                            .choice().when(new MatcherMatch()).process(mailetProccessor).end()
 	                            
 	                            .choice().when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop().otherwise().process(removePropsProcessor).end()
 
 	                            .choice().when(new MailStateNotEquals(processorName)).process(mailProcessor).stop().end();
 
 	                    // store mailet and matcher
-	                    mailets.get(processorName).add(mailet);
+	                    mailets.get(processorName).add(wrappedMailet);
 	                    matchers.get(processorName).add(matcher);
 	                }
 	              
@@ -448,5 +601,4 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
 	                
 	    }
 	}
-
 }

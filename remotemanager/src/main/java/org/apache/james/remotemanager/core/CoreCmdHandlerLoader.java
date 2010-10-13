@@ -41,10 +41,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
     private final static String IMPORTBAYESIANDATACMDHANDLER = ImportBayesianDataCmdHandler.class.getName();
     private final static String LISTALLMAPPINGSCMDHANDLER = ListAllMappingsCmdHandler.class.getName();
     private final static String LISTDOMAINSCMDHANDLER = ListDomainsCmdHandler.class.getName();
-    private final static String LISTMAILETSCMDHANDLER = ListMailetsCmdHandler.class.getName();
     private final static String LISTMAPPINGCMDHANDLER = ListMappingCmdHandler.class.getName();
-    private final static String LISTMATCHERSCMDHANDLER = ListMatchersCmdHandler.class.getName();
-    private final static String LISTPROCESSORSCMDHANDLER = ListProcessorsCmdHandler.class.getName();
     //private final static String LISTSPOOLCMDHANDLER = ListSpoolCmdHandler.class.getName();
     private final static String LISTUSERSCMDHANDLER = ListUsersCmdHandler.class.getName();
     private final static String MEMSTATCMDHANDLER = MemStatCmdHandler.class.getName();
@@ -56,8 +53,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
     private final static String SETPASSWORDCMDHANDLER = SetPasswordCmdHandler.class.getName();
     private final static String SHOWALIASCMDHANDLER = ShowAliasCmdHandler.class.getName();
     private final static String SHOWFORWARDINGCMDHANDLER = ShowForwardingCmdHandler.class.getName();
-    private final static String SHOWMAILETINFOCMDHANDLER = ShowMailetInfoCmdHandler.class.getName();
-    private final static String SHOWMATCHERINFOCMDHANDLER = ShowMatcherInfoCmdHandler.class.getName();
     private final static String SHUTDOWNCMDHANDLER = ShutdownCmdHandler.class.getName();
     private final static String UNKNOWNCMDHANDLER = UnknownCmdHandler.class.getName();
     private final static String UNSETALIASCMDHANDLER = UnsetAliasCmdHandler.class.getName();
@@ -86,10 +81,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
         commands.add(IMPORTBAYESIANDATACMDHANDLER);
         commands.add(LISTALLMAPPINGSCMDHANDLER);
         commands.add(LISTDOMAINSCMDHANDLER);
-        commands.add(LISTMAILETSCMDHANDLER);
         commands.add(LISTMAPPINGCMDHANDLER);
-        commands.add(LISTMATCHERSCMDHANDLER);
-        commands.add(LISTPROCESSORSCMDHANDLER);
         //commands.add(LISTSPOOLCMDHANDLER);
         commands.add(LISTUSERSCMDHANDLER);
         commands.add(MEMSTATCMDHANDLER);
@@ -101,8 +93,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
         commands.add(SETPASSWORDCMDHANDLER);
         commands.add(SHOWALIASCMDHANDLER);
         commands.add(SHOWFORWARDINGCMDHANDLER);
-        commands.add(SHOWMAILETINFOCMDHANDLER);
-        commands.add(SHOWMATCHERINFOCMDHANDLER);
         commands.add(SHUTDOWNCMDHANDLER);
         commands.add(UNKNOWNCMDHANDLER);
         commands.add(UNSETALIASCMDHANDLER);

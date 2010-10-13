@@ -47,7 +47,6 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.management.BayesianAnalyzerManagementException;
 import org.apache.james.management.BayesianAnalyzerManagementService;
-import org.apache.james.management.ProcessorManagementService;
 import org.apache.james.management.SpoolFilter;
 import org.apache.james.management.SpoolManagementException;
 import org.apache.james.management.SpoolManagementService;
@@ -277,36 +276,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 					}
 				});
 		serviceManager.put("mailStore", new MockMailStore());
-		serviceManager.put("processormanagement",
-				new ProcessorManagementService() {
-
-					public String[] getProcessorNames() {
-						// TODO Auto-generated method stub
-						return null;
-					}
-
-					public String[] getMatcherParameters(String processorName,
-							int matcherIndex) {
-						// TODO Auto-generated method stub
-						return null;
-					}
-
-					public String[] getMatcherNames(String processorName) {
-						// TODO Auto-generated method stub
-						return null;
-					}
-
-					public String[] getMailetParameters(String processorName,
-							int mailetIndex) {
-						// TODO Auto-generated method stub
-						return null;
-					}
-
-					public String[] getMailetNames(String processorName) {
-						// TODO Auto-generated method stub
-						return null;
-					}
-				});
+	
 	}
 
 	private DNSService setUpDNSServer() {

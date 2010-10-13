@@ -16,21 +16,15 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.management.mbean;
 
-import org.apache.james.services.SpoolManager;
+package org.apache.james.mailetcontainer;
 
-public class ProcessorDetail implements ProcessorDetailMBean {
-
-    private SpoolManager processorManager;
-    private String processorName;
-
-    public ProcessorDetail(SpoolManager processorManager, String processorName) {
-        this.processorManager = processorManager;
-        this.processorName = processorName;
-    }
-
-    public String getName() {
-        return processorName;
-    }
+/**
+ * management interface for one Mailet instance
+ */
+public interface MailetManagementMBean extends MailProcessingMBean{
+    
+    public String getMailetName();
+    
+    public String[] getMailetParameters();
 }

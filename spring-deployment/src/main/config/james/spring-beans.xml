@@ -53,7 +53,9 @@
       </property>
     </bean>
 
-    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean" />
+    <bean id="mbeanserver" class="org.springframework.jmx.support.MBeanServerFactoryBean" >
+        <property name="locateExistingServerIfPossible" value="true"/>
+    </bean>
 
     <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
         <property name="port" value="1099" />
@@ -178,13 +180,6 @@
     <bean id="mailetpackages" class="org.apache.james.mailetcontainer.JamesMailetLoader" />
 
     <bean id="dnsservice" class="org.apache.james.dnsservice.dnsjava.DNSJavaService" />
-
-    <!-- The Spool Management block  -->
-    <!-- 
-    <bean id="spoolmanagement" class="org.apache.james.management.impl.SpoolManagement" />
-    -->
-    
-    <bean id="processormanagement" class="org.apache.james.management.impl.ProcessorManagement" />
 
     <bean id="bayesiananalyzermanagement" class="org.apache.james.management.impl.BayesianAnalyzerManagement" />
 

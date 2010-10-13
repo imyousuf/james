@@ -17,12 +17,12 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.management.mbean;
+package org.apache.james.mailetcontainer;
 
 /**
- * management interface for one Mailet instance
+ * management interface for one Matcher instance
  */
-public interface MailetManagementMBean {
-    String getMailetName();
-    String[] getMailetParameters();
+public interface MatcherManagementMBean {
+    String getMatcherName();
+    String getMatcherCondition();
 }

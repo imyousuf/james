@@ -16,22 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.management.mbean;
 
-import org.apache.mailet.MatcherConfig;
+package org.apache.james.mailetcontainer;
 
-public class MatcherManagement implements MatcherManagementMBean {
-    private MatcherConfig matcherConfig;
+public interface MailProcessingMBean {
 
-    public MatcherManagement(MatcherConfig matcherConfig) {
-        this.matcherConfig = matcherConfig;
-    }
-
-    public String getMatcherName() {
-        return matcherConfig.getMatcherName();
-    }
+    public long getHandledMailCount();
     
-    public String getMatcherCondition() {
-        return matcherConfig.getCondition();
-    }
+    public long getFastestProcessing();
+   
+    public long getSlowestProcessing();
+  
+    public long getSuccessCount();
+   
+    public long getErrorCount();
+    
 }

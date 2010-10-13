@@ -16,39 +16,16 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.mailetcontainer;
 
-package org.apache.james.management.mbean;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+/**
+ * MBean for one processor instance
+ */
+public interface ProcessorDetailMBean extends MailProcessingMBean{
 
-import org.apache.mailet.MailetConfig;
-
-public class MailetManagement implements MailetManagementMBean {
-    private MailetConfig mailetConfig;
-
-    public MailetManagement(MailetConfig mailetConfig) {
-        this.mailetConfig = mailetConfig;
-    }
-
-    public String getMailetName() {
-        return mailetConfig.getMailetName();
-    }
+    public String getName();
     
-    public String[] getMailetParameters() {
-        return getMailetParameters(mailetConfig);
-    }
 
-    public static String[] getMailetParameters(MailetConfig mailetConfig) {
-        List parameterList = new ArrayList();
-        Iterator iterator = mailetConfig.getInitParameterNames();
-        while (iterator.hasNext()) {
-            String name = (String) iterator.next();
-            String value = mailetConfig.getInitParameter(name);
-            parameterList.add(name + "=" + value);
-        }
-        String[] result = (String[]) parameterList.toArray(new String[] {});
-        return result;
-    }
+
 }

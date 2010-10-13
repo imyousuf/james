@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.management;
+package org.apache.james.mailetcontainer;
 
 /**
  * Expose processor management functionality through JMX.
