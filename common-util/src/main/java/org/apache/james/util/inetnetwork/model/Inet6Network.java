@@ -22,6 +22,8 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.james.util.inetnetwork.InetNetworkBuilder;
+
 /**
  * 
  * 
@@ -53,6 +55,9 @@ public class Inet6Network implements InetNetwork {
      * @see org.apache.james.api.dnsservice.model.InetNetwork#contains(java.net.InetAddress)
      */
     public boolean contains(final InetAddress ip) {
+        if (! InetNetworkBuilder.isV6(ip.getHostAddress())) {
+            return false;
+        }
         try {
             return network.equals(maskIP(ip, netmask));
         }

@@ -70,15 +70,46 @@ public class NetMatcherTest extends TestCase {
     /**
      * @throws UnknownHostException 
      */
+    public void testIpV4MatcherWithIpV6() throws UnknownHostException {
+        
+        netMatcher = new NetMatcher(DNSFixture.LOCALHOST_IP_V4_ADDRESSES, DNSFixture.DNS_SERVER_IPV4_MOCK);
+        
+        assertEquals(false, netMatcher.matchInetNetwork("0:0:0:0:0:0:0:1%0"));
+        assertEquals(false, netMatcher.matchInetNetwork("00:00:00:00:00:00:00:1"));
+        assertEquals(false, netMatcher.matchInetNetwork("00:00:00:00:00:00:00:2"));
+        assertEquals(false, netMatcher.matchInetNetwork("2781:0db8:1234:8612:45ee:ffff:fffe:0001"));
+        assertEquals(false, netMatcher.matchInetNetwork("2781:0db8:1235:8612:45ee:ffff:fffe:0001"));
+    
+    }
+
+    /**
+     * @throws UnknownHostException 
+     */
     public void testIpV6Matcher() throws UnknownHostException {
         
         netMatcher = new NetMatcher(DNSFixture.LOCALHOST_IP_V6_ADDRESSES, DNSFixture.DNS_SERVER_IPV6_MOCK);
         
+        assertEquals(true, netMatcher.matchInetNetwork("0:0:0:0:0:0:0:1%0"));
         assertEquals(true, netMatcher.matchInetNetwork("00:00:00:00:00:00:00:1"));
         assertEquals(false, netMatcher.matchInetNetwork("00:00:00:00:00:00:00:2"));
         assertEquals(true, netMatcher.matchInetNetwork("2781:0db8:1234:8612:45ee:ffff:fffe:0001"));
         assertEquals(false, netMatcher.matchInetNetwork("2781:0db8:1235:8612:45ee:ffff:fffe:0001"));
     
+    }
+
+    /**
+     * @throws UnknownHostException 
+     */
+    public void testIpV6MatcherWithIpV4() throws UnknownHostException {
+        
+        netMatcher = new NetMatcher(DNSFixture.LOCALHOST_IP_V6_ADDRESSES, DNSFixture.DNS_SERVER_IPV6_MOCK);
+        
+        assertEquals(false, netMatcher.matchInetNetwork("127.0.0.1"));
+        assertEquals(false, netMatcher.matchInetNetwork("localhost"));
+        assertEquals(false, netMatcher.matchInetNetwork("172.16.15.254"));
+        assertEquals(false, netMatcher.matchInetNetwork("192.168.1.254"));
+        assertEquals(false, netMatcher.matchInetNetwork("192.169.1.254"));
+        
     }
 
 }

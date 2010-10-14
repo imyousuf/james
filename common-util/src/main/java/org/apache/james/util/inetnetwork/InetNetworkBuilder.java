@@ -45,10 +45,12 @@ import org.apache.james.util.inetnetwork.model.InetNetwork;
  * subnet expressed in one of several formats:
  *     IPv6 Format                     Example
  *     Explicit address                0000:0000:0000:0000:0000:0000:0000:0001
- *     IP address + subnet mask        0000:0000:0000:0000:0000:0000:0000:0001/64
+ *     IP address + subnet mask (/)   0000:0000:0000:0000:0000:0000:0000:0001/64
+ *     IP address + subnet mask (%)   0000:0000:0000:0000:0000:0000:0000:0001%64
  *     The following V6 formats will be supported later:
  *     Domain name                     myHost.com
- *     Domain name + mask              myHost.com/48
+ *     Domain name + mask (/)          myHost.com/48
+ *     Domain name + mask (%)          myHost.com%48
  *     Explicit shorted address        ::1
  * For more information on IP V6, see RFC 2460. (see also http://en.wikipedia.org/wiki/IPv6_address) 
  */
@@ -58,7 +60,7 @@ public class InetNetworkBuilder {
      * The DNS Server used to create InetAddress for
      * hostnames and IP adresses.
      */
-    private DNSService dnsServer;
+    private DNSService dnsService;
 
     /**
      * Constructs a InetNetwork.
@@ -66,7 +68,7 @@ public class InetNetworkBuilder {
      * @param dnsServer the DNSService to use
      */
     public InetNetworkBuilder(DNSService dnsServer) {
-        this.dnsServer = dnsServer;
+        this.dnsService = dnsServer;
     }
 
     /**
@@ -81,6 +83,16 @@ public class InetNetworkBuilder {
      */
     public InetNetwork getFromString(String netspec) throws UnknownHostException {
         return isV6(netspec) ? getV6FromString(netspec) : getV4FromString(netspec);
+    }
+
+    /**
+     * Returns true if the string parameters is a IPv6 pattern.
+     * Currently, only tests for presence of ':'.
+     * @param address
+     * @return boolean
+     */
+    public static boolean isV6(String netspec) {
+        return netspec.contains(":");
     }
 
     /**
@@ -106,8 +118,8 @@ public class InetNetworkBuilder {
         }
 
         return new Inet4Network(
-                dnsServer.getByName(netspec.substring(0, netspec.indexOf('/'))), 
-                dnsServer.getByName(netspec.substring(netspec.indexOf('/') + 1)));
+                dnsService.getByName(netspec.substring(0, netspec.indexOf('/'))), 
+                dnsService.getByName(netspec.substring(netspec.indexOf('/') + 1)));
     }
 
     /**
@@ -122,14 +134,16 @@ public class InetNetworkBuilder {
         if (netspec.endsWith("*")) {
             throw new UnsupportedOperationException("Wildcard for IPv6 not supported");
         }
-        else {
-            if (netspec.indexOf('/') == -1) {
-                netspec += "/32768";
-            }
+        
+        // Netmask can be separated with %
+        netspec.replaceAll("%", "/");
+        
+        if (netspec.indexOf('/') == -1) {
+            netspec += "/32768";
         }
 
         return new Inet6Network(
-                dnsServer.getByName(netspec.substring(0, netspec.indexOf('/'))), 
+                dnsService.getByName(netspec.substring(0, netspec.indexOf('/'))), 
                 new Integer(netspec.substring(netspec.indexOf('/') + 1)));
     }
 
@@ -187,14 +201,4 @@ public class InetNetworkBuilder {
     
     }
     
-    /**
-     * Returns true if the string parameters is a IPv6 pattern.
-     * Currently, only tests for presence of ':'.
-     * @param address
-     * @return boolean
-     */
-    private static boolean isV6(String netspec) {
-        return netspec.contains(":");
-    }
-
 }
