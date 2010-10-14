@@ -276,7 +276,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     }
     
     
-    private final class ChildProcessor implements MailProcessor, MailetContainer {
+    private final class ChildProcessor implements MailetContainer {
        
         
         private String processorName;
@@ -286,9 +286,10 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
         }
         
 
+ 
         /*
          * (non-Javadoc)
-         * @see org.apache.james.transport.MailProcessor#service(org.apache.mailet.Mail)
+         * @see org.apache.james.mailetcontainer.MailProcessor#service(org.apache.mailet.Mail)
          */
         public void service(Mail mail) throws MessagingException {
             try {

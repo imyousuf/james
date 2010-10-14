@@ -25,9 +25,11 @@ import org.apache.mailet.Matcher;
 
 
 /**
- * interface for mailet/matcher-containing processors.
+ * Interface for mailet/matcher-containing processors. This Processors will use the configured Matchers and Mailets to call them
+ * in the {@link #service(org.apache.mailet.Mail)} method
+ * 
  */
-public interface MailetContainer {
+public interface MailetContainer extends MailProcessor{
 
     /**
      * retrieve mailet configuration data for introspection
