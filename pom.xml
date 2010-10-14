@@ -44,8 +44,10 @@
     <module>user-library</module>    
     <module>mail-library</module>
     <module>domain-library</module>
-    <module>domain-function</module>
-    <module>core-library</module>
+    <module>domain-jpa</module>
+    <module>domain-xml</module>
+    <module>domain-jdbc</module>
+     <module>core-library</module>
     <module>management</module>
     <module>mail-file</module>
     <module>mail-jdbc</module>
@@ -421,7 +423,17 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-function</artifactId>
+      <artifactId>james-server-domain-xml</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-jdbc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domain-jpa</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
