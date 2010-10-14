@@ -257,17 +257,7 @@
     <bean id="virtualusertable" name="virtualusertablemanagement" class="org.apache.james.impl.vut.JamesVirtualUserTable" />
 
     <!-- The context domainlist implementation -->
-    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.XMLDomainList" />
-
-    <!--  JPA implementation of the domainlist service -->
-    <!--
-    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.JPADomainList"/>
-    -->
-
-    <!--  JDBC implementation of the domainlist service - deprecated, use the JPADomainList -->
-    <!--
-    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.JDBCDomainList"/>
-    -->
+    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.JamesDomainList" />
 
 
 
