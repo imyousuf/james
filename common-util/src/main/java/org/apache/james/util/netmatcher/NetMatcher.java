@@ -83,6 +83,7 @@ public class NetMatcher {
             ip = dnsServer.getByName(hostIP);
         } catch (UnknownHostException uhe) {
             log("Cannot resolve address for " + hostIP + ": " + uhe.getMessage());
+            return false;
         }
 
         return matchInetNetwork(ip);
