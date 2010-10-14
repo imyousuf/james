@@ -43,7 +43,7 @@
           <entry key="org.apache.james:type=server,name=remotemanager" value-ref="remotemanager"/>
           <entry key="org.apache.james:type=component,name=domainlist" value-ref="domainlist"/>
           <entry key="org.apache.james:type=component,name=dnsservice" value-ref="dnsservice"/>
-          <entry key="org.apache.james:type=component,name=processor" value-ref="mailProcessor"/>
+          <entry key="org.apache.james:type=component,name=processor" value-ref="processormanagement"/>
 
         </map>
       </property>
@@ -66,6 +66,8 @@
         <property name="objectName" value="connector:name=rmi" /> 
         <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" />
     </bean>
+    
+    <bean id="processormanagement" class="org.apache.james.mailetcontainer.ProcessorManagement"/>
     -->
 
     <bean class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
@@ -170,7 +172,6 @@
 
     <bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager"/>
     
-    
     <!-- mailserver implementation which use activemq for spooling the mail -->
     <bean id="mailserver" class="org.apache.james.JamesMailServer"/>
 
@@ -267,6 +268,8 @@
     <!--
     <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.JDBCDomainList"/>
     -->
+
+
 
     <!-- IMAP server Beans -->
     <bean id="imapserver" class="org.apache.james.imapserver.netty.NioImapServer">
