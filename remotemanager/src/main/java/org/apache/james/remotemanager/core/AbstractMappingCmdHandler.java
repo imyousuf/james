@@ -21,22 +21,24 @@ package org.apache.james.remotemanager.core;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.vut.management.VirtualUserTableManagement;
-import org.apache.james.api.vut.management.VirtualUserTableManagementException;
+import org.apache.james.api.vut.ManageableVirtualUserTable;
+import org.apache.james.api.vut.ManageableVirtualUserTableException;
 import org.apache.james.remotemanager.CommandHandler;
 
 public abstract class AbstractMappingCmdHandler implements CommandHandler {
 
     protected final static String ADD_MAPPING_ACTION = "ADDMAPPING";
     protected final static String REMOVE_MAPPING_ACTION = "REMOVEMAPPING";
-    protected VirtualUserTableManagement vutManagement;
+    protected ManageableVirtualUserTable vutManagement;
 
-    @Resource(name = "virtualusertablemanagement")
-    public final void setVirtualUserTableManagement(VirtualUserTableManagement vutManagement) {
-        this.vutManagement = vutManagement;
+
+    @Resource(name="manageablevirtualusertable")
+    public void setManageableVirtualUserTable(org.apache.james.api.vut.ManageableVirtualUserTable vut) {
+        this.vutManagement = vut;
     }
+    
 
-    protected boolean mappingAction(String[] args, String action) throws IllegalArgumentException, VirtualUserTableManagementException {
+    protected boolean mappingAction(String[] args, String action) throws IllegalArgumentException, ManageableVirtualUserTableException {
         String user = null;
         String domain = null;
         String mapping = null;

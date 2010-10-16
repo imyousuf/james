@@ -20,25 +20,25 @@
 
 
 
-package org.apache.james.api.vut.management;
+package org.apache.james.api.vut;
 
-public class VirtualUserTableManagementException extends Exception {
+public class ManageableVirtualUserTableException extends Exception {
 
 	private static final long serialVersionUID = 2365387465283746L;
 
-	public VirtualUserTableManagementException() {
+	public ManageableVirtualUserTableException() {
         super();
     }
 
-    public VirtualUserTableManagementException(String message) {
+    public ManageableVirtualUserTableException(String message) {
         super(message);
     }
 
-    public VirtualUserTableManagementException(Exception e) {
+    public ManageableVirtualUserTableException(Exception e) {
         super(e);
     }
     
-    public VirtualUserTableManagementException(String message, Exception e) {
+    public ManageableVirtualUserTableException(String message, Exception e) {
         super(message, e);
     }
 

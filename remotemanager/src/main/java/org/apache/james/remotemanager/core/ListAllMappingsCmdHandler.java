@@ -27,7 +27,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.vut.management.VirtualUserTableManagement;
+import org.apache.james.api.vut.ManageableVirtualUserTable;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHandler;
@@ -40,12 +40,14 @@ public class ListAllMappingsCmdHandler implements CommandHandler {
 
     public final static String COMMAND_NAME = "LISTALLMAPPINGS";
 
-    protected VirtualUserTableManagement vutManagement;
+    protected ManageableVirtualUserTable vutManagement;
 
-    @Resource(name = "virtualusertablemanagement")
-    public final void setVirtualUserTableManagementService(VirtualUserTableManagement vutManagement) {
-        this.vutManagement = vutManagement;
+
+    @Resource(name="manageablevirtualusertable")
+    public void setManageableVirtualUserTable(org.apache.james.api.vut.ManageableVirtualUserTable vut) {
+        this.vutManagement = vut;
     }
+    
 
     /*
      * (non-Javadoc)

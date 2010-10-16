@@ -22,23 +22,20 @@
 
 package org.apache.james.impl.user;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.Resource;
+
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.User;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
 import org.apache.james.api.user.management.UserManagementException;
 import org.apache.james.api.user.management.UserManagementMBean;
-import org.apache.mailet.MailAddress;
-
-import javax.annotation.Resource;
-import javax.mail.internet.ParseException;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserManagement implements UserManagementMBean {
-
-    String ROLE = "org.apache.james.impl.user.UserManagement";
     
     /**
      * The administered UsersRepository
@@ -133,20 +130,6 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.api.user.management.UserManagementMBean#setAlias(java.lang.String, java.lang.String, java.lang.String)
-     */
-    public boolean setAlias(String userName, String aliasUserName, String repositoryName) throws UserManagementException {
-        JamesUser user = getJamesUser(userName, null);
-        JamesUser aliasUser = getJamesUser(aliasUserName, null);
-        if (aliasUser == null) return false;
-
-        boolean success = user.setAlias(aliasUserName);
-        user.setAliasing(true);
-        getUserRepository(repositoryName).updateUser(user);
-        return success;
-    }
-
-    /**
      * @see org.apache.james.api.user.management.UserManagementMBean#unsetAlias(java.lang.String, java.lang.String)
      */
     public boolean unsetAlias(String userName, String repositoryName) throws UserManagementException {
@@ -165,26 +148,6 @@ public class UserManagement implements UserManagementMBean {
         JamesUser user = getJamesUser(userName, null);
         if (!user.getAliasing()) return null;
         return user.getAlias();
-    }
-
-    /**
-     * @see org.apache.james.api.user.management.UserManagementMBean#setForwardAddress(java.lang.String, java.lang.String, java.lang.String)
-     */
-    public boolean setForwardAddress(String userName, String forwardEmailAddress, String repositoryName) throws UserManagementException {
-        MailAddress forwardAddress;
-        try {
-             forwardAddress = new MailAddress(forwardEmailAddress);
-        } catch(ParseException pe) {
-            throw new UserManagementException(pe);
-        }
-
-        JamesUser user = getJamesUser(userName, null);
-        boolean success = user.setForwardingDestination(forwardAddress);
-        if (!success) return false;
-        
-        user.setForwarding(true);
-        getUserRepository(repositoryName).updateUser(user);
-        return true;
     }
 
     /**

@@ -44,12 +44,14 @@
           <entry key="org.apache.james:type=component,name=domainlist" value-ref="domainlist"/>
           <entry key="org.apache.james:type=component,name=dnsservice" value-ref="dnsservice"/>
           <entry key="org.apache.james:type=component,name=processor" value-ref="processormanagement"/>
+          <entry key="org.apache.james:type=component,name=virtualusertable" value-ref="virtualusertablemanagement"/>
+          <entry key="org.apache.james:type=component,name=usermanagement" value-ref="usermanagement"/>
 
         </map>
       </property>
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.SMTPServerMBean,org.apache.james.socket.ServerMBean,org.apache.james.api.domainlist.DomainListMBean,org.apache.james.api.domainlist.ManageableDomainListMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.ProcessorManagementMBean"/>
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.SMTPServerMBean,org.apache.james.socket.ServerMBean,org.apache.james.api.domainlist.DomainListMBean,org.apache.james.api.domainlist.ManageableDomainListMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.ProcessorManagementMBean,org.apache.james.api.vut.management.VirtualUserTableManagementMBean,org.apache.james.api.user.management.UserManagementMBean"/>
           </bean>
       </property>
     </bean>
@@ -68,6 +70,11 @@
     </bean>
     
     <bean id="processormanagement" class="org.apache.james.mailetcontainer.ProcessorManagement"/>
+    
+    
+    <bean id="usermanagement" class="org.apache.james.impl.user.UserManagement" />
+    
+    <bean id="virtualusertablemanagement" class="org.apache.james.impl.vut.VirtualUserTableManagement" />
     -->
 
     <bean class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
@@ -194,9 +201,6 @@
         <property name="coreHandlersPackage" value="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
     </bean>
 
-    <!-- The User Management block  -->
-    <bean id="usermanagement" class="org.apache.james.impl.user.UserManagement" />
-
     <!-- Async POP3 Server -->
     <bean id="pop3server"  class="org.apache.james.pop3server.netty.NioPOP3Server" >
         <property name="protocolHandlerChain" ref="pop3ProtocolHandlerChain"/>
@@ -254,7 +258,7 @@
     <bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
 
 
-    <bean id="virtualusertable" name="virtualusertablemanagement" class="org.apache.james.impl.vut.JamesVirtualUserTable" />
+    <bean id="virtualusertable" name="manageablevirtualusertable" class="org.apache.james.impl.vut.JamesVirtualUserTable" />
 
     <!-- The context domainlist implementation -->
     <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.JamesDomainList" />

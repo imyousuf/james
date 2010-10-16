@@ -109,20 +109,6 @@ public interface UserManagementMBean {
     boolean setPassword(String userName, String password, String repositoryName) throws UserManagementException;
 
     /**
-     * Set a user's alias to whom all mail is forwarded to
-     *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Set a user's alias to whom all mail is forwarded to
-     *
-     * @param userName The name of the user whose alias is set
-     * @param aliasUserName The user becoming the new alias 
-     * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
-     *        repository is used.
-     * @return if the user has been found and the password was changed successfully
-     */
-    boolean setAlias(String userName, String aliasUserName, String repositoryName) throws UserManagementException;
-
-    /**
      * Removes a user's alias which terminates local mail forwarding
      *
      * @phoenix:mx-operation
@@ -133,6 +119,7 @@ public interface UserManagementMBean {
      *        repository is used.
      * @return if the user has been found and the alias was removed
      */
+    @Deprecated
     boolean unsetAlias(String userName, String repositoryName) throws UserManagementException;
 
     /**
@@ -145,21 +132,8 @@ public interface UserManagementMBean {
      *        repository is used.
      * @return User's alias, or NULL, if no alias is set
      */
+    @Deprecated
     String getAlias(String userName, String repositoryName) throws UserManagementException;
-
-    /**
-     * Set a user's forward email address to whom all mail is forwarded to
-     *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Set a user's forward email address to whom all mail is forwarded to
-     *
-     * @param userName The name of the user whose forward is set
-     * @param forwardEmailAddress The new forward email address
-     * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
-     *        repository is used.
-     * @return if the user has been found and the password was changed successfully
-     */
-    boolean setForwardAddress(String userName, String forwardEmailAddress, String repositoryName) throws UserManagementException;
 
     /**
      * Removes a user's forward email address which terminates remote mail forwarding
@@ -172,6 +146,7 @@ public interface UserManagementMBean {
      *        repository is used.
      * @return if the user has been found and the forward was removed
      */
+    @Deprecated
     boolean unsetForwardAddress(String userName, String repositoryName) throws UserManagementException;
 
     /**
@@ -185,6 +160,7 @@ public interface UserManagementMBean {
      *        repository is used.
      * @return User's forward email address, or NULL, if no forward is set
      */
+    @Deprecated
     String getForwardAddress(String userName, String repositoryName) throws UserManagementException;
 
     /**

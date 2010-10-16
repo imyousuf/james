@@ -20,7 +20,7 @@ package org.apache.james.vut;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.api.vut.management.VirtualUserTableManagementException;
+import org.apache.james.api.vut.ManageableVirtualUserTableException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.util.TestUtil;
@@ -49,7 +49,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean addMapping(String user, String domain, String mapping, int type) throws VirtualUserTableManagementException {
+    protected boolean addMapping(String user, String domain, String mapping, int type) throws ManageableVirtualUserTableException {
         if (type == ERROR_TYPE) {
             return virtualUserTable.addErrorMapping(user, domain, mapping);
         } else if (type == REGEX_TYPE) {
@@ -66,7 +66,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     /**
      * @see org.apache.james.vut.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableManagementException {
+    protected boolean removeMapping(String user, String domain, String mapping, int type) throws ManageableVirtualUserTableException {
         if (type == ERROR_TYPE) {
             return virtualUserTable.removeErrorMapping(user, domain, mapping);
         } else if (type == REGEX_TYPE) {

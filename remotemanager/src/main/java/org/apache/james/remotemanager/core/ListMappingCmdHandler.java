@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.james.api.vut.management.VirtualUserTableManagement;
-import org.apache.james.api.vut.management.VirtualUserTableManagementException;
+import org.apache.james.api.vut.ManageableVirtualUserTable;
+import org.apache.james.api.vut.ManageableVirtualUserTableException;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHelp;
@@ -68,8 +68,8 @@ public class ListMappingCmdHandler extends AbstractMappingCmdHandler {
 			}
 
             try {
-            	if (vutManagement instanceof VirtualUserTableManagement) {
-            		Collection<String> mappings = ((VirtualUserTableManagement)vutManagement).getUserDomainMappings(user, domain);
+            	if (vutManagement instanceof ManageableVirtualUserTable) {
+            		Collection<String> mappings = ((ManageableVirtualUserTable)vutManagement).getUserDomainMappings(user, domain);
                     if (mappings == null) {
                         response = new RemoteManagerResponse("No mappings found");
                     } else {
@@ -84,7 +84,7 @@ public class ListMappingCmdHandler extends AbstractMappingCmdHandler {
                     response = new RemoteManagerResponse("Listing mappings not supported");
             	}
                 
-            } catch (VirtualUserTableManagementException e) {
+            } catch (ManageableVirtualUserTableException e) {
                 session.getLogger().error("Error on listing mapping: " + e);
                 response = new RemoteManagerResponse("Error on listing mapping: " + e);
             } catch (IllegalArgumentException e) {

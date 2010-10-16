@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.james.api.vut.management.VirtualUserTableManagementException;
+import org.apache.james.api.vut.ManageableVirtualUserTableException;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHelp;
@@ -51,7 +51,7 @@ public class AddMappingCmdHandler extends AbstractMappingCmdHandler {
         } else {
             try {
                 response = new RemoteManagerResponse("Adding mapping successful: " + mappingAction(args, ADD_MAPPING_ACTION));
-            } catch (VirtualUserTableManagementException e) {
+            } catch (ManageableVirtualUserTableException e) {
                 session.getLogger().error("Error on adding mapping: " + e);
                 response = new RemoteManagerResponse("Error on adding mapping: " + e);
             } catch (IllegalArgumentException e) {
