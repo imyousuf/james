@@ -22,6 +22,7 @@
 package org.apache.james.api.vut.management;
 
 import java.util.Collection;
+import java.util.Map;
 
 
 /**
@@ -138,4 +139,13 @@ public interface VirtualUserTableManagementMBean {
      * @return true if successfully
      */
     public boolean removeMapping(String user, String domain, String mapping);
+    
+
+    /**
+     * Return a Map which holds all mappings. The key is the user@domain and the value is a Collection 
+     * which holds all mappings
+     * 
+     * @return Map which holds all mappings
+     */
+    public Map<String,Collection<String>> getAllMappings();
 }
