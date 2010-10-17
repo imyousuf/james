@@ -59,7 +59,7 @@
     <module>spool-api</module>
     <module>spoolmanager</module>
     <module>mailetcontainer-api</module>
-    <module>mailetcontainer-impl</module>
+    <module>mailetcontainer-library</module>
     <module>mailetcontainer-camel</module>
     <module>remotemanager</module>
     <module>mailets</module>
@@ -360,7 +360,7 @@
 
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailetcontainer-impl</artifactId>
+      <artifactId>james-server-mailetcontainer-library</artifactId>
       <version>${project.version}</version>
     </dependency>
     
