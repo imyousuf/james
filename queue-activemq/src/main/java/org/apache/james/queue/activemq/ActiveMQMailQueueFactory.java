@@ -53,7 +53,7 @@ public class ActiveMQMailQueueFactory extends JMSMailQueueFactory{
 
     @Override
 	protected MailQueue createMailQueue(String name) {
-    	return new ActiveMQMailQueue(connectionFactory, name, sizeTreshold, log);
+        return new ActiveMQMailQueue(connectionFactory, name, sizeTreshold, log);
 	}
 
 }

@@ -45,43 +45,49 @@ import org.apache.mailet.Mail;
 /**
  * *{@link MailQueue} implementation which use an ActiveMQ Queue.
  * 
- * This implementation require at ActiveMQ 5.4.0+. 
+ * This implementation require at ActiveMQ 5.4.0+.
  * 
- * When a {@link Mail} attribute is found and is not one of the supported primitives, then the 
- * toString() method is called on the attribute value to convert it 
+ * When a {@link Mail} attribute is found and is not one of the supported
+ * primitives, then the toString() method is called on the attribute value to
+ * convert it
  * 
- * The implementation support the usage of {@link BlobMessage} for out-of-band transfer of the {@link MimeMessage}
+ * The implementation support the usage of {@link BlobMessage} for out-of-band
+ * transfer of the {@link MimeMessage}
  * 
  * See http://activemq.apache.org/blob-messages.html for more details
  * 
  * 
  * Some other supported feature is handling of priorities. See:
  * 
- * http://activemq.apache.org/how-can-i-support-priority-queues.html 
+ * http://activemq.apache.org/how-can-i-support-priority-queues.html
  * 
- * For this just add a {@link Mail} attribute with name {@link #MAIL_PRIORITY} to it. It should use one of the following
- * value {@link #LOW_PRIORITY}, {@link #NORMAL_PRIORITY}, {@link #HIGH_PRIORITY}
+ * For this just add a {@link Mail} attribute with name {@link #MAIL_PRIORITY}
+ * to it. It should use one of the following value {@link #LOW_PRIORITY},
+ * {@link #NORMAL_PRIORITY}, {@link #HIGH_PRIORITY}
  * 
- *
+ * 
  */
 public class ActiveMQMailQueue extends JMSMailQueue {
 
     private long messageTreshold = -1;
-    
+
     private final static String JAMES_BLOB_URL = "JAMES_BLOB_URL";
-    
+
     public final static int NO_DELAY = -1;
     public final static int DISABLE_TRESHOLD = -1;
     public final static int BLOBMESSAGE_ONLY = 0;
 
-    
     /**
-     * Construct a new ActiveMQ based {@link MailQueue}. 
-     * The messageTreshold is used to calculate if a {@link BytesMessage} or a {@link BlobMessage} should be used when queuing the mail in
-     * ActiveMQ. A {@link BlobMessage} is used If the message size is bigger then the messageTreshold. The size if in bytes.
+     * Construct a new ActiveMQ based {@link MailQueue}. The messageTreshold is
+     * used to calculate if a {@link BytesMessage} or a {@link BlobMessage}
+     * should be used when queuing the mail in ActiveMQ. A {@link BlobMessage}
+     * is used If the message size is bigger then the messageTreshold. The size
+     * if in bytes.
      * 
-     * If you want to disable the usage of {@link BlobMessage} just use {@link #DISABLE_TRESHOLD} as value. If you want to use {@link BlobMessage} 
-     * for every message (not depending of  the size) just use {@link #BLOBMESSAGE_ONLY} as value.
+     * If you want to disable the usage of {@link BlobMessage} just use
+     * {@link #DISABLE_TRESHOLD} as value. If you want to use
+     * {@link BlobMessage} for every message (not depending of the size) just
+     * use {@link #BLOBMESSAGE_ONLY} as value.
      * 
      * For enabling the priority feature in AMQ see:
      * 
@@ -93,12 +99,13 @@ public class ActiveMQMailQueue extends JMSMailQueue {
      * @param logger
      */
     public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final long messageTreshold, final Log logger) {
-    	super(connectionFactory, queuename, logger);
-        this.messageTreshold  = messageTreshold;
+        super(connectionFactory, queuename, logger);
+        this.messageTreshold = messageTreshold;
     }
-    
+
     /**
-     * ActiveMQ based {@link MailQueue} which just use {@link BytesMessage} for all messages
+     * ActiveMQ based {@link MailQueue} which just use {@link BytesMessage} for
+     * all messages
      * 
      * @see #ActiveMQMailQueue(ConnectionFactory, String, long, Log)
      */
@@ -108,21 +115,25 @@ public class ActiveMQMailQueue extends JMSMailQueue {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.jms.JMSMailQueue#populateMailMimeMessage(javax.jms.Message, org.apache.mailet.Mail)
+     * 
+     * @see
+     * org.apache.james.queue.jms.JMSMailQueue#populateMailMimeMessage(javax
+     * .jms.Message, org.apache.mailet.Mail)
      */
     protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException {
         if (message instanceof BlobMessage) {
             try {
                 BlobMessage blobMessage = (BlobMessage) message;
-                 try {
-                     // store url for later usage. Maybe we can do something smart for RemoteDelivery here
-                     // TODO: Check if this makes sense at all
-                     mail.setAttribute(JAMES_BLOB_URL, blobMessage.getURL());
-                 } catch (MalformedURLException e) {
-                     // Ignore on error
-                     logger.debug("Unable to get url from blobmessage for mail " + mail.getName());
-                 }
-                 mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream())));
+                try {
+                    // store url for later usage. Maybe we can do something
+                    // smart for RemoteDelivery here
+                    // TODO: Check if this makes sense at all
+                    mail.setAttribute(JAMES_BLOB_URL, blobMessage.getURL());
+                } catch (MalformedURLException e) {
+                    // Ignore on error
+                    logger.debug("Unable to get url from blobmessage for mail " + mail.getName());
+                }
+                mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream())));
 
             } catch (IOException e) {
                 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
@@ -134,38 +145,40 @@ public class ActiveMQMailQueue extends JMSMailQueue {
         }
     }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.queue.jms.JMSMailQueue#createMessage(javax.jms.Session, org.apache.mailet.Mail, long)
-	 */
-	protected Message createMessage(Session session, Mail mail,
-			long delayInMillis) throws JMSException, IOException, MessagingException {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.queue.jms.JMSMailQueue#createMessage(javax.jms.Session,
+     * org.apache.mailet.Mail, long)
+     */
+    protected Message createMessage(Session session, Mail mail, long delayInMillis) throws JMSException, IOException, MessagingException {
 
-		boolean useBlob = false;
-		if (messageTreshold != -1) {
-			try {
-				if (messageTreshold == 0 || mail.getMessageSize() > messageTreshold) {
-					useBlob = true;
-				}
-			} catch (MessagingException e) {
-				logger.info("Unable to calculate message size for mail " + mail.getName() + ". Use BytesMessage for JMS");
-				useBlob = false;
-			}
-		}
-		if (useBlob) {
-			ActiveMQSession amqSession;
-			if (session instanceof PooledSession) {
-				amqSession = ((PooledSession) session).getInternalSession();
-			} else {
-				amqSession = (ActiveMQSession) session;
-			}
-			BlobMessage message = amqSession.createBlobMessage(new MimeMessageInputStream(mail.getMessage()));
-			return message;
-		} else {
-			return super.createMessage(session, mail, delayInMillis);
-		}
+        boolean useBlob = false;
+        if (messageTreshold != -1) {
+            try {
+                if (messageTreshold == 0 || mail.getMessageSize() > messageTreshold) {
+                    useBlob = true;
+                }
+            } catch (MessagingException e) {
+                logger.info("Unable to calculate message size for mail " + mail.getName() + ". Use BytesMessage for JMS");
+                useBlob = false;
+            }
+        }
+        if (useBlob) {
+            ActiveMQSession amqSession;
+            if (session instanceof PooledSession) {
+                amqSession = ((PooledSession) session).getInternalSession();
+            } else {
+                amqSession = (ActiveMQSession) session;
+            }
+            BlobMessage message = amqSession.createBlobMessage(new MimeMessageInputStream(mail.getMessage()));
+            return message;
+        } else {
+            return super.createMessage(session, mail, delayInMillis);
+        }
 
-	}
+    }
 
     @Override
     protected MailQueueItem createMailQueueItem(Connection connection, Session session, MessageConsumer consumer, Message message) throws JMSException, MessagingException {

@@ -49,15 +49,17 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
- * {@link MailQueue} implementation which use a JMS Queue for the {@link MailQueue}. This implementation should work with every JMS 1.1.0 implementation
+ * {@link MailQueue} implementation which use a JMS Queue for the
+ * {@link MailQueue}. This implementation should work with every JMS 1.1.0
+ * implementation
  * 
- *
+ * 
  */
-public class JMSMailQueue implements MailQueue{
+public class JMSMailQueue implements MailQueue {
 
-	protected final String queuename;
-	protected final ConnectionFactory connectionFactory;
-	protected final Log logger;
+    protected final String queuename;
+    protected final ConnectionFactory connectionFactory;
+    protected final Log logger;
     protected final static String JAMES_MAIL_RECIPIENTS = "JAMES_MAIL_RECIPIENTS";
     protected final static String JAMES_MAIL_SENDER = "JAMES_MAIL_SENDER";
     protected final static String JAMES_MAIL_ERROR_MESSAGE = "JAMES_MAIL_ERROR_MESSAGE";
@@ -71,36 +73,37 @@ public class JMSMailQueue implements MailQueue{
     protected final static String JAMES_MAIL_ATTRIBUTE_NAMES = "JAMES_MAIL_ATTRIBUTE_NAMES";
     protected final static String JAMES_NEXT_DELIVERY = "JAMES_NEXT_DELIVERY";
 
-
     /**
      * Handle mail with lowest priority
      */
     public final static int LOW_PRIORITY = 0;
-    
+
     /**
      * Handle mail with normal priority (this is the default)
      */
     public final static int NORMAL_PRIORITY = Message.DEFAULT_DELIVERY_MODE;
-    
+
     /**
      * Handle mail with highest priority
      */
     public final static int HIGH_PRIORITY = 9;
-    
+
     /**
-     * Attribute name for support if priority. If the attribute is set and priority handling is enabled it will take care of move the Mails with
-     * higher priority to the head of the queue (so the mails are faster handled).
+     * Attribute name for support if priority. If the attribute is set and
+     * priority handling is enabled it will take care of move the Mails with
+     * higher priority to the head of the queue (so the mails are faster
+     * handled).
      * 
      */
     public final static String MAIL_PRIORITY = "MAIL_PRIORITY";
-    
+
     public JMSMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
         this.connectionFactory = connectionFactory;
         this.queuename = queuename;
         this.logger = logger;
     }
-    
-    /**
+
+/**
      * Execute the given {@link DequeueOperation} when a mail is ready to precoess. As JMS does not support delay scheduling out-of-the box, we use 
      * a messageselector to check if a mail is ready. For this a {@link MessageConsumer#receive(long) is used with a timeout of 10 seconds. 
      * 
@@ -108,28 +111,28 @@ public class JMSMailQueue implements MailQueue{
      * 
      * @see org.apache.james.queue.MailQueue#deQueue(org.apache.james.queue.MailQueue.DequeueOperation)
      */
-    public MailQueueItem deQueue() throws MailQueueException {   
+    public MailQueueItem deQueue() throws MailQueueException {
         Connection connection = null;
         Session session = null;
         Message message = null;
         MessageConsumer consumer = null;
-        
-        while(true) {
+
+        while (true) {
             try {
                 connection = connectionFactory.createConnection();
                 connection.start();
-            
+
                 session = connection.createSession(true, Session.SESSION_TRANSACTED);
                 Queue queue = session.createQueue(queuename);
-                consumer = session.createConsumer(queue, JAMES_NEXT_DELIVERY +  " <= " + System.currentTimeMillis());
-            
+                consumer = session.createConsumer(queue, JAMES_NEXT_DELIVERY + " <= " + System.currentTimeMillis());
+
                 message = consumer.receive(10000);
-           
+
                 if (message != null) {
                     return createMailQueueItem(connection, session, consumer, message);
                 } else {
                     session.commit();
-                    
+
                     if (consumer != null) {
 
                         try {
@@ -152,7 +155,7 @@ public class JMSMailQueue implements MailQueue{
                         // ignore here
                     }
                 }
-         
+
             } catch (Exception e) {
                 try {
                     session.rollback();
@@ -186,101 +189,104 @@ public class JMSMailQueue implements MailQueue{
         }
 
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail, long, java.util.concurrent.TimeUnit)
+     * 
+     * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail,
+     * long, java.util.concurrent.TimeUnit)
      */
-	public void enQueue(Mail mail, long delay, TimeUnit unit)
-			throws MailQueueException {
-		Connection connection = null;
-		Session session = null;
-		MessageProducer producer = null;
-        
+    public void enQueue(Mail mail, long delay, TimeUnit unit) throws MailQueueException {
+        Connection connection = null;
+        Session session = null;
+        MessageProducer producer = null;
+
         long mydelay = 0;
-        
+
         if (delay > 0) {
             mydelay = TimeUnit.MILLISECONDS.convert(delay, unit);
         }
-        
-		try {
 
-			connection = connectionFactory.createConnection();
-			connection.start();
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue queue = session.createQueue(queuename);
-			producer = session.createProducer(queue);
-			Message message = createMessage(session, mail, mydelay);
-			populateJMSProperties(message, mail, mydelay);
+        try {
 
-			int msgPrio = NORMAL_PRIORITY;
-			Object prio = mail.getAttribute(MAIL_PRIORITY);
-	        if (prio instanceof Integer) {
-	            msgPrio = (Integer) prio;
-	        }
-	        
-			producer.send(message, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
-		} catch (Exception e) {
-			if (session != null) {
-				try {
-					session.rollback();
-				} catch (JMSException e1) {
-					// ignore on rollback
-				}
-			}
-			throw new MailQueueException("Unable to enqueue mail " + mail, e);
-		
-		} finally {
-			
-			try {
-				if (producer != null)
-					producer.close();
-			} catch (JMSException e) {
-				// ignore here
-			}
-			try {
-				if (session != null)
-					session.close();
-			} catch (JMSException e) {
-				// ignore here
-			}
+            connection = connectionFactory.createConnection();
+            connection.start();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue queue = session.createQueue(queuename);
+            producer = session.createProducer(queue);
+            Message message = createMessage(session, mail, mydelay);
+            populateJMSProperties(message, mail, mydelay);
 
-			try {
-				if (connection != null)
-					connection.close();
-			} catch (JMSException e) {
-				// ignore here
-			}
-		}
-	}
+            int msgPrio = NORMAL_PRIORITY;
+            Object prio = mail.getAttribute(MAIL_PRIORITY);
+            if (prio instanceof Integer) {
+                msgPrio = (Integer) prio;
+            }
 
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail)
-	 */
-	public void enQueue(Mail mail) throws MailQueueException{
-		enQueue(mail, 0, TimeUnit.MILLISECONDS);
-	}
-	
-	/**
-	 * Create Message which holds the {@link MimeMessage} of the given Mail
-	 * 
-	 * @param session
-	 * @param mail
-	 * @return jmsMessage
-	 * @throws JMSException
-	 * @throws IOException
-	 * @throws MessagingException
-	 * @throws IOException 
-	 */
-	protected Message createMessage(Session session, Mail mail, long delayInMillis) throws JMSException, MessagingException, IOException {
-        BytesMessage message  = session.createBytesMessage();
-        mail.getMessage().writeTo(new BytesMessageOutputStream(message));;
+            producer.send(message, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
+        } catch (Exception e) {
+            if (session != null) {
+                try {
+                    session.rollback();
+                } catch (JMSException e1) {
+                    // ignore on rollback
+                }
+            }
+            throw new MailQueueException("Unable to enqueue mail " + mail, e);
+
+        } finally {
+
+            try {
+                if (producer != null)
+                    producer.close();
+            } catch (JMSException e) {
+                // ignore here
+            }
+            try {
+                if (session != null)
+                    session.close();
+            } catch (JMSException e) {
+                // ignore here
+            }
+
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (JMSException e) {
+                // ignore here
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail)
+     */
+    public void enQueue(Mail mail) throws MailQueueException {
+        enQueue(mail, 0, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Create Message which holds the {@link MimeMessage} of the given Mail
+     * 
+     * @param session
+     * @param mail
+     * @return jmsMessage
+     * @throws JMSException
+     * @throws IOException
+     * @throws MessagingException
+     * @throws IOException
+     */
+    protected Message createMessage(Session session, Mail mail, long delayInMillis) throws JMSException, MessagingException, IOException {
+        BytesMessage message = session.createBytesMessage();
+        mail.getMessage().writeTo(new BytesMessageOutputStream(message));
+        ;
         return message;
-	}
-	/**
-     * Populate JMS Message properties with values 
+    }
+
+    /**
+     * Populate JMS Message properties with values
      * 
      * @param message
      * @param mail
@@ -289,16 +295,16 @@ public class JMSMailQueue implements MailQueue{
      * @throws MessagingException
      */
     @SuppressWarnings("unchecked")
-	protected void populateJMSProperties(Message message, Mail mail, long delayInMillis) throws JMSException, MessagingException {
+    protected void populateJMSProperties(Message message, Mail mail, long delayInMillis) throws JMSException, MessagingException {
         long nextDelivery = System.currentTimeMillis() + delayInMillis;
         message.setLongProperty(JAMES_NEXT_DELIVERY, nextDelivery);
         message.setStringProperty(JAMES_MAIL_ERROR_MESSAGE, mail.getErrorMessage());
         message.setLongProperty(JAMES_MAIL_LAST_UPDATED, mail.getLastUpdated().getTime());
         message.setLongProperty(JAMES_MAIL_MESSAGE_SIZE, mail.getMessageSize());
         message.setStringProperty(JAMES_MAIL_NAME, mail.getName());
-        
+
         StringBuilder recipientsBuilder = new StringBuilder();
-        
+
         Iterator<MailAddress> recipients = mail.getRecipients().iterator();
         while (recipients.hasNext()) {
             String recipient = recipients.next().toString();
@@ -310,7 +316,7 @@ public class JMSMailQueue implements MailQueue{
         message.setStringProperty(JAMES_MAIL_RECIPIENTS, recipientsBuilder.toString());
         message.setStringProperty(JAMES_MAIL_REMOTEADDR, mail.getRemoteAddr());
         message.setStringProperty(JAMES_MAIL_REMOTEHOST, mail.getRemoteHost());
-        
+
         String sender;
         MailAddress s = mail.getSender();
         if (s == null) {
@@ -318,16 +324,16 @@ public class JMSMailQueue implements MailQueue{
         } else {
             sender = mail.getSender().toString();
         }
-        
+
         StringBuilder attrsBuilder = new StringBuilder();
         Iterator<String> attrs = mail.getAttributeNames();
         while (attrs.hasNext()) {
             String attrName = attrs.next();
             attrsBuilder.append(attrName);
-            
+
             Object value = convertAttributeValue(mail.getAttribute(attrName));
             message.setObjectProperty(attrName, value);
-            
+
             if (attrs.hasNext()) {
                 attrsBuilder.append(JAMES_MAIL_SEPERATOR);
             }
@@ -335,13 +341,12 @@ public class JMSMailQueue implements MailQueue{
         message.setStringProperty(JAMES_MAIL_ATTRIBUTE_NAMES, attrsBuilder.toString());
         message.setStringProperty(JAMES_MAIL_SENDER, sender);
         message.setStringProperty(JAMES_MAIL_STATE, mail.getState());
-        
-        
+
     }
-    
 
     /**
-     * Create the complete Mail from the JMS Message. So the created {@link Mail} is completly populated
+     * Create the complete Mail from the JMS Message. So the created
+     * {@link Mail} is completly populated
      * 
      * @param message
      * @return
@@ -353,29 +358,30 @@ public class JMSMailQueue implements MailQueue{
         populateMail(message, mail);
         populateMailMimeMessage(message, mail);
 
-        return mail; 
+        return mail;
     }
 
     /**
-     * Populat the given {@link Mail} instance with a {@link MimeMessage}. The {@link MimeMessage} is read from the JMS Message. This implementation
-     * use a {@link BytesMessage}
+     * Populat the given {@link Mail} instance with a {@link MimeMessage}. The
+     * {@link MimeMessage} is read from the JMS Message. This implementation use
+     * a {@link BytesMessage}
      * 
      * @param message
      * @param mail
      * @throws MessagingException
      */
-	protected void populateMailMimeMessage(Message message, Mail mail)
-			throws MessagingException {
-		if (message instanceof BytesMessage) {
-			mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(),new BytesMessageInputStream((BytesMessage) message))));
-		} else {
-			throw new MailQueueException("Not supported JMS Message received "+ message);
-		}
+    protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException {
+        if (message instanceof BytesMessage) {
+            mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), new BytesMessageInputStream((BytesMessage) message))));
+        } else {
+            throw new MailQueueException("Not supported JMS Message received " + message);
+        }
 
-	}
-    
+    }
+
     /**
-     * Populate Mail with values from Message. This exclude the {@link MimeMessage}
+     * Populate Mail with values from Message. This exclude the
+     * {@link MimeMessage}
      * 
      * @param message
      * @param mail
@@ -386,32 +392,33 @@ public class JMSMailQueue implements MailQueue{
         mail.setErrorMessage(message.getStringProperty(JAMES_MAIL_ERROR_MESSAGE));
         mail.setLastUpdated(new Date(message.getLongProperty(JAMES_MAIL_LAST_UPDATED)));
         mail.setName(message.getStringProperty(JAMES_MAIL_NAME));
-        
-        List<MailAddress> rcpts = new ArrayList<MailAddress>();       
+
+        List<MailAddress> rcpts = new ArrayList<MailAddress>();
         String recipients = message.getStringProperty(JAMES_MAIL_RECIPIENTS);
         StringTokenizer recipientTokenizer = new StringTokenizer(recipients, JAMES_MAIL_SEPERATOR);
-        while(recipientTokenizer.hasMoreTokens()) {
+        while (recipientTokenizer.hasMoreTokens()) {
             try {
                 MailAddress rcpt = new MailAddress(recipientTokenizer.nextToken());
                 rcpts.add(rcpt);
             } catch (AddressException e) {
-                // Should never happen as long as the user does not modify the the header by himself
+                // Should never happen as long as the user does not modify the
+                // the header by himself
                 // Maybe we should log it anyway
             }
         }
         mail.setRecipients(rcpts);
         mail.setRemoteAddr(message.getStringProperty(JAMES_MAIL_REMOTEADDR));
         mail.setRemoteHost(message.getStringProperty(JAMES_MAIL_REMOTEHOST));
-        
+
         String attributeNames = message.getStringProperty(JAMES_MAIL_ATTRIBUTE_NAMES);
         StringTokenizer namesTokenizer = new StringTokenizer(attributeNames, JAMES_MAIL_SEPERATOR);
         while (namesTokenizer.hasMoreTokens()) {
             String name = namesTokenizer.nextToken();
             Serializable attrValue = message.getStringProperty(name);
-            
+
             mail.setAttribute(name, attrValue);
         }
-        
+
         String sender = message.getStringProperty(JAMES_MAIL_SENDER);
         if (sender == null || sender.trim().length() <= 0) {
             mail.setSender(null);
@@ -419,38 +426,36 @@ public class JMSMailQueue implements MailQueue{
             try {
                 mail.setSender(new MailAddress(sender));
             } catch (AddressException e) {
-             // Should never happen as long as the user does not modify the the header by himself
-             // Maybe we should log it anyway
+                // Should never happen as long as the user does not modify the
+                // the header by himself
+                // Maybe we should log it anyway
             }
         }
-        
+
         mail.setState(message.getStringProperty(JAMES_MAIL_STATE));
 
-	}
+    }
 
-    
-    
     /**
-     * Convert the attribute value if necessary. 
+     * Convert the attribute value if necessary.
      * 
      * @param value
      * @return convertedValue
      */
-    protected Object convertAttributeValue(Object value){
+    protected Object convertAttributeValue(Object value) {
         if (value == null || value instanceof String || value instanceof Byte || value instanceof Long || value instanceof Double || value instanceof Boolean || value instanceof Integer || value instanceof Short || value instanceof Float) {
             return value;
         }
         return value.toString();
     }
-    
-    
+
     @Override
     public String toString() {
         return "MailQueue:" + queuename;
     }
-    
-    protected MailQueueItem createMailQueueItem(Connection connection, Session session, MessageConsumer consumer, Message message) throws JMSException, MessagingException{
-    	final Mail mail = createMail(message);             
+
+    protected MailQueueItem createMailQueueItem(Connection connection, Session session, MessageConsumer consumer, Message message) throws JMSException, MessagingException {
+        final Mail mail = createMail(message);
         return new JMSMailQueueItem(mail, connection, session, consumer);
     }
 
