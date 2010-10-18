@@ -336,8 +336,8 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                 mailets.put(processorName, new ArrayList<MailetManagement>());
                 matchers.put(processorName, new ArrayList<MatcherManagement>());
 
-                RouteDefinition processorDef = from(getEndpoint(processorName)).inOnly()
-            // store the logger in properties
+                RouteDefinition processorDef = from(getEndpoint(processorName)).routeId(processorName).inOnly()
+                // store the logger in properties
                 .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(logger));   
 
                 final List<HierarchicalConfiguration> mailetConfs = processorConf.configurationsAt("mailet");
@@ -439,7 +439,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                 }
                 
                 processorDef
-                // start choice
+                    // start choice
                     .choice()
                  
                     // when the mail state did not change till yet ( the end of the route) we need to call the TerminatingMailet to
