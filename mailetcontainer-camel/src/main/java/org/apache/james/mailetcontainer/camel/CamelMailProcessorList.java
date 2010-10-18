@@ -98,6 +98,12 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     public void init() throws Exception {
         getCamelContext().addRoutes(new SpoolRouteBuilder());
         producerTemplate = getCamelContext().createProducerTemplate();
+        
+        // Make sure the camel context get started
+        // See https://issues.apache.org/jira/browse/JAMES-1069
+        if (getCamelContext().getStatus().isStopped()) {
+            getCamelContext().start();
+        }
 
     }
 
