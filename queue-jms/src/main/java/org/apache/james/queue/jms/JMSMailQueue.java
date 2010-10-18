@@ -264,7 +264,7 @@ public class JMSMailQueue implements MailQueue {
      * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail)
      */
     public void enQueue(Mail mail) throws MailQueueException {
-        enQueue(mail, 0, TimeUnit.MILLISECONDS);
+        enQueue(mail, -1, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -281,7 +281,7 @@ public class JMSMailQueue implements MailQueue {
     protected Message createMessage(Session session, Mail mail, long delayInMillis) throws JMSException, MessagingException, IOException {
         BytesMessage message = session.createBytesMessage();
         mail.getMessage().writeTo(new BytesMessageOutputStream(message));
-        ;
+        
         return message;
     }
 
@@ -296,7 +296,11 @@ public class JMSMailQueue implements MailQueue {
      */
     @SuppressWarnings("unchecked")
     protected void populateJMSProperties(Message message, Mail mail, long delayInMillis) throws JMSException, MessagingException {
-        long nextDelivery = System.currentTimeMillis() + delayInMillis;
+        long nextDelivery = -1;
+        if (delayInMillis > 0) {
+            nextDelivery = System.currentTimeMillis() + delayInMillis;
+
+        }
         message.setLongProperty(JAMES_NEXT_DELIVERY, nextDelivery);
         message.setStringProperty(JAMES_MAIL_ERROR_MESSAGE, mail.getErrorMessage());
         message.setLongProperty(JAMES_MAIL_LAST_UPDATED, mail.getLastUpdated().getTime());
