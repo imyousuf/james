@@ -20,6 +20,8 @@ package org.apache.james.queue.activemq;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -27,6 +29,8 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -152,8 +156,7 @@ public class ActiveMQMailQueue extends JMSMailQueue {
      * org.apache.james.queue.jms.JMSMailQueue#createMessage(javax.jms.Session,
      * org.apache.mailet.Mail, long)
      */
-    protected Message createMessage(Session session, Mail mail, long delayInMillis) throws JMSException, IOException, MessagingException {
-
+    protected void produceMail(Session session, Map<String,Object> props, int msgPrio, Mail mail) throws JMSException, MessagingException, IOException {
         boolean useBlob = false;
         if (messageTreshold != -1) {
             try {
@@ -166,16 +169,36 @@ public class ActiveMQMailQueue extends JMSMailQueue {
             }
         }
         if (useBlob) {
-            ActiveMQSession amqSession;
-            if (session instanceof PooledSession) {
-                amqSession = ((PooledSession) session).getInternalSession();
-            } else {
-                amqSession = (ActiveMQSession) session;
+            MessageProducer producer = null;
+            try {
+                ActiveMQSession amqSession;
+                if (session instanceof PooledSession) {
+                    amqSession = ((PooledSession) session).getInternalSession();
+                } else {
+                    amqSession = (ActiveMQSession) session;
+                }
+                BlobMessage message = amqSession.createBlobMessage(new MimeMessageInputStream(mail.getMessage()));
+                Queue queue = session.createQueue(queuename);
+
+                producer = session.createProducer(queue);
+                Iterator<String> keys = props.keySet().iterator();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    message.setObjectProperty(key, props.get(key));
+                }
+                producer.send(message, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
+            } finally {
+
+                try {
+                    if (producer != null)
+                        producer.close();
+                } catch (JMSException e) {
+                    // ignore here
+                }
             }
-            BlobMessage message = amqSession.createBlobMessage(new MimeMessageInputStream(mail.getMessage()));
-            return message;
+            
         } else {
-            return super.createMessage(session, mail, delayInMillis);
+            super.produceMail(session, props, msgPrio, mail);
         }
 
     }
