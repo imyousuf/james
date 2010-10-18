@@ -80,7 +80,7 @@ public class JMSMailQueue implements MailQueue{
     /**
      * Handle mail with normal priority (this is the default)
      */
-    public final static int NORMAL_PRIORITY = 5;
+    public final static int NORMAL_PRIORITY = Message.DEFAULT_DELIVERY_MODE;
     
     /**
      * Handle mail with highest priority
@@ -212,9 +212,14 @@ public class JMSMailQueue implements MailQueue{
 			producer = session.createProducer(queue);
 			Message message = createMessage(session, mail, mydelay);
 			populateJMSProperties(message, mail, mydelay);
-			populateJMSHeaders(message, mail);
-			
-			producer.send(message);
+
+			int msgPrio = NORMAL_PRIORITY;
+			Object prio = mail.getAttribute(MAIL_PRIORITY);
+	        if (prio instanceof Integer) {
+	            msgPrio = (Integer) prio;
+	        }
+	        
+			producer.send(message, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
 		} catch (Exception e) {
 			if (session != null) {
 				try {
@@ -334,21 +339,7 @@ public class JMSMailQueue implements MailQueue{
         
     }
     
-    /**
-     * Populate the JMS Message Headers from the given {@link Mail}
-     * 
-     * @param message
-     * @param mail
-     * @throws JMSException
-     * @throws MessagingException
-     */
-    protected void populateJMSHeaders(Message message, Mail mail) throws JMSException, MessagingException {
-    	Object prio = mail.getAttribute(MAIL_PRIORITY);
-    	if (prio instanceof Integer) {
-        	message.setJMSPriority((Integer) prio);
-    	}
-    }
-    
+
     /**
      * Create the complete Mail from the JMS Message. So the created {@link Mail} is completly populated
      * 
