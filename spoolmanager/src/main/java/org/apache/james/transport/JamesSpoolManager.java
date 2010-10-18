@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -43,8 +42,7 @@ import org.apache.james.mailetcontainer.MailProcessorList;
 import org.apache.james.mailetcontainer.MailetContainer;
 import org.apache.james.queue.MailQueue;
 import org.apache.james.queue.MailQueueFactory;
-import org.apache.james.queue.MailQueue.DequeueOperation;
-import org.apache.james.queue.MailQueue.MailQueueException;
+import org.apache.james.queue.MailQueue.MailQueueItem;
 import org.apache.james.services.SpoolManager;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
@@ -157,31 +155,30 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
             numActive.incrementAndGet();
 
             try {
-                queue.deQueue(new DequeueOperation() {
-                    
-                    /*
-                     * (non-Javadoc)
-                     * @see org.apache.james.queue.activemq.MailQueue.DequeueOperation#process(org.apache.mailet.Mail)
-                     */
-                    public void process(Mail mail) throws MailQueueException, MessagingException {
-                        if (logger.isDebugEnabled()) {
-                            StringBuffer debugBuffer =
-                                new StringBuffer(64)
-                                        .append("==== Begin processing mail ")
-                                        .append(mail.getName())
-                                        .append("====");
-                            logger.debug(debugBuffer.toString());
-                        }
+                MailQueueItem queueItem = queue.deQueue();
+                Mail mail = queueItem.getMail();
+                if (logger.isDebugEnabled()) {
+                    StringBuffer debugBuffer =
+                        new StringBuffer(64)
+                                .append("==== Begin processing mail ")
+                                .append(mail.getName())
+                                .append("====");
+                    logger.debug(debugBuffer.toString());
+                }
 
-                        try {
-                            mailProcessor.service(mail);             
-                        } finally {
-                            LifecycleUtil.dispose(mail);
-                            mail = null;
-                        }
+                try {
+                    mailProcessor.service(mail);
+                    queueItem.done(true);
+                } catch (Exception e) {
+                    if (active.get() && logger.isErrorEnabled()) {
+                        logger.error("Exception processing mail in JamesSpoolManager.run " + e.getMessage(), e);
                     }
-                });
-                
+                    queueItem.done(false);
+
+                } finally {
+                    LifecycleUtil.dispose(mail);
+                    mail = null;
+                }
                
             } catch (Throwable e) {
                 if (active.get() && logger.isErrorEnabled()) {

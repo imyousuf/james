@@ -27,20 +27,17 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.Queue;
 import javax.jms.Session;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
-import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.activemq.pool.PooledSession;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.queue.MailQueue;
 import org.apache.james.queue.jms.JMSMailQueue;
 import org.apache.mailet.Mail;
@@ -108,87 +105,15 @@ public class ActiveMQMailQueue extends JMSMailQueue {
     public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
         this(connectionFactory, queuename, DISABLE_TRESHOLD, logger);
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.queue.activemq.MailQueue#deQueue()
-     */
-    public void deQueue(DequeueOperation operation) throws MailQueueException, MessagingException {   
-        Connection connection = null;
-        Session session = null;
-        Message message = null;
-        MessageConsumer consumer = null;
-        try {
-            connection = connectionFactory.createConnection();
-            connection.start();
-            
-            session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            Queue queue = session.createQueue(queuename);
-            consumer = session.createConsumer(queue);
-            message = consumer.receive();
-            
-            if (message == null){
-            	return;
-            }
-            
-            Mail mail = createMail(message);
-            operation.process(mail);
-            session.commit();
-            if (message instanceof ActiveMQBlobMessage) {
-                // delete the file
-            	// This should get removed once this jira issue was fixed
-            	// https://issues.apache.org/activemq/browse/AMQ-1529
-                try {
-                    ((ActiveMQBlobMessage) message).deleteFile();
-                } catch (IOException e) {
-                    logger.info("Unable to delete blob message file for mail " + mail.getName());
-                }
-            }
-        } catch (JMSException e) {
-            throw new MailQueueException("Unable to dequeue next message", e);
-        } catch (MessagingException e) {
-        	
-            if (session != null) {
-                try {
-                    session.rollback();
-                } catch (JMSException e1) {
-                    // ignore on rollback
-                }
-            }
-        } finally {
-        	if (consumer != null) {
-        		
-        		try {
-					consumer.close();
-				} catch (JMSException e1) {
-                    // ignore on rollback
-				}
-        	}
-            try {
-                if (session != null) session.close();
-            } catch (JMSException e) {
-                // ignore here
-            }
-            
-            try {
-                if (connection != null)  connection.close();
-            } catch (JMSException e) {
-                // ignore here
-            }
-        }
-      
-       
-    }
 
     /*
      * (non-Javadoc)
      * @see org.apache.james.queue.jms.JMSMailQueue#populateMailMimeMessage(javax.jms.Message, org.apache.mailet.Mail)
      */
-	protected void populateMailMimeMessage(Message message, Mail mail)
-			throws MessagingException {
-		 if (message instanceof BlobMessage) {
-			 try {
-				 BlobMessage blobMessage = (BlobMessage) message;
+    protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException {
+        if (message instanceof BlobMessage) {
+            try {
+                BlobMessage blobMessage = (BlobMessage) message;
                  try {
                      // store url for later usage. Maybe we can do something smart for RemoteDelivery here
                      // TODO: Check if this makes sense at all
@@ -199,15 +124,15 @@ public class ActiveMQMailQueue extends JMSMailQueue {
                  }
                  mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream())));
 
-			 } catch (IOException e) {
-				 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
-			 } catch (JMSException e) {
-				 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
-			 }
-		 } else {
-             super.populateMailMimeMessage(message, mail);
-		 }
-	}
+            } catch (IOException e) {
+                throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
+            } catch (JMSException e) {
+                throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
+            }
+        } else {
+            super.populateMailMimeMessage(message, mail);
+        }
+    }
 
 	/*
 	 * (non-Javadoc)
@@ -242,20 +167,10 @@ public class ActiveMQMailQueue extends JMSMailQueue {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.queue.jms.JMSMailQueue#populateJMSProperties(javax.jms.Message, org.apache.mailet.Mail, long)
-	 */
-	protected void populateJMSProperties(Message message, Mail mail,
-			long delayInMillis) throws JMSException, MessagingException {
-		if (delayInMillis > 0) {
-            // This will get picked up by activemq for delay message
-            message.setLongProperty(org.apache.activemq.ScheduledMessage.AMQ_SCHEDULED_DELAY, delayInMillis);
-        }
-		
-		super.populateJMSProperties(message, mail, delayInMillis);
-	}
-	
-	
+    @Override
+    protected MailQueueItem createMailQueueItem(Connection connection, Session session, MessageConsumer consumer, Message message) throws JMSException, MessagingException {
+        Mail mail = createMail(message);
+        return new ActiveMQMailQueueItem(mail, connection, session, consumer, message, logger);
+    }
 
 }

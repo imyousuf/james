@@ -54,7 +54,7 @@ public interface MailQueue {
      * @param unit
      * @throws MailQueueException
      */
-    public void enQueue(Mail mail, long delay, TimeUnit unit) throws MailQueueException, MessagingException;
+    public void enQueue(Mail mail, long delay, TimeUnit unit) throws MailQueueException;
     
     
     /**
@@ -63,7 +63,7 @@ public interface MailQueue {
      * @param mail
      * @throws MailQueueException
      */
-    public void enQueue(Mail mail) throws MailQueueException, MessagingException;
+    public void enQueue(Mail mail) throws MailQueueException;
     
     
     /**
@@ -73,7 +73,7 @@ public interface MailQueue {
      * @param dequeueOperation
      * @throws MailQueueException
      */
-    public void deQueue(DequeueOperation operation) throws MailQueueException, MessagingException;
+    public MailQueueItem deQueue() throws MailQueueException;
     
     
     /**
@@ -92,19 +92,28 @@ public interface MailQueue {
         }
     }
     
-    
+
     /**
      * 
-     * Operation which will get executed once a new Mail is ready to process
+     *
      */
-    public interface DequeueOperation {
+    public interface MailQueueItem {
+
+        /**
+         * Return the dequeued {@link Mail}
+         * 
+         * @return mail
+         */
+        public Mail getMail();
         
         /**
-         * Process some action on the mail
-         * @param mail
+         * Callback which MUST get called after the operation on the dequeued {@link Mail} was complete. 
+         * 
+         * This is mostly used to either commit a transaction or rollback. 
+         *  
+         * @param success 
          * @throws MailQueueException
-         * @throws MessagingException
          */
-        public void process(Mail mail) throws MailQueueException, MessagingException;
+        public void done(boolean success) throws MailQueueException;
     }
 }

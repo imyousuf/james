@@ -25,8 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.mail.MessagingException;
-
+import org.apache.james.queue.MailQueue.MailQueueException;
 import org.apache.mailet.Mail;
 
 public class MockMailQueue implements MailQueue{
@@ -42,19 +41,30 @@ public class MockMailQueue implements MailQueue{
         this.throwException = true;
     }
     
-    public void deQueue(DequeueOperation operation) throws MailQueueException, MessagingException {
+    public MailQueueItem deQueue() throws MailQueueException {
         if (throwException) {
             throwException = false;
             throw new MailQueueException("Mock");
         }
         try {
-            operation.process(queue.take());
+        	final Mail mail = queue.take();
+            return new MailQueueItem() {
+				
+				public Mail getMail() {
+					return mail;
+				}
+				
+				public void done(boolean success) throws MailQueueException {
+					// do nothing here
+					
+				}
+			};
         } catch (InterruptedException e) {
             throw new MailQueueException("Mock",e);
         }
     }
 
-    public void enQueue(final Mail mail, long delay, TimeUnit unit) throws MailQueueException, MessagingException {
+    public void enQueue(final Mail mail, long delay, TimeUnit unit) throws MailQueueException {
         if (throwException) {
             throwException = false;
             throw new MailQueueException("Mock");
@@ -72,7 +82,7 @@ public class MockMailQueue implements MailQueue{
         }, delay, unit);
     }
 
-    public void enQueue(Mail mail) throws MailQueueException, MessagingException {
+    public void enQueue(Mail mail) throws MailQueueException {
         if (throwException) {
             throwException = false;
             throw new MailQueueException("Mock");

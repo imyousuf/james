@@ -26,8 +26,8 @@ import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.queue.MailQueue;
 import org.apache.james.queue.MailQueueFactory;
-import org.apache.james.queue.MailQueue.DequeueOperation;
 import org.apache.james.queue.MailQueue.MailQueueException;
+import org.apache.james.queue.MailQueue.MailQueueItem;
 import org.apache.james.services.MailServer;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.base.GenericMailet;
@@ -710,65 +710,65 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     // of time to block is determined by the 'getWaitTime'
                     // method of the
                     // MultipleDelayFilter.
-                    queue.deQueue(new DequeueOperation() {
-                        
-                        public void process(Mail mail) throws MailQueueException {
-                            String key = mail.getName();
-                            try {
-                                if (isDebug) {
-                                    String message = Thread.currentThread().getName()
-                                            + " will process mail " + key;
-                                    log(message);
-                                }
-                                
-                                // Deliver message
-                                if (deliver(mail, session)) {
-                                    // Message was successfully delivered/fully failed... 
-                                    // delete it
-                                    LifecycleUtil.dispose(mail);
-                                    //workRepository.remove(key);
-                                } else {
-                                    // Something happened that will delay delivery.
-                                    // Store it back in the retry repository.
-                                    //workRepository.store(mail);
-                                    int retries = 0;
-                                    try {
-                                        retries = Integer.parseInt(mail.getErrorMessage());
-                                    } catch (NumberFormatException e) {
-                                        // Something strange was happen with the errorMessage.. 
-                                    }
-                                    
-                                    long delay =  getNextDelay (retries);
-                                    queue.enQueue(mail, delay, TimeUnit.MILLISECONDS);
-                                    LifecycleUtil.dispose(mail);
-
-                                    // This is an update, so we have to unlock and
-                                    // notify or this mail is kept locked by this thread.
-                                    //workRepository.unlock(key);
-                                    
-                                    // Note: We do not notify because we updated an
-                                    // already existing mail and we are now free to handle 
-                                    // more mails.
-                                    // Furthermore this mail should not be processed now
-                                    // because we have a retry time scheduling.
-                                }
-                                
-                                // Clear the object handle to make sure it recycles
-                                // this object.
-                                mail = null;
-                            } catch (Exception e) {
-                                // Prevent unexpected exceptions from causing looping by
-                                // removing message from outgoing.
-                                // DO NOT CHANGE THIS to catch Error! For example, if
-                                // there were an OutOfMemory condition caused because 
-                                // something else in the server was abusing memory, we would 
-                                // not want to start purging the retrying spool!
-                                LifecycleUtil.dispose(mail);
-                                //workRepository.remove(key);
-                                throw new MailQueueException("Unable to perform dequeue", e);
-                            }
+                    MailQueueItem queueItem = queue.deQueue();
+                    Mail mail = queueItem.getMail();
+                    
+                    String key = mail.getName();
+                    try {
+                        if (isDebug) {
+                            String message = Thread.currentThread().getName()
+                                    + " will process mail " + key;
+                            log(message);
                         }
-                    });
+                        
+                        // Deliver message
+                        if (deliver(mail, session)) {
+                            // Message was successfully delivered/fully failed... 
+                            // delete it
+                            LifecycleUtil.dispose(mail);
+                            //workRepository.remove(key);
+                        } else {
+                            // Something happened that will delay delivery.
+                            // Store it back in the retry repository.
+                            //workRepository.store(mail);
+                            int retries = 0;
+                            try {
+                                retries = Integer.parseInt(mail.getErrorMessage());
+                            } catch (NumberFormatException e) {
+                                // Something strange was happen with the errorMessage.. 
+                            }
+                            
+                            long delay =  getNextDelay (retries);
+                            queue.enQueue(mail, delay, TimeUnit.MILLISECONDS);
+                            LifecycleUtil.dispose(mail);
+
+                            // This is an update, so we have to unlock and
+                            // notify or this mail is kept locked by this thread.
+                            //workRepository.unlock(key);
+                            
+                            // Note: We do not notify because we updated an
+                            // already existing mail and we are now free to handle 
+                            // more mails.
+                            // Furthermore this mail should not be processed now
+                            // because we have a retry time scheduling.
+                        }
+                        
+                        // Clear the object handle to make sure it recycles
+                        // this object.
+                        mail = null;
+                        queueItem.done(true);
+                    } catch (Exception e) {
+                        // Prevent unexpected exceptions from causing looping by
+                        // removing message from outgoing.
+                        // DO NOT CHANGE THIS to catch Error! For example, if
+                        // there were an OutOfMemory condition caused because 
+                        // something else in the server was abusing memory, we would 
+                        // not want to start purging the retrying spool!
+                        LifecycleUtil.dispose(mail);
+                        //workRepository.remove(key);
+                        queueItem.done(false);
+                        throw new MailQueueException("Unable to perform dequeue", e);
+                    }
                     
                    
                 } catch (Throwable e) {

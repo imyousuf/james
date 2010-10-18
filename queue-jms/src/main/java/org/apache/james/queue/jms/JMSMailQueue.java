@@ -108,14 +108,13 @@ public class JMSMailQueue implements MailQueue{
      * 
      * @see org.apache.james.queue.MailQueue#deQueue(org.apache.james.queue.MailQueue.DequeueOperation)
      */
-    public void deQueue(DequeueOperation operation) throws MailQueueException, MessagingException {   
+    public MailQueueItem deQueue() throws MailQueueException {   
         Connection connection = null;
         Session session = null;
         Message message = null;
         MessageConsumer consumer = null;
-        boolean received = false;
         
-        while(received == false) {
+        while(true) {
             try {
                 connection = connectionFactory.createConnection();
                 connection.start();
@@ -127,48 +126,65 @@ public class JMSMailQueue implements MailQueue{
                 message = consumer.receive(10000);
            
                 if (message != null) {
-                	received = true;
-                    Mail mail = createMail(message);
-                    operation.process(mail);
-                }
-                session.commit();
-         
-            } catch (JMSException e) {
-                throw new MailQueueException("Unable to dequeue next message", e);
-            } catch (MessagingException e) {
-        	
-                if (session != null) {
+                    return createMailQueueItem(connection, session, consumer, message);
+                } else {
+                    session.commit();
+                    
+                    if (consumer != null) {
+
+                        try {
+                            consumer.close();
+                        } catch (JMSException e1) {
+                            // ignore on rollback
+                        }
+                    }
                     try {
-                        session.rollback();
+                        if (session != null)
+                            session.close();
                     } catch (JMSException e1) {
-                    // ignore on rollback
+                        // ignore here
+                    }
+
+                    try {
+                        if (connection != null)
+                            connection.close();
+                    } catch (JMSException e1) {
+                        // ignore here
                     }
                 }
-            } finally {
-            	if (consumer != null) {
-        		
-        		    try {
-		    			consumer.close();
-			    	} catch (JMSException e1) {
-                        // ignore on rollback
-				    }
-				}
-				try {
-					if (session != null)
-						session.close();
-				} catch (JMSException e) {
-					// ignore here
-				}
+         
+            } catch (Exception e) {
+                try {
+                    session.rollback();
+                } catch (JMSException e1) {
+                    // ignore on rollback
+                }
 
-				try {
-					if (connection != null)
-						connection.close();
-				} catch (JMSException e) {
-					// ignore here
-				}
+                if (consumer != null) {
+
+                    try {
+                        consumer.close();
+                    } catch (JMSException e1) {
+                        // ignore on rollback
+                    }
+                }
+                try {
+                    if (session != null)
+                        session.close();
+                } catch (JMSException e1) {
+                    // ignore here
+                }
+
+                try {
+                    if (connection != null)
+                        connection.close();
+                } catch (JMSException e1) {
+                    // ignore here
+                }
+                throw new MailQueueException("Unable to dequeue next message", e);
             }
         }
-       
+
     }
     
     /*
@@ -176,7 +192,7 @@ public class JMSMailQueue implements MailQueue{
      * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail, long, java.util.concurrent.TimeUnit)
      */
 	public void enQueue(Mail mail, long delay, TimeUnit unit)
-			throws MailQueueException, MessagingException {
+			throws MailQueueException {
 		Connection connection = null;
 		Session session = null;
 		MessageProducer producer = null;
@@ -238,8 +254,7 @@ public class JMSMailQueue implements MailQueue{
 	 * (non-Javadoc)
 	 * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail)
 	 */
-	public void enQueue(Mail mail) throws MailQueueException,
-			MessagingException {
+	public void enQueue(Mail mail) throws MailQueueException{
 		enQueue(mail, 0, TimeUnit.MILLISECONDS);
 	}
 	
@@ -441,6 +456,11 @@ public class JMSMailQueue implements MailQueue{
     @Override
     public String toString() {
         return "MailQueue:" + queuename;
+    }
+    
+    protected MailQueueItem createMailQueueItem(Connection connection, Session session, MessageConsumer consumer, Message message) throws JMSException, MessagingException{
+    	final Mail mail = createMail(message);             
+        return new JMSMailQueueItem(mail, connection, session, consumer);
     }
 
 }
