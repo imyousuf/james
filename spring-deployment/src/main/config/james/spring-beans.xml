@@ -190,8 +190,6 @@
 
     <bean id="dnsservice" class="org.apache.james.dnsservice.dnsjava.DNSJavaService" />
 
-    <bean id="bayesiananalyzermanagement" class="org.apache.james.management.impl.BayesianAnalyzerManagement" />
-
     <!-- Async RemoteManager -->
     <bean id="remotemanager" class="org.apache.james.remotemanager.netty.NioRemoteManager" >
         <property name="protocolHandlerChain" ref="remoteProtocolHandlerChain"/>

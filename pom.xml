@@ -47,8 +47,7 @@
     <module>domain-jpa</module>
     <module>domain-xml</module>
     <module>domain-jdbc</module>
-     <module>core-library</module>
-    <module>management</module>
+    <module>core-library</module>
     <module>mail-file</module>
     <module>mail-jdbc</module>
     <module>mail-jcr</module>
@@ -482,11 +481,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-management</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-api</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -891,28 +885,7 @@
       <artifactId>oro</artifactId>
       <version>2.0.8</version>
     </dependency>
-    <dependency>
-      <groupId>mstor</groupId>
-      <artifactId>mstor</artifactId>
-      <version>0.9.9</version>
-      <exclusions>
-        <exclusion>
-          <groupId>xstream</groupId>
-          <artifactId>xstream</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>jdom</groupId>
-          <artifactId>jdom</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
 
-
-    <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>xstream</artifactId>
-      <version>1.2.2</version>
-    </dependency>
     
     <!-- Used by Mime4J -->
     <dependency>

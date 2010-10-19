@@ -45,11 +45,6 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
-import org.apache.james.management.BayesianAnalyzerManagementException;
-import org.apache.james.management.BayesianAnalyzerManagementService;
-import org.apache.james.management.SpoolFilter;
-import org.apache.james.management.SpoolManagementException;
-import org.apache.james.management.SpoolManagementService;
 import org.apache.james.socket.JamesProtocolHandlerChain;
 import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.test.mock.james.MockVirtualUserTableManagementImpl;
@@ -197,84 +192,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 
 	
 		serviceManager.put("domainlistmanagement", xml);
-		serviceManager.put("bayesiananalyzermanagement",
-				new BayesianAnalyzerManagementService() {
 
-					public void resetData()
-							throws BayesianAnalyzerManagementException {
-						// TODO Auto-generated method stub
-
-					}
-
-					public void importData(String file)
-							throws BayesianAnalyzerManagementException {
-						// TODO Auto-generated method stub
-
-					}
-
-					public void exportData(String file)
-							throws BayesianAnalyzerManagementException {
-						// TODO Auto-generated method stub
-
-					}
-
-					public int addSpamFromMbox(String file)
-							throws BayesianAnalyzerManagementException {
-						// TODO Auto-generated method stub
-						return 0;
-					}
-
-					public int addSpamFromDir(String dir)
-							throws BayesianAnalyzerManagementException {
-						// TODO Auto-generated method stub
-						return 0;
-					}
-
-					public int addHamFromMbox(String file)
-							throws BayesianAnalyzerManagementException {
-						// TODO Auto-generated method stub
-						return 0;
-					}
-
-					public int addHamFromDir(String dir)
-							throws BayesianAnalyzerManagementException {
-						// TODO Auto-generated method stub
-						return 0;
-					}
-				});
-
-		serviceManager.put(SpoolManagementService.ROLE,
-				new SpoolManagementService() {
-
-					public int resendSpoolItems(String spoolRepositoryURL,
-							String key, List lockingFailures, SpoolFilter filter)
-							throws MessagingException, SpoolManagementException {
-						// TODO Auto-generated method stub
-						return 0;
-					}
-
-					public int removeSpoolItems(String spoolRepositoryURL,
-							String key, List lockingFailures, SpoolFilter filter)
-							throws MessagingException, SpoolManagementException {
-						// TODO Auto-generated method stub
-						return 0;
-					}
-
-					public int moveSpoolItems(String srcSpoolRepositoryURL,
-							String dstSpoolRepositoryURL, String dstState,
-							SpoolFilter filter) throws MessagingException,
-							SpoolManagementException {
-						// TODO Auto-generated method stub
-						return 0;
-					}
-
-					public List getSpoolItems(String spoolRepositoryURL,
-							SpoolFilter filter) throws MessagingException,
-							SpoolManagementException {
-						// TODO Auto-generated method stub
-						return null;
-					}
-				});
 		serviceManager.put("mailStore", new MockMailStore());
 	
 	}
