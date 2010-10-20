@@ -439,7 +439,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-common-util</artifactId>
+      <artifactId>james-server-util</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>

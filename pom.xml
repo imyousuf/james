@@ -33,7 +33,7 @@
   <inceptionYear>2002</inceptionYear>
   <packaging>pom</packaging>
   <modules>
-    <module>common-util</module>
+    <module>util</module>
     <module>core-api</module>
     <module>user-api</module>
     <module>domain-api</module>
@@ -376,12 +376,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-common-util</artifactId>
+      <artifactId>james-server-util</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-common-util</artifactId>
+      <artifactId>james-server-util</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
       <version>${project.version}</version>
