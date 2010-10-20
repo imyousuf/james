@@ -40,7 +40,7 @@
     <module>mail-api</module>
     <module>dnsservice-api</module>
     <module>dnsservice-dnsjava</module>
-    <module>user-function</module>
+    <module>user-jdbc</module>
     <module>user-library</module>    
     <module>mail-library</module>
     <module>domain-library</module>
@@ -546,7 +546,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-function</artifactId>
+      <artifactId>james-server-user-jdbc</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
