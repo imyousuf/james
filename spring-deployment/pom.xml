@@ -508,11 +508,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-spool-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-spoolmanager</artifactId>
+      <artifactId>james-server-core-function</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>

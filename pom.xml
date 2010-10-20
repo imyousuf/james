@@ -55,8 +55,7 @@
     <module>smtpserver</module>
     <module>lmtpserver</module>
     <module>pop3server</module>
-    <module>spool-api</module>
-    <module>spoolmanager</module>
+    <module>core-function</module>
     <module>mailetcontainer-api</module>
     <module>mailetcontainer-library</module>
     <module>mailetcontainer-camel</module>
@@ -506,11 +505,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-spool-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-library</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -583,7 +577,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-spoolmanager</artifactId>
+      <artifactId>james-server-core-function</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
