@@ -85,7 +85,6 @@
     <bean id="configurationProvider" class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider">
         <property name="configurationMappings">
             <map>
-                <entry key="mailetcontext" value="mailserver"/>
                 <entry key="lmtpProtocolHandlerChain" value="lmtpserver"/>
                 <entry key="smtpProtocolHandlerChain" value="smtpserver"/>
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
