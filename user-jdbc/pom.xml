@@ -26,42 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-user-jdbc</artifactId>
-  <name>Apache James Server User Function</name>
-  
-  <build>
-    <plugins>
-    
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>openjpa-maven-plugin</artifactId>
-        <version>1.0</version>
-        <configuration>
-          <includes>org/apache/james/userrepository/model/JPAUser.class,org/apache/james/vut/model/JPAVirtualUser.class</includes>
-          <addDefaultConstructor>true</addDefaultConstructor>
-          <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
-          <toolProperties>
-            <property>
-              <name>log</name>
-              <value>TOOL=TRACE</value>
-            </property>   
-            <property>
-              <name>metaDataFactory</name>
-              <value>jpa(Types=org.apache.james.userrepository.model.JPAUser;org.apache.james.vut.model.JPAVirtualUser)</value>
-            </property>           
-          </toolProperties>
-        </configuration>  
-        <executions>
-          <execution>
-            <id>enhancer</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>enhance</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+  <name>Apache James Server User JDBC</name>
   
   <dependencies>
     <dependency>

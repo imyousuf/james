@@ -40,8 +40,12 @@
     <module>mail-api</module>
     <module>dnsservice-api</module>
     <module>dnsservice-dnsjava</module>
-    <module>user-jdbc</module>
     <module>user-library</module>    
+    <module>user-file</module>
+    <module>user-jcr</module>
+    <module>user-jdbc</module>
+    <module>user-jpa</module>
+    <module>user-ldap</module>
     <module>mail-library</module>
     <module>domain-library</module>
     <module>domain-jpa</module>
@@ -546,7 +550,27 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-file</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-jcr</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-user-jdbc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-jpa</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-ldap</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
