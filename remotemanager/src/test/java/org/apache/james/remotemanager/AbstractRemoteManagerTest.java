@@ -45,10 +45,10 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
+import org.apache.james.management.MockVirtualUserTableManagementImpl;
 import org.apache.james.socket.JamesProtocolHandlerChain;
-import org.apache.james.test.mock.james.MockUsersStore;
-import org.apache.james.test.mock.james.MockVirtualUserTableManagementImpl;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.usersstore.MockUsersStore;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.TestUtil;
 
