@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.test.mock.james;
+package org.apache.james.management;
 
 import java.util.Collection;
 import java.util.HashMap;

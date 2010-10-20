@@ -28,8 +28,8 @@ import junit.framework.TestCase;
 
 import org.apache.james.api.user.management.UserManagementException;
 import org.apache.james.impl.user.UserManagement;
-import org.apache.james.test.mock.james.MockUsersStore;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.usersstore.MockUsersStore;
 
 /**
  * Tests the UserManagement

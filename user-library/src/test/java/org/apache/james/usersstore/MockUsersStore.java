@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.test.mock.james;
+package org.apache.james.usersstore;
 
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.api.user.UsersStore;
