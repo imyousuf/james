@@ -27,7 +27,9 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.management.StandardMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.LogEnabled;
@@ -39,13 +41,16 @@ import org.apache.mailet.Matcher;
  * 
  *
  */
-public class ProcessorManagement implements ProcessorManagementMBean, LogEnabled{
+public class ProcessorManagement extends StandardMBean implements ProcessorManagementMBean, LogEnabled{
 
     private MailProcessorList mailProcessor;
     private MBeanServer mbeanserver;
     private Log logger;
     private List<ObjectName> mbeans = new ArrayList<ObjectName>();
     
+    public ProcessorManagement() throws NotCompliantMBeanException {
+        super(ProcessorManagementMBean.class);
+    }
     @Resource(name="mailProcessor")
     public void setMailProcessorList(MailProcessorList mailProcessor) {
         this.mailProcessor = mailProcessor;
@@ -80,7 +85,7 @@ public class ProcessorManagement implements ProcessorManagementMBean, LogEnabled
     }
 
 
-    private void registerMBeans() {
+    private void registerMBeans() throws NotCompliantMBeanException {
        
         String baseObjectName = "org.apache.james:type=component,name=processor,";
 
@@ -92,7 +97,7 @@ public class ProcessorManagement implements ProcessorManagementMBean, LogEnabled
         }
     }
 
-    private void createProcessorMBean(String baseObjectName, String processorName, MBeanServer mBeanServer) {
+    private void createProcessorMBean(String baseObjectName, String processorName, MBeanServer mBeanServer) throws NotCompliantMBeanException {
         String processorMBeanName = baseObjectName + "processor=" + processorName;
         
         MailProcessor processor = mailProcessor.getProcessor(processorName);

@@ -21,12 +21,14 @@ package org.apache.james.mailetcontainer;
 import java.util.Collection;
 
 import javax.mail.MessagingException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.StandardMBean;
 
 import org.apache.mailet.Mail;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 
-public final class MatcherManagement implements MatcherManagementMBean, Matcher{
+public final class MatcherManagement extends StandardMBean implements MatcherManagementMBean, Matcher{
     private Matcher matcher;
     private long slowestProcessing = -1;
     private long fastestProcessing = -1;
@@ -34,7 +36,9 @@ public final class MatcherManagement implements MatcherManagementMBean, Matcher{
     private long errorCount = 0;
     private long matched = 0;
     private long notMatched = 0;
-    public MatcherManagement(Matcher matcher) {
+    
+    public MatcherManagement(Matcher matcher) throws NotCompliantMBeanException {
+        super(MatcherManagementMBean.class);
         this.matcher = matcher;
     }
 

@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.mail.MessagingException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.StandardMBean;
 
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
@@ -35,7 +37,7 @@ import org.apache.mailet.MailetConfig;
  * 
  *
  */
-public final class MailetManagement implements Mailet, MailetManagementMBean{
+public final class MailetManagement extends StandardMBean implements Mailet, MailetManagementMBean{
 
     private final Mailet mailet;
     private long errorCount = 0;
@@ -43,8 +45,10 @@ public final class MailetManagement implements Mailet, MailetManagementMBean{
     private long fastestProcessing = -1;
     private long slowestProcessing = -1;
     
-    public MailetManagement(Mailet mailet) {
+    public MailetManagement(Mailet mailet) throws NotCompliantMBeanException {
+        super(MailetManagementMBean.class);
         this.mailet = mailet;
+        
     }
     
     /*

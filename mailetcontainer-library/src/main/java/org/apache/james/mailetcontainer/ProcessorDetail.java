@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.MessagingException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.StandardMBean;
 
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
@@ -33,7 +35,7 @@ import org.apache.mailet.Matcher;
  * 
  *
  */
-public class ProcessorDetail implements MailProcessor, MailetContainer, ProcessorDetailMBean{
+public class ProcessorDetail extends StandardMBean implements MailProcessor, MailetContainer, ProcessorDetailMBean{
     private String processorName;
     private long slowestProcessing = -1;
     private long fastestProcessing = -1;
@@ -41,7 +43,8 @@ public class ProcessorDetail implements MailProcessor, MailetContainer, Processo
     private long errorCount = 0;
     private MailProcessor processor;
     
-    public ProcessorDetail(String processorName, MailProcessor processor) {
+    public ProcessorDetail(String processorName, MailProcessor processor) throws NotCompliantMBeanException {
+        super(ProcessorDetailMBean.class);
         this.processorName = processorName;
         this.processor = processor;
     }
