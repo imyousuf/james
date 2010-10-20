@@ -78,11 +78,11 @@
     </p>
     <p>For example, invoke 'mvn package' to get a zip/tar of James distribution.</p>
     <p>All built products are output in the 'spring-deployment/target' 
-    subdirectory of the James source directory.  
-    This directory will be deleted if you run build with the clean argument.</p>
+      subdirectory of the James source directory.  
+      This directory will be deleted if you run build with the clean argument.</p>
     <p><strong>Warning!</strong> Any changes you've made in the 'dist' directory 
-    will be lost after a recompilation. If you are running James fro this directory
-    we recommend you backup to avoid losing work. </p>
+      will be lost after a recompilation. If you are running James fro this directory
+      we recommend you backup to avoid losing work. </p>
 
   </section>
 
@@ -90,78 +90,48 @@
   
     <subsection name="Import projects in Eclipse with m2eclipse">
   
-      <table>
-        <tr valign="top">
-            <td><img src="./images/eclipse_import_maven_view_1.gif" width="300"/></td>
-            <td>
-              <p>You should have Eclipse IDE with <a href="http://m2eclipse.sonatype.org">m2eclipse</a> plugin installed.</p>
-              <p>You now need to import the maven projects in the Eclipse workspace.</p>
-              <p>Therefore, click on the 'File' menu and select 'Import'. Choose 'Existing Maven Project' and click on 'Next' button.</p>
-            </td>
-        </tr>
-      </table>
-    
+      <p>You should have Eclipse IDE with <a href="http://m2eclipse.sonatype.org">m2eclipse</a> plugin installed.</p>
+      <p>You now need to import the maven projects in the Eclipse workspace.</p>
+      <p>Therefore, click on the 'File' menu and select 'Import'. Choose 'Existing Maven Project' and click on 'Next' button.</p>
+      <img src="./images/eclipse/eclipse_import_maven_view_1.gif" width="300"/>
+
     </subsection>
 
     <subsection name="Select projects to import">
   
-      <table>
-        <tr valign="top">
-            <td><img src="./images/eclipse_import_maven_view_2.gif" width="300"/></td>
-            <td>
-              <p>Select the JAMES_SRC_HOME directory where you have checked out the source code.</p>
-              <p>Eclipse should present you with the list of James server modules.</p>
-              <p>Select the modules you want to import (by default, all) and click on 'Finish' to execute the import.</p>
-            </td>
-        </tr>
-      </table>
-    
+      <p>Select the JAMES_SRC_HOME directory where you have checked out the source code.</p>
+      <p>Eclipse should present you with the list of James server modules.</p>
+      <p>Select the modules you want to import (by default, all) and click on 'Finish' to execute the import.</p>
+      <img src="./images/eclipse/eclipse_import_maven_view_2.gif" width="300"/>
+
     </subsection>
 
     <subsection name="Enable Workspace Resolution">
   
-        <table>
-          <tr valign="top">
-            <td><img src="./images/eclipse_m2eclipse_project_dependencies.gif" width="300"/></td>
-            <td>
-              <p>Check that 'Workspace resolution' is enable in m2eclipse plugin.</p>
-              <p>Your changes in code will be directly taken into account.</p>
-            </td>
-          </tr>
-        </table>
+      <p>Check that 'Workspace resolution' is enable in m2eclipse plugin.</p>
+      <p>Your changes in code will be directly taken into account.</p>
+      <img src="./images/eclipse/eclipse_m2eclipse_project_dependencies.gif" width="300"/>
     
     </subsection>
 
     <subsection name="Prepare projects">
   
-      <table>
-        <tr valign="top">
-            <td><img src="./images/eclipse_m2eclipse_projects.gif" width="300"/></td>
-            <td>
-              <p>Now you have James projects in Eclipse workspace.</p>
-              <p>You still have to prepare the following to be able to run from Eclipse:</p>
-              <ol>
-                 <li>Copy the spring-beans.xml and log4j.properties from 'spring-deployment\src\main\config\james' directory 
-                 to a source folder of 'spring-deployment' project (you can use for example the 'stage' folder as Eclipse source folder).</li>
-                 <li>Copy all files (except spring-beans.xml and log4j.properties) from 'spring-deployment\src\main\config\james' 
-                 directory to a 'conf' folder ('conf' folder must be a subdirectory of the JAMES_SRC_HOME directory where you made the check-out).</li>
-              </ol>
-            </td>
-        </tr>
-      </table>
+      <p>Now you have James projects in Eclipse workspace.</p>
+      <p>You still have to prepare the following to be able to run from Eclipse:</p>
+      <ol>
+        <li>Copy the spring-beans.xml and log4j.properties from 'spring-deployment\src\main\config\james' directory 
+            to a source folder of 'spring-deployment' project (you can use for example the 'stage' folder as Eclipse source folder).</li>
+        <li>Copy all files (except spring-beans.xml and log4j.properties) from 'spring-deployment\src\main\config\james' 
+            directory to a 'conf' folder ('conf' folder must be a subdirectory of the JAMES_SRC_HOME directory where you made the check-out).</li>
+     </ol>
+      <img src="./images/eclipse/eclipse_m2eclipse_projects.gif" width="300"/>
     
     </subsection>
 
     <subsection name="Run James from Eclipse">
   
-      <table>
-        <tr valign="top">
-            <td><img src="./images/eclipse_run_james.gif" width="300"/></td>
-            <td>
-              <p>That's it. Run James and Have Fun!.</p>
-            </td>
-        </tr>
-      </table>
+      <p>That's it. Run James and Have Fun!.</p>
+      <img src="./images/eclipse/eclipse_run_james.gif" width="300"/>
 
     </subsection>
 
@@ -170,7 +140,7 @@
   <section name="Building the Distribution with other IDEs">
   
     <p>We will be happy to include on this page any other tutorial you could send 
-    use about developing James with your favorite Integrated Development Environment.</p>
+       use about developing James with your favorite Integrated Development Environment.</p>
 
   </section>
 

@@ -26,17 +26,19 @@
 <body>
 
 <section name="Requirements">
+
 <p>James requires a Java Runtime Environment of Java version 1.4 or higher installed to run the 
 James application.  The exact JREs available depend on the platform.  A JRE must be downloaded and
 installed before James can run.  In addition, the environment variable JAVA_HOME must be set to
 the JRE home directory before running James.</p>
-<p>
-On Unix platforms, root access will be required to run James.  On these platforms, access to ports 
+
+<p>Runs on OpenJDK and Sun JDK</p>
+
+<p>On Unix platforms, root access will be required to run James.  On these platforms, access to ports 
 below 1024 is generally restricted to the root user.  As SMTP, POP3, and NNTP all need to open 
-server sockets on such ports in standard configurations, James requires root access.
-</p>
-<p>
-Obviously James also requires sufficient disk space, processor power, and network bandwidth.  But, 
+server sockets on such ports in standard configurations, James requires root access.</p>
+
+<p>Obviously James also requires sufficient disk space, processor power, and network bandwidth.  But, 
 other than what's been discussed here, it has no additional special requirements.</p>
 </section>
 

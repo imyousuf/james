@@ -29,190 +29,227 @@
   
     <div style="float:left; width:70%;">
 
-    <p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure Java SMTP, IMAP4 and POP3 Mail 
-    server designed to be a complete and portable enterprise mail engine solution.  
-    James is based on currently available open protocols.</p>
-    
-    <p>This documentation is intended to be an introduction to the concepts behind the James usage, as well 
-    as a guide to <a href="/installation_instructions.html">install</a>, <a href="/configuration_instructions.html">configure</a> 
-    and <a href="/build_james.html">develop</a> the James server.</p>
-    
-    <p>James is <b>secured</b>, <b>performant</b>, <b>extensible</b> and supports many <b>features</b>.
-    You can download stables releases from <a href="http://james.apache.org/download.cgi">here</a>
-    (or latest snapshots from <a href="http://repository.apache.org/content/groups/snapshots/org/apache/james/james-server-spring-deployment/3.0-SNAPSHOT/ ">here</a>).</p>
+	    <p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure Java SMTP, IMAP4 and POP3 Mail 
+	      server designed to be a complete and portable enterprise mail engine solution.  
+	      James is based on currently available open protocols.</p>
+	    
+	    <p>This documentation is intended to be an introduction to the concepts behind the James usage, as well 
+	      as a guide to <a href="installation_instructions.html">install</a>, <a href="configuration_instructions.html">configure</a> 
+	      and <a href="build_james.html">develop</a> the James server.</p>
+	    
+	    <p>You can download stables releases from <a href="http://james.apache.org/download.cgi">here</a>
+	      (or latest snapshots from <a href="http://repository.apache.org/content/groups/snapshots/org/apache/james/james-server-spring-deployment/3.0-SNAPSHOT/ ">here</a>).</p>
+	
+        <div style="float:left; width:50%;">
 
-    <subsection name="Secured">
-    
-      <p>James is a secured mail server by default. You can read more on the existing security
-         measures and infrastructure on the <a href="/security.html">security</a>.</p>
-    
-    </subsection>
-    
-    <subsection name="Performant">
-    
-      <p>A special focuss has been brought to the performance: James can process more than
-         100 mails per second. See the <a href="/performance.html">performance</a> page to get more numbers.</p>
-    
-    </subsection>
-    
-    <subsection name="Extensible">
-    
-      <p>James serves as a mail application platform.  The James project hosts the Apache Mailet API, 
-      and provides the Mailet container.  These features makes it easy to design, write, and deploy 
-      custom applications for mail processing.  This modularity and ease of customization is one of James' 
-      strengths, and can allow administrators to produce powerful applications surprisingly easily.</p>
- 
-      <p>James 3.0 is now built on top of Spring 3.0 in replacement of trunk version of the <a href="http://avalon.apache.org/">Avalon Application Framework</a>.
-      With Spring, We keep the good development practices introduced by Avalon such as 
-      Component Oriented Programming and  Inversion of Control. 
-      The stable and robust Spring container provides a strong foundation for the James server.</p>
-    
-      <p>The internal and exposed APIs for this 3.0-M1 release are under current validation and are 
-      expected to be subject to change.</p>
-         
-    </subsection>
+	      <subsection name="Secured">
+	    
+	        <p>James is a secured mail server by default. You can read more on the existing security
+	           measures and infrastructure on the <a href="security.html">security</a>.</p>
+	    
+	      </subsection>
+	      
+	    </div>
+	    
+        <div style="float:right; width:50%;">
 
-    <subsection name="Features">
-    
-      <p>James 3.0 represents the leading edge of development. This codestream has many more
-      features than the 2.x code, but is not as well tested in production. Reasonable
-      configuration compatibility has been retained with 3.0. James 3.0 requires Java 1.5 but Java 1.6 is recommended. 
-      A migration guide for users willing to upgrade from 2.3 to 3.0 is <a href="james_upgrade.html">available</a>. 
-      The NNTP News server present in James 2.3 has been removed from the 3.0 release line.</p>
-    
-      <ul>
-         <li>100% pure Java Mail server designed to be a complete and portable enterprise 
-             mail engine solution.</li>
-         <li>Supports currently available IETF protocols, including SMTP, POP3 and IMAP4 
-             James is able to store user and message data either in a file-system (Maildir), any JPA-compatible database
-             and even JCR, allowing fast, reliable, even real-time replicated storage.</li>
-         <li>Provides a powerful, flexible mail application engine through support for the Apache Mailet 
-             API.  With its Mailet pipeline architecture, James can be used not only to provide standard e-mail 
-             services, but also to implement custom e-mail applications.</li>
-         <li>Deployed in production environments and has proven itself to be a robust 
-             and high performance mail solution.  Tests indicate that version 3.0 
-             is able to maintain a constant mail throughput rate of thousands of 
-             messages/minute for continuous periods.</li>
-      </ul>
-      
-    </subsection>
+  	      <subsection name="Performant">
+	       
+	        <p>A special focuss has been brought to the performance: James can process more than
+	           100 mails per second. See the <a href="performance.html">performance</a> page to get more numbers.</p>
+	    
+  	      </subsection>
+  	     
+   	    </div>
+   	    
+   	    <div style="clear:both; float:none;"/>
+	    
+        <div style="float:left; width:50%;">
+
+  	      <subsection name="Configureable">
+	    
+	        <p></p>
+	    
+	      </subsection>
+	      
+	    </div>
+	    
+        <div style="float:right; width:50%;">
+
+  	      <subsection name="Manageable">
+	    
+	        <p></p>
+	    
+	      </subsection>
+	      
+	    </div>
+	    
+        <div style="float:left; width:50%;">
+
+  	      <subsection name="Extensible">
+	    
+	        <p>James serves as a mail application platform.  The James project hosts the Apache Mailet API, 
+	          and provides the Mailet container.  These features makes it easy to design, write, and deploy 
+	          custom applications for mail processing.  This modularity and ease of customization is one of James' 
+	          strengths, and can allow administrators to produce powerful applications surprisingly easily.</p>
+	 
+	        <p>James 3.0 is now built on top of Spring 3.0 in replacement of trunk version of the <a href="http://avalon.apache.org/">Avalon Application Framework</a>.
+	          With Spring, We keep the good development practices introduced by Avalon such as 
+	          Component Oriented Programming and  Inversion of Control. 
+	          The stable and robust Spring container provides a strong foundation for the James server.</p>
+	    
+	        <p>The internal and exposed APIs for this 3.0-M1 release are under current validation and are 
+	          expected to be subject to change.</p>
+	         
+  	      </subsection>
+  	      
+  	    </div>
+	
+        <div style="float:right; width:50%;">
+
+	      <subsection name="Features">
+	    
+	        <p>James 3.0 represents the leading edge of development. This codestream has many more
+	          features than the 2.x code, but is not as well tested in production. Reasonable
+	          configuration compatibility has been retained with 3.0. James 3.0 requires Java 1.5 but Java 1.6 is recommended. 
+	          A migration guide for users willing to upgrade from 2.3 to 3.0 is <a href="james_upgrade.html">available</a>. 
+	          The NNTP News server present in James 2.3 has been removed from the 3.0 release line.</p>
+	    
+	        <ul>
+	          <li>100% pure Java Mail server designed to be a complete and portable enterprise 
+	              mail engine solution.</li>
+	          <li>Supports currently available IETF protocols, including SMTP, POP3 and IMAP4 
+	              James is able to store user and message data either in a file-system (Maildir), any JPA-compatible database
+	              and even JCR, allowing fast, reliable, even real-time replicated storage.</li>
+	          <li>Provides a powerful, flexible mail application engine through support for the Apache Mailet 
+	              API.  With its Mailet pipeline architecture, James can be used not only to provide standard e-mail 
+	              services, but also to implement custom e-mail applications.</li>
+	          <li>Deployed in production environments and has proven itself to be a robust 
+	              and high performance mail solution.  Tests indicate that version 3.0 
+	              is able to maintain a constant mail throughput rate of thousands of 
+	              messages/minute for continuous periods.</li>
+  	        </ul>
+	      
+  	      </subsection>
+  	      
+   	    </div>
 
       </div>
       
       <div style="float:right; width:30%;">
 
-      <table>
-        <tr>
-          <th>Feature</th>
-          <th align="center"><b>2.3.x</b></th>
-          <th align="center"><b>3.0</b></th>
-        </tr>
-        <tr>
-          <td>POP3</td>
-          <td align="center">yes</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>IMAP4</td>
-          <td align="center">no</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>SMTP</td>
-          <td align="center">yes</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>LMTP</td>
-          <td align="center">no</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>NNTP</td>
-          <td align="center">yes</td>
-          <td align="center">no</td>
-        </tr>
-        <tr>
-          <td>List Server</td>
-          <td align="center">yes</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>File Mail Store</td>
-          <td align="center">yes</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>JDBC Database Mail Store</td>
-          <td align="center">yes</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>JPA Database Mail Store</td>
-          <td align="center">no</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>JCR (Jackrabbit) Database Mail Store</td>
-          <td align="center">no</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>Mailets API</td>
-          <td align="center">yes</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>Alternate User and Mail stores</td>
-          <td align="center">yes</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>Alternate Queue</td>
-          <td align="center">no</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>Integration with SpamAssassin</td>
-          <td align="center">partial</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>Run-as-service scripts</td>
-          <td align="center">no</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>Deployment in WEB container</td>
-          <td align="center">no</td>
-          <td align="center">yes</td>
-        </tr>
-        <tr>
-          <td>Deployment in OSGI container</td>
-          <td align="center">no</td>
-          <td align="center">planned</td>
-        </tr>
-        <tr>
-          <td>Configuration Hot Reload</td>
-          <td align="center">no</td>
-          <td align="center">planned</td>
-        </tr>
-        <tr>
-          <td>Monitoring via JMX</td>
-          <td align="center">yes</td>
-          <td align="center">planned</td>
-        </tr>
-        <tr>
-          <td>IP V6</td>
-          <td align="center">no</td>
-          <td align="center">partial</td>
-        </tr>
-        <tr>
-          <td>Java 1.4</td>
-          <td align="center">yes</td>
-          <td align="center">no</td>
-        </tr>
-      </table>
+	      <table>
+	        <tr>
+	          <th>Feature</th>
+	          <th align="center"><b>2.3.x</b></th>
+	          <th align="center"><b>3.0</b></th>
+	        </tr>
+	        <tr>
+	          <td>POP3</td>
+	          <td align="center">yes</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>IMAP4</td>
+	          <td align="center">no</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>SMTP</td>
+	          <td align="center">yes</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>LMTP</td>
+	          <td align="center">no</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>NNTP</td>
+	          <td align="center">yes</td>
+	          <td align="center">no</td>
+	        </tr>
+	        <tr>
+	          <td>Mailing List</td>
+	          <td align="center">yes</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>File Mail Store</td>
+	          <td align="center">yes</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>JDBC Database Mail Store</td>
+	          <td align="center">yes</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>JPA Database Mail Store</td>
+	          <td align="center">no</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>JCR (Jackrabbit) Database Mail Store</td>
+	          <td align="center">no</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>Mailets API</td>
+	          <td align="center">yes</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>Alternate User and Mail stores</td>
+	          <td align="center">yes</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>Alternate Queue</td>
+	          <td align="center">no</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>Integration with SpamAssassin</td>
+	          <td align="center">partial</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>Run-as-service scripts</td>
+	          <td align="center">no</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>Deployment in WEB container</td>
+	          <td align="center">no</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>Deployment in OSGI container</td>
+	          <td align="center">no</td>
+	          <td align="center">planned</td>
+	        </tr>
+	        <tr>
+	          <td>Configuration Hot Reload</td>
+	          <td align="center">no</td>
+	          <td align="center">planned</td>
+	        </tr>
+	        <tr>
+	          <td>Monitoring via JMX</td>
+	          <td align="center">yes</td>
+	          <td align="center">yes</td>
+	        </tr>
+	        <tr>
+	          <td>IP V6</td>
+	          <td align="center">no</td>
+	          <td align="center">partial</td>
+	        </tr>
+	        <tr>
+	          <td>Java 1.4</td>
+	          <td align="center">yes</td>
+	          <td align="center">no</td>
+	        </tr>
+	      </table>
 
       </div>
     
