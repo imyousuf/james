@@ -22,10 +22,12 @@ package org.apache.james.services;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 
 import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.test.MailUtil;
 
 public class MockMailServer implements MailServer, Disposable {
@@ -96,6 +98,14 @@ public class MockMailServer implements MailServer, Disposable {
 
     public String getHelloName() {
         return "localhost";
+    }
+
+    public MailAddress getPostmaster() {
+        try {
+            return new MailAddress("postmaster", "localhost");
+        } catch (AddressException e) {
+            return null;
+        }
     }
 }
 

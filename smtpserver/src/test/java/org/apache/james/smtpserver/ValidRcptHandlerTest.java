@@ -97,6 +97,11 @@ public class ValidRcptHandlerTest extends TestCase {
                 // TODO Auto-generated method stub
                 return false;
             }
+
+            public MailAddress getPostmaster() {
+                // TODO Auto-generated method stub
+                return null;
+            }
             
         });
     }

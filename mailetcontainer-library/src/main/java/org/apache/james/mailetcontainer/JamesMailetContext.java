@@ -27,10 +27,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Vector;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.mail.Address;
 import javax.mail.Message;
@@ -39,15 +37,11 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.domainlist.DomainList;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
-import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
@@ -57,7 +51,7 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.base.RFC2822Headers;
 
-public class JamesMailetContext implements MailetContext, LogEnabled, Configurable {
+public class JamesMailetContext implements MailetContext, LogEnabled {
 
     private MailServer mailServer;
 
@@ -70,15 +64,6 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
     private Log log;
 
     private UsersRepository localusers;
-
-    /**
-     * The address of the postmaster for this server
-     */
-    private MailAddress postmaster;
-
-    private DomainList domains;
-
-    private HierarchicalConfiguration conf;
 
     @Resource(name = "mailserver")
     public void setMailServer(MailServer mailServer) {
@@ -94,18 +79,8 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }
-
-    @Resource(name = "domainlist")
-    public void setDomainList(DomainList domains) {
-        this.domains = domains;
-    }
-
-    @PostConstruct
-    public void init() throws Exception {
-
-        initPostmaster();
-    }
-
+    
+    
     /**
      * @see org.apache.mailet.MailetContext#getMailServers(String)
      */
@@ -276,7 +251,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
      * @see org.apache.mailet.MailetContext#getPostmaster()
      */
     public MailAddress getPostmaster() {
-        return postmaster;
+        return mailServer.getPostmaster();
     }
 
     /**
@@ -434,50 +409,5 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
      */
     public void setLog(Log log) {
         this.log = log;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
-     * configuration.HierarchicalConfiguration)
-     */
-    public void configure(HierarchicalConfiguration conf) throws ConfigurationException {
-        this.conf = conf;
-    }
-
-    private void initPostmaster() throws Exception {
-        // Get postmaster
-        String postMasterAddress = conf.getString("postmaster", "postmaster").toLowerCase(Locale.US);
-        // if there is no @domain part, then add the first one from the
-        // list of supported domains that isn't localhost. If that
-        // doesn't work, use the hostname, even if it is localhost.
-        if (postMasterAddress.indexOf('@') < 0) {
-            String domainName = null; // the domain to use
-            // loop through candidate domains until we find one or exhaust the
-            // list
-            String[] doms = domains.getDomains();
-            if (doms != null) {
-            	for (int i = 0; i < doms.length; i++) {
-                    String serverName = doms[i].toLowerCase(Locale.US);
-                    if (!("localhost".equals(serverName))) {
-                        domainName = serverName; // ok, not localhost, so use it
-                        continue;
-                    }
-            	}
-            
-            }
-            // if we found a suitable domain, use it. Otherwise fallback to the
-            // host name.
-            postMasterAddress = postMasterAddress + "@" + (domainName != null ? domainName : mailServer.getDefaultDomain());
-        }
-        this.postmaster = new MailAddress(postMasterAddress);
-
-        if (!isLocalServer(postmaster.getDomain())) {
-            StringBuffer warnBuffer = new StringBuffer(320).append("The specified postmaster address ( ").append(postmaster).append(
-                    " ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
-            log.warn(warnBuffer.toString());
-        }
     }
 }

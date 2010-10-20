@@ -24,6 +24,7 @@ package org.apache.james.services;
 import javax.mail.MessagingException;
 
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * The interface for Phoenix blocks to the James MailServer
@@ -94,4 +95,11 @@ public interface MailServer
      * @return the helloName
      */
     String getHelloName();
+    
+    /**
+     * Return the {@link MailAddress} of the postmaster
+     * 
+     * @return postmaster
+     */
+    public MailAddress getPostmaster();
 }

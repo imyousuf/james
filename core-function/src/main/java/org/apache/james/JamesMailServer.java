@@ -42,6 +42,7 @@ import org.apache.james.queue.MailQueue;
 import org.apache.james.queue.MailQueueFactory;
 import org.apache.james.services.MailServer;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * 
@@ -88,6 +89,8 @@ public class JamesMailServer
     
     private MailQueue queue;
 
+    private MailAddress postmaster;
+
     @Resource(name="domainlist")
     public void setDomainList(DomainList domains) {
         this.domains = domains;
@@ -120,7 +123,6 @@ public class JamesMailServer
     }
     
     
-    @SuppressWarnings("unchecked")
 	@PostConstruct
     public void init() throws Exception {
 
@@ -167,6 +169,7 @@ public class JamesMailServer
         }
 
 
+        initPostmaster();
         System.out.println(SOFTWARE_NAME_VERSION);
         logger.info("JAMES ...init end");
     }
@@ -306,5 +309,47 @@ public class JamesMailServer
         }
     }
     
+    
+    private void initPostmaster() throws Exception {
+        // Get postmaster
+        String postMasterAddress = conf.getString("postmaster", "postmaster").toLowerCase(Locale.US);
+        // if there is no @domain part, then add the first one from the
+        // list of supported domains that isn't localhost. If that
+        // doesn't work, use the hostname, even if it is localhost.
+        if (postMasterAddress.indexOf('@') < 0) {
+            String domainName = null; // the domain to use
+            // loop through candidate domains until we find one or exhaust the
+            // list
+            String[] doms = domains.getDomains();
+            if (doms != null) {
+                for (int i = 0; i < doms.length; i++) {
+                    String serverName = doms[i].toLowerCase(Locale.US);
+                    if (!("localhost".equals(serverName))) {
+                        domainName = serverName; // ok, not localhost, so use it
+                        continue;
+                    }
+                }
+            
+            }
+            // if we found a suitable domain, use it. Otherwise fallback to the
+            // host name.
+            postMasterAddress = postMasterAddress + "@" + (domainName != null ? domainName : getDefaultDomain());
+        }
+        this.postmaster = new MailAddress(postMasterAddress);
+
+        if (!isLocalServer(postmaster.getDomain())) {
+            StringBuffer warnBuffer = new StringBuffer(320).append("The specified postmaster address ( ").append(postmaster).append(
+                    " ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
+            logger.warn(warnBuffer.toString());
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.services.MailServer#getPostmaster()
+     */
+    public MailAddress getPostmaster() {
+        return postmaster;
+    }
 
 }
