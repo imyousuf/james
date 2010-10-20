@@ -18,9 +18,12 @@
  ****************************************************************/
 package org.apache.james.mailetcontainer;
 
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -41,25 +44,42 @@ public class ProcessorManagement implements ProcessorManagementMBean, LogEnabled
     private MailProcessorList mailProcessor;
     private MBeanServer mbeanserver;
     private Log logger;
-
+    private List<ObjectName> mbeans = new ArrayList<ObjectName>();
+    
     @Resource(name="mailProcessor")
     public void setMailProcessorList(MailProcessorList mailProcessor) {
         this.mailProcessor = mailProcessor;
     }
     
-
-    @Resource(name = "mbeanserver")
-    public void setMbeanServer(MBeanServer mbeanServer) {
-        this.mbeanserver = mbeanServer;
-    }
    
     @PostConstruct
     public void init() throws Exception {
+        mbeanserver = ManagementFactory.getPlatformMBeanServer();
+        
         registerMBeans();
-
     }
     
+    @PreDestroy
+    public void destory() {
+        unregisterMBeans();
+    }
     
+    private void unregisterMBeans() {
+        List<ObjectName> unregistered = new ArrayList<ObjectName>();
+        for (int i = 0; i < mbeans.size(); i++) {
+            ObjectName name = mbeans.get(i);
+            
+            try {
+                mbeanserver.unregisterMBean(name);
+                unregistered.add(name);
+            } catch (javax.management.JMException e) {
+                logger.error("Unable to unregister mbean " + name, e);
+            }
+        }
+        mbeans.removeAll(unregistered);
+    }
+
+
     private void registerMBeans() {
        
         String baseObjectName = "org.apache.james:type=component,name=processor,";
@@ -143,6 +163,7 @@ public class ProcessorManagement implements ProcessorManagementMBean, LogEnabled
         }
         try {
             mBeanServer.registerMBean(object, objectName);
+            mbeans.add(objectName);
         } catch (javax.management.JMException e) {
             logger.error("Unable to register mbean", e);
         }

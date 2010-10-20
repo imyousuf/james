@@ -40,7 +40,7 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration conf) throws ConfigurationException {
-           getPackages(conf,MATCHER_PACKAGE);
+           getPackages(conf.configurationAt("matcherpackages"),MATCHER_PACKAGE);
     }
 
     /**

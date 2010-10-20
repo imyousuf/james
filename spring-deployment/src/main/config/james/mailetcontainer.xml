@@ -17,13 +17,27 @@
   specific language governing permissions and limitations      
   under the License.                                           
  --> 
- <!-- The James Spool Manager block  -->
-   <!-- -->
-   <!-- This block is responsible for processing messages on the spool. -->
-   <mailetcontainer>
+<!-- This block is responsible for processing messages on the spool. -->
+ <mailetcontainer>
       <!-- Number of spool threads -->
       <threads> 20 </threads>
 
+      <!-- Set the Java packages from which to load mailets -->
+      <mailetpackages>
+        <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
+        <!-- Cryptography Mailets -->
+        <mailetpackage>org.apache.james.mailet.crypto.mailet</mailetpackage>
+        <!-- Sieve Mail Scripting -->
+        <mailetpackage>org.apache.james.imapserver.sieve</mailetpackage>      
+      </mailetpackages>
+
+      <!-- Set the Java packages from which to load matchers -->
+      <matcherpackages>
+        <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
+        <!-- Crytographic matchers -->
+        <matcherpackage>org.apache.james.mailet.crypto.matchers</matcherpackage>
+      </matcherpackages>
+      
       <!-- The root processor is a required processor - James routes all mail on the spool -->
       <!-- through this processor first. -->
       <!-- -->

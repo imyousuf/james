@@ -42,7 +42,7 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration conf) throws ConfigurationException {
-        getPackages(conf,MAILET_PACKAGE);
+        getPackages(conf.configurationAt("mailetpackages"),MAILET_PACKAGE);
     }
 
     /**

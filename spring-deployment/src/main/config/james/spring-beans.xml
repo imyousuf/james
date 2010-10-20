@@ -92,6 +92,8 @@
                 <entry key="remoteProtocolHandlerChain" value="remotemanager"/>
                 <entry key="mailProcessor" value="mailetcontainer"/>
                 <entry key="spoolmanager" value="mailetcontainer"/>
+                <entry key="mailetloader" value="mailetcontainer"/>
+                <entry key="matcherloader" value="mailetcontainer"/>
              </map>
         </property>
     </bean>
@@ -119,6 +121,8 @@
                 <entry key="remoteProtocolHandlerChain" value="remoteManager"/>
                 <entry key="mailProcessor" value="mailetcontainer"/>
                 <entry key="spoolmanager" value="mailetcontainer"/>
+                <entry key="mailetloader" value="mailetcontainer"/>
+                <entry key="matcherloader" value="mailetcontainer"/>
             </map>
         </property>
     </bean>
@@ -184,9 +188,9 @@
 
     <bean id="mailetcontext" class="org.apache.james.mailetcontainer.JamesMailetContext"/>
 
-    <bean id="matcherpackages" class="org.apache.james.mailetcontainer.JamesMatcherLoader" />
+    <bean id="matcherloader" class="org.apache.james.mailetcontainer.JamesMatcherLoader" />
 
-    <bean id="mailetpackages" class="org.apache.james.mailetcontainer.JamesMailetLoader" />
+    <bean id="mailetloader" class="org.apache.james.mailetcontainer.JamesMailetLoader" />
 
     <bean id="dnsservice" class="org.apache.james.dnsservice.dnsjava.DNSJavaService" />
 

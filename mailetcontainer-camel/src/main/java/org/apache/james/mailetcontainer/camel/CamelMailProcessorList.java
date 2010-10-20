@@ -79,12 +79,12 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
     private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
        
-    @Resource(name = "matcherpackages")
+    @Resource(name = "matcherloader")
     public void setMatcherLoader(MatcherLoader matcherLoader) {
         this.matcherLoader = matcherLoader;
     }
 
-    @Resource(name = "mailetpackages")
+    @Resource(name = "mailetloader")
     public void setMailetLoader(MailetLoader mailetLoader) {
         this.mailetLoader = mailetLoader;
     }
