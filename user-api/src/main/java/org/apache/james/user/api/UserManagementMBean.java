@@ -26,79 +26,66 @@ import java.util.List;
 /**
  * Expose user account management functionality through JMX.
  * 
- * @phoenix:mx-topic name="UserAdministration"
  */
 public interface UserManagementMBean {
 
     /**
      * Adds a user to this mail server.
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Add a new user
      *
      * @param userName The name of the user being added
      * @param password The password of the user being added
      * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
      *        repository is used.
-     * @return if the operation was successfull
+     * @return if the operation was successful
      */
-    boolean addUser(String userName, String password, String repositoryName) throws UserManagementException;
+    boolean addUser(String userName, String password, String repositoryName);
 
     /**
      * Deletes a user from this mail server.
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Delete an existing user
      *
      * @param userName The name of the user being deleted
      * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
      *        repository is used.
-     * @return if the operation was successfull
+     * @return if the operation was successful
      */
-    boolean deleteUser(String userName, String repositoryName) throws UserManagementException;
+    boolean deleteUser(String userName, String repositoryName);
 
     /**
      * Check if a user exists with the given name.
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Check for existing user name
      *
      * @param userName The name of the user
      * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
      *        repository is used.
      * @return TRUE, if the user exists
      */
-    boolean verifyExists(String userName, String repositoryName) throws UserManagementException;
+    boolean verifyExists(String userName, String repositoryName);
 
     /**
      * Total count of existing users
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Total count of existing users
      *
      * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
      *        repository is used.
      * @return Total count of existing users
      */
-    long countUsers(String repositoryName) throws UserManagementException;
+    long countUsers(String repositoryName);
 
     /**
      * List the names of all users
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description List all existing users
      *
      * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
      *        repository is used.
      * @return List of all user names
      */
-    String[] listAllUsers(String repositoryName) throws UserManagementException;
+    String[] listAllUsers(String repositoryName);
 
     /**
      * Set a user's password
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Set a user's password
      *
      * @param userName The name of the user whose password will be changed
      * @param password The new password 
@@ -106,13 +93,11 @@ public interface UserManagementMBean {
      *        repository is used.
      * @return if the user has been found and the password was changed successfully
      */
-    boolean setPassword(String userName, String password, String repositoryName) throws UserManagementException;
+    boolean setPassword(String userName, String password, String repositoryName);
 
     /**
      * Removes a user's alias which terminates local mail forwarding
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Removes a user's alias which terminates local mail forwarding
      *
      * @param userName The name of the user whose alias is unset
      * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
@@ -120,26 +105,22 @@ public interface UserManagementMBean {
      * @return if the user has been found and the alias was removed
      */
     @Deprecated
-    boolean unsetAlias(String userName, String repositoryName) throws UserManagementException;
+    boolean unsetAlias(String userName, String repositoryName);
 
     /**
      * Retrieves the user's alias, if set
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Retrieves the user's alias, if set
      *
      * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
      *        repository is used.
      * @return User's alias, or NULL, if no alias is set
      */
     @Deprecated
-    String getAlias(String userName, String repositoryName) throws UserManagementException;
+    String getAlias(String userName, String repositoryName) ;
 
     /**
      * Removes a user's forward email address which terminates remote mail forwarding
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Removes a user's forward email address which terminates remote mail forwarding
      *
      * @param userName The name of the user whose forward is unset
      * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
@@ -147,13 +128,11 @@ public interface UserManagementMBean {
      * @return if the user has been found and the forward was removed
      */
     @Deprecated
-    boolean unsetForwardAddress(String userName, String repositoryName) throws UserManagementException;
+    boolean unsetForwardAddress(String userName, String repositoryName);
 
     /**
      * Retrieves the user's forward, if set
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Retrieves the user's forward, if set
      *
      * @param userName The name of the user whose forward is set
      * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
@@ -161,13 +140,11 @@ public interface UserManagementMBean {
      * @return User's forward email address, or NULL, if no forward is set
      */
     @Deprecated
-    String getForwardAddress(String userName, String repositoryName) throws UserManagementException;
+    String getForwardAddress(String userName, String repositoryName);
 
     /**
      * Retrieves a list of the names of all available user repositories
      *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Retrieves a list of the names of all available user repositories
      *
      * @return List<String> of repository names
      */

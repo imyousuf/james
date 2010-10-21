@@ -26,7 +26,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.james.user.api.UserManagementException;
 import org.apache.james.user.lib.UserManagement;
 
 /**
@@ -47,7 +46,7 @@ public class UserManagementTest extends TestCase {
 
    
 
-    public void testUserCount() throws UserManagementException {
+    public void testUserCount() {
         assertEquals("no user yet", 0, m_userManagement.countUsers(null));
         m_mockUsersRepository.addUser("testCount1", "testCount");
         assertEquals("1 user", 1, m_userManagement.countUsers(null));
@@ -57,7 +56,7 @@ public class UserManagementTest extends TestCase {
         assertEquals("1 user", 1, m_userManagement.countUsers(null));
     }
 
-    public void testDefaultRepositoryIsLocalUsers() throws UserManagementException {
+    public void testDefaultRepositoryIsLocalUsers() {
         m_userManagement.addUser("testCount1", "testCount", null);
         m_userManagement.addUser("testCount2", "testCount", "LocalUsers");
 
@@ -65,16 +64,16 @@ public class UserManagementTest extends TestCase {
         assertEquals("2 users", 2, m_userManagement.countUsers("LocalUsers"));
     }
 
-    public void testNonExistingRepository() throws UserManagementException {
+    public void testNonExistingRepository() {
         try {
             m_userManagement.addUser("testCount1", "testCount", "NonExisting");
             fail("retrieved non-existing repository");
-        } catch (UserManagementException e) {
+        } catch (IllegalArgumentException e) {
             // success
         }
     }
 
-    public void testAddUserAndVerify() throws UserManagementException {
+    public void testAddUserAndVerify() {
         assertTrue("user added", m_mockUsersRepository.addUser("testCount1", "testCount"));
         assertFalse("user not there", m_userManagement.verifyExists("testNotAdded", null));
         assertTrue("user is there", m_userManagement.verifyExists("testCount1", null));
@@ -82,7 +81,7 @@ public class UserManagementTest extends TestCase {
         assertFalse("user not there", m_userManagement.verifyExists("testCount1", null));
     }
 
-    public void testDelUser() throws UserManagementException {
+    public void testDelUser() {
         assertTrue("user added", m_mockUsersRepository.addUser("testDel", "test"));
         assertFalse("user not there", m_userManagement.verifyExists("testNotDeletable", null));
         assertTrue("user is there", m_userManagement.verifyExists("testDel", null));
@@ -90,7 +89,7 @@ public class UserManagementTest extends TestCase {
         assertFalse("user no longer there", m_userManagement.verifyExists("testDel", null));
     }
 
-    public void testListUsers() throws UserManagementException {
+    public void testListUsers() {
 
         String[] usersArray = new String[] {"ccc", "aaa", "dddd", "bbbbb"};
         List<String> users = Arrays.asList(usersArray);
@@ -110,7 +109,7 @@ public class UserManagementTest extends TestCase {
     }
 
     
-    public void testSetPassword() throws UserManagementException {
+    public void testSetPassword() {
 
         assertTrue("user added", m_userManagement.addUser("testPwdUser", "pwd1", null));
 
@@ -131,7 +130,7 @@ public class UserManagementTest extends TestCase {
 
     }
     
-    public void testListRepositories() throws UserManagementException {
+    public void testListRepositories() {
         List<String> userRepositoryNames = m_userManagement.getUserRepositoryNames();
         assertTrue("default is there", userRepositoryNames.contains("LocalUsers"));
     }
