@@ -27,11 +27,9 @@
           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
           http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
           
-
     <!--
         ** JMX part ** to enable exposure of JMX, activate the following beans
     -->
-
     <!--
     <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
       <property name="beans">
@@ -46,12 +44,11 @@
           <entry key="org.apache.james:type=component,name=processor" value-ref="processormanagement"/>
           <entry key="org.apache.james:type=component,name=virtualusertable" value-ref="virtualusertablemanagement"/>
           <entry key="org.apache.james:type=component,name=usermanagement" value-ref="usermanagement"/>
-
         </map>
       </property>
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.SMTPServerMBean,org.apache.james.socket.ServerMBean,org.apache.james.domainlist.api.DomainListMBean,org.apache.james.domainlist.api.ManageableDomainListMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.api.vut.management.VirtualUserTableManagementMBean,org.apache.james.api.user.management.UserManagementMBean"/>
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.SMTPServerMBean,org.apache.james.socket.ServerMBean,org.apache.james.domainlist.api.DomainListMBean,org.apache.james.domainlist.api.ManageableDomainListMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.vut.api.management.VirtualUserTableManagementMBean,org.apache.james.user.api.management.UserManagementMBean"/>
           </bean>
       </property>
     </bean>
@@ -134,7 +131,6 @@
     <!-- Add support for Persistence annotations -->
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
-
     <!-- Change trace to true for debugging purposes -->
     <camel:camelContext id="jamesCamelContext" trace="false" >
         <camel:jmxAgent id="agent" disabled="true"/>
@@ -160,13 +156,11 @@
         </amq:transportConnectors>
     </amq:broker>
 
-
     <amq:connectionFactory id="amqConnectionFactory" brokerURL="vm://james?create=false" />
 
     <bean id="jmsConnectionFactory"  class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
         <property name="connectionFactory" ref="amqConnectionFactory"/>
     </bean>
-
 
     <!-- setup spring jms TX manager -->
     <bean id="jmsTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
@@ -234,7 +228,6 @@
     <!-- The High Level Storage block -->
     <bean id="mailstore" class="org.apache.james.mailstore.JamesMailStore" />
 
-
     <!-- The User Storage block -->
     <bean id="users-store" class="org.apache.james.impl.user.JamesUsersStore" >
         <property name="defaultRepository" value="LocalUsers"/>
@@ -257,13 +250,10 @@
     <!-- The context FileSystem implementation -->
     <bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
 
-
     <bean id="virtualusertable" name="manageablevirtualusertable" class="org.apache.james.impl.vut.JamesVirtualUserTable" />
 
     <!-- The context domainlist implementation -->
     <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domainlist.list.JamesDomainList" />
-
-
 
     <!-- IMAP server Beans -->
     <bean id="imapserver" class="org.apache.james.imapserver.netty.NioImapServer">
@@ -274,7 +264,6 @@
     <bean id="imapProcessor" class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory" factory-method="createDefaultProcessor">
         <constructor-arg index="0" ref="mailboxmanager"/>
         <constructor-arg index="1" ref="subscriptionManager"/>
-        
     </bean>
 
     <bean id="imapDecoderFactory" class="org.apache.james.imap.main.DefaultImapDecoderFactory"/>
@@ -285,16 +274,13 @@
 
     <bean id="imapEncoder" factory-bean="imapEncoderFactory"  factory-method="buildImapEncoder"/>
 
-
-
-    
     <bean id="authenticator" class="org.apache.james.adapter.mailbox.store.UserRepositoryAuthenticator"/>
-
 
     <!-- JPA implementation of IMAP Storage-->
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
     </bean>
+    
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.jpa.JPASubscriptionManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
     </bean>
@@ -322,7 +308,6 @@
         <constructor-arg index="1" ref="authenticator"/>
     </bean>
     -->
-
 
     <!-- JCR implementation of IMAP Storage-->
     <!-- Make sure that Jackrabbit is configured as well -->
@@ -371,9 +356,7 @@
         <constructor-arg index="2" ref="nodeLocker"/>
         <constructor-arg index="3" ref="uidConsumer"/>
     </bean>
-
     -->
-
 
     <!-- The Time Scheduler block -->
     <bean id="scheduler" class="java.util.concurrent.Executors" factory-method="newScheduledThreadPool">
@@ -411,5 +394,4 @@
     </bean>
     -->
 
-    <!-- #################################################################### -->
 </beans>
