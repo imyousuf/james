@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.dnsserver;
+package org.apache.james.dnsservice.dnsjava;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
@@ -43,7 +43,7 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-public class DNSServerTest extends TestCase {
+public class DNSJavaServiceTest extends TestCase {
 
     private TestableDNSServer dnsServer;
     private Cache defaultCache;
