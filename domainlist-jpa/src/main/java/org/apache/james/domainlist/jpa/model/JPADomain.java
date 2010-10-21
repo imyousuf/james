@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.domainlist.model;
+package org.apache.james.domainlist.jpa.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

@@ -19,7 +19,7 @@
 
 
 
-package org.apache.domainlist.james;
+package org.apache.james.domainlist.xml;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.domainlist;
+package org.apache.james.domainlist.jdbc;
 
 import java.io.InputStream;
 import java.sql.Connection;
