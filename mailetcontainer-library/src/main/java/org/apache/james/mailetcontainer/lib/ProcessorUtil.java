@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.mailetcontainer.camel;
+package org.apache.james.mailetcontainer.lib;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -45,7 +45,6 @@ public class ProcessorUtil {
      * @throws MessagingException thrown always, rethrowing the passed in exception
      */
     public static void handleException(MessagingException me, Mail mail, String offendersName, String nextState, Log logger) throws MessagingException {
-        System.err.println("exception! " + me);
         mail.setState(nextState);
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
