@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.vut.model;
+package org.apache.james.vut.jpa.model;
 
 import java.io.Serializable;
 

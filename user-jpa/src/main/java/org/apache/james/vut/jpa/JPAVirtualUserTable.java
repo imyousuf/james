@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.vut;
+package org.apache.james.vut.jpa;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,9 +30,9 @@ import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnit;
 
 import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.jpa.model.JPAVirtualUser;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
-import org.apache.james.vut.model.JPAVirtualUser;
 
 /**
  * Class responsible to implement the Virtual User Table in database with JPA access.

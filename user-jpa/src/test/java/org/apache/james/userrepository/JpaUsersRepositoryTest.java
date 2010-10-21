@@ -23,8 +23,9 @@ import java.util.HashMap;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.jpa.JPAUsersRepository;
+import org.apache.james.user.jpa.model.JPAUser;
 import org.apache.james.user.lib.MockUsersRepositoryTest;
-import org.apache.james.userrepository.model.JPAUser;
 import org.apache.openjpa.persistence.OpenJPAEntityManager;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAEntityTransaction;

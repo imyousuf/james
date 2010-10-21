@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.user.jpa;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +36,7 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.user.api.User;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.userrepository.model.JPAUser;
+import org.apache.james.user.jpa.model.JPAUser;
 
 
 /**

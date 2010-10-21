@@ -23,9 +23,10 @@ import java.util.HashMap;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.jpa.JPAVirtualUserTable;
+import org.apache.james.vut.jpa.model.JPAVirtualUser;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTableTest;
-import org.apache.james.vut.model.JPAVirtualUser;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAPersistence;
 
