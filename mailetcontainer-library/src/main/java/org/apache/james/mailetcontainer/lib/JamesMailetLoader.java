@@ -18,13 +18,13 @@
  ****************************************************************/
 
 
-package org.apache.james.mailetcontainer;
+package org.apache.james.mailetcontainer.lib;
 import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.mailetcontainer.MailetLoader;
+import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.mailet.Mailet;
 /**
  * Loads Mailets for use inside James.
@@ -47,7 +47,7 @@ public class JamesMailetLoader extends AbstractLoader implements MailetLoader {
 
     /**
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailetLoader#getMailet(java.lang.String, org.apache.commons.configuration.Configuration)
+     * @see org.apache.james.mailetcontainer.api.MailetLoader#getMailet(java.lang.String, org.apache.commons.configuration.Configuration)
      */
     public Mailet getMailet(final String mailetName, final Configuration configuration) throws MessagingException {
         try {

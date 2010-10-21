@@ -17,32 +17,14 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.mailetcontainer.api;
 
-
-package org.apache.james.mailetcontainer;
-
-import org.apache.commons.configuration.Configuration;
-import org.apache.mailet.Mailet;
-
-import javax.mail.MessagingException;
-
-public interface MailetLoader {
-
-    /**
-     * The component role used by components implementing this service
-     */
-    String ROLE = "org.apache.james.transport.MailetLoader";
-
-    /**
-     * Get a new Mailet with the specified name acting
-     * in the specified context.
-     *
-     * @param mailetName the name of the mailet to be loaded
-     * @param configuration the Configuration to be passed to the new
-     *                mailet
-     * @throws MessagingException if an error occurs
-     */
-    public Mailet getMailet(String mailetName, Configuration configuration)
-            throws MessagingException;
-
+/**
+ * management interface for one Mailet instance
+ */
+public interface MailetManagementMBean extends MailProcessingMBean{
+    
+    public String getMailetName();
+    
+    public String[] getMailetParameters();
 }

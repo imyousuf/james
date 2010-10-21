@@ -17,28 +17,23 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.mailetcontainer.api;
 
-
-package org.apache.james.mailetcontainer;
-
-import org.apache.mailet.Matcher;
-
-import javax.mail.MessagingException;
-
-public interface MatcherLoader {
-
-    /**
-     * The component role used by components implementing this service
-     */
-    String ROLE = "org.apache.james.transport.MatcherLoader";
+/**
+ * Expose processor management functionality through JMX.
+ *
+ * @phoenix:mx-topic name="ProcessorAdministration"
+ */
+public interface ProcessorManagementMBean {
 
     /**
-     * Get a new Matcher with the specified name acting
-     * in the specified context.
+     * Retrieves all existing processors
      *
-     * @param matchName the name of the matcher to be loaded
-     * @throws MessagingException if an error occurs
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Retrieves all existing processors
+     *
+     * @return names of all configured processors
      */
-    public Matcher getMatcher(String matchName) throws MessagingException;
+    String[] getProcessorNames();
 
 }

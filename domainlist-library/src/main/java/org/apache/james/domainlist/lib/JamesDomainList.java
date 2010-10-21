@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.domainlist.james;
+package org.apache.james.domainlist.lib;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;

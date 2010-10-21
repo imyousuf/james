@@ -16,32 +16,33 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailetcontainer;
 
-import java.util.List;
 
+
+package org.apache.james.mailetcontainer.api;
+
+import org.apache.commons.configuration.Configuration;
 import org.apache.mailet.Mailet;
-import org.apache.mailet.Matcher;
 
+import javax.mail.MessagingException;
 
-/**
- * Interface for mailet/matcher-containing processors. This Processors will use the configured Matchers and Mailets to call them
- * in the {@link #service(org.apache.mailet.Mail)} method
- * 
- */
-public interface MailetContainer extends MailProcessor{
+public interface MailetLoader {
 
     /**
-     * retrieve mailet configuration data for introspection
-     * @return List<MailetConfig>
+     * The component role used by components implementing this service
      */
-    List<Mailet> getMailets();
+    String ROLE = "org.apache.james.transport.MailetLoader";
 
     /**
-     * retrieve matcher configuration data for introspection
-     * @return List<MatcherConfig>
+     * Get a new Mailet with the specified name acting
+     * in the specified context.
+     *
+     * @param mailetName the name of the mailet to be loaded
+     * @param configuration the Configuration to be passed to the new
+     *                mailet
+     * @throws MessagingException if an error occurs
      */
-    List<Matcher> getMatchers();
+    public Mailet getMailet(String mailetName, Configuration configuration)
+            throws MessagingException;
 
 }
-

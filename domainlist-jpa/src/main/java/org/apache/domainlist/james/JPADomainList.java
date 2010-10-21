@@ -29,8 +29,8 @@ import javax.persistence.PersistenceUnit;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.domainlist.james.AbstractDomainList;
 import org.apache.domainlist.james.model.JPADomain;
+import org.apache.james.domainlist.lib.AbstractDomainList;
 import org.apache.james.lifecycle.Configurable;
 
 /**
@@ -67,7 +67,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
     }
    
     /**
-     * @see org.apache.domainlist.james.AbstractDomainList#getDomainListInternal()
+     * @see org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal()
      */
     protected List<String> getDomainListInternal() {
         List<String> domains = new ArrayList<String>();
@@ -115,7 +115,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
     }
 
     /**
-     * @see org.apache.domainlist.james.AbstractDomainList#addDomainInternal(java.lang.String)
+     * @see org.apache.james.domainlist.lib.AbstractDomainList#addDomainInternal(java.lang.String)
      */
     protected boolean addDomainInternal(String domain) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -138,7 +138,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
     }
 
     /**
-     * @see org.apache.domainlist.james.AbstractDomainList#removeDomainInternal(java.lang.String)
+     * @see org.apache.james.domainlist.lib.AbstractDomainList#removeDomainInternal(java.lang.String)
      */
     protected boolean removeDomainInternal(String domain) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();

@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.mailetcontainer;
+package org.apache.james.mailetcontainer.lib;
 import java.util.List;
 import java.util.Vector;
 

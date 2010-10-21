@@ -25,7 +25,7 @@ import javax.mail.MessagingException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
-import org.apache.james.mailetcontainer.MailetConfigImpl;
+import org.apache.james.mailetcontainer.lib.MailetConfigImpl;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;

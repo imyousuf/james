@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailetcontainer;
+package org.apache.james.mailetcontainer.lib;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -33,6 +33,10 @@ import javax.management.StandardMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.mailetcontainer.api.MailProcessor;
+import org.apache.james.mailetcontainer.api.MailProcessorList;
+import org.apache.james.mailetcontainer.api.MailetContainer;
+import org.apache.james.mailetcontainer.api.ProcessorManagementMBean;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.Matcher;
 

@@ -17,14 +17,18 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailetcontainer;
+package org.apache.james.mailetcontainer.api;
 
-/**
- * management interface for one Mailet instance
- */
-public interface MailetManagementMBean extends MailProcessingMBean{
+public interface MailProcessingMBean {
+
+    public long getHandledMailCount();
     
-    public String getMailetName();
+    public long getFastestProcessing();
+   
+    public long getSlowestProcessing();
+  
+    public long getSuccessCount();
+   
+    public long getErrorCount();
     
-    public String[] getMailetParameters();
 }

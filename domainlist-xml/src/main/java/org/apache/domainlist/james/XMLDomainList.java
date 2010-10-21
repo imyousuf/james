@@ -27,7 +27,7 @@ import java.util.Locale;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.domainlist.james.AbstractDomainList;
+import org.apache.james.domainlist.lib.AbstractDomainList;
 import org.apache.james.lifecycle.Configurable;
 
 
@@ -59,7 +59,7 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
     
     
     /**
-     * @see org.apache.domainlist.james.AbstractDomainList#getDomainListInternal()
+     * @see org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal()
      */
     protected List<String> getDomainListInternal() {
         // TODO: Remove temporary fix!
@@ -79,7 +79,7 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
     /**
      * The added domains will only added in memory!
      * 
-     * @see org.apache.domainlist.james.AbstractDomainList#addDomainInternal(java.lang.String)
+     * @see org.apache.james.domainlist.lib.AbstractDomainList#addDomainInternal(java.lang.String)
      */
     protected boolean addDomainInternal(String domain) {
         // TODO: Remove later. Temporary fix to get sure no domains can be added to the XMLDomainList
@@ -95,7 +95,7 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
     }
 
     /**
-     * @see org.apache.domainlist.james.AbstractDomainList#removeDomainInternal(java.lang.String)
+     * @see org.apache.james.domainlist.lib.AbstractDomainList#removeDomainInternal(java.lang.String)
      */
     protected boolean removeDomainInternal(String domain) {
         // TODO: Remove later. Temporary fix to get sure no domains can be added to the XMLDomainList

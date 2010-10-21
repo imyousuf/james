@@ -17,23 +17,19 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailetcontainer;
+package org.apache.james.mailetcontainer.api;
 
 /**
- * Expose processor management functionality through JMX.
- *
- * @phoenix:mx-topic name="ProcessorAdministration"
+ * management interface for one Matcher instance
  */
-public interface ProcessorManagementMBean {
-
-    /**
-     * Retrieves all existing processors
-     *
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Retrieves all existing processors
-     *
-     * @return names of all configured processors
-     */
-    String[] getProcessorNames();
+public interface MatcherManagementMBean extends MailProcessingMBean{
+    
+    public String getMatcherName();
+    
+    public String getMatcherCondition();
+    
+    public long getMatchedRecipientCount();
+    
+    public long getNotMatchedRecipientCount();
 
 }

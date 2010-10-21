@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailetcontainer;
+package org.apache.james.mailetcontainer.lib;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,9 @@ import javax.mail.MessagingException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
+import org.apache.james.mailetcontainer.api.MailProcessor;
+import org.apache.james.mailetcontainer.api.MailetContainer;
+import org.apache.james.mailetcontainer.api.ProcessorDetailMBean;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.Matcher;

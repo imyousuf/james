@@ -16,20 +16,32 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.mailetcontainer.api;
 
-package org.apache.james.mailetcontainer;
+import java.util.List;
+
+import org.apache.mailet.Mailet;
+import org.apache.mailet.Matcher;
+
 
 /**
- * management interface for one Matcher instance
+ * Interface for mailet/matcher-containing processors. This Processors will use the configured Matchers and Mailets to call them
+ * in the {@link #service(org.apache.mailet.Mail)} method
+ * 
  */
-public interface MatcherManagementMBean extends MailProcessingMBean{
-    
-    public String getMatcherName();
-    
-    public String getMatcherCondition();
-    
-    public long getMatchedRecipientCount();
-    
-    public long getNotMatchedRecipientCount();
+public interface MailetContainer extends MailProcessor{
+
+    /**
+     * retrieve mailet configuration data for introspection
+     * @return List<MailetConfig>
+     */
+    List<Mailet> getMailets();
+
+    /**
+     * retrieve matcher configuration data for introspection
+     * @return List<MatcherConfig>
+     */
+    List<Matcher> getMatchers();
 
 }
+

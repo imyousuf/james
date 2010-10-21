@@ -16,16 +16,29 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailetcontainer;
 
 
-/**
- * MBean for one processor instance
- */
-public interface ProcessorDetailMBean extends MailProcessingMBean{
 
-    public String getName();
-    
+package org.apache.james.mailetcontainer.api;
 
+import org.apache.mailet.Matcher;
+
+import javax.mail.MessagingException;
+
+public interface MatcherLoader {
+
+    /**
+     * The component role used by components implementing this service
+     */
+    String ROLE = "org.apache.james.transport.MatcherLoader";
+
+    /**
+     * Get a new Matcher with the specified name acting
+     * in the specified context.
+     *
+     * @param matchName the name of the matcher to be loaded
+     * @throws MessagingException if an error occurs
+     */
+    public Matcher getMatcher(String matchName) throws MessagingException;
 
 }

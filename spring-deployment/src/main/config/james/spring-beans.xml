@@ -51,7 +51,7 @@
       </property>
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.SMTPServerMBean,org.apache.james.socket.ServerMBean,org.apache.james.api.domainlist.DomainListMBean,org.apache.james.api.domainlist.ManageableDomainListMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.ProcessorManagementMBean,org.apache.james.api.vut.management.VirtualUserTableManagementMBean,org.apache.james.api.user.management.UserManagementMBean"/>
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.SMTPServerMBean,org.apache.james.socket.ServerMBean,org.apache.james.domainlist.api.DomainListMBean,org.apache.james.domainlist.api.ManageableDomainListMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.api.vut.management.VirtualUserTableManagementMBean,org.apache.james.api.user.management.UserManagementMBean"/>
           </bean>
       </property>
     </bean>
@@ -69,8 +69,7 @@
         <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" />
     </bean>
     
-    <bean id="processormanagement" class="org.apache.james.mailetcontainer.ProcessorManagement"/>
-    
+    <bean id="processormanagement" class="org.apache.james.mailetcontainer.lib.ProcessorManagement"/>
     
     <bean id="usermanagement" class="org.apache.james.impl.user.UserManagement" />
     
@@ -185,11 +184,11 @@
     <!-- mailserver implementation which use activemq for spooling the mail -->
     <bean id="mailserver" class="org.apache.james.JamesMailServer"/>
 
-    <bean id="mailetcontext" class="org.apache.james.mailetcontainer.JamesMailetContext"/>
+    <bean id="mailetcontext" class="org.apache.james.mailetcontainer.lib.JamesMailetContext"/>
 
-    <bean id="matcherloader" class="org.apache.james.mailetcontainer.JamesMatcherLoader" />
+    <bean id="matcherloader" class="org.apache.james.mailetcontainer.lib.JamesMatcherLoader" />
 
-    <bean id="mailetloader" class="org.apache.james.mailetcontainer.JamesMailetLoader" />
+    <bean id="mailetloader" class="org.apache.james.mailetcontainer.lib.JamesMailetLoader" />
 
     <bean id="dnsservice" class="org.apache.james.dnsservice.dnsjava.DNSJavaService" />
 
@@ -262,7 +261,7 @@
     <bean id="virtualusertable" name="manageablevirtualusertable" class="org.apache.james.impl.vut.JamesVirtualUserTable" />
 
     <!-- The context domainlist implementation -->
-    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domain.JamesDomainList" />
+    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domainlist.list.JamesDomainList" />
 
 
 

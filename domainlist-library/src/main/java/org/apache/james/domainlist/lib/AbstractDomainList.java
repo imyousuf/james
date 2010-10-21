@@ -19,7 +19,7 @@
 
 
 
-package org.apache.domainlist.james;
+package org.apache.james.domainlist.lib;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

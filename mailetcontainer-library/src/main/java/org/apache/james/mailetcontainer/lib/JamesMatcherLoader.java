@@ -19,12 +19,12 @@
 
 
 
-package org.apache.james.mailetcontainer;
+package org.apache.james.mailetcontainer.lib;
 import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.mailetcontainer.MatcherLoader;
+import org.apache.james.mailetcontainer.api.MatcherLoader;
 import org.apache.mailet.Matcher;
 /**
  * Loads Matchers for use inside James.
@@ -44,7 +44,7 @@ public class JamesMatcherLoader extends AbstractLoader implements MatcherLoader 
     }
 
     /**
-     * @see org.apache.james.mailetcontainer.MatcherLoader#getMatcher(java.lang.String)
+     * @see org.apache.james.mailetcontainer.api.MatcherLoader#getMatcher(java.lang.String)
     */
     public Matcher getMatcher(String matchName) throws MessagingException {
         try {
