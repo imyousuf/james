@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.vut;
+package org.apache.james.vut.file;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +26,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.vut.api.ManageableVirtualUserTableException;
 import org.apache.james.vut.api.VirtualUserTable;
+import org.apache.james.vut.file.XMLVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTableTest;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
