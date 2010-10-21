@@ -110,7 +110,7 @@
 <!-- The JamesUsersJdbcRepository allows James to use a JDBC compliant database -->
 <!-- to hold user related data.  This includes aliases, forward addresses, -->
 <!-- and password data.  The last is stored as an irreversible hash. -->
-<sqlDefs name="org.apache.james.userrepository.JamesUsersJdbcRepository">
+<sqlDefs name="org.apache.james.user.jdbc.JamesUsersJdbcRepository">
     <sql name="tableName">${table}</sql>
 
     <!-- Statements used to retrieve all user information for a user from this repository. -->
@@ -165,7 +165,7 @@
 <!-- to hold user ids and password data. The password is stored as an irreversible hash. -->
 <!-- Unlike the JamesUsersJdbcRepository, this repository implementation doesn't support -->
 <!-- aliases or forwards. -->
-<sqlDefs name="org.apache.james.userrepository.DefaultUsersJdbcRepository">
+<sqlDefs name="org.apache.james.user.jdbc.DefaultUsersJdbcRepository">
     <sql name="tableName">${table}</sql>
 
     <!-- Statements used to retrieve all user information for a user from this repository. -->
@@ -197,7 +197,7 @@
 <!-- -->
 <!-- This class is used for basic list management.  The database table can -->
 <!-- be used to store subscriber data for mulitple lists.  -->
-<sqlDefs name="org.apache.james.userrepository.ListUsersJdbcRepository">
+<sqlDefs name="org.apache.james.user.jdbc.ListUsersJdbcRepository">
     <!-- An example of defining "default" parameters within the definition file.
          This is used if no key parameter is specified in config. -->
     <parameters key="unknownList"/>
@@ -233,7 +233,7 @@
 </sqlDefs>
 
 <!-- SQL statements for the JdbcMailRepository  -->
-<sqlDefs name="org.apache.james.mailrepository.JDBCMailRepository">
+<sqlDefs name="org.apache.james.mail.jdbc.JDBCMailRepository">
 
     <!-- Statements used to check whether a particular message exists in this repository. -->
     <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -894,7 +894,7 @@
 </sqlDefs>
 
 <!-- SQL statements for the JdbcVirtualUserTable  -->
-<sqlDefs name="org.apache.james.vut.JDBCVirtualUserTable">
+<sqlDefs name="org.apache.james.vut.jdbc.JDBCVirtualUserTable">
 
     <!-- Statements used to check whether a particular message exists in this repository. -->
     <sql name="selectMappings" db="derby">select VirtualUserTable.target_address,(VirtualUserTable."user" || '@' ||VirtualUserTable.domain) from VirtualUserTable, VirtualUserTable as VUTDomains where ((VirtualUserTable."user") like ? or (VirtualUserTable."user") = '*') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain = '*')) order by 2 desc</sql>
@@ -999,7 +999,7 @@
 </sqlDefs>
 
 <!-- SQL statements for the JDBCDomainList  -->
-<sqlDefs name="org.apache.james.domain.JDBCDomainList">
+<sqlDefs name="org.apache.james.domainlist.jdbc.JDBCDomainList">
     <sql name="selectDomains">select distinct domain from ${table} </sql>
     
     <sql name="selectDomain">select distinct domain from ${table} where domain = ? </sql>
