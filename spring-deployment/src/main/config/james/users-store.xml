@@ -17,9 +17,12 @@
   specific language governing permissions and limitations      
   under the License.                                           
  -->
+
 <!-- The User Storage block -->
 <users-store>
+
     <!-- Configure User Repositories here. -->
+
     <!-- -->
     <!-- User repositories are required for the following purposes: -->
     <!--    - storing James user information, including forwards, aliases, -->
@@ -38,7 +41,7 @@
     <!-- Default: File-based user repositories  Use these configurations to store user info in the filesystem  -->
     <!-- The LocalUsers repository, for storing James' User info. -->
     <!--
-    <repository name="LocalUsers" class="org.apache.james.userrepository.UsersFileRepository">
+    <repository name="LocalUsers" class="org.apache.james.user.file.UsersFileRepository">
         <destination URL="file://var/users/"/>
         <ignoreCase>true</ignoreCase>
         <enableAliases>true</enableAliases>
@@ -53,7 +56,7 @@
     <!--       in the <database-connections> configuration section. -->
     <!-- The LocalUsers repository, for storing James' User info. -->
     <!-- 
-    <repository name="LocalUsers" class="org.apache.james.userrepository.JamesUsersJdbcRepository" destinationURL="db://maildb/users">
+    <repository name="LocalUsers" class="org.apache.james.user.jdbc.JamesUsersJdbcRepository" destinationURL="db://maildb/users">
         <sqlFile>file://conf/sqlResources.xml</sqlFile>
         <ignoreCase>true</ignoreCase>
         <enableAliases>true</enableAliases>
@@ -63,7 +66,7 @@
     
     <!-- Read-Only LDAP based UsersRepository -->
     <!--
-    <repository name="LocalUsers" class="org.apache.james.userrepository.ReadOnlyUsersLDAPRepository" ldapHost="ldap://myldapserver:389" 
+    <repository name="LocalUsers" class="org.apache.james.user.ldap.ReadOnlyUsersLDAPRepository" ldapHost="ldap://myldapserver:389" 
     	principal="uid=ldapUser,ou=system" credentials="password" userBase="ou=People,o=myorg.com,ou=system" userIdAttribute="uid"/>;
     -->
     
@@ -71,7 +74,7 @@
     <!-- JPA based backend. Support password algorithm are:
          MD5, SHA-256, SHA-512, NONE
      -->
-    <repository name="LocalUsers" class="org.apache.james.userrepository.JPAUsersRepository">
+    <repository name="LocalUsers" class="org.apache.james.user.jpa.JPAUsersRepository">
         <algorithm>MD5</algorithm>
     </repository>
     
@@ -82,8 +85,9 @@
     <!-- Add a user repository for each list -->
     <!-- TODO: add more examples  -->    
     <!--       
-    <repository name="list-test" class="org.apache.james.userrepository.UsersFileRepository">
+    <repository name="list-test" class="org.apache.james.user.file.UsersFileRepository">
        <destination URL="file://var/lists/list-test/"/>
-    </repository>      
+    </repository>
     -->
+    
 </users-store>

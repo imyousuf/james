@@ -47,11 +47,11 @@
         <!-- DomainList -->
         <class>org.apache.james.domainlist.jpa.model.JPADomain</class>
 
-        <!-- UsersRepository -->
-        <class>org.apache.james.userrepository.model.JPAUser</class>
+        <!-- User-->
+        <class>org.apache.james.user.jpa.model.JPAUser</class>
 
         <!-- VirtualUser -->
-        <class>org.apache.james.vut.model.JPAVirtualUser</class>
+        <class>org.apache.james.vut.jpa.model.JPAVirtualUser</class>
 
         <properties>
             <!--  Create tables on startup -->

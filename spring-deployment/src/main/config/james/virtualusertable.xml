@@ -27,9 +27,8 @@
     <!-- Default true. -->
     <!-- By setting the mappingLimit you can specify how much mapping will get processed -->
     <!-- before a bounce will send. This avoid infinity loops. Default 10.  -->
-      
     <!--
-    <table  class="org.apache.james.vut.XMLVirtualUserTable">
+    <table  class="org.apache.james.vut.xml.XMLVirtualUserTable">
         <recursiveMapping> true </recursiveMapping>
         <mappingLimit> 10 </mappingLimit>
          
@@ -40,9 +39,8 @@
     <!-- Database backed VirtualUsertable -->
     <!-- -->
     <!-- Use these configurations to store the VirtualUserTable in a database. -->
-
     <!-- 
-    <table class="org.apache.james.vut.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
+    <table class="org.apache.james.vut.jdbc.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
         <recursiveMapping> true </recursiveMapping>
         <mappingLimit> 10 </mappingLimit>
         <sqlFile>file://conf/sqlResources.xml</sqlFile>
@@ -50,7 +48,7 @@
     -->
     
     <!-- The default table for storing James' VirtualUserTable mappings. -->
-    <table class="org.apache.james.vut.JPAVirtualUserTable">
+    <table class="org.apache.james.vut.jpa.JPAVirtualUserTable">
         <recursiveMapping> true </recursiveMapping>
         <mappingLimit> 10 </mappingLimit>
     </table>
