@@ -44,11 +44,11 @@
         <class>org.apache.james.mailbox.jpa.mail.model.JPAProperty</class>
         <class>org.apache.james.mailbox.jpa.user.model.JPASubscription</class>
 
+        <!-- DomainList -->
+        <class>org.apache.james.domainlist.jpa.model.JPADomain</class>
+
         <!-- UsersRepository -->
         <class>org.apache.james.userrepository.model.JPAUser</class>
-
-        <!-- DomainList -->
-        <class>org.apache.james.domainlist.model.JPADomain</class>
 
         <!-- VirtualUser -->
         <class>org.apache.james.vut.model.JPAVirtualUser</class>
