@@ -45,12 +45,12 @@ import org.apache.james.domainlist.api.ManageableDomainList;
 import org.apache.james.domainlist.api.SimpleDomainList;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
-import org.apache.james.management.MockVirtualUserTableManagementImpl;
 import org.apache.james.socket.JamesProtocolHandlerChain;
-import org.apache.james.userrepository.MockUsersRepository;
-import org.apache.james.usersstore.MockUsersStore;
+import org.apache.james.user.lib.MockUsersRepository;
+import org.apache.james.user.lib.MockUsersStore;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.TestUtil;
+import org.apache.james.vut.lib.MockVirtualUserTableManagementImpl;
 
 public abstract class AbstractRemoteManagerTest extends TestCase {
     private int m_remoteManagerListenerPort = TestUtil.getNonPrivilegedPort();

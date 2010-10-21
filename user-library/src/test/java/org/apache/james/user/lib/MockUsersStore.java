@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.usersstore;
+package org.apache.james.user.lib;
 
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersStore;

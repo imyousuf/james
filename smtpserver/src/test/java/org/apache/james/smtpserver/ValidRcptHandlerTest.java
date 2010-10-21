@@ -38,7 +38,7 @@ import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.user.lib.MockUsersRepository;
 import org.apache.james.vut.api.ErrorMappingException;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.Mail;

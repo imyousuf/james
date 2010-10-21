@@ -25,6 +25,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.lib.MockUsersRepositoryTest;
 import org.apache.james.util.TestUtil;
 
 import java.util.Iterator;

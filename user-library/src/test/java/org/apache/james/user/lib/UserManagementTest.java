@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.management;
+package org.apache.james.user.lib;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,8 +28,6 @@ import junit.framework.TestCase;
 
 import org.apache.james.user.api.UserManagementException;
 import org.apache.james.user.lib.UserManagement;
-import org.apache.james.userrepository.MockUsersRepository;
-import org.apache.james.usersstore.MockUsersStore;
 
 /**
  * Tests the UserManagement

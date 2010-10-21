@@ -50,7 +50,7 @@ import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.socket.JamesProtocolHandlerChain;
-import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.user.lib.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.TestUtil;
 

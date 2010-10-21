@@ -48,7 +48,7 @@ import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
 import org.apache.james.socket.JamesProtocolHandlerChain;
-import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.user.lib.MockUsersRepository;
 import org.apache.james.util.TestUtil;
 import org.apache.james.util.codec.Base64;
 import org.apache.james.vut.api.ErrorMappingException;

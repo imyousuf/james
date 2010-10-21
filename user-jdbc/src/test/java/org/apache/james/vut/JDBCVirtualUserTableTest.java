@@ -24,6 +24,7 @@ import org.apache.james.services.MockFileSystem;
 import org.apache.james.util.TestUtil;
 import org.apache.james.vut.api.ManageableVirtualUserTableException;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
+import org.apache.james.vut.lib.AbstractVirtualUserTableTest;
 
 /**
  * Test the JDBC Virtual User Table implementation.
@@ -31,7 +32,7 @@ import org.apache.james.vut.lib.AbstractVirtualUserTable;
 public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTableTest#getVirtualUserTable()
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#getVirtualUserTable()
      */
     protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
         JDBCVirtualUserTable virtualUserTable = new JDBCVirtualUserTable();
@@ -47,7 +48,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }    
     
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
     protected boolean addMapping(String user, String domain, String mapping, int type) throws ManageableVirtualUserTableException {
         if (type == ERROR_TYPE) {
@@ -64,7 +65,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
     protected boolean removeMapping(String user, String domain, String mapping, int type) throws ManageableVirtualUserTableException {
         if (type == ERROR_TYPE) {

@@ -35,6 +35,7 @@ import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.lib.MockUsersRepositoryTest;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 

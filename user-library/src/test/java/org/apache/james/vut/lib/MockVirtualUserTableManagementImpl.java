@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.management;
+package org.apache.james.vut.lib;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -27,6 +27,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.vut.api.ManageableVirtualUserTableException;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
+import org.apache.james.vut.lib.AbstractVirtualUserTableTest;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
 
 /**
@@ -49,7 +50,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
     
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
     protected boolean addMapping(String user, String domain, String mapping, int type) throws ManageableVirtualUserTableException {
 
@@ -90,7 +91,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
 
     /**
-     * @see org.apache.james.vut.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
     protected boolean removeMapping(String user, String domain, String mapping, int type) throws ManageableVirtualUserTableException {       
 

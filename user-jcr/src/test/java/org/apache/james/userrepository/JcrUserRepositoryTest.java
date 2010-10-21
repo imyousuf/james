@@ -26,7 +26,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.userrepository.MockUsersRepositoryTest;
+import org.apache.james.user.lib.MockUsersRepositoryTest;
 import org.xml.sax.InputSource;
 
 public class JcrUserRepositoryTest extends MockUsersRepositoryTest {

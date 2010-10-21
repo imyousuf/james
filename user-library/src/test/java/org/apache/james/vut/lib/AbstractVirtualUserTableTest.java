@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.vut;
+package org.apache.james.vut.lib;
 
 import java.util.Collection;
 import java.util.Iterator;

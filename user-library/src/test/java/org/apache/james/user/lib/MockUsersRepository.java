@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.user.lib;
 
 import org.apache.james.user.api.User;
 import org.apache.james.user.lib.AbstractUsersRepository;
