@@ -226,7 +226,7 @@
     <bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 
     <!-- The High Level Storage block -->
-    <bean id="mailstore" class="org.apache.james.mailstore.JamesMailStore" />
+    <bean id="mailstore" class="org.apache.james.mailstore.lib.JamesMailStore" />
 
     <!-- The User Storage block -->
     <bean id="users-store" class="org.apache.james.user.lib.JamesUsersStore" >
@@ -253,7 +253,7 @@
     <bean id="virtualusertable" name="manageablevirtualusertable" class="org.apache.james.vut.lib.JamesVirtualUserTable" />
 
     <!-- The context domainlist implementation -->
-    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domainlist.list.JamesDomainList" />
+    <bean id="domainlist" name="domainlistmanagement" class="org.apache.james.domainlist.lib.JamesDomainList" />
 
     <!-- IMAP server Beans -->
     <bean id="imapserver" class="org.apache.james.imapserver.netty.NioImapServer">

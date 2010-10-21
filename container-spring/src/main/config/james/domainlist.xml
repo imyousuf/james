@@ -39,7 +39,7 @@
 <domainlists>
 
   <!-- XML based DomainList implementation -->
-  <domainlist class="org.apache.james.domainlist.XMLDomainList">
+  <domainlist class="org.apache.james.domainlist.xml.XMLDomainList">
     <domainnames>
       <domainname>localhost</domainname>
     </domainnames>
@@ -49,7 +49,7 @@
   
   <!-- JPA implementation for DomainList -->
   <!-- 
-  <domainlist class="org.apache.james.domainlist.JPADomainList">
+  <domainlist class="org.apache.james.domainlist.jpa.JPADomainList">
     <autodetect>true</autodetect>
     <autodetectIP>true</autodetectIP>
   </domainlist>
@@ -58,7 +58,7 @@
   <!-- JDBC implementation for DomainList. This is deprecated and should not be used. -->
   <!-- Use JPADomainList if you need a db backend DomainList -->
   <!-- 
-  <domainlist class="org.apache.james.domainlist.JDBCDomainList">
+  <domainlist class="org.apache.james.domainlist.jdbc.JDBCDomainList">
     <repositoryPath>db://maildb/domain</repositoryPath>
     <sqlFile>file://conf/sqlResources.xml</sqlFile>
     <autodetect>true</autodetect>
