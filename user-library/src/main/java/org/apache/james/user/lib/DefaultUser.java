@@ -22,6 +22,7 @@
 package org.apache.james.user.lib;
 
 import org.apache.james.user.api.User;
+import org.apache.james.user.lib.util.DigestUtil;
 
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;

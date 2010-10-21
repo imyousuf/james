@@ -23,7 +23,7 @@ import org.apache.james.user.api.User;
 import org.apache.james.user.lib.AbstractUsersRepository;
 import org.apache.james.user.lib.DefaultJamesUser;
 import org.apache.james.user.lib.DefaultUser;
-import org.apache.james.user.lib.DigestUtil;
+import org.apache.james.user.lib.util.DigestUtil;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
