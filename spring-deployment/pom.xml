@@ -316,6 +316,49 @@
         <version>2.4</version>
       </plugin>
       
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+         <configuration>       
+           <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> 
+            <manifest>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+            <manifestEntries>
+              <Fragment-Host>org.springframework.osgi.extender</Fragment-Host>
+           </manifestEntries>
+          </archive>
+        </configuration>       
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+          </execution>
+        </executions>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Export-Package>org.apache.james.container.spring.*</Export-Package>
+            <Embed-Dependency>*;scope=runtime</Embed-Dependency>
+          </instructions>
+        </configuration>
+      </plugin>
     </plugins>
       
   </build>
