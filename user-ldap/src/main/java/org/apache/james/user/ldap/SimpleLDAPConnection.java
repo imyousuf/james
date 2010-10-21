@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.user.ldap;
 
 import java.util.Properties;
 
