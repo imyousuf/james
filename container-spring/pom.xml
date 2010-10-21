@@ -25,8 +25,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-spring-deployment</artifactId>
-  <name>Apache James Server Spring Deployment</name>
+  <artifactId>james-server-container-spring</artifactId>
+  <name>Apache James Server Container Spring</name>
   <build>
   
     <plugins>
@@ -372,10 +372,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
       <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-spring-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
