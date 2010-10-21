@@ -28,10 +28,10 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
-import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersStore;
+import org.apache.james.vut.api.ErrorMappingException;
+import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 
 /**

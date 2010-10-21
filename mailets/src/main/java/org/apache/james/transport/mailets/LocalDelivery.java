@@ -21,10 +21,10 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.services.MailServer;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersStore;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;

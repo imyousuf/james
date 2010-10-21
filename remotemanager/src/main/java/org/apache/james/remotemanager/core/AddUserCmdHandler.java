@@ -26,8 +26,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
 import org.apache.james.domainlist.api.ManageableDomainList;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
@@ -36,6 +34,8 @@ import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.services.MailServer;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersStore;
 
 /**
  * Handler method called upon receipt of an ADDUSER command.

@@ -21,8 +21,8 @@
 
 package org.apache.james.usersstore;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersStore;
 
 import java.util.Iterator;
 import java.util.ArrayList;

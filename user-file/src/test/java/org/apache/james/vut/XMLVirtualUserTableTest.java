@@ -24,10 +24,10 @@ import java.util.List;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
-import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.api.VirtualUserTable;
 
 /**
  * Test the XML Virtual User Table implementation.

@@ -27,8 +27,6 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.api.user.JamesUser;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.mailbox.MailboxConstants;
@@ -38,6 +36,8 @@ import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
 import org.apache.james.mailbox.util.FetchGroupImpl;
+import org.apache.james.user.api.JamesUser;
+import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;

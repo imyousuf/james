@@ -25,13 +25,13 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
 import org.apache.james.services.MailServer;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.vut.api.ErrorMappingException;
+import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 
 /**

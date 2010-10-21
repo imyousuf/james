@@ -24,8 +24,8 @@ package org.apache.james.transport.mailets.listservcommands;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.james.transport.mailets.ICommandListservManager;
+import org.apache.james.user.api.UsersRepository;
 import org.apache.james.util.XMLResources;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

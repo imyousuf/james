@@ -18,14 +18,28 @@
  ****************************************************************/
 
 
-package org.apache.james.api.vut;
 
-public class ErrorMappingException extends Exception {
 
-	private static final long serialVersionUID = 2348752938798L;
+package org.apache.james.vut.api;
 
-	public ErrorMappingException(String string) {
-        super(string);
+public class ManageableVirtualUserTableException extends Exception {
+
+	private static final long serialVersionUID = 2365387465283746L;
+
+	public ManageableVirtualUserTableException() {
+        super();
+    }
+
+    public ManageableVirtualUserTableException(String message) {
+        super(message);
+    }
+
+    public ManageableVirtualUserTableException(Exception e) {
+        super(e);
+    }
+    
+    public ManageableVirtualUserTableException(String message, Exception e) {
+        super(message, e);
     }
 
 }

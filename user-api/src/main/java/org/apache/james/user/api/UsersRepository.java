@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.api.user;
+package org.apache.james.user.api;
 
 import java.util.Iterator;
 

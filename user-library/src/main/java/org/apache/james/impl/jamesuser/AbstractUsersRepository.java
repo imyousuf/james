@@ -24,12 +24,12 @@ package org.apache.james.impl.jamesuser;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.user.JamesUser;
-import org.apache.james.api.user.User;
-import org.apache.james.api.vut.ErrorMappingException;
 import org.apache.james.impl.user.DefaultUser;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.user.api.JamesUser;
+import org.apache.james.user.api.User;
+import org.apache.james.vut.api.ErrorMappingException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -161,7 +161,7 @@ public abstract class AbstractUsersRepository implements JamesUsersRepository, L
     }
 
     /**
-     * @see org.apache.james.api.vut.VirtualUserTable#getMappings(java.lang.String,
+     * @see org.apache.james.vut.api.VirtualUserTable#getMappings(java.lang.String,
      *      java.lang.String)
      */
     public Collection<String> getMappings(String username, String domain)

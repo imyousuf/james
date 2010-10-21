@@ -29,9 +29,9 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnit;
 
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
 import org.apache.james.vut.model.JPAVirtualUser;
 
 /**

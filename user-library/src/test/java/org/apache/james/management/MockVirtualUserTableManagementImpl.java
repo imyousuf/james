@@ -24,11 +24,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
-import org.apache.james.api.vut.VirtualUserTable;
-import org.apache.james.api.vut.ManageableVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
+import org.apache.james.vut.api.ErrorMappingException;
+import org.apache.james.vut.api.ManageableVirtualUserTable;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.api.VirtualUserTable;
 
 public class MockVirtualUserTableManagementImpl implements ManageableVirtualUserTable {
 

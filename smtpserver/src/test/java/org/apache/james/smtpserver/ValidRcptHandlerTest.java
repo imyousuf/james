@@ -31,16 +31,16 @@ import javax.mail.MessagingException;
 
 import junit.framework.TestCase;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
+import org.apache.james.user.api.UsersRepository;
 import org.apache.james.userrepository.MockUsersRepository;
+import org.apache.james.vut.api.ErrorMappingException;
+import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 

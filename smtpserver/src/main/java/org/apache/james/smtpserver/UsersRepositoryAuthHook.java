@@ -20,11 +20,11 @@ package org.apache.james.smtpserver;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.AuthHook;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
+import org.apache.james.user.api.UsersRepository;
 
 /**
  * This Auth hook can be used to authenticate against the james user repository

@@ -24,11 +24,11 @@ package org.apache.james.userrepository;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
 import org.apache.james.impl.user.DefaultJamesUser;
 import org.apache.james.mailstore.api.MailStore;
 import org.apache.james.repository.ObjectRepository;
+import org.apache.james.user.api.User;
 
 
 import java.util.Iterator;
@@ -121,14 +121,14 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#list()
+     * @see org.apache.james.user.api.UsersRepository#list()
      */
     public Iterator<String> list() {
         return objectRepository.list();
     }
 
     /**
-     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doAddUser(org.apache.james.api.user.User)
+     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doAddUser(org.apache.james.user.api.User)
      */
     protected void doAddUser(User user) {
         try {
@@ -139,7 +139,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#addUser(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String, java.lang.String)
      */
     public boolean addUser(String username, String password) {
         User newbie = new DefaultJamesUser(username, "SHA");
@@ -148,7 +148,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#getUserByName(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#getUserByName(java.lang.String)
      */
     public synchronized User getUserByName(String name) {
         if (ignoreCase) {
@@ -170,7 +170,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
      */
     public User getUserByNameCaseInsensitive(String name) {
         String realName = getRealName(name, true);
@@ -199,14 +199,14 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#getRealName(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#getRealName(java.lang.String)
      */
     public String getRealName(String name) {
         return getRealName(name, ignoreCase);
     }
     
     /**
-     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doUpdateUser(org.apache.james.api.user.User)
+     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doUpdateUser(org.apache.james.user.api.User)
      */
     public void doUpdateUser(User user) {
         try {
@@ -218,14 +218,14 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#removeUser(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#removeUser(java.lang.String)
      */
     public synchronized void removeUser(String name) {
         objectRepository.remove(name);
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#contains(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#contains(java.lang.String)
      */
     public boolean contains(String name) {
         if (ignoreCase) {
@@ -236,7 +236,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#containsCaseInsensitive(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#containsCaseInsensitive(java.lang.String)
      */
     public boolean containsCaseInsensitive(String name) {
         Iterator<String> it = list();
@@ -249,7 +249,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#test(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UsersRepository#test(java.lang.String, java.lang.String)
      */
     public boolean test(String name, String password) {
         User user;
@@ -263,7 +263,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.api.user.UsersRepository#countUsers()
+     * @see org.apache.james.user.api.UsersRepository#countUsers()
      */
     public int countUsers() {
         int count = 0;

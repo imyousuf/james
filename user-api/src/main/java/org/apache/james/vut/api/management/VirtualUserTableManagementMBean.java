@@ -19,118 +19,127 @@
 
 
 
-package org.apache.james.api.vut;
+package org.apache.james.vut.api.management;
 
 import java.util.Collection;
 import java.util.Map;
 
 
-public interface ManageableVirtualUserTable extends VirtualUserTable {
-    
-    /**
-     * The component role used by components implementing this service
-     */
-    public static final String ROLE = "org.apache.james.api.vut.management.VirtualUserTableManagement";
+/**
+ * Expose virtualusertable management functionality through JMX.
+ * 
+ */
+public interface VirtualUserTableManagementMBean {
     
     /**
      * Add regex mapping
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Add regex mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
      * @return true if successfully
-     * @throws ManageableVirtualUserTableException get thrown if an invalid argument was given
      */
-    public boolean addRegexMapping(String user, String domain, String regex) throws ManageableVirtualUserTableException;
+    public boolean addRegexMapping(String user, String domain, String regex);
     
     /**
      * Remove regex mapping
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Remove regex mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
      * @return true if successfully
-     * @throws ManageableVirtualUserTableException get thrown if an invalid argument was given
      */
-    public boolean removeRegexMapping(String user,String domain, String regex) throws ManageableVirtualUserTableException;
+    public boolean removeRegexMapping(String user,String domain, String regex);
     
     /***
      * Add address mapping
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Add address mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
-     * @param address 
+     * @param address the address.
      * @return true if successfully
-     * @throws ManageableVirtualUserTableException get thrown if an invalid argument was given
      */
-    public boolean addAddressMapping(String user, String domain, String address) throws ManageableVirtualUserTableException;
+    public boolean addAddressMapping(String user, String domain, String address);
     
     /**
      * Remove address mapping
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Remove address mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
-     * @param address 
+     * @param address
      * @return true if successfully
-     * @throws ManageableVirtualUserTableException get thrown if an invalid argument was given
      */
-    public boolean removeAddressMapping(String user,String domain, String address) throws ManageableVirtualUserTableException;
+    public boolean removeAddressMapping(String user,String domain, String address);
     
     /**
      * Add error mapping
-     * 
-     * @param user the username. Null if no username should be used
-     * @param domain the domain. Null if no domain should be used
-     * @param error the regex.
-     * @return true if successfully
-     * @throws ManageableVirtualUserTableException get thrown if an invalid argument was given
-     */
-    public boolean addErrorMapping(String user, String domain, String error) throws ManageableVirtualUserTableException;
-
-    /**
-     * Remove error mapping
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Add error mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param error
      * @return true if successfully
-     * @throws ManageableVirtualUserTableException get thrown if an invalid argument was given
      */
-    public boolean removeErrorMapping(String user,String domain, String error) throws ManageableVirtualUserTableException;
+    public boolean addErrorMapping(String user, String domain, String error);
+
+    /**
+     * Remove error mapping
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Remove error mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param error
+     * @return true if successfully
+     */
+    public boolean removeErrorMapping(String user,String domain, String error);
     
     /**
      * Return the explicit mapping stored for the given user and domain. Return null
      * if no mapping was found
-     * 
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Return the explicit mapping stored for the given user and domain. Return null
+     *                         if no mapping was found
+     *
      * @param user the username
      * @param domain the domain
      * @return the collection which holds the mappings. 
-     * @throws ManageableVirtualUserTableException  get thrown if an invalid use or domain was given
      */
-    public Collection<String> getUserDomainMappings(String user, String domain) throws ManageableVirtualUserTableException;
+    public Collection<String> getUserDomainMappings(String user, String domain);
     
     /**
-     * Add mapping
-     * 
-     * @param user the username. Null if no username should be used
-     * @param domain the domain. Null if no domain should be used
-     * @param mapping the mapping
-     * @return true if successfully
-     * @throws ManageableVirtualUserTableException
-     */
-    public boolean addMapping(String user, String domain, String mapping) throws ManageableVirtualUserTableException;
+    * Try to identify the right method based on the prefix of the mapping and add it.
+    * @phoenix:mx-operation
+    * @phoenix:mx-description Try to identify the right method based on the prefix of the mapping and add it
+    * 
+    * @param user the username. Null if no username should be used
+    * @param domain the domain. Null if no domain should be used
+    * @param mapping the mapping.
+    * @return true if successfully
+    */
+    public boolean addMapping(String user, String domain, String mapping);
     
     /**
-     * Remove mapping
-     * 
+     * Try to identify the right method based on the prefix of the mapping and remove it.
+     * @phoenix:mx-operation
+     * @phoenix:mx-description Try to identify the right method based on the prefix of the mapping and remove it
+     *
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
-     * @param mapping the mapping
+     * @param mapping the mapping.
      * @return true if successfully
-     * @throws ManageableVirtualUserTableException
      */
-    public boolean removeMapping(String user, String domain, String mapping) throws ManageableVirtualUserTableException;
-
+    public boolean removeMapping(String user, String domain, String mapping);
+    
 
     /**
      * Return a Map which holds all mappings. The key is the user@domain and the value is a Collection 
@@ -139,24 +148,4 @@ public interface ManageableVirtualUserTable extends VirtualUserTable {
      * @return Map which holds all mappings
      */
     public Map<String,Collection<String>> getAllMappings();
-    
-    /**
-     * Add aliasDomain mapping
-     * 
-     * @param aliasDomain the aliasdomain which should be mapped to the realDomain
-     * @param realDomain the realDomain
-     * @return true if successfilly
-     * @throws ManageableVirtualUserTableException
-     */
-    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws ManageableVirtualUserTableException;
-    
-    /**
-     * Remove aliasDomain mapping
-     * 
-     * @param aliasDomain the aliasdomain which should be mapped to the realDomain
-     * @param realDomain the realDomain
-     * @return true if successfilly
-     * @throws ManageableVirtualUserTableException
-     */
-    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws ManageableVirtualUserTableException;
 }

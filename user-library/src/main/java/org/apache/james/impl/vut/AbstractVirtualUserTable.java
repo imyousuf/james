@@ -29,12 +29,12 @@ import javax.mail.internet.ParseException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
-import org.apache.james.api.vut.VirtualUserTable;
-import org.apache.james.api.vut.ManageableVirtualUserTable;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.vut.api.ErrorMappingException;
+import org.apache.james.vut.api.ManageableVirtualUserTable;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;
@@ -94,7 +94,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.VirtualUserTable#getMappings(String, String)
+     * @see org.apache.james.vut.api.VirtualUserTable#getMappings(String, String)
      */
     public Collection<String> getMappings(String user,String domain) throws ErrorMappingException {
         return getMappings(user,domain,mappingLimit);
@@ -184,7 +184,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addRegexMapping(String user, String domain, String regex) throws ManageableVirtualUserTableException {     
         try {
@@ -203,7 +203,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
 
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean removeRegexMapping(String user, String domain, String regex) throws ManageableVirtualUserTableException {
         getLogger().info("Remove regex mapping => " + regex + " for user: " + user + " domain: " + domain);
@@ -211,7 +211,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addAddressMapping(String user, String domain, String address) throws ManageableVirtualUserTableException {
         if (address.indexOf('@') < 0) {
@@ -231,7 +231,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean removeAddressMapping(String user, String domain, String address) throws ManageableVirtualUserTableException {
         if (address.indexOf('@') < 0) {
@@ -242,7 +242,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addErrorMapping(String user, String domain, String error) throws ManageableVirtualUserTableException {   
         if (checkMapping(user,domain,error) == true) {          
@@ -254,7 +254,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean removeErrorMapping(String user, String domain, String error) throws ManageableVirtualUserTableException {
         getLogger().info("Remove error mapping => " + error + " for user: " + user + " domain: " + domain);     
@@ -263,7 +263,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
 
 
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#addMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addMapping(String user, String domain, String mapping) throws ManageableVirtualUserTableException {
 
@@ -283,7 +283,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#removeMapping(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeMapping(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean removeMapping(String user, String domain, String mapping) throws ManageableVirtualUserTableException {
 
@@ -303,7 +303,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#getAllMappings()
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#getAllMappings()
      */
     public Map<String,Collection<String>> getAllMappings() {
         int count = 0;
@@ -317,14 +317,14 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#getUserDomainMappings(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#getUserDomainMappings(java.lang.String, java.lang.String)
      */
     public Collection<String> getUserDomainMappings(String user, String domain) {
         return getUserDomainMappingsInternal(user, domain);
     }
 
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#addAliasDomainMapping(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#addAliasDomainMapping(java.lang.String, java.lang.String)
      */
     public synchronized boolean addAliasDomainMapping(String aliasDomain, String realDomain) throws ManageableVirtualUserTableException {
         getLogger().info("Add domain mapping: " + aliasDomain  + " => " + realDomain);
@@ -332,7 +332,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, Mana
     }
     
     /**
-     * @see org.apache.james.api.vut.ManageableVirtualUserTable#removeAliasDomainMapping(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeAliasDomainMapping(java.lang.String, java.lang.String)
      */
     public synchronized boolean removeAliasDomainMapping(String aliasDomain, String realDomain) throws ManageableVirtualUserTableException {
         getLogger().info("Remove domain mapping: " + aliasDomain  + " => " + realDomain);

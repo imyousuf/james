@@ -27,7 +27,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Version;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.james.api.user.User;
+import org.apache.james.user.api.User;
 
 @Entity(name = "JamesUser")
 @NamedQueries( { 

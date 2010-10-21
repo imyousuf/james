@@ -19,8 +19,8 @@
 
 package org.apache.james.impl.jamesuser;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.vut.VirtualUserTable;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.vut.api.VirtualUserTable;
 
 
 public interface JamesUsersRepository extends UsersRepository, VirtualUserTable {

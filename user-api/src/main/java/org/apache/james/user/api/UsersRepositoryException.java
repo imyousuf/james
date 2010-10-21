@@ -17,40 +17,28 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-package org.apache.james.api.user;
+package org.apache.james.user.api;
 
 /**
- * Interface for objects representing users.
- *
- *
- * @version $Revision$
+ * Basic user repository exception.
  */
+public class UsersRepositoryException extends Exception {
 
-public interface User {
+    private static final long serialVersionUID = 6758478375823762715L;
 
-    /**
-     * Return the user name of this user
-     *
-     * @return the user name for this user
-     */
-    String getUserName();
+    public UsersRepositoryException() {
+        super();
+    }
 
-    /**
-     * Return true if pass matches password of this user.
-     *
-     * @param pass the password to test
-     * @return whether the password being tested is valid
-     */
-    boolean verifyPassword(String pass);
+    public UsersRepositoryException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    /**
-     * Sets new password from String. No checks made on guessability of
-     * password.
-     *
-     * @param newPass the String that is the new password.
-     * @return true if newPass successfully added
-     */
-    boolean setPassword(String newPass);
+    public UsersRepositoryException(String message) {
+        super(message);
+    }
+
+    public UsersRepositoryException(Throwable cause) {
+        super(cause);
+    }
 }

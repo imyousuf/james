@@ -21,8 +21,8 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersStore;
 import org.apache.mailet.MailAddress;
 
 import javax.annotation.Resource;

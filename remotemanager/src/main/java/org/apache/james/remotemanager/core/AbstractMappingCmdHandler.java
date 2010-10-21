@@ -21,9 +21,9 @@ package org.apache.james.remotemanager.core;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.vut.ManageableVirtualUserTable;
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
 import org.apache.james.remotemanager.CommandHandler;
+import org.apache.james.vut.api.ManageableVirtualUserTable;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
 
 public abstract class AbstractMappingCmdHandler implements CommandHandler {
 
@@ -33,7 +33,7 @@ public abstract class AbstractMappingCmdHandler implements CommandHandler {
 
 
     @Resource(name="manageablevirtualusertable")
-    public void setManageableVirtualUserTable(org.apache.james.api.vut.ManageableVirtualUserTable vut) {
+    public void setManageableVirtualUserTable(org.apache.james.vut.api.ManageableVirtualUserTable vut) {
         this.vutManagement = vut;
     }
     

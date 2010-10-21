@@ -29,14 +29,14 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
-import org.apache.james.api.vut.VirtualUserTable;
-import org.apache.james.api.vut.ManageableVirtualUserTable;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.InstanceFactory;
+import org.apache.james.vut.api.ErrorMappingException;
+import org.apache.james.vut.api.ManageableVirtualUserTable;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.api.VirtualUserTable;
 
 public class JamesVirtualUserTable implements ManageableVirtualUserTable, Configurable, LogEnabled{
 

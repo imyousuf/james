@@ -19,27 +19,40 @@
 
 
 
+package org.apache.james.user.api;
 
-package org.apache.james.api.vut;
+import java.util.Iterator;
 
-public class ManageableVirtualUserTableException extends Exception {
+/**
+ * Interface for Phoenix blocks to access a store of Users. A UserStore
+ * contains one or more UserRepositories. Multiple UserRepositories may or may
+ * not have overlapping membership. 
+ *
+ * @version 1.0.0, 24/04/1999
+ */
+public interface UsersStore 
+{
+    /**
+     * The component role used by components implementing this service
+     */
+    String ROLE = "org.apache.james.api.user.UsersStore";
 
-	private static final long serialVersionUID = 2365387465283746L;
+    /** 
+     * Get the repository, if any, whose name corresponds to
+     * the argument parameter
+     *
+     * @param name the name of the desired repository
+     *
+     * @return the UsersRepository corresponding to the name parameter
+     */
+    UsersRepository getRepository( String name );
 
-	public ManageableVirtualUserTableException() {
-        super();
-    }
-
-    public ManageableVirtualUserTableException(String message) {
-        super(message);
-    }
-
-    public ManageableVirtualUserTableException(Exception e) {
-        super(e);
-    }
-    
-    public ManageableVirtualUserTableException(String message, Exception e) {
-        super(message, e);
-    }
-
+    /** 
+     * Yield an <code>Iterator</code> over the set of repository
+     * names managed internally by this store.
+     *
+     * @return an Iterator over the set of repository names
+     *         for this store
+     */
+    Iterator<String> getRepositoryNames();
 }

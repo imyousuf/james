@@ -21,10 +21,10 @@ package org.apache.james.userrepository;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.api.user.User;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.impl.user.DefaultJamesUser;
 import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.user.api.User;
+import org.apache.james.user.api.UsersRepository;
 
 import java.util.ArrayList;
 import java.util.Iterator;

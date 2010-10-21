@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.util.XMLResources;
+import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.MatchResult;

@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.api.vut.ErrorMappingException;
+import org.apache.james.vut.api.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -36,14 +36,14 @@ import org.apache.mailet.MailAddress;
  *
  */
 public class VirtualUserTable extends AbstractVirtualUserTableMailet {
-    private org.apache.james.api.vut.VirtualUserTable vut;
+    private org.apache.james.vut.api.VirtualUserTable vut;
    
     /**
      * Sets the virtual table store.
      * @param vutStore the vutStore to set, possibly null
      */
     @Resource(name="virtualusertable")
-    public final void setVirtualUserTable(org.apache.james.api.vut.VirtualUserTable vut) {
+    public final void setVirtualUserTable(org.apache.james.vut.api.VirtualUserTable vut) {
         this.vut = vut;
     }
 

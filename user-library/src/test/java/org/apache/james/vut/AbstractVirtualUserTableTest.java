@@ -24,11 +24,11 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.james.api.vut.ErrorMappingException;
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
-import org.apache.james.api.vut.VirtualUserTable;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.vut.api.ErrorMappingException;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.api.VirtualUserTable;
 
 /**
  * The abstract test for the virtual user table.

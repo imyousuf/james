@@ -32,10 +32,10 @@ import javax.persistence.PersistenceUnit;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.user.User;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.user.api.User;
+import org.apache.james.user.api.UsersRepository;
 import org.apache.james.userrepository.model.JPAUser;
 
 

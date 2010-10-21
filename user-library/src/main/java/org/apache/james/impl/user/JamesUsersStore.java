@@ -22,9 +22,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.user.UsersRepository;
-import org.apache.james.api.user.UsersStore;
 import org.apache.james.impl.AbstractStore;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersStore;
 
 /**
  * UsersStore implementation which will parse the configuration file for users-store and add every configured repository 

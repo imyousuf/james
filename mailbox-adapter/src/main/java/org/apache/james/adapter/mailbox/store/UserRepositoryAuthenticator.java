@@ -21,8 +21,8 @@ package org.apache.james.adapter.mailbox.store;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.mailbox.store.Authenticator;
+import org.apache.james.user.api.UsersRepository;
 
 /**
  * Authenticator which use an UsersRepository to check if the user and password match

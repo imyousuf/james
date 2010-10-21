@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
 
 public class AddMappingCmdHandler extends AbstractMappingCmdHandler {
 

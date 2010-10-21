@@ -36,12 +36,12 @@ import javax.sql.DataSource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
 
 /**
  * Class responsible to implement the Virtual User Table in database with JDBC access.

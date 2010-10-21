@@ -25,7 +25,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
-import org.apache.james.api.user.UsersRepository;
+import org.apache.james.user.api.UsersRepository;
 import org.apache.james.userrepository.MockUsersRepositoryTest;
 import org.xml.sax.InputSource;
 

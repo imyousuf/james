@@ -21,7 +21,7 @@
 
 package org.apache.james.impl.user;
 
-import org.apache.james.api.user.User;
+import org.apache.james.user.api.User;
 
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
@@ -69,14 +69,14 @@ public class DefaultUser implements User, Serializable {
     }
 
     /**
-     * @see org.apache.james.api.user.User#getUserName()
+     * @see org.apache.james.user.api.User#getUserName()
      */
     public String getUserName() {
         return userName;
     }
 
     /**
-     * @see org.apache.james.api.user.User#verifyPassword(java.lang.String)
+     * @see org.apache.james.user.api.User#verifyPassword(java.lang.String)
      */
     public boolean verifyPassword(String pass) {
         try {
@@ -88,7 +88,7 @@ public class DefaultUser implements User, Serializable {
     }
 
     /**
-     * @see org.apache.james.api.user.User#setPassword(java.lang.String)
+     * @see org.apache.james.user.api.User#setPassword(java.lang.String)
      */
     public boolean setPassword(String newPass) {
         try {

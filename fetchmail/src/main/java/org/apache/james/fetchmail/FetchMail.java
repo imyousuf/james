@@ -39,11 +39,11 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration.Node;
 import org.apache.commons.logging.Log;
-import org.apache.james.api.user.UsersRepository;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.MailServer;
+import org.apache.james.user.api.UsersRepository;
 
 /**
  * <p>Class <code>FetchMail</code> is an Avalon task that is periodically

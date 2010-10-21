@@ -27,8 +27,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.vut.ManageableVirtualUserTableException;
-import org.apache.james.api.vut.management.VirtualUserTableManagementMBean;
+import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.api.management.VirtualUserTableManagementMBean;
 
 
 /**
@@ -37,10 +37,10 @@ import org.apache.james.api.vut.management.VirtualUserTableManagementMBean;
  */
 public class VirtualUserTableManagement implements VirtualUserTableManagementMBean {
 
-    private org.apache.james.api.vut.ManageableVirtualUserTable vut;    
+    private org.apache.james.vut.api.ManageableVirtualUserTable vut;    
 
     @Resource(name="manageablevirtualusertable")
-    public void setManageableVirtualUserTable(org.apache.james.api.vut.ManageableVirtualUserTable vut) {
+    public void setManageableVirtualUserTable(org.apache.james.vut.api.ManageableVirtualUserTable vut) {
         this.vut = vut;
     }
     
