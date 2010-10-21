@@ -36,7 +36,7 @@
     <module>util</module>
     <module>core-api</module>
     <module>user-api</module>
-    <module>domain-api</module>
+    <module>domainlist-api</module>
     <module>mail-api</module>
     <module>dnsservice-api</module>
     <module>dnsservice-dnsjava</module>
@@ -47,10 +47,10 @@
     <module>user-jpa</module>
     <module>user-ldap</module>
     <module>mail-library</module>
-    <module>domain-library</module>
-    <module>domain-jpa</module>
-    <module>domain-xml</module>
-    <module>domain-jdbc</module>
+    <module>domainlist-library</module>
+    <module>domainlist-jpa</module>
+    <module>domainlist-xml</module>
+    <module>domainlist-jdbc</module>
     <module>core-library</module>
     <module>mail-file</module>
     <module>mail-jdbc</module>
