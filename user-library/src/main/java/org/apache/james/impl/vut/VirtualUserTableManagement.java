@@ -28,7 +28,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.james.vut.api.ManageableVirtualUserTableException;
-import org.apache.james.vut.api.management.VirtualUserTableManagementMBean;
+import org.apache.james.vut.api.VirtualUserTableManagementMBean;
 
 
 /**

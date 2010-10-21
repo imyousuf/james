@@ -20,6 +20,7 @@
 package org.apache.james.impl.jamesuser;
 
 import org.apache.james.impl.user.LocalUsersRepository;
+import org.apache.james.user.api.JamesUsersRepository;
 import org.apache.james.vut.api.ErrorMappingException;
 
 import java.util.Collection;
@@ -35,7 +36,7 @@ public class LocalJamesUsersRepository extends LocalUsersRepository implements J
 
 
     /**
-     * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableAliases(boolean)
+     * @see org.apache.james.user.api.JamesUsersRepository#setEnableAliases(boolean)
      */
     public void setEnableAliases(boolean enableAliases) {
         if (users instanceof JamesUsersRepository) {
@@ -46,7 +47,7 @@ public class LocalJamesUsersRepository extends LocalUsersRepository implements J
     }
 
     /**
-     * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableForwarding(boolean)
+     * @see org.apache.james.user.api.JamesUsersRepository#setEnableForwarding(boolean)
      */
     public void setEnableForwarding(boolean enableForwarding) {
         if (users instanceof JamesUsersRepository) {
@@ -57,7 +58,7 @@ public class LocalJamesUsersRepository extends LocalUsersRepository implements J
     }
 
     /**
-     * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setIgnoreCase(boolean)
+     * @see org.apache.james.user.api.JamesUsersRepository#setIgnoreCase(boolean)
      */
     public void setIgnoreCase(boolean ignoreCase) {
         if (users instanceof JamesUsersRepository) {

@@ -28,6 +28,7 @@ import org.apache.james.impl.user.DefaultUser;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.user.api.JamesUser;
+import org.apache.james.user.api.JamesUsersRepository;
 import org.apache.james.user.api.User;
 import org.apache.james.vut.api.ErrorMappingException;
 
@@ -209,21 +210,21 @@ public abstract class AbstractUsersRepository implements JamesUsersRepository, L
     
     
     /**
-     * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableAliases(boolean)
+     * @see org.apache.james.user.api.JamesUsersRepository#setEnableAliases(boolean)
      */
     public void setEnableAliases(boolean enableAliases) {
         this.enableAliases = enableAliases;
     }
 
     /**
-     * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setEnableForwarding(boolean)
+     * @see org.apache.james.user.api.JamesUsersRepository#setEnableForwarding(boolean)
      */
     public void setEnableForwarding(boolean enableForwarding) {
         this.enableForwarding = enableForwarding;
     }
 
     /**
-     * @see org.apache.james.impl.jamesuser.JamesUsersRepository#setIgnoreCase(boolean)
+     * @see org.apache.james.user.api.JamesUsersRepository#setIgnoreCase(boolean)
      */
     public void setIgnoreCase(boolean ignoreCase) {
         this.ignoreCase = ignoreCase;

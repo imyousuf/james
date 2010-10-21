@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.vut.api.management;
+package org.apache.james.vut.api;
 
 import java.util.Collection;
 import java.util.Map;

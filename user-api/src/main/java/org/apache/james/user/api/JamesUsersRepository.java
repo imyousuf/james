@@ -17,29 +17,29 @@
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.user.api;
+
+import org.apache.james.vut.api.VirtualUserTable;
 
 
+public interface JamesUsersRepository extends UsersRepository, VirtualUserTable {
 
-package org.apache.james.user.api.management;
+    /**
+     * enable/disable aliases in case of JamesUsers
+     * @param enableAliases enable
+     */
+    public void setEnableAliases(boolean enableAliases);
 
-public class UserManagementException extends Exception {
+    /**
+     * enable/disable aliases in case of JamesUsers
+     * @param enableForwarding enable
+     */
+    public void setEnableForwarding(boolean enableForwarding);
 
-	private static final long serialVersionUID = 34908520632L;
-
-	public UserManagementException() {
-        super();
-    }
-
-    public UserManagementException(String message) {
-        super(message);
-    }
-
-    public UserManagementException(Exception e) {
-        super(e);
-    }
-    
-    public UserManagementException(String message, Exception e) {
-        super(message, e);
-    }
+    /**
+     * set case sensitive/insensitive operations
+     * @param ignoreCase ignore
+     */
+    public void setIgnoreCase(boolean ignoreCase);
 
 }

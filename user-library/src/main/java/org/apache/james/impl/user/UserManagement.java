@@ -30,10 +30,10 @@ import javax.annotation.Resource;
 
 import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.User;
+import org.apache.james.user.api.UserManagementException;
+import org.apache.james.user.api.UserManagementMBean;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersStore;
-import org.apache.james.user.api.management.UserManagementException;
-import org.apache.james.user.api.management.UserManagementMBean;
 
 public class UserManagement implements UserManagementMBean {
     
@@ -75,14 +75,14 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#addUser(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#addUser(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean addUser(String userName, String password, String repositoryName) throws UserManagementException {
         return getUserRepository(repositoryName).addUser(userName, password);
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#deleteUser(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#deleteUser(java.lang.String, java.lang.String)
      */
     public boolean deleteUser(String userName, String repositoryName) throws UserManagementException {
         UsersRepository users = getUserRepository(repositoryName);
@@ -92,7 +92,7 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#verifyExists(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#verifyExists(java.lang.String, java.lang.String)
      */
     public boolean verifyExists(String userName, String repositoryName) throws UserManagementException {
         UsersRepository users = getUserRepository(repositoryName);
@@ -100,7 +100,7 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#countUsers(java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#countUsers(java.lang.String)
      */
     public long countUsers(String repositoryName) throws UserManagementException {
         UsersRepository users = getUserRepository(repositoryName);
@@ -108,7 +108,7 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#listAllUsers(java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#listAllUsers(java.lang.String)
      */
     public String[] listAllUsers(String repositoryName) throws UserManagementException {
         List<String> userNames = new ArrayList<String>();
@@ -120,7 +120,7 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#setPassword(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#setPassword(java.lang.String, java.lang.String, java.lang.String)
      */
     public boolean setPassword(String userName, String password, String repositoryName) throws UserManagementException {
         UsersRepository users = getUserRepository(repositoryName);
@@ -130,7 +130,7 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#unsetAlias(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#unsetAlias(java.lang.String, java.lang.String)
      */
     public boolean unsetAlias(String userName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
@@ -142,7 +142,7 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#getAlias(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#getAlias(java.lang.String, java.lang.String)
      */
     public String getAlias(String userName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
@@ -151,7 +151,7 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#unsetForwardAddress(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#unsetForwardAddress(java.lang.String, java.lang.String)
      */
     public boolean unsetForwardAddress(String userName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
@@ -164,7 +164,7 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#getForwardAddress(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#getForwardAddress(java.lang.String, java.lang.String)
      */
     public String getForwardAddress(String userName, String repositoryName) throws UserManagementException {
         JamesUser user = getJamesUser(userName, null);
@@ -173,7 +173,7 @@ public class UserManagement implements UserManagementMBean {
     }
 
     /**
-     * @see org.apache.james.user.api.management.UserManagementMBean#getUserRepositoryNames()
+     * @see org.apache.james.user.api.UserManagementMBean#getUserRepositoryNames()
      */
     public List<String> getUserRepositoryNames() {
         List<String> result = new ArrayList<String>();
