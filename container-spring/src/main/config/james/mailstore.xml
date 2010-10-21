@@ -80,7 +80,7 @@
             <config FIFO="false"/> 
         </repository>
         
-        <repository class="org.apache.james.filepair.file.FilePersistentObjectRepository">
+        <repository class="org.apache.james.filepair.FilePersistentObjectRepository">
             <protocols>
                 <protocol>file</protocol>
             </protocols>
@@ -94,7 +94,7 @@
             </models>
         </repository>
 
-        <repository class="org.apache.james.filepair.file.FilePersistentStreamRepository">
+        <repository class="org.apache.james.filepair.FilePersistentStreamRepository">
             <protocols>
                 <protocol>file</protocol>
             </protocols>
