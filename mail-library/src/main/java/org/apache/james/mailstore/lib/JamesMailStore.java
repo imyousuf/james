@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailstore;
+package org.apache.james.mailstore.lib;
 
 import java.util.HashMap;
 import java.util.List;

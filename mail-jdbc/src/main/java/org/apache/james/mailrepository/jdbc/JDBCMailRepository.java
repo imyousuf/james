@@ -27,7 +27,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.mailrepository.AbstractMailRepository;
+import org.apache.james.mailrepository.lib.AbstractMailRepository;
 import org.apache.james.repository.StreamRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
@@ -436,7 +436,7 @@ public class JDBCMailRepository
 
 
     /**
-     * @see org.apache.james.mailrepository.AbstractMailRepository#internalStore(Mail)
+     * @see org.apache.james.mailrepository.lib.AbstractMailRepository#internalStore(Mail)
      */
     protected void internalStore(Mail mc) throws IOException, MessagingException {
         Connection conn = null;
@@ -804,7 +804,7 @@ public class JDBCMailRepository
     }
 
     /**
-     * @see org.apache.james.mailrepository.AbstractMailRepository#internalRemove(String)
+     * @see org.apache.james.mailrepository.lib.AbstractMailRepository#internalRemove(String)
      */
     protected void internalRemove(String key) throws MessagingException {
         Connection conn = null;

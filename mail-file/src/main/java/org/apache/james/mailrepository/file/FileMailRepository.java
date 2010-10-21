@@ -26,7 +26,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.mailrepository.AbstractMailRepository;
+import org.apache.james.mailrepository.lib.AbstractMailRepository;
 import org.apache.james.mailstore.api.MailStore;
 import org.apache.james.repository.ObjectRepository;
 import org.apache.james.repository.StreamRepository;
@@ -157,7 +157,7 @@ public class FileMailRepository
     }
 
     /**
-     * @see org.apache.james.mailrepository.AbstractMailRepository#internalStore(Mail)
+     * @see org.apache.james.mailrepository.lib.AbstractMailRepository#internalStore(Mail)
      */
     protected void internalStore(Mail mc) throws MessagingException, IOException {
         String key = mc.getName();
@@ -251,7 +251,7 @@ public class FileMailRepository
 
 
     /**
-     * @see org.apache.james.mailrepository.AbstractMailRepository#internalRemove(String)
+     * @see org.apache.james.mailrepository.lib.AbstractMailRepository#internalRemove(String)
      */
     protected void internalRemove(String key) throws MessagingException {
         if (keys != null) keys.remove(key);
