@@ -233,7 +233,7 @@
 </sqlDefs>
 
 <!-- SQL statements for the JdbcMailRepository  -->
-<sqlDefs name="org.apache.james.mail.jdbc.JDBCMailRepository">
+<sqlDefs name="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
 
     <!-- Statements used to check whether a particular message exists in this repository. -->
     <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>

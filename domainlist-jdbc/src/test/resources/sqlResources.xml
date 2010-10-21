@@ -233,7 +233,7 @@
 </sqlDefs>
 
 <!-- SQL statements for the JdbcMailRepository  -->
-<sqlDefs name="org.apache.james.mail.jdbc.JDBCMailRepository">
+<sqlDefs name="org.apache.james.mailrespository.jdbc.JDBCMailRepository">
 
     <!-- Statements used to check whether a particular message exists in this repository. -->
     <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
@@ -446,7 +446,7 @@
 <!-- -->
 <!-- The JDBCSpoolRepository allows James to use a JDBC compliant database -->
 <!-- to hold messages that are on the spool. -->
-<sqlDefs name="org.apache.james.mail.jdbc.JDBCSpoolRepository">
+<sqlDefs name="org.apache.james.mailrepository.jdbc.JDBCSpoolRepository">
 
     <!-- Statements used to check whether a particular message exists in this repository. -->
     <sql name="checkMessageExistsSQL">SELECT count(*) FROM ${table} WHERE message_name = ? AND repository_name = ?</sql>
