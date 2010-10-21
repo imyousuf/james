@@ -478,27 +478,27 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
+      <artifactId>james-server-domainlist-api</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-library</artifactId>
+      <artifactId>james-server-domainlist-library</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-xml</artifactId>
+      <artifactId>james-server-domainlist-xml</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-jdbc</artifactId>
+      <artifactId>james-server-domainlist-jdbc</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-jpa</artifactId>
+      <artifactId>james-server-domainlist-jpa</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>

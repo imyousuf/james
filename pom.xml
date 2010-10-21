@@ -408,34 +408,34 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
+      <artifactId>james-server-domainlist-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-api</artifactId>
+      <artifactId>james-server-domainlist-api</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-library</artifactId>
+      <artifactId>james-server-domainlist-library</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-xml</artifactId>
+      <artifactId>james-server-domainlist-xml</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-jdbc</artifactId>
+      <artifactId>james-server-domainlist-jdbc</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-jpa</artifactId>
+      <artifactId>james-server-domainlist-jpa</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

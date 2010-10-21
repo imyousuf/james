@@ -25,8 +25,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-domain-jpa</artifactId>
-  <name>Apache James Server Domain JPA</name>
+  <artifactId>james-server-domainlist-xml</artifactId>
+  <name>Apache James Server Domain XML</name>
   <dependencies>
   
     <dependency>
@@ -35,7 +35,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domain-library</artifactId>
+      <artifactId>james-server-domainlist-library</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -93,38 +93,4 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>openjpa-maven-plugin</artifactId>
-        <version>1.0</version>
-        <configuration>
-          <includes>org/apache/james/domain/model/JPADomain.class</includes>
-          <addDefaultConstructor>true</addDefaultConstructor>
-          <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
-          <toolProperties>
-            <property>
-              <name>log</name>
-              <value>TOOL=TRACE</value>
-            </property>   
-            <property>
-              <name>metaDataFactory</name>
-              <value>jpa(Types=org.apache.james.domainlist.model.JPADomain)</value>
-            </property>           
-          </toolProperties>
-        </configuration>  
-        <executions>
-          <execution>
-            <id>enhancer</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>enhance</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  
 </project>
