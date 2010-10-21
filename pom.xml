@@ -66,13 +66,12 @@
     <module>remotemanager</module>
     <module>mailets</module>
     <module>fetchmail</module>
-    <module>spring-deployment</module>
     <module>netty-socket</module>
-    <module>spring-common</module>
     <module>mailbox-adapter</module>
     <module>queue-api</module>
     <module>queue-jms</module>
     <module>queue-activemq</module>
+    <module>container-spring</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -256,11 +255,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsservice-dnsjava</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-spring-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
