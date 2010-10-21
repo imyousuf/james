@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.user.jcr;
 
 import java.io.File;
 
@@ -26,6 +26,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.jcr.JCRUsersRepository;
 import org.apache.james.user.lib.MockUsersRepositoryTest;
 import org.xml.sax.InputSource;
 
