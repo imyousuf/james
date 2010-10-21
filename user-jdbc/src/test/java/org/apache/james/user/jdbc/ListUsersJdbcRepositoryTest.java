@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.userrepository;
+package org.apache.james.user.jdbc;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
@@ -25,6 +25,8 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.jdbc.AbstractJdbcUsersRepository;
+import org.apache.james.user.jdbc.ListUsersJdbcRepository;
 import org.apache.james.user.lib.MockUsersRepositoryTest;
 import org.apache.james.util.TestUtil;
 

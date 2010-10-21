@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.userrepository;
+package org.apache.james.user.jdbc;
 
 import org.apache.james.user.api.User;
 import org.apache.james.user.lib.DefaultUser;
@@ -52,7 +52,7 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
     }
     
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
+     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
      */
     protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException 
     {
@@ -65,7 +65,7 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.user.api.User, java.sql.PreparedStatement)
+     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.user.api.User, java.sql.PreparedStatement)
      */
     protected void setUserForInsertStatement(User user, 
                                              PreparedStatement userInsert) 
@@ -78,7 +78,7 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.user.api.User, java.sql.PreparedStatement)
+     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.user.api.User, java.sql.PreparedStatement)
      */
     protected void setUserForUpdateStatement(User user, 
                                              PreparedStatement userUpdate) 

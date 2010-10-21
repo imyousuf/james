@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.userrepository;
+package org.apache.james.user.jdbc;
 
 import org.apache.james.user.api.User;
 import org.apache.james.user.lib.DefaultJamesUser;
@@ -37,7 +37,7 @@ import java.sql.SQLException;
 public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
 
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
+     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
      */
     protected User readUserFromResultSet(ResultSet rsUsers) throws SQLException {
         // Get the column values
@@ -75,7 +75,7 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
 
 
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.user.api.User,
+     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.user.api.User,
      *      java.sql.PreparedStatement)
      */
     protected void setUserForInsertStatement(User user, 
@@ -84,7 +84,7 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
     }
 
     /**
-     * @see org.apache.james.userrepository.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.user.api.User,
+     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForUpdateStatement(org.apache.james.user.api.User,
      *      java.sql.PreparedStatement)
      */
     protected void setUserForUpdateStatement(User user, 
