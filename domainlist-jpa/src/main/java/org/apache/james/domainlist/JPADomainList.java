@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.domainlist.james;
+package org.apache.james.domainlist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +29,8 @@ import javax.persistence.PersistenceUnit;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.domainlist.james.model.JPADomain;
 import org.apache.james.domainlist.lib.AbstractDomainList;
+import org.apache.james.domainlist.model.JPADomain;
 import org.apache.james.lifecycle.Configurable;
 
 /**

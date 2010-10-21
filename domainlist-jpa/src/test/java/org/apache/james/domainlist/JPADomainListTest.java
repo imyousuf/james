@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.domainlist.james;
+package org.apache.james.domainlist;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -25,10 +25,10 @@ import java.util.HashMap;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.domainlist.james.JPADomainList;
-import org.apache.domainlist.james.model.JPADomain;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
+import org.apache.james.domainlist.JPADomainList;
+import org.apache.james.domainlist.model.JPADomain;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAPersistence;
 
