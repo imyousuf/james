@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-domainlist-library</artifactId>
-  <name>Apache James Server Domain Library</name>
+  <name>Apache James Server DomainList Library</name>
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>

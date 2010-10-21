@@ -26,7 +26,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-domainlist-jdbc</artifactId>
-  <name>Apache James Server Domain JDBC</name>
+  <name>Apache James Server DomainList JDBC</name>
   <dependencies>
   
     <dependency>
