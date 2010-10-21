@@ -24,13 +24,11 @@ package org.apache.james.domainlist.api;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.james.domainlist.api.ManageableDomainList;
-
 /**
  * Simplest implementation for ManageableDomainList
  */
-public class SimpleDomainList implements ManageableDomainList {
-    List<String> domains = new LinkedList<String>();
+public class SimpleDomainList implements DomainList {
+    private List<String> domains = new LinkedList<String>();
 
     public boolean containsDomain(String domain) {
         return domains.contains(domain);
@@ -38,14 +36,6 @@ public class SimpleDomainList implements ManageableDomainList {
 
     public String[] getDomains() {
         return domains.toArray(new String[domains.size()]);
-    }
-
-    public void setAutoDetect(boolean autodetect) {
-        // ignore
-    }
-
-    public void setAutoDetectIP(boolean autodetectIP) {
-        // ignore
     }
 
     public boolean addDomain(String domain) {

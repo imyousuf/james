@@ -34,7 +34,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
-import org.apache.james.domainlist.api.ManageableDomainList;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
@@ -178,13 +177,8 @@ public class JamesMailServer
     private void initializeServernames() throws ConfigurationException, ParseException {
         String defaultDomain = getDefaultDomain();
         if (domains.containsDomain(defaultDomain) == false) {
-            if (domains instanceof ManageableDomainList) {
-                if(((ManageableDomainList) domains).addDomain(defaultDomain) == false) {
-                    throw new ConfigurationException("Configured defaultdomain could not get added to DomainList");
-                }
-            } else {
-                throw new ConfigurationException("Configured defaultDomain not exist in DomainList");
-            }
+            throw new ConfigurationException("Configured defaultDomain not exist in DomainList");
+            
         }
         serverNames = domains.getDomains();
 
@@ -289,7 +283,7 @@ public class JamesMailServer
         if (defaultDomain == null) {
             String[] domainList = domains.getDomains();
             if (domainList == null || domainList.length < 1) {
-            	return conf.getString("defaultDomain", "localhost");
+                return conf.getString("defaultDomain", "localhost");
             } else {
                 return domainList[0];
             }  

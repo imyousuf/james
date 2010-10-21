@@ -22,6 +22,6 @@ package org.apache.james.domainlist.api;
  * JMX MBean for DomainList
  *
  */
-public interface DomainListMBean extends DomainList{
+public interface DomainListManagementMBean extends DomainList{
     
 }

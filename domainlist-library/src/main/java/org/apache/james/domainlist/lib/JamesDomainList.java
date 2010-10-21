@@ -27,8 +27,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.domainlist.api.DomainList;
-import org.apache.james.domainlist.api.ManageableDomainList;
-import org.apache.james.domainlist.api.ManageableDomainListMBean;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LogEnabled;
@@ -38,7 +36,7 @@ import org.apache.james.services.InstanceFactory;
  * 
  *
  */
-public class JamesDomainList implements ManageableDomainList, ManageableDomainListMBean, LogEnabled, Configurable{
+public class JamesDomainList implements DomainList, LogEnabled, Configurable{
 
     private InstanceFactory instanceFactory;
     private HierarchicalConfiguration config;
@@ -92,10 +90,7 @@ public class JamesDomainList implements ManageableDomainList, ManageableDomainLi
      * @see org.apache.james.api.domainlist.ManageableDomainList#addDomain(java.lang.String)
      */
     public boolean addDomain(String domain) {
-        if (domainList instanceof ManageableDomainList) {
-            return ((ManageableDomainList) domainList).addDomain(domain);
-        }
-        return false;
+        return domainList.addDomain(domain);
     }
 
     /*
@@ -103,10 +98,7 @@ public class JamesDomainList implements ManageableDomainList, ManageableDomainLi
      * @see org.apache.james.api.domainlist.ManageableDomainList#removeDomain(java.lang.String)
      */
     public boolean removeDomain(String domain) {
-        if (domainList instanceof ManageableDomainList) {
-            return ((ManageableDomainList) domainList).removeDomain(domain);
-        }
-        return false;
+        return domainList.removeDomain(domain);
     }
 
     /*

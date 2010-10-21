@@ -41,7 +41,7 @@ import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
-import org.apache.james.domainlist.api.ManageableDomainList;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.SimpleDomainList;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
@@ -188,10 +188,10 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 		vutManagement = new MockVirtualUserTableManagementImpl();
 		serviceManager.put("manageablevirtualusertable", vutManagement);
 	
-		ManageableDomainList xml = new SimpleDomainList();
+		DomainList xml = new SimpleDomainList();
 
 	
-		serviceManager.put("domainlistmanagement", xml);
+		serviceManager.put("domainlist", xml);
 
 		serviceManager.put("mailStore", new MockMailStore());
 	

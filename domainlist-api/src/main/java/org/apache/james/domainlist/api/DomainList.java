@@ -43,4 +43,20 @@ public interface DomainList {
     public boolean containsDomain(String domain);
 
     
+    /**
+     * Add domain to the service
+     * 
+     * @param domain domain to add
+     * @return true if successfull
+     */
+    public boolean addDomain(String domain);
+    
+    /**
+     * Remove domain from the service
+     *  
+     * @param domain domain to remove
+     * @return true if successfull
+     */
+    public boolean removeDomain(String domain);
+    
 }

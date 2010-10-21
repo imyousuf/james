@@ -26,7 +26,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.james.domainlist.api.ManageableDomainList;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHandler;
@@ -48,10 +48,10 @@ public class AddUserCmdHandler implements CommandHandler{
     private UsersStore uStore;
     private MailServer mailServer;
 
-    private ManageableDomainList domList;
+    private DomainList domList;
 
-    @Resource(name="domainlistmanagement")
-    public final void setManageableDomainList(ManageableDomainList domList) {
+    @Resource(name="domainlist")
+    public final void setDomainList(DomainList domList) {
         this.domList = domList;
     }
     
