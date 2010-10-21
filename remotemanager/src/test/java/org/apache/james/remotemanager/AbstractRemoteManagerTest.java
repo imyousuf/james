@@ -36,13 +36,13 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.james.api.domainlist.ManageableDomainList;
-import org.apache.james.api.domainlist.SimpleDomainList;
 import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
+import org.apache.james.domainlist.api.ManageableDomainList;
+import org.apache.james.domainlist.api.SimpleDomainList;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.management.MockVirtualUserTableManagementImpl;

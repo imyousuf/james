@@ -25,7 +25,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.james.api.domainlist.ManageableDomainList;
+import org.apache.james.domainlist.api.ManageableDomainList;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHandler;

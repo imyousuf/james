@@ -110,7 +110,7 @@
             </property>   
             <property>
               <name>metaDataFactory</name>
-              <value>jpa(Types=org.apache.james.domain.model.JPADomain)</value>
+              <value>jpa(Types=org.apache.james.domainlist.model.JPADomain)</value>
             </property>           
           </toolProperties>
         </configuration>  
