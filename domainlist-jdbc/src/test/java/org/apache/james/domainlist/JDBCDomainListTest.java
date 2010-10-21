@@ -19,7 +19,7 @@
 
 
 
-package org.apache.domainlist.james;
+package org.apache.james.domainlist;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -36,9 +36,9 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.domainlist.james.JDBCDomainList;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
+import org.apache.james.domainlist.JDBCDomainList;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.util.TestUtil;
 import org.apache.james.util.sql.JDBCUtil;
