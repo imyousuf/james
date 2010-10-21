@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailrepository.file;
 
 import org.apache.james.core.MimeMessageSource;
 import org.apache.james.repository.StreamRepository;

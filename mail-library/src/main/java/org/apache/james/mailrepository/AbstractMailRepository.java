@@ -26,7 +26,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.mailstore.MailStore;
+import org.apache.james.mailrepository.api.MailRepository;
+import org.apache.james.mailstore.api.MailStore;
 import org.apache.james.util.Lock;
 import org.apache.mailet.Mail;
 
@@ -85,7 +86,7 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#unlock(String)
+     * @see org.apache.james.mailrepository.api.MailRepository#unlock(String)
      */
     public boolean unlock(String key) {
         if (lock.unlock(key)) {
@@ -107,7 +108,7 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#lock(String)
+     * @see org.apache.james.mailrepository.api.MailRepository#lock(String)
      */
     public boolean lock(String key) {
         if (lock.lock(key)) {
@@ -130,7 +131,7 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
 
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#store(Mail)
+     * @see org.apache.james.mailrepository.api.MailRepository#store(Mail)
      */
     public void store(Mail mc) throws MessagingException {
         boolean wasLocked = true;
@@ -177,7 +178,7 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
 
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#remove(Mail)
+     * @see org.apache.james.mailrepository.api.MailRepository#remove(Mail)
      */
     public void remove(Mail mail) throws MessagingException {
         remove(mail.getName());
@@ -185,7 +186,7 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
 
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#remove(Collection)
+     * @see org.apache.james.mailrepository.api.MailRepository#remove(Collection)
      */
     public void remove(Collection<Mail> mails) throws MessagingException {
         Iterator<Mail>delList = mails.iterator();
@@ -195,7 +196,7 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#remove(String)
+     * @see org.apache.james.mailrepository.api.MailRepository#remove(String)
      */
     public void remove(String key) throws MessagingException {
         if (lock(key)) {

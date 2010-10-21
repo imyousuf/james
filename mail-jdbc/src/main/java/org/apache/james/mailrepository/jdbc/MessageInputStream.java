@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailrepository.jdbc;
 
 import org.apache.james.core.MimeMessageUtil;
 import org.apache.james.repository.StreamRepository;

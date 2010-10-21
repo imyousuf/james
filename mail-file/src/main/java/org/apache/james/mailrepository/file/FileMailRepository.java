@@ -19,14 +19,15 @@
 
 
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailrepository.file;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.mailstore.MailStore;
+import org.apache.james.mailrepository.AbstractMailRepository;
+import org.apache.james.mailstore.api.MailStore;
 import org.apache.james.repository.ObjectRepository;
 import org.apache.james.repository.StreamRepository;
 import org.apache.mailet.Mail;
@@ -211,7 +212,7 @@ public class FileMailRepository
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#retrieve(String)
+     * @see org.apache.james.mailrepository.api.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) throws MessagingException {
         if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
@@ -260,7 +261,7 @@ public class FileMailRepository
 
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#list()
+     * @see org.apache.james.mailrepository.api.MailRepository#list()
      */
     public Iterator list() {
         // Fix ConcurrentModificationException by cloning 

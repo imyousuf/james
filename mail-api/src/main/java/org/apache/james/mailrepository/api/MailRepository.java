@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailrepository.api;
 
 import org.apache.mailet.Mail;
 

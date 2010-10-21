@@ -45,7 +45,7 @@
  *
  */
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailrepository.file;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -53,6 +53,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.mailet.Mail;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;
@@ -538,7 +539,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
 
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#store(Mail)
+     * @see org.apache.james.mailrepository.api.MailRepository#store(Mail)
      */
     public void store(Mail mc) {
 
@@ -587,7 +588,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
 
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#list()
+     * @see org.apache.james.mailrepository.api.MailRepository#list()
      */
     public Iterator<String> list() {
         loadKeys();
@@ -614,7 +615,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#retrieve(String)
+     * @see org.apache.james.mailrepository.api.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) {
 
@@ -642,7 +643,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#remove(Mail)
+     * @see org.apache.james.mailrepository.api.MailRepository#remove(Mail)
      */
     public void remove(Mail mail) {
         ArrayList<Mail> remArray = new ArrayList<Mail>();
@@ -708,7 +709,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
 
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#remove(Collection)
+     * @see org.apache.james.mailrepository.api.MailRepository#remove(Collection)
      */
     public void remove(final Collection<Mail> mails)
     {
@@ -791,7 +792,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#remove(String)
+     * @see org.apache.james.mailrepository.api.MailRepository#remove(String)
      */
     public void remove(String key) {
         loadKeys();
@@ -809,14 +810,14 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#lock(String)
+     * @see org.apache.james.mailrepository.api.MailRepository#lock(String)
      */
     public boolean lock(String key) {
         return false;
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#unlock(String)
+     * @see org.apache.james.mailrepository.api.MailRepository#unlock(String)
      */
     public boolean unlock(String key) {
         return false;

@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailrepository.jdbc;
 
 public class JDBCDBFileMailRepositoryTest extends JDBCMailRepositoryTest {
 

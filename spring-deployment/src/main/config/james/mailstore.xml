@@ -22,7 +22,7 @@
     <repositories>
         <!-- File based repositories.  These repositories store all message data -->
         <!-- in the file system. -->
-        <repository class="org.apache.james.mailrepository.FileMailRepository">
+        <repository class="org.apache.james.mailrepository.file.FileMailRepository">
             <protocols>
                 <protocol>file</protocol>
             </protocols>
@@ -35,7 +35,7 @@
 
         <!-- JDBC based repositories.  These repositories store all message data -->
         <!-- in the database. -->
-        <repository class="org.apache.james.mailrepository.JDBCMailRepository">
+        <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
             <protocols>
                 <protocol>db</protocol>
             </protocols>
@@ -55,7 +55,7 @@
         </repository>
 
         <!-- These repositories store message delivery and headers in the DB, and the body to the filesystem -->
-        <repository class="org.apache.james.mailrepository.JDBCMailRepository">
+        <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
             <protocols>
                 <protocol>dbfile</protocol>
             </protocols>
@@ -69,7 +69,7 @@
         </repository>
  
         <!-- The mbox repository is designed for MAIL only; SPOOL performance would be less than ideal-->
-        <repository class="org.apache.james.mailrepository.MBoxMailRepository">
+        <repository class="org.apache.james.mailrepository.file.MBoxMailRepository">
             <protocols>
                 <protocol>mbox</protocol>
             </protocols>
@@ -80,7 +80,7 @@
             <config FIFO="false"/> 
         </repository>
         
-        <repository class="org.apache.james.filepair.FilePersistentObjectRepository">
+        <repository class="org.apache.james.filepair.file.FilePersistentObjectRepository">
             <protocols>
                 <protocol>file</protocol>
             </protocols>
@@ -94,7 +94,7 @@
             </models>
         </repository>
 
-        <repository class="org.apache.james.filepair.FilePersistentStreamRepository">
+        <repository class="org.apache.james.filepair.file.FilePersistentStreamRepository">
             <protocols>
                 <protocol>file</protocol>
             </protocols>
@@ -110,7 +110,7 @@
         
         <!-- If you enable this you need to make sure that embedded Jackrabbit instance is started as well. Check the container configuration -->  
         <!--
-        <repository class="org.apache.james.mailrepository.JCRMailRepository">
+        <repository class="org.apache.james.mailrepository.jcr.JCRMailRepository">
             <protocols>
                 <protocol>jcr</protocol>
             </protocols>

@@ -35,7 +35,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.mailstore.MailStore;
+import org.apache.james.mailstore.api.MailStore;
 import org.apache.james.services.InstanceFactory;
 
 /**

@@ -24,6 +24,8 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.filepair.FilePersistentObjectRepository;
 import org.apache.james.filepair.FilePersistentStreamRepository;
+import org.apache.james.mailrepository.api.MailRepository;
+import org.apache.james.mailrepository.file.FileMailRepository;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.MockFileSystem;
 

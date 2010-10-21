@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository;
+package org.apache.james.mailrepository.jdbc;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
@@ -27,6 +27,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.mailrepository.AbstractMailRepository;
 import org.apache.james.repository.StreamRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
@@ -655,7 +656,7 @@ public class JDBCMailRepository
 
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#retrieve(String)
+     * @see org.apache.james.mailrepository.api.MailRepository#retrieve(String)
      */
     public Mail retrieve(String key) throws MessagingException {
         if (DEEP_DEBUG) {
@@ -828,7 +829,7 @@ public class JDBCMailRepository
     }
 
     /**
-     * @see org.apache.james.mailrepository.MailRepository#list()
+     * @see org.apache.james.mailrepository.api.MailRepository#list()
      */
     public Iterator list() throws MessagingException {
         //System.err.println("listing messages");
