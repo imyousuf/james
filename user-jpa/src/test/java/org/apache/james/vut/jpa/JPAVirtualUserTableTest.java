@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.vut;
+package org.apache.james.vut.jpa;
 
 import java.util.HashMap;
 
