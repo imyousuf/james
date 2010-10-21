@@ -22,8 +22,8 @@ import javax.jms.BytesMessage;
 import javax.jms.Message;
 
 import org.apache.activemq.BlobMessage;
-import org.apache.james.queue.MailQueue;
-import org.apache.james.queue.MailQueueFactory;
+import org.apache.james.queue.api.MailQueue;
+import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.jms.JMSMailQueueFactory;
 
 

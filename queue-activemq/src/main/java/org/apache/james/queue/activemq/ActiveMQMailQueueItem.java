@@ -29,8 +29,8 @@ import javax.jms.Session;
 
 import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.commons.logging.Log;
-import org.apache.james.queue.MailQueue.MailQueueException;
-import org.apache.james.queue.MailQueue.MailQueueItem;
+import org.apache.james.queue.api.MailQueue.MailQueueException;
+import org.apache.james.queue.api.MailQueue.MailQueueItem;
 import org.apache.james.queue.jms.JMSMailQueueItem;
 import org.apache.mailet.Mail;
 

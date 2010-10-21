@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.queue;
+package org.apache.james.queue.api;
 
 import java.util.concurrent.TimeUnit;
 

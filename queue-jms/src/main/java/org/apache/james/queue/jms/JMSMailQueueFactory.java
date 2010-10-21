@@ -26,8 +26,8 @@ import javax.jms.ConnectionFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.queue.MailQueue;
-import org.apache.james.queue.MailQueueFactory;
+import org.apache.james.queue.api.MailQueue;
+import org.apache.james.queue.api.MailQueueFactory;
 
 /**
  * {@link MailQueueFactory} implementation which use JMS

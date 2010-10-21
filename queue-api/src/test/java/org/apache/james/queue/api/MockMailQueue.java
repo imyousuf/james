@@ -18,14 +18,15 @@
  ****************************************************************/
 
 
-package org.apache.james.queue;
+package org.apache.james.queue.api;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.james.queue.MailQueue.MailQueueException;
+import org.apache.james.queue.api.MailQueue;
+import org.apache.james.queue.api.MailQueue.MailQueueException;
 import org.apache.mailet.Mail;
 
 public class MockMailQueue implements MailQueue{

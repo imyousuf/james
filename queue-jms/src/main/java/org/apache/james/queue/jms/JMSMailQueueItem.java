@@ -24,8 +24,8 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 
-import org.apache.james.queue.MailQueue.MailQueueException;
-import org.apache.james.queue.MailQueue.MailQueueItem;
+import org.apache.james.queue.api.MailQueue.MailQueueException;
+import org.apache.james.queue.api.MailQueue.MailQueueItem;
 import org.apache.mailet.Mail;
 
 /**

@@ -46,7 +46,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.queue.MailQueue;
+import org.apache.james.queue.api.MailQueue;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -111,7 +111,7 @@ public class JMSMailQueue implements MailQueue {
      * 
      * Many JMS implementations support better solutions for this, so this should get overridden by these implementations
      * 
-     * @see org.apache.james.queue.MailQueue#deQueue(org.apache.james.queue.MailQueue.DequeueOperation)
+     * @see org.apache.james.queue.api.MailQueue#deQueue(org.apache.james.queue.api.api.MailQueue.DequeueOperation)
      */
     public MailQueueItem deQueue() throws MailQueueException {
         Connection connection = null;
