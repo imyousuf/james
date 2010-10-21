@@ -20,10 +20,10 @@ package org.apache.james.vut;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.util.TestUtil;
 import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.lib.AbstractVirtualUserTable;
 
 /**
  * Test the JDBC Virtual User Table implementation.

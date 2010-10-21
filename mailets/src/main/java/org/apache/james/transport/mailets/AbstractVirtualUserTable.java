@@ -36,8 +36,8 @@ import javax.mail.internet.ParseException;
 
 import org.apache.james.core.MailImpl;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.james.services.MailServer;
+import org.apache.james.vut.lib.VirtualUserTableUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.GenericMailet;

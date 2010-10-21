@@ -24,11 +24,11 @@ package org.apache.james.userrepository;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.impl.jamesuser.AbstractUsersRepository;
-import org.apache.james.impl.user.DefaultJamesUser;
 import org.apache.james.mailstore.api.MailStore;
 import org.apache.james.repository.ObjectRepository;
 import org.apache.james.user.api.User;
+import org.apache.james.user.lib.AbstractUsersRepository;
+import org.apache.james.user.lib.DefaultJamesUser;
 
 
 import java.util.Iterator;
@@ -78,7 +78,7 @@ public class UsersFileRepository
 
 
     /**
-     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * @see org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     protected void doConfigure( final HierarchicalConfiguration configuration )
         throws ConfigurationException {
@@ -128,7 +128,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doAddUser(org.apache.james.user.api.User)
+     * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(org.apache.james.user.api.User)
      */
     protected void doAddUser(User user) {
         try {
@@ -206,7 +206,7 @@ public class UsersFileRepository
     }
     
     /**
-     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doUpdateUser(org.apache.james.user.api.User)
+     * @see org.apache.james.user.lib.AbstractUsersRepository#doUpdateUser(org.apache.james.user.api.User)
      */
     public void doUpdateUser(User user) {
         try {

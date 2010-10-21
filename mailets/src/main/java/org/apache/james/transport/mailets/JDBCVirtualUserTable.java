@@ -21,8 +21,8 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.james.util.sql.JDBCUtil;
+import org.apache.james.vut.lib.VirtualUserTableUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
 

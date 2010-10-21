@@ -21,8 +21,8 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.james.impl.user.DefaultUser;
 import org.apache.james.user.api.User;
+import org.apache.james.user.lib.DefaultUser;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

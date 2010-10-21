@@ -36,12 +36,12 @@ import javax.sql.DataSource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.impl.vut.AbstractVirtualUserTable;
-import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.lib.AbstractVirtualUserTable;
+import org.apache.james.vut.lib.VirtualUserTableUtil;
 
 /**
  * Class responsible to implement the Virtual User Table in database with JDBC access.
@@ -219,7 +219,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#addMappingInternal(String, String, String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#addMappingInternal(String, String, String)
      */
     protected boolean addMappingInternal(String user, String domain, String regex) throws ManageableVirtualUserTableException {
 
@@ -237,7 +237,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
     
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
      */
     protected String mapAddressInternal(String user, String domain) {
         Connection conn = null;
@@ -268,7 +268,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
     
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
      */
     protected Collection<String> getUserDomainMappingsInternal(String user, String domain) {
         Connection conn = null;
@@ -297,7 +297,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getAllMappingsInternal()
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#getAllMappingsInternal()
      */
     protected Map<String,Collection<String>> getAllMappingsInternal() {
         Connection conn = null;
@@ -330,7 +330,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
     
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
      */
     protected boolean removeMappingInternal(String user, String domain, String mapping) throws ManageableVirtualUserTableException {
         String newUser = getUserString(user);

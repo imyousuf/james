@@ -16,13 +16,12 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.impl.user;
+package org.apache.james.user.lib;
 
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.impl.AbstractStore;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersStore;
 

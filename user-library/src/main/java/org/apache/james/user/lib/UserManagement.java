@@ -20,7 +20,7 @@
 
 
 
-package org.apache.james.impl.user;
+package org.apache.james.user.lib;
 
 import java.util.ArrayList;
 import java.util.Iterator;

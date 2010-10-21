@@ -17,9 +17,8 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.impl.jamesuser;
+package org.apache.james.user.lib;
 
-import org.apache.james.impl.user.LocalUsersRepository;
 import org.apache.james.user.api.JamesUsersRepository;
 import org.apache.james.vut.api.ErrorMappingException;
 

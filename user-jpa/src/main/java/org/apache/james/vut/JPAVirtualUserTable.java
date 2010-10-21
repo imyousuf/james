@@ -29,9 +29,9 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnit;
 
-import org.apache.james.impl.vut.AbstractVirtualUserTable;
-import org.apache.james.impl.vut.VirtualUserTableUtil;
 import org.apache.james.vut.api.ManageableVirtualUserTableException;
+import org.apache.james.vut.lib.AbstractVirtualUserTable;
+import org.apache.james.vut.lib.VirtualUserTableUtil;
 import org.apache.james.vut.model.JPAVirtualUser;
 
 /**
@@ -55,7 +55,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#addMappingInternal(String, String, String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#addMappingInternal(String, String, String)
      */
     protected boolean addMappingInternal(String user, String domain, String regex) throws ManageableVirtualUserTableException {
         
@@ -73,7 +73,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
      */
     protected String mapAddressInternal(String user, String domain) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -99,7 +99,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
     
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
      */
     protected Collection<String> getUserDomainMappingsInternal(String user, String domain) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -125,7 +125,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#getAllMappingsInternal()
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#getAllMappingsInternal()
      */
     protected Map<String,Collection<String>> getAllMappingsInternal() {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -151,7 +151,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
-     * @see org.apache.james.impl.vut.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
      */
     protected boolean removeMappingInternal(String user, String domain, String mapping) throws ManageableVirtualUserTableException {
         String newUser = getUserString(user);

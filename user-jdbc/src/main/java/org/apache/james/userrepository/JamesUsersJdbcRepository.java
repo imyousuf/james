@@ -21,9 +21,9 @@
 
 package org.apache.james.userrepository;
 
-import org.apache.james.impl.user.DefaultJamesUser;
-import org.apache.james.impl.user.DefaultUser;
 import org.apache.james.user.api.User;
+import org.apache.james.user.lib.DefaultJamesUser;
+import org.apache.james.user.lib.DefaultUser;
 import org.apache.mailet.MailAddress;
 
 import java.sql.PreparedStatement;

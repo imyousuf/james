@@ -21,9 +21,9 @@ package org.apache.james.userrepository;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.impl.jamesuser.AbstractUsersRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.user.api.User;
+import org.apache.james.user.lib.AbstractUsersRepository;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 
@@ -379,7 +379,7 @@ public abstract class AbstractJdbcUsersRepository extends
      *   &lt;/repository&gt;
      * </pre>
      * 
-     * @see org.apache.james.impl.jamesuser.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * @see org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     protected void doConfigure(HierarchicalConfiguration configuration)

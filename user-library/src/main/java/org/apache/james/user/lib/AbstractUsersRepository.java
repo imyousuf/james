@@ -19,12 +19,11 @@
 
 
 
-package org.apache.james.impl.jamesuser;
+package org.apache.james.user.lib;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.impl.user.DefaultUser;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.user.api.JamesUser;
