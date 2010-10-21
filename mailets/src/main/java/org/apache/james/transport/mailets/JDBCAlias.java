@@ -21,7 +21,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
@@ -58,12 +57,11 @@ public class JDBCAlias extends GenericMailet {
 
     protected DataSource datasource;
     protected String query = null;
-    private DataSourceSelector selector;
 
 
-    @Resource(name="database-connections")
-    public void setDataSourceSelector(DataSourceSelector selector) {
-        this.selector = selector;
+    @Resource(name="datasource")
+    public void setDataSource(DataSource datasource) {
+        this.datasource = datasource;
     }
     
     // The JDBCUtil helper class
@@ -93,10 +91,7 @@ public class JDBCAlias extends GenericMailet {
             throw new MailetException("target_column not specified for JDBCAlias");
         }
         try {
-            
-            // Get the data-source required.
-            datasource = selector.getDataSource(datasourceName);
-
+         
             conn = datasource.getConnection();
 
             // Check if the required table exists. If not, complain.

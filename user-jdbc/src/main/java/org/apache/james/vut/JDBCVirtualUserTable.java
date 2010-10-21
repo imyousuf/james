@@ -39,7 +39,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.vut.ManageableVirtualUserTableException;
 import org.apache.james.impl.vut.AbstractVirtualUserTable;
 import org.apache.james.impl.vut.VirtualUserTableUtil;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -52,8 +51,7 @@ import org.apache.james.util.sql.SqlResources;
 @Deprecated
 public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
-    private DataSourceSelector datasources = null;
-    private DataSource dataSourceComponent = null;
+    private DataSource dataSource = null;
     private String dataSourceName = null;
     
     private String tableName = "VirtualUserTable";
@@ -81,16 +79,14 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
     @PostConstruct
     public void init() throws Exception {
-        
-        setDataSource(datasources.getDataSource(dataSourceName));
-    
+            
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".initialize()");
         }
 
         // Test the connection to the database, by getting the DatabaseMetaData.
-        Connection conn = dataSourceComponent.getConnection();
+        Connection conn = dataSource.getConnection();
         PreparedStatement createStatement = null;
 
         try {
@@ -160,14 +156,11 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         this.fileSystem = fileSystem;
     }
     
-    public void setDataSource(DataSource dataSourceComponent) {
-        this.dataSourceComponent = dataSourceComponent;
+    @Resource(name="datasource")
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
-    
-    @Resource(name="database-connections")
-    public void setDataSourceSelector(DataSourceSelector datasources) {
-        this.datasources = datasources;
-    }
+
 
     protected void doConfigure(HierarchicalConfiguration conf) throws ConfigurationException {
         
@@ -250,7 +243,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectMappings", true));
 
                 ResultSet mappingRS = null;
@@ -281,7 +274,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectUserDomainMapping", true));
             ResultSet mappingRS = null;
             try {
@@ -311,7 +304,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         PreparedStatement mappingStmt = null;
         Map<String,Collection<String>> mapping = new HashMap<String,Collection<String>>();
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectAllMappings", true));
             ResultSet mappingRS = null;
             try {
@@ -364,7 +357,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         PreparedStatement mappingStmt = null;
 
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString(
                 "updateMapping", true));
 
@@ -404,7 +397,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         PreparedStatement mappingStmt = null;
 
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString(
             "deleteMapping", true));
 
@@ -442,7 +435,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
         PreparedStatement mappingStmt = null;
 
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString(
             "addMapping", true));
 

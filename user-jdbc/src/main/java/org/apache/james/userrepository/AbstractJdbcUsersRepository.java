@@ -23,7 +23,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.api.user.User;
 import org.apache.james.impl.jamesuser.AbstractUsersRepository;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -77,8 +76,6 @@ public abstract class AbstractJdbcUsersRepository extends
     private String m_sqlFileName;
 
     private String m_datasourceName;
-
-    private DataSourceSelector m_datasources;
 
     private DataSource m_datasource;
 
@@ -231,9 +228,9 @@ public abstract class AbstractJdbcUsersRepository extends
      * @param datasources
      *            the DataSourceSelector
      */
-    @Resource(name="database-connections")
-    public void setDatasources(DataSourceSelector datasources) {
-        m_datasources = datasources;
+    @Resource(name="datasource")
+    public void setDatasource(DataSource m_datasource) {
+        this.m_datasource = m_datasource;
     }
     /**
      * Sets the filesystem service
@@ -275,8 +272,6 @@ public abstract class AbstractJdbcUsersRepository extends
             }
         };
 
-        // Get the data-source required.
-        m_datasource =  m_datasources.getDataSource(m_datasourceName);
 
         // Test the connection to the database, by getting the DatabaseMetaData.
         Connection conn = openConnection();

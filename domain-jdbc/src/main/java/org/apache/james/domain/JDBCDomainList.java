@@ -39,7 +39,6 @@ import javax.sql.DataSource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.Configurable;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -51,12 +50,10 @@ import org.apache.james.util.sql.SqlResources;
  */
 public class JDBCDomainList extends AbstractDomainList implements Configurable{
 
-    private DataSourceSelector datasources;
-    private DataSource dataSourceComponent;
+    private DataSource dataSource;
     private FileSystem fileSystem;
     
     private String tableName = null;
-    private String dataSourceName = null;
     
     /**
      * Contains all of the sql strings for this component.
@@ -79,17 +76,12 @@ public class JDBCDomainList extends AbstractDomainList implements Configurable{
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
     }
-
-    public void setDataSource(DataSource dataSourceComponent) {
-        this.dataSourceComponent = dataSourceComponent;
-    }
     
-
-    @Resource(name="database-connections")
-    public void setDataSourceSelector(DataSourceSelector datasources) {
-        this.datasources = datasources;
+    @Resource(name="datasource")
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
-    
+
     @Resource(name="filesystem")
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
@@ -129,7 +121,6 @@ public class JDBCDomainList extends AbstractDomainList implements Configurable{
                         .append(configuration.getString("repositoryPath"));
             throw new ConfigurationException(exceptionBuffer.toString());
         }
-        dataSourceName = (String)urlParams.get(0);
         tableName = (String)urlParams.get(1);
 
 
@@ -152,16 +143,14 @@ public class JDBCDomainList extends AbstractDomainList implements Configurable{
     @PostConstruct
     public void init() throws Exception {
         configure();
-        
-        setDataSource(datasources.getDataSource(dataSourceName));
-    
+            
         StringBuffer logBuffer = null;
         if (getLogger().isDebugEnabled()) {
             getLogger().debug(this.getClass().getName() + ".initialize()");
         }
 
         // Test the connection to the database, by getting the DatabaseMetaData.
-        Connection conn = dataSourceComponent.getConnection();
+        Connection conn = dataSource.getConnection();
         PreparedStatement createStatement = null;
 
         try {
@@ -244,7 +233,7 @@ public class JDBCDomainList extends AbstractDomainList implements Configurable{
         PreparedStatement mappingStmt = null;
         
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectDomains", true));
 
             ResultSet mappingRS = null;
@@ -281,7 +270,7 @@ public class JDBCDomainList extends AbstractDomainList implements Configurable{
         PreparedStatement mappingStmt = null;
         
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("selectDomain", true));
 
             ResultSet mappingRS = null;
@@ -312,7 +301,7 @@ public class JDBCDomainList extends AbstractDomainList implements Configurable{
         PreparedStatement mappingStmt = null;
         
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("addDomain", true));
 
             ResultSet mappingRS = null;
@@ -341,7 +330,7 @@ public class JDBCDomainList extends AbstractDomainList implements Configurable{
         PreparedStatement mappingStmt = null;
         
         try {
-            conn = dataSourceComponent.getConnection();
+            conn = dataSource.getConnection();
             mappingStmt = conn.prepareStatement(sqlQueries.getSqlString("removeDomain", true));
 
             ResultSet mappingRS = null;

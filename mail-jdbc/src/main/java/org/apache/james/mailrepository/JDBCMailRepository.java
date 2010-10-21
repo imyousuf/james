@@ -28,7 +28,6 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.repository.StreamRepository;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -102,10 +101,6 @@ public class JDBCMailRepository
      */
     private StreamRepository sr = null;
 
-    /**
-     * The selector used to obtain the JDBC datasource
-     */
-    protected DataSourceSelector datasources;
 
     /**
      * The JDBC datasource that provides the JDBC connection
@@ -143,9 +138,9 @@ public class JDBCMailRepository
 
 	private String destination;
 
-    @Resource(name="database-connections")
-    public void setDatasources(DataSourceSelector datasources) {
-        this.datasources = datasources;
+    @Resource(name="datasource")
+    public void setDatasource(DataSource datasource) {
+        this.datasource = datasource;
     }
 
 
@@ -281,8 +276,7 @@ public class JDBCMailRepository
                     JDBCMailRepository.this.getLogger().warn("JDBCMailRepository: " + logString);
                 }
             };
-        // Get the data-source required.
-        datasource = datasources.getDataSource(datasourceName);
+      
 
         // Test the connection to the database, by getting the DatabaseMetaData.
         Connection conn = datasource.getConnection();

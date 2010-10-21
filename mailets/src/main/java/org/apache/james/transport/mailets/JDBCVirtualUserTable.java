@@ -22,7 +22,6 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.james.impl.vut.VirtualUserTableUtil;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
@@ -111,11 +110,10 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
         }
     };
 
-    private DataSourceSelector selector;
 
-    @Resource(name="database-connections")
-    public void setDataSourceSelector(DataSourceSelector selector) {
-        this.selector = selector;
+    @Resource(name="datasource")
+    public void setDataSourceSelector(DataSource datasource) {
+        this.datasource = datasource;
     }
     
     
@@ -136,9 +134,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable
         Connection conn = null;
 
         try {
-            // Get the data-source required.
-            datasource = selector.getDataSource(datasourceName);
-
             conn = datasource.getConnection();
 
             // Check if the required table exists. If not, complain.

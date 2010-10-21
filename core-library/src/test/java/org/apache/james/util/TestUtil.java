@@ -21,7 +21,6 @@ package org.apache.james.util;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.derby.jdbc.EmbeddedDriver;
-import org.apache.james.services.DataSourceSelector;
 
 
 import java.io.IOException;
@@ -87,24 +86,13 @@ public class TestUtil {
      * @return
      * @throws Exception
      */
-    public static DataSourceSelector getDataSourceSelector() throws Exception {
-        DataSourceSelector dataSourceSelector = new DataSourceSelector() {
-
-            public DataSource getDataSource(String name) {
-                if (name.equals("maildb")) {
-                    BasicDataSource ds = new BasicDataSource();
-                    ds.setDriverClassName(EmbeddedDriver.class.getName());
-                    ds.setUrl("jdbc:derby:target/testdb;create=true");
-                    ds.setUsername("james");
-                    ds.setPassword("james");
-                    return ds;
-                }
-                return null;
-            }
-
-        };
-
-        return dataSourceSelector;
+    public static DataSource getDataSource() throws Exception {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(EmbeddedDriver.class.getName());
+        ds.setUrl("jdbc:derby:target/testdb;create=true");
+        ds.setUsername("james");
+        ds.setPassword("james");
+        return ds;
     }
     
     

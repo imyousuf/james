@@ -20,11 +20,12 @@
 
 package org.apache.james.mailrepository;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.filepair.FilePersistentStreamRepository;
 import org.apache.james.mailstore.MockMailStore;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.util.TestUtil;
 
@@ -38,7 +39,7 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
      */
     protected MailRepository getMailRepository() throws Exception {
         MockFileSystem fs =  new MockFileSystem();
-        DataSourceSelector selector = TestUtil.getDataSourceSelector();
+        DataSource datasource = TestUtil.getDataSource();
         JDBCMailRepository mr = new JDBCMailRepository();
         
         // only used for dbfile
@@ -58,7 +59,7 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
         defaultConfiguration.addProperty("[@type]","MAIL");
         mr.setFileSystem(fs);
         mr.setStore(mockStore);
-        mr.setDatasources(selector);
+        mr.setDatasource(datasource);
         mr.setLog(new SimpleLog("MockLog"));
         mr.configure(defaultConfiguration);
         mr.init();

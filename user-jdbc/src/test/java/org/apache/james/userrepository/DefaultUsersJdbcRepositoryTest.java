@@ -24,11 +24,12 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.api.user.UsersRepository;
 import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.util.TestUtil;
 
 import java.util.Iterator;
+
+import javax.sql.DataSource;
 
 /**
  * Test basic behaviours of UsersFileRepository
@@ -56,9 +57,9 @@ public class DefaultUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        DataSourceSelector dataSourceSelector = TestUtil.getDataSourceSelector();  
+        DataSource dataSource = TestUtil.getDataSource();  
         
-        res.setDatasources(dataSourceSelector );
+        res.setDatasource(dataSource );
         
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
         configuration.addProperty("[@destinationURL]", "db://maildb/"+tableString);

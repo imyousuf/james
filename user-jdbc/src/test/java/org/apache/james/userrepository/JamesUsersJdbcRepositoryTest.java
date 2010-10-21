@@ -34,6 +34,8 @@ import org.apache.mailet.MailAddress;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.sql.DataSource;
+
 /**
  * Test basic behaviours of UsersFileRepository
  */
@@ -60,8 +62,8 @@ public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        res.setDatasources(TestUtil.getDataSourceSelector());
-        
+        DataSource dataSource = TestUtil.getDataSource();  
+        res.setDatasource(dataSource );      
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
         configuration.addProperty("[@destinationURL]", "db://maildb/"+tableString);
         configuration.addProperty("sqlFile","file://conf/sqlResources.xml");

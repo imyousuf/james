@@ -21,7 +21,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
@@ -46,7 +45,6 @@ import java.util.Vector;
  * the table name to check (or view) along with the source and target columns
  * to use.  For example,
  * &lt;mailet match="All" class="JDBCListserv"&gt;
- *   &lt;data_source&gt;maildb&lt;/datasource&gt;
  *   &lt;listserv_id&gt;mylistserv&lt;/listserv_id&gt;
  *   &lt;listserv_table&gt;source_email_address&lt;/listserv_table&gt;
  *   &lt;members_table&gt;target_email_address&lt;/members_table&gt;
@@ -76,12 +74,11 @@ public class JDBCListserv extends GenericListserv {
     //Queries to DB
     protected String listservQuery = null;
     protected String membersQuery = null;
-    private DataSourceSelector selector;
 
 
-    @Resource(name="database-connections")
-    public void setDataSourceSelector(DataSourceSelector selector) {
-        this.selector = selector;
+    @Resource(name="datasource")
+    public void setDataSource(DataSource datasource) {
+        this.datasource = datasource;
     }
     
     /**
@@ -111,7 +108,6 @@ public class JDBCListserv extends GenericListserv {
             throw new MailetException("members_table not specified for JDBCListserv");
         }
 
-        String datasourceName = getInitParameter("data_source");
         listservID = getInitParameter("listserv_id");
         listservTable = getInitParameter("listserv_table");
         membersTable = getInitParameter("members_table");
@@ -127,8 +123,7 @@ public class JDBCListserv extends GenericListserv {
         Connection conn = null;
 
         try {
-            // Get the data-source required.
-            datasource = selector.getDataSource(datasourceName);
+          
 
             conn = datasource.getConnection();
 
@@ -141,9 +136,7 @@ public class JDBCListserv extends GenericListserv {
                     new StringBuffer(128)
                             .append("Could not find table '")
                             .append(listservTable)
-                            .append("' in datasource '")
-                            .append(datasourceName)
-                            .append("'");
+                            .append("' in datasource");
                 throw new MailetException(exceptionBuffer.toString());
             }
 
@@ -155,9 +148,7 @@ public class JDBCListserv extends GenericListserv {
                     new StringBuffer(128)
                             .append("Could not find table '")
                             .append(membersTable)
-                            .append("' in datasource '")
-                            .append(datasourceName)
-                            .append("'");
+                            .append("' in datasource");
                 throw new MailetException(exceptionBuffer.toString());
             }
 

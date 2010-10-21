@@ -38,7 +38,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.util.TestUtil;
 import org.apache.james.util.sql.JDBCUtil;
@@ -46,12 +45,10 @@ import org.apache.james.util.sql.JDBCUtil;
 public class JDBCDomainListTest  extends TestCase {
     private String repos = "db://maildb/";
     private String table = "costumTable";
-    private DataSourceSelector dataSource;
     private DataSource data;
     
     public void setUp() throws Exception {
-        dataSource = TestUtil.getDataSourceSelector();
-        data = dataSource.getDataSource("maildb");
+        data = TestUtil.getDataSource();
     
         sqlQuery("create table " + table + " (domain VARCHAR (255))");
     }
@@ -124,7 +121,7 @@ public class JDBCDomainListTest  extends TestCase {
         JDBCDomainList dom = new JDBCDomainList();
         dom.setDNSService(setUpDNSServer("localhost"));
         dom.setFileSystem(new MockFileSystem());
-        dom.setDataSourceSelector(dataSource);
+        dom.setDataSource(data);
         dom.setLog(new SimpleLog("MockLog"));
         dom.configure(setUpConfiguration(repos + table));
         dom.init();
@@ -143,7 +140,7 @@ public class JDBCDomainListTest  extends TestCase {
         JDBCDomainList dom = new JDBCDomainList();
         dom.setDNSService(setUpDNSServer("localhost"));
         dom.setFileSystem(new MockFileSystem());
-        dom.setDataSourceSelector(dataSource);
+        dom.setDataSource(data);
         dom.setLog(new SimpleLog("MockLog"));
         dom.configure(new DefaultConfigurationBuilder());
         try {

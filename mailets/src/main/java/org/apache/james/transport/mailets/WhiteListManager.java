@@ -23,7 +23,6 @@ package org.apache.james.transport.mailets;
 
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.base.GenericMailet;
@@ -158,11 +157,10 @@ public class WhiteListManager extends GenericMailet {
     private Map<String,String> sqlParameters = new HashMap<String,String>();
 
 
-    private DataSourceSelector selector;
 
-    @Resource(name="database-connections")
-    public void setDataSourceSelector(DataSourceSelector selector) {
-        this.selector = selector;
+    @Resource(name="datasource")
+    public void setDataSource(DataSource datasource) {
+        this.datasource = datasource;
     }
     
     @Resource(name="localusersrepository")
@@ -233,15 +231,6 @@ public class WhiteListManager extends GenericMailet {
         }
         else {
             throw new MessagingException("repositoryPath is null");
-        }
-
-        try {
-            // Get the data-source required.
-            int stindex =   repositoryPath.indexOf("://") + 3;
-            String datasourceName = repositoryPath.substring(stindex);
-            datasource = selector.getDataSource(datasourceName);
-        } catch (Exception e) {
-            throw new MessagingException("Can't get datasource", e);
         }
 
         try {

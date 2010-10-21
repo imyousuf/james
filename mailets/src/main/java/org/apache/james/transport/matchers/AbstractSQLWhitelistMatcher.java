@@ -37,7 +37,6 @@ import javax.sql.DataSource;
 
 import org.apache.james.api.user.JamesUser;
 import org.apache.james.api.user.UsersRepository;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.transport.mailets.WhiteListManager;
 import org.apache.james.util.sql.JDBCUtil;
@@ -54,8 +53,6 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
      */
     private UsersRepository localusers;
 
-    protected DataSourceSelector selector;
-
     protected DataSource datasource;
     
 
@@ -71,9 +68,9 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
 
 
     
-    @Resource(name="database-connections")
-    public void setDataSourceSelector(DataSourceSelector selector) {
-        this.selector = selector;
+    @Resource(name="datasource")
+    public void setDataSource(DataSource datasource) {
+        this.datasource = datasource;
     }
     
     @Resource(name="localusersrepository")
@@ -125,14 +122,6 @@ public abstract class AbstractSQLWhitelistMatcher extends GenericMatcher {
         }
 
       
-        try {
-            // Get the data-source required.
-            int stindex =   repositoryPath.indexOf("://") + 3;
-            String datasourceName = repositoryPath.substring(stindex);
-            datasource = selector.getDataSource(datasourceName);
-        } catch (Exception e) {
-            throw new MessagingException("Can't get datasource", e);
-        }
 
         try {
             initSqlQueries(datasource.getConnection(), getMailetContext());

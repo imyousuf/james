@@ -36,7 +36,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
         JDBCVirtualUserTable virtualUserTable = new JDBCVirtualUserTable();
         virtualUserTable.setLog(new SimpleLog("MockLog"));
-        virtualUserTable.setDataSourceSelector(TestUtil.getDataSourceSelector());
+        virtualUserTable.setDataSource(TestUtil.getDataSource());
         virtualUserTable.setFileSystem(new MockFileSystem());
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
         defaultConfiguration.addProperty("[@destinationURL]","db://maildb/VirtualUserTable");

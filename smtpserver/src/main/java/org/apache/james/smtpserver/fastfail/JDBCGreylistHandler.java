@@ -48,7 +48,6 @@ import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.TimeConverter;
 import org.apache.james.util.netmatcher.NetMatcher;
@@ -67,8 +66,6 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     
     /** Non context specific log should only be used when no context specific log is available */
     private Log serviceLog = FALLBACK_LOG;
-
-    private DataSourceSelector datasources = null;
 
     private DataSource datasource = null;
 
@@ -99,11 +96,6 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      */
     private Map<String, String> sqlParameters = new HashMap<String, String>();
 
-    /**
-     * The repositoryPath
-     */
-    private String repositoryPath;
-
     private DNSService dnsService;
     
 
@@ -129,12 +121,6 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
         this.fileSystem = system;
     }
     
-    /**
-     * @return the datasources
-     */
-    public final DataSourceSelector getDatasources() {
-        return datasources;
-    }
 
     /**
      * Set the datasources.
@@ -142,9 +128,9 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @param datasources
      *            The datasources
      */
-    @Resource(name="database-connections")
-    public void setDataSources(DataSourceSelector datasources) {
-        this.datasources = datasources;
+    @Resource(name="datasource")
+    public void setDataSource(DataSource datasource) {
+        this.datasource = datasource;
     }
 
 
@@ -239,13 +225,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
             setWhiteListedNetworks( new NetMatcher(wList ,dnsService));
             serviceLog.info("Whitelisted addresses: " + getWhiteListedNetworks().toString());
             
-        }    	
-        String configRepositoryPath = handlerConfiguration.getString("repositoryPath", null);
-        if (configRepositoryPath != null) {
-            setRepositoryPath(configRepositoryPath);
-        } else {
-            throw new ConfigurationException("repositoryPath is not configured");
-        }
+        }    	       
 
         // Get the SQL file location
         String sFile = handlerConfiguration.getString("sqlFile",null);
@@ -264,35 +244,14 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
 
     @PostConstruct
     public void init() throws Exception {
-    	 try {
- 			setDataSource(initDataSource(repositoryPath));
- 			initSqlQueries(datasource.getConnection(), sqlFileUrl);
- 		        
- 		    // create table if not exist
- 		    createTable("greyListTableName", "createGreyListTable");
- 		} catch (Exception e) {
- 			throw new RuntimeException("Unable to init datasource",e);
- 		}
-    }
-    
-    /**
-     * Set the repositoryPath to use
-     * 
-     * @param repositoryPath
-     *            The repositoryPath
-     */
-    public void setRepositoryPath(String repositoryPath) {
-        this.repositoryPath = repositoryPath;
-    }
+        try {
+            initSqlQueries(datasource.getConnection(), sqlFileUrl);
 
-    /**
-     * Set the datasource
-     * 
-     * @param datasource
-     *            the datasource
-     */
-    public void setDataSource(DataSource datasource) {
-        this.datasource = datasource;
+            // create table if not exist
+            createTable("greyListTableName", "createGreyListTable");
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to init datasource", e);
+        }
     }
 
     /**
@@ -374,24 +333,6 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
             theJDBCUtil.closeJDBCStatement(mappingStmt);
             theJDBCUtil.closeJDBCConnection(conn);
         }
-    }
-
-    /**
-     * Init the dataSource
-     * 
-     * @param repositoryPath
-     *            The repositoryPath
-     * @return dataSource The DataSourceComponent
-     * @throws ServiceException
-     * @throws SQLException
-     */
-    private DataSource initDataSource(String repositoryPath)
-        throws SQLException {
-
-        int stindex = repositoryPath.indexOf("://") + 3;
-        String datasourceName = repositoryPath.substring(stindex);
-
-        return datasources.getDataSource(datasourceName);
     }
 
     /**

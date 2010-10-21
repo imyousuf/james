@@ -34,7 +34,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
-import org.apache.james.services.DataSourceSelector;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.bayesian.JDBCBayesianAnalyzer;
 import org.apache.james.util.sql.JDBCUtil;
@@ -156,8 +155,6 @@ extends GenericMailet {
      */
     private long lastCorpusLoadTime;
 
-    private DataSourceSelector selector;
-
     private FileSystem fs;
     
     /**
@@ -187,9 +184,9 @@ extends GenericMailet {
         return this.lastCorpusLoadTime;
     }
     
-    @Resource(name="database-connections")
-    public void setDataSourceSelector(DataSourceSelector selector) {
-        this.selector = selector;
+    @Resource(name="datasource")
+    public void setDataSource(DataSource datasource) {
+        this.datasource = datasource;
     }
     
     @Resource(name="filesystem")
@@ -246,17 +243,7 @@ extends GenericMailet {
     }
     
     private void initDb() throws MessagingException {
-        
-        try {
-            // Get the data-source required.
-            int stindex =   repositoryPath.indexOf("://") + 3;
-            
-            String datasourceName = repositoryPath.substring(stindex);
-            
-            datasource = selector.getDataSource(datasourceName);
-        } catch (Exception e) {
-            throw new MessagingException("Can't get datasource", e);
-        }
+       
         
         try {
             analyzer.initSqlQueries(datasource.getConnection(), fs.getFile("file://conf/sqlResources.xml"));
