@@ -30,6 +30,8 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.InstanceFactory;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersStore;
@@ -38,7 +40,7 @@ import org.apache.james.user.api.UsersStore;
  * UsersStore implementation which will parse the configuration file for users-store and add every configured repository 
  *
  */
-public class JamesUsersStore implements UsersStore {
+public class JamesUsersStore implements UsersStore ,Configurable, LogEnabled{
 
     private String defaultName;
 
