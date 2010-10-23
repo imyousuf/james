@@ -17,7 +17,13 @@
   specific language governing permissions and limitations
   under the License.    
 -->
-<project name="James Server">
+<project name="Server">
+
+  <skin>
+    <groupId>org.apache.james</groupId>
+    <artifactId>maven-skin</artifactId>
+    <version>1.6-SNAPSHOT</version>
+  </skin>
 
   <bannerLeft>
     <name>James Server</name>
@@ -30,12 +36,6 @@
     <src>images/asf-logo-reduced.gif</src>
     <href>http://www.apache.org/index.html</href>
   </bannerRight> 
-
-  <skin>
-    <groupId>org.apache.james</groupId>
-    <artifactId>maven-skin</artifactId>
-    <version>1.6-SNAPSHOT</version>
-  </skin>
 
   <body>
   
@@ -50,17 +50,9 @@
   
     <menu name="Concepts">
       <item name="Summary" href="/concept_summary.html" />
+      <item name="Mailet Container" href="/concept_mailetcontainer.html" />
       <item name="Stores" href="/concept_stores.html" />
-      <item name="Mailet Container" href="/concept_mailetcontainer.html" collapse="true" >
-        <item name="Mailet Site" href="http://james.apache.org/mailet/index.html"/>
-        <item name="Mailet API" href="http://james.apache.org/mailet/api/index.html"/>
-        <item name="Mailet Toolkit" href="http://james.apache.org/mailet/base/index.html"/>
-        <item name="Mailet Crypto" href="http://james.apache.org/mailet/crypto/index.html"/>
-        <item name="Mailet Sieve" href="http://james.apache.org/mailet/standard/index.html"/>
-        <item name="Mailet Standard" href="http://james.apache.org/mailet/standard/index.html"/>
-        <item name="Mailet Docs" href="http://james.apache.org/mailet/maven-mailetdocs-plugin/index.html"/>
-        <item name="Server Mailets" href="/james-server-mailets-function/mailet-report.html"/>
-      </item>
+      <item name="SMTP Hook" href="/concept_smtp_hjhooks.html" />
       <item name="Queue Priority" href="/concept_queue_priority.html" />
     </menu>
     
@@ -104,7 +96,7 @@
       <item name="Develop a Mailet" href="/dev_custom_mailet.html" />
       <item name="Develop a Matcher" href="/dev_custom_matcher.html" />
       <item name="Extend James" href="/dev_extend.html" />
-      <item name="Javadoc" href="./apidocs/index.html" />
+      <item name="Javadoc" href="/apidocs/index.html" />
     </menu>
 
     ${reports}

@@ -24,6 +24,7 @@
  </properties>
 
 <body>
+
 <section name="Mailet Container Configuration">
 <p>The SpoolManager is controlled by a single configuration block in the config.xml.
 The spoolmanager tag defines the boundaries of the configuration block.  The behavior of 

@@ -46,6 +46,17 @@
 
     <p>The Mailet API is currently in its second revision.  Although, the Mailet API is expected to undergo substantial changes in the near future, it is our aim that existing Mailets that abided purely by the prior Mailet API interfaces will continue to run with the revised specification.</p>
 
+
+    <a href="http://james.apache.org/mailet/index.html">Mailet Site</a>
+    <a href="http://james.apache.org/mailet/api/index.html">Mailet API</a>
+    <a href="http://james.apache.org/mailet/base/index.html">Mailet Toolkit</a>
+    <a href="http://james.apache.org/mailet/crypto/index.html">Mailet Crypto</a>
+    <a href="http://james.apache.org/mailet/standard/index.html">Mailet Sieve</a>
+    <a href="http://james.apache.org/mailet/standard/index.html">Mailet Standard</a>
+    <a href="http://james.apache.org/mailet/maven-mailetdocs-plugin/index.html">Mailet Docs</a>
+    <a href="/james-server-mailets-function/mailet-report.html">Server Mailets</a>
+
+
     <p>The Javadoc for the Mailet API can be found <a href="apidocs/index.html">here</a>.</p>
 
     <p>James bundles a number of Matchers and Mailets in its distribution.  Descriptions of provided matchers 
