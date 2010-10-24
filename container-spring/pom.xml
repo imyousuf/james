@@ -134,7 +134,7 @@
                     </property>
                     <property>
                       <name>wrapper.java.additional.1</name>
-                      <value>-Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader -Dcom.sun.management.config.file=../conf/jmxremote.password -Dcom.sun.management.jmxremote.port=9999</value>
+                      <value>-Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader</value>
                     </property>
                     <property>
                       <name>wrapper.java.additional.2</name>
