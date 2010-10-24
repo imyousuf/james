@@ -1166,6 +1166,12 @@
       -Dmail.mime.decodeparameters=true 
       -Dmail.mime.address.strict=false
     </javamail.system-properties>
+    <jmx.system-properties>
+      -Dcom.sun.management.jmxremote.ssl=false 
+      -Dcom.sun.management.jmxremote.access.file=../conf/jmx.access 
+      -Dcom.sun.management.jmxremote.password.file=../conf/jmx.password 
+      -Dcom.sun.management.jmxremote.port=9999
+    </jmx.system-properties>
   </properties>
 
 </project>

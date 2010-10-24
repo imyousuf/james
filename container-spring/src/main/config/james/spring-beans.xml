@@ -27,10 +27,6 @@
           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
           http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
           
-    <!--
-        ** JMX part ** to enable exposure of JMX, activate the following beans
-    -->
-    <!--
     <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
       <property name="beans">
         <map>
@@ -56,15 +52,6 @@
     <bean id="mbeanserver" class="org.springframework.jmx.support.MBeanServerFactoryBean" >
         <property name="locateExistingServerIfPossible" value="true"/>
     </bean>
-
-    <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
-        <property name="port" value="1099" />
-    </bean>
-
-    <bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry"> 
-        <property name="objectName" value="connector:name=rmi" /> 
-        <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jamesmailserver" />
-    </bean>
     
     <bean id="processormanagement" class="org.apache.james.mailetcontainer.lib.ProcessorManagement"/>
     
@@ -73,7 +60,6 @@
     <bean id="virtualusertablemanagement" class="org.apache.james.vut.lib.VirtualUserTableManagement" />
 
     <bean id="domainlistmanagement" class="org.apache.james.domainlist.lib.DomainListManagement" />
-    -->
 
     <bean class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
         <property name="configurationProvider" ref="configurationProvider" />
@@ -135,12 +121,12 @@
 
     <!-- Change trace to true for debugging purposes -->
     <camel:camelContext id="jamesCamelContext" trace="false" >
-        <camel:jmxAgent id="agent" disabled="true"/>
+        <camel:jmxAgent id="agent" disabled="false"/>
         <camel:template id="producerTemplate"/>   
     </camel:camelContext>
 
     <!--  lets create an embedded ActiveMQ Broker -->
-    <amq:broker useJmx="false" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" id="broker">
+    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>

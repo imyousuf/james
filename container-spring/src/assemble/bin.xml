@@ -40,6 +40,8 @@
     <fileSet>
       <directory>src/main/config/james</directory>
       <outputDirectory>conf</outputDirectory>
+      <!-- set some sane security defaults for config files -->
+      <fileMode>0600</fileMode>
     </fileSet>
     
     <!--  create empty folders by copy a .dummy file -->
@@ -112,6 +114,8 @@
     <fileSet>
       <directory>target/appassembler/jsw/james/conf</directory>
       <outputDirectory>conf</outputDirectory>
+      <!-- set some sane security defaults for config files -->
+      <fileMode>0600</fileMode>
     </fileSet>
     <fileSet>
       <directory>target/appassembler/jsw/james/bin</directory>
