@@ -1152,26 +1152,31 @@
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.1.0</jackrabbit.version>
     <commons.logging.version>1.1</commons.logging.version>
+    
     <!-- For more details see -->
     <!-- http://java.sun.com/products/javamail/javadocs/javax/mail/internet/package-summary.html -->
-    <javamail.system-properties>
-      -Dmail.mime.multipart.ignoremissingendboundary=true 
-      -Dmail.mime.multipart.ignoremissingboundaryparameter=true 
-      -Dmail.mime.ignoreunknownencoding=true 
-      -Dmail.mime.uudecode.ignoreerrors=true 
-      -Dmail.mime.uudecode.ignoremissingbeginend=true 
-      -Dmail.mime.multipart.allowempty=true 
-      -Dmail.mime.base64.ignoreerrors=true 
-      -Dmail.mime.encodeparameters=true 
-      -Dmail.mime.decodeparameters=true 
-      -Dmail.mime.address.strict=false
-    </javamail.system-properties>
-    <jmx.system-properties>
-      -Dcom.sun.management.jmxremote.ssl=false 
-      -Dcom.sun.management.jmxremote.access.file=../conf/jmx.access 
-      -Dcom.sun.management.jmxremote.password.file=../conf/jmx.password 
-      -Dcom.sun.management.jmxremote.port=9999
-    </jmx.system-properties>
+    <javamail.system-property1>-Dmail.mime.multipart.ignoremissingendboundary=true</javamail.system-property1>
+    <javamail.system-property2>-Dmail.mime.multipart.ignoremissingboundaryparameter=true</javamail.system-property2>   
+    <javamail.system-property3>-Dmail.mime.ignoreunknownencoding=true</javamail.system-property3>    
+    <javamail.system-property4>-Dmail.mime.uudecode.ignoreerrors=true</javamail.system-property4>
+    <javamail.system-property5>-Dmail.mime.uudecode.ignoremissingbeginend=true</javamail.system-property5>
+    <javamail.system-property6>-Dmail.mime.multipart.allowempty=true</javamail.system-property6>
+    <javamail.system-property7>-Dmail.mime.base64.ignoreerrors=true</javamail.system-property7>
+    <javamail.system-property8>-Dmail.mime.encodeparameters=true </javamail.system-property8>
+    <javamail.system-property9>-Dmail.mime.decodeparameters=true</javamail.system-property9>
+    <javamail.system-property10>-Dmail.mime.address.strict=false</javamail.system-property10>
+    <javamail.system-properties>${javamail.system-property1} ${javamail.system-property2} ${javamail.system-property3} ${javamail.system-property4} ${javamail.system-property5} ${javamail.system-property6} ${javamail.system-property7} ${javamail.system-property8} ${javamail.system-property9} ${javamail.system-property10}</javamail.system-properties>
+    
+    <!-- JMX system properties -->
+    <!-- For more details see -->
+    <!-- http://download.oracle.com/javase/1.5.0/docs/guide/management/agent.html -->
+    <jmx.system-property1>-Dcom.sun.management.jmxremote=true</jmx.system-property1>
+    <jmx.system-property2>-Dcom.sun.management.jmxremote.ssl=false</jmx.system-property2>
+    <jmx.system-property3>-Dcom.sun.management.jmxremote.access.file=../conf/jmx.access</jmx.system-property3>
+    <jmx.system-property4>-Dcom.sun.management.jmxremote.password.file=../conf/jmx.password</jmx.system-property4>
+    <jmx.system-property5>-Dcom.sun.management.jmxremote.port=9999</jmx.system-property5>
+    <jmx.system-properties>${jmx.system-property1} ${jmx.system-property2} ${jmx.system-property3} ${jmx.system-property4} ${jmx.system-property5}</jmx.system-properties>
+    
   </properties>
 
 </project>
