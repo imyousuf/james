@@ -40,7 +40,7 @@ public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
 
     
     /**
-     * @see org.apache.james.user.lib.AbstractUsersRepository#test(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.lib.AbstractJamesUsersRepository#test(java.lang.String, java.lang.String)
      */
     public boolean test(String name, String password) {
         // list repository does not store passwords so we always return false!

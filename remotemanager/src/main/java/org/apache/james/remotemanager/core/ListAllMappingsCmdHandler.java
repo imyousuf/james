@@ -33,18 +33,18 @@ import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.vut.api.ManageableVirtualUserTable;
+import org.apache.james.vut.api.VirtualUserTable;
 
 public class ListAllMappingsCmdHandler implements CommandHandler {
     private CommandHelp help = new CommandHelp("listallmappings","list all mappings");
 
     public final static String COMMAND_NAME = "LISTALLMAPPINGS";
 
-    protected ManageableVirtualUserTable vutManagement;
+    protected VirtualUserTable vutManagement;
 
 
-    @Resource(name="manageablevirtualusertable")
-    public void setManageableVirtualUserTable(org.apache.james.vut.api.ManageableVirtualUserTable vut) {
+    @Resource(name="virtualusertable")
+    public void setManageableVirtualUserTable(VirtualUserTable vut) {
         this.vutManagement = vut;
     }
     

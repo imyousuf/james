@@ -19,17 +19,13 @@
 package org.apache.james.vut.api;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Interface which should be implemented of classes which map recipients.
  */
 public interface VirtualUserTable {
-    
-    /**
-     * The component role used by components implementing this service
-     */
-    public static final String ROLE = VirtualUserTable.class.getName();
-    
+
     /**
      * The prefix which is used for error mappings
      */
@@ -59,5 +55,133 @@ public interface VirtualUserTable {
      * @throws ErrorMappingException get thrown if an error mapping was found
      */
     public Collection<String> getMappings(String user, String domain) throws ErrorMappingException;
+    
+    
+    /**
+     * Add regex mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param regex the regex.
+     * @return true if successfully
+     */
+    public boolean addRegexMapping(String user, String domain, String regex);
+    
+    /**
+     * Remove regex mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param regex the regex.
+     * @return true if successfully
+     */
+    public boolean removeRegexMapping(String user,String domain, String regex);
+    
+    /***
+     * Add address mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param address 
+     * @return true if successfully
+     */
+    public boolean addAddressMapping(String user, String domain, String address);
+    
+    /**
+     * Remove address mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param address 
+     * @return true if successfully
+     */
+    public boolean removeAddressMapping(String user,String domain, String address);
+    
+    /**
+     * Add error mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param error the regex.
+     * @return true if successfully
+     */
+    public boolean addErrorMapping(String user, String domain, String error);
 
+    /**
+     * Remove error mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param error
+     * @return true if successfully
+     * @throws ManageableVirtualUserTableException get thrown if an invalid argument was given
+     */
+    public boolean removeErrorMapping(String user,String domain, String error);
+    
+    /**
+     * Return the explicit mapping stored for the given user and domain. Return null
+     * if no mapping was found
+     * 
+     * @param user the username
+     * @param domain the domain
+     * @return the collection which holds the mappings. 
+     */
+    public Collection<String> getUserDomainMappings(String user, String domain);
+    
+    /**
+     * Add mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param mapping the mapping
+     * @return true if successfully
+     */
+    public boolean addMapping(String user, String domain, String mapping);
+    
+    /**
+     * Remove mapping
+     * 
+     * @param user the username. Null if no username should be used
+     * @param domain the domain. Null if no domain should be used
+     * @param mapping the mapping
+     * @return true if successfully
+     */
+    public boolean removeMapping(String user, String domain, String mapping);
+
+
+    /**
+     * Return a Map which holds all mappings. The key is the user@domain and the value is a Collection 
+     * which holds all mappings
+     * 
+     * @return Map which holds all mappings
+     */
+    public Map<String,Collection<String>> getAllMappings();
+    
+    /**
+     * Add aliasDomain mapping
+     * 
+     * @param aliasDomain the aliasdomain which should be mapped to the realDomain
+     * @param realDomain the realDomain
+     * @return true if successfully
+     */
+    public boolean addAliasDomainMapping(String aliasDomain, String realDomain);
+    
+    /**
+     * Remove aliasDomain mapping
+     * 
+     * @param aliasDomain the aliasdomain which should be mapped to the realDomain
+     * @param realDomain the realDomain
+     * @return true if successfully
+     */
+    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain);
+
+    public class ErrorMappingException extends Exception {
+
+        private static final long serialVersionUID = 2348752938798L;
+
+        public ErrorMappingException(String string) {
+            super(string);
+        }
+
+    }
 }

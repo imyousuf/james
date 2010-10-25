@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.vut.api.ErrorMappingException;
+import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 
 /**

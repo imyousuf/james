@@ -39,7 +39,6 @@ import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.lib.MockUsersRepository;
-import org.apache.james.vut.api.ErrorMappingException;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -133,6 +132,66 @@ public class ValidRcptHandlerTest extends TestCase {
                     throw new ErrorMappingException("554 BOUNCE");
                 }
                 return mappings;
+            }
+
+            public boolean addAddressMapping(String user, String domain, String address) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean addAliasDomainMapping(String aliasDomain, String realDomain) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean addErrorMapping(String user, String domain, String error) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean addMapping(String user, String domain, String mapping) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean addRegexMapping(String user, String domain, String regex) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public Map<String, Collection<String>> getAllMappings() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public Collection<String> getUserDomainMappings(String user, String domain) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public boolean removeAddressMapping(String user, String domain, String address) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean removeErrorMapping(String user, String domain, String error) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean removeMapping(String user, String domain, String mapping) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean removeRegexMapping(String user, String domain, String regex) {
+                // TODO Auto-generated method stub
+                return false;
             }
         };
         return table;

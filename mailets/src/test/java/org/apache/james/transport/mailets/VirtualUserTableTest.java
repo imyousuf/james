@@ -23,13 +23,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
 
 import junit.framework.TestCase;
 
-import org.apache.james.vut.api.ErrorMappingException;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.test.FakeMail;
@@ -68,6 +68,66 @@ public class VirtualUserTableTest extends TestCase{
 									"whatever@localhost", "blah@localhost" });
 						return null;
 					}
+
+                    public boolean addAddressMapping(String user, String domain, String address) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    public boolean addErrorMapping(String user, String domain, String error) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    public boolean addMapping(String user, String domain, String mapping) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    public boolean addRegexMapping(String user, String domain, String regex) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    public Map<String, Collection<String>> getAllMappings() {
+                        // TODO Auto-generated method stub
+                        return null;
+                    }
+
+                    public Collection<String> getUserDomainMappings(String user, String domain) {
+                        // TODO Auto-generated method stub
+                        return null;
+                    }
+
+                    public boolean removeAddressMapping(String user, String domain, String address) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    public boolean removeErrorMapping(String user, String domain, String error) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    public boolean removeMapping(String user, String domain, String mapping) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
+
+                    public boolean removeRegexMapping(String user, String domain, String regex) {
+                        // TODO Auto-generated method stub
+                        return false;
+                    }
 
 				});
 

@@ -27,7 +27,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.mailstore.api.MailStore;
 import org.apache.james.repository.ObjectRepository;
 import org.apache.james.user.api.User;
-import org.apache.james.user.lib.AbstractUsersRepository;
+import org.apache.james.user.lib.AbstractJamesUsersRepository;
 import org.apache.james.user.lib.DefaultJamesUser;
 
 
@@ -50,7 +50,7 @@ import javax.annotation.Resource;
  *
  */
 public class UsersFileRepository
-    extends AbstractUsersRepository {
+    extends AbstractJamesUsersRepository {
  
     /**
      * Whether 'deep debugging' is turned on.
@@ -78,7 +78,7 @@ public class UsersFileRepository
 
 
     /**
-     * @see org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     protected void doConfigure( final HierarchicalConfiguration configuration )
         throws ConfigurationException {
@@ -128,7 +128,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(org.apache.james.user.api.User)
+     * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doAddUser(org.apache.james.user.api.User)
      */
     protected void doAddUser(User user) {
         try {
@@ -206,7 +206,7 @@ public class UsersFileRepository
     }
     
     /**
-     * @see org.apache.james.user.lib.AbstractUsersRepository#doUpdateUser(org.apache.james.user.api.User)
+     * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doUpdateUser(org.apache.james.user.api.User)
      */
     public void doUpdateUser(User user) {
         try {

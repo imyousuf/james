@@ -20,7 +20,7 @@
 package org.apache.james.user.lib;
 
 import org.apache.james.user.api.User;
-import org.apache.james.user.lib.AbstractUsersRepository;
+import org.apache.james.user.lib.AbstractJamesUsersRepository;
 import org.apache.james.user.lib.DefaultJamesUser;
 import org.apache.james.user.lib.DefaultUser;
 import org.apache.james.user.lib.util.DigestUtil;
@@ -32,7 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-public class MockUsersRepository extends AbstractUsersRepository {
+public class MockUsersRepository extends AbstractJamesUsersRepository {
 
     private final HashMap<String,User> m_users = new HashMap<String,User>();
 

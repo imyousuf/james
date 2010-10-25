@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -51,7 +52,6 @@ import org.apache.james.socket.JamesProtocolHandlerChain;
 import org.apache.james.user.lib.MockUsersRepository;
 import org.apache.james.util.TestUtil;
 import org.apache.james.util.codec.Base64;
-import org.apache.james.vut.api.ErrorMappingException;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
@@ -224,11 +224,70 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
         m_serviceManager.put("virtualusertable", new VirtualUserTable() {
 
-			public Collection<String> getMappings(String user, String domain)
-					throws ErrorMappingException {
-				return null;
-			}
-        	
+            public boolean addAddressMapping(String user, String domain, String address) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean addAliasDomainMapping(String aliasDomain, String realDomain) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean addErrorMapping(String user, String domain, String error) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean addMapping(String user, String domain, String mapping) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean addRegexMapping(String user, String domain, String regex) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public Map<String, Collection<String>> getAllMappings() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public Collection<String> getUserDomainMappings(String user, String domain) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public boolean removeAddressMapping(String user, String domain, String address) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean removeErrorMapping(String user, String domain, String error) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean removeMapping(String user, String domain, String mapping) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean removeRegexMapping(String user, String domain, String regex) {
+                // TODO Auto-generated method stub
+                return false;
+            }
         });
 
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);

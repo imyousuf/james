@@ -28,7 +28,6 @@ import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.vut.api.ManageableVirtualUserTableException;
 
 public class AddMappingCmdHandler extends AbstractMappingCmdHandler {
 
@@ -51,9 +50,6 @@ public class AddMappingCmdHandler extends AbstractMappingCmdHandler {
         } else {
             try {
                 response = new RemoteManagerResponse("Adding mapping successful: " + mappingAction(args, ADD_MAPPING_ACTION));
-            } catch (ManageableVirtualUserTableException e) {
-                session.getLogger().error("Error on adding mapping: " + e);
-                response = new RemoteManagerResponse("Error on adding mapping: " + e);
             } catch (IllegalArgumentException e) {
                 session.getLogger().error("Error on adding mapping: " + e);
                 response = new RemoteManagerResponse("Error on adding mapping: " + e);

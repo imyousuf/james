@@ -28,7 +28,6 @@ import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.vut.api.ManageableVirtualUserTableException;
 
 public class RemoveMappingCmdHandler extends AbstractMappingCmdHandler {
     private CommandHelp help = new CommandHelp("removemapping [toUser@toDomain] [fromMapping]","remove mapping for the given emailaddress");
@@ -51,9 +50,6 @@ public class RemoveMappingCmdHandler extends AbstractMappingCmdHandler {
         } else {
             try {
                 response = new RemoteManagerResponse("Removing mapping successful: " + mappingAction(args, REMOVE_MAPPING_ACTION));
-            } catch (ManageableVirtualUserTableException e) {
-                session.getLogger().error("Error on  removing mapping: " + e);
-                response = new RemoteManagerResponse("Error on removing mapping: " + e);
             } catch (IllegalArgumentException e) {
                 session.getLogger().error("Error on  removing mapping: " + e);
                 response = new RemoteManagerResponse("Error on removing mapping: " + e);

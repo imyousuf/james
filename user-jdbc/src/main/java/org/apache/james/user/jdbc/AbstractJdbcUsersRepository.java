@@ -23,7 +23,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.services.FileSystem;
 import org.apache.james.user.api.User;
-import org.apache.james.user.lib.AbstractUsersRepository;
+import org.apache.james.user.lib.AbstractJamesUsersRepository;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 
@@ -68,7 +68,7 @@ import javax.sql.DataSource;
  *
  */
 public abstract class AbstractJdbcUsersRepository extends
-        AbstractUsersRepository {
+        AbstractJamesUsersRepository {
 
 
     protected Map<String,String> m_sqlParameters;
@@ -379,7 +379,7 @@ public abstract class AbstractJdbcUsersRepository extends
      *   &lt;/repository&gt;
      * </pre>
      * 
-     * @see org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     protected void doConfigure(HierarchicalConfiguration configuration)
@@ -619,7 +619,7 @@ public abstract class AbstractJdbcUsersRepository extends
     /**
      * Gets a user by name, ignoring case if specified. If the specified SQL
      * statement has been defined, this method overrides the basic
-     * implementation in AbstractUsersRepository to increase performance.
+     * implementation in AbstractJamesUsersRepository to increase performance.
      * 
      * @param name
      *            the name of the user being retrieved

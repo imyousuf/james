@@ -30,8 +30,8 @@ import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
 import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.vut.api.ErrorMappingException;
 import org.apache.james.vut.api.VirtualUserTable;
+import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 
 /**

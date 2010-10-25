@@ -29,8 +29,6 @@ import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.vut.api.ManageableVirtualUserTable;
-import org.apache.james.vut.api.ManageableVirtualUserTableException;
 
 public class ListMappingCmdHandler extends AbstractMappingCmdHandler {
     private CommandHelp help = new CommandHelp("listmapping [user@domain]","list all mappings for the given emailaddress");
@@ -68,25 +66,19 @@ public class ListMappingCmdHandler extends AbstractMappingCmdHandler {
 			}
 
             try {
-            	if (vutManagement instanceof ManageableVirtualUserTable) {
-            		Collection<String> mappings = ((ManageableVirtualUserTable)vutManagement).getUserDomainMappings(user, domain);
-                    if (mappings == null) {
-                        response = new RemoteManagerResponse("No mappings found");
-                    } else {
-                        response = new RemoteManagerResponse("Mappings:");
+                Collection<String> mappings = vutManagement.getUserDomainMappings(user, domain);
+                if (mappings == null) {
+                    response = new RemoteManagerResponse("No mappings found");
+                } else {
+                    response = new RemoteManagerResponse("Mappings:");
 
-                        Iterator<String> m = mappings.iterator();
-                        while (m.hasNext()) {
-                            response.appendLine(m.next());
-                        }
-                    }
-            	} else {
-                    response = new RemoteManagerResponse("Listing mappings not supported");
-            	}
-                
-            } catch (ManageableVirtualUserTableException e) {
-                session.getLogger().error("Error on listing mapping: " + e);
-                response = new RemoteManagerResponse("Error on listing mapping: " + e);
+                    Iterator<String> m = mappings.iterator();
+                    while (m.hasNext()) {
+                        response.appendLine(m.next());
+                     }
+                }
+            
+
             } catch (IllegalArgumentException e) {
                 session.getLogger().error("Error on listing mapping: " + e);
                 response = new RemoteManagerResponse("Error on listing mapping: " + e);

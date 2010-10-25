@@ -29,10 +29,14 @@ import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.JamesUsersRepository;
 import org.apache.james.user.api.User;
-import org.apache.james.vut.api.ErrorMappingException;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.vut.lib.AbstractReadOnlyVirtualUserTable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -42,8 +46,10 @@ import javax.annotation.Resource;
  * <p>This implements common functionality found in different UsersRespository 
  * implementations, and makes it easier to create new User repositories.</p>
  *
+ *@deprecated Please implement {@link UsersRepository}
  */
-public abstract class AbstractUsersRepository implements JamesUsersRepository, LogEnabled, Configurable {
+@Deprecated
+public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtualUserTable implements JamesUsersRepository, LogEnabled, Configurable {
 
     /**
      * Ignore case in usernames
@@ -227,6 +233,45 @@ public abstract class AbstractUsersRepository implements JamesUsersRepository, L
      */
     public void setIgnoreCase(boolean ignoreCase) {
         this.ignoreCase = ignoreCase;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.vut.api.VirtualUserTable#getAllMappings()
+     */
+    public Map<String, Collection<String>> getAllMappings() {
+        Map<String, Collection<String>> mappings = new HashMap<String, Collection<String>>();
+        if (enableAliases == true || enableForwarding == true) {
+            Iterator<String> users = list();
+            while(users.hasNext()) {
+                String user = users.next();
+                int index = user.indexOf("@");
+                String username;
+                String domain;
+                if (index != -1) {
+                    username = user.substring(0, index);
+                    domain = user.substring(index +1, user.length());
+                } else {
+                    username = user;
+                    domain = "localhost";
+                }
+                try {
+                    mappings.put(user, getMappings(username, domain));
+                } catch (ErrorMappingException e) {
+                    // shold never happen here
+                }
+            }        
+        }
+       
+        return mappings;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.vut.api.VirtualUserTable#getUserDomainMappings(java.lang.String, java.lang.String)
+     */
+    public Collection<String> getUserDomainMappings(String user, String domain) {
+        return new ArrayList<String>();
     }
 
 }

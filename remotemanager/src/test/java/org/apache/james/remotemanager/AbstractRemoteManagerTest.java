@@ -186,7 +186,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 		serviceManager.put("dnsservice", dnsservice);
 		
 		vutManagement = new MockVirtualUserTableManagementImpl();
-		serviceManager.put("manageablevirtualusertable", vutManagement);
+		serviceManager.put("virtualusertable", vutManagement);
 	
 		DomainList xml = new SimpleDomainList();
 

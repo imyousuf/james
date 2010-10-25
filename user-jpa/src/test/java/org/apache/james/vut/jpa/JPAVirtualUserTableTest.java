@@ -22,7 +22,6 @@ import java.util.HashMap;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.vut.api.ManageableVirtualUserTableException;
 import org.apache.james.vut.jpa.JPAVirtualUserTable;
 import org.apache.james.vut.jpa.model.JPAVirtualUser;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
@@ -78,7 +77,7 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
     /**
      * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean addMapping(String user, String domain, String mapping, int type) throws ManageableVirtualUserTableException {
+    protected boolean addMapping(String user, String domain, String mapping, int type) {
         if (type == ERROR_TYPE) {
             return virtualUserTable.addErrorMapping(user, domain, mapping);
         } else if (type == REGEX_TYPE) {
@@ -95,7 +94,7 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
     /**
      * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean removeMapping(String user, String domain, String mapping, int type) throws ManageableVirtualUserTableException {
+    protected boolean removeMapping(String user, String domain, String mapping, int type) {
         if (type == ERROR_TYPE) {
             return virtualUserTable.removeErrorMapping(user, domain, mapping);
         } else if (type == REGEX_TYPE) {

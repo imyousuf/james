@@ -30,8 +30,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersStore;
-import org.apache.james.vut.api.ErrorMappingException;
 import org.apache.james.vut.api.VirtualUserTable;
+import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 
 /**

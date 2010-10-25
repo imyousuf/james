@@ -19,7 +19,6 @@
 package org.apache.james.vut.lib;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -33,12 +32,9 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.services.InstanceFactory;
-import org.apache.james.vut.api.ErrorMappingException;
-import org.apache.james.vut.api.ManageableVirtualUserTable;
-import org.apache.james.vut.api.ManageableVirtualUserTableException;
 import org.apache.james.vut.api.VirtualUserTable;
 
-public class JamesVirtualUserTable implements ManageableVirtualUserTable, Configurable, LogEnabled{
+public class JamesVirtualUserTable implements VirtualUserTable, Configurable, LogEnabled{
 
 	private HierarchicalConfiguration config;
 	private Log log;
@@ -100,76 +96,56 @@ public class JamesVirtualUserTable implements ManageableVirtualUserTable, Config
 		}
 	}
 
-	public boolean addAddressMapping(String user, String domain, String address)
-			throws ManageableVirtualUserTableException {
-		return getManagement().addAddressMapping(user, domain, address);
+	public boolean addAddressMapping(String user, String domain, String address) {
+		return vut.addAddressMapping(user, domain, address);
 	}
 
-	public boolean addAliasDomainMapping(String aliasDomain, String realDomain)
-			throws ManageableVirtualUserTableException {
-		return getManagement().addAliasDomainMapping(aliasDomain, realDomain);
+	public boolean addAliasDomainMapping(String aliasDomain, String realDomain) {
+		return vut.addAliasDomainMapping(aliasDomain, realDomain);
 	}
 
-	public boolean addErrorMapping(String user, String domain, String error)
-			throws ManageableVirtualUserTableException {
-		return getManagement().addErrorMapping(user, domain, error);
+	public boolean addErrorMapping(String user, String domain, String error) {
+		return vut.addErrorMapping(user, domain, error);
 	}
 
-	public boolean addMapping(String user, String domain, String mapping)
-			throws ManageableVirtualUserTableException {
-		return getManagement().addMapping(user, domain, mapping);
+	public boolean addMapping(String user, String domain, String mapping) {
+		return vut.addMapping(user, domain, mapping);
 	}
 
-	public boolean addRegexMapping(String user, String domain, String regex)
-			throws ManageableVirtualUserTableException {
-		return getManagement().addRegexMapping(user, domain, regex);
+	public boolean addRegexMapping(String user, String domain, String regex) {
+		return vut.addRegexMapping(user, domain, regex);
 	}
 
 	public Map<String, Collection<String>> getAllMappings() {
-		try {
-			return getManagement().getAllMappings();
-		} catch (ManageableVirtualUserTableException e) {
-			return new HashMap<String, Collection<String>>();
-		}
+	    return vut.getAllMappings();
 	}
 
-	public Collection<String> getUserDomainMappings(String user, String domain)
-			throws ManageableVirtualUserTableException {
-		return getManagement().getUserDomainMappings(user, domain);
+	public Collection<String> getUserDomainMappings(String user, String domain) {
+		return vut.getUserDomainMappings(user, domain);
 	}
 
 	public boolean removeAddressMapping(String user, String domain,
-			String address) throws ManageableVirtualUserTableException {
-		return getManagement().removeAddressMapping(user, domain, address);
+			String address) {
+		return vut.removeAddressMapping(user, domain, address);
 	}
 
 	public boolean removeAliasDomainMapping(String aliasDomain,
-			String realDomain) throws ManageableVirtualUserTableException {
-		return getManagement().removeAliasDomainMapping(aliasDomain, realDomain);
+			String realDomain) {
+		return vut.removeAliasDomainMapping(aliasDomain, realDomain);
 
 	}
 
-	public boolean removeErrorMapping(String user, String domain, String error)
-			throws ManageableVirtualUserTableException {
-		return getManagement().removeErrorMapping(user, domain, error);
+	public boolean removeErrorMapping(String user, String domain, String error) {
+		return vut.removeErrorMapping(user, domain, error);
 	}
 
-	public boolean removeMapping(String user, String domain, String mapping)
-			throws ManageableVirtualUserTableException {
-		return getManagement().removeMapping(user, domain, mapping);
+	public boolean removeMapping(String user, String domain, String mapping) {
+		return vut.removeMapping(user, domain, mapping);
 	}
 
-	public boolean removeRegexMapping(String user, String domain, String regex)
-			throws ManageableVirtualUserTableException {
-		return getManagement().removeRegexMapping(user, domain, regex);
+	public boolean removeRegexMapping(String user, String domain, String regex) {
+		return vut.removeRegexMapping(user, domain, regex);
 	}
 	
-	private ManageableVirtualUserTable getManagement() throws ManageableVirtualUserTableException{
-		if (vut instanceof ManageableVirtualUserTable) {
-			return (ManageableVirtualUserTable) vut;
-		} else {
-			throw new ManageableVirtualUserTableException("VirtualUserTable implementation is not managable");
-		}
-	}
     
 }

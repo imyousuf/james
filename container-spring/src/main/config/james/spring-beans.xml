@@ -241,7 +241,7 @@
     <!-- The context FileSystem implementation -->
     <bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
 
-    <bean id="virtualusertable" name="manageablevirtualusertable" class="org.apache.james.vut.lib.JamesVirtualUserTable" />
+    <bean id="virtualusertable" class="org.apache.james.vut.lib.JamesVirtualUserTable" />
 
     <!-- The context domainlist implementation -->
     <bean id="domainlist" class="org.apache.james.domainlist.lib.JamesDomainList" />
