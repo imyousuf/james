@@ -45,7 +45,7 @@
       </property>
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchMailSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean"/>
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean"/>
           </bean>
       </property>
     </bean>
@@ -122,7 +122,7 @@
 
     <!-- Change trace to true for debugging purposes -->
     <camel:camelContext id="jamesCamelContext" trace="false" >
-        <camel:jmxAgent id="agent" disabled="false"/>
+        <camel:jmxAgent id="agent" disabled="false" createConnector="true" serviceUrlPath="/jmxrmi/jamescamel"/>
         <camel:template id="producerTemplate"/>   
     </camel:camelContext>
 
