@@ -279,10 +279,10 @@ public class DSNBounce extends AbstractNotify {
         for (Iterator i = originalMail.getRecipients().iterator(); i.hasNext(); ) {
             out.println(i.next());
         }
-        MessagingException ex = (MessagingException)originalMail.getAttribute("delivery-error");
+        String ex = (String)originalMail.getAttribute("delivery-error");
         out.println();
         out.println("Error message:");
-        out.println(getErrorMsg(ex));
+        out.println(ex);
         out.println();
 
         part1.setText(sout.toString());
@@ -364,9 +364,8 @@ public class DSNBounce extends AbstractNotify {
                 //required: status
                 // get Exception for getting status information
                 // TODO: it would be nice if the SMTP-handler would set a status attribute we can use here
-                MessagingException ex =
-                    (MessagingException) originalMail.getAttribute("delivery-error");
-                out.println("Status: "+getStatus(ex));
+                String ex =(String) originalMail.getAttribute("delivery-error");
+                out.println("Status: "+ ex);
 
                 //optional: remote MTA
                 //to which MTA were we talking while the Error occured?
@@ -377,7 +376,7 @@ public class DSNBounce extends AbstractNotify {
                 // (or other transport) communication
                 // and should be stored as attribute by the smtp handler
                 // but until now we only have error-messages.
-                String diagnosticCode = getErrorMsg(ex);
+                String diagnosticCode = ex;
                 // Sometimes this is the smtp diagnostic code,
                 // but James often gives us other messages
                 Perl5Matcher diagMatcher = new Perl5Matcher();
@@ -545,20 +544,7 @@ public class DSNBounce extends AbstractNotify {
         }
     }
 
-    /**
-     * Utility method for getting the error message from the (nested) exception.
-     * 
-     * @param me MessagingException
-     * @return error message
-     */
-    protected String getErrorMsg(MessagingException me) {
-        if (me.getNextException() == null) {
-            return me.getMessage().trim();
-        } else {
-            Exception ex1 = me.getNextException();
-            return ex1.getMessage().trim();
-        }
-    }
+
 
 
     public String getMailetInfo() {

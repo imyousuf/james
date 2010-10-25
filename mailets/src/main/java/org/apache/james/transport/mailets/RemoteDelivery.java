@@ -1425,7 +1425,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         if (bounceProcessor != null) {
             // do the new DSN bounce
             // setting attributes for DSN mailet
-            mail.setAttribute("delivery-error", ex);
+            String cause;
+            if (ex instanceof MessagingException) {
+                cause = getErrorMsg((MessagingException)ex);
+            } else {
+                cause = ex.getMessage();
+            }
+            mail.setAttribute("delivery-error", cause);
             mail.setState(bounceProcessor);
             // re-insert the mail into the spool for getting it passed to the dsn-processor
             MailetContext mc = getMailetContext();
@@ -1442,6 +1448,21 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         return true;
     }
 
+    /**
+     * Utility method for getting the error message from the (nested) exception.
+     * 
+     * @param me MessagingException
+     * @return error message
+     */
+    protected String getErrorMsg(MessagingException me) {
+        if (me.getNextException() == null) {
+            return me.getMessage().trim();
+        } else {
+            Exception ex1 = me.getNextException();
+            return ex1.getMessage().trim();
+        }
+    }
+    
     private void bounce(Mail mail, Exception ex) {
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);
