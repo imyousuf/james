@@ -36,7 +36,7 @@ public class LocalUsersRepository implements UsersRepository {
     private UsersStore usersStore;
     protected UsersRepository users;
 
-    @Resource(name="users-store")
+    @Resource(name="usersstore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

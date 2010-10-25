@@ -28,7 +28,10 @@ import java.util.Collection;
  * This is a wrapper that provide access to the "LocalUsers" repository
  * but expect to find a JamesUsersRepository and return an object implementing
  * this extended interface
+ * 
+ * @deprecated use {@link LocalUsersRepository}
  */
+@Deprecated
 public class LocalJamesUsersRepository extends LocalUsersRepository implements JamesUsersRepository{
 
     

@@ -28,9 +28,9 @@ import org.apache.mailet.MailAddress;
  * Implementation of User Interface.
  *
  *
- * @version $Revision: 521427 $
+ * @deprecated Use {@link DefaultUser}
  */
-
+@Deprecated 
 public class DefaultJamesUser 
         extends DefaultUser
         implements JamesUser {
