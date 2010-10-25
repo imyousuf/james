@@ -173,7 +173,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 
 
 		usersStore = new MockUsersStore(m_mockUsersRepository);
-		serviceManager.put("users-store", usersStore);
+		serviceManager.put("usersstore", usersStore);
 
 		mailServer = new MockMailServer();
 		serviceManager.put("mailserver", mailServer);

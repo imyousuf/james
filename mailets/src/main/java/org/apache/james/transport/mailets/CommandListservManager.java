@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.transport.mailets;
 
 import org.apache.commons.configuration.Configuration;
@@ -46,24 +44,25 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * CommandListservManager is the default implementation of {@link ICommandListservManager}.
- * It loads all the configured {@link IListServCommand}s and delegates to them at runtime.
- * <br />
- *
- * It isn't responsible for procesing messages sent to the main mailing list, but is responsible for
- * individual commands sent by users, such as: info, subscribe, etc...
- * <br />
- *
+ * CommandListservManager is the default implementation of
+ * {@link ICommandListservManager}. It loads all the configured
+ * {@link IListServCommand}s and delegates to them at runtime. <br />
+ * 
+ * It isn't responsible for procesing messages sent to the main mailing list,
+ * but is responsible for individual commands sent by users, such as: info,
+ * subscribe, etc... <br />
+ * 
  * Requests sent to the CommandListservManager take the form of:
+ * 
  * <pre>
  * &lt;listName&gt;-&lt;commandName&gt;@domain
  * </pre>
- *
- * If the command isn't recognized an error will be sent using {@link #onError}.
+ * 
+ * If the command isn't recognized an error will be sent using {@link #onError}. <br />
  * <br />
- * <br />
- *
+ * 
  * The configuration for this mailet sould be in the 'root' processor block.
+ * 
  * <pre>
  * &lt;mailet match="CommandListservMatcher=announce@localhost" class="CommandListservManager"&gt;
  *  &lt;listName&gt;announce&lt;/listName&gt;
@@ -71,11 +70,11 @@ import java.util.Properties;
  *  &lt;listOwner&gt;owner@localhost&lt;/listOwner&gt;
  *  &lt;repositoryName&gt;list-announce&lt;/repositoryName&gt;
  *  &lt;listDomain&gt;localhost&lt;/listDomain&gt;
- *
+ * 
  *  &lt;commandpackages&gt;
  *     &lt;commandpackage&gt;org.apache.james.transport.mailets.listservcommands&lt;/commandpackage&gt;
  *  &lt;/commandpackages&gt;
- *
+ * 
  *  &lt;commands&gt;
  *     &lt;command name="subscribe" class="Subscribe"/&gt;
  *     &lt;command name="subscribe-confirm" class="SubscribeConfirm"/&gt;
@@ -87,20 +86,23 @@ import java.util.Properties;
  *  &lt;/commands&gt;
  * &lt;/mailet&gt;
  * </pre>
- *
+ * 
  * <br />
  * <br />
- * Todo: refine the command matching so we can have more sophistciated commands such as:
+ * Todo: refine the command matching so we can have more sophistciated commands
+ * such as:
+ * 
  * <pre>
  * &lt;listName&gt;-&lt;commandName&gt;-&lt;optCommandParam&gt;@domain
  * </pre>
- *
- * @version CVS $Revision$ $Date$
+ * 
+ * @version CVS $Revision$ $Date: 2010-10-21 10:54:06 +0200 (Thu, 21
+ *          Oct 2010) $
  * @since 2.2.0
  */
 public class CommandListservManager extends GenericMailet implements ICommandListservManager {
 
-    protected Map<String,IListServCommand> commandMap = new HashMap<String,IListServCommand>();
+    protected Map<String, IListServCommand> commandMap = new HashMap<String, IListServCommand>();
     protected List<String> commandPackages = new ArrayList<String>();
     protected UsersRepository usersRepository;
     protected String listName;
@@ -111,11 +113,15 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     private UsersStore usersStore;
 
     /**
-     * Get the name of this list specified by the config param: 'listName'.
-     * <br />
-     * eg: <pre>&lt;listName&gt;announce&lt;/listName&gt;</pre>
-     *
-     * @param displayFormat is whether you want a display version of this or not
+     * Get the name of this list specified by the config param: 'listName'. <br />
+     * eg:
+     * 
+     * <pre>
+     * &lt;listName&gt;announce&lt;/listName&gt;
+     * </pre>
+     * 
+     * @param displayFormat
+     *            is whether you want a display version of this or not
      * @return the official display name of this list
      */
     public String getListName(boolean displayFormat) {
@@ -123,10 +129,13 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     }
 
     /**
-     * Gets the owner of this list specified by the config param: 'listOwner'.
-     * <br />
-     * eg: <pre>&lt;listOwner&gt;owner@localhost&lt;/listOwner&gt;</pre>
-     *
+     * Gets the owner of this list specified by the config param: 'listOwner'. <br />
+     * eg:
+     * 
+     * <pre>
+     * &lt;listOwner&gt;owner@localhost&lt;/listOwner&gt;
+     * </pre>
+     * 
      * @return this is an address like listOwner@localhost
      */
     public String getListOwner() {
@@ -134,10 +143,13 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     }
 
     /**
-     * Get the domain of the list specified by the config param: 'listDomain'.
-     * <br />
-     * eg: <pre>&lt;listDomain&gt;localhost&lt;/listDomain&gt;</pre>
-     *
+     * Get the domain of the list specified by the config param: 'listDomain'. <br />
+     * eg:
+     * 
+     * <pre>
+     * &lt;listDomain&gt;localhost&lt;/listDomain&gt;
+     * </pre>
+     * 
      * @return a string like localhost
      */
     public String getListDomain() {
@@ -147,6 +159,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     /**
      * Get a specific command specified by the 'commands' configuration block.
      * For instance:
+     * 
      * <pre>
      * &lt;commands&gt;
      *  &lt;command name="subscribe" class="Subscribe"/&gt;
@@ -158,7 +171,9 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
      *  &lt;command name="info" class="Info"/&gt;
      * &lt;/commands&gt;
      * </pre>
-     * @param name case in-sensitive
+     * 
+     * @param name
+     *            case in-sensitive
      * @return a {@link IListServCommand} if found, null otherwise
      */
     public IListServCommand getCommand(String name) {
@@ -167,16 +182,19 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * Get all the available commands
+     * 
      * @return a map of {@link IListServCommand}
      * @see #getCommand
      */
-    public Map<String,IListServCommand> getCommands() {
+    public Map<String, IListServCommand> getCommands() {
         return commandMap;
     }
 
     /**
      * Get the current user repository for this list serv
-     * @return an instance of {@link UsersRepository} that is used for the member list of the list serv
+     * 
+     * @return an instance of {@link UsersRepository} that is used for the
+     *         member list of the list serv
      */
     public UsersRepository getUsersRepository() {
         return usersRepository;
@@ -184,7 +202,9 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * An error occurred, send some sort of message
-     * @param subject the subject of the message to send
+     * 
+     * @param subject
+     *            the subject of the message to send
      * @param mail
      * @param errorMessage
      */
@@ -201,7 +221,9 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     }
 
     /**
-     * Use this to get standard properties for future calls to {@link org.apache.james.util.XMLResources}
+     * Use this to get standard properties for future calls to
+     * {@link org.apache.james.util.XMLResources}
+     * 
      * @return properties with the "LIST_NAME" and the "DOMAIN_NAME" properties
      */
     public Properties getStandardProperties() {
@@ -214,7 +236,9 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * Initializes an array of resources
-     * @param names such as 'header, footer' etc...
+     * 
+     * @param names
+     *            such as 'header, footer' etc...
      * @return an initialized array of XMLResources
      * @throws ConfigurationException
      */
@@ -240,29 +264,29 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     public void init() throws MessagingException {
 
         try {
-            //Well, i want a more complex configuration structure
-            //of my mailet, so i have to cheat... and cheat i will...
+            // Well, i want a more complex configuration structure
+            // of my mailet, so i have to cheat... and cheat i will...
             Configuration configuration = (Configuration) getField(getMailetConfig(), "configuration");
 
-            //get name
+            // get name
             listName = configuration.getString("listName");
             displayName = configuration.getString("displayName");
             listOwner = configuration.getString("listOwner");
             listDomain = configuration.getString("listDomain");
 
-            //initialize resources
+            // initialize resources
             initializeResources();
 
-            //get users store
+            // get users store
             initUsersRepository();
 
-            //get command packages
+            // get command packages
             loadCommandPackages(configuration);
 
-            //load commands
-            loadCommands((HierarchicalConfiguration)configuration);
+            // load commands
+            loadCommands((HierarchicalConfiguration) configuration);
 
-            //register w/context
+            // register w/context
             getMailetContext().setAttribute(ICommandListservManager.ID + listName, this);
         } catch (Exception e) {
             throw new MessagingException(e.getMessage(), e);
@@ -271,6 +295,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * Based on the to address get a valid or command or null
+     * 
      * @param mailAddress
      * @return IListServCommand or null
      */
@@ -280,15 +305,20 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
     }
 
     /**
-     * <p>Called by the mailet container to allow the mailet to process a
-     * message.</p>
-     *
-     * <p>This method is declared abstract so subclasses must override it.</p>
-     *
-     * @param mail - the Mail object that contains the MimeMessage and
-     *          routing information
-     * @throws MessagingException - if an exception occurs that interferes with the mailet's normal operation
-     *          occurred
+     * <p>
+     * Called by the mailet container to allow the mailet to process a message.
+     * </p>
+     * 
+     * <p>
+     * This method is declared abstract so subclasses must override it.
+     * </p>
+     * 
+     * @param mail
+     *            - the Mail object that contains the MimeMessage and routing
+     *            information
+     * @throws MessagingException
+     *             - if an exception occurs that interferes with the mailet's
+     *             normal operation occurred
      */
     public void service(Mail mail) throws MessagingException {
         if (mail.getRecipients().size() != 1) {
@@ -299,7 +329,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
         IListServCommand command = getCommandTarget(mailAddress);
 
         if (command == null) {
-            //don't recognize the command
+            // don't recognize the command
             Properties props = getStandardProperties();
             props.setProperty("COMMAND", getCommandName(mailAddress));
             onError(mail, "unknown command", xmlResources.getString("command.not.understood", props));
@@ -308,7 +338,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
         }
 
         // onError or onCommand would have done the job, so regardless
-        // of which get rid of this e-mail.  This is something that we
+        // of which get rid of this e-mail. This is something that we
         // should review, and decide if there is any reason to allow a
         // passthrough.
         mail.setState(Mail.GHOST);
@@ -316,6 +346,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * Get the name of the command
+     * 
      * @param mailAddress
      * @return the name of the command
      */
@@ -328,13 +359,14 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * initialize the resources
+     * 
      * @throws Exception
      */
     protected void initializeResources() throws Exception {
-        xmlResources = initXMLResources(new String[]{"List Manager"})[0];
+        xmlResources = initXMLResources(new String[] { "List Manager" })[0];
     }
-    
-    @Resource(name="users-store")
+
+    @Resource(name = "usersstore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }
@@ -354,12 +386,13 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * Load an initialize all of the available commands
+     * 
      * @param configuration
      * @throws ConfigurationException
      */
     @SuppressWarnings("unchecked")
     protected void loadCommands(HierarchicalConfiguration configuration) throws Exception {
-        
+
         final List<HierarchicalConfiguration> commandConfs = configuration.configurationsAt("commands.command");
         for (int index = 0; index < commandConfs.size(); index++) {
             HierarchicalConfiguration commandConf = commandConfs.get(index);
@@ -371,16 +404,13 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * Loads and initializes a single command
-     *
+     * 
      * @param commandName
      * @param className
      * @param configuration
      * @throws ConfigurationException
      */
-    protected void loadCommand(String commandName,
-                               String className,
-                               Configuration configuration)
-            throws ConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    protected void loadCommand(String commandName, String className, Configuration configuration) throws ConfigurationException, ClassNotFoundException, IllegalAccessException, InstantiationException {
         ClassLoader theClassLoader = Thread.currentThread().getContextClassLoader();
         for (Iterator<String> it = commandPackages.iterator(); it.hasNext();) {
             String packageName = it.next();
@@ -389,7 +419,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
             try {
                 listServCommand = (IListServCommand) theClassLoader.loadClass(packageName + className).newInstance();
             } catch (Exception e) {
-                //ignore
+                // ignore
                 continue;
             }
             listServCommand.init(this, configuration);
@@ -402,14 +432,14 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * loads all of the packages for the commands
-     *
+     * 
      * @param configuration
      * @throws ConfigurationException
      */
     @SuppressWarnings("unchecked")
     protected void loadCommandPackages(Configuration configuration) throws ConfigurationException {
         commandPackages.add("");
-        final List<String>pkgConfs = configuration.getList("commandpackages.commandpackage");
+        final List<String> pkgConfs = configuration.getList("commandpackages.commandpackage");
         for (int index = 0; index < pkgConfs.size(); index++) {
             String packageName = pkgConfs.get(index).trim();
             if (!packageName.endsWith(".")) {
@@ -421,6 +451,7 @@ public class CommandListservManager extends GenericMailet implements ICommandLis
 
     /**
      * Retrieves a data field, potentially defined by a super class.
+     * 
      * @return null if not found, the object otherwise
      */
     protected static Object getField(Object instance, String name) throws IllegalAccessException {

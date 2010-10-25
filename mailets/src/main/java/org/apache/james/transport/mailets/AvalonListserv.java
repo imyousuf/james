@@ -100,7 +100,7 @@ public class AvalonListserv extends GenericListserv {
 
     private UsersStore usersStore;
 
-    @Resource(name="users-store")
+    @Resource(name="usersstore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

@@ -72,7 +72,7 @@ public class LocalDelivery extends GenericMailet {
     }
     
     
-    @Resource(name="users-store")
+    @Resource(name="usersstore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

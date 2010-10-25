@@ -78,6 +78,7 @@
                 <entry key="spoolmanager" value="mailetcontainer"/>
                 <entry key="mailetloader" value="mailetcontainer"/>
                 <entry key="matcherloader" value="mailetcontainer"/>
+                <entry key="usersstore" value="usersrepository"/>
              </map>
         </property>
     </bean>
@@ -107,6 +108,7 @@
                 <entry key="spoolmanager" value="mailetcontainer"/>
                 <entry key="mailetloader" value="mailetcontainer"/>
                 <entry key="matcherloader" value="mailetcontainer"/>
+                <entry key="usersstore" value="usersrepository"/>
             </map>
         </property>
     </bean>
@@ -218,7 +220,7 @@
     <bean id="mailstore" class="org.apache.james.mailstore.lib.JamesMailStore" />
 
     <!-- The User Storage block -->
-    <bean id="users-store" class="org.apache.james.user.lib.JamesUsersStore" >
+    <bean id="usersstore" class="org.apache.james.user.lib.JamesUsersStore" >
         <property name="defaultRepository" value="LocalUsers"/>
     </bean>
 

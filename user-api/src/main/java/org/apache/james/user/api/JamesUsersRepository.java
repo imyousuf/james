@@ -22,6 +22,12 @@ package org.apache.james.user.api;
 import org.apache.james.vut.api.VirtualUserTable;
 
 
+/**
+ * 
+ * @deprecated Use {@link UsersRepository}
+ * 
+ */
+@Deprecated
 public interface JamesUsersRepository extends UsersRepository, VirtualUserTable {
 
     /**

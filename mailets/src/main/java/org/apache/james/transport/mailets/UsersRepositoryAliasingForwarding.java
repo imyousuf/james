@@ -76,7 +76,7 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
         this.usersRepository = usersRepository;
     }
     
-    @Resource(name="users-store")
+    @Resource(name="usersstore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

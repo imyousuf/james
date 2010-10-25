@@ -49,7 +49,7 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
         this.localUsers = localUsers;
     }
     
-    @Resource(name="users-store")
+    @Resource(name="usersstore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

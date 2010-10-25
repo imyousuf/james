@@ -43,7 +43,7 @@ public class AvalonListservManager extends GenericListservManager {
 
     private UsersStore usersStore;
 
-    @Resource(name="users-store")
+    @Resource(name="usersstore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }

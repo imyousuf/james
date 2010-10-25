@@ -414,7 +414,7 @@ public class CommandListservProcessor extends GenericMailet {
         xmlResources = getCommandListservManager().initXMLResources(new String[]{"List Manager"})[0];
     }
 
-    @Resource(name="users-store")
+    @Resource(name="usersstore")
     public void setUsersStore(UsersStore usersStore) {
         this.usersStore = usersStore;
     }
