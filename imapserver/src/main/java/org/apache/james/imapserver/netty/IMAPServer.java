@@ -32,7 +32,6 @@ import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.protocols.impl.ChannelGroupHandler;
 import org.apache.james.protocols.impl.TimeoutHandler;
-import org.apache.james.socket.ServerMBean;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.socket.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -47,7 +46,7 @@ import org.jboss.netty.util.HashedWheelTimer;
  * NIO IMAP Server which use Netty
  *
  */
-public class NioImapServer extends AbstractConfigurableAsyncServer implements ImapConstants, ServerMBean {
+public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapConstants, IMAPServerMBean {
 
     private static final String softwaretype = "JAMES "+VERSION+" Server ";
     private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
@@ -110,9 +109,9 @@ public class NioImapServer extends AbstractConfigurableAsyncServer implements Im
                 ChannelPipeline pipeline = pipeline();
                 pipeline.addLast("groupHandler", groupHandler);
                 pipeline.addLast("timeoutHandler", new TimeoutHandler(timer, TIMEOUT));
-                pipeline.addLast("connectionLimit", new ConnectionLimitUpstreamHandler(NioImapServer.this.connectionLimit));
+                pipeline.addLast("connectionLimit", new ConnectionLimitUpstreamHandler(IMAPServer.this.connectionLimit));
 
-                pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(NioImapServer.this.connPerIP));
+                pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(IMAPServer.this.connPerIP));
 
                 if (isSSLSocket()) {
                     // We need to set clientMode to false.
@@ -127,9 +126,9 @@ public class NioImapServer extends AbstractConfigurableAsyncServer implements Im
                 final ImapRequestStreamHandler handler = new ImapRequestStreamHandler(decoder, processor, encoder);
                 
                 if (isStartTLSSupported())  {
-                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), NioImapServer.this.getTimeout(), getSSLContext().createSSLEngine()));
+                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), IMAPServer.this.getTimeout(), getSSLContext().createSSLEngine()));
                 } else {
-                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), NioImapServer.this.getTimeout()));
+                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), IMAPServer.this.getTimeout()));
                 }
                 
                 return pipeline;

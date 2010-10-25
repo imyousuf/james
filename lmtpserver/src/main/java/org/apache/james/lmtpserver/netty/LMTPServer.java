@@ -27,7 +27,6 @@ import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.SMTPServerMBean;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.apache.james.smtpserver.netty.SMTPResponseEncoder;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
@@ -38,7 +37,7 @@ import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-public class NioLMTPServer extends AbstractConfigurableAsyncServer implements SMTPServerMBean{
+public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPServerMBean{
 
     /**
      * The maximum message size allowed by this SMTP server.  The default
@@ -111,10 +110,10 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer implements SM
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getHelloName()
          */
         public String getHelloName() {
-            if (NioLMTPServer.this.getHelloName() == null) {
-                return NioLMTPServer.this.mailServer.getHelloName();
+            if (LMTPServer.this.getHelloName() == null) {
+                return LMTPServer.this.mailServer.getHelloName();
             } else {
-                return NioLMTPServer.this.getHelloName();
+                return LMTPServer.this.getHelloName();
             }
         }
 
@@ -129,7 +128,7 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer implements SM
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getMaxMessageSize()
          */
         public long getMaxMessageSize() {
-            return NioLMTPServer.this.maxMessageSize;
+            return LMTPServer.this.maxMessageSize;
         }
 
         /**
@@ -151,7 +150,7 @@ public class NioLMTPServer extends AbstractConfigurableAsyncServer implements SM
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getSMTPGreeting()
          */
         public String getSMTPGreeting() {
-            return NioLMTPServer.this.lmtpGreeting;
+            return LMTPServer.this.lmtpGreeting;
         }
 
         /**

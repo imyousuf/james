@@ -28,7 +28,6 @@ import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.services.MailServer;
-import org.apache.james.smtpserver.SMTPServerMBean;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.socket.netty.ConnectionCountHandler;
 import org.apache.james.util.netmatcher.NetMatcher;
@@ -43,7 +42,7 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
  * 
  *
  */
-public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SMTPServerMBean{
+public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPServerMBean{
 
     
     /**
@@ -218,10 +217,10 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getHelloName()
          */
         public String getHelloName() {
-            if (NioSMTPServer.this.getHelloName() == null) {
-                return NioSMTPServer.this.mailServer.getHelloName();
+            if (SMTPServer.this.getHelloName() == null) {
+                return SMTPServer.this.mailServer.getHelloName();
             } else {
-                return NioSMTPServer.this.getHelloName();
+                return SMTPServer.this.getHelloName();
             }
         }
 
@@ -229,14 +228,14 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getResetLength()
          */
         public int getResetLength() {
-            return NioSMTPServer.this.lengthReset;
+            return SMTPServer.this.lengthReset;
         }
 
         /**
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getMaxMessageSize()
          */
         public long getMaxMessageSize() {
-            return NioSMTPServer.this.maxMessageSize;
+            return SMTPServer.this.maxMessageSize;
         }
 
         /**
@@ -245,7 +244,7 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
         public boolean isRelayingAllowed(String remoteIP) {
             boolean relayingAllowed = false;
             if (authorizedNetworks != null) {
-                relayingAllowed = NioSMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+                relayingAllowed = SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
             return relayingAllowed;
         }
@@ -254,7 +253,7 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#useHeloEhloEnforcement()
          */
         public boolean useHeloEhloEnforcement() {
-            return NioSMTPServer.this.heloEhloEnforcement;
+            return SMTPServer.this.heloEhloEnforcement;
         }
 
 
@@ -262,24 +261,24 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getSMTPGreeting()
          */
         public String getSMTPGreeting() {
-            return NioSMTPServer.this.smtpGreeting;
+            return SMTPServer.this.smtpGreeting;
         }
 
         /**
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#useAddressBracketsEnforcement()
          */
         public boolean useAddressBracketsEnforcement() {
-            return NioSMTPServer.this.addressBracketsEnforcement;
+            return SMTPServer.this.addressBracketsEnforcement;
         }
 
         /**
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#isAuthRequired(java.lang.String)
          */
         public boolean isAuthRequired(String remoteIP) {
-            if (NioSMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
-            boolean authRequired = NioSMTPServer.this.authRequired != AUTH_DISABLED;
+            if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
+            boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
             if (authorizedNetworks != null) {
-                authRequired = authRequired && !NioSMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
+                authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
             }
             return authRequired;
         }
@@ -288,7 +287,7 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#isStartTLSSupported()
          */
         public boolean isStartTLSSupported() {
-            return NioSMTPServer.this.isStartTLSSupported();
+            return SMTPServer.this.isStartTLSSupported();
         }
 
         /**
@@ -297,7 +296,7 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
          * @return verify
          */
         public boolean verifyIdentity() {
-            return NioSMTPServer.this.verifyIdentity;
+            return SMTPServer.this.verifyIdentity;
         }
 
     }
@@ -327,12 +326,12 @@ public class NioSMTPServer extends AbstractConfigurableAsyncServer implements SM
 
 		@Override
         protected SSLContext getSSLContext() {
-            return NioSMTPServer.this.getSSLContext();
+            return SMTPServer.this.getSSLContext();
         }
 
         @Override
         protected boolean isSSLSocket() {
-            return  NioSMTPServer.this.isSSLSocket();
+            return  SMTPServer.this.isSSLSocket();
         }
 
         @Override

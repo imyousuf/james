@@ -16,22 +16,17 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-package org.apache.james.remotemanager.netty;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+package org.apache.james.pop3server.netty;
 
 import javax.annotation.Resource;
+import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
-import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
-import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
+import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.ServerMBean;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.socket.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -40,102 +35,106 @@ import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-
 /**
- * NIO RemoteManager which use Netty
+ * NIO POP3 Server which use Netty
+ * 
  *
  */
-public class NioRemoteManager extends AbstractConfigurableAsyncServer implements ServerMBean{
+public class POP3Server extends AbstractConfigurableAsyncServer implements POP3ServerMBean{
+    /**
+     * The number of bytes to read before resetting the connection timeout
+     * timer. Defaults to 20 KB.
+     */
+    private int lengthReset = 20 * 1024;
 
+    /**
+     * The configuration data to be passed to the handler
+     */
+    private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
 
-    private Map<String,String> adminAccounts = new HashMap<String, String>();
-    private RemoteManagerHandlerConfigurationData configData = new RemoteManagerHandlerConfigurationDataImpl();
     private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
+    
     private ProtocolHandlerChain handlerChain;
+
     private MailServer mailServer;
 
+    
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
-    
 
     @Resource(name="mailserver")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
-    
     @Override
     protected int getDefaultPort() {
-        return 4555;
+        return 110;
     }
-
 
     /*
      * (non-Javadoc)
      * @see org.apache.james.socket.ServerMBean#getServiceType()
      */
     public String getServiceType() {
-        return "RemoteManager Service";
+        return "POP3 Service";
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
-        super.doConfigure(config);
-        HierarchicalConfiguration handlerConfiguration = config.configurationAt("handler");
-        List<HierarchicalConfiguration> accounts = handlerConfiguration.configurationsAt("administrator_accounts.account");
-        for (int i = 0; i < accounts.size(); i++) {
-            adminAccounts.put(accounts.get(i).getString("[@login]"), accounts.get(i).getString("[@password]"));
+    protected void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
+        super.doConfigure(configuration);
+        HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
+        lengthReset = handlerConfiguration.getInteger("lengthReset", lengthReset);
+        if (getLogger().isInfoEnabled()) {
+            getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
         }
     }
 
-    
+  
+
     /**
-     * A class to provide RemoteManager handler configuration to the handlers
+     * A class to provide POP3 handler configuration to the handlers
      */
-    private class RemoteManagerHandlerConfigurationDataImpl
-        implements RemoteManagerHandlerConfigurationData {
+    private class POP3HandlerConfigurationDataImpl implements POP3HandlerConfigurationData {
 
         /**
-         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getHelloName()
+         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (getHelloName() == null) {
-                return NioRemoteManager.this.mailServer.getHelloName();
+            if (POP3Server.this.getHelloName() == null) {
+                return POP3Server.this.mailServer.getHelloName();
             } else {
-                return NioRemoteManager.this.getHelloName();
+                return POP3Server.this.getHelloName();
             }
         }
-        
+
         /**
-         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getAdministrativeAccountData()
+         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getResetLength()
          */
-        public Map<String,String> getAdministrativeAccountData() {
-            return NioRemoteManager.this.adminAccounts;
+        public int getResetLength() {
+            return POP3Server.this.lengthReset;
         }
 
         /**
-         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getPrompt()
+         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#isStartTLSSupported()
          */
-        public String getPrompt() {
-            return "";
+        public boolean isStartTLSSupported() {
+            return POP3Server.this.isStartTLSSupported();
         }
-        
     }
-    
+
     @Override
     protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-        return new RemoteManagerChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
+        return new POP3ChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
     }
-    
-    private final class RemoteManagerChannelPipelineFactory extends AbstractChannelPipelineFactory {
 
-        public RemoteManagerChannelPipelineFactory(int timeout,
-                int maxConnections, int maxConnectsPerIp, ChannelGroup group) {
+    private final class POP3ChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
+
+        public POP3ChannelPipelineFactory(int timeout, int maxConnections,
+                int maxConnectsPerIp, ChannelGroup group) {
             super(timeout, maxConnections, maxConnectsPerIp, group);
         }
-        
-        
+
         @Override
 		public ChannelPipeline getPipeline() throws Exception {
 			ChannelPipeline pipeLine =  super.getPipeline();
@@ -143,15 +142,27 @@ public class NioRemoteManager extends AbstractConfigurableAsyncServer implements
 			return pipeLine;
 		}
 
-
 		@Override
+        protected SSLContext getSSLContext() {
+            return POP3Server.this.getSSLContext();
+
+        }
+
+        @Override
+        protected boolean isSSLSocket() {
+            return POP3Server.this.isSSLSocket();
+        }
+
+        @Override
         protected OneToOneEncoder createEncoder() {
-            return new RemoteManagerResponseEncoder();
+            return new POP3ResponseEncoder();
+
         }
 
         @Override
         protected ChannelUpstreamHandler createHandler() {
-            return new RemoteManagerChannelUpstreamHandler(configData, handlerChain, getLogger());
+            return new POP3ChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext());
+
         }
         
     }
@@ -163,7 +174,5 @@ public class NioRemoteManager extends AbstractConfigurableAsyncServer implements
 	public int getCurrentConnections() {
 		return countHandler.getCurrentConnectionCount();
 	}
-
-
 
 }

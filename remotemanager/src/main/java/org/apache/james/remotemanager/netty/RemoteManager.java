@@ -16,18 +16,21 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.pop3server.netty;
+
+package org.apache.james.remotemanager.netty;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
-import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
+import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
+import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
 import org.apache.james.services.MailServer;
-import org.apache.james.socket.ServerMBean;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.socket.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -36,106 +39,102 @@ import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
+
 /**
- * NIO POP3 Server which use Netty
- * 
+ * NIO RemoteManager which use Netty
  *
  */
-public class NioPOP3Server extends AbstractConfigurableAsyncServer implements ServerMBean{
-    /**
-     * The number of bytes to read before resetting the connection timeout
-     * timer. Defaults to 20 KB.
-     */
-    private int lengthReset = 20 * 1024;
+public class RemoteManager extends AbstractConfigurableAsyncServer implements RemoteManagerMBean{
 
-    /**
-     * The configuration data to be passed to the handler
-     */
-    private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
 
+    private Map<String,String> adminAccounts = new HashMap<String, String>();
+    private RemoteManagerHandlerConfigurationData configData = new RemoteManagerHandlerConfigurationDataImpl();
     private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
-    
     private ProtocolHandlerChain handlerChain;
-
     private MailServer mailServer;
 
-    
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
+    
 
     @Resource(name="mailserver")
     public final void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
+    
     @Override
     protected int getDefaultPort() {
-        return 110;
+        return 4555;
     }
+
 
     /*
      * (non-Javadoc)
      * @see org.apache.james.socket.ServerMBean#getServiceType()
      */
     public String getServiceType() {
-        return "POP3 Service";
+        return "RemoteManager Service";
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
-        super.doConfigure(configuration);
-        HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
-        lengthReset = handlerConfiguration.getInteger("lengthReset", lengthReset);
-        if (getLogger().isInfoEnabled()) {
-            getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
+    protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
+        super.doConfigure(config);
+        HierarchicalConfiguration handlerConfiguration = config.configurationAt("handler");
+        List<HierarchicalConfiguration> accounts = handlerConfiguration.configurationsAt("administrator_accounts.account");
+        for (int i = 0; i < accounts.size(); i++) {
+            adminAccounts.put(accounts.get(i).getString("[@login]"), accounts.get(i).getString("[@password]"));
         }
     }
 
-  
-
+    
     /**
-     * A class to provide POP3 handler configuration to the handlers
+     * A class to provide RemoteManager handler configuration to the handlers
      */
-    private class POP3HandlerConfigurationDataImpl implements POP3HandlerConfigurationData {
+    private class RemoteManagerHandlerConfigurationDataImpl
+        implements RemoteManagerHandlerConfigurationData {
 
         /**
-         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getHelloName()
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (NioPOP3Server.this.getHelloName() == null) {
-                return NioPOP3Server.this.mailServer.getHelloName();
+            if (getHelloName() == null) {
+                return RemoteManager.this.mailServer.getHelloName();
             } else {
-                return NioPOP3Server.this.getHelloName();
+                return RemoteManager.this.getHelloName();
             }
         }
-
+        
         /**
-         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getResetLength()
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getAdministrativeAccountData()
          */
-        public int getResetLength() {
-            return NioPOP3Server.this.lengthReset;
+        public Map<String,String> getAdministrativeAccountData() {
+            return RemoteManager.this.adminAccounts;
         }
 
         /**
-         * @see org.apache.james.pop3server.POP3HandlerConfigurationData#isStartTLSSupported()
+         * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getPrompt()
          */
-        public boolean isStartTLSSupported() {
-            return NioPOP3Server.this.isStartTLSSupported();
+        public String getPrompt() {
+            return "";
         }
+        
     }
-
+    
     @Override
     protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-        return new POP3ChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
+        return new RemoteManagerChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
     }
+    
+    private final class RemoteManagerChannelPipelineFactory extends AbstractChannelPipelineFactory {
 
-    private final class POP3ChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
-
-        public POP3ChannelPipelineFactory(int timeout, int maxConnections,
-                int maxConnectsPerIp, ChannelGroup group) {
+        public RemoteManagerChannelPipelineFactory(int timeout,
+                int maxConnections, int maxConnectsPerIp, ChannelGroup group) {
             super(timeout, maxConnections, maxConnectsPerIp, group);
         }
-
+        
+        
         @Override
 		public ChannelPipeline getPipeline() throws Exception {
 			ChannelPipeline pipeLine =  super.getPipeline();
@@ -143,27 +142,15 @@ public class NioPOP3Server extends AbstractConfigurableAsyncServer implements Se
 			return pipeLine;
 		}
 
+
 		@Override
-        protected SSLContext getSSLContext() {
-            return NioPOP3Server.this.getSSLContext();
-
-        }
-
-        @Override
-        protected boolean isSSLSocket() {
-            return NioPOP3Server.this.isSSLSocket();
-        }
-
-        @Override
         protected OneToOneEncoder createEncoder() {
-            return new POP3ResponseEncoder();
-
+            return new RemoteManagerResponseEncoder();
         }
 
         @Override
         protected ChannelUpstreamHandler createHandler() {
-            return new POP3ChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext());
-
+            return new RemoteManagerChannelUpstreamHandler(configData, handlerChain, getLogger());
         }
         
     }
@@ -175,5 +162,7 @@ public class NioPOP3Server extends AbstractConfigurableAsyncServer implements Se
 	public int getCurrentConnections() {
 		return countHandler.getCurrentConnectionCount();
 	}
+
+
 
 }

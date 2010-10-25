@@ -22,11 +22,11 @@ package org.apache.james.smtpserver;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
-import org.apache.james.smtpserver.netty.NioSMTPServer;
+import org.apache.james.smtpserver.netty.SMTPServer;
 
-public class NioSMTPServerTest extends AbstractSMTPServerTest{
+public class SMTPServerTest extends AbstractSMTPServerTest{
 
-    private NioSMTPServer m_smtpServer;
+    private SMTPServer m_smtpServer;
 
     @Override
     protected void initSMTPServer(SMTPTestConfiguration testConfiguration) throws Exception {
@@ -39,7 +39,7 @@ public class NioSMTPServerTest extends AbstractSMTPServerTest{
     protected void setUpSMTPServer() throws Exception {
         SimpleLog log = new SimpleLog("SMTP");
         log.setLevel(SimpleLog.LOG_LEVEL_ALL);
-        m_smtpServer = new NioSMTPServer();
+        m_smtpServer = new SMTPServer();
         m_smtpServer.setDNSService(m_dnsServer);
         m_smtpServer.setFileSystem(fileSystem);      
         

@@ -16,20 +16,10 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.imapserver.netty;
 
+import org.apache.james.socket.ServerMBean;
 
-
-package org.apache.james.fetchmail;
-
-/**
- * An interface to expose James management functionality through JMX.
- * 
- */
-public interface FetchSchedulerMBean {
-    /**
-    * 
-    * @return boolean The enabled flag     
-    */  
-    public boolean isEnabled();
+public interface IMAPServerMBean extends ServerMBean{
 
 }

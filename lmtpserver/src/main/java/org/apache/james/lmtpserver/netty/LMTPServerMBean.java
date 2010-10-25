@@ -16,32 +16,10 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.remotemanager;
+package org.apache.james.lmtpserver.netty;
 
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.remotemanager.netty.NioRemoteManager;
+import org.apache.james.smtpserver.netty.SMTPServerMBean;
 
-public class NioRemoteManagerTest extends AbstractRemoteManagerTest{
-    private NioRemoteManager remotemanager;
-
-    @Override
-    protected void initRemoteManager(RemoteManagerTestConfiguration testConfiguration) throws Exception {
-        remotemanager.configure(testConfiguration);
-        remotemanager.init();
-    }
-
-    @Override
-    protected void setUpRemoteManager() throws Exception {
-        
-        remotemanager = new NioRemoteManager();
-        remotemanager.setDNSService(dnsservice);
-        remotemanager.setFileSystem(filesystem);
-        remotemanager.setProtocolHandlerChain(chain);
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        remotemanager.setLog(log);
-        remotemanager.setMailServer(mailServer);
-               
-    }
+public interface LMTPServerMBean extends SMTPServerMBean{
 
 }

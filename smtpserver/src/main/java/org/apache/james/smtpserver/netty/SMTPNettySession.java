@@ -31,7 +31,7 @@ import org.apache.james.protocols.impl.AbstractSession;
 import org.apache.james.protocols.impl.LineHandlerUpstreamHandler;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
-import org.apache.james.smtpserver.netty.NioSMTPServer.SMTPHandlerConfigurationDataImpl;
+import org.apache.james.smtpserver.netty.SMTPServer.SMTPHandlerConfigurationDataImpl;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
 /**
