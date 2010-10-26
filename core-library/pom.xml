@@ -21,7 +21,7 @@
   <parent>
     <artifactId>james-server</artifactId>
     <groupId>org.apache.james</groupId>
-    <version>3.0-M1</version>
+    <version>3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
@@ -106,8 +106,8 @@
             <phase>process-resources</phase>
             <configuration>
               <tasks>
-                <replace file="src/main/java/org/apache/james/Constants.java" token="@@VERSION@@" value="${project.version}" />
-                <replace file="src/main/java/org/apache/james/Constants.java" token="@@NAME@@" value="${productName}" />
+                <replace file="src/main/java/org/apache/james/Constants.java" token="@@VERSION@@" value="${project.version}"/>
+                <replace file="src/main/java/org/apache/james/Constants.java" token="@@NAME@@" value="${productName}"/>
               </tasks>
             </configuration>
             <goals>
