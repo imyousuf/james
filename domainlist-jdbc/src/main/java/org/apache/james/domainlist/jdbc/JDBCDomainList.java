@@ -49,6 +49,7 @@ import org.apache.james.util.sql.SqlResources;
  * 
  * @deprecated use the JPA 
  */
+@Deprecated
 public class JDBCDomainList extends AbstractDomainList implements Configurable{
 
     private DataSource dataSource;
