@@ -49,6 +49,7 @@ import javax.annotation.Resource;
  * @version CVS $Revision: 521427 $
  *
  */
+@Deprecated
 public class UsersFileRepository
     extends AbstractJamesUsersRepository {
  

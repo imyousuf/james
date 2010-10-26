@@ -65,8 +65,10 @@ import javax.sql.DataSource;
  * <TH><TD><B>Optional</B></TD></TH>
  * <TR><TD>selectByLowercaseName</TD><TD>Select a user by name (case-insensitive lowercase).</TD></TR>
  * </TABLE>
+ * 
  *
  */
+@Deprecated
 public abstract class AbstractJdbcUsersRepository extends
         AbstractJamesUsersRepository {
 

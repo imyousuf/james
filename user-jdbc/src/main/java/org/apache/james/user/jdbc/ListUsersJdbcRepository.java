@@ -35,8 +35,8 @@ import java.sql.SQLException;
  * persisted.
  * 
  */
-public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository
-{
+@Deprecated
+public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository {
 
     
     /**

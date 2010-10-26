@@ -42,14 +42,10 @@ import javax.annotation.PostConstruct;
  * instead of this class. So we could also delete this implementation.
  * 
  */
+@Deprecated
 public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
 {
-    // REMOVE ME!
-    @PostConstruct
-    @Override
-    public void init() throws Exception {
-        super.init();
-    }
+
     
     /**
      * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#readUserFromResultSet(java.sql.ResultSet)
