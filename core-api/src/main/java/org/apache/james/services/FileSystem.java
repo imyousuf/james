@@ -32,8 +32,6 @@ import java.io.IOException;
  */
 public interface FileSystem {
 
-    String ROLE = "org.apache.james.services.FileSystem";
-
 
     /**
      * Prefix for loading of a filesystem based on the current directory

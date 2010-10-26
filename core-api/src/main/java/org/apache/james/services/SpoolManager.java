@@ -27,7 +27,6 @@ import org.apache.mailet.Matcher;
  * provide all the data needed to manage spool processors, mailets and matchers
  */
 public interface SpoolManager {
-    String ROLE = "org.apache.james.services.SpoolManager";
 
     /**
      * @return names of all configured processors

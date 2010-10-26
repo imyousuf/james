@@ -36,6 +36,17 @@ public interface InstanceFactory {
      */
     public <T> T newInstance(Class<T> clazz) throws InstanceException;
     
+
+    /**
+     * Create an instance of the given class and inject the log and config 
+     * 
+     * Instances should - where appropriate - have dependencies injected.
+     * @param <T> 
+     * @param log
+     * @param config
+     * @param type may be interface or concrete, not null
+     * @return an instance of the type
+     */
     public <T> T newInstance(Class<T> clazz, Log log, HierarchicalConfiguration config) throws InstanceException;
 
     

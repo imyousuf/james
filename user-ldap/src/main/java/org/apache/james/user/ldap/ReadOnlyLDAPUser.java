@@ -43,7 +43,7 @@ import org.apache.james.user.api.User;
  * 
  */
 public class ReadOnlyLDAPUser implements User, Serializable {
-	private static final long serialVersionUID = -6712066073820393235L;
+    private static final long serialVersionUID = -6712066073820393235L;
     
     /**
      * <p>
@@ -92,10 +92,10 @@ public class ReadOnlyLDAPUser implements User, Serializable {
      * is invoked. 
      */
     public ReadOnlyLDAPUser(String userName, String userDN, String ldapURL) {
-		this.userName = userName;
-		this.userDN = userDN;
-		this.ldapURL = ldapURL;
-	}
+        this.userName = userName;
+        this.userDN = userDN;
+        this.ldapURL = ldapURL;
+    }
 
     /**
      * <p>
@@ -108,8 +108,8 @@ public class ReadOnlyLDAPUser implements User, Serializable {
      * @return The user's identifier or name.
      */
     public String getUserName() {
-		return userName;
-	}
+        return userName;
+    }
 
     /**
      * <p>
@@ -122,9 +122,8 @@ public class ReadOnlyLDAPUser implements User, Serializable {
      * @return <code>False</code>
      */
     public boolean setPassword(String newPass) {
-		return false;
-	}
-
+        return false;
+    }
 
     /**
      * <p>
@@ -140,14 +139,14 @@ public class ReadOnlyLDAPUser implements User, Serializable {
      * the result will still be <code>false</code>.
      */
     public boolean verifyPassword(String password) {
-		boolean result;
-		try {
-			SimpleLDAPConnection.openLDAPConnection(userDN, password, ldapURL);
-			result = true;
-		} catch (NamingException exception) {
-			result = false;
-		}
-		return result;
-	}
+        boolean result;
+        try {
+            SimpleLDAPConnection.openLDAPConnection(userDN, password, ldapURL);
+            result = true;
+        } catch (NamingException exception) {
+            result = false;
+        }
+        return result;
+    }
 
 }

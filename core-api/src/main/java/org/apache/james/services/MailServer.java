@@ -32,22 +32,7 @@ import org.apache.mailet.MailAddress;
  *
  * @version This is $Revision$
  */
-public interface MailServer
-{
-    /**
-     * The component role used by components implementing this service
-     */
-    String ROLE = "org.apache.james.services.MailServer";
-
-    /**
-     * Reserved user name for the mail delivery agent for multi-user mailboxes
-     */
-    String MDA = "JamesMDA";
-
-    /**
-     * Reserved user name meaning all users for multi-user mailboxes
-     */
-    String ALL = "AllMailUsers";
+public interface MailServer{
 
     /**
      *  Pass a Mail to this MailServer for processing

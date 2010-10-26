@@ -36,105 +36,112 @@ import javax.naming.directory.InitialDirContext;
  */
 public class SimpleLDAPConnection {
 
-	/**
-	 * <p>
-	 * The distinguished-name/DN of the principal to authenticate
-	 * against the LDAP server.
-	 * </p>
-	 */
-	private String principal;
-	
-	/**
-	 * <p>
-	 * The credentials with which to authenticate against the LDAP server.
-	 * </p>
-	 */
-	private String credentials;
-	
-	/**
-	 * <p>The URL of the LDAP server.</p>
-	 */
-	private String ldapURL;
-	
-	/**
-	 * <p>
-	 * The root directory context that is visible to the 
-	 * authenticated user. 
-	 * </p>
-	 */
-	private DirContext ldapContext;
-	
-	/**
-	 * <p>
-	 * Creates an instance with the given login details.
-	 * </p>
-	 * @param principal		The distinguished-name (DN) of the user
-	 * to authenticate against the server.
-	 * @param credentials	The credentials with which to authenticate 
-	 * the user e.g. the user's password.
-	 * @param ldapURL		The URL of the LDAP server against which to 
-	 * authenticate the user. 
-	 */
-	private SimpleLDAPConnection(String principal, String credentials,
-			String ldapURL) {
-		super();
-		this.principal = principal;
-		this.credentials = credentials;
-		this.ldapURL = ldapURL;
-	}	
-	
-	/**
-	 * <p>
-	 * Opens a connection to the specified LDAP server using 
-	 * the specified user details.  
-	 * </p>
-	 * @param principal		The distinguished-name (DN) of the user
-	 * to authenticate against the server.
-	 * @param credentials	The credentials with which to authenticate 
-	 * the user e.g. the user's password.
-	 * @param ldapURL		The URL of the LDAP server against which to 
-	 * authenticate the user. 
-	 * @return	A connection to the LDAP host.
-	 * @throws NamingException	Propagated from the underlying LDAP connection.
-	 */
-	public static SimpleLDAPConnection openLDAPConnection(String principal,
-			String credentials, String ldapURL) throws NamingException {
-		SimpleLDAPConnection result = new SimpleLDAPConnection(principal,
-				credentials, ldapURL);
-		result.initializeContext();
-		return result;
-	}
+    /**
+     * <p>
+     * The distinguished-name/DN of the principal to authenticate against the
+     * LDAP server.
+     * </p>
+     */
+    private String principal;
 
-	/**
-	 * <p>
-	 * Returns the root directory context that is visible to the 
-	 * authenticated user.
-	 * </p>  
-	 * @return	The directory context that is visible to the 
-	 * authenticated user. 
-	 */
-	public DirContext getLdapContext() {
-		return ldapContext;
-	}
- 
-	/**
-	 * <p>
-	 * Internal helper method which creates an LDAP/JNDI context using the 
-	 * specified user credentials.  
-	 * </p>
-	 * @throws NamingException	Propagated from underlying 
-	 * LDAP communication API.
-	 */
-	private void initializeContext() throws NamingException {
-		Properties props = new Properties();
-		props.put(Context.INITIAL_CONTEXT_FACTORY,
-				"com.sun.jndi.ldap.LdapCtxFactory");
-		props.put(Context.PROVIDER_URL, ldapURL);
+    /**
+     * <p>
+     * The credentials with which to authenticate against the LDAP server.
+     * </p>
+     */
+    private String credentials;
 
-		props.put(Context.SECURITY_AUTHENTICATION, "simple");
-		props.put(Context.SECURITY_PRINCIPAL, principal);
-		props.put(Context.SECURITY_CREDENTIALS, credentials);
+    /**
+     * <p>
+     * The URL of the LDAP server.
+     * </p>
+     */
+    private String ldapURL;
 
-		ldapContext = new InitialDirContext(props);
-	}
+    /**
+     * <p>
+     * The root directory context that is visible to the authenticated user.
+     * </p>
+     */
+    private DirContext ldapContext;
+
+    /**
+     * <p>
+     * Creates an instance with the given login details.
+     * </p>
+     * 
+     * @param principal
+     *            The distinguished-name (DN) of the user to authenticate
+     *            against the server.
+     * @param credentials
+     *            The credentials with which to authenticate the user e.g. the
+     *            user's password.
+     * @param ldapURL
+     *            The URL of the LDAP server against which to authenticate the
+     *            user.
+     */
+    private SimpleLDAPConnection(String principal, String credentials, String ldapURL) {
+        super();
+        this.principal = principal;
+        this.credentials = credentials;
+        this.ldapURL = ldapURL;
+    }
+
+    /**
+     * <p>
+     * Opens a connection to the specified LDAP server using the specified user
+     * details.
+     * </p>
+     * 
+     * @param principal
+     *            The distinguished-name (DN) of the user to authenticate
+     *            against the server.
+     * @param credentials
+     *            The credentials with which to authenticate the user e.g. the
+     *            user's password.
+     * @param ldapURL
+     *            The URL of the LDAP server against which to authenticate the
+     *            user.
+     * @return A connection to the LDAP host.
+     * @throws NamingException
+     *             Propagated from the underlying LDAP connection.
+     */
+    public static SimpleLDAPConnection openLDAPConnection(String principal, String credentials, String ldapURL) throws NamingException {
+        SimpleLDAPConnection result = new SimpleLDAPConnection(principal, credentials, ldapURL);
+        result.initializeContext();
+        return result;
+    }
+
+    /**
+     * <p>
+     * Returns the root directory context that is visible to the authenticated
+     * user.
+     * </p>
+     * 
+     * @return The directory context that is visible to the authenticated user.
+     */
+    public DirContext getLdapContext() {
+        return ldapContext;
+    }
+
+    /**
+     * <p>
+     * Internal helper method which creates an LDAP/JNDI context using the
+     * specified user credentials.
+     * </p>
+     * 
+     * @throws NamingException
+     *             Propagated from underlying LDAP communication API.
+     */
+    private void initializeContext() throws NamingException {
+        Properties props = new Properties();
+        props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        props.put(Context.PROVIDER_URL, ldapURL);
+
+        props.put(Context.SECURITY_AUTHENTICATION, "simple");
+        props.put(Context.SECURITY_PRINCIPAL, principal);
+        props.put(Context.SECURITY_CREDENTIALS, credentials);
+
+        ldapContext = new InitialDirContext(props);
+    }
 }

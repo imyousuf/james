@@ -19,7 +19,16 @@
 
 package org.apache.james.lifecycle;
 
+/**
+ * Classes which implement this interface need some special handling on destroy.
+ * So the {@link #dispose()} method need to get called
+ * 
+ *
+ */
 public interface Disposable {
 
+    /**
+     * Dispose the object
+     */
     public void dispose();
 }

@@ -21,6 +21,11 @@ package org.apache.james.lifecycle;
 
 public class LifecycleUtil {
 
+    /**
+     * Dispose the given object if its an instanceof {@link Disposable}
+     * 
+     * @param obj
+     */
     public static void dispose(Object obj) {
         if (obj instanceof Disposable && obj != null) {
             ((Disposable) obj).dispose();
