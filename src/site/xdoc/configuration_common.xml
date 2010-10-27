@@ -34,6 +34,7 @@
   </section>
 
   <section name="Authenticated SMTP (SMTP AUTH)">
+  
     <p>Authenticated SMTP is a method of securing your SMTP server.  With SMTP AUTH enabled senders who wish to 
     relay mail through the SMTP server (that is, send mail that is eventually to be delivered to another SMTP 
     server) must authenticate themselves to James before sending their message.  Mail that is to be delivered 
@@ -43,6 +44,7 @@
     <p>Mail servers that allow spammers to send unauthorized email are known as open relays.  So SMTP AUTH
     is a mechanism for ensuring that your server is not an open relay .</p>
     <p>At this time James only supports simple user name / password authentication.</p>
+    
     <subsection name="Configuring James for Authenticated SMTP">
       <p>Configuring James for Authentication SMTP is a multi-step process.  It requires several adjustments of 
       the config.xml.  To enable SMTP AUTH, do the following:</p>
@@ -60,6 +62,7 @@
       optionally set the verifyIdentity element of the smtpserver configuration block to "true".</p>
       <p>Fifth, restart James.  This will pull in all of your configuration changes.</p>
     </subsection>
+    
     <subsection name="Verifying Your Configuration">
       <p>Finally, you need to verify that your configuration was done correctly.  This step is 
       <strong>important</strong> and should not be skipped.</p>
@@ -74,11 +77,14 @@
       mail through your server.  This can be accomplished using any standard mail client (i.e. Outlook, 
       Eudora, Evolution).</p>
     </subsection>
+    
   </section>
   
   <section name="Database Configuration">
+  
     <p>James has the capacity to use a JDBC-compatible database for storage of both message and user 
     data.  This section explains how to configure James to utilize a database for storage.</p>
+    
     <subsection name="Requirements">
       <p>Using James with a database backend has certain requirements.  Database configuration is 
       extremely vendor-specific, so we can only state the requirements in general terms.</p>
@@ -91,6 +97,7 @@
       James to use it as a repository.  This will help ensure that configuration issues are properly
       identified.</p>
     </subsection>
+    
     <subsection name="Connection Configuration">
       <p>Configuring the Phoenix container to work with JDBC is the first step in enabling James database support.</p>
       <p>First, Phoenix must be able to load the JDBC classes.  To make these classes available to Phoenix, place the 
@@ -113,7 +120,6 @@
       <li><strong>max</strong> - The maximum number of JDBC connections to be used concurrently by this data-source.</li>
       </ul>
       </p>
-      
       <p>Generally, you simply configure these entries in the config.xml
       file, which are commented, in order to use a database with James.  You
       would then use the db: or dbfile: prefix instead of the file: prefix
@@ -123,7 +129,9 @@
       more details.  A sample configuration is described below.</p>
     
     </subsection>
+    
     <subsection name="SQL Statement Configuration">
+    
       <p>The precise SQL statements used by James to modify and view data stored in the database are specified in
       an external configuration file.  The sqlResources.xml file 
       (which can be found in the apps/james/conf directory) is a sample configuration file that contains the SQL
@@ -139,6 +147,7 @@
       upon startup, special attention should be paid to the "create table" statements in this file.  Such
       statements tend to be both very database and very database instance specific.</p>
     </subsection>
+    
     <subsection name="Sample James Configuration">
     
       <p>The config.xml file has commented out examples for MySQL and
@@ -181,6 +190,7 @@
       </source>
       
       <p>The configuration file contains further examples.</p>
+      
     </subsection>
     
     <subsection name="Known Issues">

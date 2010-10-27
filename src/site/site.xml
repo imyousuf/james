@@ -42,7 +42,6 @@
     <menu name="Overview">
       <item name="Introduction" href="/index.html"/>
       <item name="Release Notes" href="/release_notes.html"/>
-      <item name="Changes" href="/changelog.html"/>
       <item name="Security" href="/james_security.html" />
       <item name="Performance" href="/james_perfomance.html" />
 <!--      <item name="JIRA Report" href="/jira-report.html"/>-->

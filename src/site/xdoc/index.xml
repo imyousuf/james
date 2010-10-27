@@ -27,8 +27,6 @@
 
   <section name="James 3.0-M1">
   
-    <div style="float:left; width:70%;">
-
 	    <p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure Java SMTP, IMAP4 and POP3 Mail 
 	      server designed to be a complete and portable enterprise mail engine solution.  
 	      James is based on currently available open protocols.</p>
@@ -40,52 +38,50 @@
 	    <p>You can download stables releases from <a href="http://james.apache.org/download.cgi">here</a>
 	      (or latest snapshots from <a href="http://repository.apache.org/content/groups/snapshots/org/apache/james/james-server-spring-deployment/3.0-SNAPSHOT/ ">here</a>).</p>
 	
-        <div style="float:left; width:50%;">
+        <table>
+        
+         <tr><td width="50%">
 
-	      <subsection name="Secured">
-	    
-	        <p>James is a secured mail server by default. You can read more on the existing security
-	           measures and infrastructure on the <a href="security.html">security</a>.</p>
-	    
-	      </subsection>
-	      
-	    </div>
-	    
-        <div style="float:right; width:50%;">
+          <subsection name="Configureable">
+        
+            <p></p>
+        
+          </subsection>
+          
+         </td><td width="50%">
 
-  	      <subsection name="Performant">
-	       
-	        <p>A special focuss has been brought to the performance: James can process more than
-	           100 mails per second. See the <a href="performance.html">performance</a> page to get more numbers.</p>
-	    
-  	      </subsection>
-  	     
-   	    </div>
+          <subsection name="Manageable">
+        
+            <p></p>
+        
+          </subsection>
+          
+         </td></tr>
+        
+          <tr><td width="50%">
+
+          <subsection name="Performant">
+           
+            <p>A special focuss has been brought to the performance: James can process more than
+               100 mails per second. See the <a href="performance.html">performance</a> page to get more numbers.</p>
+        
+          </subsection>
+         
+         </td><td width="50%">
+
+          <subsection name="Secured">
+        
+            <p>James is a secured mail server by default. You can read more on the existing security
+               measures and infrastructure on the <a href="security.html">security</a>.</p>
+        
+          </subsection>
+          
+         </td>
+         
+         </tr>
    	    
-   	    <div style="clear:both; float:none;"/>
-	    
-        <div style="float:left; width:50%;">
-
-  	      <subsection name="Configureable">
-	    
-	        <p></p>
-	    
-	      </subsection>
-	      
-	    </div>
-	    
-        <div style="float:right; width:50%;">
-
-  	      <subsection name="Manageable">
-	    
-	        <p></p>
-	    
-	      </subsection>
-	      
-	    </div>
-	    
-        <div style="float:left; width:50%;">
-
+         <tr><td width="50%">
+        
   	      <subsection name="Extensible">
 	    
 	        <p>James serves as a mail application platform.  The James project hosts the Apache Mailet API, 
@@ -103,10 +99,8 @@
 	         
   	      </subsection>
   	      
-  	    </div>
+  	    </td><td width="50%">
 	
-        <div style="float:right; width:50%;">
-
 	      <subsection name="Features">
 	    
 	        <p>James 3.0 represents the leading edge of development. This codestream has many more
@@ -132,127 +126,12 @@
 	      
   	      </subsection>
   	      
-   	    </div>
+  	    </td>
+  	    
+  	    </tr>
+  	      
+   	    </table>
 
-      </div>
-      
-      <div style="float:right; width:30%;">
-
-	      <table>
-	        <tr>
-	          <th>Feature</th>
-	          <th align="center"><b>2.3.x</b></th>
-	          <th align="center"><b>3.0</b></th>
-	        </tr>
-	        <tr>
-	          <td>POP3</td>
-	          <td align="center">yes</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>IMAP4</td>
-	          <td align="center">no</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>SMTP</td>
-	          <td align="center">yes</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>LMTP</td>
-	          <td align="center">no</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>NNTP</td>
-	          <td align="center">yes</td>
-	          <td align="center">no</td>
-	        </tr>
-	        <tr>
-	          <td>Mailing List</td>
-	          <td align="center">yes</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>File Mail Store</td>
-	          <td align="center">yes</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>JDBC Database Mail Store</td>
-	          <td align="center">yes</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>JPA Database Mail Store</td>
-	          <td align="center">no</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>JCR (Jackrabbit) Database Mail Store</td>
-	          <td align="center">no</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>Mailets API</td>
-	          <td align="center">yes</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>Alternate User and Mail stores</td>
-	          <td align="center">yes</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>Alternate Queue</td>
-	          <td align="center">no</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>Integration with SpamAssassin</td>
-	          <td align="center">partial</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>Run-as-service scripts</td>
-	          <td align="center">no</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>Deployment in WEB container</td>
-	          <td align="center">no</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>Deployment in OSGI container</td>
-	          <td align="center">no</td>
-	          <td align="center">planned</td>
-	        </tr>
-	        <tr>
-	          <td>Configuration Hot Reload</td>
-	          <td align="center">no</td>
-	          <td align="center">planned</td>
-	        </tr>
-	        <tr>
-	          <td>Monitoring via JMX</td>
-	          <td align="center">yes</td>
-	          <td align="center">yes</td>
-	        </tr>
-	        <tr>
-	          <td>IP V6</td>
-	          <td align="center">no</td>
-	          <td align="center">partial</td>
-	        </tr>
-	        <tr>
-	          <td>Java 1.4</td>
-	          <td align="center">yes</td>
-	          <td align="center">no</td>
-	        </tr>
-	      </table>
-
-      </div>
-    
   </section>
 
 </body>

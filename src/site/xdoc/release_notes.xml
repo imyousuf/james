@@ -1,0 +1,252 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->
+<document>
+
+ <properties>
+  <title>James Server - Release Notes</title>
+  <author email="site-dev@james.apache.org">James Project Web Team</author>
+ </properties>
+
+<body>
+
+<p>This document records what was done between releases. 
+As always, thank you to everyone who contributed code, documentation, bug reports, and feedback.</p>
+
+<section name="Version 3.0 Milestone 1">
+
+<p>Release Notes - James Server - Version 3.0-M1 - Released October 2010</p>
+    
+<h2>Sub-task</h2>
+<ul>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-402'>JAMES-402</a>] - Add IPv6 support to NetMachter.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-404'>JAMES-404</a>] - Check binding to specific addresses for IPv6 support.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-494'>JAMES-494</a>] - Refactor the service methods to inject services via setters</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-495'>JAMES-495</a>] - Decide how to replace Avalon Configuration</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-933'>JAMES-933</a>] - Refactor SMTPServer to use MINA for sockets</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-946'>JAMES-946</a>] - Remove all dependencies which exists in central maven repository from stage </li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-951'>JAMES-951</a>] - Refactor POP3Server to allow usage of MINA for sockets</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-952'>JAMES-952</a>] - Refactor ImapServer to allow usage of MINA for sockets</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-953'>JAMES-953</a>] - Refactor RemoteManager for usage of MINA for sockets</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-977'>JAMES-977</a>] - Rewrite RemoteDelivery so it use camel + jms for outgoing spool</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-985'>JAMES-985</a>] - Store the MimeMessage in an extra datastore and just load it on demand</li>
+</ul>
+        
+<h2>Bug</h2>
+<ul>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-301'>JAMES-301</a>] - Pop3 TLS and Thunderbird 0.7 do not  go together</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-636'>JAMES-636</a>] - Policy in environment.xml is... ignored?!?</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-745'>JAMES-745</a>] - XMLVirtualUserTable and JDBCVirtualUserTable not work symetric</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-749'>JAMES-749</a>] - LDAPUserRepository not work</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-781'>JAMES-781</a>] - James will not start if there is directory with too many files and folders in the repostiory path</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-820'>JAMES-820</a>] - java.io.IOException: Unknown encoding: 8-bit in AttachmentFileNameIs matcher</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-826'>JAMES-826</a>] - Source distribution build is broken</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-848'>JAMES-848</a>] - run.bat and run.sh contain absolute entries to build path for runtime classpath</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-852'>JAMES-852</a>] - pop3server-function tests found in a deadlock on hudson</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-875'>JAMES-875</a>] - Message-ID changed by mailets (MSGID_FROM_MTA_HEADER changed)</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-876'>JAMES-876</a>] - cannot start as spring-deployment when built from trunk as described in HOW-TO.TXT</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-877'>JAMES-877</a>] - cannot start spring-deployment nightly build as described in provided batch file</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-880'>JAMES-880</a>] - bug with sql query for postgresql jdbc driver</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-882'>JAMES-882</a>] - VirtualUserTable-Store is not working anymore</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-883'>JAMES-883</a>] - Rare Deadlock in pop3server/pop3servertest found on hudson.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-899'>JAMES-899</a>] - RemoteDelivery sends a message again and again if transport.close() throws a MessagingException</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-904'>JAMES-904</a>] - DB Connection problem: Reason in log: Component named "database-connections" failed to pass through the Starting stage.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-932'>JAMES-932</a>] - James 'initialize' reports deprecated config <usernames> <servernames></li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-936'>JAMES-936</a>] - NPE when using FileMailRepository</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-939'>JAMES-939</a>] - SMTP Auth does not respect "*" to cancel AUTH</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-940'>JAMES-940</a>] - Commons configuration fails on parsing values with "," in it</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-941'>JAMES-941</a>] - FetchMail initializes some mail attributes with "null" values, which are then ignored by HasMailAttribute matcher.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-942'>JAMES-942</a>] - James FetchMail instances are sharing the same Properties class instance preventing correct setting of mail.pop3.port etc</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-949'>JAMES-949</a>] - SMTP Async I/O - Core command handler not found in config</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-950'>JAMES-950</a>] - SMTP Async I/O - missing library</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-969'>JAMES-969</a>] - Mailets (MailetContext) does not write to log file</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-970'>JAMES-970</a>] - LocalJamesUsersRepository should check instanceof implementation</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-972'>JAMES-972</a>] - JDBCDomainList throws NPE on startup</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-973'>JAMES-973</a>] - RETR command only fetch 1 line of message</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-974'>JAMES-974</a>] - Not able to login to Remotemanager after login failed before in the session</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-975'>JAMES-975</a>] - DNSBounce Mailet throws NPE</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-978'>JAMES-978</a>] - SendMailHandler get loaded twice</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-979'>JAMES-979</a>] - IOException when closing mail client</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-981'>JAMES-981</a>] - OOM when using ConsumerTemplate (JMS) for RemoteDelivery</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-986'>JAMES-986</a>] - MailImpl.dispose() is not always called and so .m64 files are leaked</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-988'>JAMES-988</a>] - JDBC VirtualUserTable does not provide implementation of the domainlist service</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-990'>JAMES-990</a>] - Exception at first start for JDBCDomainList Configuration</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-991'>JAMES-991</a>] - IllegalStateException during shutdown</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-994'>JAMES-994</a>] - JDBCVirtualUserTable does not work when using Postgresql</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-995'>JAMES-995</a>] - Unable to spool message on windows</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-996'>JAMES-996</a>] - Spamassassin plugin in not working in current trunk</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-998'>JAMES-998</a>] - XMLDomainList throws NPE if no domainname was specified</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1004'>JAMES-1004</a>] - persistence.xml use jpa spec 1.0 but should use 2.0</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1005'>JAMES-1005</a>] - POP3 Stat/List hangs on second execution during POP3Session</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1006'>JAMES-1006</a>] - LIST msgnum fails with "-ERR Message (1) already deleted."</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1010'>JAMES-1010</a>] - MSGID_FROM_MTA_HEADER</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1011'>JAMES-1011</a>] - auth login failed</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1012'>JAMES-1012</a>] - Can't enable ssl/tls for POP3</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1013'>JAMES-1013</a>] - DO NOT Upgrade camel 2.2.0 to 2.3.0 - IMPORTENT!!!</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1014'>JAMES-1014</a>] - Terminating Open Connections</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1016'>JAMES-1016</a>] - Snapshot deployment of spring-deployment fails.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1017'>JAMES-1017</a>] - Exception when trying to start tomcat with james-server-spring-deployment-3.0-SNAPSHOT.war and java 1.5</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1019'>JAMES-1019</a>] - getDomainsInternal in JDBCVirtualUserTable needs reworked</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1021'>JAMES-1021</a>] - Base64 encoded messages get corrupted when posting to Mailbox</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1023'>JAMES-1023</a>] - SMTPServer does not respect the verifyIdentity configuration</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1024'>JAMES-1024</a>] - JDBCGreylistHandler does not respect the whitelistedNetworks configuration</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1025'>JAMES-1025</a>] - Handshake fails when using SSL enabled services (SMTPS,POP3S,IMAPS)</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1026'>JAMES-1026</a>] - No consumers available on endpoint: Endpoint[direct://mailserver]</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1030'>JAMES-1030</a>] - ValidRcptHandler returns 554 </li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1033'>JAMES-1033</a>] - IMAPServer does not disconnect client after idle 30 minutes</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1035'>JAMES-1035</a>] - XML/JDBCVirtualUserTable should not implement DomainList</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1038'>JAMES-1038</a>] - Fetchmail gives error in (pre) 3.0 codeline</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1044'>JAMES-1044</a>] - SpringProtocolHandlerChain does not load handlers correctly when the same handler is used for different ProtocolHandlerChain instances</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1061'>JAMES-1061</a>] - NPE when connect to smtpserver with ipv6 ipaddress</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1069'>JAMES-1069</a>] - Exception when start JAMES and emails are still in queue</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1077'>JAMES-1077</a>] - Exception not managed during smtp dialog</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1086'>JAMES-1086</a>] - Failed delivery for exchangeId</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1087'>JAMES-1087</a>] - System properties are not set in the james startup script</li>
+</ul>
+    
+<h2>Improvement</h2>
+<ul>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-347'>JAMES-347</a>] - make POP3Handler.java/POP3Server.java and AvalonUsersStore.java extensible</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-354'>JAMES-354</a>] - optimize James integration under J2EE for next release</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-422'>JAMES-422</a>] - allow for performant SSL/TLS based on openssl</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-439'>JAMES-439</a>] - Generate an Eclipse .classpath file during build</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-493'>JAMES-493</a>] - Refactor James components/services to simplify their usage in other IoC containers (SDI)</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-551'>JAMES-551</a>] - Use MINA as framework</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-607'>JAMES-607</a>] - Rewrite MBoxMailRepository to use mstor</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-645'>JAMES-645</a>] - Instrumentation / Manageability for DNSServer / dnsjava</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-758'>JAMES-758</a>] - InSpammerBlacklist latency seriously affects throughput</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-767'>JAMES-767</a>] - not print exception when shutting down server</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-803'>JAMES-803</a>] - Add ability to load resources from the classpath instead of the file system</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-805'>JAMES-805</a>] - Change arg0, arg1 etc parameters to the original javadoc names.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-825'>JAMES-825</a>] - spring-deployment: Adopt HOW-TO for binary distribution</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-902'>JAMES-902</a>] - Upgrade to JavaMail 1.4.2</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-919'>JAMES-919</a>] - Export DefaultVirtualUserTable through VirtualUserTableStore API</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-923'>JAMES-923</a>] - [smtp] Replace Avalon interfaces with injection</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-938'>JAMES-938</a>] - IMAP should work with VirtualHosting</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-947'>JAMES-947</a>] - Spring deployment should pick up jars in conf/lib and add it to classpath </li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-966'>JAMES-966</a>] - Refactor LoaderService to not create instances of class on its own</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-976'>JAMES-976</a>] - Replace current Spooling with use of JMS</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-987'>JAMES-987</a>] - RetrCmdHandler and TopCmdHandler shouldn't store the Message in memory</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-989'>JAMES-989</a>] - Use Derby 10.5.3 as Dependency</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-992'>JAMES-992</a>] - Limit max line length for protocol when using Netty</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1008'>JAMES-1008</a>] - Rename meta-inf to META-INF in javamail-util</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1020'>JAMES-1020</a>] - ReadOnlyUsersLDAPRepository should use search instead of list for finding users</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1034'>JAMES-1034</a>] - IsWhitelist matcher should be able to match against domains and ipaddresses / networks</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1037'>JAMES-1037</a>] - Implement JPADomainList and JPAVirtualUserTable</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1039'>JAMES-1039</a>] - Move javamail-util to common-util</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1046'>JAMES-1046</a>] - Improve Activemq spool</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1048'>JAMES-1048</a>] - Move 2.3 mail persistence classes to mail/spool projects</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1053'>JAMES-1053</a>] - Rework MockJSR250Loader</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1060'>JAMES-1060</a>] - Use javamail system properties in startup scripts to let javamail handle bad formated messages more friendly</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1063'>JAMES-1063</a>] - Split domainlist-function to domainlist-xml, domainlist-jdbc and domainlist-jpa</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1064'>JAMES-1064</a>] - Make DomainList implementations configurable via domainlist.xml</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1070'>JAMES-1070</a>] - Rename common-util project to util</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1071'>JAMES-1071</a>] - Rename spoolmanager to core-function and migration spool-api to core-api</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1080'>JAMES-1080</a>] - Rename spring-deployment to container-spring (+ merge spring-common within)</li>
+</ul>
+    
+<h2>New Feature</h2>
+<ul>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-126'>JAMES-126</a>] - Add support for APOP authentication protocol</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-290'>JAMES-290</a>] - support STARTTLS (port 465 is deprecated)</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-355'>JAMES-355</a>] - API to the SMTP Server</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-497'>JAMES-497</a>] - Introduce use of Maven2</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-575'>JAMES-575</a>] - Improved MailetSDK</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-670'>JAMES-670</a>] - Per IP connection limiting is not configurable per service, nor is the configuration logged during initialization.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-688'>JAMES-688</a>] - Replacement of Avalon with something new, modern and perspective technology</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-754'>JAMES-754</a>] - Add Support for LMTP: Local Mail Transfer Protocol</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-761'>JAMES-761</a>] - Create a Sieve enabled delivery Mailet that files into MailboxManager</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-834'>JAMES-834</a>] - Webcontainer Deployment (WAR)</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-911'>JAMES-911</a>] - Migrate from Avalon to something else</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-924'>JAMES-924</a>] - Add support for POP3 STARTTLS aka STLS</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-925'>JAMES-925</a>] - Add suport for CAPA command</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-934'>JAMES-934</a>] - Read-Only LDAP repository</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-956'>JAMES-956</a>] - work on james-server-experimental-activemq-function</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-982'>JAMES-982</a>] - Include JCR IMAP implementation</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-993'>JAMES-993</a>] - start/stop scripts creation during build</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-999'>JAMES-999</a>] - User LocalUsersRepository for localusersrepository</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1003'>JAMES-1003</a>] - ClassLoader with External libs</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1045'>JAMES-1045</a>] - Add maildir support to JAMES Server</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1058'>JAMES-1058</a>] - Add mail priority handling to ActiveMQMailQueue</li>
+</ul>
+                    
+<h2>Task</h2>
+<ul>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-589'>JAMES-589</a>] - Build Debian and Ubuntu packages of james</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-605'>JAMES-605</a>] - DB Access tasks: deprecate mordred, add better defaults for dbcp (document them), remove autoReconnect from sample url</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-628'>JAMES-628</a>] - Fix javadocs in james</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-683'>JAMES-683</a>] - Change name of sar to use james-server instead of james.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-739'>JAMES-739</a>] - Remove MailetContext as dependency of SMTPServer in not backward compatible release</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-774'>JAMES-774</a>] - Add documentation for the dns ttl issue</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-839'>JAMES-839</a>] - Check LICENSE/NOTICE/HOW-TO for spring deployment generated packages.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-845'>JAMES-845</a>] - Geronimo - JAMES Server integration</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-914'>JAMES-914</a>] - Upgrade JavaMail to 1.4.3</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-915'>JAMES-915</a>] - Replace deprecated MailAddress.getUser() and MailAddress.getHost()  with MailAddress.getLocalPart() and MailAddress.getDomain()</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-918'>JAMES-918</a>] - Build adapter to map Avalon Configuration to Commons Configuration</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-927'>JAMES-927</a>] - Write unit tests for nntpserver</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-928'>JAMES-928</a>] - Rewrite NNTPServer to use the same pattern as SMTPServer/POP3Server</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-929'>JAMES-929</a>] - Rewrite RemoteManager to use the same pattern as SMTPServer/POP3Server</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-930'>JAMES-930</a>] - Refactor socket services to use composition instead of inheritance (AbstractProtocolServer to become a component)</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-943'>JAMES-943</a>] - Replace phoenix and spring-phoenix deployment in favor of pure spring</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-945'>JAMES-945</a>] - Remove ant build and just use mvn</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-954'>JAMES-954</a>] - Replace DefaultTimeScheduler (cornerstone) with ScheduledExecutorService (java5 concurrent)</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-955'>JAMES-955</a>] - Replace DefaultThreadManager (cornerstone) with ExecutorService (java5 concurrent)</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-957'>JAMES-957</a>] - [NNTP] Factor Into Seperate Product</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-958'>JAMES-958</a>] - Seperate the implementation of MailetContext and MailServer</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-959'>JAMES-959</a>] - Allow to use "plain" ssl for socket with MINA</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-960'>JAMES-960</a>] - Replace DataSourceSelector / DataSource with something else to remove cornerstone dependencies</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-961'>JAMES-961</a>] - Replace cornerstone store</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-962'>JAMES-962</a>] - Mark JamesUser as @deprecated, because Alias and Forward should be set with VirtualUserTable</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-967'>JAMES-967</a>] - Upgrade to spring 3.0.0</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-971'>JAMES-971</a>] - Replace LinearProcessor/StateAwareProcessorList/SpoolManager with CAMEL based implementation</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-983'>JAMES-983</a>] - Rewrite POP3Server to use the MailboxManager / Mailbox backend which is used by IMAP too</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-984'>JAMES-984</a>] - Upgrade to ActiveMQ 5.3.1</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-997'>JAMES-997</a>] - Upgrade to jackrabbit 2.1.0</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1000'>JAMES-1000</a>] - Upgrade to OpenJPA 2.0.0</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1001'>JAMES-1001</a>] - Upgrade to Spring 3.0.2</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1022'>JAMES-1022</a>] - Upgrade to NETTY 3.2.1.Final</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1027'>JAMES-1027</a>] - Upgrade to activemq 5.3.2</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1028'>JAMES-1028</a>] - Upgrade Bouncycastle to latest release</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1029'>JAMES-1029</a>] - Remove Torque implementation of imapserver</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1042'>JAMES-1042</a>] - Remove VirtualUserTableStore</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1043'>JAMES-1043</a>] - Upgrade to activemq 5.4.0</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1049'>JAMES-1049</a>] - Upgrade to activemq 5.4.1</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1051'>JAMES-1051</a>] - split spoolmanager module into mailetcontainer-api and mailetcontainer-impl.</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1062'>JAMES-1062</a>] - Upgrade to spring 3.0.4-RELEASE</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1066'>JAMES-1066</a>] - Split user-function to user-jpa, user-jcr ....</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1068'>JAMES-1068</a>] - Rename mailetcontainer-impl to mailetcontainer-library</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1072'>JAMES-1072</a>] - Merge mailetpackages.xml and matcherpackages.xml into mailetcontainer.xml</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1073'>JAMES-1073</a>] - Remove DataSourceSelector interfface and implementation</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1075'>JAMES-1075</a>] - Remove Configurable interface from JamesMailetContext</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1082'>JAMES-1082</a>] - Upload james 3.0-M1 artifacts for download</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1083'>JAMES-1083</a>] - Enable JMX by default and secure it via user/pass</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1088'>JAMES-1088</a>] - Merge VirtualUserTable and ManageableVirtualUserTable</li>
+</ul>
+                
+<h2>Wish</h2>
+<ul>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-539'>JAMES-539</a>] - Split config.xml in many parts</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-889'>JAMES-889</a>] - Independent SMTP Product ...?</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-893'>JAMES-893</a>] - JSR250 Replacement For Avalon Framework</li>
+</ul>
+
+</section>
+
+</body>
+</document>
