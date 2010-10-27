@@ -113,6 +113,9 @@ or he need to disable user/pass on windows
 yes only windows
 on unix like operation systems the perms are correctly set
 </p>
+
+</subsection>
+
     <subsection name="Other global configuration">
   
       <p>Other configuration are available inside James.  

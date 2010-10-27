@@ -44,6 +44,7 @@
         <li><a href="configuration_fetchmail.html">FetchMail Configuration</a></li>
         <li><a href="configuration_remotemanager.html">Remote Manager Configuration</a></li>
         <li><a href="configuration_listmanager.html">List Manager Configuration</a></li>
+        <li><a href="configuration_common.html">Common Configuration</a></li>
     </ul>
 
   </section>

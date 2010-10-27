@@ -26,9 +26,10 @@
 
 <body>
 
-<p>This document records what was done between releases.
-As always, thank you to everyone who contributed code, documentation, 
-bug reports, and feedback.</p>
+<p>This document records what was done between releases.</p>
+
+<p><b>As always, thank you to everyone who contributed code, documentation, 
+bug reports, and feedback.</b></p>
 
 <section name="Version 3.0-M1 (Milestone 1)">
 

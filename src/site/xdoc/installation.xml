@@ -27,22 +27,34 @@
 
 <section name="Requirements">
 
-<p>James requires a Java Runtime Environment of Java version 1.4 or higher installed to run the 
+<subsection names="Java Virtual Machine">
+
+<p>James requires a Java Runtime Environment of Java version 1.5 or higher installed to run the 
 James application.  The exact JREs available depend on the platform.  A JRE must be downloaded and
-installed before James can run.  In addition, the environment variable JAVA_HOME must be set to
+installed before James can run.  In addition, the environment variable JAVA_HOME should be set to
 the JRE home directory before running James.</p>
 
-<p>Runs on OpenJDK and Sun JDK</p>
+<p>James 3.0 has been successfully tested on OpenJDK, Sun JDK and IBM JDK</p>
+
+</subsection>
+
+<subsection names="System Requirements">
 
 <p>On Unix platforms, root access will be required to run James.  On these platforms, access to ports 
-below 1024 is generally restricted to the root user.  As SMTP, POP3, and NNTP all need to open 
+below 1024 is generally restricted to the root user.  As SMTP, POP3, and IMAP all need to open 
 server sockets on such ports in standard configurations, James requires root access.</p>
 
 <p>Obviously James also requires sufficient disk space, processor power, and network bandwidth.  But, 
 other than what's been discussed here, it has no additional special requirements.</p>
+
+<p>James needs by default 512 MB RAM, but may need more depending on the load.</p>
+
+</subsection>
+
 </section>
 
 <section name="Installation Comments">
+
 <p>James installation involves a number of steps, each of which is described in some detail in the 
 following sections.  But as this sequence of steps has confused some users in the past, additional 
 comments seem warranted.</p>

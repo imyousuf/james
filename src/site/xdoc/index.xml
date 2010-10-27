@@ -33,18 +33,20 @@
 	    
 	    <p>This documentation is intended to be an introduction to the concepts behind the James usage, as well 
 	      as a guide to <a href="installation_instructions.html">install</a>, <a href="configuration_instructions.html">configure</a> 
-	      and <a href="build_james.html">develop</a> the James server.</p>
+	      and <a href="build_james.html">develop</a> James server.</p>
 	    
 	    <p>You can download stables releases from <a href="http://james.apache.org/download.cgi">here</a>
-	      (or latest snapshots from <a href="http://repository.apache.org/content/groups/snapshots/org/apache/james/james-server-spring-deployment/3.0-SNAPSHOT/ ">here</a>).</p>
+	      (or latest snapshots from <a href="http://people.apache.org/builds/james/nightly/">here</a>).</p>
 	
         <table>
         
          <tr><td width="50%">
 
           <subsection name="Configureable">
+          
+            <p>Configure the stores,... via the well-known Spring framework - <a href="configuration.html">read more</a>.</p>
         
-            <p></p>
+            <img src="images/conf/config_example.png" height="400px" />
         
           </subsection>
           
@@ -52,8 +54,10 @@
 
           <subsection name="Manageable">
         
-            <p></p>
-        
+            <p>Manage domains, users,... via well-known JMX tools - <a href="management.html">read more</a>.</p>
+            
+            <img src="images/jmx_management/jmx_user_part.png" />
+
           </subsection>
           
          </td></tr>
@@ -63,7 +67,9 @@
           <subsection name="Performant">
            
             <p>A special focuss has been brought to the performance: James can process more than
-               100 mails per second. See the <a href="performance.html">performance</a> page to get more numbers.</p>
+               100 mails per second - <a href="performance.html">read more</a></p>
+        
+            <img src="images/jmx_monitoring/jmx_process_root.png" height="400px" />
         
           </subsection>
          
@@ -71,15 +77,12 @@
 
           <subsection name="Secured">
         
-            <p>James is a secured mail server by default. You can read more on the existing security
-               measures and infrastructure on the <a href="security.html">security</a>.</p>
+            <p>James is a secured mail server by default - <a href="security.html">read more</a>.</p>
         
           </subsection>
           
-         </td>
-         
-         </tr>
-   	    
+         </td></tr>
+        
          <tr><td width="50%">
         
   	      <subsection name="Extensible">
@@ -89,14 +92,16 @@
 	          custom applications for mail processing.  This modularity and ease of customization is one of James' 
 	          strengths, and can allow administrators to produce powerful applications surprisingly easily.</p>
 	 
-	        <p>James 3.0 is now built on top of Spring 3.0 in replacement of trunk version of the <a href="http://avalon.apache.org/">Avalon Application Framework</a>.
-	          With Spring, We keep the good development practices introduced by Avalon such as 
-	          Component Oriented Programming and  Inversion of Control. 
-	          The stable and robust Spring container provides a strong foundation for the James server.</p>
+	        <p>James 3.0 is now built on top of Spring 3.0 in replacement of trunk version of the <a href="http://avalon.apache.org/">Avalon</a> Application Framework.
+	           With Spring, We keep the good development practices introduced by Avalon such as 
+	           Component Oriented Programming and  Inversion of Control. 
+	           The stable and robust Spring container provides a strong foundation for the James server.</p>
 	    
 	        <p>The internal and exposed APIs for this 3.0-M1 release are under current validation and are 
-	          expected to be subject to change.</p>
+	          expected to be subject to change - <a href="dev_architecture.html">read more</a>.</p>
 	         
+            <img src="images/uml/org.apache.james_package_part.png" width="400px" />
+        
   	      </subsection>
   	      
   	    </td><td width="50%">
@@ -112,7 +117,7 @@
 	        <ul>
 	          <li>100% pure Java Mail server designed to be a complete and portable enterprise 
 	              mail engine solution.</li>
-	          <li>Supports currently available IETF protocols, including SMTP, POP3 and IMAP4 
+	          <li>Supports currently available IETF protocols, including SMTP, LMTP, POP3 and IMAP4 
 	              James is able to store user and message data either in a file-system (Maildir), any JPA-compatible database
 	              and even JCR, allowing fast, reliable, even real-time replicated storage.</li>
 	          <li>Provides a powerful, flexible mail application engine through support for the Apache Mailet 
@@ -126,9 +131,7 @@
 	      
   	      </subsection>
   	      
-  	    </td>
-  	    
-  	    </tr>
+  	    </td></tr>
   	      
    	    </table>
 
