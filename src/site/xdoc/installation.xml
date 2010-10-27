@@ -27,7 +27,7 @@
 
 <section name="Requirements">
 
-<subsection names="Java Virtual Machine">
+<subsection name="Java Virtual Machine">
 
 <p>James requires a Java Runtime Environment of Java version 1.5 or higher installed to run the 
 James application.  The exact JREs available depend on the platform.  A JRE must be downloaded and
@@ -38,7 +38,7 @@ the JRE home directory before running James.</p>
 
 </subsection>
 
-<subsection names="System Requirements">
+<subsection name="System Requirements">
 
 <p>On Unix platforms, root access will be required to run James.  On these platforms, access to ports 
 below 1024 is generally restricted to the root user.  As SMTP, POP3, and IMAP all need to open 

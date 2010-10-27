@@ -87,10 +87,10 @@
       <item name="Architecture" href="/dev_architecture.html" />
       <item name="Build from source" href="/dev_build.html" />
       <item name="Provided Mailets" href="/dev_mailets.html" />
-      <item name="Develop a Mailet" href="/dev_custom_mailet.html" />
       <item name="Provided Matchers" href="/dev_matchers.html" />
-      <item name="Develop a Matcher" href="/dev_custom_matcher.html" />
-      <item name="Extend James" href="/dev_extend.html"  collapse="true" >
+      <item name="Extend James" href="/dev_extend.html" collapse="true" >
+        <item name="Custom Mailet" href="/dev_custom_mailet.html" />
+        <item name="Custom Matcher" href="/dev_custom_matcher.html" />
         <item name="Hook SMTP" href="/dev_extend_hook_smtp.html" />
       </item>
       <item name="Javadoc" href="/apidocs/index.html" />

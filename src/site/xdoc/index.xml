@@ -67,7 +67,7 @@
           <subsection name="Performant">
            
             <p>A special focuss has been brought to the performance: James can process more than
-               100 mails per second - <a href="performance.html">read more</a></p>
+               100 mails per second - <a href="feature_performance.html">read more</a></p>
         
             <img src="images/jmx_monitoring/jmx_process_root.png" height="400px" />
         
@@ -77,7 +77,7 @@
 
           <subsection name="Secured">
         
-            <p>James is a secured mail server by default - <a href="security.html">read more</a>.</p>
+            <p>James is a secured mail server by default - <a href="feature_security.html">read more</a>.</p>
         
           </subsection>
           
