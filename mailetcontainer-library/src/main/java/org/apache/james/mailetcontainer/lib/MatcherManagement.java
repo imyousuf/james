@@ -29,6 +29,11 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 
+/**
+ * JMX MBean which will collection statistics for the wrapped {@link Matcher}
+ * 
+ *
+ */
 public final class MatcherManagement extends StandardMBean implements MatcherManagementMBean, Matcher{
     private Matcher matcher;
     private long slowestProcessing = -1;
@@ -41,8 +46,19 @@ public final class MatcherManagement extends StandardMBean implements MatcherMan
     public MatcherManagement(Matcher matcher) throws NotCompliantMBeanException {
         super(MatcherManagementMBean.class);
         this.matcher = matcher;
+
     }
 
+    /**
+     * Return the wrapped {@link Matcher}
+     * 
+     * @return wrappedMatcher
+     */
+    public Matcher getMatcher() {
+        return matcher;
+    }
+    
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.mailetcontainer.MatcherManagementMBean#getMatcherName()

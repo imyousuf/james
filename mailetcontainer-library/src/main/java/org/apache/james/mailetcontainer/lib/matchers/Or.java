@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.transport.matchers;
+package org.apache.james.mailetcontainer.lib.matchers;
 
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mail;
@@ -80,6 +80,7 @@ public class Or extends GenericCompositeMatcher {
                             for (Iterator i = result.iterator(); i.hasNext();) {
                                 recipient = (MailAddress) i.next();
                                 if (!finalResult.contains(recipient)) {
+                                    System.out.println(recipient);
                                     finalResult.add(recipient);
                                 }
                             }

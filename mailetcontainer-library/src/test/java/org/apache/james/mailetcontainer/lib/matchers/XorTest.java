@@ -17,8 +17,12 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.transport.matchers;
+package org.apache.james.mailetcontainer.lib.matchers;
 
+import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
+import org.apache.james.mailetcontainer.lib.matchers.Xor;
+import org.apache.james.transport.matchers.All;
+import org.apache.james.transport.matchers.RecipientIs;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.base.test.FakeMail;

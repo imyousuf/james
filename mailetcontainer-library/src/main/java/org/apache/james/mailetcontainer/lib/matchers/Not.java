@@ -1,4 +1,4 @@
-package org.apache.james.transport.matchers;
+package org.apache.james.mailetcontainer.lib.matchers;
 
 /****************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one   *
@@ -22,6 +22,7 @@ package org.apache.james.transport.matchers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
 import org.apache.mailet.Matcher;
 import org.apache.mailet.Mail;
 

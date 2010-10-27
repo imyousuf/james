@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.transport.matchers;
+package org.apache.james.mailetcontainer.lib.matchers;
 
 import java.util.Collection;
 import java.util.Iterator;

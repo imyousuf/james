@@ -20,6 +20,7 @@ package org.apache.james.mailetcontainer.lib;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -37,6 +38,7 @@ import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailProcessorList;
 import org.apache.james.mailetcontainer.api.MailetContainer;
 import org.apache.james.mailetcontainer.api.ProcessorManagementMBean;
+import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.Matcher;
 
@@ -73,6 +75,9 @@ public class ProcessorManagement extends StandardMBean implements ProcessorManag
         unregisterMBeans();
     }
     
+    /**
+     * Unregister all JMX MBeans
+     */
     private void unregisterMBeans() {
         List<ObjectName> unregistered = new ArrayList<ObjectName>();
         for (int i = 0; i < mbeans.size(); i++) {
@@ -89,6 +94,11 @@ public class ProcessorManagement extends StandardMBean implements ProcessorManag
     }
 
 
+    /**
+     * Register all JMX MBeans
+     * 
+     * @throws NotCompliantMBeanException
+     */
     private void registerMBeans() throws NotCompliantMBeanException {
        
         String baseObjectName = "org.apache.james:type=component,name=processor,";
@@ -96,12 +106,18 @@ public class ProcessorManagement extends StandardMBean implements ProcessorManag
         String[] processorNames = getProcessorNames();
         for (int i = 0; i < processorNames.length; i++) {
             String processorName = processorNames[i];
-            createProcessorMBean(baseObjectName, processorName, mbeanserver);
-            continue;
+            registerProcessorMBean(baseObjectName, processorName);
         }
     }
 
-    private void createProcessorMBean(String baseObjectName, String processorName, MBeanServer mBeanServer) throws NotCompliantMBeanException {
+    /**
+     * Register a JMX MBean for a {@link MailProcessor}
+     * 
+     * @param baseObjectName
+     * @param processorName
+     * @throws NotCompliantMBeanException
+     */
+    private void registerProcessorMBean(String baseObjectName, String processorName) throws NotCompliantMBeanException {
         String processorMBeanName = baseObjectName + "processor=" + processorName;
         
         MailProcessor processor = mailProcessor.getProcessor(processorName);
@@ -114,54 +130,89 @@ public class ProcessorManagement extends StandardMBean implements ProcessorManag
         } else {
             processorDetail = new ProcessorDetail(processorName, processor);
         }
-        registerMBean(mBeanServer, processorMBeanName, processorDetail);
+        registerMBean(processorMBeanName, processorDetail);
 
 
         // check if the processor holds Mailets and Matchers
         if (processor instanceof MailetContainer) {
             MailetContainer container = (MailetContainer) processor;
-            List<Mailet> mailets =  container.getMailets();
-         
-            for (int i = 0; i < mailets.size(); i++) {
-                MailetManagement mailetManagement;
-
-                Mailet mailet = mailets.get(i);
-                
-                // check if the mailet is an instance of MailetManagement. If not create a wrapper around it. This will give us not all
-                // statistics but at least a few of them
-                if (mailet instanceof MailetManagement) {
-                    mailetManagement = (MailetManagement) mailet;
-                } else {
-                    mailetManagement = new MailetManagement(mailet);
-                }
-                String mailetMBeanName = processorMBeanName + ",subtype=mailet,index=" + (i+1) + ",mailetname=" + mailetManagement.getMailetName();
-                registerMBean(mBeanServer, mailetMBeanName, mailetManagement);
-            }
-
-            List<Matcher> matchers =  container.getMatchers();
-            for (int i = 0; i < matchers.size(); i++) {
-                MatcherManagement matcherManagement;
-                Matcher matcher = matchers.get(i);
-                
-                // check if the matcher is an instance of MatcherManagement. If not create a wrapper around it. This will give us not all
-                // statistics but at least a few of them
-                if (matcher instanceof MatcherManagement) {
-                   matcherManagement = (MatcherManagement) matcher;
-                } else {
-                    matcherManagement = new MatcherManagement(matcher);
-                }
-
-                String matcherMBeanName = processorMBeanName + ",subtype=matcher,index=" + (i+1) + ",matchername=" + matcherManagement.getMatcherName();
-
-                registerMBean(mBeanServer, matcherMBeanName, matcherManagement);
-            }
+            registerMailets(processorMBeanName, container.getMailets().iterator());
+            registerMatchers(processorMBeanName, container.getMatchers().iterator(), 0);
            
         }
        
 
     }
+    
+    /**
+     * Register the Mailets as JMX MBeans
+     * 
+     * @param parentMBeanName
+     * @param mailets
+     * @throws NotCompliantMBeanException
+     */
+    private void registerMailets(String parentMBeanName, Iterator<Mailet> mailets) throws NotCompliantMBeanException {
+        int i = 0;
+        while(mailets.hasNext()) {
+            
+            MailetManagement mailetManagement;
 
-    private void registerMBean(MBeanServer mBeanServer, String mBeanName, Object object) {
+            Mailet mailet = mailets.next();
+            
+            // check if the mailet is an instance of MailetManagement. If not create a wrapper around it. This will give us not all
+            // statistics but at least a few of them
+            if (mailet instanceof MailetManagement) {
+                mailetManagement = (MailetManagement) mailet;
+            } else {
+                mailetManagement = new MailetManagement(mailet);
+            }
+            String mailetMBeanName = parentMBeanName + ",subtype=mailet,index=" + (i++) + ",mailetname=" + mailetManagement.getMailetName();
+            registerMBean(mailetMBeanName, mailetManagement);
+        }
+        
+    }
+    
+
+    /**
+     * Register the {@link Matcher}'s as JMX MBeans
+     * 
+     * @param parentMBeanName
+     * @param matchers
+     * @param nestingLevel
+     * @throws NotCompliantMBeanException
+     */
+    @SuppressWarnings("unchecked")
+    private void registerMatchers(String parentMBeanName, Iterator<Matcher> matchers, int nestingLevel) throws NotCompliantMBeanException {
+        // current level
+        int currentLevel = nestingLevel;
+        int i = 0;
+
+        while (matchers.hasNext()) {
+            MatcherManagement matcherManagement;
+            Matcher matcher = matchers.next();
+            
+            // check if the matcher is an instance of MatcherManagement. If not create a wrapper around it. This will give us not all
+            // statistics but at least a few of them
+            if (matcher instanceof MatcherManagement) {
+               matcherManagement = (MatcherManagement) matcher;
+            } else {
+                matcherManagement = new MatcherManagement(matcher);
+            }
+
+            String matcherMBeanName = parentMBeanName + ",subtype" + currentLevel +"=matcher,index" + currentLevel+"=" + (i++) + ",matchername" + currentLevel+"=" + matcherManagement.getMatcherName();
+            registerMBean(matcherMBeanName, matcherManagement);
+            
+            Matcher wrappedMatcher = getWrappedMatcher(matcherManagement);
+            
+            // Handle CompositeMatcher which were added by JAMES-948
+            if (wrappedMatcher instanceof CompositeMatcher) {
+                // we increment the nesting as we have one more child level and register the child matchers
+                registerMatchers(matcherMBeanName, ((CompositeMatcher) wrappedMatcher).iterator(), ++nestingLevel);
+            }
+        }
+    }
+
+    private void registerMBean(String mBeanName, Object object) {
         ObjectName objectName = null;
         try {
             objectName = new ObjectName(mBeanName);
@@ -171,7 +222,7 @@ public class ProcessorManagement extends StandardMBean implements ProcessorManag
             return;
         }
         try {
-            mBeanServer.registerMBean(object, objectName);
+            mbeanserver.registerMBean(object, objectName);
             mbeans.add(objectName);
         } catch (javax.management.JMException e) {
             logger.error("Unable to register mbean", e);
@@ -195,6 +246,17 @@ public class ProcessorManagement extends StandardMBean implements ProcessorManag
      */
     public void setLog(Log logger) {
         this.logger = logger;
+    }
+    
+
+    
+    private Matcher getWrappedMatcher(Matcher matcher) {
+        // call recursive to find the real Matcher
+        if (matcher instanceof MatcherManagement) {
+            return getWrappedMatcher(((MatcherManagement)matcher).getMatcher());
+        }
+        return matcher;
+        
     }
 
 }

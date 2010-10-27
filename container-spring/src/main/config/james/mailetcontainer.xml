@@ -36,6 +36,8 @@
         <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
         <!-- Crytographic matchers -->
         <matcherpackage>org.apache.james.mailet.crypto.matchers</matcherpackage>
+        <!-- Composite matchers -->
+        <matcherpackage>org.apache.james.mailetcontainer.lib.matchers</matcherpackage>
       </matcherpackages>
       
       <!-- The root processor is a required processor - James routes all mail on the spool -->

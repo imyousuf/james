@@ -29,6 +29,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.management.NotCompliantMBeanException;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
@@ -54,6 +55,7 @@ import org.apache.james.mailetcontainer.lib.MailetConfigImpl;
 import org.apache.james.mailetcontainer.lib.MailetManagement;
 import org.apache.james.mailetcontainer.lib.MatcherManagement;
 import org.apache.james.mailetcontainer.lib.ProcessorDetail;
+import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
@@ -64,7 +66,10 @@ import org.apache.mailet.base.MatcherInverter;
 /**
  * Build up the Camel Routes by parsing the mailetcontainer.xml configuration file. 
  * 
- * It also offer the {@link MailProcessorList} implementation which allow to inject {@link Mail} into the routes
+ * It also offer the {@link MailProcessorList} implementation which allow to inject {@link Mail} into the routes.
+ *
+ * Beside the basic {@link Mailet} / {@link Matcher} support this implementation also supports {@link CompositeMatcher} implementations.
+ * See JAMES-948 
  * 
  */
 public class CamelMailProcessorList implements Configurable, LogEnabled, MailProcessorList, CamelContextAware, ProcessorManagementMBean {
@@ -76,6 +81,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
 
     private final Map<String,List<MailetManagement>> mailets = new HashMap<String,List<MailetManagement>>();
     private final Map<String,List<MatcherManagement>> matchers = new HashMap<String,List<MatcherManagement>>();
+    
     private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
     private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
        
@@ -346,7 +352,13 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                 // store the logger in properties
                 .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(logger));   
 
+                // load composite matchers if there are any
+                Map<String,MatcherManagement> compositeMatchers = new HashMap<String, MatcherManagement>();
+                loadCompositeMatchers(processorName, compositeMatchers, processorConf.configurationsAt("matcher"));
+                
+                
                 final List<HierarchicalConfiguration> mailetConfs = processorConf.configurationsAt("mailet");
+                
                 // Loop through the mailet configuration, load
                 // all of the matcher and mailets, and add
                 // them to the processor.
@@ -366,9 +378,20 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                             // if no matcher is configured throw an Exception
                             throw new ConfigurationException("Please configure only match or nomatch per mailet");
                         } else if (matcherName != null) {
-                            matcher = matcherLoader.getMatcher(matcherName);
+                            // try to load from compositeMatchers first
+                            matcher = compositeMatchers.get(matcherName);
+                            if (matcher == null) {
+                                // no composite Matcher found, try to load it via MatcherLoader
+                                matcher = matcherLoader.getMatcher(matcherName);
+                            }
                         } else if (invertedMatcherName != null) {
-                            matcher = new MatcherInverter(matcherLoader.getMatcher(invertedMatcherName));
+                            // try to load from compositeMatchers first
+                            matcher = compositeMatchers.get(matcherName);
+                            if (matcher == null) {
+                                // no composite Matcher found, try to load it via MatcherLoader
+                                matcher = matcherLoader.getMatcher(invertedMatcherName);
+                            }
+                            matcher = new MatcherInverter(matcher);
 
                         } else {
                             // default matcher is All
@@ -414,8 +437,21 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                         throw new ConfigurationException("Unable to init mailet", ex);
                     }
                     if (mailet != null && matcher != null) {
-                        MailetManagement wrappedMailet = new MailetManagement(mailet);
-                        MatcherManagement wrappedMatcher = new MatcherManagement(matcher);
+                        MailetManagement wrappedMailet;
+                        if (mailet instanceof MailetManagement) {
+                            wrappedMailet = (MailetManagement) mailet;
+                        } else {
+                            wrappedMailet  = new MailetManagement(mailet);
+                        }
+                        
+                        MatcherManagement wrappedMatcher;
+                        if (matcher instanceof MatcherManagement) {
+                            wrappedMatcher = (MatcherManagement) matcher;
+                        } else {
+                            wrappedMatcher = new MatcherManagement(matcher);
+                        }
+                        
+                        
                         String onMatchException = null;
                         MailetConfig mailetConfig = wrappedMailet.getMailetConfig();
                     
@@ -430,6 +466,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                             
                             // do splitting of the mail based on the stored matcher
                             .split().method(MatcherSplitter.class).aggregationStrategy(aggr).parallelProcessing()
+                            
                             .choice().when(new MatcherMatch()).process(mailetProccessor).end()
                             
                             .choice().when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop().otherwise().process(removePropsProcessor).end()
@@ -463,5 +500,66 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
             }
                 
         }
+    }
+    
+    /**
+     * Load  {@link CompositeMatcher} implementations and their child {@link Matcher}'s
+     * 
+     * CompositeMatcher were added by JAMES-948
+     * 
+     * @param processorName
+     * @param compMap
+     * @param compMatcherConfs
+     * @return compositeMatchers
+     * @throws ConfigurationException
+     * @throws MessagingException
+     * @throws NotCompliantMBeanException
+     */
+    @SuppressWarnings("unchecked")
+    private List<MatcherManagement> loadCompositeMatchers(String processorName, Map<String,MatcherManagement> compMap, List<HierarchicalConfiguration> compMatcherConfs) throws ConfigurationException, MessagingException, NotCompliantMBeanException {
+        List<MatcherManagement> matchers = new ArrayList<MatcherManagement>();
+
+        for (int j= 0 ; j < compMatcherConfs.size(); j++) {
+            HierarchicalConfiguration c = compMatcherConfs.get(j);
+            String compName = c.getString("[@name]", null);
+            String matcherName = c.getString("[@match]", null);
+            String invertedMatcherName = c.getString("[@notmatch]", null);
+
+            Matcher matcher = null;
+            if (matcherName != null && invertedMatcherName != null) {
+                // if no matcher is configured throw an Exception
+                throw new ConfigurationException("Please configure only match or nomatch per mailet");
+            } else if (matcherName != null) {
+                matcher = matcherLoader.getMatcher(matcherName);
+                if (matcher instanceof CompositeMatcher) {
+                    CompositeMatcher compMatcher = (CompositeMatcher) matcher;
+                    
+                    List<MatcherManagement> childMatcher = loadCompositeMatchers(processorName, compMap,c.configurationsAt("matcher"));
+                    for (int i = 0 ; i < childMatcher.size(); i++) {
+                        compMatcher.add(childMatcher.get(i));
+                    }
+                }
+            } else if (invertedMatcherName != null) {
+                Matcher m = matcherLoader.getMatcher(invertedMatcherName);
+                if (m instanceof CompositeMatcher) {
+                    CompositeMatcher compMatcher = (CompositeMatcher) m;
+                    
+                    List<MatcherManagement> childMatcher = loadCompositeMatchers(processorName, compMap,c.configurationsAt("matcher"));
+                    for (int i = 0 ; i < childMatcher.size(); i++) {
+                        compMatcher.add(childMatcher.get(i));
+                    }
+                }
+                matcher = new MatcherInverter(m);
+            }
+            if (matcher == null) throw new ConfigurationException("Unable to load matcher instance");
+            MatcherManagement mgmtMatcher = new MatcherManagement(matcher);
+            matchers.add(mgmtMatcher);
+            if (compName != null) {
+                // check if there is already a composite Matcher with the name registered in the processor
+                if (compMap.containsKey(compName)) throw new ConfigurationException("CompositeMatcher with name " + compName + " is already defined in processor " + processorName);
+                compMap.put(compName, mgmtMatcher);
+            }
+        }
+        return matchers;
     }
 }

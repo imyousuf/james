@@ -1,5 +1,3 @@
-package org.apache.james.transport.matchers;
-
 /****************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one   *
  * or more contributor license agreements.  See the NOTICE file *
@@ -19,27 +17,26 @@ package org.apache.james.transport.matchers;
  * under the License.                                           *
  ****************************************************************/
 
+package org.apache.james.mailetcontainer.lib.matchers;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ArrayList;
+
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mail;
 import javax.mail.MessagingException;
 import org.apache.mailet.Matcher;
 
-/**
- * This matcher performs And conjunction between the two recipients
- * 
- */
-public class And extends GenericCompositeMatcher {
+public class Xor extends GenericCompositeMatcher {
 
     /**
-     * This is the And CompositeMatcher - consider it to be an intersection of
-     * the results. If any match returns an empty recipient result the matching
-     * is short-circuited.
+     * This is the Xor CompositeMatcher - consider it to be the inequality
+     * operator for recipients. If any recipients match other matcher results
+     * then the result does not include that recipient.
      * 
-     * @return Collection of Recipient from the And composition results of the
-     *         child Matchers.
+     * @return Collection of Recipients from the Xor composition of the child
+     *         matchers.
      */
     public Collection match(Mail mail) throws MessagingException {
         Collection finalResult = null;
@@ -48,60 +45,48 @@ public class And extends GenericCompositeMatcher {
         for (Iterator matcherIter = iterator(); matcherIter.hasNext();) {
             matcher = (Matcher) (matcherIter.next());
             Collection result = matcher.match(mail);
-
             if (result == null) {
-                // short-circuit
-                // log("Matching with " +
-                // matcher.getMatcherConfig().getMatcherName() +
-                // " result.size()=0");
-                return new ArrayList(0);
+                result = new ArrayList(0);
             }
-            if (result.size() == 0) {
-                return result;
-            }
-
             // log("Matching with " +
             // matcher.getMatcherConfig().getMatcherName() +
-            // " result.size()="+result.size());
+            // " result="+result.toString() );
 
             if (first) {
                 finalResult = result;
                 first = false;
             } else {
-                // Check if we need to And ...
+                // Check if we need to Xor ...
                 // if the finalResult and the subsequent result are the same
                 // collection, then it contains the same recipients
-                // so we can short-circuit building the AND of the two
-                if (finalResult != result) {
-                    if (result != null) {
-                        // the two results are different collections, so we AND
-                        // them
-                        // Ensure that the finalResult only contains recipients
-                        // in the result collection
-                        Collection newResult = new ArrayList();
-                        MailAddress recipient = null;
-                        for (Iterator i = finalResult.iterator(); i.hasNext();) {
-                            recipient = (MailAddress) i.next();
-                            // log("recipient="+recipient.toString());
-                            if (result.contains(recipient)) {
-                                newResult.add(recipient);
-                            }
+                // so we can short-circuit building the XOR and return an empty
+                // set
+                if (finalResult == result) {
+                    // the XOR of the same collection is empty
+                    finalResult.clear();
+                    // log("same collection - so clear");
+                } else {
+                    // the two results are different collections, so we XOR them
+                    // Ensure that the finalResult does not contain recipients
+                    // in the result collection
+                    MailAddress recipient = null;
+                    for (Iterator i = result.iterator(); i.hasNext();) {
+                        recipient = (MailAddress) (i.next());
+                        if (!finalResult.contains(recipient)) {
+                            finalResult.add(recipient);
+                        } else {
+                            finalResult.remove(recipient);
                         }
-                        recipient = null;
-                        // basically the finalResult gets replaced with a
-                        // smaller result
-                        // otherwise finalResult would have been equal to result
-                        // (in all cases)
-                        finalResult = newResult;
-                    } else {
-                        finalResult = result;
                     }
+                    recipient = null;
+                    // log("xor recipients into new finalResult="+finalResult);
                 }
+                // basically the finalResult gets replaced with a smaller result
+                // otherwise finalResult would have been equal to result (in all
+                // cases)
             }
             result = null;
         }
-        matcher = null;
-        // log("answer is "+finalResult.toString());
         return finalResult;
     }
 
