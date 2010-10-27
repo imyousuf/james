@@ -1451,12 +1451,20 @@ public class MessageProcessor extends ProcessorAbstract
         String validatedAddress = null;
         int ipAddressStart = domain.indexOf('[');
         int ipAddressEnd = -1;
-        if (ipAddressStart > -1)
+        
+        if (ipAddressStart > -1) {
             ipAddressEnd = domain.indexOf(']', ipAddressStart);
-        if (ipAddressEnd > -1)
+        } else {
+            // Handle () which enclose the ipaddress
+            // See JAMES-344
+            ipAddressStart = domain.indexOf('(');
+            if (ipAddressStart > -1) {
+                ipAddressEnd = domain.indexOf(')', ipAddressStart);
+            }
+        }
+        if (ipAddressEnd > -1) {
             address = domain.substring(ipAddressStart + 1, ipAddressEnd);
-        else
-        {
+        } else{
             int hostNameEnd = domain.indexOf(' ');
             if (hostNameEnd == -1)
                 hostNameEnd = domain.length();
