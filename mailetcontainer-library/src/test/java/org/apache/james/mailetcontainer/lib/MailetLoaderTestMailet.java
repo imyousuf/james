@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.transport.mailets;
+package org.apache.james.mailetcontainer.lib;
 
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;

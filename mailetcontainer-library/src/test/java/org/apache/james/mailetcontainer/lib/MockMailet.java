@@ -18,11 +18,18 @@
  ****************************************************************/
 
 
+package org.apache.james.mailetcontainer.lib;
 
-package org.apache.james.transport.mailets.smime;
+import javax.mail.MessagingException;
 
-import org.apache.james.transport.mailets.MailetLoaderTestMailet;
+import org.apache.mailet.Mail;
+import org.apache.mailet.base.GenericMailet;
 
-public class MailetLoaderTestSMIMEMailet extends MailetLoaderTestMailet {
-    // this is just residing in the smime subpackage
+public class MockMailet extends GenericMailet{
+
+    @Override
+    public void service(Mail arg0) throws MessagingException {
+        
+    }
+
 }

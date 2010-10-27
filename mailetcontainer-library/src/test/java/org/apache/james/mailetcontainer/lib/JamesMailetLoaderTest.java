@@ -19,21 +19,30 @@
 
 
 
-package org.apache.james.transport;
+package org.apache.james.mailetcontainer.lib;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.mail.MessagingException;
+
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.james.services.MockJSR250Loader;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
+
 
 import junit.framework.TestCase;
 
 
-public class JamesMailetLoaderTest { // extends TestCase {
- /*
+public class JamesMailetLoaderTest extends TestCase {
+
     private JamesMailetLoader m_jamesMailetLoader  = new JamesMailetLoader();
     private JamesMailetLoaderConfiguration m_conf = new JamesMailetLoaderConfiguration();
 
+    @SuppressWarnings("serial")
     private class JamesMailetLoaderConfiguration extends DefaultConfigurationBuilder {
         private List<String> m_packageNames = new ArrayList<String>();
         
@@ -43,13 +52,12 @@ public class JamesMailetLoaderTest { // extends TestCase {
         public void init() {
             for (Iterator<String> iterator = m_packageNames.iterator(); iterator.hasNext();) {
                 String packageName = (String) iterator.next();
-                addProperty("mailetpackage", packageName);
+                addProperty("mailetpackages.mailetpackage", packageName);
             }
         }
 
         public void addStandardPackages() {
-            add("org.apache.james.transport.mailets");
-            add("org.apache.james.transport.mailets.smime");
+            add(JamesMailetLoaderTest.class.getPackage().getName());
         }
 
         public void add(String packageName) {
@@ -62,25 +70,29 @@ public class JamesMailetLoaderTest { // extends TestCase {
         m_conf.init();
         m_jamesMailetLoader.setLog(new SimpleLog("Test"));
         m_jamesMailetLoader.configure(m_conf);
-        m_jamesMailetLoader.setLoaderService(new FakeLoader());
+        m_jamesMailetLoader.setFactory(new MockJSR250Loader());
     }
 
-    private void assetIsNullMailet(Mailet mailet) {
-        assertNotNull("Null mailet loaded", mailet);
-        assertTrue("Null mailet is expected class", mailet instanceof org.apache.james.transport.mailets.Null);
+    private void assetIsMockMailet(Mailet mailet) {
+        assertNotNull("MockMailet mailet loaded", mailet);
+        assertTrue("MockMailet mailet is expected class", mailet instanceof MockMailet);
     }
 
 
-    public void testUsingEmtpyConfig() throws Exception {
-        setUpLoader();
+    public void testUsingEmtpyConfig() {
+        try {
+            setUpLoader();
+            fail("Should throw exception");
+        } catch (Exception e) {
+        }
     }
 
     public void testFullQualifiedUsingFakeConfig() throws Exception {
         m_conf.add("none.existing.package"); // has to be here so the Loader won't choke
         setUpLoader();
 
-        Mailet mailet = m_jamesMailetLoader.getMailet("org.apache.james.transport.mailets.Null", null);
-        assetIsNullMailet(mailet);
+        Mailet mailet = m_jamesMailetLoader.getMailet(MockMailet.class.getName(), null);
+        assetIsMockMailet(mailet);
     }
 
     public void testStandardMailets() throws Exception {
@@ -88,12 +100,12 @@ public class JamesMailetLoaderTest { // extends TestCase {
         setUpLoader();
 
         // use standard package
-        Mailet mailetNull1 = m_jamesMailetLoader.getMailet("Null", null);
-        assetIsNullMailet(mailetNull1);
+        Mailet mailetNull1 = m_jamesMailetLoader.getMailet(MockMailet.class.getSimpleName(), null);
+        assetIsMockMailet(mailetNull1);
 
         // use full qualified package in parallel
-        Mailet mailetNull2 = m_jamesMailetLoader.getMailet("org.apache.james.transport.mailets.Null", null);
-        assetIsNullMailet(mailetNull2);
+        Mailet mailetNull2 = m_jamesMailetLoader.getMailet(MockMailet.class.getName(), null);
+        assetIsMockMailet(mailetNull2);
 
     }
 
@@ -103,8 +115,6 @@ public class JamesMailetLoaderTest { // extends TestCase {
 
         checkTestMailet("MailetLoaderTestMailet");
         
-        checkTestMailet("MailetLoaderTestSMIMEMailet");
-
     }
 
     private void checkTestMailet(String mailetName) throws MessagingException {
@@ -119,5 +129,5 @@ public class JamesMailetLoaderTest { // extends TestCase {
         MailetConfig mailetConfig = mailetLoaderTestMailet.getMailetConfig();
         assertEquals("init was called w/ right config", "testMailetValue", mailetConfig.getInitParameter("testMailetKey"));
     }
-*/
+
 }
