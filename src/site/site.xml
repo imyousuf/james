@@ -51,11 +51,10 @@
       <item name="Summary" href="/concept_summary.html" />
       <item name="Mailet Container" href="/concept_mailetcontainer.html" />
       <item name="Stores" href="/concept_stores.html" />
-      <item name="SMTP Hook" href="/concept_smtp_hjhooks.html" />
       <item name="Queue Priority" href="/concept_queue_priority.html" />
     </menu>
     
-    <menu name="How to...">
+    <menu name="User Manual">
       <item name="1. Install James" href="/installation.html" />
       <item name="2. Configure James" href="/configuration.html" collapse="true" >
         <item name="Server-wide" href="/configuration_serverwide.html" />
@@ -94,11 +93,13 @@
       <item name="Build from source" href="/dev_build.html" />
       <item name="Develop a Mailet" href="/dev_custom_mailet.html" />
       <item name="Develop a Matcher" href="/dev_custom_matcher.html" />
-      <item name="Extend James" href="/dev_extend.html" />
+      <item name="Extend James" href="/dev_extend.html"  collapse="true" >
+        <item name="Hook SMTP" href="/dev_extend_hook_smtp.html" />
+      </item>
       <item name="Javadoc" href="/apidocs/index.html" />
     </menu>
-
-    ${reports}
+    
+    <menu ref="reports"/>
 
   </body>  
 
