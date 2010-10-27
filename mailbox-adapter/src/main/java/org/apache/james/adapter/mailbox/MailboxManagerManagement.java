@@ -1,6 +1,3 @@
-
-package org.apache.james.adapter.mailbox;
-
 /****************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one   *
  * or more contributor license agreements.  See the NOTICE file *
@@ -19,6 +16,9 @@ package org.apache.james.adapter.mailbox;
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.adapter.mailbox;
+
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
