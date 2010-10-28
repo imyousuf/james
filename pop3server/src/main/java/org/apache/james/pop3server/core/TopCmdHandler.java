@@ -42,7 +42,6 @@ import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.util.stream.ExtraDotOutputStream;
-import org.apache.james.util.stream.MessageStream;
 
 /**
  * Handles TOP command
@@ -96,14 +95,10 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                     FetchGroupImpl fetchGroup = new FetchGroupImpl(FetchGroup.BODY_CONTENT);
                     fetchGroup.or(FetchGroup.HEADERS);
                     Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), fetchGroup, mailboxSession);
-                    MessageStream stream = new MessageStream();
-                    OutputStream out = stream.getOutputStream();
+                    OutputStream out = session.getOutputStream();
                     OutputStream extraDotOut = new ExtraDotOutputStream(out);
                     
                     out.write((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes());
-                    out.flush();
-                    // response = new POP3Response(POP3Response.OK_RESPONSE,
-                    // "Message follows");
                     try {
                         MessageResult result = results.next();
 
@@ -133,7 +128,6 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                         extraDotOut.close();
                         out.close();
                     }
-                    session.writeStream(stream.getInputStream());
 
                     return null;
 

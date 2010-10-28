@@ -22,6 +22,8 @@
 package org.apache.james.pop3server;
 
 
+import java.io.OutputStream;
+
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.protocols.api.TLSSupportedSession;
 
@@ -32,13 +34,6 @@ import org.apache.james.protocols.api.TLSSupportedSession;
 
 public interface POP3Session extends TLSSupportedSession {
 
-    /**
-     * A placeholder for emails deleted during the course of the POP3 transaction.  
-     * This Mail instance is used to enable fast checks as to whether an email has been
-     * deleted from the inbox.
-     */
-    public final static String DELETED ="DELETED_MAIL";
-    
     public final static String UID_LIST = "UID_LIST";
     public final static String DELETED_UID_LIST = "DELETED_UID_LIST";
     public final static String MAILBOX_SESSION = "MAILBOX_SESSION";
@@ -89,5 +84,12 @@ public interface POP3Session extends TLSSupportedSession {
      * @param userMailbox mailbox
      */
     void setUserMailbox(MessageManager mailbox);
+    
+    /**
+     * Get output stream which connects to the underlying socket. This can be used to write big bunch of data without keep it all in memory
+     * 
+     * @return out
+     */
+    OutputStream getOutputStream();
 }
 

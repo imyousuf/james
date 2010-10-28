@@ -87,5 +87,14 @@ public class ChannelOutputStream extends OutputStream{
                     "The bytes could not be written to the session");
         }
     }
+    
+    /**
+     * Return the Channel
+     * 
+     * @return channel
+     */
+    public Channel getChannel() {
+        return channel;
+    }
 
 }

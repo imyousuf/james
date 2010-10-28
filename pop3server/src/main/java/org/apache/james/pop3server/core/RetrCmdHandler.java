@@ -40,7 +40,6 @@ import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 import org.apache.james.util.stream.ExtraDotOutputStream;
-import org.apache.james.util.stream.MessageStream;
 
 /**
  * Handles RETR command
@@ -73,8 +72,7 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                 Long uid = uidList.get(num - 1);
                 if (deletedUidList.contains(uid) == false) {
                     Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
-                    MessageStream stream = new MessageStream();
-                    OutputStream out = stream.getOutputStream();
+                    OutputStream out = session.getOutputStream();
                     OutputStream extraDotOut = new ExtraDotOutputStream(out);
                     
                     out.write((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes());
@@ -96,8 +94,6 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                         extraDotOut.close();
                         out.close();
                     }
-
-                    session.writeStream(stream.getInputStream());
 
                     return null;
                 } else {

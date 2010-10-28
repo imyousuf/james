@@ -16,49 +16,31 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.pop3server.netty;
 
-package org.apache.james.util.stream;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.handler.stream.ChannelOutputStream;
+
 /**
- * Helper class to write to temporary file for transfer data. This is mostly useful for writing
- * large chunk of data back the the client. This Object is designed for one time use..
- * 
+ * Allow to write via an {@link OutputStream} to the underlying {@link Channel}
  *
  */
-public class MessageStream {
-    private File file;
+public class NonClosingChannelOutputStream extends ChannelOutputStream{
 
-    /**
-     * Create new MessageStream on a temporary File
-     * 
-     * @throws IOException 
-     */
-    public MessageStream() throws IOException {
-        this.file = File.createTempFile("messagestream", ".ms");
+    public NonClosingChannelOutputStream(Channel channel) {
+        super(channel);
     }
 
     /**
-     * Return the {@link OutputStream} of the temporary file
+     * Just flush the stream. This will NOT close the underlying Channel
      * 
-     * @return out
-     * @throws IOException
      */
-    public OutputStream getOutputStream() throws IOException {
-        return new FileOutputStream(file);
+    @Override
+    public void close() throws IOException {
+        flush();
     }
-    
-    /**
-     * Return the {@link DisposeOnCloseInputStream} of the temporary file
-     * 
-     * @return in
-     * @throws IOException
-     */
-    public DisposeOnCloseInputStream getInputStream() throws IOException {
-        return new DisposeOnCloseInputStream(new DisposableFileInputStream(file));
-    }
+
 }
