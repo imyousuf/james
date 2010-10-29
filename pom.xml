@@ -1160,7 +1160,7 @@
     <activemq.version>5.3.2</activemq.version>
     <spring.version>3.0.4.RELEASE</spring.version>
     <imap.version>0.2-M1</imap.version>
-    <protocols.version>1.2-M1</protocols.version>
+    <protocols.version>1.2-M2-SNAPSHOT</protocols.version>
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.1.0</jackrabbit.version>
     <commons.logging.version>1.1</commons.logging.version>
