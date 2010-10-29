@@ -624,20 +624,25 @@ public class MessageProcessor extends ProcessorAbstract
         recipients.add(recipient);
         MailImpl mail =
             new MailImpl(getServer().getId(), getSender(), recipients, message);
-        // Ensure the mail is created with non-null remote host name and address,
-        // otherwise the Mailet chain may go splat!
-        if (getRemoteAddress() == null || getRemoteHostName() == null)
-        {
-            mail.setRemoteAddr("127.0.0.1");
-            mail.setRemoteHost("localhost");
-            setDefaultRemoteAddress(true);          
-            logStatusInfo("Remote address could not be determined. Using localhost/127.0.0.1");             
-        }
-        else
-        {
+        
+
+        try {
             mail.setRemoteAddr(getRemoteAddress());
             mail.setRemoteHost(getRemoteHostName());
             setDefaultRemoteAddress(false);            
+        } catch (UnknownHostException e) {
+            // check if we should ignore this
+            // See: JAMES-795
+            if (isRejectRemoteReceivedHeaderInvalid() == false) {
+                // Ensure the mail is created with non-null remote host name and address,
+                // otherwise the Mailet chain may go splat!
+                mail.setRemoteAddr("127.0.0.1");
+                mail.setRemoteHost("localhost");
+                setDefaultRemoteAddress(true);          
+                logStatusInfo("Remote address could not be determined. Using localhost/127.0.0.1");          
+            } else {
+                throw e;
+            }
         }
 
         logMailCreation(mail);
