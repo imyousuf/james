@@ -239,7 +239,7 @@ public class FileMailRepository
                 getLogger().debug(errorMessage, re);
                 return null;
             }
-            MimeMessageAvalonSource source = new MimeMessageAvalonSource(streamRepository, destination, key);
+            MimeMessageStreamRepositorySource source = new MimeMessageStreamRepositorySource(streamRepository, destination, key);
             mc.setMessage(new MimeMessageCopyOnWriteProxy(source));
 
             return mc;

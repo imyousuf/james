@@ -27,7 +27,7 @@ import org.apache.james.repository.StreamRepository;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MimeMessageAvalonSource extends MimeMessageSource {
+public class MimeMessageStreamRepositorySource extends MimeMessageSource {
 
     //Define how to get to the data
     
@@ -56,7 +56,7 @@ public class MimeMessageAvalonSource extends MimeMessageSource {
      * @param repositoryName The name of the repository
      * @param key The key for the particular stream in the stream repository to be used by this data source.
      */
-    public MimeMessageAvalonSource(StreamRepository sr, String repositoryName, String key) {
+    public MimeMessageStreamRepositorySource(StreamRepository sr, String repositoryName, String key) {
         this.sr = sr;
         this.repositoryName = repositoryName;
         this.key = key;
