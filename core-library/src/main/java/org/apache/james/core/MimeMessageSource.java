@@ -151,7 +151,12 @@ public abstract class MimeMessageSource implements Disposable{
             return source.getSourceId();
         }
         
-        public MimeMessageSource getWrapped() {
+        /**
+         * Return the wrapped original {@link MimeMessageSource}
+         * 
+         * @return original
+         */
+        public MimeMessageSource getOriginal() {
             return source;
         }
         
