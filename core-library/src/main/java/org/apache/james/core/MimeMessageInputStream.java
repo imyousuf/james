@@ -19,11 +19,8 @@
 
 package org.apache.james.core;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -44,14 +41,8 @@ public class MimeMessageInputStream extends InputStream {
     @SuppressWarnings("unchecked")
     public MimeMessageInputStream(MimeMessage message) throws IOException {
         try {
-            ByteArrayOutputStream headersOut = new ByteArrayOutputStream();
-            Enumeration headers = message.getAllHeaderLines();
-            while (headers.hasMoreElements()) {
-                headersOut.write(headers.nextElement().toString().getBytes("US-ASCII"));
-                headersOut.write("\r\n".getBytes());
-            }
-            headersInputStream = new ByteArrayInputStream(headersOut.toByteArray());
-            
+            headersInputStream = new InternetHeadersInputStream(message.getAllHeaderLines());
+
             // use the raw InputStream because we want to have no conversion here and just obtain the original message body
             this.bodyInputStream = message.getRawInputStream();
         } catch (MessagingException e) {
@@ -61,28 +52,18 @@ public class MimeMessageInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        if (nextCR) {
-            nextCR = false;
-            nextLF = true;
-            return '\r';
-        } else if (nextLF) {
-            nextLF = false;
-            return '\n';
+        int i = -1;
+        if (cStream == 0) {
+            i = headersInputStream.read();
         } else {
-            int i = -1;
-            if (cStream == 0) {
-                i = headersInputStream.read();
-            } else {
-                i = bodyInputStream.read();
-            }
-
-            if (i == -1 && cStream == 0) {
-                cStream++;
-                nextCR = true;
-                return read();
-            }
-            return i;
+            i = bodyInputStream.read();
         }
+
+        if (i == -1 && cStream == 0) {
+            cStream++;
+            return read();
+        }
+        return i;
 
     }
 

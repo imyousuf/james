@@ -43,8 +43,13 @@ public class InternetHeadersInputStream extends InputStream{
     
     @SuppressWarnings("unchecked")
     public InternetHeadersInputStream(InternetHeaders headers) {
-        this.headerLines = headers.getAllHeaderLines();
+        this(headers.getAllHeaderLines());
     }
+    
+    public InternetHeadersInputStream(Enumeration<String> headerLines) {
+        this.headerLines = headerLines;
+    }
+    
     @Override
     public int read() throws IOException {
         if (currLine == null || pos == currLine.length) {
