@@ -122,6 +122,12 @@ public abstract class MimeMessageSource implements Disposable{
     protected abstract void disposeSource();
 
     
+    /**
+     * Allow to share a {@link MimeMessageSource} and take care of tracking 
+     * the instances. This is needed to make sure the {@link #dispose()} is not called 
+     * to early
+     *
+     */
     public final class SharedMimeMessageSource extends MimeMessageSource {
 
         private MimeMessageSource source;

@@ -35,9 +35,6 @@ public class MimeMessageInputStream extends InputStream {
     private final InputStream bodyInputStream;
     private int cStream = 0;
 
-    boolean nextCR = false;
-    boolean nextLF = false;
-
     @SuppressWarnings("unchecked")
     public MimeMessageInputStream(MimeMessage message) throws IOException {
         try {
