@@ -98,4 +98,12 @@ public class MimeMessageAvalonSource extends MimeMessageSource {
         }
         return size;
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.core.MimeMessageSource#disposeSource()
+     */
+    protected void disposeSource() {
+        // nothing todo here
+    }
 }

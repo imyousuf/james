@@ -26,7 +26,6 @@ import javax.mail.util.SharedFileInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.james.lifecycle.Disposable;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -49,8 +48,7 @@ import java.util.List;
  *
  */
 public class MimeMessageInputStreamSource
-    extends MimeMessageSource
-    implements Disposable {
+    extends MimeMessageSource {
 
     private final List<InputStream> streams = new ArrayList<InputStream>();
 
@@ -179,10 +177,10 @@ public class MimeMessageInputStreamSource
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Disposable#dispose()
+     * @see org.apache.james.core.MimeMessageSource#disposeSource()
      */
-    public void dispose() {
-        // explicit close all streams
+    public void disposeSource() {
+     // explicit close all streams
         for (int i = 0; i < streams.size(); i++) {
             IOUtils.closeQuietly(streams.get(i));
         }
@@ -192,5 +190,6 @@ public class MimeMessageInputStreamSource
         FileUtils.deleteQuietly(file);
         file = null;
     }
+
 
 }

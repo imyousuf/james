@@ -34,6 +34,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -117,19 +118,21 @@ public class MimeMessageWrapper
         
         // if the original is an unmodified MimeMessageWrapped we clone the headers and
         // take its source.
-        /* Temporary commented out because of JAMES-474
         if (original instanceof MimeMessageWrapper && !((MimeMessageWrapper) original).bodyModified) {
-            source = ((MimeMessageWrapper) original).source;
+            // call share so we are sure it will not dispose the message to early
+            source = ((MimeMessageWrapper) original).source.share();
             // this probably speed up things
             if (((MimeMessageWrapper) original).headers != null) {
                 ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                
+                //TODO: Remove the byte[] array usage
                 InternetHeaders ih = ((MimeMessageWrapper) original).headers;
                 MimeMessageUtil.writeHeadersTo(ih.getAllHeaderLines(),temp);
                 headers = createInternetHeaders(new ByteArrayInputStream(temp.toByteArray()));
                 headersModified = ((MimeMessageWrapper) original).headersModified;
             }
         }
-        */
+     
         
         if (source == null) {
             ByteArrayOutputStream bos;

@@ -24,6 +24,8 @@ package org.apache.james.core;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.james.lifecycle.Disposable;
+
 /**
  * This defines a reusable datasource that can supply an input stream with
  * MimeMessage data.  This allows a MimeMessageWrapper or other classes to
@@ -31,7 +33,9 @@ import java.io.InputStream;
  *
  * @see MimeMessageWrapper
  */
-public abstract class MimeMessageSource {
+public abstract class MimeMessageSource implements Disposable{
+    private int shares = 0;
+    
     /**
      * Returns a unique String ID that represents the location from where 
      * this file is loaded.  This will be used to identify where the data 
@@ -80,5 +84,31 @@ public abstract class MimeMessageSource {
         }
         return size;
     }
+    
+    /**
+     * Share this instance and increase the share count
+     * 
+     * @return instance
+     */
+    public final synchronized MimeMessageSource share() {
+        shares++;
+        return this;
+    }
+
+    /**
+     * Dispose this instance if its not shared anymore
+     */
+    public final synchronized void dispose() {
+        if (shares < 1) {
+            disposeSource();
+        }
+        shares--;
+
+    }
+    
+    /**
+     * Get called by {@link #dispose()} if this instance is not shared anymore
+     */
+    protected abstract void disposeSource();
 
 }
