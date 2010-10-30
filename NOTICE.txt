@@ -16,16 +16,6 @@
      - The Legion Of The Bouncy Castle (http://www.bouncycastle.org)
      - Brian Wellington (http://www.dnsjava.org)
 
-   This product also includes Apache Phoenix application container that
-   includes the following software:
-     - the ISO-RELAX project (http://iso-relax.sourceforge.net/)
-     - the Thai Open Source Software Center Ltd. 
-       (http://www.thaiopensource.com/relaxng/jing.html)
-     - the MX4J project (http://mx4j.sourceforge.net/)
-     - the W3C consortium (http://www.w3c.org/),
-     - the SAX project (http://www.saxproject.org/)
-     - the The Spice Group
-     - Sun Microsystems (http://java.sun.com/)
      
    This product includes software developed by the MX4J project 
        (http://mx4j.sourceforge.net)
