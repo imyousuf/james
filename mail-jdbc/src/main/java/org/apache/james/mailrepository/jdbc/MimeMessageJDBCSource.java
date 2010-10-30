@@ -85,6 +85,8 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
      */
     public MimeMessageJDBCSource(JDBCMailRepository repository,
             String key, StreamRepository sr) throws IOException {
+        super();
+
         if (repository == null) {
             throw new IOException("Repository is null");
         }
@@ -100,6 +102,7 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
         // this is optional
         retrieveMessageBodySizeSQL =
             repository.sqlQueries.getSqlString("retrieveMessageBodySizeSQL");
+    
     }
 
     /**

@@ -57,6 +57,8 @@ public class MimeMessageStreamRepositorySource extends MimeMessageSource {
      * @param key The key for the particular stream in the stream repository to be used by this data source.
      */
     public MimeMessageStreamRepositorySource(StreamRepository sr, String repositoryName, String key) {
+        super();
+
         this.sr = sr;
         this.repositoryName = repositoryName;
         this.key = key;

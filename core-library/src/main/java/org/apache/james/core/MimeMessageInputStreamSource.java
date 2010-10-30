@@ -78,6 +78,7 @@ public class MimeMessageInputStreamSource
      */
     public MimeMessageInputStreamSource(String key, InputStream in)
             throws MessagingException {
+        super();
         //We want to immediately read this into a temporary file
         //Create a temp file and channel the input stream into it
         OutputStream fout = null;
@@ -119,6 +120,7 @@ public class MimeMessageInputStreamSource
     }
 
     public MimeMessageInputStreamSource(String key) throws MessagingException {
+        super();
         try {
             file = File.createTempFile(key, ".m64");
             sourceId = file.getCanonicalPath();
