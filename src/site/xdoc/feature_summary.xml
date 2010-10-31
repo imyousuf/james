@@ -20,7 +20,7 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Component Summary</title>
+  <title>James 3.0 - Features Summary</title>
  </properties>
 
 <body>
@@ -47,7 +47,7 @@
       with support for some optional features such as message size limits, SMTP auth, and encrypted 
       client/server communication.</p>
       
-      <p>More information on configuring the SMTP service can be found <a href="smtp_configuration.html">here</a>.</p>
+      <p>More information on configuring the SMTP service can be found <a href="configuration_smtp_lmtp.html">here</a>.</p>
     
     </subsection>
     
@@ -61,7 +61,7 @@
       POP3 clients.  In addition, James can be configured to require SSL/TLS connections for
       POP3 client connecting to the server.</p>
       
-      <p>More information on configuring the POP3 service can be found <a href="pop3_configuration.html">here</a>.</p>
+      <p>More information on configuring the POP3 service can be found <a href="configuration_pop3.html">here</a>.</p>
     
     </subsection>
     
@@ -75,7 +75,7 @@
       IMAP4 clients.  In addition, James can be configured to require SSL/TLS connections for
       IMAP4 client connecting to the server.</p>
       
-      <p>More information on configuring the IMAP4 service can be found <a href="imap4_configuration.html">here</a>.</p>
+      <p>More information on configuring the IMAP4 service can be found <a href="configuration_imap4.html">here</a>.</p>
     
     </subsection>
     
@@ -86,7 +86,7 @@
       servers and deliver them to the local spool.  This is useful for consolidating mail delivered to a
       number of accounts on different machines to a single account.</p>
       
-      <p>More information on configuring FetchMail can be found <a href="fetchmail_configuration.html">here</a>.</p>
+      <p>More information on configuring FetchMail can be found <a href="configuration_fetchmail.html">here</a>.</p>
 
     </subsection>
     
@@ -95,9 +95,9 @@
       <p>James separates the services that deliver mail to James (i.e. SMTP, FetchMail) 
       from the engine that processes mail after it is received by James.  The 
       SpoolManager component is James' mail processing engine.  James' SpoolManager component 
-      is a Mailet container.  It is these mailets and matchers that actually carry out mail processing.</p>
+      is also called the Mailet container. It is these mailets and matchers that actually carry out mail processing.</p>
       
-      <p>More on the structure of the SpoolManager and the Mailet API can be found <a href="spoolmanager.html">here</a>.</p>
+      <p>More on the structure of the SpoolManager and the Mailet API can be found <a href="configuration_mailetcontainer.html">here</a>.</p>
     
     </subsection>
     
@@ -109,7 +109,7 @@
       Stores/repositories contain messages that are still being processed.  Aside from what type of data they store, 
       repositories are distinguished by where they store data.  There are three types of storage - File, Database, and DBFile.</p>
     
-      <p>More information the stores can be found <a href="stores.html">here</a>.</p>
+      <p>More information the stores can be found <a href="configuration_mailstores.html">here</a>.</p>
 
     </subsection>
     
@@ -117,8 +117,8 @@
     
       <p>James provides a simple telnet-based interface for control.  Through this interface you can add 
       and delete users, configure per-user aliases and forward addresses, and shut down the server.</p>
-      
-      <p>More on the configuring the RemoteManager can be found <a href="remotemanager_configuration.html">here</a>.</p>
+
+      <p>More on the configuring the RemoteManager can be found <a href="configuration_remotemanager.html">here</a>.</p>
   
     </subsection>  
       
