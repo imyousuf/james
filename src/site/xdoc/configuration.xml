@@ -27,13 +27,12 @@
 
   <section name="Configuration">
   
-    <p>All configuration files resides in the conf and conf/META-INF directories.</p>
-    
-    <p>You can/must configure James for the following:</p>
+    <p>All configuration files resides in the ./conf/ and ./conf/META-INF/ directories.
+      You can/must configure James for the following:</p>
     
     <ul>
         <li><a href="configuration_serverwide.html">Server-wide Configuration</a></li>
-        <li><a href="configuration_domainlist.html">Domains Configuration</a></li>
+        <li><a href="configuration_domainlist.html">Domain List Configuration</a></li>
         <li><a href="configuration_users.html">Users Configuration</a></li>
         <li><a href="configuration_mailstores.html">Mail Stores Configuration</a></li>
         <li><a href="configuration_dns.html">DNS Configuration</a></li>
@@ -46,6 +45,22 @@
         <li><a href="configuration_listmanager.html">List Manager Configuration</a></li>
         <li><a href="configuration_common.html">Common Configuration</a></li>
     </ul>
+
+    <subsection name="JMX on Windows">
+
+    <div class="ui-widget">
+      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+        <strong>JMX on Windows:</strong>
+        to let windows start with jmx username/password enabled, 
+        you need to modify the security settings for the jmx files like descripted here:
+        <a href="http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html">
+        http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html</a>
+      </p>
+      </div>
+    </div>
+    
+   </subsection>
 
   </section>
 

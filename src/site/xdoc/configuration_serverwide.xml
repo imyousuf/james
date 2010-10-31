@@ -84,21 +84,6 @@
     
     </subsection>
 
-    <subsection name="Prepare for JMX on Windows">
-
-    <p>for let windows start with jmx username/password enabled you need to modify the security settings for the jmx files
-like descripted here:
-http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html
-maybe you want to mention it in the docs ?
-user needs to modify security otherwise it won't work ?
-only for windoz
-or he need to disable user/pass on windows
-yes only windows
-on unix like operation systems the perms are correctly set
-</p>
-
-</subsection>
-
     <subsection name="Other global configuration">
   
       <p>Other configuration are available inside James.  
