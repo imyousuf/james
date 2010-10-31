@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one   
+  or more contributor license agreements.  See the NOTICE file 
+  distributed with this work for additional information        
+  regarding copyright ownership.  The ASF licenses this file   
+  to you under the Apache License, Version 2.0 (the            
+  "License"); you may not use this file except in compliance   
+  with the License.  You may obtain a copy of the License at   
+                                                               
+    http://www.apache.org/licenses/LICENSE-2.0                 
+                                                               
+  Unless required by applicable law or agreed to in writing,   
+  software distributed under the License is distributed on an  
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       
+  KIND, either express or implied.  See the License for the    
+  specific language governing permissions and limitations      
+  under the License.                                           
+ -->
+<!-- The Mailstore block -->
+<mailstore>
+    <repositories>
+        <!-- File based repositories.  These repositories store all message data -->
+        <!-- in the file system. -->
+        <repository class="org.apache.james.mailrepository.file.FileMailRepository">
+            <protocols>
+                <protocol>file</protocol>
+            </protocols>
+            <types>
+                <type>MAIL</type>
+            </types>
+            <!-- Set if the messages should be listed sorted. False by default -->
+            <config FIFO="false"/> 
+        </repository>
+
+        <!-- JDBC based repositories.  These repositories store all message data -->
+        <!-- in the database. -->
+        <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
+            <protocols>
+                <protocol>db</protocol>
+            </protocols>
+            <types>
+                <type>MAIL</type>
+            </types>
+            <config>
+                <sqlFile>file://conf/sqlResources.xml</sqlFile>
+                <!-- Set the size threshold for in memory handling of storing operations -->
+                <!-- Default is currently 409600000 due to a bug with mysql and binary stream -->
+                <!-- currently under investigation. Please change this only if you know what -->
+                <!-- you do. -->
+                <!--
+                <inMemorySizeLimit>4096</inMemorySizeLimit>
+                -->
+            </config>
+        </repository>
+
+        <!-- These repositories store message delivery and headers in the DB, and the body to the filesystem -->
+        <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
+            <protocols>
+                <protocol>dbfile</protocol>
+            </protocols>
+            <types>
+                <type>MAIL</type>
+            </types>
+            <config>
+                <sqlFile>file://conf/sqlResources.xml</sqlFile>
+                <filestore>file://var/dbmail</filestore>
+            </config>
+        </repository>
+ 
+        <!-- The mbox repository is designed for MAIL only; SPOOL performance would be less than ideal-->
+        <repository class="org.apache.james.mailrepository.file.MBoxMailRepository">
+            <protocols>
+                <protocol>mbox</protocol>
+            </protocols>
+            <types>
+                <type>MAIL</type>
+            </types>
+            <!-- Set if the messages should be listed sorted. False by default -->
+            <config FIFO="false"/> 
+        </repository>
+        
+        <repository class="org.apache.james.filepair.FilePersistentObjectRepository">
+            <protocols>
+                <protocol>file</protocol>
+            </protocols>
+            <types>
+                <type>OBJECT</type>
+            </types>
+            <models>
+                <model>SYNCHRONOUS</model>
+                <model>ASYNCHRONOUS</model>
+                <model>CACHE</model>
+            </models>
+        </repository>
+
+        <repository class="org.apache.james.filepair.FilePersistentStreamRepository">
+            <protocols>
+                <protocol>file</protocol>
+            </protocols>
+            <types>
+                <type>STREAM</type>
+            </types>
+            <models>
+                <model>SYNCHRONOUS</model>
+                <model>ASYNCHRONOUS</model>
+                <model>CACHE</model>
+            </models>
+        </repository>
+        
+        <!-- If you enable this you need to make sure that embedded Jackrabbit instance is started as well. Check the container configuration -->  
+        <!--
+        <repository class="org.apache.james.mailrepository.jcr.JCRMailRepository">
+            <protocols>
+                <protocol>jcr</protocol>
+            </protocols>
+            <types>
+                <type>MAIL</type>
+            </types>
+            <config>
+                <repository>//localhost/jackrabbit.repository</repository>
+                <username>admin</username>
+                <password>admin</password>
+                <workspace>default</workspace>
+            </config>
+        </repository>
+        -->
+    </repositories>
+</mailstore>
