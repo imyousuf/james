@@ -25,14 +25,14 @@
 
 <body>
 
-  <section name="James Management">
+  <section name="Manage James Server">
   
     <p>You can manage James via:</p>
     
-    <ul>
+    <ol>
       <li>JMX</li>
       <li>Remote Manager</li>
-    </ul>
+    </ol>
     
     <p>You need to make sure that your user/domain/mail repository configuration is correct before managing.  If 
     you change your user/domain/mail repository type (i.e. file to database) or the configuration of your user repository 
@@ -42,7 +42,7 @@
     <p>After you've done this, restart James to ensure that any changes you've made in the configuration are incorporated into 
     the running system.  You are now ready to create users/domains.</p>
 
-    <subsection name="Management via JMX">
+    <subsection name="Manage via JMX">
     
       <p>James can be managed via JMX. Simply launch jconsole to access 
         the exposed attributes and methods.</p>
@@ -61,9 +61,9 @@
   
     </subsection>
   
-    <subsection name="Management via Telnet">
+    <subsection name="Manage via Telnet">
   
-      <p>Once James is up and listening, adding a user is simple:</p>
+      <p>Once James is up and listening, manage via telnet is simple:</p>
       <ul>
         <li>Telnet to the host and port on which the RemoteManager is listening.  For command-line telnet clients 
             this is generally done by typing "telnet &lt;host&gt; &lt;port&gt;" where &lt;host&gt; is the James 

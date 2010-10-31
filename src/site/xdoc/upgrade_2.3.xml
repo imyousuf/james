@@ -27,11 +27,15 @@
 
   <section name="Migration Tool">
 
-    <p>Provide a tool to migrate 2.3 mail-repositories to 3.0 mailbox-stores</p>
-    <p><a href="https://issues.apache.org/jira/browse/JAMES-1052">https://issues.apache.org/jira/browse/JAMES-1052</a></p>
+    <p>We are working on a tool that will migrate 2.3 mail and user
+      repositories to 3.0 mailbox store and user repository.</p>
+
+    <p>See <a href="https://issues.apache.org/jira/browse/JAMES-1052">https://issues.apache.org/jira/browse/JAMES-1052</a>
+       and <a href="https://issues.apache.org/jira/browse/JAMES-1090">https://issues.apache.org/jira/browse/JAMES-1090</a>
+       to follow progress on this.</p>
 
   </section>
-
+<!-- 
   <section name="Upgrading Comments">
     <p>James upgrading involves a number of steps, each of which is described in some detail in the 
     following sections.  But as this sequence of steps has confused some users in the past, additional 
@@ -73,7 +77,7 @@
     <section name="Start James">
     <p> Now you should be able to start james without problems.</p>
   </section>
-
+ -->
 </body>
 
 </document>

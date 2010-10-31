@@ -20,12 +20,14 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Logging</title>
+  <title>James 3.0 - Monitor via Logging</title>
  </properties>
 
 <body>
 
-  <section name="Logging">
+  <section name="Monitor via Logging">
+  
+    <p>Use the well-known log4j system.</p>
   
   </section>
 

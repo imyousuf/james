@@ -25,7 +25,7 @@
 
 <body>
 
-  <section name="Configuration">
+  <section name="Configure James Server">
   
     <p>All configuration files resides in the ./conf/ and ./conf/META-INF/ directories.
       You can/must configure James for the following:</p>

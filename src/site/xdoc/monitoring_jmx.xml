@@ -20,16 +20,27 @@
 <document>
 
  <properties>
-  <title>James 3.0 - JMX Monitoring</title>
+  <title>James 3.0 - Monitor via JMX</title>
  </properties>
 
 <body>
 
   <section name="JMX Monitoring">
   
-    <subsection name="Queues Monitoring">
-  
-    </subsection>
+    <p>You can monitor James Server via JMX.</p>
+
+    <ul>
+      <li>smtp</li>
+      <li>imap</li>
+      <li>lmtp</li>
+      <li>pop3</li>
+      <li>remotemanager</li>
+      <li>dnsservice</li>
+      <li>domainlist</li>
+      <li>queues</li>
+    </ul>
+
+    <p>Connections are active per component, limits,... are displayed.</p>
 
   </section>
 

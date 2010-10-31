@@ -25,7 +25,7 @@
 
 <body>
 
-<section name="Requirements">
+<section name="Requirements for James Server">
 
 <subsection name="Java Virtual Machine">
 
@@ -53,31 +53,34 @@
 
 </section>
 
-<section name="Installing the Binary">
+<section name="Install James Server - Short">
 
   <p>Obtain the full James binary distribution from the <a href="http://james.apache.org/download.cgi">James 
-  release mirrors</a>.  Unpack the archive into your James installation directory.  Go to the bin subdirectory of the 
-  installation directory and run "./james start".</p>
+    release mirrors</a>.  Unpack the archive into your James installation directory.  Go to the bin subdirectory of the 
+    installation directory and run "./james start".</p>
 
 </section>
 
-<section name="Step 0: Build - only for source packages"> 
+
+<section name="Install James Server - Long">
+
+<subsection name="Step 0: Build - only for source packages"> 
 
   <p>If you have downloaded a binary distribution, you do not need to build James. 
     Proceed directory to Step 1.</p>
   
   <p>If you have download a source package, process to the <a href="dev_build.html">build</a>.</p>
 
-</section>
+</subsection>
 
-<section name="Step 1: Deploy"> 
+<subsection name="Step 1: Deploy"> 
 
   <p>Extract or copy all the files in the archive or dist 
     directory into your installation directory. </p>
 
-</section>
+</subsection>
 
-<section name="Step 2: Configure">
+<subsection name="Step 2: Configure">
 
   <p>After installing the binary, the next step is to adjust the initial configuration.  The server should be stopped, and then 
   configuration can proceed.  The most essential configuration is set in the config.xml file.  This file can be 
@@ -127,9 +130,9 @@
     and the IP address of a DNS server. Once you have edited the configuration files, 
     press 'Enter' on the terminal where Avalon is waiting. </p>
 
-</section>
+</subsection>
 
-<section name="Step 3: Kickstart">
+<subsection name="Step 3: Kickstart">
 
   <p>Once you have edited the configuration file you will need to restart James so that the changes take 
   effect.  When James starts, a list of the James services and the ports on which they are listening should 
@@ -159,6 +162,8 @@
       Actions that will be taken by JAMES on incoming mail are configured in
       the mailet pipe line (/conf/JAMES.conf.xml). Look at it if you want to
       understand what's happening.</p>
+
+</subsection>
 
 </section>
 

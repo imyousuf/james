@@ -20,16 +20,16 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Monitoring Instructions</title>
+  <title>James 3.0 - Monitor James Server</title>
  </properties>
 
 <body>
 
-  <section name="Monitoring Instructions">
+  <section name="Monitor James Server">
   
-    <p>smtp/imap/lmtp/pop3/remotemanager/dnsservice/domainlist</p>
-    <p>connections are active per component, whats the limit,...</p>
-
+    <p>You can monitor James Server via <a href="monitoring_logging.html">logging</a>
+       and via <a href="monitoring_jmx.html">JMX</a>.</p>
+  
   </section>
   
 </body>
