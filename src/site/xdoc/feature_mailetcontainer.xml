@@ -35,37 +35,40 @@
 
     <p>As it stands today, the Mailet API defines interfaces for both Matchers and Mailets.</p>
 
-    <p>Matchers, as their name would suggest, match mail messages against certain conditions.  They 
-    return some subset (possibly the entire set) of the original recipients of the message if there 
-    is a match.  An inherent part of the Matcher contract is that a Matcher should not induce any changes
-    in a message under evaluation.</p>
-
-    <p>Mailets are responsible for actually processing the message.  They may alter the message in any fashion,
-    or pass the message to an external API or component.  This can include delivering a message to its destination 
-    repository or SMTP server.</p>
+    <ul>
+      <li>Matchers, as their name would suggest, match mail messages against certain conditions.  They 
+          return some subset (possibly the entire set) of the original recipients of the message if there 
+          is a match.  An inherent part of the Matcher contract is that a Matcher should not induce any changes
+          in a message under evaluation.</li>
+      <li>Mailets are responsible for actually processing the message.  They may alter the message in any fashion,
+          or pass the message to an external API or component.  This can include delivering a message to its destination 
+          repository or SMTP server.</li>
+    </ul>
 
     <p>The Mailet API is currently in its second revision.  Although, the Mailet API is expected to undergo substantial changes in the near future, it is our aim that existing Mailets that abided purely by the prior Mailet API interfaces will continue to run with the revised specification.</p>
 
-
-    <a href="http://james.apache.org/mailet/index.html">Mailet Site</a>
-    <a href="http://james.apache.org/mailet/api/index.html">Mailet API</a>
-    <a href="http://james.apache.org/mailet/base/index.html">Mailet Toolkit</a>
-    <a href="http://james.apache.org/mailet/crypto/index.html">Mailet Crypto</a>
-    <a href="http://james.apache.org/mailet/standard/index.html">Mailet Sieve</a>
-    <a href="http://james.apache.org/mailet/standard/index.html">Mailet Standard</a>
-    <a href="http://james.apache.org/mailet/maven-mailetdocs-plugin/index.html">Mailet Docs</a>
-    <a href="/james-server-mailets-function/mailet-report.html">Server Mailets</a>
-
-
-    <p>The Javadoc for the Mailet API can be found <a href="apidocs/index.html">here</a>.</p>
+    <p>The Javadoc for the Mailet API can be found <a href="http://james.apache.org/mailet/api/apidocs/">here</a>.</p>
 
     <p>James bundles a number of Matchers and Mailets in its distribution.  Descriptions of provided matchers 
-    can be found <a href="provided_matchers.html">here</a>, while descriptions of provided mailets can be found 
-    <a href="provided_mailets.html">here</a>.</p>
+    can be found <a href="dev_provided_matchers.html">here</a>, while descriptions of provided mailets can be found 
+    <a href="dev_provided_mailets.html">here</a>.</p>
+    
+    <p>You can read more on mailets on following web sites:</p>
+
+    <ul>
+      <li><a href="http://james.apache.org/mailet/index.html">Mailet Site</a></li>
+      <li><a href="http://james.apache.org/mailet/api/index.html">Mailet API</a></li>
+      <li><a href="http://james.apache.org/mailet/base/index.html">Mailet Toolkit</a></li>
+      <li><a href="http://james.apache.org/mailet/crypto/index.html">Mailet Crypto</a></li>
+      <li><a href="http://james.apache.org/mailet/standard/index.html">Mailet Sieve</a></li>
+      <li><a href="http://james.apache.org/mailet/standard/index.html">Mailet Standard</a></li>
+      <li><a href="http://james.apache.org/mailet/maven-mailetdocs-plugin/index.html">Mailet Docs</a></li>
+      <li><a href="/james-server-mailets-function/mailet-report.html">Server Mailets</a></li>
+    </ul>
 
   </section>
 
-  <section name="The Spooler, Matchers and Mailets">
+  <section name="Matchers and Mailets, Processors and SpoolManager">
   
     <p>James separates the services that deliver mail to James (i.e. SMTP, FetchMail) 
     from the engine that processes mail after it is received by James.  The 
@@ -92,8 +95,6 @@
       and that message is processed by the mailet.  The recipients for the other mail are set to the
       non-matching recipients, and that message is not processed by the mailet.</p>
     
-      <p>More on matchers and mailets can be found <a href="mailet_api.html">here</a>.</p>
-    
     </subsection>
 
     <subsection name="Processors">
@@ -113,21 +114,25 @@
     
     </subsection>
         
-    <p>The SpoolManager continually checks for mail in the spool repository.  When
-    mail is first found in the repository, it is delivered to the root processor.  
-    Mail can be placed on this spool from a number of sources (SMTP, FetchPOP, a 
-    custom component).  This spool repository is also used for storage of mail that is
-    being redirected from one processor to another.  Mail messages are driven through 
-    the processor tree until they reach the end of a processor or are marked completed 
-    by a mailet.</p>
+    <subsection name="SpoolManager">
+
+      <p>The SpoolManager continually checks for mail in the spool repository.  When
+      mail is first found in the repository, it is delivered to the root processor.  
+      Mail can be placed on this spool from a number of sources (SMTP, FetchPOP, a 
+      custom component).  This spool repository is also used for storage of mail that is
+      being redirected from one processor to another.  Mail messages are driven through 
+      the processor tree until they reach the end of a processor or are marked completed 
+      by a mailet.</p>
     
-    <p>More on configuration of the SpoolManager can be found <a href="spoolmanager_configuration.html">here</a>.</p>
+      <p>More on configuration of the SpoolManager can be found <a href="configuration_mailetcontainer.html">here</a>.</p>
     
-    <p>Much of the power of James lies in the SpoolManager component.  Custom matchers and 
-    mailets can be easily developed to address an administrator's particular needs.  The 
-    processor tree can easily be configured to sort, filter, and deliver mail based on any 
-    number of criteria.  Mail administrators new to James should spend some time learning how 
-    to configure the SpoolManager to meet their needs.</p>
+      <p>Much of the power of James lies in the SpoolManager component.  Custom matchers and 
+      mailets can be easily developed to address an administrator's particular needs.  The 
+      processor tree can easily be configured to sort, filter, and deliver mail based on any 
+      number of criteria.  Mail administrators new to James should spend some time learning how 
+      to configure the SpoolManager to meet their needs.</p>
+ 
+     </subsection>
   
   </section>
   

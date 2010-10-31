@@ -86,8 +86,8 @@
     <menu name="Developers Corner">
       <item name="Architecture" href="/dev_architecture.html" />
       <item name="Build from source" href="/dev_build.html" />
-      <item name="Provided Mailets" href="/dev_mailets.html" />
-      <item name="Provided Matchers" href="/dev_matchers.html" />
+      <item name="Provided Mailets" href="/dev_provided_mailets.html" />
+      <item name="Provided Matchers" href="/dev_provided_matchers.html" />
       <item name="Extend James" href="/dev_extend.html" collapse="true" >
         <item name="Custom Mailet" href="/dev_custom_mailet.html" />
         <item name="Custom Matcher" href="/dev_custom_matcher.html" />
