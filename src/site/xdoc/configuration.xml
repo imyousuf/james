@@ -29,11 +29,11 @@
   
     <p>All configuration files resides in the conf and conf/META-INF directories.</p>
     
-    <p>You can configure James for on the following:</p>
+    <p>You can/must configure James for the following:</p>
     
     <ul>
         <li><a href="configuration_serverwide.html">Server-wide Configuration</a></li>
-        <li><a href="configuration_domains.html">Domains Configuration</a></li>
+        <li><a href="configuration_domainlist.html">Domains Configuration</a></li>
         <li><a href="configuration_users.html">Users Configuration</a></li>
         <li><a href="configuration_mailstores.html">Mail Stores Configuration</a></li>
         <li><a href="configuration_dns.html">DNS Configuration</a></li>

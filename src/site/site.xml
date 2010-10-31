@@ -58,7 +58,7 @@
       <item name="1. Install James" href="/installation.html" />
       <item name="2. Configure James" href="/configuration.html" collapse="true" >
         <item name="Server-wide" href="/configuration_serverwide.html" />
-        <item name="Domains" href="/configuration_domains.html" />
+        <item name="DomainList" href="/configuration_domainlist.html" />
         <item name="Users" href="/configuration_users.html" />
         <item name="Mail Stores" href="/configuration_mailstores.html" />
         <item name="DNS" href="/configuration_dns.html" />
