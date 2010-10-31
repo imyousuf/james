@@ -20,19 +20,27 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Build James</title>
+  <title>James 3.0 - Build James from Source</title>
 </properties>
 
 <body>
 
-  <p>This step is not necessary to use the standard out of the box version of James.  A 
-  pre-built binary version of James is available from the James download directory.  But 
-  if you wish to customize the James source code, it will be necessary for you to build the 
-  distribution yourself.</p>
+  <section name="Why Build from Source?">
+  
+    <p>This step is not necessary to use the standard out of the box version of James.  A 
+       pre-built binary version of James is available from the James download directory.</p>
+       
+     <p>But if you wish to customize the James source code, it will be necessary for you to build the 
+       distribution yourself.</p>
+  
+     <p>You can read on this page how to build from the command line and from eclipse IDE.</p>
+     
+  </section>
   
   <section name="Getting the Source Code">
   
     <p>There are two ways to get the James source code.</p>
+
     <ol>
       <li>Download the source distribution - the source is available from the 
           <a href="http://james.apache.org/download.cgi">James release mirrors</a>.
@@ -43,8 +51,9 @@
           can be found <a href="http://www.apache.org/dev/version-control.html">here</a>.
           James server repository is <a href="http://svn.apache.org/repos/asf/james/server/">here</a>.</li>
     </ol>
-    <p>Currently, only the second option is available for James 3.0</p>
+
     <p>We consider in this document that you have checked-out James source code in JAMES_SRC_HOME directory.</p>
+
     <p>Consult the <a href="james_architecture.html">architecture</a> page if you want to learn
     more on the internal source structure.</p>
 
@@ -60,8 +69,8 @@
       <li>Maven - This is a Java-tailored, XML-configured, extensible build or make system. You need ant (2.2.1+) in order
           to build James. You can get the latest version of maven <a href="http://maven.apache.org/download.html">here</a>.
           Installation instructions for maven are also available on the same page <a href="http://maven.apache.org/download.html">http://maven.apache.org/download.html</a>.</li>
-      <li>Set (on windows) or export (on Unix) MAVEN_OPTS to tune the memory needed by maven with "MAVEN_OPTS=-Xmx1024m -XX:MaxPermSize=128m"</li>
     </ol>
+    <p>Set (on windows) or export (on Unix) MAVEN_OPTS to tune the memory needed by maven with "MAVEN_OPTS=-Xmx1024m -XX:MaxPermSize=128m"</p>
 
   </section>
   

@@ -31,19 +31,23 @@
     <p>James is a multi-protocol message processing and storage engine. James
       currently consists of:
       <ul>
-        <li>Two mail prototcol servers (SMTP and POP3),</li>
-        <li>a remote administration server,</li>
+        <li>Four mail prototcol servers (SMTP, POP3, IMAP4 and LMTP).</li>
+        <li>A remote administration server.</li>
   <!--      <li>an NNTP server,</li>-->
-        <li>a mail processing engine that supports the Mailet API</li>
-        <li>file-system message storage and a message storage interface to RDBMS's</li>
-        <li>file-system user record storage and an experimental interface to LDAP directories</li>
-        <li>support for TLS (SSL) for POP3 and remote administration</li>
-        <li>support for SMTP auth</li>
+        <li>A mail processing engine that supports the Mailet API.</li>
+        <li>File-system message storage and a message storage interface to RDBMS's.</li>
+        <li>File-system user record storage and an experimental interface to LDAP directories.</li>
+        <li>Support for TLS (SSL) for POP3 and remote administration.</li>
+        <li>Support for SMTP auth.</li>
       </ul>
     </p>
   
     <p>James is deployed on top of Spring.</p>
+    
+  </section>
 
+  <section name="Project Organization">
+  
     <img src="images/uml/org.apache.james_package.png"/>
   
   </section>
