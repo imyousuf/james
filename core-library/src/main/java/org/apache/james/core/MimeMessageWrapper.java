@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.util.InternetPrintWriter;
+import org.apache.james.util.stream.CombinedInputStream;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
@@ -559,6 +560,24 @@ public class MimeMessageWrapper
         } else return super.getRawInputStream();
     }
 
+    /**
+     * Return an {@link InputStream} which holds the full content of the message. This method
+     * tries to optimize this call as far as possible
+     * 
+     * @return messageInputStream
+     * @throws MessagingException
+     */
+    public InputStream getMessageInputStream() throws MessagingException{
+        if (!messageParsed && !isModified() && source != null) {
+            try {
+                return source.getInputStream();
+            } catch (IOException e) {
+                throw new MessagingException("Unable to get inputstream", e);
+            }
+        } else {
+            return new CombinedInputStream(new InputStream[] { new InternetHeadersInputStream(getAllHeaderLines()), getRawInputStream()});
+        }
+    }
     
     
 }

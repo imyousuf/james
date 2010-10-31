@@ -25,58 +25,79 @@ import java.io.InputStream;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.james.util.stream.CombinedInputStream;
+
 /**
- * {@link InputStream} which contains the headers and the Body of the
- * wrapped {@link MimeMessage}
+ * Provide an {@link InputStream} over an {@link MimeMessage}
  * 
  */
 public class MimeMessageInputStream extends InputStream {
-    private final InputStream headersInputStream;
-    private final InputStream bodyInputStream;
-    private int cStream = 0;
+    private InputStream in;
 
     @SuppressWarnings("unchecked")
     public MimeMessageInputStream(MimeMessage message) throws IOException {
+        MimeMessage m = message;
+        if (m instanceof MimeMessageCopyOnWriteProxy) {
+            m = ((MimeMessageCopyOnWriteProxy) message).getWrappedMessage();
+        }
         try {
-            headersInputStream = new InternetHeadersInputStream(message.getAllHeaderLines());
 
-            // use the raw InputStream because we want to have no conversion here and just obtain the original message body
-            this.bodyInputStream = message.getRawInputStream();
+            if (m instanceof MimeMessageWrapper) {
+                in = ((MimeMessageWrapper) m).getMessageInputStream();
+            } else {
+                in = new CombinedInputStream(new InputStream[] { new InternetHeadersInputStream(message.getAllHeaderLines()), message.getRawInputStream() });
+
+            }
         } catch (MessagingException e) {
             throw new IOException("Unable to read MimeMessage: " + e.getMessage());
         }
+
     }
 
     @Override
     public int read() throws IOException {
-        int i = -1;
-        if (cStream == 0) {
-            i = headersInputStream.read();
-        } else {
-            i = bodyInputStream.read();
-        }
-
-        if (i == -1 && cStream == 0) {
-            cStream++;
-            return read();
-        }
-        return i;
+        return in.read();
 
     }
 
-    /** Closes all streams */
+    @Override
     public void close() throws IOException {
-        headersInputStream.close();
-        bodyInputStream.close();
+       in.close();
     }
 
-    /** Is there more data to read */
+    @Override
     public int available() throws IOException {
-        if (cStream == 0) {
-            return headersInputStream.available() + bodyInputStream.available() + 2;
-        } else {
-            return bodyInputStream.available();
-        }
+        return in.available();
+    }
+
+    @Override
+    public void mark(int readlimit) {
+        in.mark(readlimit);
+    }
+
+    @Override
+    public boolean markSupported() {
+        return in.markSupported();
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        return in.read(b, off, len);
+    }
+
+    @Override
+    public int read(byte[] b) throws IOException {
+        return in.read(b);
+    }
+
+    @Override
+    public void reset() throws IOException {
+        in.reset();
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+        return in.skip(n);
     }
 
 }
