@@ -23,24 +23,86 @@
      <title>James 3 - Index</title>
   </properties>
 
+  <head>
+  
+    <script type="text/javascript">
+
+      $(function(){
+        $('#tabs').tabs();
+      });
+      
+    </script>
+    
+  </head>
+
 <body>
 
-  <section name="James 3.0-M1">
-  
-	    <p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) is a 100% pure Java SMTP, IMAP4 and POP3 Mail 
+  <table><tr><td>
+
+    <div id="tabs" style="min-width:550px;">
+    
+      <ul>
+        <li><a href="#tabs-1">James Server 3</a></li>
+        <li><a href="#tabs-2">Advantages</a></li>
+      </ul>
+
+     <div id="tabs-1">
+      
+	    <p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) Version 3 
+	      is a 100% pure Java SMTP, IMAP4 and POP3 Mail 
 	      server designed to be a complete and portable enterprise mail engine solution.  
 	      James is based on currently available open protocols.</p>
 	    
 	    <p>This documentation is intended to be an introduction to the concepts behind the James usage, as well 
-	      as a guide to <a href="installation_instructions.html">install</a>, <a href="configuration_instructions.html">configure</a> 
-	      and <a href="build_james.html">develop</a> James server.</p>
-	    
-	    <p>You can download stables releases from <a href="http://james.apache.org/download.cgi">here</a>
-	      (or latest snapshots from <a href="http://people.apache.org/builds/james/nightly/">here</a>).</p>
+	      as a guide to <a href="installation.html">install</a>, <a href="configuration.html">configure</a> 
+	      and <a href="dev_build.html">develop</a> James server.</p>
+
+        <p>Download your mail server.</p>
+        <p>
+          <span class="minibutton btn-download">
+            <a href="javascript:window.location='download.cgi';">
+              <span><span class="icon"></span>Early James Server 3.0-M1</span>
+            </a>
+          </span>
+        </p>
+        <p>
+          <span class="minibutton btn-download">
+            <a href="javascript:window.location='http://people.apache.org/builds/james/nightly/';">
+              <span><span class="icon"></span>Snapshot James Server 3.0</span>
+            </a>
+          </span>
+        </p>
 	
+	    
+        <p>James 3.0 represents the leading edge of development. This codestream has many more
+          features than the 2.3 code, but is not as well tested in production. Reasonable
+          configuration compatibility has been retained with 2.3.2.</p>
+          
+        <p>James 3.0 requires Java 1.5 but Java 1.6 is recommended. A migration guide for 
+           users willing to upgrade from 2.3 to 3.0 is <a href="upgrade_2.3.html">available</a>. 
+           The NNTP News server present in James 2.3 has been removed from the 3.0 release line.</p>
+    
+     </div>
+     
+     <div id="tabs-2">
+     
         <table>
         
          <tr><td width="50%">
+
+          <subsection name="Standard">
+          
+	        <p>100% pure Java Mail server designed to be a complete and portable enterprise 
+	           mail engine solution.</p>
+	           
+	        <p>Supports currently available IETF protocols, including SMTP, LMTP, POP3 and IMAP4 
+	           James is able to store user and message data either in a file-system (Maildir), 
+	           any JPA-compatible database and even JCR, allowing fast, reliable, 
+	           even real-time replicated storage.</p>
+	         
+	      </subsection>
+		      
+         </td><td width="50%">
 
           <subsection name="Configureable">
           
@@ -50,7 +112,9 @@
         
           </subsection>
           
-         </td><td width="50%">
+         </td></tr>
+        
+         <tr><td width="50%">
 
           <subsection name="Manageable">
         
@@ -60,82 +124,74 @@
 
           </subsection>
           
-         </td></tr>
-        
-          <tr><td width="50%">
-
-          <subsection name="Performant">
-           
-            <p>A special focuss has been brought to the performance: James can process more than
-               100 mails per second - <a href="feature_performance.html">read more</a></p>
-        
-            <img src="images/jmx_monitoring/jmx_process_root.png" height="400px" />
-        
-          </subsection>
-         
          </td><td width="50%">
 
-          <subsection name="Secured">
-        
-            <p>James is a secured mail server by default - <a href="feature_security.html">read more</a>.</p>
-        
-          </subsection>
-          
-         </td></tr>
-        
-         <tr><td width="50%">
-        
   	      <subsection name="Extensible">
 	    
 	        <p>James serves as a mail application platform.  The James project hosts the Apache Mailet API, 
-	          and provides the Mailet container.  These features makes it easy to design, write, and deploy 
+	          and provides the Mailet container. These features makes it easy to design, write, and deploy 
 	          custom applications for mail processing.  This modularity and ease of customization is one of James' 
 	          strengths, and can allow administrators to produce powerful applications surprisingly easily.</p>
 	 
+	        <p>Provides a powerful, flexible mail application engine through support for the Apache Mailet 
+	           API.  With its Mailet pipeline architecture, James can be used not only to provide standard e-mail 
+	           services, but also to implement custom e-mail applications.</p>
+	           
+	      </subsection>
+
+         </td></tr>
+        
+        <tr><td width="50%">
+        
+ 	      <subsection name="Developer-Friendly">
+	    
 	        <p>James 3.0 is now built on top of Spring 3.0 in replacement of trunk version of the <a href="http://avalon.apache.org/">Avalon</a> Application Framework.
 	           With Spring, We keep the good development practices introduced by Avalon such as 
-	           Component Oriented Programming and  Inversion of Control. 
-	           The stable and robust Spring container provides a strong foundation for the James server.</p>
+	           Component Oriented Programming and  Inversion of Control. The stable and robust 
+	           Spring container provides a strong foundation for the James server.</p>
 	    
 	        <p>The internal and exposed APIs for this 3.0-M1 release are under current validation and are 
 	          expected to be subject to change - <a href="dev_architecture.html">read more</a>.</p>
 	         
-            <img src="images/uml/org.apache.james_package_part.png" width="400px" />
+            <img src="images/uml/org.apache.james_package_small.png" width="400px" />
         
   	      </subsection>
   	      
   	    </td><td width="50%">
 	
-	      <subsection name="Features">
-	    
-	        <p>James 3.0 represents the leading edge of development. This codestream has many more
-	          features than the 2.x code, but is not as well tested in production. Reasonable
-	          configuration compatibility has been retained with 3.0. James 3.0 requires Java 1.5 but Java 1.6 is recommended. 
-	          A migration guide for users willing to upgrade from 2.3 to 3.0 is <a href="james_upgrade.html">available</a>. 
-	          The NNTP News server present in James 2.3 has been removed from the 3.0 release line.</p>
-	    
-	        <ul>
-	          <li>100% pure Java Mail server designed to be a complete and portable enterprise 
-	              mail engine solution.</li>
-	          <li>Supports currently available IETF protocols, including SMTP, LMTP, POP3 and IMAP4 
-	              James is able to store user and message data either in a file-system (Maildir), any JPA-compatible database
-	              and even JCR, allowing fast, reliable, even real-time replicated storage.</li>
-	          <li>Provides a powerful, flexible mail application engine through support for the Apache Mailet 
-	              API.  With its Mailet pipeline architecture, James can be used not only to provide standard e-mail 
-	              services, but also to implement custom e-mail applications.</li>
-	          <li>Deployed in production environments and has proven itself to be a robust 
-	              and high performance mail solution.  Tests indicate that version 3.0 
-	              is able to maintain a constant mail throughput rate of thousands of 
-	              messages/minute for continuous periods.</li>
-  	        </ul>
-	      
-  	      </subsection>
+          <subsection name="Performant">
+           
+            <p>A special focuss has been brought to the performance: James can process more than
+               100 mails per second. Deployed in production environments and has proven itself 
+               to be a robust  and high performance mail solution. Tests indicate that 
+               version 3.0 is able to maintain a constant mail throughput rate of thousands of 
+	           messages/minute for continuous periods  - <a href="feature_performance.html">read more</a></p>
+
+            <img src="images/jmx_monitoring/jmx_process_root.png" height="400px" />
+        
+          </subsection>
+         
+  	    </td></tr>
   	      
+        <tr><td width="50%">
+        
+          <subsection name="Secured">
+        
+            <p>James is a secured mail server by default - <a href="feature_security.html">read more</a>.</p>
+        
+          </subsection>
+
+  	    </td><td width="50%">
+	
   	    </td></tr>
   	      
    	    </table>
+   	    
+   	 </div>
+   	 
+   </div>
 
-  </section>
+  </td></tr></table>
 
 </body>
 
