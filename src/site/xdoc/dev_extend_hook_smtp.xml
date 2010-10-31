@@ -131,8 +131,8 @@
          If you need to store temporary informations within the SMTP Transaction/Session you should
          use the SMTPSession.getState().put(...) and SMTPSession.getConnectionState().put(...) methods.</p>
  
-      <p>For a more explanation see the <a href="apidocs/index.html">apidocs</a> for the protocols library which
-         is used by James SMTPServer.</p>
+      <p>For a more explanation see the <a href="http://james.apache.org/protocols/apidocs/index.html">apidocs</a> for the protocols library which
+         is used by James SMTP Server.</p>
 
     </subsection>
 
