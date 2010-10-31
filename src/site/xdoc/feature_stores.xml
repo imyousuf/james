@@ -24,19 +24,27 @@
  </properties>
 
 <body>
+
+<section name="Mailbox Store">
+
+<p>James Server uses the <a href="http://james.apache.org/mailbox">mailbox</a> storage system 
+to store the users mailboxes.</p>
+
+<p>The mailbox library supports different persistence mecanisms: MailDir, Database (via JPA) and JCR.</p>
+
+</section>
+
 <section name="Repositories">
 
-<p>James uses a number of different repositories to both store message data (email, news messages) and 
+<p>James uses also a number of different repositories to both store message data (non mailbox emails, news messages in V2) and 
 user information.  User repositories store user information, including user names, authentication 
 information, and aliases.  Mail repositories store messages that have been delivered locally.  Spool 
 repositories store messages that are still being processed.  Finally, news repositories are used to
 store news messages.</p>
 
-</section>
-<section name="Storage Types">
-
 <p>Aside from the type of data they store, repositories are distinguished by 
 where they store data.  There are three types of storage - File, Database, and DBFile.</p>
+
 <subsection name="File Repositories">
 
 <p>File-based repositories store all data in the file system.  In general, these repositories are extremely
@@ -52,6 +60,7 @@ And "file:///var/mail/spool/" (note the extra '/') would refer to the directory 
 <p>All repository types (mail, spool, user, and news) have file-based implementations.  No special configuration is required to enable file-based repositories</p>
 
 </subsection>
+
 <subsection name="Database (JDBC) Repositories">
 
 <p>Database repositories store all data in an administrator-supplied database.  Configuration is somewhat
@@ -71,6 +80,7 @@ the particular table associated with the repository.</p>
 <p>Mail, spool, and user repositories have JDBC-based implementations.</p>
 
 </subsection>
+
 <subsection name="DBFile Repositories">
 
 <p>This is a special repository type used only for mail repositories.  DBFile repositories store the body of
@@ -79,8 +89,17 @@ to minimize the size of data stored in the database, while conserving most of th
 database repository.</p>
 
 <p>Only mail repositories have dbfile-based implementations.</p>
+
+</subsection>
+
+<subsection name="JCR Repositories">
+
+<p>Only user repositories have jcr-based implementations.</p>
+
 </subsection>
 
 </section>
+
 </body>
+
 </document>
