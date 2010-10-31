@@ -57,7 +57,7 @@
 	      as a guide to <a href="installation.html">install</a>, <a href="configuration.html">configure</a> 
 	      and <a href="dev_build.html">develop</a> James server.</p>
 
-        <p>Download your mail server.</p>
+        <p>Download James Mail Server.</p>
         <p>
           <span class="minibutton btn-download">
             <a href="javascript:window.location='download.cgi';">
@@ -73,7 +73,6 @@
           </span>
         </p>
 	
-	    
         <p>James 3.0 represents the leading edge of development. This codestream has many more
           features than the 2.3 code, but is not as well tested in production. Reasonable
           configuration compatibility has been retained with 2.3.2.</p>
