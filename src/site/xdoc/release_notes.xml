@@ -28,9 +28,14 @@
 
 <p>This document records what was done between releases.</p>
 
-<p><b>As always, thank you to everyone who contributed code, documentation, 
-bug reports, and feedback.</b></p>
-
+       <div class="ui-widget">
+			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+				<p><span class="ui-icon ui-icon-circle-plus" style="float: left; margin-right: .3em;"></span>
+				As always, thank you to everyone who contributed code, 
+				documentation, bug reports, and feedback.</p>
+			</div>
+		</div>
+      
 <section name="Version 3.0-M1 (Milestone 1)">
 
 <p>Released 01 November 2010</p>

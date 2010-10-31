@@ -47,6 +47,13 @@
       </ul>
 
      <div id="tabs-1">
+     
+        <div class="ui-widget">
+			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<strong>Hey!</strong> James Server 3.0-M1 is out.</p>
+			</div>
+		</div>
       
 	    <p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) Version 3 
 	      is a 100% pure Java SMTP, IMAP4 and POP3 Mail 
