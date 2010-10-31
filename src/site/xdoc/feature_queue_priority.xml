@@ -25,15 +25,11 @@
 
 <body>
 
-  <section name="Queueing System">
-  
-  </section>
-  
-  <section name="Priority in the Queue">
+  <section name="Priority in the Spooling Queues">
   
     <p>Priority is supported when James (de)queues the mails during the spooling process.</p>
     
-    <p>For this just add a Mail header with name "MAIL_PRIORITY" to it.</p>
+    <p>For this just add a Mail header with name "MAIL_PRIORITY" to the mail you send.</p>
 
     <p>This mail header should use one of the following value:</p>
 
