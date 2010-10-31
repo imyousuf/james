@@ -72,13 +72,13 @@
       <li>clean - deletes the target directory, making the system ready for a clean build.</li>
       <li>compile - compiles the source code.</li>
       <li>test - run unit tests for James.</li>
-      <li><b>package - generates all the James distributions, packed. From the root directory, cd to 'spring-deployment/target' to have the build distribution.</b></li>
+      <li><b>package - generates all the James distributions, packed. From the root directory, cd to 'container-spring/target' to have the build distribution.</b></li>
       <li>javadocs:javadocs - builds the James javadocs.</li>
       <li>site - builds the entirety of the James website.</li>
     </ul>
     </p>
     <p>For example, invoke 'mvn package' to get a zip/tar of James distribution.</p>
-    <p>All built products are output in the 'spring-deployment/target' 
+    <p>All built products are output in the 'container-spring/target' 
       subdirectory of the James source directory.  
       This directory will be deleted if you run build with the clean argument.</p>
     <p><strong>Warning!</strong> Any changes you've made in the 'dist' directory 
@@ -120,9 +120,9 @@
       <p>Now you have James projects in Eclipse workspace.</p>
       <p>You still have to prepare the following to be able to run from Eclipse:</p>
       <ol>
-        <li>Copy the spring-beans.xml and log4j.properties from 'spring-deployment\src\main\config\james' directory 
-            to a source folder of 'spring-deployment' project (you can use for example the 'stage' folder as Eclipse source folder).</li>
-        <li>Copy all files (except spring-beans.xml and log4j.properties) from 'spring-deployment\src\main\config\james' 
+        <li>Copy the spring-beans.xml and log4j.properties from 'container-spring\src\main\config\james' directory 
+            to a source folder of 'container-spring' project (you can use for example the 'stage' folder as Eclipse source folder).</li>
+        <li>Copy all files (except spring-beans.xml and log4j.properties) from 'container-spring\src\main\config\james' 
             directory to a 'conf' folder ('conf' folder must be a subdirectory of the JAMES_SRC_HOME directory where you made the check-out).</li>
      </ol>
       <img src="./images/eclipse/eclipse_m2eclipse_projects.gif" width="300"/>
