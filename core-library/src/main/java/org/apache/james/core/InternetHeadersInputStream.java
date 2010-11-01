@@ -80,7 +80,7 @@ public class InternetHeadersInputStream extends InputStream{
                 return true;
             } catch (UnsupportedEncodingException e) {
                 // should never happen
-                throw new IOException("Unable to decode header string", e);
+                throw new IOException("US-ASCII encoding not supported by this platform ?!");
             }
         } else {
             return false;
