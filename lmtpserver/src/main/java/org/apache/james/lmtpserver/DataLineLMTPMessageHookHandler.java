@@ -173,11 +173,6 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
                 mailboxManager.getMailbox(MailboxPath.inbox(username), mailboxSession).appendMessage(new MimeMessageInputStream(mail.getMessage()), new Date(), mailboxSession, true, null);
                 mailboxManager.endProcessingRequest(mailboxSession);
                 response = new SMTPResponse(SMTPRetCode.MAIL_OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
-            } catch (IOException e) {
-                session.getLogger().info("Unexpected error handling DATA stream",e);
-
-                response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,
-                        DSNStatus.UNDEFINED_STATUS) + " Temporary error deliver message to " + recipient);
             
             } catch (MessagingException e) {
                 session.getLogger().info("Unexpected error handling DATA stream",e);

@@ -35,21 +35,19 @@ public class MimeMessageInputStream extends InputStream {
     private InputStream in;
 
     @SuppressWarnings("unchecked")
-    public MimeMessageInputStream(MimeMessage message) throws IOException {
+    public MimeMessageInputStream(MimeMessage message) throws MessagingException {
         MimeMessage m = message;
+       
+        // check if we need to use the wrapped message
         if (m instanceof MimeMessageCopyOnWriteProxy) {
             m = ((MimeMessageCopyOnWriteProxy) message).getWrappedMessage();
         }
-        try {
 
-            if (m instanceof MimeMessageWrapper) {
-                in = ((MimeMessageWrapper) m).getMessageInputStream();
-            } else {
-                in = new CombinedInputStream(new InputStream[] { new InternetHeadersInputStream(message.getAllHeaderLines()), message.getRawInputStream() });
-
-            }
-        } catch (MessagingException e) {
-            throw new IOException("Unable to read MimeMessage: " + e.getMessage());
+        // check if we can use optimized operations
+        if (m instanceof MimeMessageWrapper) {
+            in = ((MimeMessageWrapper) m).getMessageInputStream();
+        } else {
+            in = new CombinedInputStream(new InputStream[] { new InternetHeadersInputStream(message.getAllHeaderLines()), message.getRawInputStream() });
         }
 
     }
@@ -57,7 +55,6 @@ public class MimeMessageInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         return in.read();
-
     }
 
     @Override

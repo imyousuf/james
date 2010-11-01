@@ -19,7 +19,6 @@
 
 package org.apache.james.transport.mailets;
 
-import java.io.IOException;
 import java.util.Date;
 
 import javax.annotation.Resource;
@@ -154,8 +153,6 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
                             }
 
                             mailbox.appendMessage(new MimeMessageInputStream(mail), new Date(), session, true, null);
-                        } catch (IOException e) {
-                            throw new MessagingException("Failed to write mail message", e);
                         } finally {
                             session.close();
                             mailboxManager.logout(session, true);
