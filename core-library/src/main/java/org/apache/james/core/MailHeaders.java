@@ -27,9 +27,7 @@ import javax.mail.internet.InternetHeaders;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.Enumeration;
 
 import org.apache.mailet.base.RFC2822Headers;
 
@@ -70,19 +68,8 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      *
      * @param out the OutputStream to which to write the headers
      */
-    public void writeTo(OutputStream out) {
-        PrintStream pout;
-        if (out instanceof PrintStream) {
-            pout = (PrintStream)out;
-        } else {
-            pout = new PrintStream(out);
-        }
-        for (Enumeration e = super.getAllHeaderLines(); e.hasMoreElements(); ) {
-            pout.print((String) e.nextElement());
-            pout.print("\r\n");
-        }
-        // Print trailing CRLF
-        pout.print("\r\n");
+    public void writeTo(OutputStream out) throws MessagingException{
+        MimeMessageUtil.writeHeadersTo(getAllHeaderLines(), out);
     }
 
     /**
@@ -90,7 +77,7 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      *
      * @return the byte array containing the headers
      */
-    public byte[] toByteArray() {
+    public byte[] toByteArray() throws MessagingException{
         ByteArrayOutputStream headersBytes = new ByteArrayOutputStream();
         writeTo(headersBytes);
         return headersBytes.toByteArray();
@@ -133,11 +120,6 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
             super.removeHeader(arg0);
         }
         super.setHeader(arg0, arg1);
-    }
-
-    protected Object clone() throws CloneNotSupportedException {
-        // TODO Auto-generated method stub
-        return super.clone();
     }
 
     /**

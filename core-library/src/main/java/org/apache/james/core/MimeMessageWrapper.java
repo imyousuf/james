@@ -21,11 +21,13 @@
 
 package org.apache.james.core;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.james.lifecycle.Disposable;
-import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.stream.CombinedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.OutputStream;
+import java.util.Enumeration;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
@@ -34,16 +36,10 @@ import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.util.Enumeration;
+import org.apache.commons.io.IOUtils;
+import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.util.stream.CombinedInputStream;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
@@ -265,13 +261,7 @@ public class MimeMessageWrapper
             InputStream in = source.getInputStream();
             try {
                 InternetHeaders headers = new InternetHeaders(in);
-                PrintWriter pos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
-                for (Enumeration e = headers.getNonMatchingHeaderLines(ignoreList); e.hasMoreElements(); ) {
-                    String header = (String)e.nextElement();
-                    pos.println(header);
-                }
-                pos.println();
-                pos.flush();
+                IOUtils.copy(new InternetHeadersInputStream(headers), headerOs);
                 IOUtils.copy(in, bodyOs);
             } finally {
                 IOUtils.closeQuietly(in);

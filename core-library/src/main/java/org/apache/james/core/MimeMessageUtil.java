@@ -20,23 +20,17 @@
 
 package org.apache.james.core;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.james.util.InternetPrintWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Enumeration;
 
 import javax.activation.UnsupportedDataTypeException;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.util.Enumeration;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Utility class to provide optimized write methods for the various MimeMessage
@@ -202,14 +196,13 @@ public class MimeMessageUtil {
      * @param headerOs the OutputStream to which the headers get written
      * @throws MessagingException
      */
+    @SuppressWarnings("unchecked")
     public static void writeHeadersTo(Enumeration headers, OutputStream headerOs) throws MessagingException {
-        PrintWriter hos = new InternetPrintWriter(new BufferedWriter(new OutputStreamWriter(headerOs), 512), true);
-        while (headers.hasMoreElements()) {
-            hos.println((String)headers.nextElement());
+        try {
+            IOUtils.copy(new InternetHeadersInputStream(headers), headerOs);
+        } catch (IOException e) {
+            throw new MessagingException("Unable to write headers to stream", e);
         }
-        // Print header/data separator
-        hos.println();
-        hos.flush();
     }
     
     /**
@@ -220,10 +213,9 @@ public class MimeMessageUtil {
      * @return stream the InputStream which holds the headers
      * @throws MessagingException
      */
+    @SuppressWarnings("unchecked")
     public static InputStream getHeadersInputStream(MimeMessage message, String[] ignoreList) throws MessagingException {
-        ByteArrayOutputStream bo = new ByteArrayOutputStream();
-        writeHeadersTo(message,bo,ignoreList);
-        return new ByteArrayInputStream(bo.toByteArray());
+        return new InternetHeadersInputStream(message.getNonMatchingHeaderLines(ignoreList));
     }
 
 
