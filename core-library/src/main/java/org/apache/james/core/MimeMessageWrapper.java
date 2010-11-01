@@ -567,7 +567,7 @@ public class MimeMessageWrapper
      * @return messageInputStream
      * @throws MessagingException
      */
-    public InputStream getMessageInputStream() throws MessagingException{
+    public synchronized InputStream getMessageInputStream() throws MessagingException{
         if (!messageParsed && !isModified() && source != null) {
             try {
                 return source.getInputStream();
