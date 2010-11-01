@@ -23,10 +23,7 @@ package org.apache.james.core;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.james.lifecycle.Disposable;
 
 /**
  * This defines a reusable datasource that can supply an input stream with
@@ -35,13 +32,8 @@ import org.apache.james.lifecycle.Disposable;
  *
  * @see MimeMessageWrapper
  */
-public abstract class MimeMessageSource implements Disposable{
-    private final List<MimeMessageSource> shares = new ArrayList<MimeMessageSource>();
-    
-    
-    public MimeMessageSource() {
-        shares.add(this);
-    }
+public abstract class MimeMessageSource {
+
     
     /**
      * Returns a unique String ID that represents the location from where 
@@ -91,80 +83,6 @@ public abstract class MimeMessageSource implements Disposable{
         }
         return size;
     }
-    
-    /**
-     * Share this instance and increase the share count
-     * 
-     * @return instance
-     */
-    public final SharedMimeMessageSource share() {
-        synchronized (shares) {
-            SharedMimeMessageSource share = new SharedMimeMessageSource(this);
-            return share;
-        }
-       
-    }
 
-    /**
-     * Dispose this instance if its not shared anymore
-     */
-    public final void dispose() {
-        synchronized (shares) {
-            if (shares.size() == 0) {
-                disposeSource();
-            }
-        }
-    }
-    
-    /**
-     * Get called by {@link #dispose()} if this instance is not shared anymore
-     */
-    protected abstract void disposeSource();
 
-    
-    /**
-     * Allow to share a {@link MimeMessageSource} and take care of tracking 
-     * the instances. This is needed to make sure the {@link #dispose()} is not called 
-     * to early
-     *
-     */
-    public final class SharedMimeMessageSource extends MimeMessageSource {
-
-        private MimeMessageSource source;
-
-        public SharedMimeMessageSource(MimeMessageSource source) {
-            super();
-            this.source = source;
-        }
-        
-        @Override
-        protected void disposeSource() {
-            synchronized (shares) {
-                if (shares.remove(SharedMimeMessageSource.this)) {
-                    source.dispose();
-                }
-            }
-           
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return source.getInputStream();
-        }
-
-        @Override
-        public String getSourceId() {
-            return source.getSourceId();
-        }
-        
-        /**
-         * Return the wrapped original {@link MimeMessageSource}
-         * 
-         * @return original
-         */
-        public MimeMessageSource getOriginal() {
-            return source;
-        }
-        
-    }
 }

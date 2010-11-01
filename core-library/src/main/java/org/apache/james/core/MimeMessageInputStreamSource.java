@@ -26,6 +26,7 @@ import javax.mail.util.SharedFileInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.james.lifecycle.Disposable;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -48,7 +49,7 @@ import java.util.List;
  *
  */
 public class MimeMessageInputStreamSource
-    extends MimeMessageSource {
+    extends MimeMessageSource implements Disposable{
 
     private final List<InputStream> streams = new ArrayList<InputStream>();
 
@@ -85,12 +86,7 @@ public class MimeMessageInputStreamSource
         try {
             file = File.createTempFile(key, ".m64");
             fout = new BufferedOutputStream(new FileOutputStream(file));
-            int b = -1;
-            while ((b = in.read()) != -1) {
-                fout.write(b);
-            }
-            fout.flush();
-
+            IOUtils.copy(in, fout);
             sourceId = file.getCanonicalPath();
         } catch (IOException ioe) {
             throw new MessagingException("Unable to retrieve the data: " + ioe.getMessage(), ioe);
@@ -181,7 +177,7 @@ public class MimeMessageInputStreamSource
      * (non-Javadoc)
      * @see org.apache.james.core.MimeMessageSource#disposeSource()
      */
-    public void disposeSource() {
+    public void dispose() {
      // explicit close all streams
         for (int i = 0; i < streams.size(); i++) {
             IOUtils.closeQuietly(streams.get(i));

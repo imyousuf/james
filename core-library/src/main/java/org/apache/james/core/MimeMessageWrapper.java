@@ -115,22 +115,7 @@ public class MimeMessageWrapper
     public MimeMessageWrapper(MimeMessage original) throws MessagingException {
         this(Session.getDefaultInstance(System.getProperties()));
         flags = original.getFlags();
-        
-        // if the original is an unmodified MimeMessageWrapped we clone the headers and
-        // take its source.
-        if (original instanceof MimeMessageWrapper && !((MimeMessageWrapper) original).bodyModified) {
-            // call share so we are sure it will not dispose the message to early
-            source = ((MimeMessageWrapper) original).source.share();
-            // this probably speed up things
-            if (((MimeMessageWrapper) original).headers != null) {
-                
-                InternetHeaders ih = ((MimeMessageWrapper) original).headers;
-                headers = createInternetHeaders(new InternetHeadersInputStream(ih));
-                headersModified = ((MimeMessageWrapper) original).headersModified;
-            }
-        }
-     
-        
+
         if (source == null) {
             ByteArrayOutputStream bos;
             int size = original.getSize();

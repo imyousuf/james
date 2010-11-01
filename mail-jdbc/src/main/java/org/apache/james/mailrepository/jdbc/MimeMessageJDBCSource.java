@@ -278,11 +278,4 @@ public class MimeMessageJDBCSource extends MimeMessageSource {
         return result;
      }
 
-     /*
-      * (non-Javadoc)
-      * @see org.apache.james.core.MimeMessageSource#disposeSource()
-      */
-    protected void disposeSource() {
-        // nothing todo here
-    }
 }
