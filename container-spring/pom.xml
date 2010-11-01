@@ -52,7 +52,7 @@
           <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
           <environmentSetupFileName>setenv</environmentSetupFileName>
           <!--  set some sane defaults for memory -->
-          <extraJvmArguments>-Xms128m -Xmx512m -Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader ${jmx.system-properties} ${javamail.system-properties}</extraJvmArguments>
+          <extraJvmArguments>-Xms128m -Xmx512m -Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader ${jmx.system-properties} ${javamail.system-properties} ${james.system-properties}</extraJvmArguments>
           <!-- Generate bin scripts for windows and unix per default -->
           <platforms>
             <platform>windows</platform>
@@ -195,6 +195,10 @@
                     <property>
                       <name>wrapper.java.additional.16</name>
                       <value>${javamail.system-property10}</value>
+                    </property>
+                    <property>
+                      <name>wrapper.java.additional.17</name>
+                      <value>${james.system-property1}</value>
                     </property>
                   </configuration>
                 </generatorConfiguration>

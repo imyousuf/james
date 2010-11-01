@@ -1250,6 +1250,9 @@
     <jmx.system-property5>-Dcom.sun.management.jmxremote.port=9999</jmx.system-property5>
     <jmx.system-properties>${jmx.system-property1} ${jmx.system-property2} ${jmx.system-property3} ${jmx.system-property4} ${jmx.system-property5}</jmx.system-properties>
     
+    <!-- Use filesystem to copy message by default -->
+    <james.system-property1>-Djames.message.usememorycopy=false</james.system-property1>
+    <james.system-properties>${james.system-property1}</james.system-properties>
   </properties>
 
 </project>
