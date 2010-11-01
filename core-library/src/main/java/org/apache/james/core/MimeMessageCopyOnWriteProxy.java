@@ -100,7 +100,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
             return referenceCount;
         }
 
-        public MimeMessage getWrapped() {
+        public synchronized MimeMessage getWrapped() {
             return wrapped;
         }
 
@@ -158,12 +158,10 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      * @throws MessagingException
      *             exception
      */
-    protected MimeMessage getWrappedMessageForWriting() throws MessagingException {
-        synchronized (refCount) {
-            if (refCount.getReferenceCount() > 1) {
-                refCount.decrementReferenceCount();
-                refCount = new MessageReferenceTracker(new MimeMessageWrapper(refCount.getWrapped()));
-            }
+    protected synchronized MimeMessage getWrappedMessageForWriting() throws MessagingException {
+        if (refCount.getReferenceCount() > 1) {
+            refCount.decrementReferenceCount();
+            refCount = new MessageReferenceTracker(new MimeMessageWrapper(refCount.getWrapped()));
         }
         return refCount.getWrapped();
     }
@@ -173,7 +171,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
      * 
      * @return wrapped return the wrapped mimeMessage
      */
-    public MimeMessage getWrappedMessage() {
+    public synchronized MimeMessage getWrappedMessage() {
         return refCount.getWrapped();
     }
 
