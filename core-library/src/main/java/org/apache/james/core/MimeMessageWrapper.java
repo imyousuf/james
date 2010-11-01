@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.UUID;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
@@ -50,6 +51,12 @@ public class MimeMessageWrapper
     extends MimeMessage
     implements Disposable {
 
+    /**
+     * System property which tells JAMES if it should copy a message in memory or via a temporary file.
+     * Default is the file
+     */
+    public final static String USE_MEMORY_COPY = "james.message.usememorycopy";
+    
     /**
      * Can provide an input stream to the data
      */
@@ -113,20 +120,38 @@ public class MimeMessageWrapper
         flags = original.getFlags();
 
         if (source == null) {
-            ByteArrayOutputStream bos;
-            int size = original.getSize();
-            if (size > 0)
-                bos = new ByteArrayOutputStream(size);
-            else
-                bos = new ByteArrayOutputStream();
+            InputStream in;
+            
+            boolean useMemoryCopy =false;
+            String memoryCopy = System.getProperty(USE_MEMORY_COPY);
+            if (memoryCopy != null) {
+                useMemoryCopy = Boolean.valueOf(memoryCopy);
+            }
             try {
-                original.writeTo(bos);
-                bos.close();
-                SharedByteArrayInputStream bis =
-                        new SharedByteArrayInputStream(bos.toByteArray());
-                parse(bis);
-                bis.close();
-                saved = true;
+
+                if (useMemoryCopy) {
+                    ByteArrayOutputStream bos;
+                    int size = original.getSize();
+                    if (size > 0) {
+                        bos = new ByteArrayOutputStream(size);
+                    } else {
+                        bos = new ByteArrayOutputStream();       
+                    }
+                    original.writeTo(bos);
+                    bos.close();
+                    in = new SharedByteArrayInputStream(bos.toByteArray());
+                    parse(in);
+                    in.close();
+                    saved = true;
+                } else {
+                    MimeMessageInputStreamSource src = new MimeMessageInputStreamSource("MailCopy-" + UUID.randomUUID().toString());
+                    OutputStream out = src.getWritableOutputStream();
+                    original.writeTo(out);
+                    out.close();
+                    source = src;
+                }
+            
+                
             } catch (IOException ex) {
                 // should never happen, but just in case...
                 throw new MessagingException("IOException while copying message",
