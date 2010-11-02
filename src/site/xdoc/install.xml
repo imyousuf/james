@@ -64,6 +64,9 @@
 #Step 2: Deploy It
 
 #Step 3: Configure It
+  you need to modify the security settings for the jmx files like descripted here:
+  <a href="http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html">
+  http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html</a>
 
 #Step 4: Start It Up
 
@@ -74,7 +77,7 @@
 
 <section name="Details">
 
-<subsection name="Step 1: Get It"> 
+<subsection name="Step 1: Get James"> 
 
   <p>Obtain the full James binary distribution from the <a href="http://james.apache.org/download.cgi">James 
     release mirrors</a>.  Unpack the archive into your James installation directory.  Go to the bin subdirectory of the 
@@ -87,21 +90,33 @@
 
 </subsection>
 
-<subsection name="Step 2: Deploy It">
+<subsection name="Step 2: Deploy James">
 
   <p>Extract or copy all the files in the archive or dist 
     directory into your installation directory. </p>
 
 </subsection>
 
-<subsection name="Step 3: Configure It">
+<subsection name="Step 3: Configure James">
 
+    <div class="ui-widget">
+      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+        <strong>Prelimnary step for JMX on Windows: </strong>
+        to let windows start with jmx username/password enabled, 
+        you need to modify the security settings for the jmx files like descripted here:
+        <a href="http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html">
+        http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html</a>
+      </p>
+      </div>
+    </div>
+    
   <p>After installing the binary, the next step is to adjust the initial configuration.  The server should be stopped, and then 
-  configuration can proceed.  The most essential configuration is set in the config.xml file.  This file can be 
-  found in the apps/james/SAR-INF subdirectory of the installation directory.</p>
+     configuration can proceed.  The most essential configuration is set in the config.xml file.  This file can be 
+     found in the apps/james/SAR-INF subdirectory of the installation directory.</p>
   
   <p>The out of the box configuration makes certain assumptions and has some default values that are unlikely to 
-  be appropriate for real-world servers.  There are a few issues that should be addressed immediately upon installation:</p>
+     be appropriate for real-world servers.  There are a few issues that should be addressed immediately upon installation:</p>
     <ul>
       <li>RemoteManager Administrator Account - Before the RemoteManager service can be used to add users to this server 
       installation an administrator account must be created.  More information can be found <a href="config_remotemanager.html">here</a>.</li>
@@ -146,7 +161,7 @@
 
 </subsection>
 
-<subsection name="Step 4: Start It Up">
+<subsection name="Step 4: Start James Up">
 
   <p>Once you have edited the configuration file you will need to restart James so that the changes take 
     effect.  When James starts, a list of the James services and the ports on which they are listening should 
