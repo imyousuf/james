@@ -25,7 +25,7 @@
 
 <body>
 
-<section name="Requirements for James Server">
+<section name="Requirements">
 
 <subsection name="Java Virtual Machine">
 
@@ -49,8 +49,15 @@
   
   <p>James needs by default 512 MB RAM, but may need more depending on the load.</p>
 
-  <p>On Linux, to run the startup/shutdown script via the 'james' command, you also need <code>libc6</code> 
-     (on Ubuntu for example: <code>sudo apt-get install libc6-i386 libc6-dev-i386</code>).</p>
+    <div class="ui-widget">
+      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+        <strong>libc6 on Linux: </strong>
+          On Linux, to run the startup/shutdown script via the 'james' command, you also need <code>libc6</code> 
+         (on Ubuntu for example: <code>sudo apt-get install libc6-i386 libc6-dev-i386</code>).
+      </p>
+      </div>
+    </div>
 
 </subsection>
 
@@ -80,7 +87,7 @@
 <subsection name="Step 1: Get James"> 
 
   <p>Obtain the full James binary distribution from the <a href="http://james.apache.org/download.cgi">James 
-    release mirrors</a>.  Unpack the archive into your James installation directory.  Go to the bin subdirectory of the 
+    release mirrors</a>. Unpack the archive into your James installation directory. Go to the bin subdirectory of the 
     installation directory and run "./james start".</p>
 
   <p>If you have downloaded a binary distribution, you do not need to build James. 
