@@ -47,7 +47,7 @@
       with support for some optional features such as message size limits, SMTP auth, and encrypted 
       client/server communication.</p>
       
-      <p>More information on configuring the SMTP service can be found <a href="configure_smtp_lmtp.html">here</a>.</p>
+      <p>More information on configuring the SMTP service can be found <a href="config_smtp_lmtp.html">here</a>.</p>
     
     </subsection>
     
@@ -61,7 +61,7 @@
       POP3 clients.  In addition, James can be configured to require SSL/TLS connections for
       POP3 client connecting to the server.</p>
       
-      <p>More information on configuring the POP3 service can be found <a href="configure_pop3.html">here</a>.</p>
+      <p>More information on configuring the POP3 service can be found <a href="config_pop3.html">here</a>.</p>
     
     </subsection>
     
@@ -75,7 +75,7 @@
       IMAP4 clients.  In addition, James can be configured to require SSL/TLS connections for
       IMAP4 client connecting to the server.</p>
       
-      <p>More information on configuring the IMAP4 service can be found <a href="configure_imap4.html">here</a>.</p>
+      <p>More information on configuring the IMAP4 service can be found <a href="config_imap4.html">here</a>.</p>
     
     </subsection>
     
@@ -86,7 +86,7 @@
       servers and deliver them to the local spool.  This is useful for consolidating mail delivered to a
       number of accounts on different machines to a single account.</p>
       
-      <p>More information on configuring FetchMail can be found <a href="configure_fetchmail.html">here</a>.</p>
+      <p>More information on configuring FetchMail can be found <a href="config_fetchmail.html">here</a>.</p>
 
     </subsection>
     
@@ -97,7 +97,7 @@
       SpoolManager component is James' mail processing engine.  James' SpoolManager component 
       is also called the Mailet container. It is these mailets and matchers that actually carry out mail processing.</p>
       
-      <p>More on the structure of the SpoolManager and the Mailet API can be found <a href="configure_mailetcontainer.html">here</a>.</p>
+      <p>More on the structure of the SpoolManager and the Mailet API can be found <a href="config_mailetcontainer.html">here</a>.</p>
     
     </subsection>
     
@@ -109,7 +109,7 @@
       Stores/repositories contain messages that are still being processed.  Aside from what type of data they store, 
       repositories are distinguished by where they store data.  There are three types of storage - File, Database, and DBFile.</p>
     
-      <p>More information the stores can be found <a href="configure_mailstores.html">here</a>.</p>
+      <p>More information the stores can be found <a href="config_mailstores.html">here</a>.</p>
 
     </subsection>
     
@@ -118,7 +118,7 @@
       <p>James provides a simple telnet-based interface for control.  Through this interface you can add 
       and delete users, configure per-user aliases and forward addresses, and shut down the server.</p>
 
-      <p>More on the configuring the RemoteManager can be found <a href="configure_remotemanager.html">here</a>.</p>
+      <p>More on the configuring the RemoteManager can be found <a href="config_remotemanager.html">here</a>.</p>
   
     </subsection>  
       

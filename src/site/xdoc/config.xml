@@ -31,19 +31,19 @@
       You can/must configure James for the following:</p>
     
     <ul>
-        <li><a href="configure_serverwide.html">Server-wide Configuration</a></li>
-        <li><a href="configure_domainlist.html">Domain List Configuration</a></li>
-        <li><a href="configure_users.html">Users Configuration</a></li>
-        <li><a href="configure_mailstores.html">Mail Stores Configuration</a></li>
-        <li><a href="configure_dns.html">DNS Configuration</a></li>
-        <li><a href="configure_imap4.html">IMAP4 Configuration</a></li>
-        <li><a href="configure_pop3.html">POP3 Configuration</a></li>
-        <li><a href="configure_smtp_lmtp.html">SMTP LMTP Configuration</a></li>
-        <li><a href="configure_mailetcontainer.html">Mailet Container Configuration</a></li>
-        <li><a href="configure_fetchmail.html">FetchMail Configuration</a></li>
-        <li><a href="configure_remotemanager.html">Remote Manager Configuration</a></li>
-        <li><a href="configure_listmanager.html">List Manager Configuration</a></li>
-        <li><a href="configure_common.html">Common Configuration</a></li>
+        <li><a href="config_serverwide.html">Server-wide Configuration</a></li>
+        <li><a href="config_domainlist.html">Domain List Configuration</a></li>
+        <li><a href="config_users.html">Users Configuration</a></li>
+        <li><a href="config_mailstores.html">Mail Stores Configuration</a></li>
+        <li><a href="config_dns.html">DNS Configuration</a></li>
+        <li><a href="config_imap4.html">IMAP4 Configuration</a></li>
+        <li><a href="config_pop3.html">POP3 Configuration</a></li>
+        <li><a href="config_smtp_lmtp.html">SMTP LMTP Configuration</a></li>
+        <li><a href="config_mailetcontainer.html">Mailet Container Configuration</a></li>
+        <li><a href="config_fetchmail.html">FetchMail Configuration</a></li>
+        <li><a href="config_remotemanager.html">Remote Manager Configuration</a></li>
+        <li><a href="config_listmanager.html">List Manager Configuration</a></li>
+        <li><a href="config_common.html">Common Configuration</a></li>
     </ul>
 
     <subsection name="JMX on Windows">

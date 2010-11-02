@@ -55,28 +55,29 @@
     </menu>
     
     <menu name="User Manual">
-      <item name="1. Install James" href="/install.html" />
-      <item name="2. Configure James" href="/configure.html" collapse="true" >
-        <item name="Server-wide" href="/configure_serverwide.html" />
-        <item name="Domain List" href="/configure_domainlist.html" />
-        <item name="Users" href="/configure_users.html" />
-        <item name="Mail Stores" href="/configure_mailstores.html" />
-        <item name="DNS" href="/configure_dns.html" />
-        <item name="IMAP4" href="/configure_imap4.html" />
-        <item name="POP3" href="/configure_pop3.html" />
-        <item name="SMTP LMTP" href="/configure_smtp_lmtp.html" />
-        <item name="Mailet Container" href="/configure_mailetcontainer.html" />
-        <item name="FetchMail" href="/configure_fetchmail.html" />
-        <item name="Remote Manager" href="/configure_remotemanager.html" />
-        <item name="List Manager" href="/configure_listmanager.html" />
-        <item name="Common Configs" href="/configure_common.html" />
+      <item name="1. Quick Start" href="/quick_start.html" />
+      <item name="2. Install James" href="/install.html" />
+      <item name="3. Configure James" href="/configure.html" collapse="true" >
+        <item name="Server-wide" href="/config_serverwide.html" />
+        <item name="Domain List" href="/config_domainlist.html" />
+        <item name="Users" href="/config_users.html" />
+        <item name="Mail Stores" href="/config_mailstores.html" />
+        <item name="DNS" href="/config_dns.html" />
+        <item name="IMAP4" href="/config_imap4.html" />
+        <item name="POP3" href="/config_pop3.html" />
+        <item name="SMTP LMTP" href="/config_smtp_lmtp.html" />
+        <item name="Mailet Container" href="/config_mailetcontainer.html" />
+        <item name="FetchMail" href="/config_fetchmail.html" />
+        <item name="Remote Manager" href="/config_remotemanager.html" />
+        <item name="List Manager" href="/config_listmanager.html" />
+        <item name="Common Configs" href="/config_common.html" />
       </item>
-      <item name="3. Manage James" href="/manage.html" collapse="true" >
+      <item name="4. Manage James" href="/manage.html" collapse="true" >
         <item name="Domains" href="/manage_domains.html" />
         <item name="Users" href="/manage_users.html" />
         <item name="Virtual Users" href="/manage_virtualusers.html" />
       </item>
-      <item name="4. Monitor James" href="/monitor.html" collapse="true" >
+      <item name="5. Monitor James" href="/monitor.html" collapse="true" >
         <item name="Logging" href="/monitor_logging.html" />
         <item name="JMX" href="/monitor_jmx.html" />
       </item>
