@@ -39,7 +39,7 @@ these can be easily overridden to provide useful functionality.</p>
 getMailetInfo(), and service(Mail).  And only the last is required in all cases.</p>
 
 <subsection name="Configuration">
-<p>As described in the <a href="spoolmanager_configuration.html">SpoolManager configuration 
+<p>As described in the <a href="configure_mailetcontainer.html">SpoolManager configuration 
 section</a>, mailets are configured with a set of String (name, value) pairs.  These values are
 passed into the Mailet upon initialization (although the details of this process are hidden by 
 the GenericMailet implementation).  GenericMailet provides access to this configuration 
@@ -135,7 +135,7 @@ After that restart james.
 
 <subsection name="James Configuration">
 <p>Configuration of the processor chain is discussed 
-<a href="configuration_mailetcontainer.html">elsewhere</a> in this documentation.  The 
+<a href="configure_mailetcontainer.html">elsewhere</a> in this documentation.  The 
 details of configuring mailet deployment is discussed at length.  Here we will only comment 
 that it is important to add the appropriate mailet package for your custom mailet to the 
 &lt;mailetpackages&gt; list and that the name of your mailet should not conflict with any of 

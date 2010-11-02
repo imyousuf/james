@@ -66,8 +66,8 @@
       <li>Java Development Kit - You must have a JDK of Java version 1.5 or higher installed to build the 
           James distribution.  The exact JDKs available depend on the platform.  A JDK must be downloaded and
           installed before the build can run.</li>
-      <li>Maven - This is a Java-tailored, XML-configured, extensible build or make system. You need ant (2.2.1+) in order
-          to build James. You can get the latest version of maven <a href="http://maven.apache.org/download.html">here</a>.
+      <li>Maven 2.2.1 - This is a Java-tailored, XML-configured, extensible build or make system. You need ant (2.2.1+) in order
+          to build James. You can get maven 2.2.1 from <a href="http://maven.apache.org/download.html">here</a>.
           Installation instructions for maven are also available on the same page <a href="http://maven.apache.org/download.html">http://maven.apache.org/download.html</a>.</li>
     </ol>
     <p>Set (on windows) or export (on Unix) MAVEN_OPTS to tune the memory needed by maven with "MAVEN_OPTS=-Xmx1024m -XX:MaxPermSize=128m"</p>

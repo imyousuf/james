@@ -55,36 +55,36 @@
     </menu>
     
     <menu name="User Manual">
-      <item name="1. Install James" href="/installation.html" />
-      <item name="2. Configure James" href="/configuration.html" collapse="true" >
-        <item name="Server-wide" href="/configuration_serverwide.html" />
-        <item name="Domain List" href="/configuration_domainlist.html" />
-        <item name="Users" href="/configuration_users.html" />
-        <item name="Mail Stores" href="/configuration_mailstores.html" />
-        <item name="DNS" href="/configuration_dns.html" />
-        <item name="IMAP4" href="/configuration_imap4.html" />
-        <item name="POP3" href="/configuration_pop3.html" />
-        <item name="SMTP LMTP" href="/configuration_smtp_lmtp.html" />
-        <item name="Mailet Container" href="/configuration_mailetcontainer.html" />
-        <item name="FetchMail" href="/configuration_fetchmail.html" />
-        <item name="Remote Manager" href="/configuration_remotemanager.html" />
-        <item name="List Manager" href="/configuration_listmanager.html" />
-        <item name="Common Configs" href="/configuration_common.html" />
+      <item name="1. Install James" href="/install.html" />
+      <item name="2. Configure James" href="/configure.html" collapse="true" >
+        <item name="Server-wide" href="/configure_serverwide.html" />
+        <item name="Domain List" href="/configure_domainlist.html" />
+        <item name="Users" href="/configure_users.html" />
+        <item name="Mail Stores" href="/configure_mailstores.html" />
+        <item name="DNS" href="/configure_dns.html" />
+        <item name="IMAP4" href="/configure_imap4.html" />
+        <item name="POP3" href="/configure_pop3.html" />
+        <item name="SMTP LMTP" href="/configure_smtp_lmtp.html" />
+        <item name="Mailet Container" href="/configure_mailetcontainer.html" />
+        <item name="FetchMail" href="/configure_fetchmail.html" />
+        <item name="Remote Manager" href="/configure_remotemanager.html" />
+        <item name="List Manager" href="/configure_listmanager.html" />
+        <item name="Common Configs" href="/configure_common.html" />
       </item>
-      <item name="3. Manage James" href="/management.html" collapse="true" >
-        <item name="Domains" href="/management_domains.html" />
-        <item name="Users" href="/management_users.html" />
-        <item name="Virtual Users" href="/management_virtualusers.html" />
+      <item name="3. Manage James" href="/manage.html" collapse="true" >
+        <item name="Domains" href="/manage_domains.html" />
+        <item name="Users" href="/manage_users.html" />
+        <item name="Virtual Users" href="/manage_virtualusers.html" />
       </item>
-      <item name="4. Monitor James" href="/monitoring.html" collapse="true" >
-        <item name="Logging" href="/monitoring_logging.html" />
-        <item name="JMX" href="/monitoring_jmx.html" />
+      <item name="4. Monitor James" href="/monitor.html" collapse="true" >
+        <item name="Logging" href="/monitor_logging.html" />
+        <item name="JMX" href="/monitor_jmx.html" />
       </item>
       <item name="5. Upgrade from James 2.3" href="/upgrade_2.3.html" />
     </menu>
 
     <menu name="Developers Corner">
-      <item name="Architecture" href="/dev_architecture.html" />
+      <item name="Architecture" href="/dev.html" />
       <item name="Build from source" href="/dev_build.html" />
       <item name="Provided Mailets" href="/dev_provided_mailets.html" />
       <item name="Provided Matchers" href="/dev_provided_matchers.html" />
