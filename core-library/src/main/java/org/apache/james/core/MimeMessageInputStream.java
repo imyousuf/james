@@ -19,6 +19,8 @@
 
 package org.apache.james.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -40,14 +42,27 @@ public class MimeMessageInputStream extends InputStream {
        
         // check if we need to use the wrapped message
         if (m instanceof MimeMessageCopyOnWriteProxy) {
-            m = ((MimeMessageCopyOnWriteProxy) message).getWrappedMessage();
+            m = ((MimeMessageCopyOnWriteProxy) m).getWrappedMessage();
         }
 
         // check if we can use optimized operations
         if (m instanceof MimeMessageWrapper) {
             in = ((MimeMessageWrapper) m).getMessageInputStream();
         } else {
-            in = new CombinedInputStream(new InputStream[] { new InternetHeadersInputStream(message.getAllHeaderLines()), message.getRawInputStream() });
+            try {
+                in = new CombinedInputStream(new InputStream[] { new InternetHeadersInputStream(message.getAllHeaderLines()), message.getRawInputStream() });
+            } catch (MessagingException e) {
+                // its possible that MimeMessage.getRawInputStream throws an exception when try to access the method on a self constructed MimeMessage.
+                // so try to read it in memory 
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                try {
+                    message.writeTo(out);
+                    in = new ByteArrayInputStream(out.toByteArray());
+                } catch (IOException e1) {
+                    throw new MessagingException("Unable to read message " + message, e);
+                }
+                
+            }
         }
 
     }
