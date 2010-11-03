@@ -26,7 +26,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.james.queue.api.MailQueue;
-import org.apache.james.queue.api.MailQueue.MailQueueException;
 import org.apache.mailet.Mail;
 
 public class MockMailQueue implements MailQueue{
@@ -34,6 +33,7 @@ public class MockMailQueue implements MailQueue{
     private final LinkedBlockingQueue<Mail> queue = new LinkedBlockingQueue<Mail>();
     private boolean throwException;
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private Mail lastMail;
     
     /**
      * Throw an {@link MailQueueException} on next operation
@@ -49,6 +49,7 @@ public class MockMailQueue implements MailQueue{
         }
         try {
         	final Mail mail = queue.take();
+        	if (queue.isEmpty()) lastMail = null;
             return new MailQueueItem() {
 				
 				public Mail getMail() {
@@ -60,6 +61,7 @@ public class MockMailQueue implements MailQueue{
 					
 				}
 			};
+		
         } catch (InterruptedException e) {
             throw new MailQueueException("Mock",e);
         }
@@ -70,11 +72,13 @@ public class MockMailQueue implements MailQueue{
             throwException = false;
             throw new MailQueueException("Mock");
         }        
+        
         scheduler.schedule(new Runnable() {
 
             public void run() {
                 try {
                     queue.put(mail);
+                    lastMail = mail;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }                
@@ -90,11 +94,15 @@ public class MockMailQueue implements MailQueue{
         }
         try {
             queue.put(mail);
+            lastMail = mail;
         } catch (InterruptedException e) {
             throw new MailQueueException("Mock",e);
         }
     }
 
+    public Mail getLastMail() {
+        return lastMail;
+    }
     
     public void clear() {
         queue.clear();

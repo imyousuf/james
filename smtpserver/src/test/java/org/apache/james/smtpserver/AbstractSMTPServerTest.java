@@ -42,6 +42,8 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
+import org.apache.james.queue.api.MockMailQueue;
+import org.apache.james.queue.api.MockMailQueueFactory;
 import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.LifecycleUtil;
@@ -148,6 +150,8 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     protected MockFileSystem fileSystem;
     protected SMTPServerDNSServiceAdapter dnsAdapter;
     protected JamesProtocolHandlerChain chain;
+    protected MockMailQueueFactory queueFactory;
+    protected MockMailQueue queue;
     
     public AbstractSMTPServerTest() {
         super("AsyncSMTPServerTest");
@@ -183,11 +187,12 @@ public abstract class AbstractSMTPServerTest extends TestCase {
 
     protected void tearDown() throws Exception {
         LifecycleUtil.dispose(m_mailServer);
+        queue.clear();
         super.tearDown();
     }
 
     public void verifyLastMail(String sender, String recipient, MimeMessage msg) throws IOException, MessagingException {
-        Mail mailData = m_mailServer.getLastMail();
+        Mail mailData = queue.getLastMail();
         assertNotNull("mail received by mail server", mailData);
 
         if (sender == null && recipient == null && msg == null)
@@ -291,6 +296,9 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         });
 
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
+        queueFactory = new MockMailQueueFactory();
+        queue = (MockMailQueue) queueFactory.getQueue(MockMailQueueFactory.SPOOL);
+        m_serviceManager.put("mailQueueFactory", queueFactory);
     }
 
     public void testSimpleMailSendWithEHLO() throws Exception {
@@ -323,7 +331,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.disconnect();
 
         // mail was propagated by SMTPServer
-        assertNotNull("mail received by mail server", m_mailServer.getLastMail());
+        assertNotNull("mail received by mail server", queue.getLastMail());
     }
     
 
@@ -389,7 +397,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
      * not cloning the message (added a MimeMessageCopyOnWriteProxy there)
      * System.gc();
      * 
-     * int size = m_mailServer.getLastMail().getMessage().getSize();
+     * int size = queue.getLastMail().getMessage().getSize();
      * 
      * assertEquals(size, 2); }
      */
@@ -401,7 +409,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         smtpProtocol.helo(InetAddress.getLocalHost().toString());
 
@@ -415,7 +423,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.disconnect();
 
         // mail was propagated by SMTPServer
-        assertNotNull("mail received by mail server", m_mailServer.getLastMail());
+        assertNotNull("mail received by mail server", queue.getLastMail());
     }
 
     public void testTwoSimultaneousMails() throws Exception {
@@ -430,7 +438,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertTrue("second connection taken", smtpProtocol2.isConnected());
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         smtpProtocol1.helo(InetAddress.getLocalHost().toString());
         smtpProtocol2.helo(InetAddress.getLocalHost().toString());
@@ -467,7 +475,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertTrue("first connection taken", smtpProtocol1.isConnected());
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         smtpProtocol1.helo(InetAddress.getLocalHost().toString());
 
@@ -506,7 +514,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertTrue("first connection taken", smtpProtocol.isConnected());
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         String fictionalDomain = "abgsfe3rsf.de";
         String existingDomain = "james.apache.org";
@@ -564,7 +572,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
             assertTrue("first connection taken", smtpProtocol1.isConnected());
 
             // no message there, yet
-            assertNull("no mail received by mail server", m_mailServer.getLastMail());
+            assertNull("no mail received by mail server", queue.getLastMail());
 
             String helo1 = "abgsfe3rsf.de";
             String helo2 = "james.apache.org";
@@ -603,7 +611,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertTrue("first connection taken", smtpProtocol1.isConnected());
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         smtpProtocol1.helo(InetAddress.getLocalHost().toString());
 
@@ -643,7 +651,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertTrue("first connection taken", smtpProtocol1.isConnected());
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         smtpProtocol1.helo(InetAddress.getLocalHost().toString());
 
@@ -667,7 +675,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertTrue("first connection taken", smtpProtocol1.isConnected());
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         smtpProtocol1.helo(InetAddress.getLocalHost().toString());
 
@@ -693,7 +701,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertTrue("first connection taken", smtpProtocol1.isConnected());
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         smtpProtocol1.helo(InetAddress.getLocalHost().toString());
 
@@ -791,7 +799,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
             assertTrue("first connection taken", smtpProtocol1.isConnected());
 
             // no message there, yet
-            assertNull("no mail received by mail server", m_mailServer.getLastMail());
+            assertNull("no mail received by mail server", queue.getLastMail());
 
             String ehlo1 = "abgsfe3rsf.de";
             String ehlo2 = "james.apache.org";
@@ -828,7 +836,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertTrue("first connection taken", smtpProtocol1.isConnected());
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         String sender1 = "mail_sender1@localhost";
         smtpProtocol1.setSender(sender1);
@@ -851,7 +859,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         assertTrue("first connection taken", smtpProtocol1.isConnected());
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         String sender1 = "mail_sender1@localhost";
 
@@ -941,7 +949,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.quit();
 
         // mail was propagated by SMTPServer
-        assertNotNull("mail received by mail server", m_mailServer.getLastMail());
+        assertNotNull("mail received by mail server", queue.getLastMail());
     }
 
     public void testAuthWithEmptySender() throws Exception {
@@ -987,7 +995,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.quit();
 
         // mail was propagated by SMTPServer
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
     }
 
     public void testMultipleMailsAndRset() throws Exception {
@@ -1007,7 +1015,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.quit();
 
         // mail was propagated by SMTPServer
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
     }
 
     public void testRelayingDenied() throws Exception {
@@ -1257,7 +1265,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.quit();
 
         // mail was propagated by SMTPServer
-        assertNotNull("mail received by mail server", m_mailServer.getLastMail());
+        assertNotNull("mail received by mail server", queue.getLastMail());
     }
 
     public void testDNSRBLRejectWorks() throws Exception {
@@ -1284,7 +1292,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.quit();
 
         // mail was rejected by SMTPServer
-        assertNull("mail reject by mail server", m_mailServer.getLastMail());
+        assertNull("mail reject by mail server", queue.getLastMail());
     }
 
     public void testAddressBracketsEnforcementDisabled() throws Exception {
