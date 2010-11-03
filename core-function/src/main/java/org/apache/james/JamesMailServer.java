@@ -177,7 +177,7 @@ public class JamesMailServer
     private void initializeServernames() throws ConfigurationException, ParseException {
         String defaultDomain = getDefaultDomain();
         if (domains.containsDomain(defaultDomain) == false) {
-            throw new ConfigurationException("Configured defaultDomain not exist in DomainList");
+            logger.warn("Configured defaultDomain not exist in DomainList, please add it ASAP!");
             
         }
         serverNames = domains.getDomains();
