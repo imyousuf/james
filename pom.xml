@@ -1221,7 +1221,7 @@
     <!-- Change to 5.4.2 once its released -->
     <!-- JAMES-1085 -->
     <activemq.version>5.5-SNAPSHOT</activemq.version>
-    <spring.version>3.0.4.RELEASE</spring.version>
+    <spring.version>3.0.5.RELEASE</spring.version>
     <imap.version>0.2-M1</imap.version>
     <protocols.version>1.2-M2-SNAPSHOT</protocols.version>
     <jsieve.version>0.4</jsieve.version>
