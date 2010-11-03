@@ -20,8 +20,8 @@
  <!-- Add a Manager and Processor for each list -->
  <!-- TODO: add more examples                   -->
  <!-- CHECKME: check the <resource> path        -->
-
-<mailet match="CommandListservMatcher=testlist@localhost" class="CommandListservManager">
+<listmanager>
+  <mailet match="CommandListservMatcher=testlist@localhost" class="CommandListservManager">
 <!-- CHECKME! -->
     <!--resources-->
     <resources>/opt/james/apps/james/conf/miResources.xml</resources>
@@ -47,10 +47,10 @@
         <command name="owner" class="Owner"/>
         <command name="info" class="Info"/>
     </commands>
-</mailet>
+  </mailet>
 
-<!-- the processor for this list serv -->
-<mailet match="RecipientIs=testlist@localhost" class="CommandListservProcessor">
+  <!-- the processor for this list serv -->
+  <mailet match="RecipientIs=testlist@localhost" class="CommandListservProcessor">
     <membersonly>false</membersonly>
     <attachmentsallowed>true</attachmentsallowed>
     <replytolist>true</replytolist>
@@ -59,4 +59,5 @@
     <autobracket>true</autobracket>
     <listOwner>owner@localhost</listOwner>
     <listName>testlist</listName>
-</mailet>
+  </mailet>
+</listmanager
