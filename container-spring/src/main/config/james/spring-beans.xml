@@ -128,9 +128,11 @@
 
     <!-- Change trace to true for debugging purposes -->
     <camel:camelContext id="jamesCamelContext" trace="false" >
-        <camel:jmxAgent id="agent" disabled="false" createConnector="true" serviceUrlPath="/jmxrmi/jamescamel"/>
+        <camel:jmxAgent id="agent" disabled="false" createConnector="false" serviceUrlPath="/jmxrmi/jamescamel"/>
         <camel:template id="producerTemplate"/>   
     </camel:camelContext>
+
+
 
     <!--  lets create an embedded ActiveMQ Broker -->
     <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" schedulerSupport="true" id="broker">
@@ -146,6 +148,9 @@
                 </amq:policyEntries>
             </amq:policyMap>
         </amq:destinationPolicy>
+        <amq:managementContext>
+            <amq:managementContext createConnector="false"/>
+        </amq:managementContext>
         <amq:transportConnectors>
             <amq:transportConnector uri="tcp://localhost:0" />
         </amq:transportConnectors>
