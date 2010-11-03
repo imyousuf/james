@@ -39,7 +39,7 @@ import org.apache.mailet.Mail;
  * well
  * 
  */
-public class ActiveMQMailQueueItem extends JMSMailQueueItem {
+public class ActiveMQMailQueueItem extends JMSMailQueueItem implements ActiveMQSupport{
 
     private final Message message;
     private final Log logger;
@@ -50,14 +50,15 @@ public class ActiveMQMailQueueItem extends JMSMailQueueItem {
         this.logger = logger;
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.queue.jms.JMSMailQueueItem#done(boolean)
+     */
     public void done(boolean success) throws MailQueueException {
         super.done(success);
         if (success) {
-            if (message instanceof ActiveMQBlobMessage) {
-                /*
-                 * TODO: Enable this once activemq 5.4.2 was released
-                // delete the file
+            if (message instanceof ActiveMQBlobMessage && getMail().getAttribute(JAMES_REUSE_BLOB_URL) == null) {
+
                 // This should get removed once this jira issue was fixed
                 // https://issues.apache.org/activemq/browse/AMQ-1529
                 try {
@@ -67,9 +68,11 @@ public class ActiveMQMailQueueItem extends JMSMailQueueItem {
                 } catch (JMSException e) {
                     logger.info("Unable to delete blob message file for mail " + getMail().getName());
                 }
-                */
             }
+            getMail().removeAttribute(JAMES_REUSE_BLOB_URL);
+
         }
+
     }
 
 }

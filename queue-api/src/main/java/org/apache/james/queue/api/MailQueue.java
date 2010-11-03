@@ -46,6 +46,11 @@ import org.apache.mailet.Mail;
 public interface MailQueue {
 
     /**
+     * No delay for queued {@link MailQueueItem}
+     */
+    public final static int NO_DELAY = -1;
+
+    /**
      * Enqueue the Mail to the queue. The given delay and unit are used to calculate the time when the 
      * Mail will be avaible for dequeue
      * 

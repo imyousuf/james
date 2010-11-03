@@ -34,10 +34,10 @@ import org.apache.mailet.Mail;
  */
 public class JMSMailQueueItem implements MailQueueItem {
 
-    private final Mail mail;
-    private final Connection connection;
-    private final Session session;
-    private final MessageConsumer consumer;
+    protected final Mail mail;
+    protected final Connection connection;
+    protected final Session session;
+    protected final MessageConsumer consumer;
 
     public JMSMailQueueItem(Mail mail, Connection connection, Session session, MessageConsumer consumer) {
         this.mail = mail;

@@ -19,7 +19,9 @@
 package org.apache.james.queue.activemq;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -37,14 +39,18 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
-import org.apache.activemq.pool.PooledSession;
+import org.apache.activemq.ScheduledMessage;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
+import org.apache.james.core.MimeMessageSource;
+import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.core.NonClosingSharedInputStream;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.jms.JMSMailQueue;
 import org.apache.mailet.Mail;
+import org.springframework.jms.connection.SessionProxy;
 
 /**
  * *{@link MailQueue} implementation which use an ActiveMQ Queue.
@@ -55,8 +61,7 @@ import org.apache.mailet.Mail;
  * primitives, then the toString() method is called on the attribute value to
  * convert it
  * 
- * The implementation support the usage of {@link BlobMessage} for out-of-band
- * transfer of the {@link MimeMessage}
+ * The implementation use {@link BlobMessage} 
  * 
  * See http://activemq.apache.org/blob-messages.html for more details
  * 
@@ -69,17 +74,12 @@ import org.apache.mailet.Mail;
  * to it. It should use one of the following value {@link #LOW_PRIORITY},
  * {@link #NORMAL_PRIORITY}, {@link #HIGH_PRIORITY}
  * 
+ * To have a good throughput you should use a caching connection factory.
+ * 
  * 
  */
-public class ActiveMQMailQueue extends JMSMailQueue {
+public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
 
-    private long messageTreshold = -1;
-
-    private final static String JAMES_BLOB_URL = "JAMES_BLOB_URL";
-
-    public final static int NO_DELAY = -1;
-    public final static int DISABLE_TRESHOLD = -1;
-    public final static int BLOBMESSAGE_ONLY = 0;
 
     /**
      * Construct a new ActiveMQ based {@link MailQueue}. The messageTreshold is
@@ -88,10 +88,6 @@ public class ActiveMQMailQueue extends JMSMailQueue {
      * is used If the message size is bigger then the messageTreshold. The size
      * if in bytes.
      * 
-     * If you want to disable the usage of {@link BlobMessage} just use
-     * {@link #DISABLE_TRESHOLD} as value. If you want to use
-     * {@link BlobMessage} for every message (not depending of the size) just
-     * use {@link #BLOBMESSAGE_ONLY} as value.
      * 
      * For enabling the priority feature in AMQ see:
      * 
@@ -99,22 +95,64 @@ public class ActiveMQMailQueue extends JMSMailQueue {
      * 
      * @param connectionFactory
      * @param queuename
-     * @param messageTreshold
      * @param logger
      */
-    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final long messageTreshold, final Log logger) {
-        super(connectionFactory, queuename, logger);
-        this.messageTreshold = messageTreshold;
-    }
-
-    /**
-     * ActiveMQ based {@link MailQueue} which just use {@link BytesMessage} for
-     * all messages
-     * 
-     * @see #ActiveMQMailQueue(ConnectionFactory, String, long, Log)
-     */
     public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
-        this(connectionFactory, queuename, DISABLE_TRESHOLD, logger);
+        super(connectionFactory, queuename, logger);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.queue.jms.JMSMailQueue#deQueue()
+     */
+    public MailQueueItem deQueue() throws MailQueueException {
+        Connection connection = null;
+        Session session = null;
+        Message message = null;
+        MessageConsumer consumer = null;
+
+        try {
+            connection = connectionFactory.createConnection();
+            connection.start();
+
+            session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            Queue queue = session.createQueue(queuename);
+            consumer = session.createConsumer(queue);
+
+            message = consumer.receive();
+            return createMailQueueItem(connection, session, consumer, message);
+
+        } catch (Exception e) {
+            try {
+                session.rollback();
+            } catch (JMSException e1) {
+                // ignore on rollback
+            }
+
+            if (consumer != null) {
+
+                try {
+                    consumer.close();
+                } catch (JMSException e1) {
+                    // ignore on rollback
+                }
+            }
+            try {
+                if (session != null)
+                    session.close();
+            } catch (JMSException e1) {
+                // ignore here
+            }
+
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (JMSException e1) {
+                // ignore here
+            }
+            throw new MailQueueException("Unable to dequeue next message", e);
+        }
+
     }
 
     /*
@@ -124,21 +162,28 @@ public class ActiveMQMailQueue extends JMSMailQueue {
      * org.apache.james.queue.jms.JMSMailQueue#populateMailMimeMessage(javax
      * .jms.Message, org.apache.mailet.Mail)
      */
+    @SuppressWarnings("unchecked")
     protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException {
         if (message instanceof BlobMessage) {
             try {
                 BlobMessage blobMessage = (BlobMessage) message;
                 try {
-                    // store url for later usage. Maybe we can do something
-                    // smart for RemoteDelivery here
-                    // TODO: Check if this makes sense at all
+                    // store URL and queuenamefor later usage
                     mail.setAttribute(JAMES_BLOB_URL, blobMessage.getURL());
+                    mail.setAttribute(JAMES_QUEUE_NAME, queuename);
                 } catch (MalformedURLException e) {
                     // Ignore on error
                     logger.debug("Unable to get url from blobmessage for mail " + mail.getName());
                 }
-                mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream())));
-
+                InputStream in = blobMessage.getInputStream();
+                MimeMessageSource source;
+  
+                if (in instanceof NonClosingSharedInputStream) {
+                    source = new MimeMessageBlobMessageSource(blobMessage);
+                } else {
+                    source = new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream());
+                }
+                mail.setMessage(new MimeMessageCopyOnWriteProxy(source));
             } catch (IOException e) {
                 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
             } catch (JMSException e) {
@@ -157,50 +202,95 @@ public class ActiveMQMailQueue extends JMSMailQueue {
      * org.apache.mailet.Mail, long)
      */
     protected void produceMail(Session session, Map<String,Object> props, int msgPrio, Mail mail) throws JMSException, MessagingException, IOException {
-        boolean useBlob = false;
-        if (messageTreshold != -1) {
-            try {
-                if (messageTreshold == 0 || mail.getMessageSize() > messageTreshold) {
-                    useBlob = true;
-                }
-            } catch (MessagingException e) {
-                logger.info("Unable to calculate message size for mail " + mail.getName() + ". Use BytesMessage for JMS");
-                useBlob = false;
-            }
-        }
-        if (useBlob) {
-            MessageProducer producer = null;
-            try {
-                ActiveMQSession amqSession;
-                if (session instanceof PooledSession) {
-                    amqSession = ((PooledSession) session).getInternalSession();
-                } else {
-                    amqSession = (ActiveMQSession) session;
-                }
-                BlobMessage message = amqSession.createBlobMessage(new MimeMessageInputStream(mail.getMessage()));
-                Queue queue = session.createQueue(queuename);
-
-                producer = session.createProducer(queue);
-                Iterator<String> keys = props.keySet().iterator();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    message.setObjectProperty(key, props.get(key));
-                }
-                producer.send(message, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
-            } finally {
-
-                try {
-                    if (producer != null)
-                        producer.close();
-                } catch (JMSException e) {
-                    // ignore here
-                }
+        MessageProducer producer = null;
+        try {
+            
+            BlobMessage blobMessage = null;
+            MimeMessage mm = mail.getMessage();
+            MimeMessage wrapper = mm;
+            
+            ActiveMQSession amqSession = getAMQSession(session);
+            
+            if (wrapper instanceof MimeMessageCopyOnWriteProxy) {
+                wrapper = ((MimeMessageCopyOnWriteProxy)mm).getWrappedMessage();
             }
             
-        } else {
-            super.produceMail(session, props, msgPrio, mail);
-        }
+            if (wrapper instanceof MimeMessageWrapper) {
+                URL blobUrl = (URL) mail.getAttribute(JAMES_BLOB_URL);
+                String fromQueue = (String) mail.getAttribute(JAMES_QUEUE_NAME);
+                MimeMessageWrapper mwrapper = (MimeMessageWrapper) wrapper;
 
+                if (blobUrl != null && fromQueue != null && fromQueue.equals(queuename) && mwrapper.isModified() == false ) {
+                    // the message content was not changed so don't need to upload it again and can just point to the url
+                    blobMessage = amqSession.createBlobMessage(blobUrl);
+                    
+                    // thats important so we don't delete the blob file after complete the processing!
+                    mail.setAttribute(JAMES_REUSE_BLOB_URL, true);
+                    
+                }
+
+            }
+            if (blobMessage == null) {
+                // just use the MimeMessageInputStream which can read every MimeMessage implementation
+                blobMessage = amqSession.createBlobMessage(new MimeMessageInputStream(wrapper));
+            }
+            
+            // store the queue name in the props
+            props.put(JAMES_QUEUE_NAME, queuename);
+
+              
+            Queue queue = session.createQueue(queuename);
+
+            producer = session.createProducer(queue);
+            Iterator<String> keys = props.keySet().iterator();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                blobMessage.setObjectProperty(key, props.get(key));
+            }
+            producer.send(blobMessage, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
+        } finally {
+
+            try {
+                if (producer != null)
+                    producer.close();
+            } catch (JMSException e) {
+                // ignore here
+            }
+        }
+      
+    }
+
+    /**
+     * Cast the given {@link Session} to an {@link ActiveMQSession}
+     * 
+     * @param session
+     * @return amqSession
+     * @throws JMSException
+     */
+    protected ActiveMQSession getAMQSession(Session session) throws JMSException {
+        ActiveMQSession amqSession;
+        
+        if (session instanceof SessionProxy) {
+            // handle Springs CachingConnectionFactory 
+            amqSession = (ActiveMQSession) ((SessionProxy) session).getTargetSession();
+        } else {
+            // just cast as we have no other idea
+            amqSession = (ActiveMQSession) session;
+        }
+        return amqSession;
+    }
+    
+
+    @Override
+    protected Map<String, Object> getJMSProperties(Mail mail, long delayInMillis) throws JMSException, MessagingException {
+        Map<String, Object> props =  super.getJMSProperties(mail, delayInMillis);
+       
+        // add JMS Property for handling message scheduling
+        // http://activemq.apache.org/delay-and-schedule-message-delivery.html
+        if (delayInMillis > 0) {
+            props.put(ScheduledMessage.AMQ_SCHEDULED_DELAY, delayInMillis);
+        }
+        return props;
     }
 
     @Override

@@ -40,6 +40,10 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core-api</artifactId>
+    </dependency>
      <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
@@ -48,10 +52,33 @@
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
     </dependency>
-   <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-pool</artifactId>
-   </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jms</artifactId>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-beans</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-aop</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-tx</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-annotation_1.0_spec</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jms_1.1_spec</artifactId>
@@ -60,5 +87,9 @@
       <groupId>${javax.mail.groupId}</groupId>
       <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging-api</artifactId>
+    </dependency> 
   </dependencies>
 </project>

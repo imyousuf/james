@@ -57,23 +57,11 @@ import org.apache.mailet.MailAddress;
  * 
  * 
  */
-public class JMSMailQueue implements MailQueue {
+public class JMSMailQueue implements MailQueue, JMSSupport {
 
     protected final String queuename;
     protected final ConnectionFactory connectionFactory;
     protected final Log logger;
-    protected final static String JAMES_MAIL_RECIPIENTS = "JAMES_MAIL_RECIPIENTS";
-    protected final static String JAMES_MAIL_SENDER = "JAMES_MAIL_SENDER";
-    protected final static String JAMES_MAIL_ERROR_MESSAGE = "JAMES_MAIL_ERROR_MESSAGE";
-    protected final static String JAMES_MAIL_LAST_UPDATED = "JAMES_MAIL_LAST_UPDATED";
-    protected final static String JAMES_MAIL_MESSAGE_SIZE = "JAMES_MAIL_MESSAGE_SIZE";
-    protected final static String JAMES_MAIL_NAME = "JAMES_MAIL_NAME";
-    protected final static String JAMES_MAIL_SEPERATOR = ";";
-    protected final static String JAMES_MAIL_REMOTEHOST = "JAMES_MAIL_REMOTEHOST";
-    protected final static String JAMES_MAIL_REMOTEADDR = "JAMES_MAIL_REMOTEADDR";
-    protected final static String JAMES_MAIL_STATE = "JAMES_MAIL_STATE";
-    protected final static String JAMES_MAIL_ATTRIBUTE_NAMES = "JAMES_MAIL_ATTRIBUTE_NAMES";
-    protected final static String JAMES_NEXT_DELIVERY = "JAMES_NEXT_DELIVERY";
 
     /**
      * Handle mail with lowest priority
@@ -106,7 +94,7 @@ public class JMSMailQueue implements MailQueue {
     }
 
 /**
-     * Execute the given {@link DequeueOperation} when a mail is ready to precoess. As JMS does not support delay scheduling out-of-the box, we use 
+     * Execute the given {@link DequeueOperation} when a mail is ready to process. As JMS does not support delay scheduling out-of-the box, we use 
      * a messageselector to check if a mail is ready. For this a {@link MessageConsumer#receive(long) is used with a timeout of 10 seconds. 
      * 
      * Many JMS implementations support better solutions for this, so this should get overridden by these implementations
@@ -126,7 +114,7 @@ public class JMSMailQueue implements MailQueue {
 
                 session = connection.createSession(true, Session.SESSION_TRANSACTED);
                 Queue queue = session.createQueue(queuename);
-                consumer = session.createConsumer(queue, JAMES_NEXT_DELIVERY + " <= " + System.currentTimeMillis());
+                consumer = session.createConsumer(queue, getMessageSelector());
 
                 message = consumer.receive(10000);
 
@@ -192,6 +180,15 @@ public class JMSMailQueue implements MailQueue {
 
     }
 
+    /**
+     * Return message selector to use for consuming
+     * 
+     * @return selector
+     */
+    protected String getMessageSelector() {
+        return JAMES_NEXT_DELIVERY + " <= " + System.currentTimeMillis();
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -257,7 +254,7 @@ public class JMSMailQueue implements MailQueue {
      * @see org.apache.james.queue.MailQueue#enQueue(org.apache.mailet.Mail)
      */
     public void enQueue(Mail mail) throws MailQueueException {
-        enQueue(mail, -1, TimeUnit.MILLISECONDS);
+        enQueue(mail, NO_DELAY, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -325,7 +322,7 @@ public class JMSMailQueue implements MailQueue {
             String recipient = recipients.next().toString();
             recipientsBuilder.append(recipient.trim());
             if (recipients.hasNext()) {
-                recipientsBuilder.append(JAMES_MAIL_SEPERATOR);
+                recipientsBuilder.append(JAMES_MAIL_SEPARATOR);
             }
         }
         props.put(JAMES_MAIL_RECIPIENTS, recipientsBuilder.toString());
@@ -350,7 +347,7 @@ public class JMSMailQueue implements MailQueue {
             props.put(attrName, value);
 
             if (attrs.hasNext()) {
-                attrsBuilder.append(JAMES_MAIL_SEPERATOR);
+                attrsBuilder.append(JAMES_MAIL_SEPARATOR);
             }
         }
         props.put(JAMES_MAIL_ATTRIBUTE_NAMES, attrsBuilder.toString());
@@ -409,7 +406,7 @@ public class JMSMailQueue implements MailQueue {
 
         List<MailAddress> rcpts = new ArrayList<MailAddress>();
         String recipients = message.getStringProperty(JAMES_MAIL_RECIPIENTS);
-        StringTokenizer recipientTokenizer = new StringTokenizer(recipients, JAMES_MAIL_SEPERATOR);
+        StringTokenizer recipientTokenizer = new StringTokenizer(recipients, JAMES_MAIL_SEPARATOR);
         while (recipientTokenizer.hasMoreTokens()) {
             try {
                 MailAddress rcpt = new MailAddress(recipientTokenizer.nextToken());
@@ -425,7 +422,7 @@ public class JMSMailQueue implements MailQueue {
         mail.setRemoteHost(message.getStringProperty(JAMES_MAIL_REMOTEHOST));
 
         String attributeNames = message.getStringProperty(JAMES_MAIL_ATTRIBUTE_NAMES);
-        StringTokenizer namesTokenizer = new StringTokenizer(attributeNames, JAMES_MAIL_SEPERATOR);
+        StringTokenizer namesTokenizer = new StringTokenizer(attributeNames, JAMES_MAIL_SEPARATOR);
         while (namesTokenizer.hasMoreTokens()) {
             String name = namesTokenizer.nextToken();
             Serializable attrValue = message.getStringProperty(name);
@@ -468,6 +465,17 @@ public class JMSMailQueue implements MailQueue {
         return "MailQueue:" + queuename;
     }
 
+    /**
+     * Create a {@link MailQueueItem} for the given parameters
+     * 
+     * @param connection
+     * @param session
+     * @param consumer
+     * @param message
+     * @return item
+     * @throws JMSException
+     * @throws MessagingException
+     */
     protected MailQueueItem createMailQueueItem(Connection connection, Session session, MessageConsumer consumer, Message message) throws JMSException, MessagingException {
         final Mail mail = createMail(message);
         return new JMSMailQueueItem(mail, connection, session, consumer);

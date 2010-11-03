@@ -18,10 +18,7 @@
  ****************************************************************/
 package org.apache.james.queue.activemq;
 
-import javax.jms.BytesMessage;
-import javax.jms.Message;
 
-import org.apache.activemq.BlobMessage;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.jms.JMSMailQueueFactory;
@@ -35,25 +32,13 @@ import org.apache.james.queue.jms.JMSMailQueueFactory;
  *
  */
 public class ActiveMQMailQueueFactory extends JMSMailQueueFactory{
-
-    private long sizeTreshold = ActiveMQMailQueue.DISABLE_TRESHOLD;
   
-    /**
-     * The size treshold which will be used for setting if a {@link BlobMessage} or {@link BytesMessage} will be used
-     * as {@link Message} type. See {@link ActiveMQMailQueue} for more details
-     * 
-     * @param sizeTreshold
-     */
-    public void setSizeTreshold(long sizeTreshold) {
-        this.sizeTreshold  = sizeTreshold;
-    }
-    
     
     
 
     @Override
 	protected MailQueue createMailQueue(String name) {
-        return new ActiveMQMailQueue(connectionFactory, name, sizeTreshold, log);
+        return new ActiveMQMailQueue(connectionFactory, name, log);
 	}
 
 }
