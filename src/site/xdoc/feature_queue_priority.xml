@@ -42,6 +42,18 @@
     <p>Default priority if no MAIL_PRIORITY attribute set is NORMAL_PRIORITY.</p>
     
   </section>
+  
+  <section name="Usage Scenario">
+  
+    <p>There are two scenarios to set priority in the queue.</p>
+    <ul>
+      <li>Write a <a href="dev_extend_hook_smtp.html">SMTP hook</a> which sets the header 
+         and add the hook to smtphandler chain.</li>
+      <li>You could also add the header in a mailet to let remotedelivery 
+          pick it up again on redelivery.</li>
+    </ul>
+  
+  </section>
 
 </body>
 
