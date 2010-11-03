@@ -38,11 +38,17 @@
 
 </subsection>
 
-<subsection name="System Requirements">
+<subsection name="User Privileges">
   
   <p>On Unix platforms, root access will be required to run James.  On these platforms, access to ports 
-     below 1024 is generally restricted to the root user.  As SMTP, POP3, and IMAP all need to open 
+     below 1024 is generally restricted to the root user.  As SMTP, POP3, and IMAP4 all need to open 
      server sockets on such ports in standard configurations, James requires root access.</p>
+  
+  <p>On Windows platforms, you need to run James as Administrator privilege.</p>
+
+</subsection>
+  
+<subsection name="System Resources">
   
   <p>Obviously James also requires sufficient disk space, processor power, and network bandwidth.  But, 
      other than what's been discussed here, it has no additional special requirements.</p>
@@ -71,7 +77,7 @@
 #Step 2: Deploy It
 
 #Step 3: Configure It
-  you need to modify the security settings for the jmx files like descripted here:
+  you need to modify the security settings for the jmx files like described here:
   <a href="http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html">
   http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html</a>
 
@@ -109,9 +115,10 @@
     <div class="ui-widget">
       <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
         <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-        <strong>Prelimnary step for JMX on Windows: </strong>
-        to let windows start with jmx username/password enabled, 
-        you need to modify the security settings for the jmx files like descripted here:
+        <strong>Preliminary step for JMX on Windows: </strong>
+        to let windows start with JMX username/password enabled, 
+        you need to modify the security settings for the JMX files (./conf/jmx.password and ./conf/jmx.access) 
+        like described here:
         <a href="http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html">
         http://download.oracle.com/javase/1.5.0/docs/guide/management/security-windows.html</a>
       </p>
