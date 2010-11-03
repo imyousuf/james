@@ -46,6 +46,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
+import org.apache.james.queue.api.MailPrioritySupport;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -57,35 +58,12 @@ import org.apache.mailet.MailAddress;
  * 
  * 
  */
-public class JMSMailQueue implements MailQueue, JMSSupport {
+public class JMSMailQueue implements MailQueue, JMSSupport, MailPrioritySupport {
 
     protected final String queuename;
     protected final ConnectionFactory connectionFactory;
     protected final Log logger;
 
-    /**
-     * Handle mail with lowest priority
-     */
-    public final static int LOW_PRIORITY = 0;
-
-    /**
-     * Handle mail with normal priority (this is the default)
-     */
-    public final static int NORMAL_PRIORITY = Message.DEFAULT_DELIVERY_MODE;
-
-    /**
-     * Handle mail with highest priority
-     */
-    public final static int HIGH_PRIORITY = 9;
-
-    /**
-     * Attribute name for support if priority. If the attribute is set and
-     * priority handling is enabled it will take care of move the Mails with
-     * higher priority to the head of the queue (so the mails are faster
-     * handled).
-     * 
-     */
-    public final static String MAIL_PRIORITY = "MAIL_PRIORITY";
 
     public JMSMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
         this.connectionFactory = connectionFactory;
