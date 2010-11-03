@@ -946,8 +946,8 @@ public class MessageProcessor extends ProcessorAbstract
     @SuppressWarnings("unchecked")
     protected void sendMail(Mail mail) throws MessagingException
     {
-        // send the mail
-        getServer().sendMail(mail);
+        // queue the mail
+        getMailQueue().enQueue(mail);
 
         // Update the flags of the received message
         if (!isLeave())

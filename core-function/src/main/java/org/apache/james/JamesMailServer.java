@@ -26,7 +26,6 @@ import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.mail.MessagingException;
 import javax.mail.internet.ParseException;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -35,12 +34,8 @@ import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.queue.api.MailQueue;
-import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.services.MailServer;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -82,11 +77,7 @@ public class JamesMailServer
 
     private Log logger;
 
-    private DNSService dns;
-
-    private MailQueueFactory queueFactory;
-    
-    private MailQueue queue;
+    private DNSService dns;    
 
     private MailAddress postmaster;
 
@@ -98,11 +89,6 @@ public class JamesMailServer
     @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
-    }
-    
-    @Resource(name="mailQueueFactory")
-    public void setMailQueueFactory(MailQueueFactory queueFactory) {
-        this.queueFactory = queueFactory;
     }
     
     /*
@@ -126,8 +112,6 @@ public class JamesMailServer
     public void init() throws Exception {
 
         logger.info("JAMES init...");                
-
-        queue = queueFactory.getQueue("spool");
         
         if (conf.getKeys("usernames").hasNext()) {
         	throw new ConfigurationException("<usernames> parameter in James block was removed. Please configure this data in UsersRepository block");
@@ -188,30 +172,6 @@ public class JamesMailServer
     }
 
  
-
-    /**
-     * @see org.apache.james.services.MailServer#sendMail(Mail)
-     */
-    public void sendMail(Mail mail) throws MessagingException {
-        try {
-            queue.enQueue(mail);
-                        
-        } catch (Exception e) {
-            logger.error("Error storing message: " + e.getMessage(),e);
-            LifecycleUtil.dispose(mail);
-
-            throw new MessagingException("Exception spooling message: " + e.getMessage(), e);
-
-        }
-        if (logger.isDebugEnabled()) {
-            StringBuffer logBuffer =
-                new StringBuffer(64)
-                        .append("Mail ")
-                        .append(mail.getName())
-                        .append(" pushed in spool");
-            logger.debug(logBuffer.toString());
-        }
-    }
 
     /**
      * <p>Note that this method ensures that James cannot be run in a distributed

@@ -19,39 +19,17 @@
 
 package org.apache.james.services;
 
-import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
-import org.apache.james.lifecycle.Disposable;
-import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.test.MailUtil;
 
-public class MockMailServer implements MailServer, Disposable {
+public class MockMailServer implements MailServer {
 
-    private int m_maxMessageSizeBytes = 0;
-
-    private final LinkedBlockingQueue<Mail> mails = new LinkedBlockingQueue<Mail>();
     
     private boolean virtualHosting;
 
-    private Mail lastMail;
-
-
-    public void sendMail(Mail mail) throws MessagingException {
-        int bodySize = mail.getMessage().getSize();
-        if (m_maxMessageSizeBytes != 0 && m_maxMessageSizeBytes < bodySize) throw new MessagingException("message size exception");
-        
-        try {
-            this.lastMail = mail;
-            mails.put(mail);
-        } catch (InterruptedException e) {
-            throw new MessagingException("Unable to queue", e);
-        }
-    }
 
     public synchronized String getId() {
         return MailUtil.newId();
@@ -60,29 +38,6 @@ public class MockMailServer implements MailServer, Disposable {
     public boolean isLocalServer(String serverName) {
         return "localhost".equals(serverName);
     }
-
-    public Mail getLastMail()
-    {
-        if (mails.size() == 0) return null; 
-        return lastMail;
-      
-    }
-
-    public void setMaxMessageSizeBytes(int maxMessageSizeBytes) {
-        m_maxMessageSizeBytes = maxMessageSizeBytes;
-    }
-
-    public void dispose() {
-        while(mails.isEmpty() == false) {
-            try {
-                LifecycleUtil.dispose(mails.take());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        
-    }
-
     
     public void setVirtualHosting(boolean virtualHosting) {
         this.virtualHosting = virtualHosting;

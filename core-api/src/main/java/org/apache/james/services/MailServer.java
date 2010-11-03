@@ -21,9 +21,7 @@
 
 package org.apache.james.services;
 
-import javax.mail.MessagingException;
 
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -33,16 +31,6 @@ import org.apache.mailet.MailAddress;
  * @version This is $Revision$
  */
 public interface MailServer{
-
-    /**
-     *  Pass a Mail to this MailServer for processing
-     *  
-     * @param mail the Mail to be processed
-     * @throws MessagingException
-     */
-    void sendMail(Mail mail)
-        throws MessagingException;
-   
   
     /**
      * Generate a new identifier/name for a mail being processed by this server.

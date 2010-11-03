@@ -38,6 +38,8 @@ import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.queue.api.MailQueue;
+import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 
@@ -78,6 +80,17 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
     
     private Log logger;
 
+
+    private MailQueue queue;
+    private MailQueueFactory queueFactory;
+ 
+
+    
+    @Resource(name="mailQueueFactory")
+    public void setMailQueueFactory(MailQueueFactory queueFactory) {
+        this.queueFactory = queueFactory;
+    }
+
     @Resource(name="scheduler")
     public void setScheduledExecutorService(ScheduledExecutorService scheduler) {
         this.scheduler = scheduler;
@@ -116,6 +129,7 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
         enabled = conf.getBoolean("[@enabled]", false);
         if (enabled)
         {
+            queue = queueFactory.getQueue(MailQueueFactory.SPOOL);
 
             List<HierarchicalConfiguration> fetchConfs = conf.configurationsAt("fetch");
             for (int i = 0; i < fetchConfs.size(); i++)
@@ -130,7 +144,7 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
                 fetcher.setDNSService(dns);
                 fetcher.setMailServer(mailserver);
                 fetcher.setUsersRepository(urepos);
-                
+                fetcher.setMailQueue(queue);
                 fetcher.configure(fetchConf);
                 
                 // initialize scheduling

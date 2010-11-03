@@ -85,13 +85,6 @@ public class ValidRcptHandlerTest extends TestCase {
 
        
 
-            public void sendMail(Mail mail) throws MessagingException {
-                // TODO Auto-generated method stub
-                
-            }
-
-           
-
             public boolean supportVirtualHosting() {
                 // TODO Auto-generated method stub
                 return false;

@@ -181,7 +181,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         
         initSMTPServer(testConfiguration);
         
-        m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize() * 1024);
+        //m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize() * 1024);
     }
 
 
@@ -308,7 +308,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         smtpProtocol.sendCommand("EHLO " + InetAddress.getLocalHost());
         String[] capabilityRes = smtpProtocol.getReplyStrings();
@@ -344,7 +344,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
 
         // no message there, yet
-        assertNull("no mail received by mail server", m_mailServer.getLastMail());
+        assertNull("no mail received by mail server", queue.getLastMail());
 
         smtpProtocol.sendCommand("EHLO " + InetAddress.getLocalHost());
         String[] capabilityRes = smtpProtocol.getReplyStrings();

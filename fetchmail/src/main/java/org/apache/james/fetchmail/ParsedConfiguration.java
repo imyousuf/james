@@ -32,6 +32,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.queue.api.MailQueue;
 import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.MailAddress;
@@ -307,6 +308,8 @@ class ParsedConfiguration
      * The DNSService
      */
     private DNSService dnsServer;
+
+    private MailQueue queue;
 
 
 
@@ -1179,6 +1182,14 @@ protected void setDNSServer(DNSService dnsServer)
     {
         fieldRejectRemoteReceivedHeaderInvalid =
             rejectRemoteReceivedHeaderInvalid;
+    }
+    
+    public void setMailQueue(MailQueue queue) {
+        this.queue = queue;
+    }
+    
+    public MailQueue getMailQueue() {
+        return queue;
     }
 
 }

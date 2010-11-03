@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 
@@ -42,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.queue.api.MailQueue;
 import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 
@@ -404,6 +404,8 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     private DNSService dnsServer;
 
     private Log logger;
+
+    private MailQueue queue;
     
     /**
      * Constructor for POP3mail.
@@ -657,18 +659,15 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     }
     
     
-    @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         this.dnsServer = dns;
     }
 
 
-    @Resource(name="mailserver")
     public void setMailServer(MailServer mailserver) {
         this.fieldServer = mailserver;
     }
    
-    @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository urepos) {
         this.fieldLocalUsers = urepos;
     }
@@ -992,5 +991,13 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
             }
         }
     }    
+    
+    public void setMailQueue(MailQueue queue) {
+        this.queue = queue;
+    }
+    
+    public MailQueue getMailQueue() {
+        return queue;
+    }
 
 }

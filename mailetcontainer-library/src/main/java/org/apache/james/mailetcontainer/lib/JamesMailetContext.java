@@ -43,6 +43,7 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.HostAddress;
@@ -65,11 +66,19 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
 
     private UsersRepository localusers;
 
+    private MailProcessor processorList;
+
     @Resource(name = "mailserver")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
 
+    @Resource(name="mailProcessor")
+    public void setMailProcessor(MailProcessor processorList) {
+        this.processorList = processorList;
+    }
+    
+    
     @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -363,11 +372,13 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
     }
 
     /*
+     * TODO: Should we use the MailProcessorList or the MailQueue here ?
+     * 
      * (non-Javadoc)
      * @see org.apache.mailet.MailetContext#sendMail(org.apache.mailet.Mail)
      */
     public void sendMail(Mail mail) throws MessagingException {
-        mailServer.sendMail(mail);
+        processorList.service(mail);
     }
 
     /*
