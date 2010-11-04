@@ -53,13 +53,7 @@ public class JamesMailServer
      * The top level configuration object for this server.
      */
     private HierarchicalConfiguration conf = null;
-
-    /**
-     * The array of domain/server names for which this instance of James
-     * will receive and process mail.
-     */
-    private String[] serverNames;
-
+    
     /**
      * The number of mails generated.  Access needs to be synchronized for
      * thread safety and to ensure that all threads see the latest value.
@@ -164,10 +158,6 @@ public class JamesMailServer
             logger.warn("Configured defaultDomain not exist in DomainList, please add it ASAP!");
             
         }
-        serverNames = domains.getDomains();
-
-        if (serverNames == null || serverNames.length == 0) throw new ConfigurationException("No domainnames configured");
-        
        
     }
 
