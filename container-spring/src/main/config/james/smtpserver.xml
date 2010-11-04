@@ -257,6 +257,24 @@
              <!-- Load the core command handlers -->
              <handler class="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>        
            
+             <!-- This handler can add a hint to the mail which tells the MailQueue which email should get processed first -->
+             <!-- Normally the MailQueue will just handles Mails in FIFO manner -->
+             <!-- Valid priority values are 1,5,9 where 9 is the highest-->
+             <!-- 
+             <handler class="org.apache.james.smtpserver.MailPriortyHandler">
+                 <priorityEntries>
+                     <priorityEntry>
+                         <domain> yourdomain1 </domain>
+                         <priority> 1 </priority>
+                     </priorityEntry>
+                     <priorityEntry>
+                         <domain> yourdomain2 </domain>
+                         <priority> 9 </priority>
+                     </priorityEntry>
+                 <priorityEntries>
+             </handler>
+             -->
+             
              <!-- This MessageHandler could be used to check message against spamd before -->
              <!-- accept the email. So its possible to reject a message on smtplevel if a -->
              <!-- configured hits amount is reached. -->
