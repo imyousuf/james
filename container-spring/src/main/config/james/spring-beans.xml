@@ -140,11 +140,8 @@
             <amq:policyMap>
                 <amq:policyEntries>
                     <!-- Support priority handling of messages -->
-                    <!-- This will not work till we use activemq 5.4+ -->
                     <!-- http://activemq.apache.org/how-can-i-support-priority-queues.html -->
-                    <!-- 
                     <amq:policyEntry queue=">" prioritizedMessages="true"/>
-                    -->
                 </amq:policyEntries>
             </amq:policyMap>
         </amq:destinationPolicy>
