@@ -74,7 +74,8 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
         }
         out.flush();
         out.close();
-        return f.toURL();
+        // File.toURL() is deprecated
+        return f.toURI().toURL();
     }
 
     /*

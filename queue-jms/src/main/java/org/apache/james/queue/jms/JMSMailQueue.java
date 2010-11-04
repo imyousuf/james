@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.queue.jms;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.mail.MessagingException;
@@ -45,7 +47,6 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
-import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.queue.api.MailPrioritySupport;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.mailet.Mail;
@@ -55,6 +56,8 @@ import org.apache.mailet.MailAddress;
  * {@link MailQueue} implementation which use a JMS Queue for the
  * {@link MailQueue}. This implementation should work with every JMS 1.1.0
  * implementation
+ * 
+ * It use {@link ObjectMessage} with a byte array as payload to store the {@link Mail} objects.
  * 
  * 
  */
@@ -77,7 +80,6 @@ public class JMSMailQueue implements MailQueue, JMSSupport, MailPrioritySupport 
      * 
      * Many JMS implementations support better solutions for this, so this should get overridden by these implementations
      * 
-     * @see org.apache.james.queue.api.MailQueue#deQueue(org.apache.james.queue.api.api.MailQueue.DequeueOperation)
      */
     public MailQueueItem deQueue() throws MailQueueException {
         Connection connection = null;
@@ -245,7 +247,7 @@ public class JMSMailQueue implements MailQueue, JMSSupport, MailPrioritySupport 
             Queue queue = session.createQueue(queuename);
 
             producer = session.createProducer(queue);
-            BytesMessage message = session.createBytesMessage();
+            ObjectMessage message = session.createObjectMessage();
 
             Iterator<String> keys = props.keySet().iterator();
             while(keys.hasNext()) {
@@ -253,7 +255,19 @@ public class JMSMailQueue implements MailQueue, JMSSupport, MailPrioritySupport 
                 message.setObjectProperty(key, props.get(key));
             }
             
-            mail.getMessage().writeTo(new BytesMessageOutputStream(message));
+            long size = mail.getMessageSize();
+            ByteArrayOutputStream out;
+            if (size > -1) {
+                out = new ByteArrayOutputStream((int)size);
+            } else {
+                out = new ByteArrayOutputStream();
+            }
+            mail.getMessage().writeTo(out);
+            
+            // store the byte array in a ObjectMessage so we can use a SharedByteArrayInputStream later
+            // without the need of copy the day 
+            message.setObject(out.toByteArray());
+
             producer.send(message, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
             
         } finally {
@@ -360,9 +374,9 @@ public class JMSMailQueue implements MailQueue, JMSSupport, MailPrioritySupport 
      * @param mail
      * @throws MessagingException
      */
-    protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException {
-        if (message instanceof BytesMessage) {
-            mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageInputStreamSource(mail.getName(), new BytesMessageInputStream((BytesMessage) message))));
+    protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException, JMSException {
+        if (message instanceof ObjectMessage) {
+            mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageObjectMessageSource((ObjectMessage)message)));
         } else {
             throw new MailQueueException("Not supported JMS Message received " + message);
         }

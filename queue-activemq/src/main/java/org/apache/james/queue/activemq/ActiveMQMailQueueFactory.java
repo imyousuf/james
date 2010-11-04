@@ -31,14 +31,17 @@ import org.apache.james.queue.jms.JMSMailQueueFactory;
  * 
  *
  */
-public class ActiveMQMailQueueFactory extends JMSMailQueueFactory{
-  
-    
-    
+public class ActiveMQMailQueueFactory extends JMSMailQueueFactory {
 
+    private boolean useBlob = true;
+    
+    public void setUseBlobMessages(boolean useBlob){
+        this.useBlob = useBlob;
+    }
+    
     @Override
-	protected MailQueue createMailQueue(String name) {
-        return new ActiveMQMailQueue(connectionFactory, name, log);
-	}
+    protected MailQueue createMailQueue(String name) {
+        return new ActiveMQMailQueue(connectionFactory, name, useBlob, log);
+    }
 
 }

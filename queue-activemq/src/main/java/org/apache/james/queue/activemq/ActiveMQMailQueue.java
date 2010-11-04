@@ -25,13 +25,13 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.mail.MessagingException;
@@ -61,7 +61,8 @@ import org.springframework.jms.connection.SessionProxy;
  * primitives, then the toString() method is called on the attribute value to
  * convert it
  * 
- * The implementation use {@link BlobMessage} 
+ * The implementation use {@link BlobMessage} or {@link ObjectMessage}, depending on the constructor which was used
+ * 
  * 
  * See http://activemq.apache.org/blob-messages.html for more details
  * 
@@ -79,26 +80,32 @@ import org.springframework.jms.connection.SessionProxy;
  * 
  */
 public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
-
+    
+    private boolean useBlob;
 
     /**
-     * Construct a new ActiveMQ based {@link MailQueue}. The messageTreshold is
-     * used to calculate if a {@link BytesMessage} or a {@link BlobMessage}
-     * should be used when queuing the mail in ActiveMQ. A {@link BlobMessage}
-     * is used If the message size is bigger then the messageTreshold. The size
-     * if in bytes.
+     * Construct a {@link ActiveMQMailQueue} which only use {@link BlobMessage}
+     * 
+     * @see #ActiveMQMailQueue(ConnectionFactory, String, boolean, Log)
+     */
+    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
+        this(connectionFactory, queuename, true, logger);
+    }
+    
+    /**
+     * Construct a new ActiveMQ based {@link MailQueue}.
      * 
      * 
-     * For enabling the priority feature in AMQ see:
      * 
-     * http://activemq.apache.org/how-can-i-support-priority-queues.html
      * 
      * @param connectionFactory
      * @param queuename
+     * @param useBlob
      * @param logger
      */
-    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
+    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, boolean useBlob, final Log logger) {
         super(connectionFactory, queuename, logger);
+        this.useBlob = useBlob;
     }
     
     /*
@@ -163,7 +170,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
      * .jms.Message, org.apache.mailet.Mail)
      */
     @SuppressWarnings("unchecked")
-    protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException {
+    protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException, JMSException {
         if (message instanceof BlobMessage) {
             try {
                 BlobMessage blobMessage = (BlobMessage) message;
@@ -204,50 +211,53 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
     protected void produceMail(Session session, Map<String,Object> props, int msgPrio, Mail mail) throws JMSException, MessagingException, IOException {
         MessageProducer producer = null;
         try {
-            
-            BlobMessage blobMessage = null;
-            MimeMessage mm = mail.getMessage();
-            MimeMessage wrapper = mm;
-            
-            ActiveMQSession amqSession = getAMQSession(session);
-            
-            if (wrapper instanceof MimeMessageCopyOnWriteProxy) {
-                wrapper = ((MimeMessageCopyOnWriteProxy)mm).getWrappedMessage();
-            }
-            
-            if (wrapper instanceof MimeMessageWrapper) {
-                URL blobUrl = (URL) mail.getAttribute(JAMES_BLOB_URL);
-                String fromQueue = (String) mail.getAttribute(JAMES_QUEUE_NAME);
-                MimeMessageWrapper mwrapper = (MimeMessageWrapper) wrapper;
-
-                if (blobUrl != null && fromQueue != null && fromQueue.equals(queuename) && mwrapper.isModified() == false ) {
-                    // the message content was not changed so don't need to upload it again and can just point to the url
-                    blobMessage = amqSession.createBlobMessage(blobUrl);
-                    
-                    // thats important so we don't delete the blob file after complete the processing!
-                    mail.setAttribute(JAMES_REUSE_BLOB_URL, true);
-                    
+            // check if we should use a blob message here
+            if (useBlob) { 
+                MimeMessage mm = mail.getMessage();
+                MimeMessage wrapper = mm;
+                
+                ActiveMQSession amqSession = getAMQSession(session);
+                
+                if (wrapper instanceof MimeMessageCopyOnWriteProxy) {
+                    wrapper = ((MimeMessageCopyOnWriteProxy)mm).getWrappedMessage();
                 }
+                BlobMessage blobMessage = null;
+                if (wrapper instanceof MimeMessageWrapper) {
+                    URL blobUrl = (URL) mail.getAttribute(JAMES_BLOB_URL);
+                    String fromQueue = (String) mail.getAttribute(JAMES_QUEUE_NAME);
+                    MimeMessageWrapper mwrapper = (MimeMessageWrapper) wrapper;
 
-            }
-            if (blobMessage == null) {
-                // just use the MimeMessageInputStream which can read every MimeMessage implementation
-                blobMessage = amqSession.createBlobMessage(new MimeMessageInputStream(wrapper));
-            }
+                    if (blobUrl != null && fromQueue != null && fromQueue.equals(queuename) && mwrapper.isModified() == false ) {
+                        // the message content was not changed so don't need to upload it again and can just point to the url
+                        blobMessage = amqSession.createBlobMessage(blobUrl);
+                    
+                        // thats important so we don't delete the blob file after complete the processing!
+                        mail.setAttribute(JAMES_REUSE_BLOB_URL, true);
+                    
+                    }
+
+                }
+                if (blobMessage == null) {
+                    // just use the MimeMessageInputStream which can read every MimeMessage implementation
+                    blobMessage = amqSession.createBlobMessage(new MimeMessageInputStream(wrapper));
+                }
             
-            // store the queue name in the props
-            props.put(JAMES_QUEUE_NAME, queuename);
+                // store the queue name in the props
+                props.put(JAMES_QUEUE_NAME, queuename);
 
               
-            Queue queue = session.createQueue(queuename);
+                Queue queue = session.createQueue(queuename);
 
-            producer = session.createProducer(queue);
-            Iterator<String> keys = props.keySet().iterator();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                blobMessage.setObjectProperty(key, props.get(key));
+                producer = session.createProducer(queue);
+                Iterator<String> keys = props.keySet().iterator();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    blobMessage.setObjectProperty(key, props.get(key));
+                }
+                producer.send(blobMessage, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
+            } else {
+                super.produceMail(session, props, msgPrio, mail);
             }
-            producer.send(blobMessage, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
         } finally {
 
             try {
