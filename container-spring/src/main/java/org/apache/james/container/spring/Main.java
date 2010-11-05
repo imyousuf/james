@@ -18,12 +18,19 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
+import java.io.IOException;
+import java.rmi.server.RMISocketFactory;
+
 /**
  * Bootstraps James using a Spring container
  */
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        // Make sure we can bind jmx sockets to a specific ipaddress
+        // https://issues.apache.org/jira/browse/JAMES-1104
+        RMISocketFactory.setSocketFactory(new RestrictingRMISocketFactory()); 
+        
         final JamesServerApplicationContext context = new JamesServerApplicationContext(new String[] { "spring-beans.xml" });
         context.registerShutdownHook();
     }

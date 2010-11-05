@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.queue.activemq;
 
-import java.io.File;
+import java.io.File; 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,8 +34,6 @@ import org.apache.activemq.blob.BlobDownloadStrategy;
 import org.apache.activemq.blob.BlobTransferPolicy;
 import org.apache.activemq.blob.BlobUploadStrategy;
 import org.apache.activemq.command.ActiveMQBlobMessage;
-import org.apache.commons.io.FileUtils;
-import org.apache.james.core.NonClosingSharedInputStream;
 import org.apache.james.services.FileSystem;
 
 /**
