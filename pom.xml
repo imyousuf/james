@@ -1223,11 +1223,10 @@
     <productName>Apache-James Mail Server</productName>
     <derby.version>10.6.2.1</derby.version>
     <camel.version>2.5.0</camel.version>
-    <!-- Don't upgrade to 5.4.0 or 5.4.1 -->
-    <!-- See https://issues.apache.org/activemq/browse/AMQ-2935 -->
     <!-- Change to 5.4.2 once its released -->
+    <!-- See https://issues.apache.org/activemq/browse/AMQ-2935 -->
     <!-- JAMES-1085 -->
-    <activemq.version>5.5-SNAPSHOT</activemq.version>
+    <activemq.version>5.4.1</activemq.version>
     <spring.version>3.0.5.RELEASE</spring.version>
     <imap.version>0.2-M1</imap.version>
     <protocols.version>1.2-M2-SNAPSHOT</protocols.version>

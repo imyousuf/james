@@ -134,8 +134,9 @@
 
 
 
-    <!--  lets create an embedded ActiveMQ Broker -->
-    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" schedulerSupport="true" id="broker">
+    <!-- lets create an embedded ActiveMQ Broker -->
+    <!-- disable schedulerSupport for workaround AMQ-2935-->
+    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" schedulerSupport="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>
@@ -148,6 +149,10 @@
         <amq:managementContext>
             <amq:managementContext createConnector="false"/>
         </amq:managementContext>
+        <!-- use amq persistence adapter for workaround AMQ-2935-->
+        <amq:persistenceAdapter>
+            <amq:amqPersistenceAdapter/>
+        </amq:persistenceAdapter>
         <amq:transportConnectors>
             <amq:transportConnector uri="tcp://localhost:0" />
         </amq:transportConnectors>
@@ -165,7 +170,11 @@
     <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
        <property name="targetConnectionFactory" ref="amqConnectionFactory"/>
        <property name="sessionCacheSize" value="10"/>
-       <property name="cacheConsumers" value="true"/>
+       <!-- Don't cache consumers as we need to use message selectors for delayed messages -->
+       <!-- When caching consumers the selector will not work. -->
+       <!-- This is needed because we can not make use of the scheduler. Thats only a workaround till activemq 5.4.2 was released -->
+       <!-- See AMQ-2935 -->
+       <property name="cacheConsumers" value="false"/>
        <property name="cacheProducers" value="true"/>
     </bean>
 

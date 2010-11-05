@@ -39,7 +39,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
-import org.apache.activemq.ScheduledMessage;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
@@ -112,6 +111,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
      * (non-Javadoc)
      * @see org.apache.james.queue.jms.JMSMailQueue#deQueue()
      */
+    /*
     public MailQueueItem deQueue() throws MailQueueException {
         Connection connection = null;
         Session session = null;
@@ -161,6 +161,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
         }
 
     }
+    */
 
     /*
      * (non-Javadoc)
@@ -291,6 +292,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
     }
     
 
+    /*
     @Override
     protected Map<String, Object> getJMSProperties(Mail mail, long delayInMillis) throws JMSException, MessagingException {
         Map<String, Object> props =  super.getJMSProperties(mail, delayInMillis);
@@ -302,6 +304,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
         }
         return props;
     }
+    */
 
     @Override
     protected MailQueueItem createMailQueueItem(Connection connection, Session session, MessageConsumer consumer, Message message) throws JMSException, MessagingException {
