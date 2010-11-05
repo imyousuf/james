@@ -52,8 +52,8 @@
         the autodetect attribute is present and true, the service will use the local hostname
         returned by the Java libraries.  If autodetect is absent or false, the body of the tag will be used.  In
         this case, if no body is present, the value "localhost" will be used.</li>
-        <li><strong>administrator_accounts</strong> - This is an required container tag.  It contains 
-        one or more <strong>administrator_account</strong> elements, each of which has a <strong>login</strong> attribute 
+        <li><strong>administrator-accounts</strong> - This is an required container tag.  It contains 
+        one or more <strong>administrator-account</strong> elements, each of which has a <strong>login</strong> attribute 
         and a <strong>password</strong> attribute.  These two attributes correspond to the login id and password for the 
         administrative account respectively.  Obviously, for security reasons, these should be set upon James installation.</li>
         <li><strong>connectionTimeout</strong> - This is an optional tag with an integer body.  </li>

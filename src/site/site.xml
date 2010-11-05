@@ -41,58 +41,58 @@
   
     <menu name="Overview">
       <item name="Introduction" href="/index.html"/>
-      <item name="Release Notes" href="/release_notes.html"/>
+      <item name="Release Notes" href="/release-notes.html"/>
 <!--      <item name="JIRA Report" href="/jira-report.html"/>-->
     </menu>
   
     <menu name="Features">
-      <item name="Summary" href="/feature_summary.html" />
-      <item name="Mailet Container" href="/feature_mailetcontainer.html" />
-      <item name="Stores" href="/feature_stores.html" />
-      <item name="Queue Priority" href="/feature_queue_priority.html" />
-      <item name="Performance" href="/feature_perfomance.html" />
-      <item name="Security" href="/feature_security.html" />
+      <item name="Summary" href="/feature-summary.html" />
+      <item name="Mailet Container" href="/feature-mailetcontainer.html" />
+      <item name="Stores" href="/feature-stores.html" />
+      <item name="Queue Priority" href="/feature-queue-priority.html" />
+      <item name="Performance" href="/feature-perfomance.html" />
+      <item name="Security" href="/feature-security.html" />
     </menu>
     
     <menu name="User Manual">
-      <item name="1. Quick Start" href="/quick_start.html" />
+      <item name="1. Quick Start" href="/quick-start.html" />
       <item name="2. Install James" href="/install.html" />
-      <item name="3. Configure James" href="/configure.html" collapse="true" >
-        <item name="Server-wide" href="/config_serverwide.html" />
-        <item name="Domain List" href="/config_domainlist.html" />
-        <item name="Users" href="/config_users.html" />
-        <item name="Mail Stores" href="/config_mailstores.html" />
-        <item name="DNS" href="/config_dns.html" />
-        <item name="IMAP4" href="/config_imap4.html" />
-        <item name="POP3" href="/config_pop3.html" />
-        <item name="SMTP LMTP" href="/config_smtp_lmtp.html" />
-        <item name="Mailet Container" href="/config_mailetcontainer.html" />
-        <item name="FetchMail" href="/config_fetchmail.html" />
-        <item name="Remote Manager" href="/config_remotemanager.html" />
-        <item name="List Manager" href="/config_listmanager.html" />
-        <item name="Common Configs" href="/config_common.html" />
+      <item name="3. Configure James" href="/config.html" collapse="true" >
+        <item name="Server-wide" href="/config-serverwide.html" />
+        <item name="Domain List" href="/config-domainlist.html" />
+        <item name="Users" href="/config-users.html" />
+        <item name="Mail Stores" href="/config-mailstores.html" />
+        <item name="DNS" href="/config-dns.html" />
+        <item name="IMAP4" href="/config-imap4.html" />
+        <item name="POP3" href="/config-pop3.html" />
+        <item name="SMTP LMTP" href="/config-smtp-lmtp.html" />
+        <item name="Mailet Container" href="/config-mailetcontainer.html" />
+        <item name="FetchMail" href="/config-fetchmail.html" />
+        <item name="Remote Manager" href="/config-remotemanager.html" />
+        <item name="List Manager" href="/config-listmanager.html" />
+        <item name="Common Configs" href="/config-common.html" />
       </item>
       <item name="4. Manage James" href="/manage.html" collapse="true" >
-        <item name="Domains" href="/manage_domains.html" />
-        <item name="Users" href="/manage_users.html" />
-        <item name="Virtual Users" href="/manage_virtualusers.html" />
+        <item name="Domains" href="/manage-domains.html" />
+        <item name="Users" href="/manage-users.html" />
+        <item name="Virtual Users" href="/manage-virtualusers.html" />
       </item>
       <item name="5. Monitor James" href="/monitor.html" collapse="true" >
-        <item name="Logging" href="/monitor_logging.html" />
-        <item name="JMX" href="/monitor_jmx.html" />
+        <item name="Logging" href="/monitor-logging.html" />
+        <item name="JMX" href="/monitor-jmx.html" />
       </item>
-      <item name="5. Upgrade from James 2.3" href="/upgrade_2.3.html" />
+      <item name="5. Upgrade from James 2.3" href="/upgrade-2.3.html" />
     </menu>
 
     <menu name="Developers Corner">
       <item name="Architecture" href="/dev.html" />
-      <item name="Build from source" href="/dev_build.html" />
-      <item name="Provided Mailets" href="/dev_provided_mailets.html" />
-      <item name="Provided Matchers" href="/dev_provided_matchers.html" />
-      <item name="Extend James" href="/dev_extend.html" collapse="true" >
-        <item name="Custom Mailet" href="/dev_custom_mailet.html" />
-        <item name="Custom Matcher" href="/dev_custom_matcher.html" />
-        <item name="Hook SMTP" href="/dev_extend_hook_smtp.html" />
+      <item name="Build from source" href="/dev-build.html" />
+      <item name="Provided Mailets" href="/dev-provided-mailets.html" />
+      <item name="Provided Matchers" href="/dev-provided-matchers.html" />
+      <item name="Extend James" href="/dev-extend.html" collapse="true" >
+        <item name="Custom Mailet" href="/dev-custom-mailet.html" />
+        <item name="Custom Matcher" href="/dev-custom-matcher.html" />
+        <item name="Hook SMTP" href="/dev-extend-hook-smtp.html" />
       </item>
       <item name="Javadoc" href="/apidocs/index.html" />
     </menu>

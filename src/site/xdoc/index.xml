@@ -67,7 +67,7 @@
         <p>Download James Mail Server.</p>
         <p>
           <span class="minibutton btn-download">
-            <a href="javascript:window.location='http://james.apache.org/download.cgi#Apache_James_Server';">
+            <a href="javascript:window.location='http://james.apache.org/download.cgi#Apache-James-Server';">
               <span><span class="icon"></span>Early James Server 3.0-M1</span>
             </a>
           </span>
@@ -85,7 +85,7 @@
           configuration compatibility has been retained with 2.3.2.</p>
           
         <p>James 3.0 requires Java 1.5 but Java 1.6 is recommended. A migration guide for 
-           users willing to upgrade from 2.3 to 3.0 is <a href="upgrade_2.3.html">available</a>. 
+           users willing to upgrade from 2.3 to 3.0 is <a href="upgrade-2.3.html">available</a>. 
            The NNTP News server present in James 2.3 has been removed from the 3.0 release line.</p>
     
      </div>
@@ -114,7 +114,7 @@
           
             <p>Configure the stores,... via the well-known Spring framework - <a href="config.html">read more</a>.</p>
         
-            <img src="images/conf/config_example.png" height="400px" />
+            <img src="images/conf/config-example.png" height="400px" />
         
           </subsection>
           
@@ -126,7 +126,7 @@
         
             <p>Manage domains, users,... via well-known JMX tools - <a href="manage.html">read more</a>.</p>
             
-            <img src="images/jmx_management/jmx_user_part.png" />
+            <img src="images/jmx-management/jmx-user-part.png" />
 
           </subsection>
           
@@ -157,9 +157,9 @@
 	           Spring container provides a strong foundation for the James server.</p>
 	    
 	        <p>The internal and exposed APIs for this 3.0-M1 release are under current validation and are 
-	          expected to be subject to change - <a href="dev_architecture.html">read more</a>.</p>
+	          expected to be subject to change - <a href="dev-architecture.html">read more</a>.</p>
 	         
-            <img src="images/uml/org.apache.james_package_small.png" width="400px" />
+            <img src="images/uml/org.apache.james-package-small.png" width="400px" />
         
   	      </subsection>
   	      
@@ -171,9 +171,9 @@
                100 mails per second. Deployed in production environments and has proven itself 
                to be a robust  and high performance mail solution. Tests indicate that 
                version 3.0 is able to maintain a constant mail throughput rate of thousands of 
-	           messages/minute for continuous periods  - <a href="feature_performance.html">read more</a></p>
+	           messages/minute for continuous periods  - <a href="feature-performance.html">read more</a></p>
 
-            <img src="images/jmx_monitoring/jmx_process_root.png" height="400px" />
+            <img src="images/jmx-monitoring/jmx-process-root.png" height="400px" />
         
           </subsection>
          
@@ -183,7 +183,7 @@
         
           <subsection name="Secured">
         
-            <p>James is a secured mail server by default - <a href="feature_security.html">read more</a>.</p>
+            <p>James is a secured mail server by default - <a href="feature-security.html">read more</a>.</p>
         
           </subsection>
 

@@ -90,7 +90,7 @@
           Only expert administrators should modify this configuration.</p>
           
       <ul>
-        <li>log4j.properties: See <a href="monitor_logging.html">logging page</a></li>
+        <li>log4j.properties: See <a href="monitor-logging.html">logging page</a></li>
         <li>database.properties</li>
         <li>sqlResources.xml and mailboxManagerSqlResources.xml</li>
       </ul>

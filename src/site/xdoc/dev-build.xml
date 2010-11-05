@@ -30,14 +30,14 @@
     <p>This step is not necessary to use the standard out of the box version of James.  A 
        pre-built binary version of James is available from the James download directory.</p>
        
-     <p>But if you wish to customize the James source code, it will be necessary for you to build the 
-       distribution yourself.</p>
+     <p>But if you wish to customize the James source code, it will be necessary for you to 
+        build the distribution yourself.</p>
   
      <p>You can read on this page how to build from the command line and from eclipse IDE.</p>
      
   </section>
   
-  <section name="Getting the Source Code">
+  <section name="Get Source Code">
   
     <p>There are two ways to get the James source code.</p>
 
@@ -52,9 +52,9 @@
           James server repository is <a href="http://svn.apache.org/repos/asf/james/server/">here</a>.</li>
     </ol>
 
-    <p>We consider in this document that you have checked-out James source code in JAMES_SRC_HOME directory.</p>
+    <p>We consider in this document that you have checked-out James source code in JAMES-SRC-HOME directory.</p>
 
-    <p>Consult the <a href="james_architecture.html">architecture</a> page if you want to learn
+    <p>Consult the <a href="dev.html">architecture</a> page if you want to learn
     more on the internal source structure.</p>
 
   </section>
@@ -70,13 +70,13 @@
           to build James. You can get maven 2.2.1 from <a href="http://maven.apache.org/download.html">here</a>.
           Installation instructions for maven are also available on the same page <a href="http://maven.apache.org/download.html">http://maven.apache.org/download.html</a>.</li>
     </ol>
-    <p>Set (on windows) or export (on Unix) MAVEN_OPTS to tune the memory needed by maven with "MAVEN_OPTS=-Xmx1024m -XX:MaxPermSize=128m"</p>
+    <p>Set (on windows) or export (on Unix) MAVEN-OPTS to tune the memory needed by maven with "MAVEN-OPTS=-Xmx1024m -XX:MaxPermSize=128m"</p>
 
   </section>
   
   <section name="Build James source from Command Line">
 
-    <p>In the JAMES_SRC_HOME top level directory (where the parent pom.xml resides), invoke maven with 'mvn' with any of the following command line arguments:
+    <p>In the JAMES-SRC-HOME top level directory (where the parent pom.xml resides), invoke maven with 'mvn' with any of the following command line arguments:
     <ul>
       <li>clean - deletes the target directory, making the system ready for a clean build.</li>
       <li>compile - compiles the source code.</li>
@@ -96,23 +96,23 @@
 
   </section>
 
-  <section name="Build James source from Eclipse">
+  <section name="Build James Source from Eclipse">
   
     <subsection name="Import projects in Eclipse with m2eclipse">
   
       <p>You should have Eclipse IDE with <a href="http://m2eclipse.sonatype.org">m2eclipse</a> plugin installed.</p>
       <p>You now need to import the maven projects in the Eclipse workspace.</p>
       <p>Therefore, click on the 'File' menu and select 'Import'. Choose 'Existing Maven Project' and click on 'Next' button.</p>
-      <img src="./images/eclipse/eclipse_import_maven_view_1.gif" width="300"/>
+      <img src="./images/eclipse/eclipse-import-maven-view-1.gif" width="300"/>
 
     </subsection>
 
-    <subsection name="Select projects to import">
+    <subsection name="Select Projects to Import">
   
-      <p>Select the JAMES_SRC_HOME directory where you have checked out the source code.</p>
+      <p>Select the JAMES-SRC-HOME directory where you have checked out the source code.</p>
       <p>Eclipse should present you with the list of James server modules.</p>
       <p>Select the modules you want to import (by default, all) and click on 'Finish' to execute the import.</p>
-      <img src="./images/eclipse/eclipse_import_maven_view_2.gif" width="300"/>
+      <img src="./images/eclipse/eclipse-import-maven-view-2.gif" width="300"/>
 
     </subsection>
 
@@ -120,7 +120,7 @@
   
       <p>Check that 'Workspace resolution' is enable in m2eclipse plugin.</p>
       <p>Your changes in code will be directly taken into account.</p>
-      <img src="./images/eclipse/eclipse_m2eclipse_project_dependencies.gif" width="300"/>
+      <img src="./images/eclipse/eclipse-m2eclipse-project-dependencies.gif" width="300"/>
     
     </subsection>
 
@@ -132,22 +132,22 @@
         <li>Copy the spring-beans.xml and log4j.properties from 'container-spring\src\main\config\james' directory 
             to a source folder of 'container-spring' project (you can use for example the 'stage' folder as Eclipse source folder).</li>
         <li>Copy all files (except spring-beans.xml and log4j.properties) from 'container-spring\src\main\config\james' 
-            directory to a 'conf' folder ('conf' folder must be a subdirectory of the JAMES_SRC_HOME directory where you made the check-out).</li>
+            directory to a 'conf' folder ('conf' folder must be a subdirectory of the JAMES-SRC-HOME directory where you made the check-out).</li>
      </ol>
-      <img src="./images/eclipse/eclipse_m2eclipse_projects.gif" width="300"/>
+      <img src="./images/eclipse/eclipse-m2eclipse-projects.gif" width="300"/>
     
     </subsection>
 
     <subsection name="Run James from Eclipse">
   
       <p>That's it. Run James and Have Fun!.</p>
-      <img src="./images/eclipse/eclipse_run_james.gif" width="300"/>
+      <img src="./images/eclipse/eclipse-run-james.gif" width="300"/>
 
     </subsection>
 
   </section>
 
-  <section name="Building the Distribution with other IDEs">
+  <section name="Build James Source from other IDEs">
   
     <p>We will be happy to include on this page any other tutorial you could send 
        use about developing James with your favorite Integrated Development Environment.</p>

@@ -89,7 +89,7 @@
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-826'>JAMES-826</a>] - Source distribution build is broken</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-848'>JAMES-848</a>] - run.bat and run.sh contain absolute entries to build path for runtime classpath</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-852'>JAMES-852</a>] - pop3server-function tests found in a deadlock on hudson</li>
-<li>[<a href='https://issues.apache.org/jira/browse/JAMES-875'>JAMES-875</a>] - Message-ID changed by mailets (MSGID_FROM_MTA_HEADER changed)</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-875'>JAMES-875</a>] - Message-ID changed by mailets (MSGID-FROM-MTA-HEADER changed)</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-876'>JAMES-876</a>] - cannot start as spring-deployment when built from trunk as described in HOW-TO.TXT</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-877'>JAMES-877</a>] - cannot start spring-deployment nightly build as described in provided batch file</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-880'>JAMES-880</a>] - bug with sql query for postgresql jdbc driver</li>
@@ -125,7 +125,7 @@
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1004'>JAMES-1004</a>] - persistence.xml use jpa spec 1.0 but should use 2.0</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1005'>JAMES-1005</a>] - POP3 Stat/List hangs on second execution during POP3Session</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1006'>JAMES-1006</a>] - LIST msgnum fails with "-ERR Message (1) already deleted."</li>
-<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1010'>JAMES-1010</a>] - MSGID_FROM_MTA_HEADER</li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-1010'>JAMES-1010</a>] - MSGID-FROM-MTA-HEADER</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1011'>JAMES-1011</a>] - auth login failed</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1012'>JAMES-1012</a>] - Can't enable ssl/tls for POP3</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1013'>JAMES-1013</a>] - DO NOT Upgrade camel 2.2.0 to 2.3.0 - IMPORTENT!!!</li>
@@ -327,7 +327,7 @@ packages have been added to the mailetpackages element in the configuration file
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-327'>JAMES-327</a>] - Mailet overview not complete</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-579'>JAMES-579</a>] - Update license headers and NOTICE to follow the latest ASF requirements</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-591'>JAMES-591</a>] - LogMessage mailet use wrong configutre option</li>
-<li>[<a href='http://issues.apache.org/jira/browse/JAMES-594'>JAMES-594</a>] - JVM_OPTS get passed two times</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-594'>JAMES-594</a>] - JVM-OPTS get passed two times</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-603'>JAMES-603</a>] - Outgoing spooling stuck over old mails when more than 1000 old mails are present in outgoing.</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-609'>JAMES-609</a>] - MailImpl.setMessage and possible NPE: regression from 2.2.0 and 2.3.0rc1</li>
 </ul>
@@ -436,7 +436,7 @@ packages have been added to the mailetpackages element in the configuration file
 <ul>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-456'>JAMES-456</a>] - AddFooter mailet javax.mail.internet.ParseException</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-474'>JAMES-474</a>] - NullPointerException and bodymessage lost with weird configurations in message spooling</li>
-<li>[<a href='http://issues.apache.org/jira/browse/JAMES-489'>JAMES-489</a>] - ArrayIndexOutOfBoundsException in RemoteDelivery when an mail has errorstate and error_message 0</li>
+<li>[<a href='http://issues.apache.org/jira/browse/JAMES-489'>JAMES-489</a>] - ArrayIndexOutOfBoundsException in RemoteDelivery when an mail has errorstate and error-message 0</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-490'>JAMES-490</a>] - Javamail 1.4 regression: SocketFetcher changed to require SocketFactory implementation</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-501'>JAMES-501</a>] - sendmail.py get not include in build</li>
 <li>[<a href='http://issues.apache.org/jira/browse/JAMES-503'>JAMES-503</a>] - SpoolManager locking issues</li>

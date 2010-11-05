@@ -31,7 +31,7 @@
 
   <p>James requires a Java Runtime Environment of Java version 1.5 or higher installed to run the 
      James application.  The exact JREs available depend on the platform.  A JRE must be downloaded and
-     installed before James can run.  In addition, the environment variable JAVA_HOME should be set to
+     installed before James can run.  In addition, the environment variable JAVA-HOME should be set to
      the JRE home directory before running James.</p>
   
   <p>James 3.0 has been successfully tested on OpenJDK, Sun JDK and IBM JDK</p>
@@ -99,7 +99,7 @@
   <p>If you have downloaded a binary distribution, you do not need to build James. 
     Proceed directory to Step 1.</p>
   
-  <p>If you have download a source package, process to the <a href="dev_build.html">build</a>.</p>
+  <p>If you have download a source package, process to the <a href="dev-build.html">build</a>.</p>
 
 </subsection>
 
@@ -133,16 +133,16 @@
      be appropriate for real-world servers.  There are a few issues that should be addressed immediately upon installation:</p>
     <ul>
       <li>RemoteManager Administrator Account - Before the RemoteManager service can be used to add users to this server 
-      installation an administrator account must be created.  More information can be found <a href="config_remotemanager.html">here</a>.</li>
+      installation an administrator account must be created.  More information can be found <a href="config-remotemanager.html">here</a>.</li>
       <li>DNS Servers - James needs to have access to a DNS server for domain resolution.  The out of the box 
       configuration assumes that there is a DNS server on localhost.  In general administrators will have to change 
       the configuration to point to a valid DNS server.  This can be done by adjusting the dnsserver configuration 
-      block in the config.xml.  More information can be found <a href="config_serverwide.html">here</a>.</li>
+      block in the config.xml.  More information can be found <a href="config-serverwide.html">here</a>.</li>
       <li>Managed Domain Names/IP Addresses - Out of the box, James only handles mail that is sent to recipients at 
       localhost.  It will attempt to deliver all other email to remote SMTP servers.  To allow James to handle email 
       for your domain or IP address, you simply need to add the appropriate domain name or IP address to the servernames 
-      section of the config.xml.  More information can be found <a href="config_serverwide.html">here</a>.</li>
-      <li>Postmaster Address - More information can be found <a href="config_serverwide.html">here</a>.</li>
+      section of the config.xml.  More information can be found <a href="config-serverwide.html">here</a>.</li>
+      <li>Postmaster Address - More information can be found <a href="config-serverwide.html">here</a>.</li>
     </ul>
   
   <p>In addition to adjusting these parameters, you may wish to consult the documentation for a discussion of
@@ -153,9 +153,9 @@
       overview of configuring the system.</p>
 
   <p>M$ users should just run /bin/run.bat. Unix users will find run.sh under the 
-    same directory. A JVM must be present and its location specified in the JAVA_HOME 
+    same directory. A JVM must be present and its location specified in the JAVA-HOME 
     environment variable. Set this on windows at the command prompt with something 
-    similar to &quot;set JAVA_HOME=\jdk1.3\bin&quot; on *nix with JAVA_HOME=/jdk1.3/</p>
+    similar to &quot;set JAVA-HOME=\jdk1.3\bin&quot; on *nix with JAVA-HOME=/jdk1.3/</p>
     
   <p>Running [run* --help] will provide a simple command line help. </p>
   
@@ -184,7 +184,7 @@
   
   <p>Finally, after configuration is complete, it will be necessary to create user accounts before the James server 
     will be fully operational.  Instructions on creating user accounts can be found 
-    <a href="adding_users.html">here</a>.</p>
+    <a href="adding-users.html">here</a>.</p>
   
   <p>Once started you'll see a message saying Avalon is running. This means that
       Avalon has loaded JAMES and every other needed Block (see /logs/avalon.log)

@@ -81,7 +81,7 @@
       the processor tree until they reach the end of a processor or are marked completed 
       by a mailet.</p>
     
-      <p>More on configuration of the SpoolManager can be found <a href="config_mailetcontainer.html">here</a>.</p>
+      <p>More on configuration of the SpoolManager can be found <a href="config-mailetcontainer.html">here</a>.</p>
     
       <p>Much of the power of James lies in the SpoolManager component.  Custom matchers and 
       mailets can be easily developed to address an administrator's particular needs.  The 
@@ -118,8 +118,8 @@
     <p>The Javadoc for the Mailet API can be found <a href="http://james.apache.org/mailet/api/apidocs/">here</a>.</p>
 
     <p>James bundles a number of Matchers and Mailets in its distribution.  Descriptions of provided matchers 
-    can be found <a href="dev_provided_matchers.html">here</a>, while descriptions of provided mailets can be found 
-    <a href="dev_provided_mailets.html">here</a>.</p>
+    can be found <a href="dev-provided-matchers.html">here</a>, while descriptions of provided mailets can be found 
+    <a href="dev-provided-mailets.html">here</a>.</p>
     
     <p>You can read more on mailets on following web sites:</p>
 

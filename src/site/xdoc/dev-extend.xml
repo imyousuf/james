@@ -27,7 +27,7 @@
 
 <section name="Extend James">
 
-  <img src="images/uml/org.apache.james_package_details.png"/>
+  <img src="images/uml/org.apache.james-package-details.png"/>
   
   <subsection name="Custom Mailet">
   

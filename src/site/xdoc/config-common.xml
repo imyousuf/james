@@ -240,9 +240,9 @@
     <p>The remaining children should not need to be deleted or adjusted.</p>
     </subsection>
     <subsection name="Configuring a Service to Use TLS">
-    <p>Each of the services - <a href="config_smtp_lmpt.html">SMTP</a>, 
-    <a href="config_pop3.html">POP3</a>, 
-    and <a href="config_remotemanager.html">RemoteManager</a> - supports use of TLS.  Each of
+    <p>Each of the services - <a href="config-smtp-lmpt.html">SMTP</a>, 
+    <a href="config-pop3.html">POP3</a>, 
+    and <a href="config-remotemanager.html">RemoteManager</a> - supports use of TLS.  Each of
     these services has an optional boolean configuration element <b>useTLS</b> which is used to toggle 
     use of TLS for the service.  When this value is set to true, that particular service will use the "ssl" 
     server socket factory to spawn server sockets.</p>

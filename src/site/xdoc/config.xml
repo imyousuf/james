@@ -31,19 +31,19 @@
       You can/must configure James for the following:</p>
     
     <ul>
-        <li><a href="config_serverwide.html">Server-wide Configuration</a></li>
-        <li><a href="config_domainlist.html">Domain List Configuration</a></li>
-        <li><a href="config_users.html">Users Configuration</a></li>
-        <li><a href="config_mailstores.html">Mail Stores Configuration</a></li>
-        <li><a href="config_dns.html">DNS Configuration</a></li>
-        <li><a href="config_imap4.html">IMAP4 Configuration</a></li>
-        <li><a href="config_pop3.html">POP3 Configuration</a></li>
-        <li><a href="config_smtp_lmtp.html">SMTP LMTP Configuration</a></li>
-        <li><a href="config_mailetcontainer.html">Mailet Container Configuration</a></li>
-        <li><a href="config_fetchmail.html">FetchMail Configuration</a></li>
-        <li><a href="config_remotemanager.html">Remote Manager Configuration</a></li>
-        <li><a href="config_listmanager.html">List Manager Configuration</a></li>
-        <li><a href="config_common.html">Common Configuration</a></li>
+        <li><a href="config-serverwide.html">Server-wide Configuration</a></li>
+        <li><a href="config-domainlist.html">Domain List Configuration</a></li>
+        <li><a href="config-users.html">Users Configuration</a></li>
+        <li><a href="config-mailstores.html">Mail Stores Configuration</a></li>
+        <li><a href="config-dns.html">DNS Configuration</a></li>
+        <li><a href="config-imap4.html">IMAP4 Configuration</a></li>
+        <li><a href="config-pop3.html">POP3 Configuration</a></li>
+        <li><a href="config-smtp-lmtp.html">SMTP LMTP Configuration</a></li>
+        <li><a href="config-mailetcontainer.html">Mailet Container Configuration</a></li>
+        <li><a href="config-fetchmail.html">FetchMail Configuration</a></li>
+        <li><a href="config-remotemanager.html">Remote Manager Configuration</a></li>
+        <li><a href="config-listmanager.html">List Manager Configuration</a></li>
+        <li><a href="config-common.html">Common Configuration</a></li>
     </ul>
 
   </section>

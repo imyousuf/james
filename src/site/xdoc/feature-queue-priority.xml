@@ -29,17 +29,17 @@
   
     <p>Priority is supported when James (de)queues the mails during the spooling process.</p>
     
-    <p>For this just add a Mail attribute with name "MAIL_PRIORITY" to the mail you send.</p>
+    <p>For this just add a Mail attribute with name "MAIL-PRIORITY" to the mail you send.</p>
 
     <p>This mail header should use one of the following value:</p>
 
     <ol>
-      <li>0 for LOW_PRIORITY</li>
-      <li>5 for NORMAL_PRIORITY (default)</li> 
-      <li>9 for HIGH_PRIORITY</li>
+      <li>0 for LOW-PRIORITY</li>
+      <li>5 for NORMAL-PRIORITY (default)</li> 
+      <li>9 for HIGH-PRIORITY</li>
     </ol>
     
-    <p>Default priority if no MAIL_PRIORITY attribute set is NORMAL_PRIORITY.</p>
+    <p>Default priority if no MAIL-PRIORITY attribute set is NORMAL-PRIORITY.</p>
     
   </section>
   
@@ -47,7 +47,7 @@
   
     <p>There are two scenarios to set priority in the queue.</p>
     <ul>
-      <li>Write a <a href="dev_extend_hook_smtp.html">SMTP hook</a> which sets the header 
+      <li>Write a <a href="dev-extend-hook-smtp.html">SMTP hook</a> which sets the header 
          and add the hook to smtphandler chain.</li>
       <li>You could also add the header in a mailet to let remotedelivery 
           pick it up again on redelivery.</li>
