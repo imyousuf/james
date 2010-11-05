@@ -76,22 +76,37 @@ public interface DNSService {
     Iterator<HostAddress> getSMTPHostAddresses(String domainName) throws TemporaryResolutionException;
     
     /**
-     * @see java.net.InetAddress#getAllByName(String)
+     * Resolve the given hostname to an array of InetAddress based on the DNS Server.
+     * It should not take into account the hostnames defined in the local
+     * host table
+     * 
+     * @return An array of InetAddress
      */
     public InetAddress[] getAllByName(String host) throws UnknownHostException;
  
     /**
-     * @see java.net.InetAddress#getByName(String)
+     * Resolve the given hostname to an InetAddress based on the DNS Server.
+     * It should not take into account the hostnames defined in the local
+     * host table
+     * 
+     * @return The resolved InetAddress or null if not resolved
      */
     public InetAddress getByName(String host) throws UnknownHostException;
 
     /**
-     * @see java.net.InetAddress#getLocalHost()
+     * Resolve the local hostname of the machine and returns it.
+     * It relies on the hostname defined in the local host table
+     * 
+     * @return The local InetAddress of the machine.
      */
     public InetAddress getLocalHost() throws UnknownHostException;
 
     /**
-     * @see org.xbill.DNS.Address#getHostName(InetAddress)
+     * Resolve the given InetAddress to an host name based on the DNS Server.
+     * It should not take into account the hostnames defined in the local
+     * host table
+     * 
+     * @return The resolved hostname String or null if not resolved
      */
     public String getHostName(InetAddress addr);
     
