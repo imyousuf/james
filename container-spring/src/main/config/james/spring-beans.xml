@@ -331,7 +331,7 @@
         </property>
     </bean>
 
-    <bean id="jcrUtils" class="org.apache.james.imap.jcr.JCRUtils"/>    
+    <bean id="jcrUtils" class="org.apache.james.mailbox.jcr.JCRUtils"/>    
 
     <bean id ="sessionJcrRepository"    class="org.apache.james.mailbox.jcr.GlobalMailboxSessionJCRRepository" depends-on="imapCndLoader">
         <constructor-arg index="0" ref="jcrRepository"/>
@@ -342,10 +342,6 @@
   
     <bean id="nodeLocker" class="org.apache.james.mailbox.jcr.JCRVmNodeLocker"/>
 
-    <bean id="uidConsumer" class="org.apache.james.mailbox.jcr.JCRUidConsumer">
-        <constructor-arg index="0" ref="sessionJcrRepository"/>
-        <constructor-arg index="1" ref="nodeLocker"/>
-    </bean>
 
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jcr.JCRMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="sessionJcrRepository"/>
@@ -360,7 +356,6 @@
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
         <constructor-arg index="2" ref="nodeLocker"/>
-        <constructor-arg index="3" ref="uidConsumer"/>
     </bean>
     -->
 
