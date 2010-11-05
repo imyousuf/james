@@ -22,29 +22,27 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.jms.JMSException;
+import javax.mail.util.SharedFileInputStream;
 
 import org.apache.activemq.BlobMessage;
 import org.apache.activemq.Disposable;
 import org.apache.james.core.MimeMessageSource;
-import org.apache.james.core.NonClosingSharedInputStream;
-import org.apache.james.lifecycle.LifecycleUtil;
 
 /**
  * {@link MimeMessageSource} which use a {@link BlobMessage} as input. Be aware that {@link BlobMessage} must contain
- * a {@link NonClosingSharedInputStream} for this implementation!
+ * a {@link SharedFileInputStream} for this implementation!
  *
  */
-@SuppressWarnings("unchecked")
 public class MimeMessageBlobMessageSource extends MimeMessageSource implements ActiveMQSupport, Disposable{
 
-    private NonClosingSharedInputStream in;
+    private SharedFileInputStream in;
     private String sourceId;
     private long size;
 
     public MimeMessageBlobMessageSource(BlobMessage message) throws JMSException, IOException {
         this.sourceId = message.getJMSMessageID();
         this.size = message.getLongProperty(JAMES_MAIL_MESSAGE_SIZE);
-        this.in = (NonClosingSharedInputStream)message.getInputStream();
+        this.in = (SharedFileInputStream) message.getInputStream();
     }
     
 
@@ -77,6 +75,10 @@ public class MimeMessageBlobMessageSource extends MimeMessageSource implements A
      * Call dispose on the {@link InputStream}
      */
     public void dispose() {
-        LifecycleUtil.dispose(in);
+        try {
+            in.close();
+        } catch (IOException e) {
+            // ingore on dispose
+        }
     }
 }

@@ -34,6 +34,7 @@ import org.apache.activemq.blob.BlobDownloadStrategy;
 import org.apache.activemq.blob.BlobTransferPolicy;
 import org.apache.activemq.blob.BlobUploadStrategy;
 import org.apache.activemq.command.ActiveMQBlobMessage;
+import org.apache.commons.io.FileUtils;
 import org.apache.james.core.NonClosingSharedInputStream;
 import org.apache.james.services.FileSystem;
 
@@ -85,7 +86,9 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
     public void deleteFile(ActiveMQBlobMessage message) throws IOException, JMSException {
         File f = getFile(message);
         if (f.exists()) {
-            f.delete();
+            if (f.delete() == false) {
+                throw new IOException("Unable to delete file " + f);
+            }
         }
     }
 
@@ -93,8 +96,7 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      * Returns a {@link SharedFileInputStream} for the give {@link BlobMessage}
      */
     public InputStream getInputStream(ActiveMQBlobMessage message) throws IOException, JMSException {
-        // return a NonClosingSharedInputStream to make sure the stream will only get closed on dispose call later
-        return new NonClosingSharedInputStream<SharedFileInputStream>(new SharedFileInputStream(getFile(message)));
+        return new SharedFileInputStream(getFile(message));
     }
 
     
