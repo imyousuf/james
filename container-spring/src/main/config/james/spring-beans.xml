@@ -302,7 +302,7 @@
     <!-- 
     <bean id="sessionMapperFactory" class="org.apache.james.adapter.mailbox.maildir.MaildirMailboxSessionMapperFactoryUtil" factory-method="create">        
         <constructor-arg index="0" ref="filesystem"/>
-        <constructor-arg index="1" ref="James"/>
+        <constructor-arg index="1" ref="mailserver"/>
         <constructor-arg index="2" value="file://var/mail/maildir/"/>
     </bean>
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.maildir.MaildirSubscriptionManager">
