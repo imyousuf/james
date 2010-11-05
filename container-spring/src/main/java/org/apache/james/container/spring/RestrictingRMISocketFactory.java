@@ -24,16 +24,22 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.server.RMISocketFactory;
 
+/**
+ * {@link RMISocketFactory} implementation which allow to bind JMX to a specific IP
+ *
+ */
 public class RestrictingRMISocketFactory extends RMISocketFactory {
 
     private String address;
 
-    public RestrictingRMISocketFactory() {
-        address = System.getProperty("james.jmx.address");
-        if (address == null) {
-            address = "localhost";
-        }
+    public RestrictingRMISocketFactory(String address) {
+        this.address = address;
     }
+    
+    public RestrictingRMISocketFactory() {
+        this("localhost");
+    }
+
 
     /**
      * Create a {@link ServerSocket} which is bound to an specific address and the given port.

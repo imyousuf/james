@@ -1252,11 +1252,8 @@
     <!-- For more details see -->
     <!-- http://download.oracle.com/javase/1.5.0/docs/guide/management/agent.html -->
     <jmx.system-property1>-Dcom.sun.management.jmxremote=true</jmx.system-property1>
-    <jmx.system-property2>-Dcom.sun.management.jmxremote.ssl=false</jmx.system-property2>
-    <jmx.system-property3>-Dcom.sun.management.jmxremote.access.file=../conf/jmx.access</jmx.system-property3>
-    <jmx.system-property4>-Dcom.sun.management.jmxremote.password.file=../conf/jmx.password</jmx.system-property4>
-    <jmx.system-property5>-Dcom.sun.management.jmxremote.port=9999</jmx.system-property5>
-    <jmx.system-properties>${jmx.system-property1} ${jmx.system-property2} ${jmx.system-property3} ${jmx.system-property4} ${jmx.system-property5}</jmx.system-properties>
+    <jmx.system-property2>-Dcom.sun.management.jmxremote.authenticate=false</jmx.system-property2>
+    <jmx.system-properties>${jmx.system-property1} ${jmx.system-property2}</jmx.system-properties>
     
     <!-- Use filesystem to copy message by default -->
     <james.system-property1>-Djames.message.usememorycopy=false</james.system-property1>

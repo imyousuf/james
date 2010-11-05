@@ -26,7 +26,34 @@
           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.5.0.xsd
           http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.4.1.xsd">
-          
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="location" value="file://conf/jmx.properties"/>
+    </bean>
+
+    <!-- Make sure we can bind jmx sockets to a specific ipaddress -->
+    <!-- https://issues.apache.org/jira/browse/JAMES-1104 -->
+    <bean id="restrictedRmiSocketFactory" class="org.apache.james.container.spring.RestrictingRMISocketFactory">
+        <constructor-arg value="${jmx.address}"/>
+    </bean>   
+
+    <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+        <property name="port" value="${jmx.port}" />
+        <property name="serverSocketFactory" ref="restrictedRmiSocketFactory"/>
+        <property name="clientSocketFactory" ref="restrictedRmiSocketFactory"/>
+    </bean> 
+
+    <bean id="mbeanserver" class="org.springframework.jmx.support.MBeanServerFactoryBean" >
+        <property name="locateExistingServerIfPossible" value="true"/>
+        <property name="registerWithFactory" value="true"/>
+    </bean>
+
+    <bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry">
+        <property name="objectName" value="connector:name=rmi" />
+        <property name="serviceUrl" value="service:jmx:rmi://${jmx.address}/jndi/rmi://${jmx.address}:${jmx.port}/jmxrmi" />
+    </bean> 
+
     <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
       <property name="beans">
         <map>
@@ -50,10 +77,6 @@
             <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean"/>
           </bean>
       </property>
-    </bean>
-
-    <bean id="mbeanserver" class="org.springframework.jmx.support.MBeanServerFactoryBean" >
-        <property name="locateExistingServerIfPossible" value="true"/>
     </bean>
     
     <bean id="processormanagement" class="org.apache.james.mailetcontainer.lib.ProcessorManagement"/>
@@ -93,6 +116,7 @@
     </bean>
     
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
         <property name = "location" value="file://conf/database.properties"/>
     </bean>
 
