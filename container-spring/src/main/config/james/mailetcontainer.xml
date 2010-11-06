@@ -21,17 +21,21 @@
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
 <mailetcontainer>
+
     <threads> 20 </threads>
+
     <mailetpackages>
       <mailetpackage>org.apache.james.transport.mailets</mailetpackage>
       <mailetpackage>org.apache.james.mailet.crypto.mailet</mailetpackage>
       <mailetpackage>org.apache.james.imapserver.sieve</mailetpackage>      
     </mailetpackages>
+
     <matcherpackages>
       <matcherpackage>org.apache.james.transport.matchers</matcherpackage>
       <matcherpackage>org.apache.james.mailet.crypto.matchers</matcherpackage>
       <matcherpackage>org.apache.james.mailetcontainer.lib.matchers</matcherpackage>
     </matcherpackages>
+
     <processor name="root">
        <mailet match="All" class="PostmasterAlias"/>
        <mailet match="RelayLimit=30" class="Null"/>
@@ -132,4 +136,5 @@
           <passThrough>false</passThrough>
         </mailet>
     </processor>
+    
 </mailetcontainer>
