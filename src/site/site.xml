@@ -90,8 +90,8 @@
       <item name="Provided Mailets" href="/dev-provided-mailets.html" />
       <item name="Provided Matchers" href="/dev-provided-matchers.html" />
       <item name="Extend James" href="/dev-extend.html" collapse="true" >
-        <item name="Custom Mailet" href="/dev-custom-mailet.html" />
-        <item name="Custom Matcher" href="/dev-custom-matcher.html" />
+        <item name="Custom Mailet" href="/dev-extend-custom-mailet.html" />
+        <item name="Custom Matcher" href="/dev-extend-custom-matcher.html" />
         <item name="Hook SMTP" href="/dev-extend-hook-smtp.html" />
       </item>
       <item name="Javadoc" href="/apidocs/index.html" />

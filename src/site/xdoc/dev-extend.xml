@@ -31,9 +31,19 @@
   
   <subsection name="Custom Mailet">
   
+    See the <a href="dev-extend-custom-mailet.html">custom mailet</a> page for more information.
+  
   </subsection>
  
   <subsection name="Custom Matcher">
+  
+    See the <a href="dev-extend-custom-mailet.html">custom matcher</a> page for more information.
+  
+  </subsection>
+ 
+  <subsection name="SMTP Hook">
+  
+    See the <a href="dev-extend-hook-smtp.html">SMTP Hook</a> page for more information.
   
   </subsection>
  
@@ -52,11 +62,7 @@
   <subsection name="Queue Listeners">
   
   </subsection>
- 
-  <subsection name="SMTP Hook">
-  
-  </subsection>
- 
+
 </section>
 
 </body>
