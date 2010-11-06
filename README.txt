@@ -18,7 +18,7 @@ Thank you for testing Apache James Server 3.0-M2!
 Quick Start  http://james.apache.org/server/3/quick-start.html
 
 
-Install      http//james.apache.org/server/3/install.html
+Install      http://james.apache.org/server/3/install.html
 Configure    http://james.apache.org/server/3/config.html
 Manage       http://james.apache.org/server/3/manage.html
 Monitor      http://james.apache.org/server/3/monitor.html
