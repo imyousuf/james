@@ -55,14 +55,14 @@
 <p>If you're interested in contributing to the James project, please subscribe to the James 
   <a href="http://james.apache.org/mail.html">mailing lists</a>.</p>
 
-<h2>Bug</h2>
+<h3>Bug</h3>
 <ul>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-241'>JAMES-241</a>] - fail gracefully upon large messages/attachments</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-302'>JAMES-302</a>] - Functionality of org.apache.james.dnsserver.DNSServer.getByName(String) is not symetric to java.net.InetAddress.getByName(String)</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-344'>JAMES-344</a>] - FetchMail cannot parse particular format of "Received" header</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-457'>JAMES-457</a>] - POP3 server doesn't perform an exlusive-access locks in a transaction required by rcf1939.</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-717'>JAMES-717</a>] - AbstractStorageQuota  use one queriesper mail  to calculate the mailbox size . This is very ineffective and can cause problems with sql</li>
-<li>[<a href='https://issues.apache.org/jira/browse/JAMES-795'>JAMES-795</a>] - CLONE -If FetchMail cannot parse Received header, it cannot process the message even with <remotereceivedheader reject="false".../></li>
+<li>[<a href='https://issues.apache.org/jira/browse/JAMES-795'>JAMES-795</a>] - CLONE -If FetchMail cannot parse Received header, it cannot process the message even with &lt;remotereceivedheader reject="false"...&gt;</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-900'>JAMES-900</a>] - Possible race-condition in MimeMessageCopyOnWriteProxy</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1009'>JAMES-1009</a>] - Cleaning up DB enteries upon user account deletion </li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1102'>JAMES-1102</a>] -  james-listmanager.xml file: invalid XML file format</li>
@@ -75,7 +75,7 @@
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1116'>JAMES-1116</a>] - James fails to start when JCR Mailbox is used because of incorrect spring-beans.xml entries</li>
 </ul>
     
-<h2>Improvement</h2>
+<h3>Improvement</h3>
 <ul>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-348'>JAMES-348</a>] - make JDK independent (e.g. also IBM JVM should work)</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-640'>JAMES-640</a>] - large attachment (3 or more Mbyte) will make mbox repository very slow</li>
@@ -87,13 +87,13 @@
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1108'>JAMES-1108</a>] - Rewrite ActiveMQQueue to use BlobMessages and a custom BlobTransferPolicy</li>
 </ul>
     
-<h2>New Feature</h2>
+<h3>New Feature</h3>
 <ul>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-948'>JAMES-948</a>] - Composite pattern employed to implement And, Or, Xor and Not matcher.</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1114'>JAMES-1114</a>] - Add Handler for the SMTPHandlerChain which set mail priority</li>
 </ul>
                     
-<h2>Task</h2>
+<h3>Task</h3>
 <ul>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-885'>JAMES-885</a>] - Remote Manager Decoupling</li>
 <li>[<a href='https://issues.apache.org/jira/browse/JAMES-1076'>JAMES-1076</a>] - Allign packages for MBeans or use StandardMBean</li>
