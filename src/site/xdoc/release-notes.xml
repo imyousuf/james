@@ -42,7 +42,7 @@
 <p>The Java Apache Mail Enterprise Server (a.k.a. Apache James) Project is happy to announce 
    the release of version 3.0-M2 (Milestone 1) of the Apache James server.</p>
 
-<p>M2 is not only a fast corrective on M1 release (issue related to JMX 
+<p>M2 is not only a fast corrective release on M1 (issues related to JMX 
    security configuration on Windows platforms,...), but also contains an important number
    of enhancement and JIRA fixes.</p>
    
