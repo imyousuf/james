@@ -27,19 +27,152 @@
 
 <section name="Quick Start">
 
-  <p><ul>
+<source>
+Step 0: Requirements
+####################
 
-    <li></li>
+JRE 1.5+
+root (linux/unix) or Administrator (Windows)
+libc6 (linux)
+512MB RAM
 
-    <li></li>
+Step 1: Download
+#################
 
-    <li></li>
+Download james-server-container-spring-3.0-M2-bin.zip from http://james.apache.org/download.cgi#Apache_James_Server
 
-    <li></li>
+Step 2: Deploy
+##############
 
-    <li></li>
+Unzip james-server-container-spring-3.0-M2-bin.zip.
+You should have a folder with sub-folders bin, conf, lib, log, var and four text files.
 
-  </ul></p>
+$ unzip james-server-container-spring-3.0-M2-bin.tar.gz
+$ cd james-server-container-spring-3.0-M2
+$ ls -l
+drwxrwxrwx. 2 root root  4096 2010-11-06 09:24 bin
+-rw-r--r--. 1 root root   495 2010-11-06 08:56 BUILD.txt
+drwxrwxrwx. 4 root root  4096 2010-11-06 14:43 conf
+drwxrwxrwx. 2 root root 12288 2010-11-06 09:01 lib
+-rw-r--r--. 1 root root 12082 2010-11-01 17:23 LICENSE.txt
+drwxrwxrwx. 2 root root  4096 2010-11-06 09:24 log
+-rw-r--r--. 1 root root  1579 2010-11-01 17:23 NOTICE.txt
+-rw-r--r--. 1 root root  1545 2010-11-06 08:55 README.txt
+drwxrwxrwx. 6 root root  4096 2010-11-06 09:25 var
+
+
+Step 3: Configure
+#################
+
+All configuration files reside in the conf folder.
+
+$ cd conf
+$ ls -l
+-rw-------. 1 root root  1414 2010-11-05 16:01 database.properties
+-rw-------. 1 root root  2749 2010-10-21 14:07 dnsservice.xml
+-rw-------. 1 root root  2802 2010-11-06 09:22 domainlist.xml
+-rw-------. 1 root root 18599 2010-10-21 14:07 fetchmail.xml
+-rw-------. 1 root root  3201 2010-10-21 14:07 imapserver.xml
+-rw-------. 1 root root  2850 2010-11-04 08:10 james-listmanager.xml
+-rw-------. 1 root root  5821 2010-10-21 14:07 jcr-repository.xml
+-rw-------. 1 root root     0 2010-11-05 16:01 jmx.access
+-rw-------. 1 root root     0 2010-11-05 16:01 jmx.password
+-rw-------. 1 root root   961 2010-11-06 08:42 jmx.properties
+drwxrwxrwx. 2 root root  4096 2010-10-21 14:07 lib
+-rw-------. 1 root root  3129 2010-10-21 14:07 lmtpserver.xml
+-rw-------. 1 root root  7463 2010-11-05 15:54 log4j.properties
+-rw-------. 1 root root 31478 2010-11-06 09:22 mailetcontainer.xml
+-rw-------. 1 root root  2473 2010-11-06 09:22 mailserver.xml
+-rw-------. 1 root root  5234 2010-10-21 14:54 mailstore.xml
+drwxrwxrwx. 2 root root  4096 2010-10-21 14:07 META-INF
+-rw-------. 1 root root  8038 2010-10-21 14:07 miResources.xml
+-rw-------. 1 root root  3327 2010-10-21 14:07 pop3server.xml
+-rw-------. 1 root root  3369 2010-10-21 14:07 remotemanager.xml
+-rw-------. 1 root root 15837 2010-11-05 15:54 smtpserver.xml
+-rw-------. 1 root root 21941 2010-11-05 16:01 spring-beans.xml
+-rw-------. 1 root root 48523 2010-10-21 14:07 sqlResources.xml
+-rw-------. 1 root root  4301 2010-10-29 15:48 usersrepository.xml
+-rw-------. 1 root root  2465 2010-10-21 14:07 virtualusertable.xml
+-rw-------. 1 root root 13680 2010-11-06 09:01 wrapper.conf
+
+
+James is packaged with no virtual hosting, xml domain list and JPA (Derby database) storage for the mails.
+You can edit the following files to change the behaviour:
+
+- Enable virtual hosting in mailserver.xml: vi mailserver.xml
+  &lt;enableVirtualHosting&gt; true &lt;/enableVirtualHosting&gt;
+
+- Replace the XMLDomainList with the JPADomainList: vi usersrepository.xml
+  &lt;domainlist class="org.apache.james.domainlist.jpa.JPADomainList"&gt;
+    &lt;autodetect&gt;true&lt;/autodetect&gt;
+    &lt;autodetectIP&gt;true&lt;/autodetectIP&gt;
+  &lt;/domainlist&gt;
+
+- Edit the database.properties and change the values according to your database.
+- If you don't forget to add the needed jdbc driver jar in the ./conf/lib folder.
+  
+Step 4: Start
+#############
+
+$ cd bin
+$ ./james start
+You can see log result in the log/james-server.log file.
+
+Step 5: Create Domains and Users
+################################
+
+$ telnet localhost 4555
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+JAMES Remote Administration Tool
+Please enter your login and password
+Login id:
+root
+Password:
+root
+Welcome root. HELP for a list of commands
+adddomain YOUR_DOMAIN
+Adding domain YOUR_DOMAIN successful
+adduser YOUR_NAME@YOUR_DOMAIN YOUR_PASSWORD
+User YOUR_NAME@YOUR_DOMAIN added
+quit
+Bye
+Connection closed by foreign host.
+
+Step 6: Test
+############
+
+$ telnet 127.0.0.1 25
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+220 172.16.1.131 SMTP Server (JAMES SMTP Server 3.0-M2) ready Sat, 6 Nov 2010 17:31:33 +0100 (CET)
+ehlo test
+250-172.16.1.131 Hello test (aoscommunity.com [127.0.0.1])
+250-PIPELINING
+250-ENHANCEDSTATUSCODES
+250 8BITMIME
+mail from:&lt;YOUR_NAME@YOUR_DOMAIN&gt;
+250 2.1.0 Sender &lt;YOUR_NAME@YOUR_DOMAIN&gt; OK
+rcpt to:&lt;YOUR_NAME@YOUR_DOMAIN>
+250 2.1.5 Recipient &lt;YOUR_NAME@YOUR_DOMAIN&gt; OK
+data
+354 Ok Send data ending with &lt;CRLF&gt;.&lt;CRLF&gt;
+subject: test
+
+this is a test
+.
+250 2.6.0 Message received
+quit
+Connection closed by foreign host.
+</source>
+
+<p>Time to fine-tune your James Server!</p>
+
+<p>Read more on the <a href="install.html">install</a>, <a href="config.html">configure</a>, 
+   <a href="manage.html">manage</a>, <a href="monitor.html">monitor</a> 
+   and <a href="dev.html">develop</a> pages.</p>
 
 </section>
 

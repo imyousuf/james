@@ -70,7 +70,8 @@
         <item name="FetchMail" href="/config-fetchmail.html" />
         <item name="Remote Manager" href="/config-remotemanager.html" />
         <item name="List Manager" href="/config-listmanager.html" />
-        <item name="Common Configs" href="/config-common.html" />
+        <item name="TLS" href="/config-tls.html" />
+        <item name="Sieve" href="/config-sieve.html" />
       </item>
       <item name="4. Manage James" href="/manage.html" collapse="true" >
         <item name="Domains" href="/manage-domains.html" />
