@@ -16,12 +16,13 @@
   specific language governing permissions and limitations      
   under the License.                                           
  -->
- <!-- XML resources for mailing lists -->
+
+<!-- See http://james.apache.org/server/3/config.html for usage -->
+
 <resources>
   <matchers>
     <matcher for="custom" match="My Custom List"/>
   </matchers>
-
   <group name="subscribeConfirm">
     <resource name="welcome.subscribe.address">Welcome to the ${LIST_NAME} mailing list</resource>
     <resource name="already.subscribed">You are already subscribed to the ${LIST_NAME} mailing list.</resource>

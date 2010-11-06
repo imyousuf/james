@@ -17,58 +17,26 @@
   specific language governing permissions and limitations      
   under the License.                                           
  -->
-<!-- The RemoteManager server is enabled by default -->
-<!-- Disabling blocks will stop them from listening, -->
-<!-- but does not free as many resources as removing them would -->
+
+<!-- See http://james.apache.org/server/3/config.html for usage -->
+
 <remotemanager enabled="true">
-    <port>4555</port>
-    <!--  Uncomment this if you want to bind to a specific inetaddress -->
-    <!--
-    <bind> </bind>
-    -->
-    
-    <connectionBacklog>10</connectionBacklog>
-     
-    <!-- Set to true to use TLS for the Socket.
-         To use this you need to copy sunjce_provider.jar to /path/james/lib directory.
-    -->
-    <tls socketTLS="false">
-        <!-- To create a new keystore execute:
-             keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore
-        -->
-        <keystore>file://conf/keystore</keystore>
-        <secret>yoursecret</secret>
-        <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
-    </tls>
-      
-    <handler>
-        <!-- This is the name used by the server to identify itself in the RemoteManager -->
-        <!-- protocol.  If autodetect is TRUE, the server will discover its -->
-        <!-- own host name and use that in the protocol.  If discovery fails, -->
-        <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
-        <!-- will use the specified value. -->
-        <!--
-        <helloName autodetect="true">myMailServer</helloName>
-        -->
-        <administrator_accounts>
-            <!-- CHECKME! -->
-            <!-- Change the default login/password. -->
-            <account login="root" password="root"/>
-        </administrator_accounts>
-         
-        <!-- connection timeout in secconds -->
-        <connectiontimeout> 600 </connectiontimeout>
-         
-        <!-- Set the maximum simultaneous incoming connections for this service -->
-        <connectionLimit> 0 </connectionLimit>
-         
-        <!-- Set the maximum simultaneous incoming connections per IP for this service -->
-        <connectionLimitPerIP> 0 </connectionLimitPerIP>
-  
-        <handlerchain>
-            <!-- This loads the core CommandHandlers. Only remove this if you really -->
-            <!-- know what you are doing -->
-            <handler class="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
-        </handlerchain>
-    </handler>
+  <port>4555</port>
+  <connectionBacklog>10</connectionBacklog>
+  <tls socketTLS="false">
+      <keystore>file://conf/keystore</keystore>
+      <secret>yoursecret</secret>
+      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+  </tls>
+  <handler>
+      <administrator_accounts>
+          <account login="root" password="root"/>
+      </administrator_accounts>
+      <connectiontimeout> 600 </connectiontimeout>
+      <connectionLimit> 0 </connectionLimit>
+      <connectionLimitPerIP> 0 </connectionLimitPerIP>
+      <handlerchain>
+          <handler class="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
+      </handlerchain>
+  </handler>
 </remotemanager>

@@ -32,8 +32,6 @@
         <property name="location" value="file://conf/jmx.properties"/>
     </bean>
 
-    <!-- Make sure we can bind jmx sockets to a specific ipaddress -->
-    <!-- https://issues.apache.org/jira/browse/JAMES-1104 -->
     <bean id="restrictedRmiSocketFactory" class="org.apache.james.container.spring.RestrictingRMISocketFactory">
         <constructor-arg value="${jmx.address}"/>
     </bean>   
@@ -69,14 +67,15 @@
           <entry key="org.apache.james:type=component,name=usermanagement" value-ref="usermanagement"/>
           <entry key="org.apache.james:type=component,name=fetchmail" value-ref="fetchmail"/>
           <entry key="org.apache.james:type=component,name=mailboxmanagement" value-ref="mailboxmanagermanagement"/>
-         
         </map>
       </property>
+      
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
             <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean"/>
           </bean>
       </property>
+      
     </bean>
     
     <bean id="processormanagement" class="org.apache.james.mailetcontainer.lib.ProcessorManagement"/>
@@ -110,7 +109,6 @@
         </property>
     </bean>
 
-    <!-- Take care of resolve filesystem= property values -->
     <bean class="org.apache.james.container.spring.FileSystemResolver">
         <property name="fileSystem" ref="filesystem" />
     </bean>
@@ -147,19 +145,13 @@
 
     <bean id="instanceFactory" class="org.apache.james.container.spring.SpringInstanceFactory"/>
 
-    <!-- Add support for Persistence annotations -->
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
-    <!-- Change trace to true for debugging purposes -->
     <camel:camelContext id="jamesCamelContext" trace="false" >
         <camel:jmxAgent id="agent" disabled="false" createConnector="false" serviceUrlPath="/jmxrmi/jamescamel"/>
         <camel:template id="producerTemplate"/>   
     </camel:camelContext>
 
-
-
-    <!-- lets create an embedded ActiveMQ Broker -->
-    <!-- disable schedulerSupport for workaround AMQ-2935-->
     <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" schedulerSupport="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
@@ -173,7 +165,6 @@
         <amq:managementContext>
             <amq:managementContext createConnector="false"/>
         </amq:managementContext>
-        <!-- use amq persistence adapter for workaround AMQ-2935-->
         <amq:persistenceAdapter>
             <amq:amqPersistenceAdapter/>
         </amq:persistenceAdapter>
@@ -190,31 +181,23 @@
         <property name="defaultUploadUrl" value="file://var/queue"/>
     </bean>
 
-    <!-- IMPORTANT: if you use not the ActiveMQMailQueueFactory you prolly need to set cacheConsumers to false -->
     <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
        <property name="targetConnectionFactory" ref="amqConnectionFactory"/>
        <property name="sessionCacheSize" value="10"/>
-       <!-- Don't cache consumers as we need to use message selectors for delayed messages -->
-       <!-- When caching consumers the selector will not work. -->
-       <!-- This is needed because we can not make use of the scheduler. Thats only a workaround till activemq 5.4.2 was released -->
-       <!-- See AMQ-2935 -->
        <property name="cacheConsumers" value="false"/>
        <property name="cacheProducers" value="true"/>
     </bean>
 
-    <!-- setup spring jms TX manager -->
     <bean id="jmsTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
     </bean>
 
     <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker"/>
         
-    <!-- Build the camelroute from the spoolmanager.xml -->
     <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
 
     <bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager"/>
     
-    <!-- mailserver implementation which use activemq for spooling the mail -->
     <bean id="mailserver" class="org.apache.james.JamesMailServer"/>
 
     <bean id="mailetcontext" class="org.apache.james.mailetcontainer.lib.JamesMailetContext"/>
@@ -225,7 +208,6 @@
 
     <bean id="dnsservice" class="org.apache.james.dnsservice.dnsjava.DNSJavaService" />
 
-    <!-- Async RemoteManager -->
     <bean id="remotemanager" class="org.apache.james.remotemanager.netty.RemoteManager" >
         <property name="protocolHandlerChain" ref="remoteProtocolHandlerChain"/>
     </bean>
@@ -234,7 +216,6 @@
         <property name="coreHandlersPackage" value="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
     </bean>
 
-    <!-- Async POP3 Server -->
     <bean id="pop3server"  class="org.apache.james.pop3server.netty.POP3Server" >
         <property name="protocolHandlerChain" ref="pop3ProtocolHandlerChain"/>
     </bean>
@@ -243,7 +224,6 @@
         <property name="coreHandlersPackage" value="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
     </bean>
 
-    <!-- Async SMTP Server -->
     <bean id="smtpserver" class="org.apache.james.smtpserver.netty.SMTPServer">
         <property name="protocolHandlerChain" ref="smtpProtocolHandlerChain"/>
     </bean>
@@ -252,7 +232,6 @@
         <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
     </bean>
 
-    <!-- Async LMTP Server -->
     <bean id="lmtpserver" class="org.apache.james.lmtpserver.netty.LMTPServer">
         <property name="protocolHandlerChain" ref="lmtpProtocolHandlerChain"/>
     </bean>
@@ -261,40 +240,22 @@
         <property name="coreHandlersPackage" value="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
     </bean>
     
-    <!-- FetchMail Service -->
     <bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 
-    <!-- The High Level Storage block -->
     <bean id="mailstore" class="org.apache.james.mailstore.lib.JamesMailStore" />
 
-    <!-- The User Storage block -->
     <bean id="usersstore" class="org.apache.james.user.lib.JamesUsersStore" >
         <property name="defaultRepository" value="LocalUsers"/>
     </bean>
 
-    <!-- This is needed to link the smtpserver to the local user repository
-        LocalJamesUsersRepository is used for backward compatibility with
-        org.apache.james.user.lib.LocalJamesUsersRepository can be used for
-        backward compatibility with James 2.3.0
-        If backward compatibility is not needed, org.apache.james.user.lib.LocalUsersRepository
-        implementation is used by default.
-    -->
-
-    <!-- uncomment this for james 2.3.0 backward compatibility
-    <bean id="localusersrepository" class="org.apache.james.user.lib.LocalJamesUsersRepository" />
-    -->
-    <!-- this is the default implementation for the localusersrepository - not james 2.3.0 backward compatible -->
     <bean id="localusersrepository" class="org.apache.james.user.lib.LocalUsersRepository" />
 
-    <!-- The context FileSystem implementation -->
     <bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
 
     <bean id="virtualusertable" class="org.apache.james.vut.lib.JamesVirtualUserTable" />
 
-    <!-- The context domainlist implementation -->
     <bean id="domainlist" class="org.apache.james.domainlist.lib.JamesDomainList" />
 
-    <!-- IMAP server Beans -->
     <bean id="imapserver" class="org.apache.james.imapserver.netty.IMAPServer">
         <property name="imapDecoder" ref="imapDecoder"/>
         <property name="imapEncoder" ref="imapEncoder"/>    
@@ -315,7 +276,6 @@
 
     <bean id="authenticator" class="org.apache.james.adapter.mailbox.store.UserRepositoryAuthenticator"/>
 
-    <!-- JPA implementation of IMAP Storage-->
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
     </bean>
@@ -330,74 +290,10 @@
         <constructor-arg index="2" value="${openjpa.streaming}"/>
     </bean>
 
-    <!-- Maildir implementation of IMAP Storage -->
-    <!-- WARNING: Maildir does only work on UNIX like operation systems -->
-    <!-- 
-    <bean id="sessionMapperFactory" class="org.apache.james.adapter.mailbox.maildir.MaildirMailboxSessionMapperFactoryUtil" factory-method="create">        
-        <constructor-arg index="0" ref="filesystem"/>
-        <constructor-arg index="1" ref="mailserver"/>
-        <constructor-arg index="2" value="file://var/mail/maildir/"/>
-    </bean>
-    <bean id ="subscriptionManager" class="org.apache.james.mailbox.maildir.MaildirSubscriptionManager">
-        <constructor-arg index="0" ref="sessionMapperFactory"/>
-    </bean>
-
-    <bean id="mailboxmanager" class="org.apache.james.mailbox.maildir.MaildirMailboxManager">
-        <constructor-arg index="0" ref="sessionMapperFactory"/>
-        <constructor-arg index="1" ref="authenticator"/>
-    </bean>
-    -->
-
-    <!-- JCR implementation of IMAP Storage-->
-    <!-- Make sure that Jackrabbit is configured as well -->
-    <!--  
-    <bean id="imapCndLoader" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetObject"><ref local="jcrUtils"/></property>
-        <property name="targetMethod"><value>registerCnd</value></property>
-        <property name="arguments">
-            <list>
-                <ref local="jcrRepository"/>
-                <value>james</value>
-                <value>james</value>
-                <value>james</value>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="jcrUtils" class="org.apache.james.mailbox.jcr.JCRUtils"/>    
-
-    <bean id ="sessionJcrRepository"    class="org.apache.james.mailbox.jcr.GlobalMailboxSessionJCRRepository" depends-on="imapCndLoader">
-        <constructor-arg index="0" ref="jcrRepository"/>
-        <constructor-arg index="1" value="james"/>
-        <constructor-arg index="2" value="james"/>
-        <constructor-arg index="3" value="james"/>
-    </bean>
-  
-    <bean id="nodeLocker" class="org.apache.james.mailbox.jcr.JCRVmNodeLocker"/>
-
-
-    <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jcr.JCRMailboxSessionMapperFactory">
-        <constructor-arg index="0" ref="sessionJcrRepository"/>
-        <constructor-arg index="1" ref="nodeLocker"/>
-    </bean>
-
-    <bean id ="subscriptionManager" class="org.apache.james.mailbox.jcr.JCRSubscriptionManager">
-        <constructor-arg index="0" ref="sessionMapperFactory"/>
-    </bean>
-
-    <bean id="mailboxmanager" class="org.apache.james.mailbox.jcr.JCRMailboxManager">
-        <constructor-arg index="0" ref="sessionMapperFactory"/>
-        <constructor-arg index="1" ref="authenticator"/>
-        <constructor-arg index="2" ref="nodeLocker"/>
-    </bean>
-    -->
-
-    <!-- The Time Scheduler block -->
     <bean id="scheduler" class="java.util.concurrent.Executors" factory-method="newScheduledThreadPool">
         <constructor-arg value="20"/>
     </bean>
     
-    <!-- Database related beans  -->
     <bean id="datasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="${database.driverClassName}" />
         <property name="url" value="${database.url}" />
@@ -415,17 +311,5 @@
         <!-- set this to true for debugging purposes -->
         <property name="showSql" value="false"/>
     </bean>
-
-    <!-- Jackrabbit JCR Repository -->
-    <!-- 
-    <bean id="jcrRepository" class="org.apache.jackrabbit.core.RepositoryImpl" destroy-method="shutdown">
-        <constructor-arg index="0" ref="config" />
-    </bean>
-    
-    <bean id="config" class="org.apache.jackrabbit.core.config.RepositoryConfig" factory-method="create">
-        <constructor-arg index="0" value="filesystem=file://conf/jcr-repository.xml"/>
-        <constructor-arg index="1" value="filesystem=file://var/jackrabbit" />
-    </bean>
-    -->
 
 </beans>

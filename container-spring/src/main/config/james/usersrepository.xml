@@ -18,76 +18,10 @@
   under the License.                                           
  -->
 
+<!-- See http://james.apache.org/server/3/config.html for usage -->
+
 <usersrepository>
-
-    <!-- Configure User Repositories here. -->
-
-    <!-- -->
-    <!-- User repositories are required for the following purposes: -->
-    <!--    - storing James user information and authentication data. -->
-    <!-- Note: One user repository is required for James: -->
-    <!--   LocalUsers - the users for whom you are providing POP3, IMAP, or SMTP service -->
-    <!-- -->
-
-    
-    <!-- Read-Only LDAP based UsersRepository -->
-    <!--
-    <repository name="LocalUsers" class="org.apache.james.user.ldap.ReadOnlyUsersLDAPRepository" ldapHost="ldap://myldapserver:389" 
-    	principal="uid=ldapUser,ou=system" credentials="password" userBase="ou=People,o=myorg.com,ou=system" userIdAttribute="uid"/>;
-    -->
-    
-    
-    <!-- JPA based backend. Support password algorithm are:
-         MD5, SHA-256, SHA-512, NONE
-     -->
-    <repository name="LocalUsers" class="org.apache.james.user.jpa.JPAUsersRepository">
-        <algorithm>MD5</algorithm>
-    </repository>
-
-
-    <!-- The UsersRepository implementations below are DEPRECATED and will get removed in the next release -->
-    <!-- They are just listed here for backward-compatibility-->
-    
-    <!-- File-based user repositories  Use these configurations to store user info in the filesystem  -->
-    <!-- The LocalUsers repository, for storing James' User info. -->
-    <!-- DEPRECATED: This implementation will get removed in the next release -->
-    <!--
-    <repository name="LocalUsers" class="org.apache.james.user.file.UsersFileRepository">
-        <destination URL="file://var/users/"/>
-        <ignoreCase>true</ignoreCase>
-        <enableAliases>true</enableAliases>
-        <enableForwarding>true</enableForwarding>
-    </repository>
-    -->
-
-    <!-- Database backed user repositories -->
-    <!-- -->
-    <!-- Use these configurations to store user info in a database. -->
-    <!-- Note: The <data-source> element must refer to a connection configured -->
-    <!--       in the <database-connections> configuration section. -->
-    <!-- The LocalUsers repository, for storing James' User info. -->
-    <!-- DEPRECATED: This implementation will get removed in the next release -->
-    <!--             Use JPAUsersRepository if you want to store the Users in a database -->
-    <!-- 
-    <repository name="LocalUsers" class="org.apache.james.user.jdbc.JamesUsersJdbcRepository" destinationURL="db://maildb/users">
-        <sqlFile>file://conf/sqlResources.xml</sqlFile>
-        <ignoreCase>true</ignoreCase>
-        <enableAliases>true</enableAliases>
-        <enableForwarding>true</enableForwarding>
-    </repository>
-    -->
-        
-    <!-- This is an example configuration including configuration for a list server. -->
-    <!-- CHECKME: before uncommenting this, edit the configuration file's contents   -->
-    <!-- -->
-    <!-- Mailing list repositories  -->
-    <!-- Add a user repository for each list -->
-    <!-- TODO: add more examples  -->    
-    <!-- DEPRECATED: This implementation will get removed in the next release -->
-    <!--       
-    <repository name="list-test" class="org.apache.james.user.file.UsersFileRepository">
-       <destination URL="file://var/lists/list-test/"/>
-    </repository>
-    -->
-    
+  <repository name="LocalUsers" class="org.apache.james.user.jpa.JPAUsersRepository">
+      <algorithm>MD5</algorithm>
+  </repository>
 </usersrepository>

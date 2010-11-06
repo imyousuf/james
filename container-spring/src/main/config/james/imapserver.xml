@@ -17,52 +17,16 @@
   specific language governing permissions and limitations      
   under the License.                                           
  -->
-<!-- IMAP server is enabled by default -->
-<!-- Disabling blocks will stop them from listening, -->
-<!-- but does not free as many resources as removing them would -->
-<imapserver enabled="true">
-    <!-- port 993 is the well-known/IANA registered port for IMAPS  ie over SSL/TLS -->
-    <!-- port 143 is the well-known/IANA registered port for IMAP -->
-    <port>143</port>
 
-    <!-- Uncomment this if you want to bind to a specific inetaddress -->
-    <!-- Please NOTE: you should add this IP also to your RemoteAddrNotInNetwork -->
-    <!-- in order to avoid relay check for locallly generated bounces -->     
-    <!--
-    <bind> </bind>
-    -->
-    
-    <connectionBacklog>200</connectionBacklog>
-    
-    <!-- Set to true to use TLS for the Socket.
-         To use this you need to copy sunjce_provider.jar to /path/james/lib directory.
-    -->
-    <tls socketTLS="false" startTLS="false">
-      <!-- To create a new keystore execute:
-      keytool -genkey -alias james -keyalg RSA -keystore /path/to/james/conf/keystore
-       -->
-      <keystore>file://conf/keystore</keystore>
-      <secret>yoursecret</secret>
-      <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
-    </tls>
-      
-    <handler>
-        <!-- This is the name used by the server to identify itself in the SMTP -->
-        <!-- protocol.  If autodetect is TRUE, the server will discover its -->
-        <!-- own host name and use that in the protocol.  If discovery fails, -->
-        <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
-        <!-- will use the specified value. -->
-        <!--
-        <helloName autodetect="true">myMailServer</helloName>
-        -->
-         
-        <!-- Connection timeout is 30 minutes and can not be changed - See rfc2060 5.4 for details -->
-            
-        <!-- Set the maximum simultaneous incoming connections for this service -->
-        <connectionLimit> 0 </connectionLimit>
-         
-        <!-- Set the maximum simultaneous incoming connections per IP for this service -->
-        <connectionLimitPerIP> 0 </connectionLimitPerIP>
-         
-    </handler>
+<!-- See http://james.apache.org/server/3/config.html for usage -->
+
+<imapserver enabled="true">
+  <port>143</port>
+  <connectionBacklog>200</connectionBacklog>
+  <tls socketTLS="false" startTLS="false">
+  </tls>
+  <handler>
+      <connectionLimit> 0 </connectionLimit>
+      <connectionLimitPerIP> 0 </connectionLimitPerIP>
+  </handler>
 </imapserver>

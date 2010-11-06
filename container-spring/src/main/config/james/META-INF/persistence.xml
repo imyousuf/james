@@ -25,51 +25,22 @@
 
     <persistence-unit name="James" transaction-type="RESOURCE_LOCAL">
 
-        <!-- Mailbox stuff-->
         <class>org.apache.james.mailbox.jpa.mail.model.JPAHeader</class>
         <class>org.apache.james.mailbox.jpa.mail.model.JPAMailbox</class>
         <class>org.apache.james.mailbox.jpa.mail.model.openjpa.AbstractJPAMessage</class>
         <class>org.apache.james.mailbox.jpa.mail.model.openjpa.AbstractJPAMailboxMembership</class>
-        <!-- This needs to get used when you want to use streaming. Remember to comment the following classes
-             org.apache.james.mailbox.jpa.mail.model.JPAMailboxMembership
-             org.apache.james.mailbox.jpa.mail.model.JPAMessage
-             If you don't do this the EntityManager will get confused!
-        <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAStreamingMailboxMembership</class>
-        <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAStreamingMessage</class>
-        -->
-        <!-- Comment if you want to use streaming -->
         <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAMailboxMembership</class>
         <class>org.apache.james.mailbox.jpa.mail.model.openjpa.JPAMessage</class>
-
         <class>org.apache.james.mailbox.jpa.mail.model.JPAProperty</class>
         <class>org.apache.james.mailbox.jpa.user.model.JPASubscription</class>
-
-        <!-- DomainList -->
         <class>org.apache.james.domainlist.jpa.model.JPADomain</class>
-
-        <!-- User-->
         <class>org.apache.james.user.jpa.model.JPAUser</class>
-
-        <!-- VirtualUser -->
         <class>org.apache.james.vut.jpa.model.JPAVirtualUser</class>
-
         <properties>
-            <!--  Create tables on startup -->
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
-            <!--  Create foreign keys on startup -->
             <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
-            <!--  Reorder SQL statements to satisfy database foreign key constraints -->
             <property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
-            <!--  Disable query cache for now. It seems to be buggy. -->
-            <!--  See http://www.mail-archive.com/server-dev@james.apache.org/msg28802.html -->
-            <!--  See https://issues.apache.org/jira/browse/OPENJPA-1827 -->
             <property name="openjpa.jdbc.QuerySQLCache" value="false"/>
-            <!--  Uncomment this if you want to see the generated SQL in the console.
-            <property name="openjpa.Log" value="SQL=TRACE"/>
-            -->
-            <!--  Uncomment this if you want to get verbose OpenJPA log the console.
-            <property name="openjpa.Log" value="DefaultLevel=TRACE"/>
-            -->
         </properties>
 
     </persistence-unit>

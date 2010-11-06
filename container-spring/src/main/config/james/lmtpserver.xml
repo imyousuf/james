@@ -17,50 +17,20 @@
   specific language governing permissions and limitations      
   under the License.                                           
  -->
-<!-- The LMTP server is disabled by default -->
-<!-- Disabling blocks will stop them from listening, -->
-<!-- but does not free as many resources as removing them would -->
-<lmtpserver enabled="false">
-    <port>24</port>
 
-    <!-- LMTP should not be reachable from outside your network so bind it to loopback-->
-    <bind>127.0.0.1</bind>
-    
-    <connectionBacklog>200</connectionBacklog>
-      
-    <handler>
-        <!-- This is the name used by the server to identify itself in the LMTP -->
-        <!-- protocol.  If autodetect is TRUE, the server will discover its -->
-        <!-- own host name and use that in the protocol.  If discovery fails, -->
-        <!-- the value of 'localhost' is used.  If autodetect is FALSE, James -->
-        <!-- will use the specified value. -->
-        <!--
-        <helloName autodetect="true">myMailServer</helloName>
-        -->
-        <!-- connection timeout in secconds -->
-        <connectiontimeout>1200</connectiontimeout>
-      
-        <!-- Set the maximum simultaneous incoming connections for this service -->
-        <connectionLimit> 0 </connectionLimit>
-         
-        <!-- Set the maximum simultaneous incoming connections per IP for this service -->
-        <connectionLimitPerIP> 0 </connectionLimitPerIP>
-         
-        <!--  This sets the maximum allowed message size (in kilobytes) for this -->
-        <!--  LMTP service. If unspecified, the value defaults to 0, which means no limit. -->
-        <maxmessagesize>0</maxmessagesize>
-         
-                 
-         <!-- This sets the LMTPGreeting which will be used when connect to the lmtpserver -->
-         <!-- If none is specified a default is generated -->
-         <!--
-         <smtpGreeting> JAMES LMTP Server </smtpGreeting>
-         -->
-         
-        <handlerchain>
-            <!-- This loads the core CommandHandlers. Only remove this if you really -->
-            <!-- know what you are doing -->
-            <handler class="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
-        </handlerchain>
-    </handler>
+<!-- See http://james.apache.org/server/3/config.html for usage -->
+
+<lmtpserver enabled="false">
+  <port>24</port>
+  <bind>127.0.0.1</bind>
+  <connectionBacklog>200</connectionBacklog>
+  <handler>
+      <connectiontimeout>1200</connectiontimeout>
+      <connectionLimit> 0 </connectionLimit>
+      <connectionLimitPerIP> 0 </connectionLimitPerIP>
+      <maxmessagesize>0</maxmessagesize>
+      <handlerchain>
+          <handler class="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
+      </handlerchain>
+  </handler>
 </lmtpserver>
