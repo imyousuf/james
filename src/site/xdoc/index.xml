@@ -51,7 +51,7 @@
         <div class="ui-widget">
 			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
 				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-				<strong>Hey!</strong> James Server 3.0-M1 is out.</p>
+				<strong>Hey!</strong> James Server 3.0-M2 is out - <a href="quick-start.html">Quick Start</a> James!.</p>
 			</div>
 		</div>
       
@@ -68,7 +68,7 @@
         <p>
           <span class="minibutton btn-download">
             <a href="javascript:window.location='http://james.apache.org/download.cgi#Apache-James-Server';">
-              <span><span class="icon"></span>Early James Server 3.0-M1</span>
+              <span><span class="icon"></span>Early James Server 3.0-M2</span>
             </a>
           </span>
         </p>
@@ -156,7 +156,7 @@
 	           Component Oriented Programming and  Inversion of Control. The stable and robust 
 	           Spring container provides a strong foundation for the James server.</p>
 	    
-	        <p>The internal and exposed APIs for this 3.0-M1 release are under current validation and are 
+	        <p>The internal and exposed APIs for this 3.0-M2 release are under current validation and are 
 	          expected to be subject to change - <a href="dev-architecture.html">read more</a>.</p>
 	         
             <img src="images/uml/org.apache.james-package-small.png" width="400px" />
