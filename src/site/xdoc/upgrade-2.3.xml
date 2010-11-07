@@ -20,19 +20,28 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Upgrading</title>
+  <title>James 3.0 - Upgrading from 2.3</title>
  </properties>
  
 <body>
 
-  <section name="Migration Tool">
+  <section name="Migrate from Server 2.3 to Server 3.0">
+  
+    <subsection name="Migrate Users from Server 2.3 to Server 3.0">
 
-    <p>We are working on a tool that will migrate 2.3 mail and user
-      repositories to 3.0 mailbox store and user repository.</p>
+      <p>We are also working on a tool that will migrate 2.3 user repositories to 3 user repository. 
+         See <a href="https://issues.apache.org/jira/browse/JAMES-1090">https://issues.apache.org/jira/browse/JAMES-1090</a>
+         to follow progress on this</p>
+         
+    </subsection>
 
-    <p>See <a href="https://issues.apache.org/jira/browse/JAMES-1052">https://issues.apache.org/jira/browse/JAMES-1052</a>
-       and <a href="https://issues.apache.org/jira/browse/JAMES-1090">https://issues.apache.org/jira/browse/JAMES-1090</a>
-       to follow progress on this.</p>
+    <subsection name="Migrate Mails from Server 2.3 to Server 3.0">
+
+      <p>We are working on a tool that will migrate 2.3 mail repositories to 3.0 mailbox store. 
+         See <a href="https://issues.apache.org/jira/browse/JAMES-1052">https://issues.apache.org/jira/browse/JAMES-1052</a>
+         to follow progress on this</p>
+       
+    </subsection>
 
   </section>
 <!-- 

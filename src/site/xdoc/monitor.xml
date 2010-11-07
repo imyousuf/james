@@ -27,9 +27,18 @@
 
   <section name="Monitor James Server">
   
-    <p>You can monitor James Server via <a href="monitor-logging.html">logging</a>
-       and via <a href="monitor-jmx.html">JMX</a>.</p>
+    <subsection name="Montior James Server via Loging">
   
+      <p>You can monitor James Server via logging - <a href="monitor-logging.html">read more</a>.</p>
+  
+    </subsection>
+
+    <subsection name="Montior James Server via JMX">
+  
+      <p>You can monitor James Server via JMX - <a href="monitor-jmx.html">read more</a>.</p>
+  
+    </subsection>
+
   </section>
   
 </body>

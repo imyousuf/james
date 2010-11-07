@@ -82,7 +82,7 @@
         <item name="Logging" href="/monitor-logging.html" />
         <item name="JMX" href="/monitor-jmx.html" />
       </item>
-      <item name="5. Upgrade from James 2.3" href="/upgrade-2.3.html" />
+      <item name="6. Upgrade from James 2.3" href="/upgrade-2.3.html" />
     </menu>
 
     <menu name="Developers Corner">

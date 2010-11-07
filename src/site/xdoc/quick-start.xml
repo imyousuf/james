@@ -109,7 +109,7 @@ You can edit the following files to change the behaviour:
   &lt;/domainlist&gt;
 
 - Edit the database.properties and change the values according to your database.
-- If you don't forget to add the needed jdbc driver jar in the ./conf/lib folder.
+- Don't forget to add the needed JDBC driver jar in the ./conf/lib folder.
   
 Step 4: Start
 #############
@@ -139,6 +139,9 @@ User YOUR_NAME@YOUR_DOMAIN added
 quit
 Bye
 Connection closed by foreign host.
+
+For example, YOUR_DOMAIN=localhost.net, YOUR_NAME=test, so you will have a test@localhost.net user.
+The username to use in you mail client will be test@localhost.net.
 
 Step 6: Test
 ############

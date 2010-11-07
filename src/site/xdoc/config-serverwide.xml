@@ -20,12 +20,12 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Global Server Configuration</title>
+  <title>James 3.0 - Sever Wide Configuration</title>
  </properties>
 
 <body>
 
-  <section name="Global Server Configuration">
+  <section name="Server Wide Configuration">
   
     <p>There are a number of global configuration blocks that do not fall into any one 
       component.  They have effects that are global in scope across the server.  Some of 

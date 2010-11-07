@@ -25,13 +25,18 @@
 
 <body>
 
-  <section name="Manage Domains">
+  <section name="Manage Domains via Telnet">
   
     <p>Domain accounts are shared across services.  A common Domain repository is shared across James 
-    services.  That is, once you've created a POP3 mail and set a password, that same 
-    is available for authenticated SMTP and NNTP.</p>
+       services.  That is, once you've created a POP3 mail and set a password, that same 
+      is available for authenticated SMTP and NNTP.</p>
     
-    <p>Once James is up and listening, adding a Domain is simple:</p>
+    <p>If you have XMLDomainList (default setup), you can only list the available domains. To add a domain,
+       you must add it in the domainlist.xml file.</p>
+
+    <p>If you have JPADomainList for example, you can add, delete and list the domains.</p>
+
+    <p>Once James is up and listening, with JPADomainList, adding a Domain is simple:</p>
 
     <p><ol>
 
@@ -40,19 +45,34 @@
       hostname and &lt;port&gt; is the RemoteManager port specified in the James config.xml.</li>
   
       <li>You will be prompted for your administrator userid and password.  Enter the values you specified 
-      in the James config.xml.</li>
+      in the James remotemanager.xml.</li>
       
       <li>After logging in, type "adddomain &lt;domain&gt;" where &lt;domain&gt; is the domain name 
       of the domain you wish to create.</li>
       
-      <li>Repeat step 3 for all user accounts you wish to create.</li>
+      <li>Repeat step 3 for all domains you wish to create.</li>
     
     </ol></p>
     
-    <p>That's it.  Your Domain are now created and can be used by all James services.</p>
+    <p>That's it.  Your domains are now created and can be used by all James services.</p>
     
   </section>
 
+  <section name="Manage Domains via JMX">
+  
+    <p>Use and JMX client to access the DomainList management function.</p>
+  
+    <p>The managed objects are exposed from localhost only (for security reasons) on the following URL:</p>
+      
+    <p><code>service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi</code></p>
+      
+    <p>If you want a remote access, you can install a web application management tool such as jmanage. 
+       You will get screens such as the following one.</p>
+         
+    <p><img src="images/jmx-management/jmx-domainlist.png"/></p>
+
+  </section>
+  
 </body>
 
 </document>
