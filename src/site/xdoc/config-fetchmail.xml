@@ -25,7 +25,9 @@
 
 <body>
 
-  <section name="Fetchmail">
+  <section name="Fetchmail Configuration">
+
+    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/fetchmail.xml">fetchmail.xml</a> Example.</p>
 
     <p>Fetchmail acts as a gateway between an external message store such as an IMAP
     or POP3 server and James. Mail is fetched from the external message store and

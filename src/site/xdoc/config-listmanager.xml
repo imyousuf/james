@@ -27,6 +27,8 @@
 
 <section name="List Manager Configuration">
 
+    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/james-listmanager.xml">james-listmanager.xml</a> Example.</p>
+
     <p>One of the frequent questions on the James-User Mailing List is how
     to create a mailing list. This document explains one way of using the
     currently supplied Matchers and Mailets in James v3.0.</p>
@@ -113,6 +115,12 @@
     </source>
     </subsection>
     
+  </section>
+  
+  <section name="miResources.xml">
+  
+    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/miResources.xml">miResources.xml</a> Example.</p>
+  
   </section>
   
 </body>

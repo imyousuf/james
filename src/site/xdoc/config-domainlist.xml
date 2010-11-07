@@ -27,6 +27,8 @@
 
   <section name="DomainList Configuration">
 
+    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/domainlist.xml">domainlist.xml</a> Example.</p>
+
   </section>
 
 </body>

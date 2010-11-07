@@ -27,6 +27,8 @@
 
   <section name="SMTP Configuration">
   
+     <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a> Example.</p>
+
     <p>The SMTP service is controlled by a configuration block in the smptserver.xml.
     The smtpserver tag defines the boundaries of the configuration block.  It encloses 
     all the relevant configuration for the SMTP server.  The behavior of the SMTP service is
@@ -85,21 +87,18 @@
       (i.e. max # of threads) may serve to limit the number of open connections.</li>
     </ul>
     
-  </section>
-
-  <section name="Configure Authenticated SMTP (SMTP AUTH)">
-  
-    <p>Authenticated SMTP is a method of securing your SMTP server.  With SMTP AUTH enabled senders who wish to 
-    relay mail through the SMTP server (that is, send mail that is eventually to be delivered to another SMTP 
-    server) must authenticate themselves to James before sending their message.  Mail that is to be delivered 
-    locally does not require authentication.  This method ensures that spammers cannot use your SMTP server
-    to send unauthorized mail, while still enabling users who may not have fixed IP addresses to send their 
-    messages.</p>
-    <p>Mail servers that allow spammers to send unauthorized email are known as open relays.  So SMTP AUTH
-    is a mechanism for ensuring that your server is not an open relay .</p>
-    <p>At this time James only supports simple user name / password authentication.</p>
+    <subsection name="Configure Authenticated SMTP (SMTP AUTH)">
     
-    <subsection name="Configuring James for Authenticated SMTP">
+      <p>Authenticated SMTP is a method of securing your SMTP server.  With SMTP AUTH enabled senders who wish to 
+      relay mail through the SMTP server (that is, send mail that is eventually to be delivered to another SMTP 
+      server) must authenticate themselves to James before sending their message.  Mail that is to be delivered 
+      locally does not require authentication.  This method ensures that spammers cannot use your SMTP server
+      to send unauthorized mail, while still enabling users who may not have fixed IP addresses to send their 
+      messages.</p>
+      
+      <p>Mail servers that allow spammers to send unauthorized email are known as open relays.  So SMTP AUTH
+      is a mechanism for ensuring that your server is not an open relay .</p>
+      <p>At this time James only supports simple user name / password authentication.</p>
     
       <p>Configuring James for Authentication SMTP is a multi-step process.  It requires several adjustments of 
       the smtpserver.xml.  To enable SMTP AUTH, do the following:</p>
@@ -117,10 +116,6 @@
       optionally set the verifyIdentity element of the smtpserver configuration block to "true".</p>
       <p>Fifth, restart James.  This will pull in all of your configuration changes.</p>
 
-    </subsection>
-    
-    <subsection name="Verifying Your Configuration">
-    
       <p>Finally, you need to verify that your configuration was done correctly.  This step is 
       <strong>important</strong> and should not be skipped.</p>
       <p>Verify that you have not inadvertantly configured your server as an open relay. This is most easily 
@@ -140,6 +135,8 @@
   
   <section name="LMTP Configuration">
     
+    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/lmtpserver.xml">lmtpserver.xml</a> Example.</p>
+
   </section>
     
 </body>

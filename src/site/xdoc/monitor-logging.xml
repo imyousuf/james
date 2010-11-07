@@ -64,6 +64,8 @@ drwxrwxrwx. 7 root root   4096 2010-11-06 09:01 ../
 -rw-r--r--. 1 root root     71 2010-11-06 09:24 usersrepository.log
 </source>    
        
+    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/log4j.properties">log4j.properties</a> Example.</p>
+
     <p>The default log4j.properties is taken hereafter for information.</p>
 
 <source>

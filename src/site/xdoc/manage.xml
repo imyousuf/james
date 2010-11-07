@@ -35,8 +35,8 @@
     <p>After you've done this, restart James to ensure that any changes you've made in 
        the configuration are incorporated into the running system.</p>
        
-     <p>You are now ready to manage <a href="manage-domains.html">domains</a>, 
-       <a href="manage-users.html">users</a> and <a href="manage-virtualusers.html">virtual users</a>.</p>
+     <p>You are now ready to manage <a href="manage-domains.html">Domains</a>, 
+       <a href="manage-users.html">Users</a> and <a href="manage-virtualusers.html">Virtual Users</a>.</p>
 
     <p>You can manage James via:</p>
     

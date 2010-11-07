@@ -54,18 +54,25 @@
         <td></td>
       </tr>
       <tr>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/META-INF/persistence.xml">META-INF/persistence.xml</a></td>
+        <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
+        <td></td>
+      </tr>
+      <tr>
         <td>
           <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/jmx.properties">jmx.properties</a><br/>
+<!-- 
           <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/jmx.access">jmx.access</a><br/>
           <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/jmx.password">jmx.password</a><br/>
-        </td>
+-->
+         </td>
         <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
         <td></td>
       </tr>
       <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/sqlResources.xml">sqlResources.xml</a></td>
         <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
-        <td></td>
+        <td>Deprecated</td>
       </tr>
       <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/domainlist.xml">domainlist.xml</a></td>
@@ -88,18 +95,13 @@
         <td></td>
       </tr>
       <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/miResources.xml">miResources.xml</a></td>
-        <td><a href="config-mailstores.html">Mail Stores Configuration</a></td>
-        <td></td>
-      </tr>
-      <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a></td>
         <td><a href="config-mailstores.html">Mail Stores Configuration</a></td>
         <td></td>
       </tr>
       <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/dnsservice.xml">dnsservice.xml</a></td>
-        <td><a href="config-dns.html">DNS Configuration</a></td>
+        <td><a href="config-dnsservice.html">DNS Service Configuration</a></td>
         <td></td>
       </tr>
       <tr>
@@ -143,12 +145,17 @@
         <td></td>
       </tr>
       <tr>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/miResources.xml">miResources.xml</a></td>
+        <td><a href="config-mailstores.html">List Manager Configuration</a></td>
         <td></td>
+      </tr>
+      <tr>
+        <td>TLS</td>
         <td><a href="config-tls.html">TLS Configuration</a></td>
         <td></td>
       </tr>
       <tr>
-        <td></td>
+        <td>Sieve</td>
         <td><a href="config-sieve.html">Sieve Configuration</a></td>
         <td></td>
       </tr>

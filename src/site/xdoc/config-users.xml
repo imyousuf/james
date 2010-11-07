@@ -26,6 +26,8 @@
 <body>
 
   <section name="Users Configuration">
+  
+    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> Example.</p>
 
     <subsection name="JPA Users">
   
@@ -180,6 +182,12 @@
 -->    
      </subsection>
 
+  </section>
+
+  <section name="Virtual Users Configuration">
+  
+    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/virtualusertable.xml">virtualusertable.xml</a> Example.</p>
+    
   </section>
 
 </body>

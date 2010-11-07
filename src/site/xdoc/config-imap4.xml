@@ -27,6 +27,8 @@
 
 <section name="IMAP4 Configuration">
 
+      <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/imapserver.xml">imapserver.xml</a> Example.</p>
+
       <p>This block controls general connection management.  There are two elements.
       <ul>
         <li><strong>idle-timeout</strong> - the number of milliseconds that it will take for idle 

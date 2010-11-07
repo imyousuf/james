@@ -62,7 +62,7 @@
         <item name="Domain List" href="/config-domainlist.html" />
         <item name="Users" href="/config-users.html" />
         <item name="Mail Stores" href="/config-mailstores.html" />
-        <item name="DNS" href="/config-dns.html" />
+        <item name="DNS Service" href="/config-dnsservice.html" />
         <item name="IMAP4" href="/config-imap4.html" />
         <item name="POP3" href="/config-pop3.html" />
         <item name="SMTP LMTP" href="/config-smtp-lmtp.html" />
