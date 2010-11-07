@@ -95,10 +95,10 @@
   <section name="Fetchmail Configuration Parameters">
   
     <p>The Fetchmail configuration parameters are part of the James configuration, 
-    whose base file is <code>config.xml</code>. For clarity and flexibility, the 
+    whose base file is <code>fetchmail.xml</code>. For clarity and flexibility, the 
     Fetchmail configuration parameters are stored in the file 
     <code>james-Fetchmail.xml</code>, which is referenced within 
-    <code>config.xml</code>.</p>
+    <code>fetchmail.xml</code>.</p>
     
     <p>The configuration parameters are described below.</p>
     

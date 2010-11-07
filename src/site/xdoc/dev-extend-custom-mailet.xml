@@ -118,7 +118,7 @@ or
 /path/to/james/conf/lib/ subdirectory.
 </p>
 <p>
-2. After this is done get sure you add the mailet package to the config.xml. For example: 
+2. After this is done get sure you add the mailet package to the mailetcontainer.xml. For example: 
 <p>
 <source>
 &lt;!-- Set the Java packages from which to load mailets and matchers --&gt;

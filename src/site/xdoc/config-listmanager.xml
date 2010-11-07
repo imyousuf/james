@@ -83,7 +83,7 @@
     the subscriber list.  There is a separate repository for each mailing
     list, and is completely independent of the user repository used by
     James to manage e-mail accounts.  This is configured in the
-    &lt;users-store&gt; block of config.xml.</p>
+    &lt;users-store&gt; block of james-listmanager.xml.</p>
     
     <p>The following illustrates a database-backed repository using JDBC
     with the ListUsersJdbcRepository class.  Notice that there will be a

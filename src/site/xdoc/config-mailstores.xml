@@ -56,13 +56,13 @@
       jar/zip files for the JDBC driver in the lib subdirectory of the James installation directory.  Any additional 
       libraries upon which the JDBC library depends that are not part of the standard Java distribution should also be
       added to this directory.</p>
-      <p>Second, the config.xml must be modified so that Phoenix initializes the database connections.  The relevant 
+      <p>Second, the mailstore.xml must be modified so that Phoenix initializes the database connections.  The relevant 
       configuration is in the database-connections block.  The database-connections tag has only a single child tag, 
       data-sources.  This latter tag is a simple container tag for a number of child elements.  It is these child 
       elements, <strong>data-source</strong> elements, that define the database connections.</p>
       <p>Each <strong>data-source</strong> tag has a required attribute, <strong>name</strong>.  This value 
       must be unique to each <strong>data-source</strong> element.  It is this <strong>name</strong> that will 
-      be used to specify the database connection in other parts of the config.xml file.</p>
+      be used to specify the database connection in other parts of the mailstore.xml file.</p>
       <p>The <strong>data-source</strong> element has five children, all of whom are required.
       <ul>
       <li><strong>driver</strong> - The class name of the database driver to be used.</li>
@@ -72,7 +72,7 @@
       <li><strong>max</strong> - The maximum number of JDBC connections to be used concurrently by this data-source.</li>
       </ul>
       </p>
-      <p>Generally, you simply configure these entries in the config.xml
+      <p>Generally, you simply configure these entries in the mailstore.xml
       file, which are commented, in order to use a database with James.  You
       would then use the db: or dbfile: prefix instead of the file: prefix
       for a particular repository.  You are currently free to mix and match
@@ -102,7 +102,7 @@
     
     <subsection name="Sample James Configuration">
     
-      <p>The config.xml file has commented out examples for MySQL and
+      <p>The mailstore.xml file has commented out examples for MySQL and
       MSSQL data sources, and for each of the standard repositories.  For
       example, to use MySQL, you would uncomment and adjust the following
       data-source element.</p>
@@ -123,7 +123,7 @@
 &lt;/data-source&gt;
       </source>
       
-      <p>Once the data-source element has been created, it can be referenced elsewhere in the config.xml 
+      <p>Once the data-source element has been created, it can be referenced elsewhere in the mailstore.xml 
       file.  For example, the following element tells James to use the maildb data-source and dbfile 
       storage mechanism for the message spool:</p>
       

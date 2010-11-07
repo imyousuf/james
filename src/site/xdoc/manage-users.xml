@@ -37,7 +37,7 @@
 
       <li>Telnet to the host and port on which the RemoteManager is listening.  For command-line telnet clients 
       this is generally done by typing "telnet &lt;host&gt; &lt;port&gt;" where &lt;host&gt; is the James 
-      hostname and &lt;port&gt; is the RemoteManager port specified in the James config.xml.</li>
+      hostname and &lt;port&gt; is the RemoteManager port specified in the James userrepository.xml.</li>
   
       <li>You will be prompted for your administrator userid and password.  Enter the values you specified 
       in the James remotemanager.xml.</li>

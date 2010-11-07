@@ -28,7 +28,7 @@
  <section name="DNS Configuration">
 
   <p>DNS Transport services are controlled by a configuration block in
-     the config.xml. This block affects SMTP remote delivery.</p>
+     the dnsservice.xml. This block affects SMTP remote delivery.</p>
 
   <p>The dnsserver tag defines the boundaries of the configuration
      block. It encloses all the relevant configuration for the DNS server.
