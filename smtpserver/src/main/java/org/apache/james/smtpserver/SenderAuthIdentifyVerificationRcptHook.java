@@ -20,6 +20,7 @@ package org.apache.james.smtpserver;
 
 import javax.annotation.Resource;
 
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook;
 import org.apache.james.protocols.smtp.hook.HookResult;
@@ -34,14 +35,8 @@ import org.apache.mailet.MailAddress;
 public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthIdentifyVerificationRcptHook {
 
     private MailServer mailServer;
+    private DomainList domains;
     
-    /**
-     * Gets the mail server.
-     * @return the mailServer
-     */
-    public final MailServer getMailServer() {
-        return mailServer;
-    }
 
     /**
      * Sets the mail server.
@@ -52,6 +47,13 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
         this.mailServer = mailServer;
     }
 
+
+    @Resource(name="domainlist")
+    public void setDomainList(DomainList domains) {
+        this.domains = domains;
+    }
+    
+    
     @Override
     public HookResult doRcpt(SMTPSession session, MailAddress sender,
             MailAddress rcpt) {
@@ -67,7 +69,7 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
      * @see org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook#isLocalDomain(java.lang.String)
      */
     protected boolean isLocalDomain(String domain) {
-        return mailServer.isLocalServer(domain);
+        return domains.containsDomain(domain);
     }
 
     @Override

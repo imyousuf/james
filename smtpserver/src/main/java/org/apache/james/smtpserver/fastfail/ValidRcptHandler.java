@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
@@ -47,6 +48,8 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
     private boolean useVut = true;
 
     private MailServer mailServer;
+
+    private DomainList domains;
 
 	/**
 	 * Gets the users repository.
@@ -78,11 +81,17 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	public final void setVirtualUserTable(VirtualUserTable vut) {
 		this.vut = vut;
 	}
-	
-	@Resource(name = "mailserver")
-	public void setMailServer(MailServer mailServer) {
-	    this.mailServer = mailServer;
-	}
+
+
+    @Resource(name="domainlist")
+    public void setDomainList(DomainList domains) {
+        this.domains = domains;
+    }
+    
+    @Resource(name="mailserver")
+    public final void setMailServer(MailServer mailServer) {
+        this.mailServer = mailServer;
+    }
 
 	/**
 	 * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
@@ -101,7 +110,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	protected boolean isValidRecipient(SMTPSession session,
 			MailAddress recipient) {
 
-	    if (mailServer.isLocalServer(recipient.getDomain()) == false) {
+	    if (domains.containsDomain(recipient.getDomain()) == false) {
             session.getLogger().debug("Unknown domain " + recipient.getDomain() + " so reject it");
 
 	        return false;

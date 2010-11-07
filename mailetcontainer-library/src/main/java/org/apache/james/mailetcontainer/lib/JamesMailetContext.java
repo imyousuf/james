@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
@@ -68,6 +69,8 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
 
     private MailProcessor processorList;
 
+    private DomainList domains;
+
     @Resource(name = "mailserver")
     public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
@@ -87,6 +90,13 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
     @Resource(name = "localusersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
+    }
+    
+
+
+    @Resource(name="domainlist")
+    public void setDomainList(DomainList domains) {
+        this.domains = domains;
     }
     
     
@@ -317,7 +327,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
      * @see org.apache.mailet.MailetContext#isLocalServer(java.lang.String)
      */
     public boolean isLocalServer(String name) {
-        return mailServer.isLocalServer(name);
+        return domains.containsDomain(name);
     }
 
     /*
