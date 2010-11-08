@@ -108,7 +108,7 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
                     final int endOfHost = url.indexOf('/', startOfHost);
                     final String host = url.substring(startOfHost, endOfHost);
                     // if (!"localhost".equals(host)) {
-                    if (getMailetContext().isLocalUser(user) == false) {
+                    if (getMailetContext().isLocalServer(host)) {
                         // TODO: possible support for clustering?
                         throw new MessagingException("Only local mailboxes are supported");
                     } else {
