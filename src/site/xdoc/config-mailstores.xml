@@ -27,13 +27,13 @@
 
   <section name="Mail Stores Configuration">
 
-    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/mailstore.xml">mailstore.xml</a> Example.</p>
+    <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/mailstore.xml">mailstore.xml</a> Example.</p>
 
   </section>
 
   <section name="JCR Repository Configuration">
 
-    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a> Example.</p>
+    <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a> Example.</p>
 
   </section>
 

@@ -27,7 +27,7 @@
 
   <section name="SMTP Configuration">
   
-     <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a> Example.</p>
+     <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/smtpserver.xml">smtpserver.xml</a> Example.</p>
 
     <p>The SMTP service is controlled by a configuration block in the smptserver.xml.
     The smtpserver tag defines the boundaries of the configuration block.  It encloses 
@@ -135,7 +135,7 @@
   
   <section name="LMTP Configuration">
     
-    <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/lmtpserver.xml">lmtpserver.xml</a> Example.</p>
+    <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/lmtpserver.xml">lmtpserver.xml</a> Example.</p>
 
   </section>
     

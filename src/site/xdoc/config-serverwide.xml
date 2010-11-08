@@ -34,7 +34,7 @@
     
     <subsection name="mailserver.xml">
 
-     <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/mailserver.xml">mailserver.xml</a> Example.</p>
+     <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/mailserver.xml">mailserver.xml</a> Example.</p>
 
       <p>This configuration block is defined by the <strong>mailserver</strong> tag.  All administrators 
       need to adjust this configuration block upon installation.  It no attributes, but several 
@@ -61,13 +61,13 @@
 
     <subsection name="spring-beans.xml">
     
-      <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/spring-beans.xml">spring-beans.xml</a> Example.</p>
+      <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/spring-beans.xml">spring-beans.xml</a> Example.</p>
     
     </subsection>
 
     <subsection name="database.properties">
     
-      <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/database.properties">database.properties</a> Example.</p>
+      <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/database.properties">database.properties</a> Example.</p>
 
       <p>The database connection in database.properties</p>
     
@@ -114,8 +114,6 @@
       See <a href="repositories.html">Repository Configuration</a> for
       more details.  A sample configuration is described below.</p>
     
-    </subsection>
-    
       <p>The mailstore.xml file has commented out examples for MySQL and
       MSSQL data sources, and for each of the standard repositories.  For
       example, to use MySQL, you would uncomment and adjust the following
@@ -157,8 +155,6 @@
       
       <p>The configuration file contains further examples.</p>
       
-    <subsection name="Known Issues">
-    
       <p>There are some vendor-specific subtleties in using databases with James that have been observed 
       by some users.  These issues (and methods to resolve them) are recorded on the 
       <a href="../FAQ.html">James FAQ</a> as they are reported.  Please consult the FAQ if you encounter any 
@@ -168,7 +164,7 @@
     
     <subsection name="META-INF/persistence.xml">
     
-      <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/META-INF/persistence.xml">META-INF/persistence.xml</a> Example.</p>
+      <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/META-INF/persistence.xml">META-INF/persistence.xml</a> Example.</p>
       
       <p>The JPA information in META-INF/persistence.xml.</p>
     
@@ -176,13 +172,13 @@
 
     <subsection name="jmx.properties">
     
-      <a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/jmx.properties">jmx.properties</a> Example.<br/>
+      <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/jmx.properties">jmx.properties</a> Example.<br/>
 
     </subsection>
 
     <subsection name="sqlResources.xml">
     
-      <p><a href="https://svn.apache.org/repos/asf/james/server/trunk/container-spring/src/main/config/examples/sqlResources.xml">sqlResources.xml</a> Example.</p>
+      <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/sqlResources.xml">sqlResources.xml</a> Example.</p>
       
       <p>Deprecated.</p>
     
