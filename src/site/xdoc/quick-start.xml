@@ -100,19 +100,26 @@ drwxrwxrwx. 2 root root  4096 2010-10-21 14:07 META-INF
 
 
 James is packaged with virtual hosting disabled, XML domain list, JPA (Derby database) storage for the mails and remote delivery from locahost only.
-You can edit the following files to change the behaviour:
+You can for example edit the following files to change the behaviour:
 
-- Enable virtual hosting in mailserver.xml: vi mailserver.xml
-  &lt;enableVirtualHosting&gt; true &lt;/enableVirtualHosting&gt;
+  * Enable virtual hosting in mailserver.xml: vi mailserver.xml
+      &lt;enableVirtualHosting&gt; true &lt;/enableVirtualHosting&gt;
+      
+  * Replace the XMLDomainList with the JPADomainList: vi usersrepository.xml
+      &lt;domainlist class="org.apache.james.domainlist.jpa.JPADomainList"&gt;
+        &lt;autodetect&gt;true&lt;/autodetect&gt;
+        &lt;autodetectIP&gt;true&lt;/autodetectIP&gt;
+      &lt;/domainlist&gt;
 
-- Replace the XMLDomainList with the JPADomainList: vi usersrepository.xml
-  &lt;domainlist class="org.apache.james.domainlist.jpa.JPADomainList"&gt;
-    &lt;autodetect&gt;true&lt;/autodetect&gt;
-    &lt;autodetectIP&gt;true&lt;/autodetectIP&gt;
-  &lt;/domainlist&gt;
+  * Enable virtual hosting in mailserver.xml: vi mailserver.xml
+      &lt;enableVirtualHosting&gt; true &lt;/enableVirtualHosting&gt;
+      
+  * Enable remote delivery from any host in smtpserver.xml: vi smtpserver.xml
+      Add &lt;authRequired&gt; true &lt;/authRequired&gt; under &lt;handler&gt; tag
+      
+  * Edit the database.properties and change the values according to your database.
 
-- Edit the database.properties and change the values according to your database.
-- Don't forget to add the needed JDBC driver jar in the ./conf/lib folder.
+  * Add the needed JDBC driver jar in the ./conf/lib folder according to your database.
   
 Step 4: Start
 #############
