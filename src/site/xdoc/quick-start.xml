@@ -27,6 +27,9 @@
 
 <section name="Quick Start">
 
+  <p>The goal of the document is to allow anyone to start with James binary 
+     distribution as an operational mail server.</p>
+
 <source>
 Step 0: Requirements
 ####################
@@ -96,7 +99,7 @@ drwxrwxrwx. 2 root root  4096 2010-10-21 14:07 META-INF
 -rw-------. 1 root root 13680 2010-11-06 09:01 wrapper.conf
 
 
-James is packaged with no virtual hosting, xml domain list and JPA (Derby database) storage for the mails.
+James is packaged with virtual hosting disabled, XML domain list, JPA (Derby database) storage for the mails and remote delivery from locahost only.
 You can edit the following files to change the behaviour:
 
 - Enable virtual hosting in mailserver.xml: vi mailserver.xml
@@ -115,7 +118,7 @@ Step 4: Start
 #############
 
 $ cd bin
-$ ./james start
+$ ./james start (!! you need libc6 installed on Linux - sudo apt-get install libc6-i386 libc6-dev-i386 on ubuntu)
 You can see log result in the log/james-server.log file.
 
 Step 5: Create Domains and Users
@@ -169,6 +172,54 @@ this is a test
 250 2.6.0 Message received
 quit
 Connection closed by foreign host.
+
+Step 7: Manage
+##############
+
+7.1. Manage via telnet
+$ telnet localhost 4555
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+JAMES Remote Administration Tool
+Please enter your login and password
+Login id:
+root
+Password:
+root
+Welcome root. HELP for a list of commands
+help
+adddomain [domainname]  add domain to local domains
+addmapping [toUser@toDomain] [fromMapping]      add mapping for the given emailaddress
+adduser [username] [password]   add a new user
+countusers      display the number of existing accounts
+deluser [username]      delete existing user
+help    displays this help
+listallmappings list all mappings
+listdomains     list local domains
+listmapping [user@domain]       list all mappings for the given emailaddress
+listusers       display existing accounts
+memstat ([-gc]) shows memory usage. When called with -gc the garbage collector get called
+quit    close connection
+removedomain [domainname]       remove domain from local domains
+removemapping [toUser@toDomain] [fromMapping]   remove mapping for the given emailaddress
+setpassword [username] [password]       sets a user's password
+showalias [username]    shows a user's current email alias
+showforwarding [username]       shows a user's current email forwarding
+shutdown        kills the current JVM (convenient when James is run as a daemon)
+unsetalias [user]       unsets an alias for 'user'
+unsetforwarding [username]      removes a forward
+user [repositoryname]   change to another user repository
+verify [username]       verify if specified user exist
+
+7.2. Manage via JMX
+Launch jconsole (or any other JMX client) and connect on URL=service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi
+
+Step 8: Monitor
+##############
+
+Monitor the ./log/james-server.log log file.
+Monitor via JMX (launch any JMX client and connect to URL=service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi)
 </source>
 
 <p>Time to fine-tune your James Server!</p>
