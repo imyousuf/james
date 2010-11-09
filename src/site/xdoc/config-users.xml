@@ -27,7 +27,7 @@
 
   <section name="Users Configuration">
   
-    <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> Example.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/usersrepository.xml">usersrepository.xml</a> in SVN to get some examples and hints.</p>
 
     <subsection name="JPA Users">
   
@@ -96,8 +96,7 @@
           <td> </td>
         </tr>
         <tr>
-          <td colspan="3" align="center">-------------------------------------------------------------------------------------------------</td>
-    
+          <td colspan="3" align="center">---------------------</td>
         </tr>
         <tr>
           <td align="center" valign="top">|
@@ -186,7 +185,7 @@
 
   <section name="Virtual Users Configuration">
   
-    <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/virtualusertable.xml">virtualusertable.xml</a> Example.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/virtualusertable.xml">virtualusertable.xml</a> in SVN to get some examples and hints.</p>
     
   </section>
 

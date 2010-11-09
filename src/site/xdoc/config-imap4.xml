@@ -27,7 +27,7 @@
 
 <section name="IMAP4 Configuration">
 
-      <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/imapserver.xml">imapserver.xml</a> Example.</p>
+      <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/imapserver.xml">imapserver.xml</a> in SVN to get some examples and hints.</p>
 
       <p>This block controls general connection management.  There are two elements.
       <ul>

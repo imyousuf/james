@@ -228,11 +228,31 @@ verify [username]       verify if specified user exist
   * Launch jconsole (or any other JMX client) and connect on URL=service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi
 
 Step 8: Monitor
-##############
+###############
 
   * Monitor the ./log/james-server.log log file.
 
   * Monitor via JMX (launch any JMX client and connect to URL=service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi)
+
+  * Check ./var folder usage
+  
+    mail
+    +-error
+    +-address-error
+    +-relay-denied
+    +-spam
+
+    store
+    +-derbydb
+    +-jackrabbbit
+    +-activemq
+      +-jamesBroker
+      +-blob
+        +-outgoing
+        +-spool
+
+  * Check /tmp folder usage
+
 </source>
 
 <p>Time to fine-tune your James Server!</p>
@@ -240,6 +260,7 @@ Step 8: Monitor
 <p>Read more on the <a href="install.html">install</a>, <a href="config.html">configure</a>, 
    <a href="manage.html">manage</a>, <a href="monitor.html">monitor</a> 
    and <a href="dev.html">develop</a> pages.</p>
+
 
 </section>
 

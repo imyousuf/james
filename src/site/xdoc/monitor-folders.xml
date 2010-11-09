@@ -20,15 +20,38 @@
 <document>
 
  <properties>
-  <title>DomainList Configuration</title>
+  <title>James 3.0 - Monitor via JMX</title>
  </properties>
 
 <body>
 
-  <section name="DomainList Configuration">
+  <section name="Monitor Folders">
+  
+    <subsection name="Monitor ./var Folder Usage">
+  
+<source>
+mail
++-error
++-address-error
++-relay-denied
++-spam
 
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/domainlist.xml">domainlist.xml</a> in SVN to get some examples and hints.</p>
+store
++-derbydb
++-jackrabbbit
++-activemq
+  +-jamesBroker
+  +-blob
+    +-outgoing
+    +-spool
+</source>
+        
+    </subsection>
 
+    <subsection name="Monitor /tmp Folder Usage">
+    
+    </subsection>
+  
   </section>
 
 </body>

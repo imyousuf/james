@@ -27,7 +27,7 @@
 
   <section name="Mailet Container Configuration">
 
-    <p><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/mailetcontainer.xml">mailetcontainer.xml</a> Example.</p>
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/mailetcontainer.xml">mailetcontainer.xml</a> in SVN to get some examples and hints.</p>
   
     <p>The SpoolManager is controlled by a single configuration block in the mailetcontainer.xml.
     The spoolmanager tag defines the boundaries of the configuration block.  The behavior of 

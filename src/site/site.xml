@@ -81,6 +81,7 @@
       <item name="5. Monitor James" href="/monitor.html" collapse="true" >
         <item name="Logging" href="/monitor-logging.html" />
         <item name="JMX" href="/monitor-jmx.html" />
+        <item name="Folders" href="/monitor-folders.html" />
       </item>
       <item name="6. Upgrade from James 2.3" href="/upgrade-2.3.html" />
     </menu>

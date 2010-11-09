@@ -27,18 +27,24 @@
 
   <section name="Monitor James Server">
   
-    <subsection name="Montior James Server via Loging">
+    <subsection name="Monitor James Server via Loging">
   
       <p>You can monitor James Server via logging - <a href="monitor-logging.html">read more</a>.</p>
   
     </subsection>
 
-    <subsection name="Montior James Server via JMX">
+    <subsection name="Monitor James Server via JMX">
   
       <p>You can monitor James Server via JMX - <a href="monitor-jmx.html">read more</a>.</p>
   
     </subsection>
 
+    <subsection name="Monitor James Server Folders Usage">
+    
+      <p>You also should monitor folder usage - <a href="monitor-folders.html">read more</a>.</p>
+  
+    </subsection>
+  
   </section>
   
 </body>

@@ -25,7 +25,7 @@
 
 <body>
 
-  <section name="Montiro via JMX">
+  <section name="Monitor via JMX">
   
     <p>You can monitor James Server via JMX.</p>
 
