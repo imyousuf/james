@@ -88,12 +88,15 @@
     <menu name="Developers Corner">
       <item name="Architecture" href="/dev.html" />
       <item name="Build from source" href="/dev-build.html" />
-      <item name="Provided Mailets" href="/dev-provided-mailets.html" />
-      <item name="Provided Matchers" href="/dev-provided-matchers.html" />
-      <item name="Extend James" href="/dev-extend.html" collapse="true" >
-        <item name="Custom Mailet" href="/dev-extend-custom-mailet.html" />
-        <item name="Custom Matcher" href="/dev-extend-custom-matcher.html" />
-        <item name="Hook SMTP" href="/dev-extend-hook-smtp.html" />
+      <item name="Develop Extensions" href="/dev-extend.html" collapse="true" >
+        <item name="Mailet" href="/dev-extend-mailet.html" />
+        <item name="Matcher" href="/dev-extend-matcher.html" />
+        <item name="Hook SMTP" href="/dev-extend-smtp-hook.html" />
+      </item>
+      <item name="Provided Extensions" href="/dev-provided.html" collapse="true" >
+        <item name="Mailets" href="/dev-provided-mailets.html" />
+        <item name="Matchers" href="/dev-provided-matchers.html" />
+        <item name="SMTP Hooks" href="/dev-provided-smtp-hooks.html" />
       </item>
       <item name="Javadoc" href="/apidocs/index.html" />
     </menu>
