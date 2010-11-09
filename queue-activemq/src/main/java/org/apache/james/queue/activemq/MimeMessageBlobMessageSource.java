@@ -20,29 +20,28 @@ package org.apache.james.queue.activemq;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.jms.JMSException;
-import javax.mail.util.SharedFileInputStream;
+import javax.mail.internet.SharedInputStream;
 
-import org.apache.activemq.BlobMessage;
 import org.apache.activemq.Disposable;
 import org.apache.james.core.MimeMessageSource;
 
 /**
- * {@link MimeMessageSource} which use a {@link BlobMessage} as input. Be aware that {@link BlobMessage} must contain
- * a {@link SharedFileInputStream} for this implementation!
  *
  */
 public class MimeMessageBlobMessageSource extends MimeMessageSource implements ActiveMQSupport, Disposable{
 
-    private SharedFileInputStream in;
+    private SharedInputStream in;
     private String sourceId;
     private long size;
+    private List<InputStream> streams = new ArrayList<InputStream>();
 
-    public MimeMessageBlobMessageSource(BlobMessage message) throws JMSException, IOException {
-        this.sourceId = message.getJMSMessageID();
-        this.size = message.getLongProperty(JAMES_MAIL_MESSAGE_SIZE);
-        this.in = (SharedFileInputStream) message.getInputStream();
+    public MimeMessageBlobMessageSource(SharedInputStream in, long size, String sourceId)  {
+        this.in = in;
+        this.size = size;
+        this.sourceId = sourceId;
     }
     
 
@@ -50,8 +49,10 @@ public class MimeMessageBlobMessageSource extends MimeMessageSource implements A
      * (non-Javadoc)
      * @see org.apache.james.core.MimeMessageSource#getInputStream()
      */
-    public InputStream getInputStream() throws IOException {
-        return in.newStream(0, -1);
+    public synchronized InputStream getInputStream() throws IOException {
+        InputStream sin = in.newStream(0, -1);
+        streams.add(sin);
+        return sin;
     }
 
     /*
@@ -74,11 +75,23 @@ public class MimeMessageBlobMessageSource extends MimeMessageSource implements A
     /**
      * Call dispose on the {@link InputStream}
      */
-    public void dispose() {
+    public synchronized void dispose() {
+
         try {
-            in.close();
+            ((InputStream) in).close();
         } catch (IOException e) {
-            // ingore on dispose
+            // ignore on dispose
         }
+        in = null;
+        for (int i = 0; i < streams.size(); i++) {
+            InputStream s = streams.get(i);
+            try {
+                s.close();
+            } catch (IOException e) {
+                // ignore on dispose
+            }
+            s = null;
+        }
+        streams.clear();
     }
 }

@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jms.JMSException;
 import javax.mail.util.SharedFileInputStream;
@@ -45,6 +46,7 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
    
     private final FileSystem fs;
     private final BlobTransferPolicy policy;
+    private final ConcurrentHashMap<String, SharedFileInputStream> map = new ConcurrentHashMap<String, SharedFileInputStream>();
 
     public FileSystemBlobStrategy(final BlobTransferPolicy policy, final FileSystem fs) {
         this.fs = fs;
@@ -64,17 +66,35 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      * @see org.apache.activemq.blob.BlobUploadStrategy#uploadStream(org.apache.activemq.command.ActiveMQBlobMessage, java.io.InputStream)
      */
     public URL uploadStream(ActiveMQBlobMessage message, InputStream in) throws JMSException, IOException {
-        File f = getFile(message);
-        FileOutputStream out = new FileOutputStream(f);
-        byte[] buffer = new byte[policy.getBufferSize()];
-        for (int c = in.read(buffer); c != -1; c = in.read(buffer)) {
-            out.write(buffer, 0, c);
+        FileOutputStream out = null;
+        try {
+            File f = getFile(message);
+            out = new FileOutputStream(f);
+            byte[] buffer = new byte[policy.getBufferSize()];
+            for (int c = in.read(buffer); c != -1; c = in.read(buffer)) {
+                out.write(buffer, 0, c);
+                out.flush();
+            }
             out.flush();
+            // File.toURL() is deprecated
+            return f.toURI().toURL();
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    // ignore on close
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    // ignore on close
+                }
+            }
         }
-        out.flush();
-        out.close();
-        // File.toURL() is deprecated
-        return f.toURI().toURL();
+
     }
 
     /*
@@ -83,6 +103,12 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      */
     public void deleteFile(ActiveMQBlobMessage message) throws IOException, JMSException {
         File f = getFile(message);
+        SharedFileInputStream in = map.remove(f.getCanonicalPath());
+        try {
+            if (in != null) in .close();
+        } catch (IOException e) {
+            // ignore here
+        }
         if (f.exists()) {
             if (f.delete() == false) {
                 throw new IOException("Unable to delete file " + f);
@@ -94,7 +120,15 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      * Returns a {@link SharedFileInputStream} for the give {@link BlobMessage}
      */
     public InputStream getInputStream(ActiveMQBlobMessage message) throws IOException, JMSException {
-        return new SharedFileInputStream(getFile(message));
+        File f = getFile(message);
+        String key = f.getCanonicalPath();
+        // use exactly one SharedFileInputStream per file so we can keep track of filehandles
+        // See JAMES-1122
+        SharedFileInputStream in = map.putIfAbsent(key, new SharedFileInputStream(f));
+        if (in == null) {
+            in = map.get(key);
+        }
+        return in;
     }
 
     
