@@ -32,6 +32,7 @@
      <maxmessagesize>0</maxmessagesize>
      <addressBracketsEnforcement>true</addressBracketsEnforcement>
      <handlerchain>
+         <authRequired>true</authRequired>
          <handler class="org.apache.james.smtpserver.fastfail.ValidRcptHandler"/>
          <handler class="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
      </handlerchain>            
