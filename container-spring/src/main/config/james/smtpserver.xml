@@ -29,10 +29,10 @@
      <connectionLimit> 0 </connectionLimit>
      <connectionLimitPerIP> 0 </connectionLimitPerIP>
      <authorizedAddresses>127.0.0.0/8</authorizedAddresses>
+     <authRequired>true</authRequired>
      <maxmessagesize>0</maxmessagesize>
      <addressBracketsEnforcement>true</addressBracketsEnforcement>
      <handlerchain>
-         <authRequired>true</authRequired>
          <handler class="org.apache.james.smtpserver.fastfail.ValidRcptHandler"/>
          <handler class="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
      </handlerchain>            
