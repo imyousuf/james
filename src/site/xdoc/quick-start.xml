@@ -99,23 +99,20 @@ drwxrwxrwx. 2 root root  4096 2010-10-21 14:07 META-INF
 -rw-------. 1 root root 13680 2010-11-06 09:01 wrapper.conf
 
 
-James is packaged with virtual hosting disabled, XML domain list, JPA (Derby database) storage for the mails and remote delivery from locahost only.
+James is packaged with virtual hosting disabled, XML domain list, JPA (Derby database) storage for the mails and SMTP Auth.
 You can for example edit the following files to change the behaviour:
 
   * Enable virtual hosting in mailserver.xml: vi mailserver.xml
       &lt;enableVirtualHosting&gt; true &lt;/enableVirtualHosting&gt;
       
-  * Replace the XMLDomainList with the JPADomainList: vi usersrepository.xml
+  * Add the domains in the XMLDomain List or replace the XMLDomainList with the JPADomainList: vi usersrepository.xml
       &lt;domainlist class="org.apache.james.domainlist.jpa.JPADomainList"&gt;
         &lt;autodetect&gt;true&lt;/autodetect&gt;
         &lt;autodetectIP&gt;true&lt;/autodetectIP&gt;
       &lt;/domainlist&gt;
-
+      
   * Enable virtual hosting in mailserver.xml: vi mailserver.xml
       &lt;enableVirtualHosting&gt; true &lt;/enableVirtualHosting&gt;
-      
-  * Enable remote delivery from any host in smtpserver.xml: vi smtpserver.xml
-      Add &lt;authRequired&gt; true &lt;/authRequired&gt; under &lt;handler&gt; tag
       
   * Edit the database.properties and change the values according to your database.
 
@@ -243,11 +240,13 @@ Step 8: Monitor
     +-spam
 
     store
-    +-derbydb
-    +-jackrabbbit
+    +-maildir
+    +-derby
+    +-jackrabbit
     +-activemq
-      +-jamesBroker
-      +-blob
+      +-brokers
+        +-james
+      +-blob-transfer
         +-outgoing
         +-spool
 
