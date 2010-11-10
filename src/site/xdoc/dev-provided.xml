@@ -44,26 +44,6 @@
     <p>See the <a href="dev-provided-smtp-hooks.html">provided SMTP Hooks</a> page for more information.</p>
   
   </subsection>
- 
-  <subsection name="Mailbox Store">
-  
-    <p>See the <a href="http://james.apache.org/mailbox">mailbox</a> project for more information.</p>
-  
-  </subsection>
- 
-  <subsection name="Mailbox Listeners">
-  
-    <p>See the <a href="http://james.apache.org/mailbox">mailbox</a> project for more information.</p>
-  
-  </subsection>
- 
-  <subsection name="Queue">
-  
-  </subsection>
- 
-  <subsection name="Queue Listeners">
-  
-  </subsection>
 
 </section>
 
