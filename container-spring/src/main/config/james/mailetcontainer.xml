@@ -42,9 +42,6 @@
        <mailet match="SMTPAuthSuccessful" class="ToProcessor">
           <processor>transport</processor>
        </mailet>
-       <mailet match="InSpammerBlacklist=query.bondedsender.org." class="ToProcessor">
-         <processor>transport</processor>
-       </mailet>
        <mailet match="InSpammerBlacklist=dnsbl.njabl.org." class="ToProcessor">
          <processor>spam</processor>
          <notice>550 Requested action not taken: rejected - see http://njabl.org/ </notice>
