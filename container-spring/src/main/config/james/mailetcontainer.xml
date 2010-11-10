@@ -39,28 +39,18 @@
     <processor name="root">
        <mailet match="All" class="PostmasterAlias"/>
        <mailet match="RelayLimit=30" class="Null"/>
-       <mailet match="HasMailAttributeWithValue=org.apache.james.infected, true" class="ToProcessor">
-          <processor> virus </processor>
-       </mailet>
        <mailet match="SMTPAuthSuccessful" class="ToProcessor">
-          <processor> transport </processor>
+          <processor>transport</processor>
        </mailet>
-       <mailet match="InSpammerBlacklist=query.bondedsender.org."
-               class="ToProcessor">
-         <processor> transport </processor>
+       <mailet match="InSpammerBlacklist=query.bondedsender.org." class="ToProcessor">
+         <processor>transport</processor>
        </mailet>
        <mailet match="InSpammerBlacklist=dnsbl.njabl.org." class="ToProcessor">
-         <processor> spam </processor>
+         <processor>spam</processor>
          <notice>550 Requested action not taken: rejected - see http://njabl.org/ </notice>
        </mailet>
        <mailet match="All" class="ToProcessor">
-          <processor> transport </processor>
-       </mailet>
-    </processor>
-
-    <processor name="error">
-       <mailet match="All" class="ToRepository">
-          <repositoryPath> file://var/mail/error/</repositoryPath>
+          <processor>transport</processor>
        </mailet>
     </processor>
 
@@ -69,35 +59,33 @@
           <name>X-UserIsAuth</name>
           <value>true</value>
        </mailet>
-       <mailet match="HasMailAttribute=org.apache.james.SMIMECheckSignature" class="SetMimeHeader">
-          <name>X-WasSigned</name>
-          <value>true</value>
-       </mailet>
        <mailet match="All" class="VirtualUserTable">
            <virtualusertable>DefaultVirtualUserTable</virtualusertable>
        </mailet>
        <mailet match="RecipientIsLocal" class="LocalDelivery"/>
        <mailet match="HostIsLocal" class="ToProcessor">
-          <processor> local-address-error </processor>
+          <processor>local-address-error</processor>
           <notice>550 - Requested action not taken: no such user here</notice>
        </mailet>
-       <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
-          <processor> relay-denied </processor>
-          <notice>550 - Requested action not taken: relaying denied</notice>
-       </mailet>
        <mailet match="All" class="RemoteDelivery">
-          <outgoingQueue> outgoing</outgoingQueue>
-          <delayTime>  5 minutes </delayTime>
-          <delayTime> 10 minutes </delayTime>
-          <delayTime> 45 minutes </delayTime>
-          <delayTime>  2 hours </delayTime>
-          <delayTime>  3 hours </delayTime>
-          <delayTime>  6 hours </delayTime>
-          <maxRetries> 25 </maxRetries>
-          <maxDnsProblemRetries> 0 </maxDnsProblemRetries>
-          <deliveryThreads> 1 </deliveryThreads>
+          <outgoingQueue>outgoing</outgoingQueue>
+          <delayTime>5 minutes</delayTime>
+          <delayTime>10 minutes</delayTime>
+          <delayTime>45 minutes</delayTime>
+          <delayTime>2 hours</delayTime>
+          <delayTime>3 hours</delayTime>
+          <delayTime>6 hours</delayTime>
+          <maxRetries>25</maxRetries>
+          <maxDnsProblemRetries>0</maxDnsProblemRetries>
+          <deliveryThreads>1</deliveryThreads>
           <sendpartial>true</sendpartial>
           <bounceProcessor>bounces</bounceProcessor>
+       </mailet>
+    </processor>
+
+    <processor name="error">
+       <mailet match="All" class="ToRepository">
+          <repositoryPath>file://var/mail/error/</repositoryPath>
        </mailet>
     </processor>
 
@@ -107,21 +95,9 @@
        </mailet>
     </processor>
 
-    <processor name="virus">
-       <mailet match="All" class="SetMailAttribute">
-          <org.apache.james.infected>true, bouncing</org.apache.james.infected>
-       </mailet>
-       <mailet match="SMTPAuthSuccessful" class="Bounce">
-          <inline>heads</inline>
-          <attachment>none</attachment>
-          <notice> Warning: We were unable to deliver the message below because it was found infected by virus(es). </notice>
-       </mailet>
-       <mailet match="All" class="Null" />
-    </processor>
-
     <processor name="local-address-error">
        <mailet match="All" class="ToRepository">
-          <repositoryPath> file://var/mail/address-error/</repositoryPath>
+          <repositoryPath>file://var/mail/address-error/</repositoryPath>
        </mailet>
     </processor>
 
