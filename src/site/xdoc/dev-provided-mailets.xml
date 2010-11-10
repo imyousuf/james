@@ -97,7 +97,7 @@ for this list.</li>
 <li><strong>repositoryPath</strong> (required) - The repositoryPath which is used.</li>
 <li><strong>headerName</strong> - The HeaderName which get adds to holds the Probalitity. Default is <i>X-MessageIsSpamProbability</i>.</li>
 <li><strong>ignoreLocalSender</strong> - Set to true if you want to ignore messages from local senders. By local sender we mean a return-path 
-with a local server part (server listed in &lt;servernames&gt; in config.xml). Default is <i>false</i>.</li>
+with a local server part (server listed in &lt;servernames&gt; in mailetcontainer.xml). Default is <i>false</i>.</li>
 <li><strong>maxSize</strong> - Set this to the maximum message size (in bytes) after analysis will be skipped. Default is <i>100000</i>.</li>
 </ul>
 </p>
@@ -278,7 +278,7 @@ Default <i>false</i>.</li>
 <ul>
 <li><strong>mappings</strong> (required) - a URL of the form db://&lt;data-source&gt;/&lt;table&gt;, where 
 &lt;table&gt; is the table in the database containing the alias info and &lt;data-source&gt; is the name 
-of the data-source in config.xml that is to be used.</li>
+of the data-source in mailetcontainer.xml that is to be used.</li>
 <li><strong>source-column</strong> (required) - the column containing the aliases.</li>
 <li><strong>target-column</strong> (required) - the column containing the alias targets.</li>
 </ul>
@@ -292,7 +292,7 @@ of the data-source in config.xml that is to be used.</li>
 <ul>
 <li><strong>table</strong> (required) - the URL describing the database table.  This URL has the form 
 db://&lt;data-source&gt;/&lt;table&gt; where &lt;data-source&gt; and &lt;table&gt; are the names of 
-the data-source as defined in config.xml and the table in the database.</li>
+the data-source as defined in mailetcontainer.xml and the table in the database.</li>
 <li><strong>sqlquery</strong> (optional) - the text of the SQL query used by the mailet to do user
 lookup.  The default is "select VirtualUserTable.target-address from VirtualUserTable, VirtualUserTable as VUTDomains where (VirtualUserTable.user like ? or VirtualUserTable.user like '\\%') and (VirtualUserTable.domain like ? or (VirtualUserTable.domain like '\\%' and VUTDomains.domain like ?)) order by concat(VirtualUserTable.user,'@',VirtualUserTable.domain) desc limit 1"</li>
 </ul>

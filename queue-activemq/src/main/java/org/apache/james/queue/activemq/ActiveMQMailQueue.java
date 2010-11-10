@@ -36,6 +36,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.SharedInputStream;
 
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
@@ -45,7 +46,6 @@ import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.core.MimeMessageSource;
 import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.core.NonClosingSharedInputStream;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.jms.JMSMailQueue;
 import org.apache.mailet.Mail;
@@ -170,13 +170,12 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
      * org.apache.james.queue.jms.JMSMailQueue#populateMailMimeMessage(javax
      * .jms.Message, org.apache.mailet.Mail)
      */
-    @SuppressWarnings("unchecked")
     protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException, JMSException {
         if (message instanceof BlobMessage) {
             try {
                 BlobMessage blobMessage = (BlobMessage) message;
                 try {
-                    // store URL and queuenamefor later usage
+                    // store URL and queuename for later usage
                     mail.setAttribute(JAMES_BLOB_URL, blobMessage.getURL());
                     mail.setAttribute(JAMES_QUEUE_NAME, queuename);
                 } catch (MalformedURLException e) {
@@ -185,12 +184,16 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                 }
                 InputStream in = blobMessage.getInputStream();
                 MimeMessageSource source;
-  
-                if (in instanceof NonClosingSharedInputStream) {
-                    source = new MimeMessageBlobMessageSource(blobMessage);
+ 
+                // if its a SharedInputStream we can make use of some more performant implementation which don't need to copy the message to a temporary file
+                if (in instanceof SharedInputStream) {
+                    String sourceId = message.getJMSMessageID();
+                    long size = message.getLongProperty(JAMES_MAIL_MESSAGE_SIZE);
+                    source = new MimeMessageBlobMessageSource((SharedInputStream) in, size, sourceId);
                 } else {
-                    source = new MimeMessageInputStreamSource(mail.getName(), blobMessage.getInputStream());
+                    source = new MimeMessageInputStreamSource(mail.getName(), in);
                 }
+        
                 mail.setMessage(new MimeMessageCopyOnWriteProxy(source));
             } catch (IOException e) {
                 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);

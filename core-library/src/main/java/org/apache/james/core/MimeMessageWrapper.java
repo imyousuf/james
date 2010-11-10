@@ -40,7 +40,6 @@ import javax.mail.util.SharedByteArrayInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.james.lifecycle.Disposable;
 import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.util.stream.CombinedInputStream;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
@@ -575,7 +574,7 @@ public class MimeMessageWrapper
                 throw new MessagingException("Unable to get inputstream", e);
             }
         } else {
-            return new CombinedInputStream(new InputStream[] { new InternetHeadersInputStream(getAllHeaderLines()), getRawInputStream()});
+            return new MimeMessageInputStream(this, false);
         }
     }
     

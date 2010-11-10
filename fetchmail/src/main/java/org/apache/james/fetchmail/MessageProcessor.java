@@ -903,7 +903,7 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected boolean isLocalServer(MailAddress recipient)
     {
-        return getServer().isLocalServer(recipient.getDomain());
+        return getConfiguration().getDomainList().containsDomain(recipient.getDomain());
     }
     
     /**

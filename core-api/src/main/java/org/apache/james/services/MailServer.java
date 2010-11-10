@@ -38,14 +38,6 @@ public interface MailServer{
      * @return the new identifier
      */
     String getId();
-
-    /**
-     * Checks if a server is serviced by mail context
-     *
-     * @param serverName - name of server.
-     * @return true if server is local, i.e. serviced by this mail context
-     */
-    boolean isLocalServer(String serverName);
     
     /**
      * Return true if virtualHosting support is enabled, otherwise false

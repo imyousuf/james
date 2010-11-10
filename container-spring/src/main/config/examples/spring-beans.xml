@@ -160,7 +160,7 @@
 
     <!-- lets create an embedded ActiveMQ Broker -->
     <!-- disable schedulerSupport for workaround AMQ-2935-->
-    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" schedulerSupport="false" id="broker">
+    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/store/activemq/brokers" useShutdownHook="false" schedulerSupport="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>
@@ -187,7 +187,7 @@
     </amq:connectionFactory>
 
     <bean id="blobTransferPolicy" class="org.apache.james.queue.activemq.FileSystemBlobTransferPolicy">
-        <property name="defaultUploadUrl" value="file://var/queue"/>
+        <property name="defaultUploadUrl" value="file://var/activemq/blob-transfer"/>
     </bean>
 
     <!-- IMPORTANT: if you use not the ActiveMQMailQueueFactory you prolly need to set cacheConsumers to false -->
@@ -336,7 +336,7 @@
     <bean id="sessionMapperFactory" class="org.apache.james.adapter.mailbox.maildir.MaildirMailboxSessionMapperFactoryUtil" factory-method="create">        
         <constructor-arg index="0" ref="filesystem"/>
         <constructor-arg index="1" ref="mailserver"/>
-        <constructor-arg index="2" value="file://var/mail/maildir/"/>
+        <constructor-arg index="2" value="file://var/store/maildir/"/>
     </bean>
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.maildir.MaildirSubscriptionManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
@@ -424,7 +424,7 @@
     
     <bean id="config" class="org.apache.jackrabbit.core.config.RepositoryConfig" factory-method="create">
         <constructor-arg index="0" value="filesystem=file://conf/jcr-repository.xml"/>
-        <constructor-arg index="1" value="filesystem=file://var/jackrabbit" />
+        <constructor-arg index="1" value="filesystem=file://var/store/jackrabbit" />
     </bean>
     -->
 

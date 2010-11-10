@@ -25,8 +25,58 @@
 
 <body>
 
-  <section name="Manage Virtual Users">
+  <section name="Introduction to Virtual Users">
+
+    <p>The only way to manage the virtual users is called "mapping" 
+       (the previous "alias" and "forwarding" functions are 
+       deprecated and you should not use them anymore.</p>
   
+<source>
+addmapping [toUser@toDomain] [fromMapping] add mapping for the given email addres
+listallmappings list all mappings
+listmapping [user@domain] list all mappings for the given emailaddress
+removemapping [toUser@toDomain] [fromMapping] remove mapping for the given emailaddress
+</source>
+
+    <p>You will add mapping from an existing user to a virtual user. So read "addmapping toVirtual fromExisting".</p>
+
+    <p>You can also use wildcards (*) and regular expressions in the fromExisting.</p>
+
+  </section>
+
+  <section name="Manage Virtual Users via Telnet">
+  
+    <p>Once James is up and listening, adding a virtual user is simple:</p>
+    
+    <p><ol>
+
+      <li>Telnet to the host and port on which the RemoteManager is listening.  For command-line telnet clients 
+      this is generally done by typing "telnet &lt;host&gt; &lt;port&gt;" where &lt;host&gt; is the James 
+      hostname and &lt;port&gt; is the RemoteManager port specified in the James remotemanager.xml.</li>
+  
+      <li>You will be prompted for your administrator userid and password.  Enter the values you specified 
+      in the James remotemanager.xml.</li>
+      
+      <li>After logging in, type "addmapping &lt;to&gt; &lt;from&gt;" where &lt;to&gt; is the new user name 
+         and &lt;from&gt; is the existing username you wish to map.  Please note that the user name 
+         MUST be a complete email address.</li>
+      
+      <li>Repeat step 3 for all mapping you wish to create.</li>
+    
+    </ol></p>
+    
+    <p>That's it.  Your mappings are now created and can be used by all James services.</p>
+    
+  </section>
+
+  <section name="Manage Virtual Users via JMX">
+  
+    <p>Use and JMX client to access the Virtual User management function.</p>
+  
+    <p>The managed objects are exposed from localhost only (for security reasons) on the following URL:</p>
+      
+    <p><code>service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi</code></p>
+      
   </section>
 
 </body>

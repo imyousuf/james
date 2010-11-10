@@ -35,9 +35,6 @@ public class MockMailServer implements MailServer {
         return MailUtil.newId();
     }
 
-    public boolean isLocalServer(String serverName) {
-        return "localhost".equals(serverName);
-    }
     
     public void setVirtualHosting(boolean virtualHosting) {
         this.virtualHosting = virtualHosting;

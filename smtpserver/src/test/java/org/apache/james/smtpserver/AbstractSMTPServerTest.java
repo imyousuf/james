@@ -46,6 +46,7 @@ import org.apache.james.queue.api.MockMailQueue;
 import org.apache.james.queue.api.MockMailQueueFactory;
 import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.domainlist.api.SimpleDomainList;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.MockFileSystem;
@@ -299,6 +300,11 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         queueFactory = new MockMailQueueFactory();
         queue = (MockMailQueue) queueFactory.getQueue(MockMailQueueFactory.SPOOL);
         m_serviceManager.put("mailQueueFactory", queueFactory);
+        m_serviceManager.put("domainlist", new SimpleDomainList() {
+            public boolean containsDomain(String serverName) {
+                return "localhost".equals(serverName);
+            }
+        });
     }
 
     public void testSimpleMailSendWithEHLO() throws Exception {

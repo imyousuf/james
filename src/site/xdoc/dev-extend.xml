@@ -31,17 +31,31 @@
   
   <subsection name="Custom Mailet">
   
+    <p>See the <a href="dev-extend-mailet.html">mailet</a> page for more information.</p>
+  
   </subsection>
  
   <subsection name="Custom Matcher">
+  
+    <p>See the <a href="dev-extend-mailet.html">matcher</a> page for more information.</p>
+  
+  </subsection>
+ 
+  <subsection name="SMTP Hook">
+  
+    <p>See the <a href="dev-extend-hook-smtp.html">SMTP Hook</a> page for more information.</p>
   
   </subsection>
  
   <subsection name="Mailbox Store">
   
+    <p>See the <a href="http://james.apache.org/mailbox">mailbox</a> project for more information.</p>
+  
   </subsection>
  
   <subsection name="Mailbox Listeners">
+  
+    <p>See the <a href="http://james.apache.org/mailbox">mailbox</a> project for more information.</p>
   
   </subsection>
  
@@ -52,11 +66,7 @@
   <subsection name="Queue Listeners">
   
   </subsection>
- 
-  <subsection name="SMTP Hook">
-  
-  </subsection>
- 
+
 </section>
 
 </body>

@@ -32,6 +32,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
@@ -310,6 +311,8 @@ class ParsedConfiguration
     private DNSService dnsServer;
 
     private MailQueue queue;
+
+    private DomainList domainList;
 
 
 
@@ -878,7 +881,7 @@ protected void setDNSServer(DNSService dnsServer)
      */
     protected void validateDefaultDomainName(String defaultDomainName) throws ConfigurationException
     {
-        if (!getServer().isLocalServer(defaultDomainName))
+        if (!getDomainList().containsDomain(defaultDomainName))
         {
             throw new ConfigurationException(
                 "Default domain name is not a local server: "
@@ -1192,4 +1195,11 @@ protected void setDNSServer(DNSService dnsServer)
         return queue;
     }
 
+    public DomainList getDomainList() {
+        return domainList;
+    }
+    
+    public void setDomainList(DomainList domainList) {
+        this.domainList = domainList;
+    }
 }

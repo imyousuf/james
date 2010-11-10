@@ -204,21 +204,6 @@ public class JamesMailServer
         return idBuffer.toString();
     }
 
- 
-    /**
-     * @see org.apache.james.services.MailServer#isLocalServer(java.lang.String)
-     */
-    public boolean isLocalServer( final String serverName ) {
-        String lowercase = serverName.toLowerCase(Locale.US);
-       
-        // Check if the serverName is localhost or the DomainList implementation contains the serverName. This
-        // allow some implementations to act more dynamic
-        if ("localhost".equals(serverName) || domains.containsDomain(lowercase)){
-            return  true;
-        } else {
-            return false;
-        }
-    }
     /**
      * @see org.apache.james.services.MailServer#supportVirtualHosting()
      */
@@ -281,7 +266,7 @@ public class JamesMailServer
         }
         this.postmaster = new MailAddress(postMasterAddress);
 
-        if (!isLocalServer(postmaster.getDomain())) {
+        if (!domains.containsDomain(postmaster.getDomain())) {
             StringBuffer warnBuffer = new StringBuffer(320).append("The specified postmaster address ( ").append(postmaster).append(
                     " ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
             logger.warn(warnBuffer.toString());

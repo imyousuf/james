@@ -1113,12 +1113,17 @@
           <groupId>org.springframework.osgi</groupId>
           <artifactId>spring-osgi-core</artifactId>
         </exclusion>
+        <!-- exlude this, its only used in the authentication plugin which we don't use -->
+        <exclusion>
+          <groupId>com.ibm.icu</groupId>
+          <artifactId>icu4j</artifactId>
+        </exclusion>
+        <!-- eclude this, we don't use osgi yet -->
+        <exclusion>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.core</artifactId>
+        </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-pool</artifactId>
-      <version>${activemq.version}</version>
     </dependency>
     
     <dependency>

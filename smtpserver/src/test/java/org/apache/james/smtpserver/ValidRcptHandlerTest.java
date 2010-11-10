@@ -27,10 +27,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.mail.MessagingException;
 
 import junit.framework.TestCase;
 
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
@@ -40,7 +40,6 @@ import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.lib.MockUsersRepository;
 import org.apache.james.vut.api.VirtualUserTable;
-import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 public class ValidRcptHandlerTest extends TestCase {
@@ -78,13 +77,6 @@ public class ValidRcptHandlerTest extends TestCase {
                 return null;
             }
 
-
-            public boolean isLocalServer(String serverName) {
-                return serverName.equals(VALID_DOMAIN);
-            }
-
-       
-
             public boolean supportVirtualHosting() {
                 // TODO Auto-generated method stub
                 return false;
@@ -93,6 +85,28 @@ public class ValidRcptHandlerTest extends TestCase {
             public MailAddress getPostmaster() {
                 // TODO Auto-generated method stub
                 return null;
+            }
+            
+        });
+        handler.setDomainList(new DomainList() {
+
+            public boolean addDomain(String domain) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean containsDomain(String domain) {
+                return domain.equals(VALID_DOMAIN);
+            }
+
+            public String[] getDomains() {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public boolean removeDomain(String domain) {
+                // TODO Auto-generated method stub
+                return false;
             }
             
         });

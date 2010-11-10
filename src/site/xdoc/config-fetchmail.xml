@@ -25,7 +25,9 @@
 
 <body>
 
-  <section name="Fetchmail">
+  <section name="Fetchmail Configuration">
+
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/fetchmail.xml">fetchmail.xml</a> in SVN to get some examples and hints.</p>
 
     <p>Fetchmail acts as a gateway between an external message store such as an IMAP
     or POP3 server and James. Mail is fetched from the external message store and
@@ -95,10 +97,10 @@
   <section name="Fetchmail Configuration Parameters">
   
     <p>The Fetchmail configuration parameters are part of the James configuration, 
-    whose base file is <code>config.xml</code>. For clarity and flexibility, the 
+    whose base file is <code>fetchmail.xml</code>. For clarity and flexibility, the 
     Fetchmail configuration parameters are stored in the file 
     <code>james-Fetchmail.xml</code>, which is referenced within 
-    <code>config.xml</code>.</p>
+    <code>fetchmail.xml</code>.</p>
     
     <p>The configuration parameters are described below.</p>
     

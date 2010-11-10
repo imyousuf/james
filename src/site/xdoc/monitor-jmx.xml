@@ -25,22 +25,36 @@
 
 <body>
 
-  <section name="JMX Monitoring">
+  <section name="Monitor via JMX">
   
     <p>You can monitor James Server via JMX.</p>
 
+    <p>The managed objects are exposed from localhost only (for security reasons) on the following URL:</p>
+      
+    <p><code>service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi</code></p>
+      
+    <p>Simply launch jconsole to access the exposed attributes and methods.
+       Active Connections active per component, limits,... can be displayed and following services can 
+       be monitored:</p>
+
     <ul>
-      <li>smtp</li>
-      <li>imap</li>
-      <li>lmtp</li>
-      <li>pop3</li>
-      <li>remotemanager</li>
-      <li>dnsservice</li>
-      <li>domainlist</li>
-      <li>queues</li>
+      <li>IMAP</li>
+      <li>POP3</li>
+      <li>SMTP</li>
+      <li>LMTP</li>
+      <li>RemoteManager</li>
+      <li>DNSService</li>
+      <li>Queues</li>
     </ul>
 
-    <p>Connections are active per component, limits,... are displayed.</p>
+    <p>If you want a remote access, you can install a web application management tool such as jmanage. 
+       You will get screens such as the following one.</p>
+         
+    <p><img src="images/jmx-monitoring/jmx-current-connections.png"/></p>
+
+    <p><img src="images/jmx-monitoring/jmx-memory.png"/></p>
+
+    <p><img src="images/jmx-monitoring/jmx-gc.png"/></p>
 
   </section>
 

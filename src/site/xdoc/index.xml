@@ -51,7 +51,7 @@
         <div class="ui-widget">
 			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
 				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-				<strong>Hey!</strong> James Server 3.0-M1 is out.</p>
+				<strong>Hey!</strong> James Server 3.0-M2 is out - <a href="quick-start.html">Quick Start</a> James!.</p>
 			</div>
 		</div>
       
@@ -62,16 +62,18 @@
 	    
 	    <p>This documentation is intended to be an introduction to the concepts behind the James usage, as well 
 	      as a guide to <a href="install.html">install</a>, <a href="config.html">configure</a> 
+	      <a href="manage.html">manage</a>, <a href="monitor.html">monitor</a> 
 	      and <a href="dev.html">develop</a> James server.</p>
-
-        <p>Download James Mail Server.</p>
+	      
+        <p>Download James Mail Server 3.0-M2 and <a href="quick-start.html">quick-start</a> it!</p>
         <p>
           <span class="minibutton btn-download">
-            <a href="javascript:window.location='http://james.apache.org/download.cgi#Apache-James-Server';">
-              <span><span class="icon"></span>Early James Server 3.0-M1</span>
+            <a href="javascript:window.location='http://james.apache.org/download.cgi#Apache_James_Server';">
+              <span><span class="icon"></span>Early James Server 3.0-M2</span>
             </a>
           </span>
         </p>
+        <p>For the very courageous ones, we also have snapshot builds for You (no guarantee!).</p>
         <p>
           <span class="minibutton btn-download">
             <a href="javascript:window.location='http://people.apache.org/builds/james/nightly/';">
@@ -101,11 +103,16 @@
 	        <p>100% pure Java Mail server designed to be a complete and portable enterprise 
 	           mail engine solution.</p>
 	           
-	        <p>Supports currently available IETF protocols, including SMTP, LMTP, POP3 and IMAP4 
-	           James is able to store user and message data either in a file-system (Maildir), 
+	        <p>Supports currently available IETF protocols, including SMTP, LMTP, POP3 and IMAP4.</p>
+	         
+	        <p>James is able to store user and message data either in a file-system (Maildir), 
 	           any JPA-compatible database and even JCR, allowing fast, reliable, 
 	           even real-time replicated storage.</p>
 	         
+	        <p>Provides a powerful, flexible mail application engine through support for the Apache Mailet 
+	           API.  With its Mailet pipeline architecture, James can be used not only to provide standard e-mail 
+	           services, but also to implement custom e-mail applications.</p>
+	           
 	      </subsection>
 		      
          </td><td width="50%">
@@ -114,7 +121,7 @@
           
             <p>Configure the stores,... via the well-known Spring framework - <a href="config.html">read more</a>.</p>
         
-            <img src="images/conf/config-example.png" height="400px" />
+            <p><img src="images/conf/config-example.png" height="400px" /></p>
         
           </subsection>
           
@@ -126,7 +133,7 @@
         
             <p>Manage domains, users,... via well-known JMX tools - <a href="manage.html">read more</a>.</p>
             
-            <img src="images/jmx-management/jmx-user-part.png" />
+            <p><img src="images/jmx-management/jmx-user-part.png" /></p>
 
           </subsection>
           
@@ -134,15 +141,16 @@
 
   	      <subsection name="Extensible">
 	    
-	        <p>James serves as a mail application platform.  The James project hosts the Apache Mailet API, 
-	          and provides the Mailet container. These features makes it easy to design, write, and deploy 
-	          custom applications for mail processing.  This modularity and ease of customization is one of James' 
-	          strengths, and can allow administrators to produce powerful applications surprisingly easily.</p>
+	        <p>James serves as a mail application platform.</p>
+	        
+	        <p>The James project hosts the Apache Mailet API, 
+	          and provides the Mailet container. These features makes it easy
+	          to design, write, and deploy custom applications for mail processing.</p>
+	          
+	        <p>This modularity and ease of customization is one of James' 
+	           strengths, and can allow administrators to produce powerful
+               applications surprisingly easily.</p>
 	 
-	        <p>Provides a powerful, flexible mail application engine through support for the Apache Mailet 
-	           API.  With its Mailet pipeline architecture, James can be used not only to provide standard e-mail 
-	           services, but also to implement custom e-mail applications.</p>
-	           
 	      </subsection>
 
          </td></tr>
@@ -156,10 +164,10 @@
 	           Component Oriented Programming and  Inversion of Control. The stable and robust 
 	           Spring container provides a strong foundation for the James server.</p>
 	    
-	        <p>The internal and exposed APIs for this 3.0-M1 release are under current validation and are 
-	          expected to be subject to change - <a href="dev-architecture.html">read more</a>.</p>
+	        <p>The internal and exposed APIs for this 3.0-M2 release are under current validation and are 
+	          expected to be subject to change - <a href="dev.html">read more</a>.</p>
 	         
-            <img src="images/uml/org.apache.james-package-small.png" width="400px" />
+            <p><img src="images/uml/org.apache.james-package-small.png" width="400px" /></p>
         
   	      </subsection>
   	      
@@ -173,7 +181,7 @@
                version 3.0 is able to maintain a constant mail throughput rate of thousands of 
 	           messages/minute for continuous periods  - <a href="feature-performance.html">read more</a></p>
 
-            <img src="images/jmx-monitoring/jmx-process-root.png" height="400px" />
+            <p><img src="images/jmx-monitoring/jmx-process-root.png" height="400px" /></p>	
         
           </subsection>
          

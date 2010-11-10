@@ -36,17 +36,25 @@ import org.apache.james.util.stream.CombinedInputStream;
 public class MimeMessageInputStream extends InputStream {
     private InputStream in;
 
+    /**
+     * Provide an {@link InputStream} over a {@link MimeMessage}. 
+     * 
+     * @param message the message to wrap
+     * @param tryCast try to cast the {@link MimeMessage} to {@link MimeMessageCopyOnWriteProxy} / {@link MimeMessageWrapper} to do some optimized processing
+     *                if possible
+     * @throws MessagingException
+     */
     @SuppressWarnings("unchecked")
-    public MimeMessageInputStream(MimeMessage message) throws MessagingException {
+    public MimeMessageInputStream(MimeMessage message, boolean tryCast) throws MessagingException {
         MimeMessage m = message;
        
         // check if we need to use the wrapped message
-        if (m instanceof MimeMessageCopyOnWriteProxy) {
+        if (tryCast && m instanceof MimeMessageCopyOnWriteProxy) {
             m = ((MimeMessageCopyOnWriteProxy) m).getWrappedMessage();
         }
 
         // check if we can use optimized operations
-        if (m instanceof MimeMessageWrapper) {
+        if (tryCast && m instanceof MimeMessageWrapper) {
             in = ((MimeMessageWrapper) m).getMessageInputStream();
         } else {
             try {
@@ -67,6 +75,15 @@ public class MimeMessageInputStream extends InputStream {
 
     }
 
+    /**
+     * Use true as tryCast parameter
+     * 
+     * {@link #MimeMessageInputStream(MimeMessage, boolean)}
+     */
+    public MimeMessageInputStream(MimeMessage message) throws MessagingException {
+        this(message, true);
+    }
+    
     @Override
     public int read() throws IOException {
         return in.read();

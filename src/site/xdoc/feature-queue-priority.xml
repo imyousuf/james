@@ -47,7 +47,7 @@
   
     <p>There are two scenarios to set priority in the queue.</p>
     <ul>
-      <li>Write a <a href="dev-extend-hook-smtp.html">SMTP hook</a> which sets the header 
+      <li>Write a <a href="dev-extend-smtp-hook.html">SMTP hook</a> which sets the header 
          and add the hook to smtphandler chain.</li>
       <li>You could also add the header in a mailet to let remotedelivery 
           pick it up again on redelivery.</li>

@@ -27,6 +27,8 @@
 
 <section name="List Manager Configuration">
 
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/james-listmanager.xml">james-listmanager.xml</a> in SVN to get some examples and hints.</p>
+
     <p>One of the frequent questions on the James-User Mailing List is how
     to create a mailing list. This document explains one way of using the
     currently supplied Matchers and Mailets in James v3.0.</p>
@@ -46,33 +48,33 @@
     <p>You need to setup two mailets.</p>
     
     <p>The first mailet that you need to setup is an instance of the <a
-    href="provided-mailets.html#AvalonListservManager">Avalon Listserv
+    href="dev-provided-mailets.html#AvalonListservManager">Avalon Listserv
     Manager</a> mailet.  This will handle subscribing and unsubscribing.
     [Note: the current code does not support confirmed opt-in, just basic
     commands.]  The <a
-    href="provided-matchers.html#CommandForListserv">CommandForListserv</a>
+    href="dev-provided-matchers.html#CommandForListserv">CommandForListserv</a>
     matcher is used to invoke match messages containing commands for the
     mailing list.</p>
     
     <p>The second mailet is an instance of the <a
-    href="provided-mailets.html#AvalonListserv">Avalon Listserv</a>
+    href="dev-provided-mailets.html#AvalonListserv">Avalon Listserv</a>
     mailet.  That mailet actually receives messages for the list and
     causes them to be distributed.  The <a
-    href="provided-matchers.html#RecipientIs">RecipientIs</a> matcher
+    href="dev-provided-matchers.html#RecipientIs">RecipientIs</a> matcher
     is used to match messages intended for the mailing list.</p>
     
     <p>The following illustrates the two &lt;mailet&gt; elements that need to be added:</p>
     
     <source>
-      &lt;mailet match="CommandForListserv=<i>list-name</i>@<i>domain</i>"
-              class="AvalonListservManager"&gt;
-        &lt;repositoryName&gt;<i>list-name</i>&lt;/repositoryName&gt;
-      &lt;/mailet&gt;
-    
-      &lt;mailet match="RecipientIs=<i>list-name</i>@<i>domain</i>" class="AvalonListserv"&gt;
-        &lt;repositoryName&gt;<i>list-name</i>&lt;/repositoryName&gt;
-        ... list options ...
-      &lt;/mailet&gt;
+&lt;mailet match="CommandForListserv=<i>list-name</i>@<i>domain</i>"
+        class="AvalonListservManager"&gt;
+  &lt;repositoryName&gt;<i>list-name</i>&lt;/repositoryName&gt;
+&lt;/mailet&gt;
+
+&lt;mailet match="RecipientIs=<i>list-name</i>@<i>domain</i>" class="AvalonListserv"&gt;
+  &lt;repositoryName&gt;<i>list-name</i>&lt;/repositoryName&gt;
+  ... list options ...
+&lt;/mailet&gt;
     </source>
     
     </subsection>
@@ -83,7 +85,7 @@
     the subscriber list.  There is a separate repository for each mailing
     list, and is completely independent of the user repository used by
     James to manage e-mail accounts.  This is configured in the
-    &lt;users-store&gt; block of config.xml.</p>
+    &lt;users-store&gt; block of james-listmanager.xml.</p>
     
     <p>The following illustrates a database-backed repository using JDBC
     with the ListUsersJdbcRepository class.  Notice that there will be a
@@ -92,11 +94,11 @@
     the list subscriber.</p>
     
     <source>
-      &lt;repository name="<i>list-name</i>"
-                     class="org.apache.james.userrepository.ListUsersJdbcRepository"
-                     destinationURL="db://maildb/lists/<i>list-name</i>"&gt;
-        &lt;sqlFile&gt;file://conf/sqlResources.xml&lt;/sqlFile&gt;
-      &lt;/repository&gt;
+&lt;repository name="<i>list-name</i>"
+               class="org.apache.james.userrepository.ListUsersJdbcRepository"
+               destinationURL="db://maildb/lists/<i>list-name</i>"&gt;
+  &lt;sqlFile&gt;file://conf/sqlResources.xml&lt;/sqlFile&gt;
+&lt;/repository&gt;
     </source>
     
     <p>The following illustrates a file-system repository using the
@@ -106,13 +108,19 @@
     will be addressed in a future version of James.]</p>
     
     <source>
-      &lt;repository name="<i>list-name</i>"
-                     class="org.apache.james.userrepository.UsersFileRepository"&gt;
-        &lt;destination URL="file://var/lists/<i>list-name</i>/" /&gt; 
-      &lt;/repository&gt;
+&lt;repository name="<i>list-name</i>"
+               class="org.apache.james.userrepository.UsersFileRepository"&gt;
+  &lt;destination URL="file://var/lists/<i>list-name</i>/" /&gt; 
+&lt;/repository&gt;
     </source>
     </subsection>
     
+  </section>
+  
+  <section name="miResources.xml">
+  
+    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/miResources.xml">miResources.xml</a> in SVN to get some examples and hints.</p>
+  
   </section>
   
 </body>

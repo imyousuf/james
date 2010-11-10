@@ -343,7 +343,8 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
             for (int i = 0; i < processorConfs.size(); i++) {
                 final HierarchicalConfiguration processorConf = processorConfs.get(i);
                 String processorName = processorConf.getString("[@name]");
-
+                
+                if (processorName.equals(Mail.GHOST)) throw new ConfigurationException("ProcessorName of " + Mail.GHOST + " is reserved for internal use, choose a different name");
                 
                 mailets.put(processorName, new ArrayList<MailetManagement>());
                 matchers.put(processorName, new ArrayList<MatcherManagement>());
@@ -498,10 +499,41 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                   
                 processors.put(processorName, new ProcessorDetail(processorName,new ChildProcessor(processorName)));
             }
-                
+            
+            // check if all needed processors are configured
+            checkProcessors();
+  
         }
+        
     }
     
+    /**
+     * Check if all needed Processors are configured and if not throw a {@link ConfigurationException}
+     * 
+     * @throws ConfigurationException
+     */
+    private void checkProcessors() throws ConfigurationException {
+        boolean errorProcessorFound = false;
+        boolean rootProcessorFound = false;
+        Iterator<String> names = processors.keySet().iterator();
+        while(names.hasNext()) {
+            String name = names.next();
+            if (name.equals(Mail.DEFAULT)) {
+                rootProcessorFound = true;
+            } else if (name.equals(Mail.ERROR)) {
+                errorProcessorFound = true;
+            }
+            
+            if (errorProcessorFound && rootProcessorFound) {
+                return;
+            }
+        }
+        if (errorProcessorFound == false) {
+            throw new ConfigurationException("You need to configure a Processor with name " + Mail.ERROR);
+        } else if (rootProcessorFound == false) {
+            throw new ConfigurationException("You need to configure a Processor with name " + Mail.DEFAULT);
+        }
+    }
     /**
      * Load  {@link CompositeMatcher} implementations and their child {@link Matcher}'s
      * 
