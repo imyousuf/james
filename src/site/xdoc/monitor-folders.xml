@@ -61,8 +61,9 @@ store
 
       <p>The mail folder does NOT contain the users mails
          (look at store folder (or your external database) to find the mailboxes).
-         The mail folder contains the mails rejected during the spooling (depending on mailetcontainer.xml
-         configuration).</p>
+         The mail folder contains the mails rejected during the spooling (depending on 
+         mailetcontainer.xml configuration). Sub folders of 
+         var/mail can be address-error, error, relay-denied, spam</p>
       
        <p>The store folder contains the files related to database, jcr, activemq,... needed by James.
          James Server default settings comes with a embedded Derby database that stores the 
@@ -81,7 +82,8 @@ activemq
 +-blob-transfer
   +-outgoing
   +-spool
-</source>          
+</source>
+          
           <p>The activemq component is configured to use this folder
              for queue (and topics if any) processing.</p>
      
@@ -103,7 +105,7 @@ jackrabbit
  
     </subsection>
 
-    <subsection name="Monitor /tmp Folder Usage">
+    <subsection name="Monitor tmp Folder Usage">
     
       <p>For some certain functions, James uses the system temporary folder (/tmp on linux).
          The system temp can be populated with some temporary files, but James should remove
