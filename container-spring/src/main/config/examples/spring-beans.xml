@@ -424,7 +424,7 @@
     
     <bean id="config" class="org.apache.jackrabbit.core.config.RepositoryConfig" factory-method="create">
         <constructor-arg index="0" value="filesystem=file://conf/jcr-repository.xml"/>
-        <constructor-arg index="1" value="filesystem=file://var/jackrabbit" />
+        <constructor-arg index="1" value="filesystem=file://var/store/jackrabbit" />
     </bean>
     -->
 
