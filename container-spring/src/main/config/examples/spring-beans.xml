@@ -160,7 +160,7 @@
 
     <!-- lets create an embedded ActiveMQ Broker -->
     <!-- disable schedulerSupport for workaround AMQ-2935-->
-    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" schedulerSupport="false" id="broker">
+    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/store/activemq/brokers" useShutdownHook="false" schedulerSupport="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>
@@ -187,7 +187,7 @@
     </amq:connectionFactory>
 
     <bean id="blobTransferPolicy" class="org.apache.james.queue.activemq.FileSystemBlobTransferPolicy">
-        <property name="defaultUploadUrl" value="file://var/queue"/>
+        <property name="defaultUploadUrl" value="file://var/activemq/blob-transfer"/>
     </bean>
 
     <!-- IMPORTANT: if you use not the ActiveMQMailQueueFactory you prolly need to set cacheConsumers to false -->

@@ -152,7 +152,7 @@
         <camel:template id="producerTemplate"/>   
     </camel:camelContext>
 
-    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/activemq-data/" useShutdownHook="false" schedulerSupport="false" id="broker">
+    <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/store/activemq/brokers" useShutdownHook="false" schedulerSupport="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
                 <amq:policyEntries>
@@ -178,7 +178,7 @@
     </amq:connectionFactory>
 
     <bean id="blobTransferPolicy" class="org.apache.james.queue.activemq.FileSystemBlobTransferPolicy">
-        <property name="defaultUploadUrl" value="file://var/queue"/>
+        <property name="defaultUploadUrl" value="file://var/store/activemq/blob-transfer"/>
     </bean>
 
     <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
