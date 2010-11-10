@@ -74,7 +74,7 @@
           <delayTime>6 hours</delayTime>
           <maxRetries>25</maxRetries>
           <maxDnsProblemRetries>0</maxDnsProblemRetries>
-          <deliveryThreads>1</deliveryThreads>
+          <deliveryThreads>10</deliveryThreads>
           <sendpartial>true</sendpartial>
           <bounceProcessor>bounces</bounceProcessor>
        </mailet>

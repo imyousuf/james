@@ -476,7 +476,7 @@ Regards, Postmaster XXX.YYY
             <maxDnsProblemRetries> 0 </maxDnsProblemRetries>
 
             <!-- The number of threads that should be trying to deliver outgoing messages -->
-            <deliveryThreads> 1 </deliveryThreads>
+            <deliveryThreads> 10 </deliveryThreads>
 
             <!-- If false the message will not be sent to given server if any recipients fail -->
             <sendpartial>true</sendpartial>
