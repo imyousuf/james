@@ -19,54 +19,41 @@
 package org.apache.james.smtpserver;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PreDestroy;
-
+import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.protocols.api.Response;
+import org.apache.james.protocols.api.ResponseResultHandler;
 import org.apache.james.protocols.api.WiringException;
+import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPSession;
-import org.apache.james.protocols.smtp.hook.Hook;
-import org.apache.james.protocols.smtp.hook.HookResult;
-import org.apache.james.protocols.smtp.hook.HookResultHook;
 
 /**
- * {@link HookResultHook} implementation which will register a {@link HookStatsMBean} under JMX for every Hook it processed 
+ * Expose JMX statistics for {@link CommandHandler}
  *
  */
-public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler {
+public class CommandHandlerResultJMXMonitor implements ResponseResultHandler<SMTPResponse, SMTPSession>, ExtensibleHandler {
 
-    private Map<String, HookStats> hookStats = new HashMap<String, HookStats>();
+    private Map<String, CommandHandlerStats> cStats = new HashMap<String, CommandHandlerStats>();
+
     
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.smtp.hook.HookResultHook#onHookResult(org.apache.james.protocols.smtp.SMTPSession, org.apache.james.protocols.smtp.hook.HookResult, java.lang.Object)
+     * @see org.apache.james.protocols.api.ResponseResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Response, org.apache.james.protocols.api.CommandHandler)
      */
-    public HookResult onHookResult(SMTPSession session, HookResult result,
-            Object hook) {
-        String hookName = hook.getClass().getName();
-        HookStats stats = hookStats.get(hookName);
+    public Response onResponse(ProtocolSession session, SMTPResponse response, CommandHandler<SMTPSession> handler) {
+        String name = handler.getClass().getName();
+        CommandHandlerStats stats = cStats.get(name);
         if (stats != null) {
-            stats.increment(result.getResult());
+            stats.increment(response);
         }
-        return result;
+        return response;
     }
-
-
-    @PreDestroy
-    public void dispose() {
-        synchronized (hookStats) {
-            Iterator<HookStats> stats = hookStats.values().iterator();
-            while(stats.hasNext()) {
-                stats.next().dispose();
-            }
-            hookStats.clear();
-        }
-    }
-
 
     /*
      * (non-Javadoc)
@@ -74,31 +61,31 @@ public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler {
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> marker = new ArrayList<Class<?>>();
-        marker.add(Hook.class);
+        marker.add(CommandHandler.class);
         return marker;
     }
-
 
     /*
      * (non-Javadoc)
      * @see org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {
-        if (interfaceName.equals(Hook.class)) {
-            
+        if (interfaceName.equals(CommandHandler.class)) {
             // add stats for all hooks
             for (int i = 0; i < extension.size(); i++ ) {
-                Object hook =  extension.get(i);
-                if (equals(hook) == false) {
-                    String hookName = hook.getClass().getName();
+                CommandHandler c =  (CommandHandler) extension.get(i);
+                if (equals(c) == false) {
+                    String cName = c.getClass().getName();
                     try {
-                        hookStats.put(hookName, new HookStats(hookName));
+                        Collection<String> col = c.getImplCommands();
+                        cStats.put(cName, new CommandHandlerStats(cName, col.toArray(new String[col.size()])));
                     } catch (Exception e) {
                         throw new WiringException("Unable to wire Hooks",  e);
                     }
                 }
             }
         }
-        
     }
+
 }
