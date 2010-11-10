@@ -20,7 +20,7 @@
 <document>
 
  <properties>
-  <title>James 3.0 - Monitor via JMX</title>
+  <title>James 3.0 - Monitor Folders</title>
  </properties>
 
 <body>
@@ -28,6 +28,8 @@
   <section name="Monitor Folders">
   
     <subsection name="Monitor ./var Folder Usage">
+    
+    <p>The directory structure in ./var is shown hereafter.</p>
   
 <source>
 mail
@@ -37,18 +39,75 @@ mail
 +-spam
 
 store
-+-derbydb
-+-jackrabbbit
++-maildir
++-derby
++-jackrabbit
 +-activemq
-  +-jamesBroker
-  +-blob
+  +-brokers
+    +-james
+  +-blob-transfer
     +-outgoing
     +-spool
 </source>
-        
+
+      <p>The $JAMES_ROOT/var folder is the place where James Server writes and reads the
+         files it needs to achieve its functions.</p>
+
+      <p>There should be two folders in var:</p>
+      <ul>
+        <li>mail</li>
+        <li>store</li>
+      </ul>
+
+      <p>The mail folder does NOT contain the users mails
+         (look at store folder (or your external database) to find the mailboxes).
+         The mail folder contains the mails rejected during the spooling (depending on mailetcontainer.xml
+         configuration).</p>
+      
+       <p>The store folder contains the files related to database, jcr, activemq,... needed by James.
+         James Server default settings comes with a embedded Derby database that stores the 
+         users, domains and mailboxes (the user mails) (see store/derby folder).</p>
+         
+       <p>Of course, if you changed database.properties and still use a database for the mailboxes,
+          you will have to look for the users, domains and mailboxes in your database, whatever,
+          wherever it is.</p>
+     
+        <p>You can find in store folder sub-folders such as:</p>
+     
+<source>
+activemq
++-brokers
+  +-james
++-blob-transfer
+  +-outgoing
+  +-spool
+</source>          
+          <p>The activemq component is configured to use this folder
+             for queue (and topics if any) processing.</p>
+     
+<source>
+maildir
+</source>     
+         
+         <p>You can configure James to use MailDir as storage for the user
+            mailboxes. Use var/store/maildir folder to contain the user's
+            mails.</p>
+
+<source>
+jackrabbit
+</source>
+     
+         <p>You can configure James to use JCR (Java Content Repository, based
+            on Apache Jackrabbit) as storage for the user mailboxes. Use 
+            var/store/jackrabbit folder to contain the user's mails.</p>
+ 
     </subsection>
 
     <subsection name="Monitor /tmp Folder Usage">
+    
+      <p>For some certain functions, James uses the system temporary folder (/tmp on linux).
+         The system temp can be populated with some temporary files, but James should remove
+         them after a short time.</p>
     
     </subsection>
   
