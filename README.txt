@@ -22,7 +22,7 @@ Thank you for testing Apache James Server 3.0-M2!
   * Monitor      http://james.apache.org/server/3/monitor.html
 
   * Upgrade from James 3.0-M1
-    Move ./var/derbydb to ./var/store/derbydb
+    Move ./var/derbydb to ./var/store/derby
 
   * Upgrade from James 2.3 http://james.apache.org/server/3/upgrade-2.3.html
 
