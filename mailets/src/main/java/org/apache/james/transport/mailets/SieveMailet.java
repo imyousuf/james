@@ -107,59 +107,53 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
                     final int startOfHost = endOfUser + 1;
                     final int endOfHost = url.indexOf('/', startOfHost);
                     final String host = url.substring(startOfHost, endOfHost);
-                    // if (!"localhost".equals(host)) {
-                    if (host.equals("localhost") == false) {
-                        // TODO: possible support for clustering?
-                        throw new MessagingException("Only local mailboxes are supported");
+                    final String urlPath;
+                    final int length = url.length();
+                    if (endOfHost + 1 == length) {
+                        urlPath = "INBOX";
                     } else {
-                        final String urlPath;
-                        final int length = url.length();
-                        if (endOfHost + 1 == length) {
-                            urlPath = "INBOX";
-                        } else {
-                            urlPath = url.substring(endOfHost, length);
+                        urlPath = url.substring(endOfHost, length);
+                    }
+
+                    // check if we should use the full emailaddress as
+                    // username
+                    if (mailServer.supportVirtualHosting()) {
+                        user = user + "@" + host;
+                    }
+
+                    final MailboxSession session = mailboxManager.createSystemSession(user, new MailetLog());
+
+                    // start processing request
+                    mailboxManager.startProcessingRequest(session);
+
+                    // This allows Sieve scripts to use a standard delimiter
+                    // regardless of mailbox implementation
+                    String destination = urlPath.replace('/', MailboxConstants.DEFAULT_DELIMITER);
+
+                    if (destination == null || "".equals(destination)) {
+                        destination = "INBOX";
+                    }
+                    if (destination.startsWith(MailboxConstants.DEFAULT_DELIMITER_STRING))
+                        destination = destination.substring(1);
+                    final MailboxPath path = new MailboxPath(MailboxConstants.USER_NAMESPACE, user, destination);
+                    try {
+                        if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(path, session))) {
+                            mailboxManager.createMailbox(path, session);
+                        }
+                        final MessageManager mailbox = mailboxManager.getMailbox(path, session);
+                        if (mailbox == null) {
+                            final String error = "Mailbox for user " + user + " was not found on this server.";
+                            throw new MessagingException(error);
                         }
 
-                        // check if we should use the full emailaddress as
-                        // username
-                        if (mailServer.supportVirtualHosting()) {
-                            user = user + "@" + host;
-                        }
+                        mailbox.appendMessage(new MimeMessageInputStream(mail), new Date(), session, true, null);
+                    } finally {
+                        session.close();
+                        mailboxManager.logout(session, true);
 
-                        final MailboxSession session = mailboxManager.createSystemSession(user, new MailetLog());
-
-                        // start processing request
-                        mailboxManager.startProcessingRequest(session);
-
-                        // This allows Sieve scripts to use a standard delimiter
-                        // regardless of mailbox implementation
-                        String destination = urlPath.replace('/', MailboxConstants.DEFAULT_DELIMITER);
-
-                        if (destination == null || "".equals(destination)) {
-                            destination = "INBOX";
-                        }
-                        if (destination.startsWith(MailboxConstants.DEFAULT_DELIMITER_STRING))
-                            destination = destination.substring(1);
-                        final MailboxPath path = new MailboxPath(MailboxConstants.USER_NAMESPACE, user, destination);
-                        try {
-                            if ("INBOX".equalsIgnoreCase(destination) && !(mailboxManager.mailboxExists(path, session))) {
-                                mailboxManager.createMailbox(path, session);
-                            }
-                            final MessageManager mailbox = mailboxManager.getMailbox(path, session);
-
-                            if (mailbox == null) {
-                                final String error = "Mailbox for user " + user + " was not found on this server.";
-                                throw new MessagingException(error);
-                            }
-
-                            mailbox.appendMessage(new MimeMessageInputStream(mail), new Date(), session, true, null);
-                        } finally {
-                            session.close();
-                            mailboxManager.logout(session, true);
-
-                            // stop processing request
-                            mailboxManager.endProcessingRequest(session);
-                        }
+                        // stop processing request
+                        mailboxManager.endProcessingRequest(session);
+                        
                     }
                 }
             } else {
