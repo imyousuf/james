@@ -18,13 +18,18 @@
  ****************************************************************/
 package org.apache.james.smtpserver;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PreDestroy;
 
+import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.WiringException;
 import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.hook.Hook;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookResultHook;
 
@@ -32,7 +37,7 @@ import org.apache.james.protocols.smtp.hook.HookResultHook;
  * {@link HookResultHook} implementation which will register a {@link HookStatsMBean} under JMX for every Hook it processed 
  *
  */
-public class HookResultJMXMonitor implements HookResultHook {
+public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler {
 
     private Map<String, HookStats> hookStats = new HashMap<String, HookStats>();
     
@@ -43,22 +48,8 @@ public class HookResultJMXMonitor implements HookResultHook {
     public HookResult onHookResult(SMTPSession session, HookResult result,
             Object hook) {
         String hookName = hook.getClass().getName();
-        try {
-            HookStats stats;
-            synchronized (hookStats) {
-                stats = hookStats.get(hookName);
-                if (stats == null) {
-                    stats = new HookStats(hookName);
-                    hookStats.put(hookName, stats);
-                }
-            }
-           
-            stats.increment(result.getResult());
-        } catch (Exception e) {
-            session.getLogger().error(
-                    "Unable to register HookStats for hook " + hookName, e);
-        }
-
+        HookStats stats = hookStats.get(hookName);
+        stats.increment(result.getResult());
         return result;
     }
 
@@ -72,5 +63,40 @@ public class HookResultJMXMonitor implements HookResultHook {
             }
             hookStats.clear();
         }
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
+     */
+    public List<Class<?>> getMarkerInterfaces() {
+        List<Class<?>> marker = new ArrayList<Class<?>>();
+        marker.add(Hook.class);
+        return marker;
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     */
+    public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {
+        if (interfaceName.equals(Hook.class)) {
+            
+            // add stats for all hooks
+            for (int i = 0; i < extension.size(); i++ ) {
+                Object hook =  extension.get(i);
+                if (equals(hook) == false) {
+                    String hookName = hook.getClass().getName();
+                    try {
+                        hookStats.put(hookName, new HookStats(hookName));
+                    } catch (Exception e) {
+                        throw new WiringException("Unable to wire Hooks",  e);
+                    }
+                }
+            }
+        }
+        
     }
 }
