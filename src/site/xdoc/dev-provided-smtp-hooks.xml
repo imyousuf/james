@@ -81,6 +81,11 @@
     <subsection name="MailPriorityHandler">
       <p>Allows to set priority on mails for the spool queues, depending on the destination domain.</p>
     </subsection>
+    
+    <subsection name="HookResultJMXMonitor">
+      <p>Allows to register a HookStatsMBean under JMX for every processed Hook. 
+         You will get statistics about the configured hooks via JMX </p>
+    </subsection>
 
   </section>
 
