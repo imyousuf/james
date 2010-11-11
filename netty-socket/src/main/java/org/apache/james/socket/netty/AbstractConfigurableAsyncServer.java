@@ -157,6 +157,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         }
 
         jmxName = config.getString("jmxName",getDefaultJMXName());
+        int ioWorker = config.getInt("ioWorkerCount", DEFAULT_IO_WORKER_COUNT);
+        setIoWorkerCount(ioWorker);
+ 
         configureHelloName(handlerConfiguration);
 
         setTimeout(handlerConfiguration.getInt(TIMEOUT_NAME,DEFAULT_TIMEOUT));
