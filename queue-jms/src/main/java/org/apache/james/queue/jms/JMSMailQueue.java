@@ -538,6 +538,7 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
                 size++;
             }
         } catch (Exception e) {
+            logger.error("Unable to get size of queue " + queuename, e);
             size = -1;
         } finally {
             try {
@@ -596,6 +597,7 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
             }
             session.commit();
         } catch (Exception e) {
+            logger.error("Unable to flush mail" , e);
             count = -1;
             try {
                 session.rollback();
@@ -710,6 +712,8 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
             session.commit();
             
         } catch (Exception e) {
+            logger.error("Unable to remove mails" , e);
+
             count = -1;
             try {
                 session.rollback();
