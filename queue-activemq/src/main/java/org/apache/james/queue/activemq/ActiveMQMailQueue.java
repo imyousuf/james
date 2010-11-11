@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.jms.Connection;
@@ -37,15 +39,18 @@ import javax.jms.Session;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.SharedInputStream;
+import javax.management.NotCompliantMBeanException;
 
 import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
+import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.core.MimeMessageSource;
 import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.lifecycle.Disposable;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.jms.JMSMailQueue;
 import org.apache.mailet.Mail;
@@ -78,17 +83,19 @@ import org.springframework.jms.connection.SessionProxy;
  * 
  * 
  */
-public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
+public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport, Disposable{
     
     private boolean useBlob;
-
+    
+    
     /**
      * Construct a {@link ActiveMQMailQueue} which only use {@link BlobMessage}
+     * @throws NotCompliantMBeanException 
      * 
      * @see #ActiveMQMailQueue(ConnectionFactory, String, boolean, Log)
      */
-    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
-        this(connectionFactory, queuename, true, logger);
+    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) throws NotCompliantMBeanException {
+        this(connectionFactory, queuename, true, true, logger);
     }
     
     /**
@@ -101,11 +108,13 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
      * @param queuename
      * @param useBlob
      * @param logger
+     * @throws NotCompliantMBeanException 
      */
-    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, boolean useBlob, final Log logger) {
-        super(connectionFactory, queuename, logger);
+    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, boolean useBlob, final boolean useJMX, final Log logger) throws NotCompliantMBeanException {
+        super(connectionFactory, queuename, useJMX, logger);
         this.useBlob = useBlob;
     }
+
     
     /*
      * (non-Javadoc)
@@ -315,4 +324,76 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
         return new ActiveMQMailQueueItem(mail, connection, session, consumer, message, logger);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.queue.jms.JMSMailQueue#removeWithSelector(java.lang.String)
+     */
+    protected long removeWithSelector(String selector) {
+        Connection connection = null;
+        Session session = null;
+        Message message = null;
+        MessageConsumer consumer = null;
+        boolean first = true;
+        long count = 0;
+        try {
+            connection = connectionFactory.createConnection();
+            connection.start();
+
+            session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            Queue queue = session.createQueue(queuename);
+            consumer = session.createConsumer(queue, selector);
+            List<Message> messages = new ArrayList<Message>();
+            while (first || message != null) {
+                first = false;
+                message = consumer.receiveNoWait();
+                if (message != null) {
+                    messages.add(message);
+                    count++;
+                }
+            }
+            session.commit();
+            for (int i = 0; i < messages.size(); i++) {
+                Message m = messages.get(i);
+                if (m instanceof ActiveMQBlobMessage) {
+                    try {
+                        ((ActiveMQBlobMessage) m).deleteFile();
+                    } catch (IOException e) {
+                        logger.error("Unable to delete blob file for message " +m, e);
+                    }
+                }
+            }
+            messages.clear();
+        } catch (Exception e) {
+            count = -1;
+            try {
+                session.rollback();
+            } catch (JMSException e1) {
+                // ignore on rollback
+            }
+        } finally {
+            if (consumer != null) {
+
+                try {
+                    consumer.close();
+                } catch (JMSException e1) {
+                    // ignore on rollback
+                }
+            }
+            
+            try {
+                if (session != null)
+                    session.close();
+            } catch (JMSException e1) {
+                // ignore here
+            }
+
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (JMSException e1) {
+                // ignore here
+            }
+        }    
+        return count;
+    }
 }

@@ -19,12 +19,16 @@
 package org.apache.james.queue.jms;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.jms.ConnectionFactory;
+import javax.management.NotCompliantMBeanException;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
@@ -38,9 +42,22 @@ public class JMSMailQueueFactory implements MailQueueFactory, LogEnabled{
 
     
     
-    private final Map<String, MailQueue> queues = new HashMap<String, MailQueue>();
+    protected final Map<String, MailQueue> queues = new HashMap<String, MailQueue>();
     protected ConnectionFactory connectionFactory;
     protected Log log;
+    private boolean useJMX = true;
+    
+    public void setUseJMX(boolean useJMX) {
+        this.useJMX = useJMX;
+    }
+    
+    @PreDestroy
+    public void destroy() {
+        Iterator<MailQueue> it = queues.values().iterator();
+        while(it.hasNext()) {
+            LifecycleUtil.dispose(it.next());
+        }
+    }
     
     @Resource(name="jmsConnectionFactory")
     public void setConnectionFactory(ConnectionFactory connectionFactory) {
@@ -55,7 +72,7 @@ public class JMSMailQueueFactory implements MailQueueFactory, LogEnabled{
     public synchronized final MailQueue getQueue(String name) {
         MailQueue queue = queues.get(name);
         if (queue == null) {
-            queue = createMailQueue(name);
+            queue = createMailQueue(name, useJMX);
             queues.put(name, queue);
         }
 
@@ -69,8 +86,12 @@ public class JMSMailQueueFactory implements MailQueueFactory, LogEnabled{
      * @param name
      * @return queue
      */
-    protected MailQueue createMailQueue(String name) {
-    	return new JMSMailQueue(connectionFactory, name, log);
+    protected MailQueue createMailQueue(String name, boolean useJMX) {
+    	try {
+            return new JMSMailQueue(connectionFactory, name, useJMX, log);
+        } catch (NotCompliantMBeanException e) {
+            throw new RuntimeException("Unable to register MBean ", e);
+        }
     }
 
     /*
