@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
+import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -39,6 +40,7 @@ import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.protocols.impl.AbstractAsyncServer;
 import org.apache.james.services.FileSystem;
 import org.apache.james.socket.ServerMBean;
+import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
 
 
 /**
@@ -93,6 +95,8 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     private String secret;
     
     private SSLContext context;
+
+    private String jmxName;
 
     @Resource(name="dnsservice")
     public final void setDNSService(DNSService dns) {
@@ -152,6 +156,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             throw new ConfigurationException( "Malformed bind parameter in configuration of service " + getServiceType(), unhe );
         }
 
+        jmxName = config.getString("jmxName",getDefaultJMXName());
         configureHelloName(handlerConfiguration);
 
         setTimeout(handlerConfiguration.getInt(TIMEOUT_NAME,DEFAULT_TIMEOUT));
@@ -437,5 +442,22 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 	public int getMaximumConcurrentConnections() {
 		return connectionLimit;
 	}
+	
+    @Override
+    protected Executor createBossExecutor() {
+        return JMXEnabledThreadPoolExecutor.newCachedThreadPool("org.apache.james:type=server,name=" + jmxName + ",sub-type=threadpool", "boss");
+    }
+
+    @Override
+    protected Executor createWorkerExecutor() {
+        return JMXEnabledThreadPoolExecutor.newCachedThreadPool("org.apache.james:type=server,name=" + jmxName + ",sub-type=threadpool", "worker");
+    }
     
+    /**
+     * Return the default name of the the server in JMX if none is configured via "jmxname" in the configuration
+     * 
+     * @return defaultJmxName
+     */
+    protected abstract String getDefaultJMXName();
+
 }

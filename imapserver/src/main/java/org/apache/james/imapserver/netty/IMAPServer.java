@@ -163,5 +163,10 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
 		return connectionLimit;
 	}
 
+    @Override
+    protected String getDefaultJMXName() {
+        return "imapserver";
+    }
+
 
 }

@@ -164,5 +164,9 @@ public class RemoteManager extends AbstractConfigurableAsyncServer implements Re
 	}
 
 
+    @Override
+    protected String getDefaultJMXName() {
+        return "remotemanager";
+    }
 
 }

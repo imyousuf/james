@@ -190,6 +190,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         LifecycleUtil.dispose(m_mailServer);
         queue.clear();
         super.tearDown();
+        
     }
 
     public void verifyLastMail(String sender, String recipient, MimeMessage msg) throws IOException, MessagingException {

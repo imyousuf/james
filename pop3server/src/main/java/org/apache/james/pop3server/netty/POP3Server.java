@@ -175,4 +175,9 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
 		return countHandler.getCurrentConnectionCount();
 	}
 
+    @Override
+    protected String getDefaultJMXName() {
+        return "pop3server";
+    }
+
 }

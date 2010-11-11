@@ -16,42 +16,42 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+package org.apache.james.util.concurrent;
 
-package org.apache.james.pop3server;
+public interface JMXEnabledThreadPoolExecutorMBean {
+    
+    /**
+     * Return the active threads
+     * 
+     * @return aThreads
+     */
+    public int getActiveThreads();
 
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.pop3server.netty.POP3Server;
+    /**
+     * Return the active Tasks
+     * 
+     * @return aTasks
+     */
+    public int getActiveTasks();
 
-public class POP3ServerTest extends AbstractAsyncPOP3ServerTest{
+    /**
+     * Return the total tasks handled by this executor
+     * 
+     * @return tTasks
+     */
+    public int getTotalTasks();
 
-    private POP3Server m_pop3Server;
+    /**
+     * Return the queued tasks
+     * 
+     * @return qTasks
+     */
+    public int getQueuedTasks();
 
-    @Override
-    protected void initPOP3Server(POP3TestConfiguration testConfiguration) throws Exception {
-        m_pop3Server.configure(testConfiguration);
-        m_pop3Server.init();
-    }
-
-    @Override
-    protected void setUpPOP3Server() throws Exception {
-        
-        m_pop3Server = new POP3Server();
-        m_pop3Server.setDNSService(dnsservice);
-        m_pop3Server.setFileSystem(fSystem);
-        m_pop3Server.setProtocolHandlerChain(chain);
-       
-        
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        m_pop3Server.setLog(log);
-        m_pop3Server.setMailServer(m_mailServer);        
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        m_pop3Server.destroy();
-
-    }
-
+    /**
+     * Return the average time for a task (in ms)
+     * 
+     * @return aTime
+     */
+    public double getAverageTaskTime();
 }

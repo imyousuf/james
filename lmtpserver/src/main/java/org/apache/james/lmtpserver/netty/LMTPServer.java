@@ -255,4 +255,10 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
 		return "unknown";
 	}
 
+
+    @Override
+    protected String getDefaultJMXName() {
+        return "lmtpserver";
+    }
+
 }

@@ -44,4 +44,10 @@ public class RemoteManagerTest extends AbstractRemoteManagerTest{
                
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        remotemanager.destroy();
+    }
+
 }

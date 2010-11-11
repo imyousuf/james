@@ -390,4 +390,14 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 	public String getNetworkInterface() {
 		return "unknown";
 	}
+
+
+    @Override
+    protected String getDefaultJMXName() {
+        return "smtpserver";
+    }
+
+
+   
+
 }

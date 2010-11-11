@@ -49,6 +49,13 @@ public class SMTPServerTest extends AbstractSMTPServerTest{
         m_smtpServer.setMailServer(m_mailServer);        
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        m_smtpServer.destroy();
+
+    }
+
     public void testMaxLineLength() throws Exception {
         finishSetUp(m_testConfiguration);
 
