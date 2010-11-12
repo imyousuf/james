@@ -110,8 +110,6 @@ public class JamesMailServer
         }
 
         initializeServernames();
-
-        logger.info("Private Repository LocalInbox opened");
         
         virtualHosting = conf.getBoolean("enableVirtualHosting", false);
 
@@ -142,7 +140,6 @@ public class JamesMailServer
 
         initPostmaster();
         System.out.println(SOFTWARE_NAME_VERSION);
-        logger.info("JAMES ...init end");
     }
 
 
