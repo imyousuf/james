@@ -142,9 +142,8 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      * @throws FileNotFoundException
      */
     protected File getFile(ActiveMQBlobMessage message) throws JMSException, FileNotFoundException {
-        String queueName = message.getStringProperty(JAMES_QUEUE_NAME);
         String mailname = message.getStringProperty(JAMES_MAIL_NAME);
-        String queueUrl = policy.getUploadUrl() + "/" + queueName + "/";
+        String queueUrl = policy.getUploadUrl() + "/";
         File queueF = fs.getFile(queueUrl);
         
         // check if we need to create the queue folder

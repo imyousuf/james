@@ -181,7 +181,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                     String fromQueue = (String) mail.getAttribute(JAMES_QUEUE_NAME);
                     MimeMessageWrapper mwrapper = (MimeMessageWrapper) wrapper;
 
-                    if (blobUrl != null && fromQueue != null && fromQueue.equals(queuename) && mwrapper.isModified() == false ) {
+                    if (blobUrl != null && fromQueue != null && mwrapper.isModified() == false ) {
                         // the message content was not changed so don't need to upload it again and can just point to the url
                         blobMessage = amqSession.createBlobMessage(blobUrl);
                     
