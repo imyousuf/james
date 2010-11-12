@@ -19,8 +19,6 @@
 package org.apache.james.queue.activemq;
 
 
-import javax.management.NotCompliantMBeanException;
-
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.jms.JMSMailQueueFactory;
@@ -44,10 +42,6 @@ public class ActiveMQMailQueueFactory extends JMSMailQueueFactory {
     
     @Override
     protected MailQueue createMailQueue(String name, boolean useJMX) {
-        try {
-            return new ActiveMQMailQueue(connectionFactory, name, useBlob, useJMX, log);
-        } catch (NotCompliantMBeanException e) {
-            throw new RuntimeException("Unable to register MBean ", e);
-        }
+        return new ActiveMQMailQueue(connectionFactory, name, useBlob, log);  
     }
 }

@@ -18,19 +18,49 @@
  ****************************************************************/
 package org.apache.james.queue.api;
 
+
 public interface MailQueueManagementMBean {
 
+    /**
+     * Return the size of the queue or -1 if the size could not get calculated
+     * 
+     * @return size the size or -1 if it could not get calculated
+     */
     public long getSize();
     
+    /**
+     * Flush queue to make every Mail ready to consume. 
+     * 
+     * @return count the count of all flushed mails or -1 if the flush was not possible
+     */
     public long flush();
     
+    /**
+     * Clear the queue
+     * 
+     * @return count the count of all removed mails or -1 if clear was not possible
+     */
     public long clear();
     
-    public boolean removeWithName(String name);
+    /**
+     * Remove mail with name from the queue
+     * 
+     * @return count the count of all removed mails or -1 if clear was not possible
+     */
+    public long removeWithName(String name);
     
+    /**
+     * Remove mail with specific sender from the queue
+     * 
+     * @return count the count of all removed mails or -1 if clear was not possible
+     */
     public long removeWithSender(String address);
     
+    /**
+     * Remove mail with specific recipient from the queue
+     * 
+     * @return count the count of all removed mails or -1 if clear was not possible
+     */
     public long removeWithRecipient(String address);
-
     
 }

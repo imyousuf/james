@@ -21,7 +21,6 @@ package org.apache.james.queue.jms;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -46,18 +45,13 @@ import javax.jms.Session;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.MimeMessage;
-import javax.management.MBeanServer;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
-import javax.management.StandardMBean;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
-import org.apache.james.lifecycle.Disposable;
 import org.apache.james.queue.api.MailPrioritySupport;
 import org.apache.james.queue.api.MailQueue;
-import org.apache.james.queue.api.MailQueueManagementMBean;
+import org.apache.james.queue.api.ManageableMailQueue;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -70,30 +64,18 @@ import org.apache.mailet.MailAddress;
  * 
  * 
  */
-public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport, MailPrioritySupport, Disposable, MailQueueManagementMBean {
+public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPrioritySupport {
 
     protected final String queuename;
     protected final ConnectionFactory connectionFactory;
     protected final Log logger;
-    private MBeanServer mbeanServer;
-    private String mbeanName;
-    private boolean useJMX;
     public final static String FORCE_DELIVERY = "FORCE_DELIVERY";
 
 
-    public JMSMailQueue(final ConnectionFactory connectionFactory, final String queuename, final boolean useJMX, final Log logger) throws NotCompliantMBeanException {
-        this(connectionFactory, queuename, useJMX, logger, MailQueueManagementMBean.class);
-
-    }
-
-    protected JMSMailQueue(final ConnectionFactory connectionFactory, final String queuename, final boolean useJMX, final Log logger, Class<?> c) throws NotCompliantMBeanException {
-        super(c);
+    public JMSMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
         this.connectionFactory = connectionFactory;
         this.queuename = queuename;
         this.logger = logger;
-        this.useJMX = useJMX;
-        registerMBean();
-
     }
 /**
      * Execute the given {@link DequeueOperation} when a mail is ready to process. As JMS does not support delay scheduling out-of-the box, we use 
@@ -486,39 +468,18 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
     }
     
     protected String getMessageSelector() {
-        return JAMES_NEXT_DELIVERY + " <= " + System.currentTimeMillis() + " OR " +FORCE_DELIVERY + " ='true'";
+        return JAMES_NEXT_DELIVERY + " <= " + System.currentTimeMillis() + " OR " + FORCE_DELIVERY + " = true";
     }
 
     
-    private void registerMBean() {
-        if (useJMX) {
-            mbeanServer = ManagementFactory.getPlatformMBeanServer(); 
-            mbeanName = "org.apache.james:type=component,name=queue,queue=" + queuename;
-            try {
-                mbeanServer.registerMBean(this, new ObjectName(mbeanName));
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to register mbean" , e);
-            }
-        }
-    }
-    
-    private void unregisterMBean(){
-        if (useJMX) {
-            try {
-                mbeanServer.unregisterMBean(new ObjectName(mbeanName));
-           
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to unregister mbean" , e);
-            }
-        }
-    }
-    
+   
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.api.MailQueueManagementMBean#getSize()
+     * @see org.apache.james.queue.api.ManageableMailQueue#getSize()
      */
-    @SuppressWarnings("rawtypes")
-    public long getSize() {
+    @SuppressWarnings("unchecked")
+    public long getSize() throws MailQueueException {
         Connection connection = null;
         Session session = null;
         QueueBrowser browser = null;
@@ -537,9 +498,10 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
                 messages.nextElement();
                 size++;
             }
+            return size;
         } catch (Exception e) {
             logger.error("Unable to get size of queue " + queuename, e);
-            size = -1;
+            throw new MailQueueException("Unable to get size of queue " + queuename, e);
         } finally {
             try {
                 if (browser != null)
@@ -562,14 +524,13 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
                 // ignore here
             }
         }
-        return size;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.api.MailQueueManagementMBean#flush()
+     * @see org.apache.james.queue.api.ManageableMailQueue#flush()
      */
-    public long flush() {
+    public long flush() throws MailQueueException {
         Connection connection = null;
         Session session = null;
         Message message = null;
@@ -587,23 +548,31 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
             producer = session.createProducer(queue);
 
             while (first || message != null) {
+                if (first) {
+                    // give the consumer 2000 ms to receive messages
+                    message = consumer.receive(2000);
+                } else {
+                    message = consumer.receiveNoWait();
+                }
                 first = false;
-                message = consumer.receiveNoWait();
+                
                 if (message != null) {
-                    message.setBooleanProperty(FORCE_DELIVERY, true);
-                    producer.send(message);
+                    Message m = copy(session, message);
+                    m.setBooleanProperty(FORCE_DELIVERY, true);
+                    producer.send(m, message.getJMSDeliveryMode(), message.getJMSPriority(), message.getJMSExpiration());
                     count++;
                 }
             }
             session.commit();
+            return count;
         } catch (Exception e) {
             logger.error("Unable to flush mail" , e);
-            count = -1;
             try {
                 session.rollback();
             } catch (JMSException e1) {
                 // ignore on rollback
             }
+            throw new MailQueueException("Unable to get size of queue " + queuename, e);
         } finally {
             if (consumer != null) {
 
@@ -636,65 +605,38 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
                 // ignore here
             }
         }   
-        return count;
     }
 
     /*
      * (non-Javadoc)
      * @see org.apache.james.queue.api.MailQueueManagementMBean#clear()
      */
-    public long clear() {
-        return removeWithSelector(null);
+    public long clear() throws MailQueueException {
+        return count(removeWithSelector(null));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Disposable#dispose()
-     */
-    public void dispose() {
-        unregisterMBean();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.queue.api.MailQueueManagementMBean#removeWithName(java.lang.String)
-     */
-    public boolean removeWithName(String name) {
-        if (removeWithSelector(JAMES_MAIL_NAME + " = '" + name +"'") > 0) {
-            return true;
+    protected long count(List<Message> msgs) {
+        if (msgs == null) {
+            return -1;
+        } else {
+            return msgs.size();
         }
-        return false;
     }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.queue.api.MailQueueManagementMBean#removeWithSender(java.lang.String)
-     */
-    public long removeWithSender(String address) {
-        return removeWithSelector(JAMES_MAIL_SENDER + " = '" + address +"'");
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.queue.api.MailQueueManagementMBean#removeWithRecipient(java.lang.String)
-     */
-    public long removeWithRecipient(String address) {
-        return removeWithSelector(JAMES_MAIL_RECIPIENTS+ " = '" + address +"' or " + JAMES_MAIL_RECIPIENTS+ " = '%," + address + "' or " + JAMES_MAIL_RECIPIENTS+ " = '%," + address +"%'");
-    }
-
+    
     /**
      * Remove a message with the fiven selector
      * 
      * @param selector
      * @return count
      */
-    protected long removeWithSelector(String selector) {
+    protected List<Message> removeWithSelector(String selector) throws MailQueueException{
         Connection connection = null;
         Session session = null;
         Message message = null;
         MessageConsumer consumer = null;
         boolean first = true;
-        long count = 0;
+        List<Message> messages = new ArrayList<Message>();
+        
         try {
             connection = connectionFactory.createConnection();
             connection.start();
@@ -703,23 +645,27 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
             Queue queue = session.createQueue(queuename);
             consumer = session.createConsumer(queue, selector);
             while (first || message != null) {
+                if (first) {
+                    // give the consumer 2000 ms to receive messages
+                    message = consumer.receive(2000);
+                } else {
+                    message = consumer.receiveNoWait();
+                }
                 first = false;
-                message = consumer.receiveNoWait();
                 if (message != null) {
-                    count++;
+                    messages.add(message);
                 }
             }
             session.commit();
-            
+            return messages;
         } catch (Exception e) {
-            logger.error("Unable to remove mails" , e);
-
-            count = -1;
             try {
                 session.rollback();
             } catch (JMSException e1) {
                 // ignore on rollback
             }
+            throw new MailQueueException("Unable to remove mails" , e);
+
         } finally {
             if (consumer != null) {
 
@@ -744,7 +690,161 @@ public class JMSMailQueue extends StandardMBean implements MailQueue, JMSSupport
                 // ignore here
             }
         }    
-        return count;
+    }
+    
+    /**
+     * Create a copy of the given {@link Message}. This includes the properties and the payload
+     * 
+     * 
+     * @param session
+     * @param m 
+     * @return copy
+     * @throws JMSException
+     */
+    @SuppressWarnings("unchecked")
+    protected Message copy(Session session, Message m) throws JMSException {
+        ObjectMessage message = (ObjectMessage) m;
+        ObjectMessage copy = session.createObjectMessage(message.getObject());
+
+        Enumeration<String> properties = message.getPropertyNames();
+        while (properties.hasMoreElements()) {
+            String name = properties.nextElement();
+            copy.setObjectProperty(name, message.getObjectProperty(name));
+        }
+                
+        return copy;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.queue.api.ManageableMailQueue#remove(org.apache.james.queue.api.ManageableMailQueue.Type, java.lang.String)
+     */
+    public long remove(Type type, String value) throws MailQueueException{
+        switch (type) {
+        case Name:
+            return count(removeWithSelector(JAMES_MAIL_NAME + " = '" + value +"'"));
+        case Sender:
+            return count(removeWithSelector(JAMES_MAIL_SENDER + " = '" + value +"'"));
+        case Recipient:
+            return count(removeWithSelector(JAMES_MAIL_RECIPIENTS+ " = '" + value +"' or " + JAMES_MAIL_RECIPIENTS+ " = '%," + value + "' or " + JAMES_MAIL_RECIPIENTS+ " = '%," + value +"%'"));
+        default:
+            break;
+        }
+        return -1;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.queue.api.ManageableMailQueue#view()
+     */
+    @SuppressWarnings("unchecked")
+    public List<MailQueueItemView> view() throws MailQueueException {
+        Connection connection = null;
+        Session session = null;
+        QueueBrowser browser = null;
+        List<MailQueueItemView> view = new ArrayList<MailQueueItemView>();
+        try {
+            connection = connectionFactory.createConnection();
+            connection.start();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue queue = session.createQueue(queuename);
+
+            browser = session.createBrowser(queue);
+            
+            Enumeration messages = browser.getEnumeration();
+            
+            while(messages.hasMoreElements()) {
+                Message m = (Message) messages.nextElement();
+                String name = m.getStringProperty(JAMES_MAIL_NAME);
+                long size = m.getLongProperty(JAMES_MAIL_MESSAGE_SIZE);
+                String sender = m.getStringProperty(JAMES_MAIL_SENDER);
+                String[] recipients = m.getStringProperty(JAMES_MAIL_RECIPIENTS).split(JAMES_MAIL_SEPARATOR);
+                long retry = m.getLongProperty(JAMES_NEXT_DELIVERY);
+                view.add(new SimpleMailQueueItemView(name, sender, recipients, size, retry));
+            }
+            return view;
+        } catch (Exception e) {
+            logger.error("Unable to get size of queue " + queuename, e);
+            throw new MailQueueException("Unable to get size of queue " + queuename, e);
+        } finally {
+            try {
+                if (browser != null)
+                    browser.close();
+            } catch (JMSException e1) {
+                // ignore here
+            }
+
+            try {
+                if (session != null)
+                    session.close();
+            } catch (JMSException e1) {
+                // ignore here
+            }
+
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (JMSException e1) {
+                // ignore here
+            }
+        }        
+    }
+    
+    protected class SimpleMailQueueItemView implements MailQueueItemView {
+        private String name;
+        private String sender;
+        private long size;
+        private long retry;
+        private String[] recipients;
+
+        public SimpleMailQueueItemView(String name, String sender, String[] recipients, long size, long retry) {
+            this.name = name;
+            this.sender = sender;
+            this.recipients = recipients;
+            this.size = size;
+            this.retry = retry;
+        }
+        
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getName()
+         */
+        public String getName() {
+            return name;
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getRecipients()
+         */
+        public String[] getRecipients() {
+            return recipients;
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getSender()
+         */
+        public String getSender() {
+            return sender;
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getSize()
+         */
+        public long getSize() {
+            return size;
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getNextRetry()
+         */
+        public long getNextRetry() {
+            return retry;
+        }
+        
     }
 
 }
