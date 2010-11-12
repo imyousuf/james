@@ -33,10 +33,16 @@ import org.apache.james.services.FileSystem;
 public class FileSystemBlobTransferPolicy extends BlobTransferPolicy{
 
     private FileSystem fs;
+    private int splitCount = 10;
+    private FileSystemBlobStrategy strategy;
 
     @Resource(name="filesystem")
     public void setFileSystem(FileSystem fs) {
         this.fs = fs;
+    }
+    
+    public void setSplitCount(int splitCount) {
+        this.splitCount  = splitCount;
     }
 
     @Override
@@ -53,12 +59,18 @@ public class FileSystemBlobTransferPolicy extends BlobTransferPolicy{
     
     @Override
     protected BlobDownloadStrategy createDownloadStrategy() {
-        return new FileSystemBlobStrategy(this, fs);
+        return getStrategy();
     }
 
     @Override
     protected BlobUploadStrategy createUploadStrategy() {
-        return new FileSystemBlobStrategy(this, fs);
+        return getStrategy();
     }
 
+    private synchronized FileSystemBlobStrategy getStrategy() {
+        if (strategy == null) {
+            strategy = new FileSystemBlobStrategy(this, fs, splitCount);
+        }
+        return strategy;
+    }
 }

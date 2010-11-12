@@ -47,10 +47,12 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
     private final FileSystem fs;
     private final BlobTransferPolicy policy;
     private final ConcurrentHashMap<String, SharedFileInputStream> map = new ConcurrentHashMap<String, SharedFileInputStream>();
+    private int splitCount;
 
-    public FileSystemBlobStrategy(final BlobTransferPolicy policy, final FileSystem fs) {
+    public FileSystemBlobStrategy(final BlobTransferPolicy policy, final FileSystem fs, int splitCount) {
         this.fs = fs;
         this.policy = policy;
+        this.splitCount = splitCount;
     }
     
     /*
@@ -141,9 +143,15 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      * @throws JMSException
      * @throws FileNotFoundException
      */
-    protected File getFile(ActiveMQBlobMessage message) throws JMSException, FileNotFoundException {
+    protected File getFile(ActiveMQBlobMessage message) throws JMSException, IOException {
+        if (message.getURL() != null) {
+            return fs.getFile(message.getURL().toString());
+        }
         String mailname = message.getStringProperty(JAMES_MAIL_NAME);
-        String queueUrl = policy.getUploadUrl() + "/";
+        int i = (int) (Math.random()*splitCount+1);
+
+        String queueUrl = policy.getUploadUrl() + "/" +i;
+
         File queueF = fs.getFile(queueUrl);
         
         // check if we need to create the queue folder
