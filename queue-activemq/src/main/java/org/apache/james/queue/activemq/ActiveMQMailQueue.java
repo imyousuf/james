@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -288,4 +289,95 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
             return super.copy(session, m);
         }
     }
+
+    /**
+     * Try to use ActiveMQ StatisticsPlugin to get size and if that fails fallback to {@link JMSMailQueue#getSize()}
+     * 
+     */
+    @Override
+    public long getSize() throws MailQueueException {
+        
+        Connection connection = null;
+        Session session = null;
+        MessageConsumer consumer = null;
+        MessageProducer producer = null;
+        int size = -1;
+        
+        try {
+            connection = connectionFactory.createConnection();
+            connection.start();
+
+            session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+            Queue replyTo = session.createTemporaryQueue();
+            consumer = session.createConsumer(replyTo);
+
+            Queue myQueue = session.createQueue(queuename);;
+            producer = session.createProducer(null);
+
+            String queueName = "ActiveMQ.Statistics.Destination." + myQueue.getQueueName();
+            Queue query = session.createQueue(queueName);
+
+            Message msg = session.createMessage();
+
+            producer.send(myQueue, msg);
+            msg.setJMSReplyTo(replyTo);
+            producer.send(query, msg);
+            MapMessage reply = (MapMessage) consumer.receive();
+            if (reply.itemExists("size")) {
+                try {
+                    // Maybe a bug in activemq as reply.getInt(..) did not work
+                    // need to check activemq source code to understand why ..
+                    size = Integer.parseInt(reply.getObject("size").toString());
+                    return size;
+                } catch (NumberFormatException e) {
+                    // if we hit this we can't calculate the size so just catch it
+                }
+            }
+              
+        } catch (Exception e) {
+            try {
+                session.rollback();
+            } catch (JMSException e1) {
+                // ignore on rollback
+            }
+            throw new MailQueueException("Unable to remove mails" , e);
+
+        } finally {
+            if (consumer != null) {
+
+                try {
+                    consumer.close();
+                } catch (JMSException e1) {
+                    // ignore on rollback
+                }
+            }
+            if (producer != null) {
+
+                try {
+                    producer.close();
+                } catch (JMSException e1) {
+                    // ignore on rollback
+                }
+            }
+            
+            try {
+                if (session != null)
+                    session.close();
+            } catch (JMSException e1) {
+                // ignore here
+            }
+
+            try {
+                if (connection != null)
+                    connection.close();
+            } catch (JMSException e1) {
+                // ignore here
+            }
+        }    
+        
+        // if we came to this point we should just fallback to super method
+        return super.getSize();
+    }
+    
+    
 }
