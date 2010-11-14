@@ -90,6 +90,7 @@
     <menu name="Developers Corner">
       <item name="Architecture" href="/dev.html" />
       <item name="Build from source" href="/dev-build.html" />
+      <item name="Database Schema" href="/dev-database-schema.html" />
       <item name="Develop Extensions" href="/dev-extend.html" collapse="true" >
         <item name="Mailet" href="/dev-extend-mailet.html" />
         <item name="Matcher" href="/dev-extend-matcher.html" />
