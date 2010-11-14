@@ -75,6 +75,11 @@
         <td>Deprecated</td>
       </tr>
       <tr>
+        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a></td>
+        <td><a href="config-serverwide.html">Server-wide Configuration</a></td>
+        <td></td>
+      </tr>
+      <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/domainlist.xml">domainlist.xml</a></td>
         <td><a href="config-domainlist.html">Domain List Configuration</a></td>
         <td></td>
@@ -91,11 +96,6 @@
       </tr>
       <tr>
         <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/mailstore.xml">mailstore.xml</a></td>
-        <td><a href="config-mailstores.html">Mail Stores Configuration</a></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a></td>
         <td><a href="config-mailstores.html">Mail Stores Configuration</a></td>
         <td></td>
       </tr>

@@ -37,7 +37,7 @@ Step 0: Requirements
   * JRE 1.5+
   * root (linux/unix) or Administrator (Windows)
   * libc6 (linux)
-  * 512MB RAM
+  * 512MB RAM (launches with -Xmx512M - can use less, can need more, depending on load)
 
 Step 1: Download
 #################
@@ -52,52 +52,62 @@ Step 2: Deploy
 
 $ unzip james-server-container-spring-3.0-M2-bin.tar.gz
 $ cd james-server-container-spring-3.0-M2
-$ ls -l
-drwxrwxrwx. 2 root root  4096 2010-11-06 09:24 bin
--rw-r--r--. 1 root root   495 2010-11-06 08:56 BUILD.txt
-drwxrwxrwx. 4 root root  4096 2010-11-06 14:43 conf
-drwxrwxrwx. 2 root root 12288 2010-11-06 09:01 lib
--rw-r--r--. 1 root root 12082 2010-11-01 17:23 LICENSE.txt
-drwxrwxrwx. 2 root root  4096 2010-11-06 09:24 log
--rw-r--r--. 1 root root  1579 2010-11-01 17:23 NOTICE.txt
--rw-r--r--. 1 root root  1545 2010-11-06 08:55 README.txt
-drwxrwxrwx. 6 root root  4096 2010-11-06 09:25 var
+$ ls (linux) / dir (windows)
+bin
+BUILD.txt
+conf
+lib
+LICENSE.txt
+log
+NOTICE.txt
+README.txt
+var
 
+Step 3: Understand James Features
+#################################
 
-Step 3: Configure
+Persistence
+- Mailbox is for users' Inbox, Sent Items, Trash... folders - Mailbox persistence is configured in spring-beans.xml (by default jpa, you set the database connection properties in database.properties - can also be maildir=file, jcr). We think to move this config out-of spring-beans.xml.
+- Mailstore is for spam, error,... mails, so nothing to do with users visible mails. Available mailstore persistence are defined in mailstore.xml. Each has an URL prefix (file, db, dbfile,...) that can be used in mailetcontainer.xml to define where to store spam,... mails (exemple: file://var/mail/error/).
+- Domain persistence is configured in domainlist.xml
+- Users persistence is configured in usersrepository.xml
+- All database connection use the database.properties in case of database access.
+
+Mailet Container - http://james.apache.org/server/3/feature-mailetcontainer.xml
+
+SMTP Hooks - http://james.apache.org/server/3/feature-smtp-hooks.xml
+
+Step 4: Configure
 #################
 
   * All configuration files reside in the conf folder.
 
-$ cd conf
-$ ls -l
--rw-------. 1 root root  1414 2010-11-05 16:01 database.properties
--rw-------. 1 root root  2749 2010-10-21 14:07 dnsservice.xml
--rw-------. 1 root root  2802 2010-11-06 09:22 domainlist.xml
--rw-------. 1 root root 18599 2010-10-21 14:07 fetchmail.xml
--rw-------. 1 root root  3201 2010-10-21 14:07 imapserver.xml
--rw-------. 1 root root  2850 2010-11-04 08:10 james-listmanager.xml
--rw-------. 1 root root  5821 2010-10-21 14:07 jcr-repository.xml
--rw-------. 1 root root     0 2010-11-05 16:01 jmx.access
--rw-------. 1 root root     0 2010-11-05 16:01 jmx.password
--rw-------. 1 root root   961 2010-11-06 08:42 jmx.properties
-drwxrwxrwx. 2 root root  4096 2010-10-21 14:07 lib
--rw-------. 1 root root  3129 2010-10-21 14:07 lmtpserver.xml
--rw-------. 1 root root  7463 2010-11-05 15:54 log4j.properties
--rw-------. 1 root root 31478 2010-11-06 09:22 mailetcontainer.xml
--rw-------. 1 root root  2473 2010-11-06 09:22 mailserver.xml
--rw-------. 1 root root  5234 2010-10-21 14:54 mailstore.xml
-drwxrwxrwx. 2 root root  4096 2010-10-21 14:07 META-INF
--rw-------. 1 root root  8038 2010-10-21 14:07 miResources.xml
--rw-------. 1 root root  3327 2010-10-21 14:07 pop3server.xml
--rw-------. 1 root root  3369 2010-10-21 14:07 remotemanager.xml
--rw-------. 1 root root 15837 2010-11-05 15:54 smtpserver.xml
--rw-------. 1 root root 21941 2010-11-05 16:01 spring-beans.xml
--rw-------. 1 root root 48523 2010-10-21 14:07 sqlResources.xml
--rw-------. 1 root root  4301 2010-10-29 15:48 usersrepository.xml
--rw-------. 1 root root  2465 2010-10-21 14:07 virtualusertable.xml
--rw-------. 1 root root 13680 2010-11-06 09:01 wrapper.conf
-
+database.properties
+META-INF/persistence.xml
+dnsservice.xml
+domainlist.xml
+fetchmail.xml
+imapserver.xml
+james-listmanager.xml
+jcr-repository.xml
+jmx.access
+jmx.password
+jmx.properties
+lmtpserver.xml
+log4j.properties
+mailetcontainer.xml
+mailserver.xml
+mailstore.xml
+miResources.xml
+pop3server.xml
+remotemanager.xml
+smtpserver.xml
+spring-beans.xml
+sqlResources.xml
+usersrepository.xml
+virtualusertable.xml
+wrapper.conf
+lib folder
 
 James is packaged with virtual hosting disabled, XML domain list, JPA (Derby database) storage for the mails and SMTP Auth.
 You can for example edit the following files to change the behaviour:
@@ -118,18 +128,22 @@ You can for example edit the following files to change the behaviour:
 
   * Add the needed JDBC driver jar in the ./conf/lib folder according to your database.
   
-Step 4: Start
+Step 5: Start
 #############
 
 $ cd bin
 $ ./james start 
 
-  * !! you need libc6 installed on Linux - sudo apt-get install libc6-i386 libc6-dev-i386 on ubuntu
+  * !! you need libc6 installed on Linux !! - sudo apt-get install libc6-i386 libc6-dev-i386 on ubuntu
   
   * You can see log result in the log/james-server.log file.
 
-Step 5: Create Domains and Users
+Step 6: Create Domains and Users
 ################################
+
+Time to add domains and users.
+We wil show how to via the remote manager (telnet).
+You also can achieve it via JMX.
 
 $ telnet localhost 4555
 Trying 127.0.0.1...
@@ -153,7 +167,7 @@ Connection closed by foreign host.
   * For example, YOUR_DOMAIN=localhost.net, YOUR_NAME=test, so you will have a test@localhost.net user.
   * The username to use in you mail client will be test@localhost.net.
 
-Step 6: Test
+Step 7: Test
 ############
 
 $ telnet 127.0.0.1 25
@@ -180,10 +194,10 @@ this is a test
 quit
 Connection closed by foreign host.
 
-Step 7: Manage
+Step 8: Manage
 ##############
 
-7.1. Manage via telnet
+8.1. Manage via telnet
 
 $ telnet localhost 4555
 Trying 127.0.0.1...
@@ -220,11 +234,11 @@ unsetforwarding [username]      removes a forward
 user [repositoryname]   change to another user repository
 verify [username]       verify if specified user exist
 
-7.2. Manage via JMX
+8.2. Manage via JMX
 
   * Launch jconsole (or any other JMX client) and connect on URL=service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi
 
-Step 8: Monitor
+Step 9: Monitor
 ###############
 
   * Monitor the ./log/james-server.log log file.

@@ -31,12 +31,6 @@
 
   </section>
 
-  <section name="JCR Repository Configuration">
-
-    <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/jcr-repository.xml">jcr-repository.xml</a> in SVN to get some examples and hints.</p>
-
-  </section>
-
 </body>
 
 </document>

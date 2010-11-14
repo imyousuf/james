@@ -60,7 +60,12 @@
     <p>Obviously James also requires sufficient disk space, processor power, and network bandwidth.  But, 
        other than what's been discussed here, it has no additional special requirements.</p>
     
-    <p>James is configured to run with 512 MB RAM available, but may need more or less depending on the load.</p>
+    <p>James is configured to run with 512 MB RAM (-Xmx512M in the bat/sh) available, but may need more or 
+       less depending on the load. With the default configuraiton, JVM can use until 512M (It does not mean it will do).
+       It really depends on your traffic, and also which mailbox you will use (you can save much memory 
+       if you don't use the default embedded derby database but an external database of your choice).
+       Work is still done to minimize the needed memory.
+    </p>
   
   </subsection>
   

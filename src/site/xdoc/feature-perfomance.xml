@@ -34,12 +34,16 @@
     <source>time smtp-source -A -C1500 -l 100 -m 100000 -s 500 -d -c -f user@domain.net -t te localhost:25 100000</source>
 
     <p>The result was:</p>
-    <ol>
+    <ol> 
       <li>The queuing of the 100.000 emails took 8 minutes.</li>
-      <li>The dequeue of the 100.000 emails took 16 minutes.</li>
+      <li>The dequeueing of the 100.000 emails took 16 minutes.</li>
     </ol>
 
-    <p>We thus have a troughput of more than <b>100 mails/second</b>.</p>
+    <p>We thus have a throughput of more than <b>100 mails/second</b>.</p>
+
+    <p>These numbers are obtained with the out-of-the-box configuration (not optimized).
+       I you run for example (depends on JVM) with <code>-XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods</code>,
+       you may have 10.000 mails enqueued in 38 seconds, which represents <b>263 mails per second</b>.</p>
 
   </section>
 

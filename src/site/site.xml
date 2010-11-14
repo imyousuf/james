@@ -46,9 +46,10 @@
     </menu>
   
     <menu name="Features">
-      <item name="Summary" href="/feature-summary.html" />
+      <item name="Servers" href="/feature-servers.html" />
+      <item name="Persistence" href="/feature-persistence.html" />
       <item name="Mailet Container" href="/feature-mailetcontainer.html" />
-      <item name="Stores" href="/feature-stores.html" />
+      <item name="SMTP Hooks" href="/feature-smtp-hooks.html" />
       <item name="Queue Priority" href="/feature-queue-priority.html" />
       <item name="Performance" href="/feature-perfomance.html" />
       <item name="Security" href="/feature-security.html" />
@@ -92,7 +93,7 @@
       <item name="Develop Extensions" href="/dev-extend.html" collapse="true" >
         <item name="Mailet" href="/dev-extend-mailet.html" />
         <item name="Matcher" href="/dev-extend-matcher.html" />
-        <item name="Hook SMTP" href="/dev-extend-smtp-hook.html" />
+        <item name="SMTP Hook" href="/dev-extend-smtp-hook.html" />
       </item>
       <item name="Provided Extensions" href="/dev-provided.html" collapse="true" >
         <item name="Mailets" href="/dev-provided-mailets.html" />

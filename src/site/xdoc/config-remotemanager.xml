@@ -25,6 +25,18 @@
 
 <body>
 
+<p>
+    <div class="ui-widget">
+      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+        <strong>This page still contains text related to James 2.3 and needs to 
+        be updated for James 3.0</strong>
+		</p>
+      </div>
+    </div>
+</p>
+
+
   <section name="RemoteManager Configuration">
   
     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/remotemanager.xml">remotemanager.xml</a> in SVN to get some examples and hints.</p>
