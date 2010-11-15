@@ -36,6 +36,7 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.TemporaryQueue;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.SharedInputStream;
@@ -301,14 +302,15 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
         Session session = null;
         MessageConsumer consumer = null;
         MessageProducer producer = null;
-        int size = -1;
+        TemporaryQueue replyTo = null;
+        long size = -1;
         
         try {
             connection = connectionFactory.createConnection();
             connection.start();
 
             session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-            Queue replyTo = session.createTemporaryQueue();
+            replyTo = session.createTemporaryQueue();
             consumer = session.createConsumer(replyTo);
 
             Queue myQueue = session.createQueue(queuename);;
@@ -325,9 +327,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
             MapMessage reply = (MapMessage) consumer.receive();
             if (reply.itemExists("size")) {
                 try {
-                    // Maybe a bug in activemq as reply.getInt(..) did not work
-                    // need to check activemq source code to understand why ..
-                    size = Integer.parseInt(reply.getObject("size").toString());
+                    size = reply.getLong("size");
                     return size;
                 } catch (NumberFormatException e) {
                     // if we hit this we can't calculate the size so just catch it
@@ -343,6 +343,18 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
             throw new MailQueueException("Unable to remove mails" , e);
 
         } finally {
+            if (replyTo != null) {
+                try {
+                    
+                    // we need to delete the temporary queue to be sure we will
+                    // free up memory if thats not done and a pool is used
+                    // its possible that we will register a new mbean in jmx for 
+                    // every TemporaryQueue which will never get unregistered 
+                    replyTo.delete();
+                } catch (JMSException e) {
+                    // ignore on close
+                }
+            }
             if (consumer != null) {
 
                 try {
