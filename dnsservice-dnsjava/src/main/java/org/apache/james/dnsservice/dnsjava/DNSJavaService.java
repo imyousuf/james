@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import javax.annotation.PostConstruct;
 
@@ -292,16 +291,45 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
             return servers;
         }
 
-        MXRecord mxAnswers[] = new MXRecord[answers.length];
+        MXRecord[] mxAnswers = new MXRecord[answers.length];
+        
         for (int i = 0; i < answers.length; i++) {
-            mxAnswers[i] = (MXRecord)answers[i];
+            mxAnswers[i] = (MXRecord) answers[i];
         }
-
+        // just sort for now.. This will ensure that mx records with same prio are in sequence
         Arrays.sort(mxAnswers, mxComparator);
 
+        // now add the mx records to the right list and take care of shuffle
+        // mx records with the same priority
+        int currentPrio = -1;
+        List<String> samePrio = new ArrayList<String>();
         for (int i = 0; i < mxAnswers.length; i++) {
-            servers.add(mxAnswers[i].getTarget ().toString ());
-            logger.debug(new StringBuffer("Found MX record ").append(mxAnswers[i].getTarget ().toString ()).toString());
+            boolean same = true;
+
+            MXRecord mx = mxAnswers[i];
+            if (i == 0) {
+                currentPrio = mx.getPriority();
+                samePrio.add(mx.getTarget().toString());
+            } else {
+                if (currentPrio == mx.getPriority()) {
+                    samePrio.add(mx.getTarget().toString());
+                } else {
+                    same = false;
+                }
+            }
+            // see if we need to insert the elements now
+            if (same == false || i +1 == mxAnswers.length) {
+                // shuffle entries with same prio
+                //  JAMES-913
+                Collections.shuffle(samePrio);
+                servers.addAll(samePrio);
+                
+                if (same == false && i +1 < mxAnswers.length) {
+                    samePrio.clear();
+                    samePrio.add(mx.getTarget().toString());
+                }
+            }
+            logger.debug(new StringBuffer("Found MX record ").append(mx.getTarget ().toString ()).toString());
         }
         return servers;
     }
@@ -395,14 +423,7 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
     }
     
     /* RFC 2821 section 5 requires that we sort the MX records by their
-     * preference, and introduce a randomization.  This Comparator does
-     * comparisons as normal unless the values are equal, in which case
-     * it "tosses a coin", randomly speaking.
-     *
-     * This way MX record w/preference 0 appears before MX record
-     * w/preference 1, but a bunch of MX records with the same preference
-     * would appear in different orders each time.
-     *
+     * preference.
      * Reminder for maintainers: the return value on a Comparator can
      * be counter-intuitive for those who aren't used to the old C
      * strcmp function:
@@ -412,11 +433,10 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
      * > 0 ==> a > b
      */
     private static class MXRecordComparator implements Comparator<MXRecord> {
-        private final static Random random = new Random();
         public int compare (MXRecord a, MXRecord b) {
             int pa = a.getPriority();
             int pb = b.getPriority();
-            return (pa == pb) ? (512 - random.nextInt(1024)) : pa - pb;
+            return pa - pb;
         }
     }
 
