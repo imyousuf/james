@@ -147,7 +147,11 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
         if (message.getURL() != null) {
             return fs.getFile(message.getURL().toString());
         }
-        String mailname = message.getStringProperty(JAMES_MAIL_NAME);
+        
+        // Make sure it works on windows in all cases and make sure 
+        // we use the JMS Message ID as filename so we are safe in the case
+        // we try to stream from and to the same mail
+        String filename = message.getJMSMessageID().replaceAll("[:\\\\/*?|<>]", "_");
         int i = (int) (Math.random()*splitCount+1);
 
         String queueUrl = policy.getUploadUrl() + "/" +i;
@@ -158,7 +162,7 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
         if (queueF.exists() == false) {
             queueF.mkdirs();
         }
-        return fs.getFile(queueUrl+ "/" + mailname);
+        return fs.getFile(queueUrl+ "/" + filename);
         
     }
 }
