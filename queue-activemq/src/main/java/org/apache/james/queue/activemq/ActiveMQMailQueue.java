@@ -294,10 +294,16 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
     /**
      * Try to use ActiveMQ StatisticsPlugin to get size and if that fails fallback to {@link JMSMailQueue#getSize()}
      * 
+     * TODO:    This needs to get enabled again. At the moment we just fallback to super method because of a MemoryLeak in AMQ.
+     *          See: https://issues.apache.org/activemq/browse/AMQ-3041
+     * 
      */
     @Override
     public long getSize() throws MailQueueException {
         
+        /**
+         * 
+         
         Connection connection = null;
         Session session = null;
         MessageConsumer consumer = null;
@@ -388,6 +394,8 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
         }    
         
         // if we came to this point we should just fallback to super method
+          
+        */ 
         return super.getSize();
     }
     
