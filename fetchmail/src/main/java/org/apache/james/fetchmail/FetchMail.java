@@ -460,13 +460,15 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
             
             String accountsChildName = accountsChild.getName();
         
-            HierarchicalConfiguration accountsChildConfig = accounts.configurationAt(accountsChildName);
+            List<HierarchicalConfiguration> accountsChildConfig = accounts.configurationsAt(accountsChildName);
+            HierarchicalConfiguration conf = accountsChildConfig.get(i);
+            
             if ("alllocal".equals(accountsChildName))
             {
                 // <allLocal> is dynamic, save the parameters for accounts to
                 // be created when the task is triggered
                 getParsedDynamicAccountParameters().add(
-                    new ParsedDynamicAccountParameters(i, accountsChildConfig));
+                    new ParsedDynamicAccountParameters(i, conf));
                 continue;
             }
 
@@ -478,12 +480,12 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
                     new Account(
                         i,
                         parsedConfiguration,
-                        accountsChildConfig.getString("[@user]"),
-                        accountsChildConfig.getString("[@password]"),
-                        accountsChildConfig.getString("[@recipient]"),
-                        accountsChildConfig.getBoolean(
+                        conf.getString("[@user]"),
+                        conf.getString("[@password]"),
+                        conf.getString("[@recipient]"),
+                        conf.getBoolean(
                             "[@ignorercpt-header]"),
-                        accountsChildConfig.getString("[@customrcpt-header]",""),
+                            conf.getString("[@customrcpt-header]",""),
                         getSession()));
                 continue;
             }
