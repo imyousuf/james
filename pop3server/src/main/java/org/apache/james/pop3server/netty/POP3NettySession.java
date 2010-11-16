@@ -44,15 +44,17 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
 
     private MessageManager mailbox;
 
+    private NonClosingChannelOutputStream out;
+
     public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext) {
-        super(logger, handlerContext);
-        this.configData = configData;
+        this(configData, logger, handlerContext, null);
     }
 
 
     public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         super(logger, handlerContext, engine);
         this.configData = configData;
+        this.out = new NonClosingChannelOutputStream(getChannelHandlerContext().getChannel());
     }
 
 
@@ -125,7 +127,7 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
      * @see org.apache.james.pop3server.POP3Session#getOutputStream()
      */
     public OutputStream getOutputStream() {
-        return new NonClosingChannelOutputStream(getChannelHandlerContext().getChannel());
+        return out;
     }
 
 }
