@@ -161,7 +161,7 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
 
         @Override
         protected ChannelUpstreamHandler createHandler() {
-            return new POP3ChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext());
+            return new POP3ChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
 
         }
         

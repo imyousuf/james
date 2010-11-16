@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.ImapConstants;
@@ -54,22 +54,25 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
 
     private final ImapRequestStreamHandler handler;
 
-    private SSLEngine engine;
+    private String[] enabledCipherSuites;
+
+    private SSLContext context;
 
     private final static String IMAP_SESSION = "IMAP_SESSION"; 
     private final static String BUFFERED_OUT = "BUFFERED_OUT";
     
     public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final long readTimeout) {
-        this(hello, handler, logger, readTimeout, null);
+        this(hello, handler, logger, readTimeout, null, null);
     }
     
 
-    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final long readTimeout, SSLEngine engine) {
+    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final long readTimeout, SSLContext context, String[] enabledCipherSuites) {
         super(new HashedWheelTimer(), readTimeout, TimeUnit.SECONDS);
         this.logger = logger;
         this.hello = hello;
         this.handler = handler;
-        this.engine = engine;
+        this.context = context;
+        this.enabledCipherSuites = enabledCipherSuites;
     }
     
     @Override
@@ -105,8 +108,11 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
                 // enable buffering of the stream
                 ((StartTLSOutputStream)getAttachment(ctx).get(BUFFERED_OUT)).bufferTillCRLF();
 
-                SslHandler filter = new SslHandler(engine, true);
+                SslHandler filter = new SslHandler(context.createSSLEngine(), true);
                 filter.getEngine().setUseClientMode(false);
+                if (enabledCipherSuites != null && enabledCipherSuites.length > 0) {
+                    filter.getEngine().setEnabledCipherSuites(enabledCipherSuites);
+                }
                 ctx.getPipeline().addFirst("sslHandler", filter);
 
                 return true;
@@ -114,7 +120,7 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
 
             @Override
             public boolean supportStartTLS() {
-                 return engine != null;
+                 return context != null;
             }
             
         };

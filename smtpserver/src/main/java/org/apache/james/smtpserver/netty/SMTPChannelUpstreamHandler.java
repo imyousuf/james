@@ -19,6 +19,7 @@
 package org.apache.james.smtpserver.netty;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.LifecycleUtil;
@@ -45,24 +46,30 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
     private final Log logger;
     private final SMTPConfiguration conf;
     private final SSLContext context;
+    private String[] enabledCipherSuites;
 
     public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain,
             SMTPConfiguration conf, Log logger) {
-        this(chain, conf, logger, null);
+        this(chain, conf, logger, null, null);
     }
     
     public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain,
-            SMTPConfiguration conf, Log logger, SSLContext context) {
+            SMTPConfiguration conf, Log logger, SSLContext context, String[] enabledCipherSuites) {
         super(chain);
         this.conf = conf;
         this.logger = logger;
         this.context = context;
+        this.enabledCipherSuites = enabledCipherSuites;
     }
     
     @Override
     protected ProtocolSession createSession(ChannelHandlerContext ctx) throws Exception {
         if (context != null) {
-            return new SMTPNettySession(conf, logger, ctx, context.createSSLEngine());
+            SSLEngine engine = context.createSSLEngine();
+            if (enabledCipherSuites != null && enabledCipherSuites.length > 0) {
+                engine.setEnabledCipherSuites(enabledCipherSuites);
+            }
+            return new SMTPNettySession(conf, logger, ctx, engine);
         } else {
             return  new SMTPNettySession(conf, logger, ctx);
         }

@@ -98,6 +98,8 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private String jmxName;
 
+    private String[] enabledCipherSuites;
+
     @Resource(name="dnsservice")
     public final void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -228,6 +230,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         if (useSSL && useStartTLS) throw new ConfigurationException("startTLS is only supported when using plain sockets");
        
         if (useStartTLS || useSSL) {
+            enabledCipherSuites = config.getStringArray("tls.supportedCipherSuites.cipherSuite");
             keystore = config.getString("tls.keystore", null);
             if (keystore == null) {
                 throw new ConfigurationException("keystore needs to get configured");
@@ -462,5 +465,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      * @return defaultJmxName
      */
     protected abstract String getDefaultJMXName();
+    
+    protected String[] getEnabledCipherSuites() {
+        return enabledCipherSuites;
+    }
 
 }

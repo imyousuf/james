@@ -19,6 +19,7 @@
 package org.apache.james.pop3server.netty;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
@@ -38,23 +39,29 @@ public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
     private final Log logger;
     private final POP3HandlerConfigurationData conf;
     private final  SSLContext context;
+    private String[] enabledCipherSuites;
     
-    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Log logger, SSLContext context) {
+    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Log logger, SSLContext context, String[] enabledCipherSuites) {
         super(chain);
         this.logger = logger;
         this.conf = conf;
         this.context = context;
+        this.enabledCipherSuites = enabledCipherSuites;
     }
 
     public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Log logger) {
-        this(chain, conf, logger, null);
+        this(chain, conf, logger, null, null);
     }
 
     
     @Override
     protected ProtocolSession createSession(ChannelHandlerContext ctx) throws Exception {
         if (context != null) {
-            return new POP3NettySession(conf, logger, ctx, context.createSSLEngine());
+            SSLEngine engine = context.createSSLEngine();
+            if (enabledCipherSuites != null && enabledCipherSuites.length > 0) {
+                engine.setEnabledCipherSuites(enabledCipherSuites);
+            }
+            return new POP3NettySession(conf, logger, ctx, engine);
         } else {
             return new POP3NettySession(conf, logger, ctx);
         }

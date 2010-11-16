@@ -303,15 +303,15 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
     
     @Override
     protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
-        return new SMTPChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group);
+        return new SMTPChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group, getEnabledCipherSuites());
     }
     
     
     private final class SMTPChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
 
         public SMTPChannelPipelineFactory(int timeout, int maxConnections,
-                int maxConnectsPerIp, ChannelGroup group) {
-            super(timeout, maxConnections, maxConnectsPerIp, group);
+                int maxConnectsPerIp, ChannelGroup group, String[] enabledCipherSuites) {
+            super(timeout, maxConnections, maxConnectsPerIp, group, enabledCipherSuites);
         }
 
         
@@ -341,7 +341,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
         @Override
         protected ChannelUpstreamHandler createHandler() {
-            return new SMTPChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext());
+            return new SMTPChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
         }
         
     }

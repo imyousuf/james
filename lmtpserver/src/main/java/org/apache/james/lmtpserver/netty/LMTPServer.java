@@ -206,7 +206,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
 
         @Override
         protected ChannelUpstreamHandler createHandler() {
-            return new SMTPChannelUpstreamHandler(handlerChain, lmtpConfig, getLogger(), getSSLContext());
+            return new SMTPChannelUpstreamHandler(handlerChain, lmtpConfig, getLogger());
         }
         
     }

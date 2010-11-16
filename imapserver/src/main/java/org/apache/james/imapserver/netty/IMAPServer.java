@@ -126,7 +126,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 final ImapRequestStreamHandler handler = new ImapRequestStreamHandler(decoder, processor, encoder);
                 
                 if (isStartTLSSupported())  {
-                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), IMAPServer.this.getTimeout(), getSSLContext().createSSLEngine()));
+                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), IMAPServer.this.getTimeout(), getSSLContext(), getEnabledCipherSuites()));
                 } else {
                     pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), IMAPServer.this.getTimeout()));
                 }
