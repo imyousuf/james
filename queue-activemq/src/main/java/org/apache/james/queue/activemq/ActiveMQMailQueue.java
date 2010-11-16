@@ -294,15 +294,10 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
     /**
      * Try to use ActiveMQ StatisticsPlugin to get size and if that fails fallback to {@link JMSMailQueue#getSize()}
      * 
-     * TODO:    This needs to get enabled again. At the moment we just fallback to super method because of a MemoryLeak in AMQ.
-     *          See: https://issues.apache.org/activemq/browse/AMQ-3041
      * 
      */
     @Override
     public long getSize() throws MailQueueException {
-        
-        /**
-         * 
          
         Connection connection = null;
         Session session = null;
@@ -315,7 +310,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
             connection = connectionFactory.createConnection();
             connection.start();
 
-            session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             replyTo = session.createTemporaryQueue();
             consumer = session.createConsumer(replyTo);
 
@@ -324,13 +319,11 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
 
             String queueName = "ActiveMQ.Statistics.Destination." + myQueue.getQueueName();
             Queue query = session.createQueue(queueName);
-
+            
             Message msg = session.createMessage();
-
-            producer.send(myQueue, msg);
             msg.setJMSReplyTo(replyTo);
             producer.send(query, msg);
-            MapMessage reply = (MapMessage) consumer.receive();
+            MapMessage reply = (MapMessage) consumer.receive(2000);
             if (reply.itemExists("size")) {
                 try {
                     size = reply.getLong("size");
@@ -341,34 +334,20 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
             }
               
         } catch (Exception e) {
-            try {
-                session.rollback();
-            } catch (JMSException e1) {
-                // ignore on rollback
-            }
             throw new MailQueueException("Unable to remove mails" , e);
 
         } finally {
-            if (replyTo != null) {
-                try {
-                    
-                    // we need to delete the temporary queue to be sure we will
-                    // free up memory if thats not done and a pool is used
-                    // its possible that we will register a new mbean in jmx for 
-                    // every TemporaryQueue which will never get unregistered 
-                    replyTo.delete();
-                } catch (JMSException e) {
-                    // ignore on close
-                }
-            }
+
             if (consumer != null) {
 
                 try {
                     consumer.close();
                 } catch (JMSException e1) {
+                    e1.printStackTrace();
                     // ignore on rollback
                 }
             }
+            
             if (producer != null) {
 
                 try {
@@ -378,6 +357,17 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                 }
             }
             
+            if (replyTo != null) {
+                try {
+                    
+                    // we need to delete the temporary queue to be sure we will
+                    // free up memory if thats not done and a pool is used
+                    // its possible that we will register a new mbean in jmx for 
+                    // every TemporaryQueue which will never get unregistered 
+                    replyTo.delete();
+                } catch (JMSException e) {
+                }
+            }
             try {
                 if (session != null)
                     session.close();
@@ -394,8 +384,6 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
         }    
         
         // if we came to this point we should just fallback to super method
-          
-        */ 
         return super.getSize();
     }
     
