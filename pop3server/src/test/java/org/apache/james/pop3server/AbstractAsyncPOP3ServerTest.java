@@ -372,7 +372,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         deleted = m_pop3Protocol.deleteMessage(entries[0].number);
         
         // TODO: Understand why this fails...
-        //assertFalse(deleted);
+        assertFalse(deleted);
 
         // unexisting message
         deleted = m_pop3Protocol.deleteMessage(10);
