@@ -893,7 +893,16 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected boolean isLocalRecipient(MailAddress recipient)
     {
-        return isLocalServer(recipient) && getLocalUsers().contains(recipient.toString());
+        if (isLocalServer(recipient)) {
+            // check if we use virtualhosting or not and use the right part of the recipient in respect of this
+            // See JAMES-1135
+            if (getServer().supportVirtualHosting()) {
+                return getLocalUsers().contains(recipient.toString());
+            } else {
+                return getLocalUsers().contains(recipient.getLocalPart());
+            }
+        }
+        return false;
     }
     
     /**
