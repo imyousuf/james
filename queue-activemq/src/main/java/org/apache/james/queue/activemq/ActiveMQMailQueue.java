@@ -166,7 +166,11 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
      */
     protected void produceMail(Session session, Map<String,Object> props, int msgPrio, Mail mail) throws JMSException, MessagingException, IOException {
         MessageProducer producer = null;
+        BlobMessage blobMessage = null;
+        boolean reuse = false;
+
         try {
+            
             // check if we should use a blob message here
             if (useBlob) { 
                 MimeMessage mm = mail.getMessage();
@@ -177,7 +181,6 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                 if (wrapper instanceof MimeMessageCopyOnWriteProxy) {
                     wrapper = ((MimeMessageCopyOnWriteProxy)mm).getWrappedMessage();
                 }
-                BlobMessage blobMessage = null;
                 if (wrapper instanceof MimeMessageWrapper) {
                     URL blobUrl = (URL) mail.getAttribute(JAMES_BLOB_URL);
                     String fromQueue = (String) mail.getAttribute(JAMES_QUEUE_NAME);
@@ -189,6 +192,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                     
                         // thats important so we don't delete the blob file after complete the processing!
                         mail.setAttribute(JAMES_REUSE_BLOB_URL, true);
+                        reuse = true;
                     
                     }
 
@@ -214,6 +218,11 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
             } else {
                 super.produceMail(session, props, msgPrio, mail);
             }
+        } catch (JMSException e) {
+            if (!reuse && blobMessage != null && blobMessage instanceof ActiveMQBlobMessage) {
+                ((ActiveMQBlobMessage) blobMessage).deleteFile();
+            }
+            throw e;
         } finally {
 
             try {
