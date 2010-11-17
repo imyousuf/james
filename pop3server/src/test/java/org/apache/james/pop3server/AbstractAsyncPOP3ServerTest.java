@@ -20,6 +20,7 @@
 package org.apache.james.pop3server;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Reader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -66,6 +67,10 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     protected MockFileSystem fSystem;
     protected JamesProtocolHandlerChain chain;
     private InMemoryMailboxManager manager;
+    private byte[] content =        ("Return-path: return@test.com\r\n"+
+            "Content-Transfer-Encoding: plain\r\n"+
+            "Subject: test\r\n\r\n"+
+            "Body Text POP3ServerTest.setupTestMails\r\n").getBytes();
     
     public AbstractAsyncPOP3ServerTest() {
         super("AsyncPOP3ServerTest");
@@ -409,10 +414,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     }
 
     private void setupTestMails(MailboxSession session, MessageManager mailbox) throws MessagingException {
-        byte[] content =        ("Return-path: return@test.com\r\n"+
-                                 "Content-Transfer-Encoding: plain\r\n"+
-                                 "Subject: test\r\n\r\n"+
-                                 "Body Text POP3ServerTest.setupTestMails\r\n").getBytes();
+       
         
         mailbox.appendMessage(new ByteArrayInputStream(content), new Date(), session, true, new Flags());
         byte[] content2 = ("EMPTY").getBytes();
@@ -558,5 +560,61 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
         ContainerUtil.dispose(mockMailRepository);
     }
     */
+    
+    
+    // See JAMES-1136
+    public void testDeadlockOnRetr() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+
+        m_usersRepository.addUser("foo6", "bar6");
+
+        MailboxPath mailboxPath = MailboxPath.inbox("foo6");
+        MailboxSession session = manager.login("foo6", "bar6", new SimpleLog("Test"));
+        
+        manager.startProcessingRequest(session);
+        if (manager.mailboxExists(mailboxPath, session) == false) {
+            manager.createMailbox(mailboxPath, session);
+        }
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write(content);
+        
+        byte[] bigMail = new byte[1024 * 1024 * 10];
+        int c = 0;
+        for (int i = 0; i < bigMail.length; i++) {
+            
+            bigMail[i] = 'X';
+            c++;
+            if (c == 1000 || i + 3 == bigMail.length) {
+                c = 0;
+                bigMail[++i] = '\r';
+                bigMail[++i] = '\n';
+            }
+        }
+        out.write(bigMail);
+        bigMail = null;
+        
+        manager.getMailbox(mailboxPath, session).appendMessage(new ByteArrayInputStream(out.toByteArray()), new Date(), session, false, new Flags());
+        manager.startProcessingRequest(session);
+        
+        m_pop3Protocol.login("foo6", "bar6");
+        assertEquals(1, m_pop3Protocol.getState());
+
+        POP3MessageInfo[] entries = m_pop3Protocol.listMessages();
+
+        assertNotNull(entries);
+        assertEquals(1, entries.length);
+        assertEquals(1, m_pop3Protocol.getState());
+
+        Reader r = m_pop3Protocol.retrieveMessage(entries[0].number);
+
+        assertNotNull(r);
+        r.close();
+        manager.deleteMailbox(mailboxPath, session);
+        
+    }
     
 }

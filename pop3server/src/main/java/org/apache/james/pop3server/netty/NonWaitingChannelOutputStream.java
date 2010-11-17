@@ -25,22 +25,31 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.handler.stream.ChannelOutputStream;
 
 /**
- * Allow to write via an {@link OutputStream} to the underlying {@link Channel}
+ * Allow to write via an {@link OutputStream} to the underlying {@link Channel}. All writes are just passed to the {@link Channel} without waiting for 
+ * acknowledge. 
  *
  */
-public class NonClosingChannelOutputStream extends ChannelOutputStream{
+public class NonWaitingChannelOutputStream extends ChannelOutputStream{
 
-    public NonClosingChannelOutputStream(Channel channel) {
+    public NonWaitingChannelOutputStream(Channel channel) {
         super(channel);
     }
 
     /**
-     * Just flush the stream. This will NOT close the underlying Channel
+     * This will NOT close the underlying Channel
      * 
      */
     @Override
     public void close() throws IOException {
-        flush();
+        
+    }
+    
+
+    /**
+     * Every write is flushed so this will not do anything
+     */
+    @Override
+    public void flush() throws IOException {
     }
 
 }

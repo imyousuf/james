@@ -42,6 +42,9 @@ public class ChannelOutputStream extends OutputStream{
         this.channel = channel;
     }
 
+    /**
+     * As this use {@link ChannelFuture#awaitUninterruptibly()} it should not be called from an I/O Thread! If so it will deadlock!
+     */
     @Override
     public void close() throws IOException {
         try {
@@ -75,6 +78,9 @@ public class ChannelOutputStream extends OutputStream{
         write(buf);
     }
 
+    /**
+     * As this use {@link ChannelFuture#awaitUninterruptibly()} it should not be called from an I/O Thread! If so it will deadlock!
+     */
     @Override
     public synchronized void flush() throws IOException {
         if (lastChannelFuture == null) {

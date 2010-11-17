@@ -44,7 +44,7 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
 
     private MessageManager mailbox;
 
-    private NonClosingChannelOutputStream out;
+    private NonWaitingChannelOutputStream out;
 
     public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext) {
         this(configData, logger, handlerContext, null);
@@ -54,7 +54,7 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
     public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         super(logger, handlerContext, engine);
         this.configData = configData;
-        this.out = new NonClosingChannelOutputStream(getChannelHandlerContext().getChannel());
+        this.out = new NonWaitingChannelOutputStream(getChannelHandlerContext().getChannel());
     }
 
 
