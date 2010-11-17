@@ -65,12 +65,14 @@ public class ChannelOutputStream extends OutputStream{
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        write(ChannelBuffers.wrappedBuffer(b, off, len));
+        write(ChannelBuffers.wrappedBuffer(b.clone(), off, len));
     }
 
     @Override
     public void write(int b) throws IOException {
-        write(ChannelBuffers.wrappedBuffer(new byte[] { (byte)b}));
+        ChannelBuffer buf = ChannelBuffers.buffer(1);
+        buf.writeByte((byte) b);
+        write(buf);
     }
 
     @Override
