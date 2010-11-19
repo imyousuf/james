@@ -130,10 +130,12 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                 }
 
             } catch (Exception e) {
-                try {
-                    session.rollback();
-                } catch (JMSException e1) {
-                    // ignore on rollback
+                if (session != null) {
+                    try {
+                        session.rollback();
+                    } catch (JMSException e1) {
+                        // ignore on rollback
+                    }
                 }
 
                 if (consumer != null) {
