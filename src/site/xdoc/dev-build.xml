@@ -47,12 +47,12 @@
           Simply choose the version of James you'd like to download, and pick the source 
           distribution appropriate for your platform.</li>
       <li>Get the source code using SVN - this method gives you access to the cutting edge code 
-          base.  Instructions on how to use SVN to get the James source code (the jakarta-james distribution) 
+          base.  Instructions on how to use SVN to get the James source code 
           can be found <a href="http://www.apache.org/dev/version-control.html">here</a>.
           James server repository is <a href="http://svn.apache.org/repos/asf/james/server/">here</a>.</li>
     </ol>
 
-    <p>We consider in this document that you have checked-out James source code in JAMES-SRC-HOME directory.</p>
+    <p>We consider in this document that you have checked-out James source code in JAMES_SRC_HOME directory.</p>
 
     <p>Consult the <a href="dev.html">architecture</a> page if you want to learn
     more on the internal source structure.</p>
@@ -74,9 +74,9 @@
 
   </section>
   
-  <section name="Build James source from Command Line">
+  <section name="Build James Source from Command Line">
 
-    <p>In the JAMES-SRC-HOME top level directory (where the parent pom.xml resides), invoke maven with 'mvn' with any of the following command line arguments:
+    <p>In the JAMES_SRC_HOME top level directory (where the parent pom.xml resides), invoke maven with 'mvn' with any of the following command line arguments:
     <ul>
       <li>clean - deletes the target directory, making the system ready for a clean build.</li>
       <li>compile - compiles the source code.</li>
@@ -86,8 +86,8 @@
       <li>site - builds the entirety of the James website.</li>
     </ul>
     </p>
-    <p>For example, invoke 'mvn package' to get a zip/tar of James distribution.</p>
-    <p>All built products are output in the 'container-spring/target' 
+    <p>For example, invoke <code>mvn package</code> to get a zip/tar of James distribution.</p>
+    <p>All built products are output in the <code>container-spring/target</code> 
       subdirectory of the James source directory.  
       This directory will be deleted if you run build with the clean argument.</p>
     <p><strong>Warning!</strong> Any changes you've made in the 'dist' directory 
@@ -109,7 +109,7 @@
 
     <subsection name="Select Projects to Import">
   
-      <p>Select the JAMES-SRC-HOME directory where you have checked out the source code.</p>
+      <p>Select the JAMES_SRC_HOME directory where you have checked out the source code.</p>
       <p>Eclipse should present you with the list of James server modules.</p>
       <p>Select the modules you want to import (by default, all) and click on 'Finish' to execute the import.</p>
       <img src="./images/eclipse/eclipse-import-maven-view-2.gif" width="300"/>
@@ -129,12 +129,15 @@
       <p>Now you have James projects in Eclipse workspace.</p>
       <p>You still have to prepare the following to be able to run from Eclipse:</p>
       <ol>
-        <li>Copy the spring-beans.xml and log4j.properties from 'container-spring\src\main\config\james' directory 
-            to a source folder of 'container-spring' project (you can use for example the 'stage' folder as Eclipse source folder).</li>
-        <li>Copy all files (except spring-beans.xml and log4j.properties) from 'container-spring\src\main\config\james' 
-            directory to a 'conf' folder ('conf' folder must be a subdirectory of the JAMES-SRC-HOME directory where you made the check-out).</li>
+        <li>Copy the <code>spring-beans.xml</code>, <code>log4j.properties</code> 
+            and <code>META-INF/persistence.xml</code>from <code>container-spring\src\main\config\james</code>
+             directory to a source folder of <code>container-spring</code> project (you can use for example a 
+             new folder called <code>stage</code> as Eclipse source folder).</li>
+        <li>Copy all files (except spring-beans.xml, log4j.properties and META-INF/persistence.xml) 
+            from <code>container-spring\src\main\config\james</code> folder to a <code>conf</code> folder 
+            (<code>conf</code> folder must be a sub-folder of the JAMES_SRC_HOME directory where you made the check-out).</li>
      </ol>
-      <img src="./images/eclipse/eclipse-m2eclipse-projects.gif" width="300"/>
+     <img src="./images/eclipse/eclipse-m2eclipse-projects.gif" width="300"/>
     
     </subsection>
 
