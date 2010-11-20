@@ -102,7 +102,8 @@
   
       <p>You should have Eclipse IDE with <a href="http://m2eclipse.sonatype.org">m2eclipse</a> plugin installed.</p>
       <p>You now need to import the maven projects in the Eclipse workspace.</p>
-      <p>Therefore, click on the 'File' menu and select 'Import'. Choose 'Existing Maven Project' and click on 'Next' button.</p>
+      <p>Therefore, click on the <code>File</code> menu and select <code>Import</code>. 
+      Choose <code>Existing Maven Project</code> and click on <code>Next</code> button.</p>
       <img src="./images/eclipse/eclipse-import-maven-view-1.gif" width="300"/>
 
     </subsection>
@@ -111,7 +112,11 @@
   
       <p>Select the JAMES_SRC_HOME directory where you have checked out the source code.</p>
       <p>Eclipse should present you with the list of James server modules.</p>
-      <p>Select the modules you want to import (by default, all) and click on 'Finish' to execute the import.</p>
+      <p>Select the modules you want to import (by default, all) and click on <code>Finish</code>
+        to execute the import.</p>
+      <p><i>(*) The screenshots on this page contain an outdated list of projects. 
+         Refer to <a href="http://svn.apache.org/repos/asf/james/server/">http://svn.apache.org/repos/asf/james/server/</a> 
+         for the accurate list.</i></p>
       <img src="./images/eclipse/eclipse-import-maven-view-2.gif" width="300"/>
 
     </subsection>
