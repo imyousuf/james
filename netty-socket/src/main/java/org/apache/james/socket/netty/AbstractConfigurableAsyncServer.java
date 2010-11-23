@@ -73,6 +73,13 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      */
     public static final String HELLO_NAME = "helloName";
     
+    // By default, use the Sun X509 algorithm that comes with the Sun JCE provider for SSL 
+    // certificates
+    private static final String defaultX509algorithm = "SunX509";
+    
+    // The X.509 certificate algorithm
+    private String x509Algorithm = defaultX509algorithm;
+    
     private FileSystem fileSystem;
 
     private Log logger;
@@ -236,6 +243,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
                 throw new ConfigurationException("keystore needs to get configured");
             }
             secret = config.getString("tls.secret","");
+            x509Algorithm = config.getString("tls.algorithm", defaultX509algorithm);
         }
              
         doConfigure(config);
@@ -387,12 +395,11 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     
     private void buildSSLContext() throws Exception {
         if (useStartTLS || useSSL) {
-            String algorithm = "SunX509";
             KeyStore ks = KeyStore.getInstance("JKS");
             ks.load(new FileInputStream(fileSystem.getFile(keystore)), secret.toCharArray());
 
             // Set up key manager factory to use our key store
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(x509Algorithm);
             kmf.init(ks, secret.toCharArray());
 
             // Initialize the SSLContext to work with our key managers.

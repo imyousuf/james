@@ -46,6 +46,9 @@
         <keystore>file://conf/keystore</keystore>
         <secret>yoursecret</secret>
         <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+        <!-- The algorithm is optional and only needs to be specified when using something other
+        than the Sun JCE provider. -->
+        <algorithm>SunX509</algorithm>
       </tls>
       
       <handler>
