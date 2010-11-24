@@ -22,8 +22,6 @@
 package org.apache.james.pop3server;
 
 
-import java.io.OutputStream;
-
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.protocols.api.TLSSupportedSession;
 
@@ -84,12 +82,5 @@ public interface POP3Session extends TLSSupportedSession {
      * @param userMailbox mailbox
      */
     void setUserMailbox(MessageManager mailbox);
-    
-    /**
-     * Get output stream which connects to the underlying socket. This can be used to write big bunch of data without keep it all in memory
-     * 
-     * @return out
-     */
-    OutputStream getOutputStream();
 }
 

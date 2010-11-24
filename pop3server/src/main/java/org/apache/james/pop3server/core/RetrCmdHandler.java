@@ -19,8 +19,10 @@
 
 package org.apache.james.pop3server.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +31,8 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
+import org.apache.james.mailbox.Content;
+import org.apache.james.mailbox.InputStreamContent;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
@@ -39,7 +43,6 @@ import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.james.util.stream.ExtraDotOutputStream;
 
 /**
  * Handles RETR command
@@ -72,27 +75,23 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                 Long uid = uidList.get(num - 1);
                 if (deletedUidList.contains(uid) == false) {
                     Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
-                    OutputStream out = session.getOutputStream();
-                    OutputStream extraDotOut = new ExtraDotOutputStream(out);
                     
-                    out.write((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes());
-                    out.flush();
-                    
+                    session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
                     // response = new POP3Response(POP3Response.OK_RESPONSE,
                     // "Message follows");
                     try {
                         MessageResult result = results.next();
-                        result.getFullContent().writeTo(Channels.newChannel(extraDotOut));
-
-                    } finally { 
-                        extraDotOut.flush();
-                        
+                        Content content = result.getFullContent();
+                        InputStream in;
+                        if (content instanceof InputStreamContent) {
+                            in =((InputStreamContent) content).getInputStream();
+                        } else {
+                            in = createInputStream(content);
+                        }
+                        session.writeStream(new ExtraDotInputStream(in));
+                    } finally {                         
                         // write a single dot to mark message as complete
-                        out.write((".\r\n").getBytes());
-                        out.flush();
-                        
-                        extraDotOut.close();
-                        out.close();
+                        session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
                     }
 
                     return null;
@@ -115,6 +114,12 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
         return response;
     }
 
+    protected InputStream createInputStream(Content content) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        content.writeTo(Channels.newChannel(out));
+        return new ByteArrayInputStream(out.toByteArray());
+    }
+    
     /*
      * (non-Javadoc)
      * 

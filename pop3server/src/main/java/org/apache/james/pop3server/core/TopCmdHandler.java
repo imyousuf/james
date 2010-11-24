@@ -19,9 +19,12 @@
 
 package org.apache.james.pop3server.core;
 
-import java.io.FilterOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
@@ -31,6 +34,8 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
+import org.apache.james.mailbox.Content;
+import org.apache.james.mailbox.InputStreamContent;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
@@ -41,7 +46,6 @@ import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.james.util.stream.ExtraDotOutputStream;
 
 /**
  * Handles TOP command
@@ -95,38 +99,41 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                     FetchGroupImpl fetchGroup = new FetchGroupImpl(FetchGroup.BODY_CONTENT);
                     fetchGroup.or(FetchGroup.HEADERS);
                     Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), fetchGroup, mailboxSession);
-                    OutputStream out = session.getOutputStream();
-                    OutputStream extraDotOut = new ExtraDotOutputStream(out);
                     
-                    out.write((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes());
+                    session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
                     try {
                         MessageResult result = results.next();
 
-                        WritableByteChannel outChannel = Channels.newChannel(extraDotOut);
-
+                        ByteArrayOutputStream headersOut = new ByteArrayOutputStream();
+                        WritableByteChannel headersChannel = Channels.newChannel(headersOut);
+                        
                         // write headers
                         Iterator<Header> headers = result.headers();
                         while (headers.hasNext()) {
-                            headers.next().writeTo(outChannel);
+                            headers.next().writeTo(headersChannel);
 
                             // we need to write out the CRLF after each header
-                            extraDotOut.write("\r\n".getBytes());
+                            headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
 
                         }
                         // headers and body are seperated by a CRLF
-                        extraDotOut.write("\r\n".getBytes());
-
+                        headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
+                        session.writeStream(new ByteArrayInputStream(headersOut.toByteArray()));
+                        
+                        InputStream bodyIn;
+                        Content content = result.getBody();
+                        if (content instanceof InputStreamContent) {
+                            bodyIn = ((InputStreamContent) content).getInputStream();
+                        } else {
+                            bodyIn = createInputStream(content);
+                        }
                         // write body
-                        result.getBody().writeTo(Channels.newChannel(new CountingBodyOutputStream(extraDotOut, lines)));
+                        session.writeStream(new CountingBodyInputStream(bodyIn, lines));
 
                     } finally {
-                        extraDotOut.flush();
                         // write a single dot to mark message as complete
-                        out.write((".\r\n").getBytes());
-                        out.flush();
-                        
-                        extraDotOut.close();
-                        out.close();
+                        session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
+                       
                     }
 
                     return null;
@@ -174,62 +181,86 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
     }
 
     /**
-     * This OutputStream implementation can be used to limit the body lines
-     * which will be written to the wrapped OutputStream
+     * This {@link InputStream} implementation can be used to limit the body lines
+     * which will be read from the wrapped {@link InputStream}
      * 
      * 
      * 
      */
-    private final class CountingBodyOutputStream extends FilterOutputStream {
+    private final class CountingBodyInputStream extends FilterInputStream {
 
         private int count = 0;
         private int limit = -1;
-        private char lastChar;
+        private int lastChar;
 
         /**
          * 
-         * @param out
-         *            OutputStream to write to
+         * @param in
+         *            InputStream to read from
          * @param limit
-         *            the lines to write to the outputstream. -1 is used for no
+         *            the lines to read. -1 is used for no
          *            limits
          */
-        public CountingBodyOutputStream(OutputStream out, int limit) {
-            super(out);
+        public CountingBodyInputStream(InputStream in, int limit) {
+            super(in);
             this.limit = limit;
         }
 
         @Override
-        public void write(byte[] b, int off, int len) throws IOException {
-            for (int i = off; i < len; i++) {
-                write(b[i]);
-            }
-        }
-
-        @Override
-        public void write(byte[] b) throws IOException {
-            for (int i = 0; i < b.length; i++) {
-                write(b[i]);
-            }
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-
+        public synchronized int read() throws IOException {
             if (limit != -1) {
                 if (count <= limit) {
-                    super.write(b);
+                    int a  = in.read();
+                    
+                    if (lastChar == '\r' && a == '\n') {
+                        count++;
+                    }
+                    lastChar = a;
+                    
+                    return a;
+                } else {
+                    return -1;
                 }
             } else {
-                super.write(b);
+                return in.read();
             }
 
-            if (lastChar == '\r' && b == '\n') {
-                count++;
-            }
-            lastChar = (char) b;
-
+            
+            
         }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (limit == -1) {
+                return in.read(b, off, len);
+            }  else {
+                int i;
+                for (i = 0; i < len; i++) {
+                    int a = read();
+                    if (i == 0 && a == - 1) {
+                        return -1;
+                    } else {
+                        if (a == -1) {
+                            break;
+                        } else {
+                            b[off++] =  (byte) a;
+                        }
+                    }
+                }
+                return i;
+            }
+        }
+
+        @Override
+        public int read(byte[] b) throws IOException {
+            if (limit == -1) {
+                return in.read(b);
+            } else {
+                return read(b, 0 , b.length); 
+            }
+        }
+
+     
 
     }
 }
