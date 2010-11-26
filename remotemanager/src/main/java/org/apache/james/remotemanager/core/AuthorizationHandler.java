@@ -43,7 +43,7 @@ public class AuthorizationHandler implements ConnectHandler<RemoteManagerSession
      * org.apache.james.remotemanager.ConnectHandler#onConnect(org.apache.james
      * .remotemanager.RemoteManagerSession)
      */
-    public void onConnect(RemoteManagerSession session) {
+    public boolean onConnect(RemoteManagerSession session) {
         RemoteManagerResponse response = new RemoteManagerResponse("JAMES Remote Administration Tool ");// +
         // Constants.SOFTWARE_VERSION)
         response.appendLine("Please enter your login and password");
@@ -52,11 +52,12 @@ public class AuthorizationHandler implements ConnectHandler<RemoteManagerSession
         session.writeResponse(response);
         session.pushLineHandler(lineHandler);
         session.getState().put(AUTHORIZATION_STATE, LOGIN_SUPPLIED);
+        return false;
     }
     
     private final class AuthorizationLineHandler implements LineHandler<RemoteManagerSession> {
 
-        public void onLine(RemoteManagerSession session, byte[] byteLine) {
+        public boolean onLine(RemoteManagerSession session, byte[] byteLine) {
             try {
                 String line = new String(byteLine, "ISO-8859-1").trim();
                 int state = (Integer) session.getState().get(AUTHORIZATION_STATE);
@@ -94,7 +95,8 @@ public class AuthorizationHandler implements ConnectHandler<RemoteManagerSession
                 e.printStackTrace();
                 
             }
-           
+            return false;
+
         }
     }
 

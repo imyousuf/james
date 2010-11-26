@@ -67,7 +67,7 @@ public class POP3BeforeSMTPHandler implements ConnectHandler<SMTPSession>,Config
     /**
      * @see org.apache.james.smtpserver.protocol.ConnectHandler#onConnect(SMTPSession)
      */
-    public void onConnect(SMTPSession session) {
+    public boolean onConnect(SMTPSession session) {
 
         // some kind of random cleanup process
         if (Math.random() > 0.99) {
@@ -79,6 +79,7 @@ public class POP3BeforeSMTPHandler implements ConnectHandler<SMTPSession>,Config
                 && POP3BeforeSMTPHelper.isAuthorized(session.getRemoteIPAddress())) {
             session.setRelayingAllowed(true);
         }
+        return false;
     }
 
 }
