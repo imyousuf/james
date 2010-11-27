@@ -28,7 +28,7 @@ import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.Response;
-import org.apache.james.protocols.api.ResponseResultHandler;
+import org.apache.james.protocols.api.CommandHandlerResultHandler;
 import org.apache.james.protocols.api.WiringException;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPSession;
@@ -37,16 +37,17 @@ import org.apache.james.protocols.smtp.SMTPSession;
  * Expose JMX statistics for {@link CommandHandler}
  *
  */
-public class CommandHandlerResultJMXMonitor implements ResponseResultHandler<SMTPResponse, SMTPSession>, ExtensibleHandler {
+public class CommandHandlerResultJMXMonitor implements CommandHandlerResultHandler<SMTPResponse, SMTPSession>, ExtensibleHandler {
 
     private Map<String, CommandHandlerStats> cStats = new HashMap<String, CommandHandlerStats>();
 
     
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ResponseResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Response, org.apache.james.protocols.api.CommandHandler)
+     * @see org.apache.james.protocols.api.CommanHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Response, long, org.apache.james.protocols.api.CommandHandler)
      */
-    public Response onResponse(ProtocolSession session, SMTPResponse response, CommandHandler<SMTPSession> handler) {
+    public Response onResponse(ProtocolSession session, SMTPResponse response, long executionTime, CommandHandler<SMTPSession> handler) {
         String name = handler.getClass().getName();
         CommandHandlerStats stats = cStats.get(name);
         if (stats != null) {

@@ -176,8 +176,11 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 					MessageHook rawHandler = mHandlers.get(i);
 					session.getLogger().debug(
 							"executing james message handler " + rawHandler);
+	                long start = System.currentTimeMillis();
+
 					HookResult hRes = rawHandler.onMessage(session,
 							new MailToMailEnvelopeWrapper(mail));
+                    long executionTime = System.currentTimeMillis() - start;
 
 					if (rHooks != null) {
 						for (int i2 = 0; i2 < rHooks.size(); i2++) {
@@ -185,7 +188,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 							session.getLogger()
 									.debug("executing hook " + rHook);
 							hRes = ((HookResultHook) rHook).onHookResult(
-									session, hRes, rawHandler);
+									session, hRes, executionTime, rawHandler);
 						}
 					}
 
@@ -205,16 +208,17 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 					Hook rawHandler = (Hook) messageHandlers.get(i);
 					session.getLogger().debug(
 							"executing james message handler " + rawHandler);
+					long start = System.currentTimeMillis();
 					HookResult hRes = ((JamesMessageHook) rawHandler)
 							.onMessage(session, (Mail) mail);
-
+					long executionTime = System.currentTimeMillis() - start;
 					if (rHooks != null) {
 						for (int i2 = 0; i2 < rHooks.size(); i2++) {
 							Object rHook = rHooks.get(i2);
 							session.getLogger()
 									.debug("executing hook " + rHook);
 							hRes = ((HookResultHook) rHook).onHookResult(
-									session, hRes, rawHandler);
+									session, hRes, executionTime, rawHandler);
 						}
 					}
 

@@ -40,12 +40,12 @@ import org.apache.james.protocols.smtp.hook.HookResultHook;
 public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler {
 
     private Map<String, HookStats> hookStats = new HashMap<String, HookStats>();
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.smtp.hook.HookResultHook#onHookResult(org.apache.james.protocols.smtp.SMTPSession, org.apache.james.protocols.smtp.hook.HookResult, java.lang.Object)
+     * @see org.apache.james.protocols.smtp.hook.HookResultHook#onHookResult(org.apache.james.protocols.smtp.SMTPSession, org.apache.james.protocols.smtp.hook.HookResult, long, org.apache.james.protocols.smtp.hook.Hook)
      */
-    public HookResult onHookResult(SMTPSession session, HookResult result,
+    public HookResult onHookResult(SMTPSession session, HookResult result, long executionTime,
             Hook hook) {
         String hookName = hook.getClass().getName();
         HookStats stats = hookStats.get(hookName);
