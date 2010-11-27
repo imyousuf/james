@@ -16,55 +16,38 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.jmx;
+
+import org.apache.james.socket.CommandHandlerStatsMBean;
 
 
 /**
- * JMX Bean which shows Hook statistics
- * 
+ * JMX MBean for CommandHandler
  *
  */
-public interface HookStatsMBean {
+public interface SMTPCommandHandlerStatsMBean extends CommandHandlerStatsMBean{
 
     /**
-     * Return the name of the Hook
+     * Return the count of temporary errors returned by the handler
      * 
-     * @return name
+     * @return tempCount
      */
-    public String getName();
+    public long getTemporaryError();
     
     /**
-     * Return the count of how many OK the hook returned
+     * Return the count of permanent errors returned by the handler
      * 
-     * @return ok
+     * @return permCount
+     */
+    public long getPermantError();
+
+    
+    
+    /**
+     * Return the count of successful handling returned by the handler
+     * 
+     * @return tempCount
      */
     public long getOk();
-    
-    /**
-     * Return the count of how many DECLINED the hook returned
-     * 
-     * @return declined
-     */
-    public long getDeclined();
-    
-    /**
-     * Return the count of how many DENY the hook returned
-     * 
-     * @return deny
-     */
-    public long getDeny();
-    
-    /**
-     * Return the count of how many DENYSOFT the hook returned
-     * 
-     * @return denysoft
-     */
-    public long getDenysoft();
-    
-    /**
-     * Return the count of how many transaction this hook as processed
-     *  
-     * @return all
-     */
-    public long getAll();
+
 }

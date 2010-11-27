@@ -16,53 +16,43 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver;
+package org.apache.james.socket;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.james.protocols.api.CommandHandler;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.LineHandler;
+import org.apache.james.protocols.api.LineHandlerResultHandler;
 import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.protocols.api.Response;
-import org.apache.james.protocols.api.CommandHandlerResultHandler;
 import org.apache.james.protocols.api.WiringException;
-import org.apache.james.protocols.smtp.SMTPResponse;
-import org.apache.james.protocols.smtp.SMTPSession;
 
-/**
- * Expose JMX statistics for {@link CommandHandler}
- *
- */
-public class CommandHandlerResultJMXMonitor implements CommandHandlerResultHandler<SMTPResponse, SMTPSession>, ExtensibleHandler {
+public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSession> implements LineHandlerResultHandler<S>, ExtensibleHandler, Configurable{
 
-    private Map<String, CommandHandlerStats> cStats = new HashMap<String, CommandHandlerStats>();
-
-    
+    private Map<String, LineHandlerStats> lStats = new HashMap<String, LineHandlerStats>();
+    private String jmxPath;
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.CommanHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Response, long, org.apache.james.protocols.api.CommandHandler)
+     * @see org.apache.james.protocols.api.LineHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, boolean, long, org.apache.james.protocols.api.LineHandler)
      */
-    public Response onResponse(ProtocolSession session, SMTPResponse response, long executionTime, CommandHandler<SMTPSession> handler) {
-        String name = handler.getClass().getName();
-        CommandHandlerStats stats = cStats.get(name);
-        if (stats != null) {
-            stats.increment(response);
-        }
+    public boolean onResponse(ProtocolSession session, boolean response, long executionTime, LineHandler<S> handler) {
+        lStats.get(handler.getClass().getName()).increment(response);
         return response;
     }
-
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> marker = new ArrayList<Class<?>>();
-        marker.add(CommandHandler.class);
+        marker.add(LineHandler.class);
         return marker;
     }
 
@@ -72,15 +62,15 @@ public class CommandHandlerResultJMXMonitor implements CommandHandlerResultHandl
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {
-        if (interfaceName.equals(CommandHandler.class)) {
+       
+        if (interfaceName.equals(LineHandler.class)) {
             // add stats for all hooks
             for (int i = 0; i < extension.size(); i++ ) {
-                CommandHandler c =  (CommandHandler) extension.get(i);
+                LineHandler c =  (LineHandler) extension.get(i);
                 if (equals(c) == false) {
                     String cName = c.getClass().getName();
                     try {
-                        Collection<String> col = c.getImplCommands();
-                        cStats.put(cName, new CommandHandlerStats(cName, col.toArray(new String[col.size()])));
+                        lStats.put(cName, new LineHandlerStats(jmxPath, cName));
                     } catch (Exception e) {
                         throw new WiringException("Unable to wire Hooks",  e);
                     }
@@ -89,4 +79,20 @@ public class CommandHandlerResultJMXMonitor implements CommandHandlerResultHandl
         }
     }
 
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        this.jmxPath = config.getString("jmxPath", getDefaultJMXPath());
+        
+    }
+
+    /**
+     * Return default JMX Path if none is configured
+     * 
+     * @return defaultJMXPath
+     */
+    protected abstract String getDefaultJMXPath();
 }

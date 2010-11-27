@@ -16,54 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver;
+package org.apache.james.smtpserver.jmx;
 
+import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.socket.AbstractLineHandlerResultJMXMonitor;
 
-/**
- * JMX MBean for CommandHandler
- *
- */
-public interface CommandHandlerStatsMBean {
+public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<SMTPSession>{
 
-    /**
-     * Return the count of temporary errors returned by the handler
-     * 
-     * @return tempCount
-     */
-    public long getTemporaryError();
     
-    /**
-     * Return the count of permanent errors returned by the handler
-     * 
-     * @return permCount
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.AbstractLineHandlerResultJMXMonitor#getDefaultJMXPath()
      */
-    public long getPermantError();
+    protected String getDefaultJMXPath() {
+        return "org.apache.james:type=server,name=smtpserver";
+    }
 
-    /**
-     * Return the count of successful handling returned by the handler
-     * 
-     * @return tempCount
-     */
-    public long getOk();
-    
-    /**
-     * Return the count of all processed transactions by the handler
-     * 
-     * @return all
-     */
-    public long getAll();
-    
-    /**
-     * Return the name of the handler
-     * 
-     * @return name
-     */
-    public String getName();
-    
-    /**
-     * Return all implemented commands by this handler
-     * 
-     * @return commands
-     */
-    public String[] getCommands();
 }
