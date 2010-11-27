@@ -46,7 +46,7 @@ public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler {
      * @see org.apache.james.protocols.smtp.hook.HookResultHook#onHookResult(org.apache.james.protocols.smtp.SMTPSession, org.apache.james.protocols.smtp.hook.HookResult, java.lang.Object)
      */
     public HookResult onHookResult(SMTPSession session, HookResult result,
-            Object hook) {
+            Hook hook) {
         String hookName = hook.getClass().getName();
         HookStats stats = hookStats.get(hookName);
         if (stats != null) {

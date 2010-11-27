@@ -48,6 +48,7 @@ import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.AbstractHookableCmdHandler;
 import org.apache.james.protocols.smtp.core.DataLineFilter;
 import org.apache.james.protocols.smtp.dsn.DSNStatus;
+import org.apache.james.protocols.smtp.hook.Hook;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookResultHook;
 import org.apache.james.protocols.smtp.hook.MessageHook;
@@ -201,7 +202,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 
 				int count = messageHandlers.size();
 				for (int i = 0; i < count; i++) {
-					Object rawHandler = messageHandlers.get(i);
+					Hook rawHandler = (Hook) messageHandlers.get(i);
 					session.getLogger().debug(
 							"executing james message handler " + rawHandler);
 					HookResult hRes = ((JamesMessageHook) rawHandler)
