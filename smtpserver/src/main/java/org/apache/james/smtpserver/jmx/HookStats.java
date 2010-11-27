@@ -49,10 +49,10 @@ public class HookStats extends StandardMBean implements HookStatsMBean, Disposab
     private MBeanServer mbeanserver;
     private String hookname;
 
-    public HookStats(String hookname) throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException, MalformedObjectNameException, NullPointerException {
+    public HookStats(String jmxPath, String hookname) throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException, MalformedObjectNameException, NullPointerException {
         super(HookStatsMBean.class);
         this.hookname = hookname;
-        name = "org.apache.james:type=server,name=smtpserver,handler=hook,hook=" + hookname;
+        name = jmxPath + ",handler=hook,hook=" + hookname;
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         ObjectName baseObjectName = new ObjectName(name);
         mbeanserver.registerMBean(this, baseObjectName);

@@ -26,6 +26,9 @@ import java.util.Map;
 
 import javax.annotation.PreDestroy;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.WiringException;
 import org.apache.james.protocols.smtp.SMTPSession;
@@ -37,9 +40,10 @@ import org.apache.james.protocols.smtp.hook.HookResultHook;
  * {@link HookResultHook} implementation which will register a {@link HookStatsMBean} under JMX for every Hook it processed 
  *
  */
-public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler {
+public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler,Configurable {
 
     private Map<String, HookStats> hookStats = new HashMap<String, HookStats>();
+    private String jmxPath;
 
     /*
      * (non-Javadoc)
@@ -92,7 +96,7 @@ public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler {
                 if (equals(hook) == false) {
                     String hookName = hook.getClass().getName();
                     try {
-                        hookStats.put(hookName, new HookStats(hookName));
+                        hookStats.put(hookName, new HookStats(jmxPath, hookName));
                     } catch (Exception e) {
                         throw new WiringException("Unable to wire Hooks",  e);
                     }
@@ -100,5 +104,18 @@ public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler {
             }
         }
         
+    }
+    
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        this.jmxPath = config.getString("jmxPath", getDefaultJMXPath());
+    }
+    
+    protected String getDefaultJMXPath() {
+        return "org.apache.james:type=server,name=smtpserver";
     }
 }
