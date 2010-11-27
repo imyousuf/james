@@ -19,6 +19,7 @@
 package org.apache.james.smtpserver;
 
 import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.protocols.smtp.hook.Hook;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.mailet.Mail;
 
@@ -28,7 +29,7 @@ import org.apache.mailet.Mail;
  * therefore the handlers must store all the state information
  * in the SMTPSession object
  */
-public interface JamesMessageHook {
+public interface JamesMessageHook extends Hook{
     /**
      * Handle Message
      */
