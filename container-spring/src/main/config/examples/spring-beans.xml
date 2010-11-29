@@ -305,8 +305,11 @@
 
     <bean id="imapProcessor" class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory" factory-method="createDefaultProcessor">
         <constructor-arg index="0" ref="mailboxmanager"/>
-        <constructor-arg index="1" ref="subscriptionManager"/>
+        <constructor-arg index="2" ref="locker"/>
+        <constructor-arg index="3" value="${openjpa.streaming}"/>
     </bean>
+    
+    <bean id="locker" class="org.apache.james.mailbox.store.JVMMailboxPathLocker"/>
 
     <bean id="imapDecoderFactory" class="org.apache.james.imap.main.DefaultImapDecoderFactory"/>
 
