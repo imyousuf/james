@@ -325,6 +325,7 @@
     <!-- JPA implementation of IMAP Storage-->
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
+        <constructor-arg index="1" ref="uidProvider"/>
     </bean>
     
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.jpa.JPASubscriptionManager">
@@ -334,17 +335,31 @@
     <bean id="mailboxmanager" class="org.apache.james.mailbox.jpa.openjpa.OpenJPAMailboxManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
-        <constructor-arg index="2" value="${openjpa.streaming}"/>
+        <constructor-arg index="2" ref="uidProvider"/>
+        <constructor-arg index="3" ref="locker"/>
+        <constructor-arg index="4" value="${openjpa.streaming}"/>
     </bean>
+    
+    <bean id="locker" class="org.apache.james.mailbox.store.JVMMailboxPathLocker"/>
+    
+    <bean id="uidProvider" class="org.apache.james.mailbox.jpa.JPACachingUidProvider">
+        <constructor-arg index="0" ref="entityManagerFactory"/>
+    </bean>
+
+    
 
     <!-- Maildir implementation of IMAP Storage -->
     <!-- WARNING: Maildir does only work on UNIX like operation systems -->
     <!-- 
-    <bean id="sessionMapperFactory" class="org.apache.james.adapter.mailbox.maildir.MaildirMailboxSessionMapperFactoryUtil" factory-method="create">        
+    <bean id="maildirStore" name="uidProvider" class="org.apache.james.adapter.mailbox.maildir.MaildirStoreUtil" factory-method="create">
         <constructor-arg index="0" ref="filesystem"/>
         <constructor-arg index="1" ref="mailserver"/>
         <constructor-arg index="2" value="file://var/store/maildir/"/>
     </bean>
+    <bean id="sessionMapperFactory" class="org.apache.james.mailbox.maildir.MaildirMailboxSessionMapperFactory">
+        <constructor-arg index="0" ref="maildirStore"/>
+    </bean>
+    
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.maildir.MaildirSubscriptionManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
     </bean>
@@ -352,6 +367,7 @@
     <bean id="mailboxmanager" class="org.apache.james.mailbox.maildir.MaildirMailboxManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
+        <constructor-arg index="2" ref="uidProvider"/>
     </bean>
     -->
 
@@ -386,6 +402,7 @@
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jcr.JCRMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="sessionJcrRepository"/>
         <constructor-arg index="1" ref="nodeLocker"/>
+        <constructor-arg index="2" ref="uidProvider"/>
     </bean>
 
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.jcr.JCRSubscriptionManager">
@@ -395,7 +412,14 @@
     <bean id="mailboxmanager" class="org.apache.james.mailbox.jcr.JCRMailboxManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
-        <constructor-arg index="2" ref="nodeLocker"/>
+        <constructor-arg index="2" ref="uidProvider"/>
+        <constructor-arg index="3" ref="locker"/>
+    </bean>
+    
+    <bean id="locker" class="org.apache.james.mailbox.store.JVMMailboxPathLocker"/>
+    
+    <bean id="uidProvider" class="org.apache.james.mailbox.jcr.JCRCachingUidProvider">
+        <constructor-arg index="0" ref="sessionJcrRepository"/>
     </bean>
     -->
 

@@ -281,6 +281,7 @@
 
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
+        <constructor-arg index="1" ref="uidProvider"/>
     </bean>
     
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.jpa.JPASubscriptionManager">
@@ -290,12 +291,16 @@
     <bean id="mailboxmanager" class="org.apache.james.mailbox.jpa.openjpa.OpenJPAMailboxManager">
         <constructor-arg index="0" ref="sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
-        <constructor-arg index="2" ref="locker"/>
-        <constructor-arg index="3" value="${openjpa.streaming}"/>
+        <constructor-arg index="2" ref="uidProvider"/>
+        <constructor-arg index="3" ref="locker"/>
+        <constructor-arg index="4" value="${openjpa.streaming}"/>
     </bean>
 
     <bean id="locker" class="org.apache.james.mailbox.store.JVMMailboxPathLocker"/>
-
+    
+    <bean id="uidProvider" class="org.apache.james.mailbox.jpa.JPACachingUidProvider">
+        <constructor-arg index="0" ref="entityManagerFactory"/>
+    </bean>
 
     <bean id="scheduler" class="java.util.concurrent.Executors" factory-method="newScheduledThreadPool">
         <constructor-arg value="20"/>

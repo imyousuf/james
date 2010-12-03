@@ -20,36 +20,35 @@ package org.apache.james.adapter.mailbox.maildir;
 
 import java.io.FileNotFoundException;
 
-import org.apache.james.mailbox.maildir.MaildirMailboxSessionMapperFactory;
+import org.apache.james.mailbox.maildir.MaildirStore;
 import org.apache.james.services.FileSystem;
 import org.apache.james.services.MailServer;
 
 /**
- * Utility to instance a {@link MaildirMailboxSessionMapperFactory} object
+ * Utility to instance a {@link MaildirStore} object
  * 
  *
  */
-public class MaildirMailboxSessionMapperFactoryUtil{
+public class MaildirStoreUtil{
 
-	
-	/**
-	 * Return a {@link MaildirMailboxSessionMapperFactory} instance 
-	 * 
-	 * @param fs
-	 * @param mailServer
-	 * @param rootURL
-	 * @return factory
-	 * @throws FileNotFoundException
-	 */
-	public static MaildirMailboxSessionMapperFactory create(FileSystem fs, MailServer mailServer, String rootURL) throws FileNotFoundException {
-		StringBuffer root = new StringBuffer();
-		root.append(fs.getFile(rootURL).getAbsolutePath());
-		if (mailServer.supportVirtualHosting()) {
-			root.append("/%domain/%user/");
-		} else {
-			root.append("/%user/");
-		}
-		
-		return new MaildirMailboxSessionMapperFactory(root.toString());
-	}
+    /**
+     * Return a {@link MaildirStore} instance
+     * 
+     * @param fs
+     * @param mailServer
+     * @param rootURL
+     * @return store
+     * @throws FileNotFoundException
+     */
+    public static MaildirStore create(FileSystem fs, MailServer mailServer, String rootURL) throws FileNotFoundException {
+        StringBuffer root = new StringBuffer();
+        root.append(fs.getFile(rootURL).getAbsolutePath());
+        if (mailServer.supportVirtualHosting()) {
+            root.append("/%domain/%user/");
+        } else {
+            root.append("/%user/");
+        }
+
+        return new MaildirStore(root.toString());
+    }
 }

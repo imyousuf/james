@@ -42,6 +42,7 @@ import org.apache.james.services.MockFileSystem;
 import org.apache.james.services.MockMailServer;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
+import org.apache.james.mailbox.inmemory.InMemoryCachingUidProvider;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxManager;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxSessionMapperFactory;
 import org.apache.james.mailbox.MailboxPath;
@@ -113,7 +114,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
             public boolean isAuthentic(String userid, CharSequence passwd) {
                 return m_usersRepository.test(userid, passwd.toString());
             }
-        });
+        }, new InMemoryCachingUidProvider());
         
         serviceManager.put("mailboxmanager", manager);
         
