@@ -298,7 +298,7 @@
 
     <bean id="locker" class="org.apache.james.mailbox.store.JVMMailboxPathLocker"/>
     
-    <bean id="uidProvider" class="org.apache.james.mailbox.jpa.JPACachingUidProvider">
+    <bean id="uidProvider" class="org.apache.james.mailbox.jpa.mail.JPACachingUidProvider">
         <constructor-arg index="0" ref="entityManagerFactory"/>
     </bean>
 
