@@ -545,13 +545,13 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-memory</artifactId>
-      <version>${imap.version}</version>
+      <version>${mailbox.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-api</artifactId>
-      <version>${imap.version}</version>
+      <version>${mailbox.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -633,22 +633,22 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-maildir</artifactId>
-      <version>${imap.version}</version>
+      <version>${mailbox.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-jpa</artifactId>
-      <version>${imap.version}</version>
+      <version>${mailbox.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-jcr</artifactId>
-      <version>${imap.version}</version>
+      <version>${mailbox.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-store</artifactId>
-      <version>${imap.version}</version>
+      <version>${mailbox.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-collections</groupId>
@@ -1230,7 +1230,8 @@
     <camel.version>2.5.0</camel.version>
     <activemq.version>5.4.2</activemq.version>
     <spring.version>3.0.5.RELEASE</spring.version>
-    <imap.version>0.2-M2-SNAPSHOT</imap.version>
+    <mailbox.version>0.2-M2-SNAPSHOT</mailbox.version>
+    <imap.version>0.2-M1</imap.version>
     <protocols.version>1.2</protocols.version>
     <jsieve.version>0.4</jsieve.version>
     <jackrabbit.version>2.1.2</jackrabbit.version>
