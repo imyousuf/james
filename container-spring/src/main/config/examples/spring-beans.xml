@@ -396,12 +396,9 @@
         <constructor-arg index="3" value="james"/>
     </bean>
   
-    <bean id="nodeLocker" class="org.apache.james.mailbox.jcr.JCRVmNodeLocker"/>
-
 
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jcr.JCRMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="sessionJcrRepository"/>
-        <constructor-arg index="1" ref="nodeLocker"/>
         <constructor-arg index="2" ref="uidProvider"/>
     </bean>
 
