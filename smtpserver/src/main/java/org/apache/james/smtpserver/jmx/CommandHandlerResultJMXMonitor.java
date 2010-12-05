@@ -56,11 +56,11 @@ public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResult
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        this.jmxPath = config.getString("jmxPath", getDefaultJMXPath());
+        this.jmxPath = config.getString("jmxName", getDefaultJMXName());
     }
     
-    protected String getDefaultJMXPath() {
-        return "org.apache.james:type=server,name=smtpserver";
+    protected String getDefaultJMXName() {
+        return "smtpserver";
     }
 
 }

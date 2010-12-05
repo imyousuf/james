@@ -47,12 +47,12 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
     private MBeanServer mbeanserver;
     private String[] commands;
 
-    public AbstractCommandHandlerStats(Class<?> jmxClass, String jmxPath, String handlerName, String[] commands) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
+    public AbstractCommandHandlerStats(Class<?> jmxClass, String jmxName, String handlerName, String[] commands) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
         super(jmxClass);
         this.handlerName = handlerName;
         this.commands = commands;
         
-        name = jmxPath  + ",handler=commandhandler,commandhandler=" + handlerName;
+        name = "org.apache.james:type=server,name=" + jmxName  + ",handler=commandhandler,commandhandler=" + handlerName;
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         ObjectName baseObjectName = new ObjectName(name);
         mbeanserver.registerMBean(this, baseObjectName);

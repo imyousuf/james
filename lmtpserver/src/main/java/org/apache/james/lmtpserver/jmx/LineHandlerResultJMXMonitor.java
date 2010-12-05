@@ -22,8 +22,8 @@ package org.apache.james.lmtpserver.jmx;
 public class LineHandlerResultJMXMonitor extends org.apache.james.smtpserver.jmx.LineHandlerResultJMXMonitor{
 
     @Override
-    protected String getDefaultJMXPath() {
-        return "org.apache.james:type=server,name=lmtpserver";
+    protected String getDefaultJMXName() {
+        return "lmtpserver";
     }
 
 }

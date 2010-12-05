@@ -39,11 +39,11 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
     private AtomicLong disconnect = new AtomicLong(0);
     private AtomicLong all = new AtomicLong(0);
 
-    public LineHandlerStats(String jmxPath, String handlerName) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
+    public LineHandlerStats(String jmxName, String handlerName) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
         super(HandlerStatsMBean.class);
         this.handlerName = handlerName;
         
-        this.name = jmxPath + ",handler=linehandler,linehandler=" + handlerName;
+        this.name =  "org.apache.james:type=server,name=" + jmxName + ",handler=linehandler,linehandler=" + handlerName;
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         ObjectName baseObjectName = new ObjectName(name);
         mbeanserver.registerMBean(this, baseObjectName);

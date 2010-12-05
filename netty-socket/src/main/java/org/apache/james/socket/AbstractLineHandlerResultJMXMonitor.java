@@ -35,7 +35,7 @@ import org.apache.james.protocols.api.WiringException;
 public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSession> implements LineHandlerResultHandler<S>, ExtensibleHandler, Configurable{
 
     private Map<String, LineHandlerStats> lStats = new HashMap<String, LineHandlerStats>();
-    private String jmxPath;
+    private String jmxName;
 
     /*
      * (non-Javadoc)
@@ -70,7 +70,7 @@ public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSess
                 if (equals(c) == false) {
                     String cName = c.getClass().getName();
                     try {
-                        lStats.put(cName, new LineHandlerStats(jmxPath, cName));
+                        lStats.put(cName, new LineHandlerStats(jmxName, cName));
                     } catch (Exception e) {
                         throw new WiringException("Unable to wire Hooks",  e);
                     }
@@ -85,14 +85,14 @@ public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSess
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        this.jmxPath = config.getString("jmxPath", getDefaultJMXPath());
+        this.jmxName = config.getString("jmxName", getDefaultJMXName());
         
     }
 
     /**
-     * Return default JMX Path if none is configured
+     * Return default JMX Name if none is configured
      * 
-     * @return defaultJMXPath
+     * @return defaultJMXName
      */
-    protected abstract String getDefaultJMXPath();
+    protected abstract String getDefaultJMXName();
 }

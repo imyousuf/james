@@ -23,9 +23,12 @@ import org.apache.james.socket.AbstractLineHandlerResultJMXMonitor;
 
 public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<POP3Session>{
 
-    @Override
-    protected String getDefaultJMXPath() {
-        return "org.apache.james:type=server,name=pop3server";
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.AbstractLineHandlerResultJMXMonitor#getDefaultJMXName()
+     */
+    protected String getDefaultJMXName() {
+        return "pop3server";
     }
 
 }

@@ -23,13 +23,13 @@ import org.apache.james.socket.AbstractLineHandlerResultJMXMonitor;
 
 public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<SMTPSession>{
 
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.socket.AbstractLineHandlerResultJMXMonitor#getDefaultJMXPath()
+     * @see org.apache.james.socket.AbstractLineHandlerResultJMXMonitor#getDefaultJMXName()
      */
-    protected String getDefaultJMXPath() {
-        return "org.apache.james:type=server,name=smtpserver";
+    protected String getDefaultJMXName() {
+        return "smtpserver";
     }
 
 }

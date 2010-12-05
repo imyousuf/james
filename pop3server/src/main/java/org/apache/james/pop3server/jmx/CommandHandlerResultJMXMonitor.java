@@ -35,7 +35,7 @@ import org.apache.james.socket.AbstractCommandHandlerStats;
  */
 public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResultJMXMonitor<POP3Response, POP3Session> implements Configurable{
 
-    private String jmxPath;
+    private String jmxName;
 
 
     /*
@@ -46,7 +46,7 @@ public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResult
         Collection<String> col = handler.getImplCommands();
         String cName = handler.getClass().getName();
 
-        return new POP3CommandHandlerStats(jmxPath, cName, col.toArray(new String[col.size()]));
+        return new POP3CommandHandlerStats(jmxName, cName, col.toArray(new String[col.size()]));
     }
 
 
@@ -55,6 +55,6 @@ public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResult
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        this.jmxPath = config.getString("jmxPath", "org.apache.james:type=server,name=pop3server");
+        this.jmxName = config.getString("jmxName", "pop3server");
     }
 }
