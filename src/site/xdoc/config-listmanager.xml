@@ -25,7 +25,20 @@
 
 <body>
 
+<p>
+    <div class="ui-widget">
+      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+        <strong>This page still contains text related to James 2.3 and needs to 
+        be updated for James 3.0</strong>
+		</p>
+      </div>
+    </div>
+</p>
+
 <section name="List Manager Configuration">
+
+  <subsection>
 
     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/james-listmanager.xml">james-listmanager.xml</a> in SVN to get some examples and hints.</p>
 
@@ -43,41 +56,7 @@
     <i>transport</i> processor), the repository goes into the
     &lt;users-store&gt; block.</p>
     
-    <subsection name="Setting up the Mailets">
-    
-    <p>You need to setup two mailets.</p>
-    
-    <p>The first mailet that you need to setup is an instance of the <a
-    href="dev-provided-mailets.html#AvalonListservManager">Avalon Listserv
-    Manager</a> mailet.  This will handle subscribing and unsubscribing.
-    [Note: the current code does not support confirmed opt-in, just basic
-    commands.]  The <a
-    href="dev-provided-matchers.html#CommandForListserv">CommandForListserv</a>
-    matcher is used to invoke match messages containing commands for the
-    mailing list.</p>
-    
-    <p>The second mailet is an instance of the <a
-    href="dev-provided-mailets.html#AvalonListserv">Avalon Listserv</a>
-    mailet.  That mailet actually receives messages for the list and
-    causes them to be distributed.  The <a
-    href="dev-provided-matchers.html#RecipientIs">RecipientIs</a> matcher
-    is used to match messages intended for the mailing list.</p>
-    
-    <p>The following illustrates the two &lt;mailet&gt; elements that need to be added:</p>
-    
-    <source>
-&lt;mailet match="CommandForListserv=<i>list-name</i>@<i>domain</i>"
-        class="AvalonListservManager"&gt;
-  &lt;repositoryName&gt;<i>list-name</i>&lt;/repositoryName&gt;
-&lt;/mailet&gt;
-
-&lt;mailet match="RecipientIs=<i>list-name</i>@<i>domain</i>" class="AvalonListserv"&gt;
-  &lt;repositoryName&gt;<i>list-name</i>&lt;/repositoryName&gt;
-  ... list options ...
-&lt;/mailet&gt;
-    </source>
-    
-    </subsection>
+  </subsection>
     
     <subsection name="Setting up the Repository">
     
@@ -113,6 +92,56 @@
   &lt;destination URL="file://var/lists/<i>list-name</i>/" /&gt; 
 &lt;/repository&gt;
     </source>
+    
+    </subsection>
+        
+    <subsection name="Alternate Explanation">
+    
+        <p>James currently includes only the most basic list functionality, users can subscribe and unsubscribe, but there is no moderation of messages or subscriptions</p>
+        <p>To enable a list you need the following in config.xml in the root processor block and above the final mailet block -</p>
+        <source>
+&lt;mailet match="CommandForListserv=james@localhost"
+    class="AvalonListservManager">
+    &lt;repositoryName>list-james&lt;/repositoryName>
+&lt;/mailet>
+</source>
+        <p>that will intercept the command emails sent to
+<ul>
+            <li>james-on@localhost to subscribe the sender</li>
+            <li>james-off@localhost to unsubscribe the sender</li>
+          </ul>
+        </p>
+        <p>and-</p>
+        <source>
+&lt;mailet match="RecipientIs=james@localhost" class="AvalonListserv">
+    &lt;membersonly> false &lt;/membersonly>
+    &lt;attachmentsallowed> true &lt;/attachmentsallowed>
+    &lt;replytolist> true &lt;/replytolist>
+    &lt;repositoryName>list-james&lt;/repositoryName>
+    &lt;subjectprefix>JamesList&lt;/subjectprefix>
+&lt;/mailet>
+</source>
+        <p>Which will distribute the mail to the current subscribers</p>
+        <p>in addition to the above you need to have a repository configured in the users-store block(usually near the bottom of config.xml) like so (database)-</p>
+        <source>
+&lt;repository name="list-james"
+    class="org.apache.james.userrepository.ListUsersJdbcRepository"
+    destinationURL="db://maildb/lists/list-james">
+    &lt;sqlFile>file://conf/sqlResources.xml&lt;/sqlFile>
+&lt;/repository>
+</source>
+        <p>Database users will also need to ensure that they have <a href="2.3.1/using_database.html">configured a data-source</a> named to match the destination URL</p>
+        <p>Using the filesystem:-</p>
+        <source>
+&lt;repository name="list-james"
+    class="org.apache.james.userrepository.UsersFileRepository">
+    &lt;destination URL="file://var/lists/list-james/"/>
+&lt;/repository>
+</source>
+        <p>Restart James, send a mail to james-on@localhost and you should be subscribed.</p>
+        <p>The repository, be it a database table or directory in the filesystem will be created automatically.</p>
+        <p>Database users can manipulate the users repository using SQL, and hence any application capable of running SQL queries against it.</p>
+
     </subsection>
     
   </section>
@@ -120,7 +149,7 @@
   <section name="miResources.xml">
   
     <p>Consult <a href="https://svn.apache.org/repos/asf/james/server/tags/james-server-3.0-M2/container-spring/src/main/config/examples/miResources.xml">miResources.xml</a> in SVN to get some examples and hints.</p>
-  
+
   </section>
   
 </body>
