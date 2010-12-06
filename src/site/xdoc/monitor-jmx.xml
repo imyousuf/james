@@ -46,16 +46,34 @@
       <li>DNSService</li>
       <li>Queues</li>
     </ul>
+    
+  </section>
+    
+  <section name="Statistics via JMX">
+  
+    <p>You can enable satistics collection for SMTP/LMPT/POP3 Servers via JMX. 
+       Configure for example smtpserver.xml with</p>
+       
+    <source>
+&lt;handler class="org.apache.james.smtpserver.jmx.HookResultJMXMonitor"/&gt;
+&lt;handler class="org.apache.james.smtpserver.jmx.ConnectHandlerResultJMXMonitor"/&gt;
+&lt;handler class="org.apache.james.smtpserver.jmx.LineHandlerResultJMXMonitor"/&gt;
+&lt;handler class="org.apache.james.smtpserver.jmx.CommandHandlerResultJMXMonitor"/&gt;
+    </source>
 
+  </section>
+
+  <section name="JMX Remote Access">
+  
     <p>If you want a remote access, you can install a web application management tool such as jmanage. 
        You will get screens such as the following one.</p>
-         
+       
     <p><img src="images/jmx-monitoring/jmx-current-connections.png"/></p>
 
     <p><img src="images/jmx-monitoring/jmx-memory.png"/></p>
 
     <p><img src="images/jmx-monitoring/jmx-gc.png"/></p>
-
+  
   </section>
 
 </body>
