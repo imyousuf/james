@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uml:Model xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML" xmi:id="_NjUDEb_5Ed-sK5i6ADV8Gw" name="">
+<uml:Model xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/3.0.0/UML" xmi:id="_NjUDEb_5Ed-sK5i6ADV8Gw" name="james-server">
   <packagedElement xmi:type="uml:Package" xmi:id="__M5i4cATEd-WluVYiXTpAQ" name="org.apache.james:server" clientDependency="_JWyo8Mf0Ed-X3fnr8lVXtA _bqficN3wEd-czIlYaY4R-w _1jHHMN6pEd-8rJnRk1et1w">
     <packagedElement xmi:type="uml:Class" xmi:id="_xHaZcMAUEd-WluVYiXTpAQ" name="james-server-imapserver" clientDependency="_qtDy4MAZEd-WluVYiXTpAQ"/>
     <packagedElement xmi:type="uml:Class" xmi:id="_3Yq8IMAUEd-WluVYiXTpAQ" name="james-server-pop3server" clientDependency="_pPnkgMAZEd-WluVYiXTpAQ"/>
