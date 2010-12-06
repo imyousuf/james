@@ -28,6 +28,18 @@
   <section name="Database Schema">
    
     <img src="images/database/james-database-schema-derby_1000.png"/>
+    
+    <p>The users is in the JAMESUSER table.</p>
+
+    <p>Depending on your virtualHosting config, JAMESUSER.NAME is the email 
+       address (or the user part that must be completed with a domain).</p>
+
+    <p>The user has MAILBOXes via the SUBSCRIPTION table.</p>
+
+    <p>The email are in MESSAGE (belonging to a MAILBOX via MEMBERSHIP). 
+       You have to look in the HEADER table to get all the detailed 
+       information (from, to, cc, bcc,...).
+    </p>
 
   </section>
 
