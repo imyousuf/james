@@ -21,6 +21,7 @@ package org.apache.james.domainlist.jpa;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -53,7 +54,11 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
     @PersistenceUnit
     public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
-        createEntityManager();
+    }
+    
+    @PostConstruct
+    public void init() {
+        createEntityManager().close();
     }
 
     /*

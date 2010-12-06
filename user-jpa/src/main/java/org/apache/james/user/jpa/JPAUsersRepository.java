@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -61,7 +62,11 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
     @PersistenceUnit
     public final void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
-        createEntityManager();
+    }
+
+    @PostConstruct
+    public void init() {
+        createEntityManager().close();
     }
 
     /**
