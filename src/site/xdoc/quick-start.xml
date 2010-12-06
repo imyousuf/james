@@ -270,6 +270,8 @@ Step 9: Monitor
 
 <p>Time to fine-tune your James Server!</p>
 
+<p>You can also read other community quick start on <a href="http://wiki.apache.org/james/V3ConfigTutorial">http://wiki.apache.org/james/V3ConfigTutorial</a>.</p>
+
 <p>Read more on the <a href="install.html">install</a>, <a href="config.html">configure</a>, 
    <a href="manage.html">manage</a>, <a href="monitor.html">monitor</a> 
    and <a href="dev.html">develop</a> pages.</p>
