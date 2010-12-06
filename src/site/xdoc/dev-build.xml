@@ -114,10 +114,26 @@
       <p>Eclipse should present you with the list of James server modules.</p>
       <p>Select the modules you want to import (by default, all) and click on <code>Finish</code>
         to execute the import.</p>
-      <p><i>(*) The screenshots on this page contain an outdated list of projects. 
+                
+<p>
+    <div class="ui-widget">
+      <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+        <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+        <strong>The screenshots on this page contain an outdated list of projects. 
          Refer to <a href="http://svn.apache.org/repos/asf/james/server/">http://svn.apache.org/repos/asf/james/server/</a> 
-         for the accurate list.</i></p>
+         for the accurate list.</strong>
+		</p>
+      </div>
+    </div>
+</p>
+        
       <img src="./images/eclipse/eclipse-import-maven-view-2.gif" width="300"/>
+      
+      <p>You can also import other projects from 
+         <a href="http://james.apache.org/imap/source-code.html">imap</a>, 
+         <a href="http://james.apache.org/mailbox/source-code.html">mailbox</a>
+         and <a href="http://james.apache.org/protocols/source-code.html">protocols</a> to have a 
+         more complete view on the used sources code.</p>
 
     </subsection>
 
@@ -148,7 +164,7 @@
 
     <subsection name="Run James from Eclipse">
   
-      <p>That's it. Run James and Have Fun!.</p>
+      <p>That's it. Run or Debug James in Eclipse (right-click on the Main class) and Have Fun!.</p>
       <img src="./images/eclipse/eclipse-run-james.gif" width="300"/>
 
     </subsection>
