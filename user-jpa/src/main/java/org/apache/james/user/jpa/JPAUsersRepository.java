@@ -61,6 +61,7 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
     @PersistenceUnit
     public final void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
+        createEntityManager();
     }
 
     /**
@@ -351,6 +352,15 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
      */
     public void setLog(Log log) {
         this.logger = log;
+    }
+
+    /**
+     * Return a new {@link EntityManager} instance
+     * 
+     * @return manager
+     */
+    private EntityManager createEntityManager() {
+        return entityManagerFactory.createEntityManager();
     }
 
 }

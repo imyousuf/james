@@ -53,6 +53,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
     @PersistenceUnit
     public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
+        createEntityManager();
     }
 
     /*
@@ -157,6 +158,15 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             entityManager.close();
         }
         return false;
+    }
+
+    /**
+     * Return a new {@link EntityManager} instance
+     * 
+     * @return manager
+     */
+    private EntityManager createEntityManager() {
+        return entityManagerFactory.createEntityManager();
     }
 
 }
