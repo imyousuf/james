@@ -30,7 +30,7 @@
     <p>The James SMTP Server Component allows to easy write your own code which will get executed 
        in the SMTP-Transaction. Thats a bit different then using a Mailet a.k.a Mailet-API.</p>
       
-    <p>The James SMTP Server comes with a few interfaces which helps you to "hook-in" a 
+    <p>To customize your SMTP Server, you have a few interfaces which helps you to "hook-in" a 
        specific SMTP Command. That means your class which implements the given interface(s) will get
        called after the SMTP-Command was parsed and depending on your implementation it will handle it.</p>
 
@@ -42,7 +42,7 @@
 
     <p>But be aware as your code needs to get executed during the SMTP-Transaction it should not 
        take to long to execute. As it will need to fit in before the timeout was hit which can be 
-       different on every mailserver. But as a general rule as long as your code can get executed 
+       different on every mail server. But as a general rule as long as your code can get executed 
        within 30 seconds it should be fine.</p>
       
   </section>

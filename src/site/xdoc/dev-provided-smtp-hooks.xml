@@ -54,15 +54,12 @@
     </subsection>
 
     <subsection name="JamesMessageHook">
-
       <p>Allow to hook in your code after the email was received via the DATA command and 
-      was marked for queuing by the CLRF.CRLF sequence. This will get executed right before 
-      the message will actual get queued.</p>
-      
+         was marked for queuing by the CLRF.CRLF sequence. This will get executed right before 
+         the message will actual get queued.</p>
       <p>IMPORTANT: If you want to do heavy processing here 
-      and not want to reject the method based on a criteria you are most times better of to 
-      use the Mailet API!</p>
-
+         and not want to reject the method based on a criteria you are most times better of to 
+         use the Mailet API!</p>
     </subsection>
 
     <subsection name="QuitHook">
@@ -90,4 +87,5 @@
   </section>
 
 </body>
+
 </document>
