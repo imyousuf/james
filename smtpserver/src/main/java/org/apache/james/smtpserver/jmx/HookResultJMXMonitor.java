@@ -116,6 +116,6 @@ public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler,C
     }
     
     protected String getDefaultJMXName() {
-        return "org.apache.james:type=server,name=smtpserver";
+        return "smtpserver";
     }
 }
