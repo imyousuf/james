@@ -281,7 +281,6 @@
 
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
-        <constructor-arg index="1" ref="uidProvider"/>
     </bean>
     
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.jpa.JPASubscriptionManager">

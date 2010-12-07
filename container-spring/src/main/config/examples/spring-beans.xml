@@ -325,7 +325,6 @@
     <!-- JPA implementation of IMAP Storage-->
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jpa.JPAMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="entityManagerFactory"/>
-        <constructor-arg index="1" ref="uidProvider"/>
     </bean>
     
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.jpa.JPASubscriptionManager">
@@ -399,7 +398,6 @@
 
     <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jcr.JCRMailboxSessionMapperFactory">
         <constructor-arg index="0" ref="sessionJcrRepository"/>
-        <constructor-arg index="2" ref="uidProvider"/>
     </bean>
 
     <bean id ="subscriptionManager" class="org.apache.james.mailbox.jcr.JCRSubscriptionManager">
