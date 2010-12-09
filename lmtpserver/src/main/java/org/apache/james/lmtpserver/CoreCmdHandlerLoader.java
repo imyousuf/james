@@ -39,6 +39,10 @@ import org.apache.james.smtpserver.JamesDataCmdHandler;
 import org.apache.james.smtpserver.JamesMailCmdHandler;
 import org.apache.james.smtpserver.JamesRcptCmdHandler;
 import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
+import org.apache.james.smtpserver.log.CommandHandlerResultLogger;
+import org.apache.james.smtpserver.log.ConnectHandlerResultLogger;
+import org.apache.james.smtpserver.log.HookResultLogger;
+import org.apache.james.smtpserver.log.LineHandlerResultLogger;
 
 /**
  * This class represent the base command handlers which are shipped with james.
@@ -64,6 +68,12 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final String RECEIVEDDATALINEFILTER = ReceivedDataLineFilter.class.getName();
     private final String DATALINEMESSAGEHOOKHANDLER = DataLineLMTPMessageHookHandler.class.getName();
 
+    // logging stuff
+    private final String COMMANDHANDLERRESULTLOGGER = CommandHandlerResultLogger.class.getName();
+    private final String CONNECTHANDLERRESULTLOGGER = ConnectHandlerResultLogger.class.getName();
+    private final String LINEHANDLERRESULTLOGGER = LineHandlerResultLogger.class.getName();
+    private final String HOOKRESULTLOGGER = HookResultLogger.class.getName();
+
     private final List<String> commands = new LinkedList<String>();
 
     public CoreCmdHandlerLoader() {
@@ -85,6 +95,12 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         commands.add(POSTMASTERABUSEHOOK);
         commands.add(RECEIVEDDATALINEFILTER);
         commands.add(DATALINEMESSAGEHOOKHANDLER);
+    
+        // Add logging stuff
+        commands.add(COMMANDHANDLERRESULTLOGGER);
+        commands.add(CONNECTHANDLERRESULTLOGGER);
+        commands.add(LINEHANDLERRESULTLOGGER);
+        commands.add(HOOKRESULTLOGGER);
     }
     /*
      * (non-Javadoc)
