@@ -25,7 +25,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.james.protocols.api.HandlersPackage;
+import org.apache.james.protocols.impl.log.ConnectHandlerResultLogger;
+import org.apache.james.protocols.impl.log.LineHandlerResultLogger;
 import org.apache.james.protocols.smtp.core.ExpnCmdHandler;
+import org.apache.james.protocols.smtp.core.log.HookResultLogger;
 import org.apache.james.protocols.smtp.core.NoopCmdHandler;
 import org.apache.james.protocols.smtp.core.PostmasterAbuseRcptHook;
 import org.apache.james.protocols.smtp.core.QuitCmdHandler;
@@ -38,11 +41,8 @@ import org.apache.james.smtpserver.AuthRequiredToRelayRcptHook;
 import org.apache.james.smtpserver.JamesDataCmdHandler;
 import org.apache.james.smtpserver.JamesMailCmdHandler;
 import org.apache.james.smtpserver.JamesRcptCmdHandler;
+import org.apache.james.smtpserver.SMTPCommandHandlerResultLogger;
 import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
-import org.apache.james.smtpserver.log.CommandHandlerResultLogger;
-import org.apache.james.smtpserver.log.ConnectHandlerResultLogger;
-import org.apache.james.smtpserver.log.HookResultLogger;
-import org.apache.james.smtpserver.log.LineHandlerResultLogger;
 
 /**
  * This class represent the base command handlers which are shipped with james.
@@ -69,7 +69,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     private final String DATALINEMESSAGEHOOKHANDLER = DataLineLMTPMessageHookHandler.class.getName();
 
     // logging stuff
-    private final String COMMANDHANDLERRESULTLOGGER = CommandHandlerResultLogger.class.getName();
+    private final String COMMANDHANDLERRESULTLOGGER = SMTPCommandHandlerResultLogger.class.getName();
     private final String CONNECTHANDLERRESULTLOGGER = ConnectHandlerResultLogger.class.getName();
     private final String LINEHANDLERRESULTLOGGER = LineHandlerResultLogger.class.getName();
     private final String HOOKRESULTLOGGER = HookResultLogger.class.getName();

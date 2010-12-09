@@ -16,33 +16,21 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.log;
+package org.apache.james.pop3server.core;
 
-import org.apache.james.protocols.api.LineHandler;
-import org.apache.james.protocols.api.LineHandlerResultHandler;
-import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.pop3server.POP3Response;
+import org.apache.james.pop3server.POP3Session;
+import org.apache.james.protocols.impl.log.AbstractCommandHandlerResultLogger;
 
 /**
- * Log disconnects caused by {@link LineHandler} via INFO. The rest via DEBUG
+ * Log {@link POP3Response} with {@link POP3Response#ERR_RESPONSE} return code to INFO. The rest to DEBUG
  *
-  * TODO: This should go to protocols
-
  */
-public class LineHandlerResultLogger implements LineHandlerResultHandler<SMTPSession>{
+public class POP3CommandHandlerResultLogger extends AbstractCommandHandlerResultLogger<POP3Response, POP3Session>{
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.protocols.api.LineHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, boolean, long, org.apache.james.protocols.api.LineHandler)
-     */
-    public boolean onResponse(ProtocolSession session, boolean response, long executionTime, LineHandler<SMTPSession> handler) {
-
-        if (response) {
-            session.getLogger().info(handler.getClass().getName() + " disconnect=true");
-        } else {
-            session.getLogger().debug(handler.getClass().getName() + " disconnect=false");
-        }
-        return response;
+    @Override
+    protected boolean logWithInfo(String code) {
+        return code.startsWith(POP3Response.ERR_RESPONSE);
     }
 
 }

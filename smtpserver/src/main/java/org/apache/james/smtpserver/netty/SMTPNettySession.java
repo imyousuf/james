@@ -21,7 +21,6 @@ package org.apache.james.smtpserver.netty;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import javax.net.ssl.SSLEngine;
 
@@ -41,36 +40,24 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 public class SMTPNettySession extends AbstractSession implements SMTPSession{
     public final static String SMTP_SESSION = "SMTP_SESSION";
     
-    private static Random random = new Random();
 
     private boolean relayingAllowed;
 
-    private String smtpID;
 
     private Map<String, Object> connectionState;
 
     private SMTPConfiguration theConfigData;
 
     private int lineHandlerCount = 0;
-    private Log log = null;
     
     public SMTPNettySession(SMTPConfiguration theConfigData, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         super(logger, handlerContext, engine);
         this.theConfigData = theConfigData;
         connectionState = new HashMap<String, Object>();
-        smtpID = random.nextInt(1024) + "";
 
         relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());    
     }
    
-    @Override
-    public Log getLogger() {
-        if (log == null) {
-            log = new SMTPSessionLog(super.getLogger());
-        }
-        return log;
-    }
-
     public SMTPNettySession(SMTPConfiguration theConfigData, Log logger, ChannelHandlerContext handlerContext) {
         this(theConfigData, logger, handlerContext, null);  
     }
@@ -82,12 +69,6 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
         return connectionState;
     }
     
-    /**
-     * @see org.apache.james.protocols.smtp.SMTPSession#getSessionID()
-     */
-    public String getSessionID() {
-        return smtpID;
-    }
 
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#getState()
@@ -240,105 +221,5 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
         } else {
             return true;
         }
-    }
-
-    
-    /**
-     * A {@link Log} implementation which suffix every log message with the session Id
-     * 
-     *
-     */
-    private final class SMTPSessionLog implements Log {
-        private Log logger;
-
-        public SMTPSessionLog(Log logger) {
-            this.logger = logger;
-        }
-
-        private String getText(Object obj) {
-            return getSessionID()+ " " + obj.toString();
-        }
-        public void debug(Object arg0) {
-            logger.debug(getText(arg0));
-        }
-
-        public void debug(Object arg0, Throwable arg1) {
-            logger.debug(getText(arg0), arg1);
-            
-        }
-
-        public void error(Object arg0) {
-            logger.error(getText(arg0));
-            
-        }
-
-        public void error(Object arg0, Throwable arg1) {
-            logger.error(getText(arg0), arg1);
-            
-        }
-
-        public void fatal(Object arg0) {
-            logger.fatal(getText(arg0));
-            
-        }
-
-        public void fatal(Object arg0, Throwable arg1) {
-            logger.fatal(getText(arg0), arg1);
-            
-        }
-
-        public void info(Object arg0) {
-            logger.info(getText(arg0));
-            
-        }
-
-        public void info(Object arg0, Throwable arg1) {
-            logger.info(getText(arg0), arg1);
-            
-        }
-
-        public boolean isDebugEnabled() {
-            return logger.isDebugEnabled();
-        }
-
-        public boolean isErrorEnabled() {
-            return logger.isErrorEnabled();
-        }
-
-        public boolean isFatalEnabled() {
-            return logger.isFatalEnabled();
-        }
-
-        public boolean isInfoEnabled() {
-            return logger.isInfoEnabled();
-        }
-
-        public boolean isTraceEnabled() {
-            return logger.isTraceEnabled();
-        }
-
-        public boolean isWarnEnabled() {
-            return logger.isWarnEnabled();
-        }
-
-        public void trace(Object arg0) {
-            logger.trace(getText(arg0));
-        }
-
-        public void trace(Object arg0, Throwable arg1) {
-            logger.trace(getText(arg0), arg1);
-            
-        }
-
-        public void warn(Object arg0) {
-            logger.warn(getText(arg0));
-            
-        }
-
-        public void warn(Object arg0, Throwable arg1) {
-            logger.warn(getText(arg0), arg1);
-            
-        }
-        
     }
 }

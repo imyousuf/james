@@ -16,33 +16,20 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.smtpserver.log;
+package org.apache.james.smtpserver;
 
-import org.apache.james.protocols.api.ConnectHandler;
-import org.apache.james.protocols.api.ConnectHandlerResultHandler;
-import org.apache.james.protocols.api.ProtocolSession;
+import org.apache.james.protocols.impl.log.AbstractCommandHandlerResultLogger;
+import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPSession;
 
-/**
- * Log disconnects caused by {@link ConnectHandler} vi INFO. The rest is logged via DEBUG
- *
- * TODO: This should go to protocols
+public class SMTPCommandHandlerResultLogger extends AbstractCommandHandlerResultLogger<SMTPResponse, SMTPSession>{
 
- */
-public class ConnectHandlerResultLogger implements ConnectHandlerResultHandler<SMTPSession>{
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ConnectHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, boolean, long, org.apache.james.protocols.api.ConnectHandler)
-     */
-    public boolean onResponse(ProtocolSession session, boolean response, long executionTime, ConnectHandler<SMTPSession> handler) {
-
-        if (response) {
-            session.getLogger().info(handler.getClass().getName() + " disconnect=true");
-        } else {
-            session.getLogger().debug(handler.getClass().getName() + " disconnect=false");
+    @Override
+    protected boolean logWithInfo(String retCode) {
+        if (retCode.startsWith("5") || retCode.startsWith("4")) {
+            return true;
         }
-        return response;
+        return false;
     }
 
 }

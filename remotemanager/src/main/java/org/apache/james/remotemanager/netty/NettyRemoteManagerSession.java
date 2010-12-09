@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.james.protocols.api.LineHandler;
@@ -44,6 +45,8 @@ public class NettyRemoteManagerSession implements RemoteManagerSession {
     private RemoteManagerHandlerConfigurationData config;
     private int lineHandlerCount = 0;
     private InetSocketAddress socketAddress;
+    private String id;
+    private static Random random = new Random();
 
     
     public NettyRemoteManagerSession(RemoteManagerHandlerConfigurationData config, Log logger, Channel channel) {
@@ -51,6 +54,8 @@ public class NettyRemoteManagerSession implements RemoteManagerSession {
         this.channel = channel;
         this.config = config;
         this.socketAddress = (InetSocketAddress) channel.getRemoteAddress();
+        this.id = random.nextInt(1024) + "";
+
     }
 
     /*
@@ -145,5 +150,13 @@ public class NettyRemoteManagerSession implements RemoteManagerSession {
         if (channel.isConnected()) {
             channel.write(new ChunkedStream(stream));    
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.ProtocolSession#getSessionID()
+     */
+    public String getSessionID() {
+        return id;
     }
 }
