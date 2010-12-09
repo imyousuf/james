@@ -24,6 +24,7 @@ package org.apache.james.smtpserver;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.james.protocols.api.CommandHandlerResultHandler;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.smtp.core.ExpnCmdHandler;
 import org.apache.james.protocols.smtp.core.HeloCmdHandler;
@@ -39,6 +40,10 @@ import org.apache.james.protocols.smtp.core.esmtp.AuthCmdHandler;
 import org.apache.james.protocols.smtp.core.esmtp.EhloCmdHandler;
 import org.apache.james.protocols.smtp.core.esmtp.MailSizeEsmtpExtension;
 import org.apache.james.protocols.smtp.core.esmtp.StartTlsCmdHandler;
+import org.apache.james.smtpserver.log.CommandHandlerResultLogger;
+import org.apache.james.smtpserver.log.ConnectHandlerResultLogger;
+import org.apache.james.smtpserver.log.HookResultLogger;
+import org.apache.james.smtpserver.log.LineHandlerResultLogger;
 
 /**
  * This class represent the base command handlers which are shipped with james.
@@ -71,6 +76,12 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     // MessageHooks
     private final String ADDDEFAULTATTRIBUTESHANDLER = AddDefaultAttributesMessageHook.class.getName();
     private final String SENDMAILHANDLER = SendMailHandler.class.getName();
+    
+    // logging stuff
+    private final String COMMANDHANDLERRESULTLOGGER = CommandHandlerResultLogger.class.getName();
+    private final String CONNECTHANDLERRESULTLOGGER = ConnectHandlerResultLogger.class.getName();
+    private final String LINEHANDLERRESULTLOGGER = LineHandlerResultLogger.class.getName();
+    private final String HOOKRESULTLOGGER = HookResultLogger.class.getName();
 
     private final List<String> commands = new LinkedList<String>();
 
@@ -101,6 +112,12 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         // Add the default messageHooks
         commands.add(ADDDEFAULTATTRIBUTESHANDLER);
         commands.add(SENDMAILHANDLER);
+        
+        // Add logging stuff
+        commands.add(COMMANDHANDLERRESULTLOGGER);
+        commands.add(CONNECTHANDLERRESULTLOGGER);
+        commands.add(LINEHANDLERRESULTLOGGER);
+        commands.add(HOOKRESULTLOGGER);
     }
     /*
      * (non-Javadoc)
