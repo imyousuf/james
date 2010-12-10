@@ -866,6 +866,16 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
             while ( targetServers.hasNext()) {
                 try {
+
+                    Properties props = session.getProperties();
+                    if (mail.getSender() == null) {
+                        props.put("mail.smtp.from", "<>");
+                    } else {
+                        String sender = mail.getSender().toString();
+                        props.put("mail.smtp.from", sender);
+                    }
+
+                    
                     HostAddress outgoingMailServer = targetServers.next();
                     StringBuilder logMessageBuffer =
                         new StringBuilder(256)
@@ -875,17 +885,11 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                         .append(outgoingMailServer.getHostName())
                         .append(" at ")
                         .append(outgoingMailServer.getHost())
+                        .append(" from ")
+                        .append(props.get("mail.smtp.from"))
                         .append(" for addresses ")
                         .append(Arrays.asList(addr));
                     log(logMessageBuffer.toString());
-
-                    Properties props = session.getProperties();
-                    if (mail.getSender() == null) {
-                        props.put("mail.smtp.from", "<>");
-                    } else {
-                        String sender = mail.getSender().toString();
-                        props.put("mail.smtp.from", sender);
-                    }
 
                     //Many of these properties are only in later JavaMail versions
                     //"mail.smtp.ehlo"  //default true
@@ -982,6 +986,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                                       .append(outgoingMailServer.getHostName())
                                       .append(" at ")
                                       .append(outgoingMailServer.getHost())
+                                      .append(" from ")
+                                      .append(props.get("mail.smtp.from"))
                                       .append(" for ")
                                       .append(mail.getRecipients());
                     log(logMessageBuffer.toString());
