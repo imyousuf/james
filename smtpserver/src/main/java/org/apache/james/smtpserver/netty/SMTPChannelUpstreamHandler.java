@@ -33,7 +33,6 @@ import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.SMTPConstants;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
@@ -73,13 +72,6 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
         } else {
             return  new SMTPNettySession(conf, logger, ctx);
         }
-    }
-
-    @Override
-    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        logger.debug("Dispose objects while closing channel " + ctx.getChannel().getId());
-        cleanup(ctx.getChannel());
-        super.channelClosed(ctx, e);
     }
 
     
