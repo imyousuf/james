@@ -100,7 +100,7 @@ public class LocalDelivery extends GenericMailet {
     public void service(Mail mail) throws MessagingException {
         aliasingMailet.service(mail);
         if (mail.getState() != Mail.GHOST) {
-        	sieveMailet.service(mail);
+            sieveMailet.service(mail);
         }
     }
 
@@ -155,7 +155,7 @@ public class LocalDelivery extends GenericMailet {
             }
 
         };
-        sieveMailet.setMailSerer(mailServer);
+        sieveMailet.setMailServer(mailServer);
         sieveMailet.setMailboxManager(mailboxManager);
         sieveMailet.init(m);
 

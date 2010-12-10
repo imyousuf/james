@@ -48,7 +48,7 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
     private MailboxManager mailboxManager;
 
     @Resource(name="mailserver")
-    public void setMailSerer(MailServer mailServer) {
+    public void setMailServer(MailServer mailServer) {
         this.mailServer = mailServer;
     }
 
