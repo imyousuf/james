@@ -35,6 +35,7 @@ import org.apache.james.mailbox.MessageManager;
 import org.apache.james.services.MailServer;
 import org.apache.jsieve.mailet.Poster;
 import org.apache.jsieve.mailet.SieveMailboxMailet;
+import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetConfig;
 
@@ -85,6 +86,16 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
         }
     }
    
+
+       
+    @Override
+    public void storeMail(MailAddress sender, MailAddress recipient, Mail mail) throws MessagingException {
+        super.storeMail(sender, recipient, mail);
+        
+        // if no exception was thrown the message was successfully stored in the mailbox
+        log("Local delivered mail " + mail.getName() +" sucessfully from " + sender.toString() + " to " + recipient.toString());
+    }
+
 
         /**
      * @see org.apache.jsieve.mailet.Poster#post(java.lang.String,
