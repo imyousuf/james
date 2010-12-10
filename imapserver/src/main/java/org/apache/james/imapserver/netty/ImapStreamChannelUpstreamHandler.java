@@ -22,6 +22,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
@@ -31,6 +32,7 @@ import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
+import org.apache.james.protocols.impl.SessionLog;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -75,6 +77,9 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
         this.enabledCipherSuites = enabledCipherSuites;
     }
     
+    private Log getLogger(Channel channel) {
+        return new SessionLog(""+channel.getId(), logger);
+    }
     @Override
     protected void processStreamIo(final ChannelHandlerContext ctx, final InputStream in, final OutputStream out) {
         final ImapSessionImpl imapSession = (ImapSessionImpl) getAttachment(ctx).get(IMAP_SESSION);
@@ -89,7 +94,7 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
         
         if (imapSession != null) imapSession.logout();
         
-        logger.debug("Thread execution complete for session " + channel.getId());
+        getLogger(ctx.getChannel()).debug("Thread execution complete for session " + channel.getId());
 
         channel.close();
     }
@@ -124,7 +129,7 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
             }
             
         };
-        imapsession.setLog(logger);
+        imapsession.setLog(getLogger(ctx.getChannel()));
         
         getAttachment(ctx).put(IMAP_SESSION, imapsession);
         super.channelBound(ctx, e);
@@ -132,7 +137,19 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
 
     
     @Override
+    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        InetSocketAddress address = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
+        getLogger(ctx.getChannel()).info("Connection closed for " + address.getHostName() + " (" + address.getAddress().getHostAddress()+ ")");
+
+        super.channelClosed(ctx, e);
+    }
+
+
+    @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        InetSocketAddress address = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
+        getLogger(ctx.getChannel()).info("Connection established from " + address.getHostName() + " (" + address.getAddress().getHostAddress()+ ")");
+
         // write hello to client
         ctx.getChannel().write(ChannelBuffers.copiedBuffer((ImapConstants.UNTAGGED + " OK " + hello +" " + new String(ImapConstants.BYTES_LINE_END)).getBytes()));
         
@@ -142,7 +159,7 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        logger.debug("Error while processing imap request" ,e.getCause());
+        getLogger(ctx.getChannel()).debug("Error while processing imap request" ,e.getCause());
         
         // logout on error not sure if that is the best way to handle it
         final ImapSession imapSession = (ImapSessionImpl) getAttachment(ctx).get(IMAP_SESSION);     
