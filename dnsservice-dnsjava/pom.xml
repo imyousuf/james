@@ -27,6 +27,16 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-dnsservice-dnsjava</artifactId>
   <name>Apache James Server DNSService Implementation</name>
+  <properties>
+      <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.*
+    </james.osgi.export>
+    <james.osgi.import>
+      *
+    </james.osgi.import>
+  </properties> 
+  
   <build>
     <plugins>
       <plugin>
@@ -48,28 +58,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>bundle-manifest</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>manifest</goal>
-            </goals>
-          </execution>
-        </executions>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <!-- We need to import the lifecycle methods of james and spring stuff just to me sure it works -->
-            <Import-Package>org.apache.james.container.spring.lifecycle.*,org.springframework.*,org.apache.james.dnsservice.api.*,*</Import-Package>
-            <Export-Package>org.apache.james.dnsservice.dnsjava.*</Export-Package>
-            <Embed-Dependency>*;scope=runtime</Embed-Dependency>
-          </instructions>
-        </configuration>
       </plugin>
     </plugins>
   </build>

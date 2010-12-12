@@ -27,6 +27,17 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-core-library</artifactId>
   <name>Apache James Server Core Library</name>
+  <properties>
+      <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.*
+    </james.osgi.export>
+    <james.osgi.import>
+      *
+    </james.osgi.import>
+  </properties> 
+  
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -135,26 +146,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>bundle-manifest</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>manifest</goal>
-            </goals>
-          </execution>
-        </executions>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Export-Package>org.apache.james.*</Export-Package>
-            <Embed-Dependency>*;scope=runtime</Embed-Dependency>
-          </instructions>
-        </configuration>
       </plugin>
     </plugins>
   </build>
