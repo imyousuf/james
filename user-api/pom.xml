@@ -27,7 +27,17 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-user-api</artifactId>
   <name>Apache James Server User API</name>
-  <build>
+  <properties>
+    <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.*
+    </james.osgi.export>
+    <james.osgi.import>
+      *
+    </james.osgi.import>
+  </properties> 
+  
+   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -60,26 +70,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>bundle-manifest</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>manifest</goal>
-            </goals>
-          </execution>
-        </executions>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Export-Package>org.apache.james.api.*</Export-Package>
-            <Embed-Dependency>*;scope=runtime</Embed-Dependency>
-          </instructions>
-        </configuration>
       </plugin>
     </plugins>
   </build>

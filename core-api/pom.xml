@@ -28,6 +28,7 @@
   <artifactId>james-server-core-api</artifactId>
   <name>Apache James Server Core API</name>
   <properties>
+    <!-- OSGI stuff -->
     <james.osgi.export>
       org.apache.james.*
     </james.osgi.export>
