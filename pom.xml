@@ -154,7 +154,34 @@
           </filesets>
         </configuration>
       </plugin>
-      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.1.0</version>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <configuration>
+          <excludeDependencies>${camel.osgi.exclude.dependencies}</excludeDependencies>
+          <instructions>
+            <Bundle-Name>${project.artifactId}</Bundle-Name>
+            <Bundle-SymbolicName>${james.osgi.symbolic.name}</Bundle-SymbolicName>
+            <Export-Package>${james.osgi.export}</Export-Package>
+            <Import-Package>${james.osgi.import}</Import-Package>
+            <DynamicImport-Package>${james.osgi.dynamic}</DynamicImport-Package>
+            <Implementation-Title>Apache James Server</Implementation-Title>
+            <Implementation-Version>${project.version}</Implementation-Version>
+          </instructions>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   
