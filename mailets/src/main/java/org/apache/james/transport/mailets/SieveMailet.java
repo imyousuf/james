@@ -92,8 +92,14 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
     public void storeMail(MailAddress sender, MailAddress recipient, Mail mail) throws MessagingException {
         super.storeMail(sender, recipient, mail);
         
+        String s;
+        if (sender != null) {
+            s = sender.toString();
+        } else {
+            s = "<>";
+        }
         // if no exception was thrown the message was successfully stored in the mailbox
-        log("Local delivered mail " + mail.getName() +" sucessfully from " + sender.toString() + " to " + recipient.toString());
+        log("Local delivered mail " + mail.getName() +" sucessfully from " + s + " to " + recipient.toString());
     }
 
 
