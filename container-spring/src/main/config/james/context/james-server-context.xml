@@ -250,7 +250,7 @@
     <!-- 
       Mailbox
      -->
-    <bean id="mailboxmanager" parent="jcr-mailboxmanager" />
+    <bean id="mailboxmanager" parent="jpa-mailboxmanager" />
     <bean id="subscriptionManager" parent="jpa-subscriptionManager" />
     <bean id="locker" class="org.apache.james.mailbox.store.JVMMailboxPathLocker"/>
     <bean id="authenticator" class="org.apache.james.adapter.mailbox.store.UserRepositoryAuthenticator"/>
