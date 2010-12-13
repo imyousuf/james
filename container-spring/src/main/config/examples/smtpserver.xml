@@ -47,7 +47,7 @@
         <secret>yoursecret</secret>
         <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
         <!-- The algorithm is optional and only needs to be specified when using something other
-        than the Sun JCE provider. -->
+        than the Sun JCE provider - You could use IbmX509 with IBM Java runtime. -->
         <algorithm>SunX509</algorithm>
       </tls>
       

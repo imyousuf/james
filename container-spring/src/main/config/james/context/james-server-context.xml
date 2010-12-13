@@ -26,73 +26,29 @@
           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.5.0.xsd
           http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.4.1.xsd">
+          
+    <!-- 
+      File System
+     -->
+    <bean class="org.apache.james.container.spring.FileSystemResolver">
+        <property name="fileSystem" ref="filesystem" />
+    </bean>
+    <bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
 
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
-        <property name="location" value="file://conf/jmx.properties"/>
+    <!-- 
+      Scheduler
+     -->
+    <bean id="scheduler" class="java.util.concurrent.Executors" factory-method="newScheduledThreadPool">
+        <constructor-arg value="20"/>
     </bean>
 
-    <bean id="restrictedRmiSocketFactory" class="org.apache.james.container.spring.RestrictingRMISocketFactory">
-        <constructor-arg value="${jmx.address}"/>
-    </bean>   
-
-    <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
-        <property name="port" value="${jmx.port}" />
-        <property name="serverSocketFactory" ref="restrictedRmiSocketFactory"/>
-        <property name="clientSocketFactory" ref="restrictedRmiSocketFactory"/>
-    </bean> 
-
-    <bean id="mbeanserver" class="org.springframework.jmx.support.MBeanServerFactoryBean" >
-        <property name="locateExistingServerIfPossible" value="true"/>
-        <property name="registerWithFactory" value="true"/>
-    </bean>
-
-    <bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry">
-        <property name="objectName" value="connector:name=rmi" />
-        <property name="serviceUrl" value="service:jmx:rmi://${jmx.address}/jndi/rmi://${jmx.address}:${jmx.port}/jmxrmi" />
-    </bean> 
-
-    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
-      <property name="beans">
-        <map>
-          <entry key="org.apache.james:type=server,name=smtpserver" value-ref="smtpserver"/>
-          <entry key="org.apache.james:type=server,name=lmtpserver" value-ref="lmtpserver"/>
-          <entry key="org.apache.james:type=server,name=pop3server" value-ref="pop3server"/>
-          <entry key="org.apache.james:type=server,name=imapserver" value-ref="imapserver"/>
-          <entry key="org.apache.james:type=server,name=remotemanager" value-ref="remotemanager"/>
-          <entry key="org.apache.james:type=component,name=domainlist" value-ref="domainlistmanagement"/>
-          <entry key="org.apache.james:type=component,name=dnsservice" value-ref="dnsservice"/>
-          <entry key="org.apache.james:type=component,name=processor" value-ref="processormanagement"/>
-          <entry key="org.apache.james:type=component,name=virtualusertable" value-ref="virtualusertablemanagement"/>
-          <entry key="org.apache.james:type=component,name=usermanagement" value-ref="usermanagement"/>
-          <entry key="org.apache.james:type=component,name=fetchmail" value-ref="fetchmail"/>
-          <entry key="org.apache.james:type=component,name=mailboxmanagement" value-ref="mailboxmanagermanagement"/>
-        </map>
-      </property>
-      
-      <property name="assembler">
-          <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean"/>
-          </bean>
-      </property>
-      
-    </bean>
-    
-    <bean id="processormanagement" class="org.apache.james.mailetcontainer.lib.ProcessorManagement"/>
-    
-    <bean id="usermanagement" class="org.apache.james.user.lib.UserManagement" />
-    
-    <bean id="virtualusertablemanagement" class="org.apache.james.vut.lib.VirtualUserTableManagement" />
-
-    <bean id="domainlistmanagement" class="org.apache.james.domainlist.lib.DomainListManagement" />
-
-    <bean id="mailboxmanagermanagement" class="org.apache.james.adapter.mailbox.MailboxManagerManagement" />
-
+    <!-- 
+      Configuration Provider
+     -->
     <bean class="org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor">
         <property name="configurationProvider" ref="configurationProvider" />
         <property name="order" value="1" />
     </bean>
-
     <bean id="configurationProvider" class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider">
         <property name="configurationMappings">
             <map>
@@ -109,20 +65,13 @@
         </property>
     </bean>
 
-    <bean class="org.apache.james.container.spring.FileSystemResolver">
-        <property name="fileSystem" ref="filesystem" />
-    </bean>
-    
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
-        <property name = "location" value="file://conf/database.properties"/>
-    </bean>
-
+    <!-- 
+      Log Provider
+     -->
     <bean class="org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor">
         <property name="logProvider" ref="logProvider" />
         <property name="order" value="0" />
     </bean>
-
     <bean id="logProvider" class="org.apache.james.container.spring.lifecycle.SpringLogProvider">
         <property name="logMappings">
             <map>
@@ -139,19 +88,17 @@
         </property>
     </bean>
 
+    <!-- 
+      Injection
+     -->
+    <bean id="instanceFactory" class="org.apache.james.container.spring.SpringInstanceFactory"/>
     <bean class= "org.springframework.context.annotation.CommonAnnotationBeanPostProcessor">
         <property name="order" value="3" />
     </bean>
 
-    <bean id="instanceFactory" class="org.apache.james.container.spring.SpringInstanceFactory"/>
-
-    <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
-
-    <camel:camelContext id="jamesCamelContext" trace="false" >
-        <camel:jmxAgent id="agent" disabled="false" createConnector="false" serviceUrlPath="/jmxrmi/jamescamel"/>
-        <camel:template id="producerTemplate"/>   
-    </camel:camelContext>
-
+    <!-- 
+      Active MQ
+     -->
     <amq:broker useJmx="true" persistent="true" brokerName="james" dataDirectory="filesystem=file://var/store/activemq/brokers" useShutdownHook="false" schedulerSupport="false" id="broker">
         <amq:destinationPolicy>
             <amq:policyMap>
@@ -175,152 +122,230 @@
             <amq:transportConnector uri="tcp://localhost:0" />
         </amq:transportConnectors>
     </amq:broker>
-    
     <amq:connectionFactory id="amqConnectionFactory" brokerURL="vm://james?create=false">
         <property name="blobTransferPolicy" ref="blobTransferPolicy"/>
     </amq:connectionFactory>
-
     <bean id="blobTransferPolicy" class="org.apache.james.queue.activemq.FileSystemBlobTransferPolicy">
         <property name="defaultUploadUrl" value="file://var/store/activemq/blob-transfer"/>
     </bean>
-
     <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
        <property name="targetConnectionFactory" ref="amqConnectionFactory"/>
        <property name="sessionCacheSize" value="10"/>
        <property name="cacheConsumers" value="false"/>
        <property name="cacheProducers" value="true"/>
     </bean>
-
     <bean id="jmsTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
     </bean>
 
-    <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker"/>
-        
-    <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
+    <!-- 
+      Camel
+     -->
+    <camel:camelContext id="jamesCamelContext" trace="false" >
+        <camel:jmxAgent id="agent" disabled="false" createConnector="false" serviceUrlPath="/jmxrmi/jamescamel"/>
+        <camel:template id="producerTemplate"/>   
+    </camel:camelContext>
 
-    <bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager"/>
-    
+    <!-- 
+      Mail Server / Queue / Spool / Mailet / Matcher
+     -->
     <bean id="mailserver" class="org.apache.james.JamesMailServer"/>
-
+    <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker"/>
+    <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
+    <bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager"/>
     <bean id="mailetcontext" class="org.apache.james.mailetcontainer.lib.JamesMailetContext"/>
-
+    <bean id="mailetloader" class="org.apache.james.mailetcontainer.lib.JamesMailetLoader" />
     <bean id="matcherloader" class="org.apache.james.mailetcontainer.lib.JamesMatcherLoader" />
 
-    <bean id="mailetloader" class="org.apache.james.mailetcontainer.lib.JamesMailetLoader" />
-
+    <!-- 
+      DNS Service
+     -->
     <bean id="dnsservice" class="org.apache.james.dnsservice.dnsjava.DNSJavaService" />
 
+    <!-- 
+      Remote Manager
+     -->
     <bean id="remotemanager" class="org.apache.james.remotemanager.netty.RemoteManager" >
         <property name="protocolHandlerChain" ref="remoteProtocolHandlerChain"/>
     </bean>
-
     <bean id="remoteProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
     </bean>
 
-    <bean id="pop3server"  class="org.apache.james.pop3server.netty.POP3Server" >
-        <property name="protocolHandlerChain" ref="pop3ProtocolHandlerChain"/>
-    </bean>
-
-    <bean id="pop3ProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
-        <property name="coreHandlersPackage" value="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
-    </bean>
-
+    <!-- 
+      SMTP Server
+     -->
     <bean id="smtpserver" class="org.apache.james.smtpserver.netty.SMTPServer">
         <property name="protocolHandlerChain" ref="smtpProtocolHandlerChain"/>
     </bean>
-
     <bean id="smtpProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
     </bean>
 
+    <!-- 
+      LMTP Server
+     -->
     <bean id="lmtpserver" class="org.apache.james.lmtpserver.netty.LMTPServer">
         <property name="protocolHandlerChain" ref="lmtpProtocolHandlerChain"/>
     </bean>
-
     <bean id="lmtpProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
     </bean>
     
+    <!-- 
+      Fetchmail
+     -->
     <bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 
-    <bean id="mailstore" class="org.apache.james.mailstore.lib.JamesMailStore" />
-
-    <bean id="usersstore" class="org.apache.james.user.lib.JamesUsersStore" >
-        <property name="defaultRepository" value="LocalUsers"/>
+    <!-- 
+      POP3 Server
+     -->
+    <bean id="pop3server"  class="org.apache.james.pop3server.netty.POP3Server" >
+        <property name="protocolHandlerChain" ref="pop3ProtocolHandlerChain"/>
+    </bean>
+    <bean id="pop3ProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
+        <property name="coreHandlersPackage" value="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
     </bean>
 
-    <bean id="localusersrepository" class="org.apache.james.user.lib.LocalUsersRepository" />
-
-    <bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
-
-    <bean id="virtualusertable" class="org.apache.james.vut.lib.JamesVirtualUserTable" />
-
-    <bean id="domainlist" class="org.apache.james.domainlist.lib.JamesDomainList" />
-
+    <!-- 
+      IMAP Server
+     -->
     <bean id="imapserver" class="org.apache.james.imapserver.netty.IMAPServer">
         <property name="imapDecoder" ref="imapDecoder"/>
         <property name="imapEncoder" ref="imapEncoder"/>    
     </bean>
-
     <bean id="imapProcessor" class="org.apache.james.imap.processor.main.DefaultImapProcessorFactory" factory-method="createDefaultProcessor">
         <constructor-arg index="0" ref="mailboxmanager"/>
         <constructor-arg index="1" ref="subscriptionManager"/>
     </bean>
-
-    <bean id="imapDecoderFactory" class="org.apache.james.imap.main.DefaultImapDecoderFactory"/>
-
     <bean id="imapDecoder" factory-bean="imapDecoderFactory"  factory-method="buildImapDecoder"/>
-
+    <bean id="imapDecoderFactory" class="org.apache.james.imap.main.DefaultImapDecoderFactory"/>
+    <bean id="imapEncoder" factory-bean="imapEncoderFactory"  factory-method="buildImapEncoder"/>
     <bean id="imapEncoderFactory" class="org.apache.james.imap.encode.main.DefaultImapEncoderFactory"/>
 
-    <bean id="imapEncoder" factory-bean="imapEncoderFactory"  factory-method="buildImapEncoder"/>
-
-    <bean id="authenticator" class="org.apache.james.adapter.mailbox.store.UserRepositoryAuthenticator"/>
-
-    <bean id="sessionMapperFactory" class="org.apache.james.mailbox.jpa.JPAMailboxSessionMapperFactory">
-        <constructor-arg index="0" ref="entityManagerFactory"/>
+    <!-- 
+      Users
+     -->
+    <bean id="usersstore" class="org.apache.james.user.lib.JamesUsersStore" >
+        <property name="defaultRepository" value="LocalUsers"/>
     </bean>
-    
-    <bean id ="subscriptionManager" class="org.apache.james.mailbox.jpa.JPASubscriptionManager">
-        <constructor-arg index="0" ref="sessionMapperFactory"/>
-    </bean>
+    <bean id="localusersrepository" class="org.apache.james.user.lib.LocalUsersRepository" />
+    <bean id="virtualusertable" class="org.apache.james.vut.lib.JamesVirtualUserTable" />
 
-    <bean id="mailboxmanager" class="org.apache.james.mailbox.jpa.openjpa.OpenJPAMailboxManager">
-        <constructor-arg index="0" ref="sessionMapperFactory"/>
-        <constructor-arg index="1" ref="authenticator"/>
-        <constructor-arg index="2" ref="uidProvider"/>
-        <constructor-arg index="3" ref="locker"/>
-        <constructor-arg index="4" value="${openjpa.streaming}"/>
-    </bean>
+    <!-- 
+      Domain List
+     -->
+    <bean id="domainlist" class="org.apache.james.domainlist.lib.JamesDomainList" />
 
+    <!-- 
+      MailStore
+     -->
+    <bean id="mailstore" class="org.apache.james.mailstore.lib.JamesMailStore" />
+
+    <!-- 
+      Mailstore Import 2.3
+      INFO: This sections still needs to be completed with beans responsible to import James 2.3 mailstore.
+     -->
+          
+    <!-- 
+      Mailbox
+     -->
+    <bean id="mailboxmanager" parent="jcr-mailboxmanager" />
+    <bean id="subscriptionManager" parent="jpa-subscriptionManager" />
     <bean id="locker" class="org.apache.james.mailbox.store.JVMMailboxPathLocker"/>
-    
-    <bean id="uidProvider" class="org.apache.james.mailbox.jpa.mail.JPACachingUidProvider">
-        <constructor-arg index="0" ref="entityManagerFactory"/>
-    </bean>
+    <bean id="authenticator" class="org.apache.james.adapter.mailbox.store.UserRepositoryAuthenticator"/>
+    <import resource="classpath:context/james-mailbox-jpa-context.xml" />
+    <import resource="classpath:context/james-mailbox-jcr-context.xml" />
+    <import resource="classpath:context/james-mailbox-maildir-context.xml" />
+    <import resource="classpath:context/james-mailbox-memory-context.xml" />
 
-    <bean id="scheduler" class="java.util.concurrent.Executors" factory-method="newScheduledThreadPool">
-        <constructor-arg value="20"/>
+    <!-- 
+      Mailbox Tools
+     -->
+    <bean id="mailboxCopier" class="org.apache.james.mailbox.copier.MailboxCopierImpl">
+        <property name="srcMailboxManager" ref="jpa-mailboxmanager"/>
+        <property name="dstMailboxManager" ref="jcr-mailboxmanager"/>
     </bean>
-    
+          
+    <!-- 
+      Database DataSource
+     -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name = "location" value="file://conf/database.properties"/>
+    </bean>
     <bean id="datasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="${database.driverClassName}" />
         <property name="url" value="${database.url}" />
         <property name="username" value="${database.username}" />
         <property name="password" value="${database.password}" />
     </bean>
-    
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="datasource"/>
         <property name="jpaVendorAdapter" ref="vendorAdapter"/>
     </bean>
-
     <bean id="vendorAdapter" class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
         <property name="database" value="${vendorAdapter.database}"/>
         <!-- set this to true for debugging purposes -->
         <property name="showSql" value="false"/>
     </bean>
+
+    <!-- 
+      JMX Server
+     -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="location" value="file://conf/jmx.properties"/>
+    </bean>
+    <bean id="mbeanserver" class="org.springframework.jmx.support.MBeanServerFactoryBean" >
+        <property name="locateExistingServerIfPossible" value="true"/>
+        <property name="registerWithFactory" value="true"/>
+    </bean>
+    <bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean" depends-on="registry">
+        <property name="objectName" value="connector:name=rmi" />
+        <property name="serviceUrl" value="service:jmx:rmi://${jmx.address}/jndi/rmi://${jmx.address}:${jmx.port}/jmxrmi" />
+    </bean> 
+    <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+        <property name="port" value="${jmx.port}" />
+        <property name="serverSocketFactory" ref="restrictedRmiSocketFactory"/>
+        <property name="clientSocketFactory" ref="restrictedRmiSocketFactory"/>
+    </bean> 
+    <bean id="restrictedRmiSocketFactory" class="org.apache.james.container.spring.RestrictingRMISocketFactory">
+        <constructor-arg value="${jmx.address}"/>
+    </bean>   
+
+    <!-- 
+      JMX Export
+     -->
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+      <property name="beans">
+        <map>
+          <entry key="org.apache.james:type=server,name=smtpserver" value-ref="smtpserver"/>
+          <entry key="org.apache.james:type=server,name=lmtpserver" value-ref="lmtpserver"/>
+          <entry key="org.apache.james:type=server,name=pop3server" value-ref="pop3server"/>
+          <entry key="org.apache.james:type=server,name=imapserver" value-ref="imapserver"/>
+          <entry key="org.apache.james:type=server,name=remotemanager" value-ref="remotemanager"/>
+          <entry key="org.apache.james:type=component,name=domainlist" value-ref="domainlistmanagement"/>
+          <entry key="org.apache.james:type=component,name=dnsservice" value-ref="dnsservice"/>
+          <entry key="org.apache.james:type=component,name=processor" value-ref="processormanagement"/>
+          <entry key="org.apache.james:type=component,name=virtualusertable" value-ref="virtualusertablemanagement"/>
+          <entry key="org.apache.james:type=component,name=usermanagement" value-ref="usermanagement"/>
+          <entry key="org.apache.james:type=component,name=fetchmail" value-ref="fetchmail"/>
+          <entry key="org.apache.james:type=component,name=mailboxmanagement" value-ref="mailboxmanagermanagement"/>
+          <entry key="org.apache.james:type=mailbox,name=mailboxcopier" value-ref="mailboxcopiermanagement"/>
+        </map>
+      </property>
+      <property name="assembler">
+          <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean,org.apache.james.mailbox.copier.MailboxCopierManagementMBean"/>
+          </bean>
+      </property>
+    </bean>
+    <bean id="processormanagement" class="org.apache.james.mailetcontainer.lib.ProcessorManagement"/>
+    <bean id="usermanagement" class="org.apache.james.user.lib.UserManagement" />
+    <bean id="virtualusertablemanagement" class="org.apache.james.vut.lib.VirtualUserTableManagement" />
+    <bean id="domainlistmanagement" class="org.apache.james.domainlist.lib.DomainListManagement" />
+    <bean id="mailboxmanagermanagement" class="org.apache.james.adapter.mailbox.MailboxManagerManagement" />
+    <bean id="mailboxcopiermanagement" class="org.apache.james.mailbox.copier.MailboxCopierManagement" />
 
 </beans>
