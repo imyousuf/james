@@ -20,13 +20,16 @@ package org.apache.james.container.spring;
 
 import java.io.IOException;
 
+import org.apache.james.mailbox.copier.MailboxCopier;
+import org.apache.james.mailbox.copier.MailboxCopierImpl;
+
 /**
  * Bootstraps James using a Spring container
  */
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        final JamesServerApplicationContext context = new JamesServerApplicationContext(new String[] { "spring-beans.xml" });
+        final JamesServerApplicationContext context = new JamesServerApplicationContext(new String[] { "context/james-server-context.xml" });
         context.registerShutdownHook();
     }
 
