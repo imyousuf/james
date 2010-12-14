@@ -438,24 +438,25 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return "plain";
     }
     
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.socket.ServerMBean#getStartTLSSupported()
+     */
+    public boolean getStartTLSSupported() {
+        return isStartTLSSupported();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.socket.ServerMBean#getStartTLSSupported()
-	 */
-	public boolean getStartTLSSupported() {
-		return isStartTLSSupported();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.socket.ServerMBean#getMaximumConcurrentConnections()
+     */
+    public int getMaximumConcurrentConnections() {
+        return connectionLimit;
+    }
 
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.socket.ServerMBean#getMaximumConcurrentConnections()
-	 */
-	public int getMaximumConcurrentConnections() {
-		return connectionLimit;
-	}
-	
     @Override
     protected Executor createBossExecutor() {
         return JMXEnabledThreadPoolExecutor.newCachedThreadPool("org.apache.james:type=server,name=" + jmxName + ",sub-type=threadpool", "boss");

@@ -30,29 +30,26 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  */
 public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
 
-	public AtomicInteger currentConnectionCount = new AtomicInteger();
-	
-	@Override
-	public void channelClosed(ChannelHandlerContext ctx,
-			ChannelStateEvent e) throws Exception {
-		currentConnectionCount.decrementAndGet();
-		super.channelClosed(ctx, e);
-	}
+    public AtomicInteger currentConnectionCount = new AtomicInteger();
 
-	@Override
-	public void channelOpen(ChannelHandlerContext ctx,
-			ChannelStateEvent e) throws Exception {
-		currentConnectionCount.incrementAndGet();
-		super.channelOpen(ctx, e);
-	}
+    @Override
+    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        currentConnectionCount.decrementAndGet();
+        super.channelClosed(ctx, e);
+    }
 
-	
-	/**
-	 * Return the count of the current open connections
-	 * 
-	 * @return count
-	 */
-	public int getCurrentConnectionCount() {
-		return currentConnectionCount.get();
-	}
+    @Override
+    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        currentConnectionCount.incrementAndGet();
+        super.channelOpen(ctx, e);
+    }
+
+    /**
+     * Return the count of the current open connections
+     * 
+     * @return count
+     */
+    public int getCurrentConnectionCount() {
+        return currentConnectionCount.get();
+    }
 }
