@@ -33,45 +33,45 @@
   <inceptionYear>2002</inceptionYear>
   <packaging>pom</packaging>
   <modules>
-    <module>util</module>
+    <module>container-spring</module>
     <module>core-api</module>
-    <module>user-api</module>
-    <module>domainlist-api</module>
-    <module>mail-api</module>
+    <module>core-function</module>
+    <module>core-library</module>
     <module>dnsservice-api</module>
     <module>dnsservice-dnsjava</module>
+    <module>fetchmail</module>
+    <module>imapserver</module>
+    <module>lmtpserver</module>
+    <module>domainlist-api</module>
+    <module>domainlist-jdbc</module>
+    <module>domainlist-jpa</module>
+    <module>domainlist-library</module>
+    <module>domainlist-xml</module>
+    <module>mailbox-adapter</module>
+    <module>mailetcontainer-api</module>
+    <module>mailetcontainer-library</module>
+    <module>mailetcontainer-camel</module>
+    <module>mailets</module>
+    <module>mail-api</module>
+    <module>mail-file</module>
+    <module>mail-jcr</module>
+    <module>mail-jdbc</module>
+    <module>mail-library</module>
+    <module>netty-socket</module>
+    <module>pop3server</module>
+    <module>remotemanager</module>
+    <module>smtpserver</module>
+    <module>queue-api</module>
+    <module>queue-jms</module>
+    <module>queue-activemq</module>
+    <module>user-api</module>
     <module>user-library</module>    
     <module>user-file</module>
     <module>user-jcr</module>
     <module>user-jdbc</module>
     <module>user-jpa</module>
     <module>user-ldap</module>
-    <module>mail-library</module>
-    <module>domainlist-library</module>
-    <module>domainlist-jpa</module>
-    <module>domainlist-xml</module>
-    <module>domainlist-jdbc</module>
-    <module>core-library</module>
-    <module>mail-file</module>
-    <module>mail-jdbc</module>
-    <module>mail-jcr</module>
-    <module>imapserver</module>
-    <module>smtpserver</module>
-    <module>lmtpserver</module>
-    <module>pop3server</module>
-    <module>core-function</module>
-    <module>mailetcontainer-api</module>
-    <module>mailetcontainer-library</module>
-    <module>mailetcontainer-camel</module>
-    <module>remotemanager</module>
-    <module>mailets</module>
-    <module>fetchmail</module>
-    <module>netty-socket</module>
-    <module>mailbox-adapter</module>
-    <module>queue-api</module>
-    <module>queue-jms</module>
-    <module>queue-activemq</module>
-    <module>container-spring</module>
+    <module>util</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
