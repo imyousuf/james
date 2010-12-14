@@ -44,9 +44,9 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
      * (non-Javadoc)
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-		List<String> serverNameConfs = config.getList( "domainnames.domainname" );
+        List<String> serverNameConfs = config.getList( "domainnames.domainname" );
         for ( int i = 0; i < serverNameConfs.size(); i++ ) {
             addDomainInternal( serverNameConfs.get(i));
         }

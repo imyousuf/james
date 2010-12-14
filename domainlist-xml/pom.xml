@@ -27,8 +27,43 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-domainlist-xml</artifactId>
   <name>Apache James Server DomainList XML</name>
-  <dependencies>
+  <properties>
+    <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.*
+    </james.osgi.export>
+    <!-- export domainlist api as we register our services to the interfaces in the package -->
+    <james.osgi.import>
+    org.apache.james.domainlist.api,
+      *
+    </james.osgi.import>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+         <configuration>       
+           <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> 
+            <manifest>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+        </configuration>       
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
   
+  <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
@@ -36,10 +71,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-domainlist-library</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-util</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-configuration</groupId>
@@ -54,21 +85,7 @@
       <artifactId>jsr250-api</artifactId>
     </dependency>    
 
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jpa_2.0_spec</artifactId>
-    </dependency> 
     <!-- Test dependencies -->
-    <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby</artifactId>
-      <scope>runtime</scope>
-    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsservice-api</artifactId>
@@ -79,11 +96,6 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.openjpa</groupId>
-      <artifactId>openjpa</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
