@@ -32,6 +32,12 @@ import org.apache.james.protocols.api.LineHandlerResultHandler;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.WiringException;
 
+/**
+ * Handler which will gather statistics for {@link LineHandler}'s
+
+ *
+ * @param <S>
+ */
 public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSession> implements LineHandlerResultHandler<S>, ExtensibleHandler, Configurable{
 
     private Map<String, LineHandlerStats> lStats = new HashMap<String, LineHandlerStats>();

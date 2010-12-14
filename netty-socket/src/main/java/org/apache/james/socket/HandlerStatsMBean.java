@@ -18,6 +18,11 @@
  ****************************************************************/
 package org.apache.james.socket;
 
+/**
+ * JMX MBean for Handler statistics
+ * 
+ *
+ */
 public interface HandlerStatsMBean {
 
     

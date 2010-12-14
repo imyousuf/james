@@ -59,6 +59,11 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
     }
     
     
+    /**
+     * Increment stats based on the given response
+     * 
+     * @param response
+     */
     public void increment(R response) {
         if (response.isEndSession()) {
             disconnect.incrementAndGet();
@@ -68,6 +73,11 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
         incrementStats(response);
     }
     
+    /**
+     * Subclasses need to implement this to handle more precise stats
+     * 
+     * @param response
+     */
     protected abstract void incrementStats(R response);
     /*
      * (non-Javadoc)

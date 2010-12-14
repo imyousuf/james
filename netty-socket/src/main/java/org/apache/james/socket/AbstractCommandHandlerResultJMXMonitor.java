@@ -85,6 +85,13 @@ public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response,
         }
     }
     
+    /**
+     * Create the {@link AbstractCommandHandlerStats} for the given {@link CommandHandler}
+     * 
+     * @param handler
+     * @return stats
+     * @throws Exception
+     */
     protected abstract AbstractCommandHandlerStats<R> createCommandHandlerStats(CommandHandler<S> handler) throws Exception;
 
 }

@@ -31,6 +31,11 @@ import javax.management.StandardMBean;
 
 import org.apache.james.lifecycle.Disposable;
 
+/**
+ * Gather stats for LineHandlers
+ * 
+ *
+ */
 public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean, Disposable{
 
     private String name;
@@ -49,8 +54,13 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
         mbeanserver.registerMBean(this, baseObjectName);
     }
     
-    public void increment(boolean result) {
-        if (result) {
+    /**
+     * Increment the stats 
+     * 
+     * @param result
+     */
+    public void increment(boolean disconnected) {
+        if (disconnected) {
             disconnect .incrementAndGet();
         }
         all.incrementAndGet();

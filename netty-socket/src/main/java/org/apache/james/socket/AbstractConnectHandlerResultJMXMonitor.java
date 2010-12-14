@@ -32,6 +32,11 @@ import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.WiringException;
 
+/**
+ * Handler which will gather statistics for {@link ConnectHandler}'s
+ *
+ * @param <S>
+ */
 public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolSession> implements ConnectHandlerResultHandler<S>, ExtensibleHandler, Configurable{
 
     private Map<String, ConnectHandlerStats> cStats = new HashMap<String, ConnectHandlerStats>();

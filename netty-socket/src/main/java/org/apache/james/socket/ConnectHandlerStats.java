@@ -49,8 +49,13 @@ public class ConnectHandlerStats extends StandardMBean implements HandlerStatsMB
         mbeanserver.registerMBean(this, baseObjectName);
     }
     
-    public void increment(boolean result) {
-        if (result) {
+    /**
+     * Increment stats
+     * 
+     * @param disconnected
+     */
+    public void increment(boolean disconnected) {
+        if (disconnected) {
             disconnect .incrementAndGet();
         }
         all.incrementAndGet();
