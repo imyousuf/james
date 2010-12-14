@@ -58,6 +58,7 @@
     <module>mail-jdbc</module>
     <module>mail-library</module>
     <module>netty-socket</module>
+    <module>osgi</module>
     <module>pop3server</module>
     <module>remotemanager</module>
     <module>smtpserver</module>
@@ -174,7 +175,6 @@
           <excludeDependencies>${camel.osgi.exclude.dependencies}</excludeDependencies>
           <instructions>
             <Bundle-Name>${project.artifactId}</Bundle-Name>
-            <Bundle-SymbolicName>${james.osgi.symbolic.name}</Bundle-SymbolicName>
             <Export-Package>${james.osgi.export}</Export-Package>
             <Import-Package>${james.osgi.import}</Import-Package>
             <DynamicImport-Package>${james.osgi.dynamic}</DynamicImport-Package>
@@ -268,6 +268,11 @@
   </distributionManagement>
   <dependencyManagement>
     <dependencies>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-container-spring</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-api</artifactId>
@@ -1192,6 +1197,18 @@
       <groupId>com.sun.xml.bind</groupId>
       <artifactId>jaxb-impl</artifactId>
       <version>2.2.1</version>
+    </dependency>
+    
+    <!-- OSGI dependencies -->
+    <dependency>
+      <groupId>org.springframework.osgi</groupId>
+      <artifactId>spring-osgi-extender</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.2.0</version>
     </dependency>
     </dependencies>
   </dependencyManagement>
