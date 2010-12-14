@@ -1116,7 +1116,11 @@
         <exclusion>
          <groupId>org.apache.poi</groupId>
          <artifactId>poi-scratchpad</artifactId>
-        </exclusion>                    
+        </exclusion> 
+        <exclusion>
+          <groupId>edu.ucar</groupId>
+          <artifactId>netcdf</artifactId>
+        </exclusion>                   
       </exclusions>
     </dependency>
    
