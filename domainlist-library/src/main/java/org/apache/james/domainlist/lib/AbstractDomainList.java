@@ -146,7 +146,7 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled {
     /**
      * @see org.apache.james.domainlist.api.ManageableDomainList#addDomain(java.lang.String)
      */
-    public synchronized boolean addDomain(String domain) {
+    public boolean addDomain(String domain) {
         getLogger().info("Add domain " + domain + " to DomainList");
     
         //TODO: Should we care about autoDetectIP ?
@@ -156,7 +156,7 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled {
     /**
      * @see org.apache.james.domainlist.api.ManageableDomainList#removeDomain(java.lang.String)
      */
-    public synchronized boolean removeDomain(String domain) {
+    public boolean removeDomain(String domain) {
         getLogger().info("Remove domain " + domain + " from DomainList");
     
     
