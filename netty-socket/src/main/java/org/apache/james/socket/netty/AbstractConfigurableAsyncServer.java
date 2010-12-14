@@ -257,7 +257,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             preInit();
             buildSSLContext();
 
-            start();
+            bind();
         }
     }
 
@@ -265,7 +265,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     public final void destroy() {
         getLogger().info("Dispose " + getServiceType());
         if (isEnabled()) {
-            stop();
+            unbind();
         }
     }
     
@@ -475,6 +475,37 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     
     protected String[] getEnabledCipherSuites() {
         return enabledCipherSuites;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#isStarted()
+     */
+    public boolean isStarted() {
+        return isBound();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#start()
+     */
+    public boolean start() {
+        try {
+            bind();
+        } catch (Exception e) {
+            logger.error("Unable to start server");
+            return false;
+        }
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#stop()
+     */
+    public boolean stop() {
+        unbind();
+        return true;
     }
 
 }

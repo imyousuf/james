@@ -69,4 +69,25 @@ public interface ServerMBean {
      * 
      */  
     public String getServiceType();
+    
+    /**
+     * Return true if the server is started, which basicly means it is bound to a address and accept connections
+     * 
+     * @return started
+     */
+    public boolean isStarted();
+    
+    /**
+     * Start the server
+     * 
+     * @return start
+     */
+    public boolean start();
+    
+    /**
+     * Stop the server
+     * 
+     * @return stop
+     */
+    public boolean stop();
 }
