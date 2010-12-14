@@ -27,8 +27,20 @@
   <groupId>org.apache.james</groupId>
   <artifactId>james-server-container-spring</artifactId>
   <name>Apache James Server Container Spring</name>
+  <properties>
+      <!-- OSGI stuff -->
+    <james.osgi.export>
+      org.apache.james.*
+    </james.osgi.export>
+    <!-- exclude spring web support for now -->
+    <james.osgi.import>
+      !org.springframework.web.*,
+      *
+    </james.osgi.import>
+  </properties> 
+
+
   <build>
-  
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -373,9 +385,6 @@
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
             </manifest>
-            <manifestEntries>
-              <Fragment-Host>org.springframework.osgi.extender</Fragment-Host>
-           </manifestEntries>
           </archive>
         </configuration>       
         <executions>
@@ -386,26 +395,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>bundle-manifest</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>manifest</goal>
-            </goals>
-          </execution>
-        </executions>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Export-Package>org.apache.james.container.spring.*</Export-Package>
-            <Embed-Dependency>*;scope=runtime</Embed-Dependency>
-          </instructions>
-        </configuration>
       </plugin>
     </plugins>
       
