@@ -16,34 +16,34 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.services;
-
-import java.util.List;
-
-import org.apache.mailet.Mailet;
-import org.apache.mailet.Matcher;
+package org.apache.james.mailetcontainer.api;
 
 /**
- * provide all the data needed to manage spool processors, mailets and matchers
+ * JMX MBean for MailSpooler 
+ * 
+ *
  */
-public interface SpoolManager {
+public interface MailSpoolerMBean {
 
     /**
-     * @return names of all configured processors
+     * Return the number of threads used for spooling
+     * 
+     * @return threadCount
      */
-    String[] getProcessorNames();
-
-    /**
-     * retrieve all mailets for given processor
-     * @param processorName - name of the processor who's mailets should be retrieved
-     * @return List<MailetConfig>
-     */
-    List<Mailet> getMailets(String processorName);
+    public int getThreadCount();
     
     /**
-     * retrieve all matchers for given processor
-     * @param processorName - name of the processor who's matchers should be retrieved
-     * @return List<MatcherConfig>
+     * 
+     * @return
      */
-    List<Matcher> getMatchers(String processorName);
+    public int getCurrentSpoolCount();
+    
+
+    /**
+     * Return all processor names
+     * 
+     * @return pNames
+     */
+    public String[] getProcessorNames();
+
 }

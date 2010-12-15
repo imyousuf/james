@@ -57,7 +57,7 @@
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remotemanager"/>
                 <entry key="mailProcessor" value="mailetcontainer"/>
-                <entry key="spoolmanager" value="mailetcontainer"/>
+                <entry key="mailspooler" value="mailetcontainer"/>
                 <entry key="mailetloader" value="mailetcontainer"/>
                 <entry key="matcherloader" value="mailetcontainer"/>
                 <entry key="mailetcontext" value="mailetcontainer"/>
@@ -81,7 +81,7 @@
                 <entry key="pop3ProtocolHandlerChain" value="pop3server"/>
                 <entry key="remoteProtocolHandlerChain" value="remoteManager"/>
                 <entry key="mailProcessor" value="mailetcontainer"/>
-                <entry key="spoolmanager" value="mailetcontainer"/>
+                <entry key="mailspooler" value="mailetcontainer"/>
                 <entry key="mailetloader" value="mailetcontainer"/>
                 <entry key="matcherloader" value="mailetcontainer"/>
                 <entry key="usersstore" value="usersrepository"/>
@@ -152,7 +152,7 @@
      -->
     <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker"/>
     <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
-    <bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager"/>
+    <bean id="mailspooler" class="org.apache.james.mailetcontainer.lib.JamesMailSpooler"/>
     <bean id="mailetcontext" class="org.apache.james.mailetcontainer.lib.JamesMailetContext"/>
     <bean id="mailetloader" class="org.apache.james.mailetcontainer.lib.JamesMailetLoader" />
     <bean id="matcherloader" class="org.apache.james.mailetcontainer.lib.JamesMatcherLoader" />
@@ -332,12 +332,13 @@
           <entry key="org.apache.james:type=component,name=usermanagement" value-ref="usermanagement"/>
           <entry key="org.apache.james:type=component,name=fetchmail" value-ref="fetchmail"/>
           <entry key="org.apache.james:type=component,name=mailboxmanagement" value-ref="mailboxmanagermanagement"/>
+          <entry key="org.apache.james:type=component,name=mailspooler" value-ref="mailspooler"/>
           <entry key="org.apache.james:type=mailbox,name=mailboxcopier" value-ref="mailboxcopiermanagement"/>
         </map>
       </property>
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean,org.apache.james.mailbox.copier.MailboxCopierManagementMBean"/>
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.mailetcontainer.api.ProcessorManagementMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean,org.apache.james.mailbox.copier.MailboxCopierManagementMBean,org.apache.james.mailetcontainer.api.MailSpoolerMBean"/>
           </bean>
       </property>
     </bean>

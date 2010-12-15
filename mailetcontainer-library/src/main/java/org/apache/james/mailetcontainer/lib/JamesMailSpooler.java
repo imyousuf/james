@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.transport;
+package org.apache.james.mailetcontainer.lib;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,11 +39,12 @@ import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailProcessorList;
+import org.apache.james.mailetcontainer.api.MailSpooler;
+import org.apache.james.mailetcontainer.api.MailSpoolerMBean;
 import org.apache.james.mailetcontainer.api.MailetContainer;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
-import org.apache.james.services.SpoolManager;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.Matcher;
@@ -58,7 +59,7 @@ import org.apache.mailet.Matcher;
  * 
  * TODO: We should better use a ExecutorService here and only spawn a new Thread if needed
  */
-public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, LogEnabled {
+public class JamesMailSpooler implements Runnable, MailSpooler, Configurable, LogEnabled, MailSpoolerMBean {
 
     
     private MailQueue queue;
@@ -74,6 +75,9 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
      */
     private AtomicInteger numActive = new AtomicInteger(0);;
 
+    private AtomicInteger processingActive = new AtomicInteger(0);;
+
+    
     /**
      * Spool threads are active
      */
@@ -117,14 +121,15 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
      */
     @PostConstruct
     public void init() throws Exception {
-        logger.info("JamesSpoolManager init...");
+        logger.info(getClass().getName() + " init...");
         
         queue = queueFactory.getQueue(MailQueueFactory.SPOOL);
 
         if (logger.isInfoEnabled()) {
             StringBuffer infoBuffer =
                 new StringBuffer(64)
-                    .append("Spooler Manager uses ")
+                    .append(getClass().getName())
+                    .append(" uses ")
                     .append(numThreads)
                     .append(" Thread(s)");
             logger.info(infoBuffer.toString());
@@ -146,9 +151,9 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
     public void run() {
 
         if (logger.isInfoEnabled()) {
-            logger.info("Run JamesSpoolManager: "
+            logger.info("Run " + getClass().getName() +": "
                              + Thread.currentThread().getName());
-            logger.info("Spool=" + queue.getClass().getName());
+            logger.info("Queue=" + queue.toString());
         }
 
         while(active.get()) {
@@ -156,6 +161,10 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
 
             try {
                 MailQueueItem queueItem = queue.deQueue();
+                
+                // increase count
+                processingActive.incrementAndGet();
+                
                 Mail mail = queueItem.getMail();
                 if (logger.isDebugEnabled()) {
                     StringBuffer debugBuffer =
@@ -171,7 +180,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
                     queueItem.done(true);
                 } catch (Exception e) {
                     if (active.get() && logger.isErrorEnabled()) {
-                        logger.error("Exception processing mail in JamesSpoolManager.run " + e.getMessage(), e);
+                        logger.error("Exception processing mail while spooling " + e.getMessage(), e);
                     }
                     queueItem.done(false);
 
@@ -182,16 +191,17 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
                
             } catch (Throwable e) {
                 if (active.get() && logger.isErrorEnabled()) {
-                    logger.error("Exception processing mail in JamesSpoolManager.run "
-                                      + e.getMessage(), e);
+                    logger.error("Exception processing mail while spooling " + e.getMessage(), e);
+
                 }
             } finally {
+                processingActive.decrementAndGet();
                 numActive.decrementAndGet();
             }
 
         }
         if (logger.isInfoEnabled()){
-            logger.info("Stop JamesSpoolManager: " + Thread.currentThread().getName());
+            logger.info("Stop " +  getClass().getName() +": " + Thread.currentThread().getName());
         }
     }
 
@@ -207,7 +217,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
      */
     @PreDestroy
     public void dispose() {
-        logger.info("JamesSpoolManager dispose...");
+        logger.info(getClass().getName() +" dispose...");
         active.set(false); // shutdown the threads
         for (Thread thread: spoolThreads) {
             thread.interrupt(); // interrupt any waiting accept() calls.
@@ -221,11 +231,12 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
             } catch (Exception ignored) {}
         }
         
-        logger.info("JamesSpoolManager thread shutdown completed.");
+        logger.info(getClass().getName() +" thread shutdown completed.");
     }
 
-    /**
-     * @see org.apache.james.services.SpoolManager#getProcessorNames()
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.api.MailSpooler#getProcessorNames()
      */
     public String[] getProcessorNames() {
         return mailProcessor.getProcessorNames();
@@ -233,7 +244,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.services.SpoolManager#getMailets(java.lang.String)
+     * @see org.apache.james.mailetcontainer.api.MailSpooler#getMailets(java.lang.String)
      */
     public List<Mailet> getMailets(String processorName) {
         MailetContainer mailetContainer = getMailetContainerByName(processorName);
@@ -243,7 +254,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.services.SpoolManager#getMatchers(java.lang.String)
+     * @see org.apache.james.mailetcontainer.api.MailSpooler#getMatchers(java.lang.String)
      */
     public List<Matcher> getMatchers(String processorName) {
         MailetContainer mailetContainer = getMailetContainerByName(processorName);
@@ -251,6 +262,7 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
         return mailetContainer.getMatchers();
     }
 
+    
     private MailetContainer getMailetContainerByName(String processorName) {        
         MailProcessor processor = mailProcessor.getProcessor(processorName);
         if (!(processor instanceof MailetContainer)) return null;
@@ -267,5 +279,21 @@ public class JamesSpoolManager implements Runnable, SpoolManager, Configurable, 
      */
     public void setLog(Log log) {
         this.logger = log;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.api.MailSpoolerMBean#getThreadCount()
+     */
+    public int getThreadCount() {
+        return numThreads;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.api.MailSpoolerMBean#getCurrentSpoolCount()
+     */
+    public int getCurrentSpoolCount() {
+        return processingActive.get();
     }
 }
