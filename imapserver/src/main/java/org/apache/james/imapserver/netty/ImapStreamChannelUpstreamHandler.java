@@ -33,7 +33,6 @@ import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.imap.main.ImapSessionImpl;
 import org.apache.james.protocols.impl.SessionLog;
-import org.apache.james.server.netty.StreamHandler;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;

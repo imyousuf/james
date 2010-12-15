@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.server.netty;
+package org.apache.james.imapserver.netty;
 
 import java.io.IOException;
 import java.io.InputStream;
