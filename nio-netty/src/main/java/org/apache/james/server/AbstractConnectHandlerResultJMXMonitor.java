@@ -16,41 +16,39 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.socket;
+package org.apache.james.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.james.protocols.api.CommandHandler;
-import org.apache.james.protocols.api.CommandHandlerResultHandler;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.lifecycle.Configurable;
+import org.apache.james.protocols.api.ConnectHandler;
+import org.apache.james.protocols.api.ConnectHandlerResultHandler;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.ProtocolSession;
-import org.apache.james.protocols.api.Response;
 import org.apache.james.protocols.api.WiringException;
 
 /**
- * Expose JMX statistics for {@link CommandHandler}
+ * Handler which will gather statistics for {@link ConnectHandler}'s
  *
+ * @param <S>
  */
-public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response, S extends ProtocolSession> implements CommandHandlerResultHandler<R, S>, ExtensibleHandler {
+public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolSession> implements ConnectHandlerResultHandler<S>, ExtensibleHandler, Configurable{
 
-    private Map<String, AbstractCommandHandlerStats<R>> cStats = new HashMap<String, AbstractCommandHandlerStats<R>>();
-
-    
+    private Map<String, ConnectHandlerStats> cStats = new HashMap<String, ConnectHandlerStats>();
+    private String jmxName;
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.CommanHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Response, long, org.apache.james.protocols.api.CommandHandler)
+     * @see org.apache.james.protocols.api.ConnectHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, boolean, long, org.apache.james.protocols.api.ConnectHandler)
      */
-    public Response onResponse(ProtocolSession session, R response, long executionTime, CommandHandler<S> handler) {
-        String name = handler.getClass().getName();
-        AbstractCommandHandlerStats<R> stats = cStats.get(name);
-        if (stats != null) {
-            stats.increment(response);
-        }
-        return response;
+    public boolean onResponse(ProtocolSession session, boolean response, long executionTime, ConnectHandler<S> handler) {
+        cStats.get(handler.getClass().getName()).increment(response);
+        return response;     
     }
 
     /*
@@ -59,7 +57,8 @@ public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response,
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> marker = new ArrayList<Class<?>>();
-        marker.add(CommandHandler.class);
+        marker.add(ConnectHandler.class);
+
         return marker;
     }
 
@@ -69,14 +68,14 @@ public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response,
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {
-        if (interfaceName.equals(CommandHandler.class)) {
+        if (interfaceName.equals(ConnectHandler.class)) {
             // add stats for all hooks
             for (int i = 0; i < extension.size(); i++ ) {
-                CommandHandler c =  (CommandHandler) extension.get(i);
+                ConnectHandler c =  (ConnectHandler) extension.get(i);
                 if (equals(c) == false) {
                     String cName = c.getClass().getName();
                     try {
-                        cStats.put(cName, createCommandHandlerStats(c));
+                        cStats.put(cName, new ConnectHandlerStats(jmxName, cName));
                     } catch (Exception e) {
                         throw new WiringException("Unable to wire Hooks",  e);
                     }
@@ -86,12 +85,19 @@ public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response,
     }
     
     /**
-     * Create the {@link AbstractCommandHandlerStats} for the given {@link CommandHandler}
+     * Return the default JMXName to use if none is configured
      * 
-     * @param handler
-     * @return stats
-     * @throws Exception
+     * @return defaultJMXName
      */
-    protected abstract AbstractCommandHandlerStats<R> createCommandHandlerStats(CommandHandler<S> handler) throws Exception;
+    protected abstract String getDefaultJMXName();
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        this.jmxName = config.getString("jmxName", getDefaultJMXName());
+    }
+    
 
 }

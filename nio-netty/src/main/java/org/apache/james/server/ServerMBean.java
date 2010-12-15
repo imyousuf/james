@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.socket;
+package org.apache.james.server;
 
 /**
  * JMX MBean interface for servers

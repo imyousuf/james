@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.socket;
+package org.apache.james.server;
 
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.atomic.AtomicLong;
@@ -30,58 +30,45 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
 import org.apache.james.lifecycle.Disposable;
-import org.apache.james.protocols.api.CommandHandler;
-import org.apache.james.protocols.api.Response;
 
 /**
- * Expose statistics for {@link CommandHandler} via JMX
+ * Gather stats for LineHandlers
+ * 
  *
  */
-public abstract class AbstractCommandHandlerStats<R extends Response> extends StandardMBean implements CommandHandlerStatsMBean, Disposable {
-
-    private AtomicLong all = new AtomicLong(0);
-    private AtomicLong disconnect = new AtomicLong();
+public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean, Disposable{
 
     private String name;
     private String handlerName;
     private MBeanServer mbeanserver;
-    private String[] commands;
+    private AtomicLong disconnect = new AtomicLong(0);
+    private AtomicLong all = new AtomicLong(0);
 
-    public AbstractCommandHandlerStats(Class<?> jmxClass, String jmxName, String handlerName, String[] commands) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
-        super(jmxClass);
+    public LineHandlerStats(String jmxName, String handlerName) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
+        super(HandlerStatsMBean.class);
         this.handlerName = handlerName;
-        this.commands = commands;
         
-        name = "org.apache.james:type=server,name=" + jmxName  + ",handler=commandhandler,commandhandler=" + handlerName;
+        this.name =  "org.apache.james:type=server,name=" + jmxName + ",handler=linehandler,linehandler=" + handlerName;
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         ObjectName baseObjectName = new ObjectName(name);
         mbeanserver.registerMBean(this, baseObjectName);
     }
     
-    
     /**
-     * Increment stats based on the given response
+     * Increment the stats 
      * 
-     * @param response
+     * @param result
      */
-    public void increment(R response) {
-        if (response.isEndSession()) {
-            disconnect.incrementAndGet();
+    public void increment(boolean disconnected) {
+        if (disconnected) {
+            disconnect .incrementAndGet();
         }
-        
         all.incrementAndGet();
-        incrementStats(response);
     }
     
-    /**
-     * Subclasses need to implement this to handle more precise stats
-     * 
-     * @param response
-     */
-    protected abstract void incrementStats(R response);
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getAll()
+     * @see org.apache.james.socket.HandlerStatsMBean#getAll()
      */
     public long getAll() {
         return all.get();
@@ -89,12 +76,20 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getName()
+     * @see org.apache.james.socket.HandlerStatsMBean#getName()
      */
     public String getName() {
         return handlerName;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.HandlerStatsMBean#getDisconnect()
+     */
+    public long getDisconnect() {
+        return disconnect.get();
+    }
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.lifecycle.Disposable#dispose()
@@ -107,19 +102,4 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getCommands()
-     */
-    public String[] getCommands() {
-        return commands;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.socket.HandlerStatsMBean#getDisconnect()
-     */
-    public long getDisconnect() {
-        return disconnect.get();
-    }
 }

@@ -16,40 +16,22 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.socket.netty;
+package org.apache.james.server;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.james.server.HandlerStatsMBean;
 
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 /**
- * Count active connections
+ * JMX MBean for CommandHandler
  *
  */
-public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
+public interface CommandHandlerStatsMBean extends HandlerStatsMBean{
 
-    public AtomicInteger currentConnectionCount = new AtomicInteger();
-
-    @Override
-    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        currentConnectionCount.decrementAndGet();
-        super.channelClosed(ctx, e);
-    }
-
-    @Override
-    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        currentConnectionCount.incrementAndGet();
-        super.channelOpen(ctx, e);
-    }
-
+   
     /**
-     * Return the count of the current open connections
+     * Return all implemented commands by this handler
      * 
-     * @return count
+     * @return commands
      */
-    public int getCurrentConnectionCount() {
-        return currentConnectionCount.get();
-    }
+    public String[] getCommands();
 }
