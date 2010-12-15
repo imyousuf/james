@@ -21,4 +21,5 @@
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
 <fetchmail enabled="false">
+    <threads>5</threads>
 </fetchmail>        

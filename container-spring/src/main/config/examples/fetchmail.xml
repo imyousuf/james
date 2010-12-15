@@ -38,6 +38,13 @@
 <!-- fetch task's name parameter described below. -->
    
 <fetchmail enabled="false">
+    <!-- The number of threads to use for the scheduled execution -->
+    <threads>5</threads>
+    
+    <!-- The JMX Name to use -->
+    <jmxName>fetchmail</jmxName>
+    
+    
     <!-- You can have as many fetch tasks as you want, but each must have a -->
     <!-- unique name by which it is identified. -->
     <!-- Each task runs at the specified <interval>, tasks may run concurrently. -->      

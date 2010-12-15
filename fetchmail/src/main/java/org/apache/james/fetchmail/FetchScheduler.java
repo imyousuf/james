@@ -41,6 +41,7 @@ import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.util.concurrent.JMXEnabledScheduledThreadPoolExecutor;
 
 /**
  *  A class to instantiate and schedule a set of mail fetching tasks
@@ -88,11 +89,6 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
         this.queueFactory = queueFactory;
     }
 
-    @Resource(name="scheduler")
-    public void setScheduledExecutorService(ScheduledExecutorService scheduler) {
-        this.scheduler = scheduler;
-    }
-
     
     @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
@@ -105,10 +101,18 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
         this.urepos = urepos;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     */
     public final void setLog(Log logger) {
         this.logger = logger;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
     public final void configure(HierarchicalConfiguration config) throws ConfigurationException{
         this.conf = config;
     }
@@ -121,6 +125,11 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
         enabled = conf.getBoolean("[@enabled]", false);
         if (enabled)
         {
+            int numThreads = conf.getInt("threads", 5);
+            String jmxName = conf.getString("jmxName","fetchmail");
+            String jmxPath = "org.apache.james:type=component,name=" + jmxName + ",sub-type=threadpool";
+            
+            scheduler = new JMXEnabledScheduledThreadPoolExecutor(numThreads, jmxPath, "scheduler");
             queue = queueFactory.getQueue(MailQueueFactory.SPOOL);
 
             List<HierarchicalConfiguration> fetchConfs = conf.configurationsAt("fetch");
