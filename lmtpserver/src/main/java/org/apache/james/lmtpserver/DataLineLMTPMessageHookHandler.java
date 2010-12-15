@@ -42,8 +42,8 @@ import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.DataLineFilter;
 import org.apache.james.protocols.smtp.dsn.DSNStatus;
-import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.SMTPConstants;
+import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -53,16 +53,12 @@ import org.apache.mailet.MailAddress;
  *
  */
 public class DataLineLMTPMessageHookHandler implements DataLineFilter {
-    private MailServer mailServer;
+    private UsersRepository users;
     private MailboxManager mailboxManager;
-    
-   /**
-    * Sets the mail server.
-    * @param mailServer the mailServer to
-    */
-   @Resource(name="mailserver")
-   public final void setMailServer(MailServer mailServer) {
-       this.mailServer = mailServer;
+
+   @Resource(name="localusersrepository")
+   public final void setUsersRepository(UsersRepository users) {
+       this.users = users;
    }
    
    @Resource(name="mailboxmanager")
@@ -85,7 +81,7 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
                 
                 List recipientCollection = (List) session.getState().get(SMTPSession.RCPT_LIST);
                 MailImpl mail =
-                    new MailImpl(mailServer.getId(),
+                    new MailImpl(MailImpl.getId(),
                                  (MailAddress) session.getState().get(SMTPSession.SENDER),
                                  recipientCollection);
                 
@@ -151,7 +147,7 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
         while (recipients.hasNext()) {
             MailAddress recipient = recipients.next();
             String username;
-            if (mailServer.supportVirtualHosting()) {
+            if (users.supportVirtualHosting()) {
                 username = recipient.toString();
             } else {
                 username = recipient.getLocalPart();

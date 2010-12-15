@@ -57,7 +57,7 @@ public class CountUsersCmdHandler extends ListUsersCmdHandler{
             response = new RemoteManagerResponse("Existing accounts " + users.countUsers());
             return response;
         } else {
-            if(mailServer.supportVirtualHosting() == false) {
+            if(users.supportVirtualHosting() == false) {
                 response = new RemoteManagerResponse("Virtualhosting not supported");
                 return response;
            }

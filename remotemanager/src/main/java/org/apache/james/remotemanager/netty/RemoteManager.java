@@ -30,7 +30,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
-import org.apache.james.services.MailServer;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.socket.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -51,17 +50,12 @@ public class RemoteManager extends AbstractConfigurableAsyncServer implements Re
     private RemoteManagerHandlerConfigurationData configData = new RemoteManagerHandlerConfigurationDataImpl();
     private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
     private ProtocolHandlerChain handlerChain;
-    private MailServer mailServer;
 
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
     
 
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
     
     @Override
     protected int getDefaultPort() {
@@ -99,11 +93,8 @@ public class RemoteManager extends AbstractConfigurableAsyncServer implements Re
          * @see org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (getHelloName() == null) {
-                return RemoteManager.this.mailServer.getHelloName();
-            } else {
-                return RemoteManager.this.getHelloName();
-            }
+            return RemoteManager.this.getHelloName();
+
         }
         
         /**

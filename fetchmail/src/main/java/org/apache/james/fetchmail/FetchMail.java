@@ -42,7 +42,6 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
-import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 
 /**
@@ -388,10 +387,6 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
      */
     private Map<DynamicAccountKey, DynamicAccount> fieldDynamicAccounts;        
     
-   /**
-     * The MailServer service
-     */
-    private MailServer fieldServer;
     
    /**
      * The Local Users repository
@@ -435,7 +430,6 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
             new ParsedConfiguration(
                 configuration,
                 logger,
-                getServer(),
                 getLocalUsers(),
                 getDNSService());
         setParsedConfiguration(parsedConfiguration);
@@ -612,14 +606,6 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
         fieldFetching = fetching;
     }
 
-    /**
-     * Returns the server.
-     * @return MailServer
-     */
-    protected MailServer getServer()
-    {
-        return fieldServer;
-    }
 
     /**
      * Returns the configuration.
@@ -663,11 +649,6 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     
     public void setDNSService(DNSService dns) {
         this.dnsServer = dns;
-    }
-
-
-    public void setMailServer(MailServer mailserver) {
-        this.fieldServer = mailserver;
     }
    
     public void setUsersRepository(UsersRepository urepos) {

@@ -46,13 +46,12 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        super.configure(config);
         List<String> serverNameConfs = config.getList( "domainnames.domainname" );
         for ( int i = 0; i < serverNameConfs.size(); i++ ) {
             addDomainInternal( serverNameConfs.get(i));
         }
         
-        setAutoDetect(config.getBoolean("autodetect", true));    
-        setAutoDetectIP(config.getBoolean("autodetectIP", true));    
     }
    
    

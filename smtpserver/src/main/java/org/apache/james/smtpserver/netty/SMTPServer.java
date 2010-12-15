@@ -27,7 +27,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
-import org.apache.james.services.MailServer;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.socket.netty.ConnectionCountHandler;
 import org.apache.james.util.netmatcher.NetMatcher;
@@ -97,18 +96,10 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     private boolean addressBracketsEnforcement = true;
 
-    private MailServer mailServer;
-
     private boolean verifyIdentity;
     
     private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
-    
-
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
-    
+   
 
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
@@ -217,11 +208,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getHelloName()
          */
         public String getHelloName() {
-            if (SMTPServer.this.getHelloName() == null) {
-                return SMTPServer.this.mailServer.getHelloName();
-            } else {
-                return SMTPServer.this.getHelloName();
-            }
+            return SMTPServer.this.getHelloName();
         }
 
         /**

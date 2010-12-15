@@ -46,7 +46,6 @@ public class SMTPServerTest extends AbstractSMTPServerTest{
         m_smtpServer.setProtocolHandlerChain(chain);
         
         m_smtpServer.setLog(log);
-        m_smtpServer.setMailServer(m_mailServer);        
     }
 
     @Override

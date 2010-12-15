@@ -19,15 +19,14 @@
 package org.apache.james.smtpserver;
 
 
-import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
+import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.DataCmdHandler;
-import org.apache.james.services.MailServer;
 
 
 /**
@@ -35,26 +34,7 @@ import org.apache.james.services.MailServer;
  */
 public class JamesDataCmdHandler extends DataCmdHandler {
 
-    
-
-    private MailServer mailServer;
-    
-    /**
-     * Gets the mail server.
-     * @return the mailServer
-     */
-    public final MailServer getMailServer() {
-        return mailServer;
-    }
-
-    /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
+  
  
     /**
      * Handler method called upon receipt of a DATA command.
@@ -66,7 +46,7 @@ public class JamesDataCmdHandler extends DataCmdHandler {
      */
     protected SMTPResponse doDATA(SMTPSession session, String argument) {
         try {
-            MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(mailServer.getId());
+            MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(MailImpl.getId());
             session.getState().put(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE, mmiss);
         } catch (MessagingException e) {
             session.getLogger().warn("Error creating mimemessagesource for incoming data",e);

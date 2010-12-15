@@ -46,4 +46,8 @@ public class SimpleDomainList implements DomainList {
     public boolean removeDomain(String domain) {
         return domains.remove(domain);
     }
+
+    public String getDefaultDomain() {
+        return "localhost";
+    }
 }

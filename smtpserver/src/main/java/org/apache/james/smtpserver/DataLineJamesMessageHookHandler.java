@@ -52,7 +52,6 @@ import org.apache.james.protocols.smtp.hook.Hook;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookResultHook;
 import org.apache.james.protocols.smtp.hook.MessageHook;
-import org.apache.james.services.MailServer;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -73,27 +72,8 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     
     private List<HookResultHook> rHooks;
     
-    private MailServer mailServer;
-
 	private List<MessageHook> mHandlers;
-    
-    /**
-     * Gets the mail server.
-     * @return the mailServer
-     */
-    public final MailServer getMailServer() {
-        return mailServer;
-    }
 
-    /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
-    
 
     /*
      * (non-Javadoc)
@@ -113,7 +93,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                 
                 List recipientCollection = (List) session.getState().get(SMTPSession.RCPT_LIST);
                 MailImpl mail =
-                    new MailImpl(mailServer.getId(),
+                    new MailImpl(MailImpl.getId(),
                                  (MailAddress) session.getState().get(SMTPSession.SENDER),
                                  recipientCollection);
                 

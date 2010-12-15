@@ -133,4 +133,12 @@ public class JamesDomainList implements DomainList, LogEnabled, Configurable{
         this.config = config;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.domainlist.api.DomainList#getDefaultDomain()
+     */
+    public String getDefaultDomain() {
+        return domainList.getDefaultDomain();
+    }
+
 }

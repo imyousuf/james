@@ -32,7 +32,7 @@ import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageManager;
-import org.apache.james.services.MailServer;
+import org.apache.james.user.api.UsersRepository;
 import org.apache.jsieve.mailet.Poster;
 import org.apache.jsieve.mailet.SieveMailboxMailet;
 import org.apache.mailet.Mail;
@@ -44,12 +44,12 @@ import org.apache.mailet.MailetConfig;
  */
 public class SieveMailet extends SieveMailboxMailet implements Poster{
 
-    private MailServer mailServer;
+    private UsersRepository usersRepos;
     private MailboxManager mailboxManager;
 
-    @Resource(name="mailserver")
-    public void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
+    @Resource(name="localusersrepository")
+    public void setUsersRepository(UsersRepository usersRepos) {
+        this.usersRepos = usersRepos;
     }
 
     
@@ -61,7 +61,7 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
     @Override
     public void init(MailetConfig config) throws MessagingException {
         // ATM Fixed implementation
-        setLocator(new ResourceLocatorImpl(mailServer.supportVirtualHosting()));
+        setLocator(new ResourceLocatorImpl(usersRepos.supportVirtualHosting()));
         setPoster(this);
         super.init(config);
     }
@@ -79,7 +79,7 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
      * @return username
      */
     protected String getUsername(MailAddress m) {
-        if (mailServer.supportVirtualHosting()) {
+        if (usersRepos.supportVirtualHosting()) {
             return m.toString();
         } else {
             return super.getUsername(m);
@@ -134,7 +134,7 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
 
                     // check if we should use the full emailaddress as
                     // username
-                    if (mailServer.supportVirtualHosting()) {
+                    if (usersRepos.supportVirtualHosting()) {
                         user = user + "@" + host;
                     }
 

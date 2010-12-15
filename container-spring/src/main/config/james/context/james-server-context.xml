@@ -60,6 +60,7 @@
                 <entry key="spoolmanager" value="mailetcontainer"/>
                 <entry key="mailetloader" value="mailetcontainer"/>
                 <entry key="matcherloader" value="mailetcontainer"/>
+                <entry key="mailetcontext" value="mailetcontainer"/>
                 <entry key="usersstore" value="usersrepository"/>
              </map>
         </property>
@@ -147,9 +148,8 @@
     </camel:camelContext>
 
     <!-- 
-      Mail Server / Queue / Spool / Mailet / Matcher
+      Queue / Spool / Mailet / Matcher
      -->
-    <bean id="mailserver" class="org.apache.james.JamesMailServer"/>
     <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker"/>
     <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
     <bean id="spoolmanager" class="org.apache.james.transport.JamesSpoolManager"/>

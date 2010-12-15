@@ -30,19 +30,23 @@ import java.util.Locale;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 
 /**
  * All implementations of the DomainList interface should extends this abstract class
  */
-public abstract class AbstractDomainList implements  DomainList, LogEnabled {
+public abstract class AbstractDomainList implements  DomainList, LogEnabled, Configurable {
     private DNSService dns;
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
     private Log logger;
+    private String defaultDomain;
     
     @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
@@ -60,6 +64,23 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled {
 
     
     
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        defaultDomain = config.getString("defaultDomain","localhost");
+
+        setAutoDetect(config.getBoolean("autodetect", true));    
+        setAutoDetectIP(config.getBoolean("autodetectIP", true));            
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.domainlist.api.DomainList#getDefaultDomain()
+     */
+    public String getDefaultDomain() {
+        return defaultDomain;
+    }
+
+
     /*
      * (non-Javadoc)
      * @see org.apache.james.api.domainlist.DomainList#getDomains()

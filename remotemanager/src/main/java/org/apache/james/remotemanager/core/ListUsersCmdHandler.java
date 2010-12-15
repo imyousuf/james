@@ -32,7 +32,6 @@ import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersStore;
 
@@ -42,7 +41,6 @@ public class ListUsersCmdHandler implements CommandHandler{
     private CommandHelp help = new CommandHelp("listusers","display existing accounts");
 
     protected UsersStore uStore;
-    protected MailServer mailServer;
 
     /**
      * Sets the users store.
@@ -57,13 +55,6 @@ public class ListUsersCmdHandler implements CommandHandler{
 
     
     /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
     
     /**
      * @see org.apache.james.remotemanager.CommandHandler#getHelp()
@@ -88,7 +79,7 @@ public class ListUsersCmdHandler implements CommandHandler{
             }
             return response;
         } else {
-            if(mailServer.supportVirtualHosting() == false) {
+            if(users.supportVirtualHosting() == false) {
                 response = new RemoteManagerResponse("Virtualhosting not supported");
                 return response;
             }

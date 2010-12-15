@@ -27,25 +27,29 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Vector;
 
 import javax.annotation.Resource;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
@@ -53,9 +57,7 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.base.RFC2822Headers;
 
-public class JamesMailetContext implements MailetContext, LogEnabled {
-
-    private MailServer mailServer;
+public class JamesMailetContext implements MailetContext, LogEnabled, Configurable {
 
     /**
      * A hash table of server attributes These are the MailetContext attributes
@@ -71,10 +73,8 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
 
     private DomainList domains;
 
-    @Resource(name = "mailserver")
-    public void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
+    private MailAddress postmaster;
+
 
     @Resource(name="mailProcessor")
     public void setMailProcessor(MailProcessor processorList) {
@@ -242,7 +242,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
         }
         try {
             if (name.indexOf("@") == -1) {
-                return isLocalEmail(new MailAddress(name, mailServer.getDefaultDomain()));
+                return isLocalEmail(new MailAddress(name, domains.getDefaultDomain()));
             } else {
                 return isLocalEmail(new MailAddress(name));
             }
@@ -260,7 +260,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
         if (!isLocalServer(mailAddress.getDomain())) {
             return false;
         }
-        if (mailServer.supportVirtualHosting() == false) {
+        if (localusers.supportVirtualHosting() == false) {
             userName = mailAddress.getLocalPart();
         }
         return localusers.contains(userName);
@@ -270,7 +270,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
      * @see org.apache.mailet.MailetContext#getPostmaster()
      */
     public MailAddress getPostmaster() {
-        return mailServer.getPostmaster();
+        return postmaster;
     }
 
     /**
@@ -397,7 +397,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
      */
     @SuppressWarnings("unchecked")
 	public void sendMail(MailAddress sender, Collection recipients, MimeMessage message, String state) throws MessagingException {
-        MailImpl mail = new MailImpl(mailServer.getId(), sender, recipients, message);
+        MailImpl mail = new MailImpl(MailImpl.getId(), sender, recipients, message);
         try {
             mail.setState(state);
             sendMail(mail);
@@ -430,5 +430,48 @@ public class JamesMailetContext implements MailetContext, LogEnabled {
      */
     public void setLog(Log log) {
         this.log = log;
+    }
+
+
+    /*
+     * 
+     */
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        // Get postmaster
+        String postMasterAddress = config.getString("postmaster", "postmaster").toLowerCase(Locale.US);
+        // if there is no @domain part, then add the first one from the
+        // list of supported domains that isn't localhost. If that
+        // doesn't work, use the hostname, even if it is localhost.
+        if (postMasterAddress.indexOf('@') < 0) {
+            String domainName = null; // the domain to use
+            // loop through candidate domains until we find one or exhaust the
+            // list
+            String[] doms = domains.getDomains();
+            if (doms != null) {
+                for (int i = 0; i < doms.length; i++) {
+                    String serverName = doms[i].toLowerCase(Locale.US);
+                    if (!("localhost".equals(serverName))) {
+                        domainName = serverName; // ok, not localhost, so use it
+                        continue;
+                    }
+                }
+            
+            }
+            // if we found a suitable domain, use it. Otherwise fallback to the
+            // host name.
+            postMasterAddress = postMasterAddress + "@" + (domainName != null ? domainName : domains.getDefaultDomain());
+        }
+        try {
+            this.postmaster = new MailAddress(postMasterAddress);
+            if (!domains.containsDomain(postmaster.getDomain())) {
+                StringBuffer warnBuffer = new StringBuffer(320).append("The specified postmaster address ( ").append(postmaster).append(
+                        " ) is not a local address.  This is not necessarily a problem, but it does mean that emails addressed to the postmaster will be routed to another server.  For some configurations this may cause problems.");
+                log.warn(warnBuffer.toString());
+            }    
+        } catch (AddressException e) {
+            throw new ConfigurationException("Postmaster address " + postMasterAddress + "is invalid",e);
+        }
+
+    
     }
 }

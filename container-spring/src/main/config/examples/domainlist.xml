@@ -45,6 +45,7 @@
     </domainnames>
     <autodetect>true</autodetect>
     <autodetectIP>true</autodetectIP>
+    <defaultDomain>localhost</defaultDomain>
   </domainlist>
   
   <!-- JPA implementation for DomainList -->
@@ -52,6 +53,7 @@
   <domainlist class="org.apache.james.domainlist.jpa.JPADomainList">
     <autodetect>true</autodetect>
     <autodetectIP>true</autodetectIP>
+    <defaultDomain>localhost</defaultDomain>
   </domainlist>
   -->
   
@@ -63,6 +65,7 @@
     <sqlFile>file://conf/sqlResources.xml</sqlFile>
     <autodetect>true</autodetect>
     <autodetectIP>true</autodetectIP>
+    <defaultDomain>localhost</defaultDomain>
   </domainlist>  
   -->
 </domainlists>

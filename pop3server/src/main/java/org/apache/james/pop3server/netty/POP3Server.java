@@ -26,7 +26,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
-import org.apache.james.services.MailServer;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.socket.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -56,17 +55,11 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
     
     private ProtocolHandlerChain handlerChain;
 
-    private MailServer mailServer;
-
     
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
 
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
     @Override
     protected int getDefaultPort() {
         return 110;
@@ -101,11 +94,7 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getHelloName()
          */
         public String getHelloName() {
-            if (POP3Server.this.getHelloName() == null) {
-                return POP3Server.this.mailServer.getHelloName();
-            } else {
-                return POP3Server.this.getHelloName();
-            }
+            return POP3Server.this.getHelloName();
         }
 
         /**

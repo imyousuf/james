@@ -59,4 +59,14 @@ public interface DomainList {
      */
     public boolean removeDomain(String domain);
     
+    
+    
+    /**
+     * Return the default domain which will get used to deliver mail to if only the localpart
+     * was given on rcpt to.
+     * 
+     * @return the defaultdomain
+     */
+    public String getDefaultDomain();
+    
 }

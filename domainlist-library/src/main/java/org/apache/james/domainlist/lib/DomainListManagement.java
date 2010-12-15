@@ -54,4 +54,8 @@ public class DomainListManagement extends StandardMBean implements DomainListMan
         return domainList.removeDomain(domain);
     }
 
+    public String getDefaultDomain() {
+        return domainList.getDefaultDomain();
+    }
+
 }

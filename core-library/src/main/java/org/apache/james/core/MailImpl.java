@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.UUID;
 
 /**
  * <P>Wraps a MimeMessage adding routing information (from SMTP) and some simple
@@ -634,5 +635,20 @@ public class MailImpl implements Disposable, Mail {
                                  .append(random.nextInt(1048576));
         return nameBuffer.toString();
     }
+    
+    /**
+     * Generate a new identifier/name for a mail being processed by this server.
+     *
+     * @return the new identifier
+     */
+    public static String getId() {
+        StringBuilder idBuffer = new StringBuilder()
+                    .append("Mail")
+                    .append(System.currentTimeMillis())
+                    .append("-")
+                    .append(UUID.randomUUID());
+        return idBuffer.toString();
+    }
+
 
 }

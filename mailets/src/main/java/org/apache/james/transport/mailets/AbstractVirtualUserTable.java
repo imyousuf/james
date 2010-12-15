@@ -36,7 +36,7 @@ import javax.mail.internet.ParseException;
 
 import org.apache.james.core.MailImpl;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.services.MailServer;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -54,18 +54,20 @@ import org.apache.oro.text.regex.MalformedPatternException;
 public abstract class AbstractVirtualUserTable extends GenericMailet
 {
     static private final String MARKER = "org.apache.james.transport.mailets.AbstractVirtualUserTable.mapped";
-    private MailServer mailServer;
     private DNSService dns;
+    private DomainList domainList;
 
-    @Resource(name="mailserver")
-    public void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
     
     @Resource(name="dnsservice")
     public void setDNSService(DNSService dns) {
         this.dns = dns;
     }
+    
+    @Resource(name="domainlist")
+    public void setDomainList(DomainList domainList) {
+        this.domainList = domainList;
+    }
+    
     
     /**
      * Checks the recipient list of the email for user mappings.  Maps recipients as
@@ -125,7 +127,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
                         }
 
                         try {
-                            MailAddress target = (targetAddress.indexOf('@') < 0) ? new MailAddress(targetAddress, mailServer.getDefaultDomain())
+                            MailAddress target = (targetAddress.indexOf('@') < 0) ? new MailAddress(targetAddress, domainList.getDefaultDomain())
                                 : new MailAddress(targetAddress);
 
                             //Mark this source address as an address to remove from the recipient list

@@ -623,7 +623,7 @@ public class MessageProcessor extends ProcessorAbstract
         Collection<MailAddress> recipients = new ArrayList<MailAddress>(1);
         recipients.add(recipient);
         MailImpl mail =
-            new MailImpl(getServer().getId(), getSender(), recipients, message);
+            new MailImpl(MailImpl.getId(), getSender(), recipients, message);
         
 
         try {
@@ -896,7 +896,7 @@ public class MessageProcessor extends ProcessorAbstract
         if (isLocalServer(recipient)) {
             // check if we use virtualhosting or not and use the right part of the recipient in respect of this
             // See JAMES-1135
-            if (getServer().supportVirtualHosting()) {
+            if (getConfiguration().getLocalUsers().supportVirtualHosting()) {
                 return getLocalUsers().contains(recipient.toString());
             } else {
                 return getLocalUsers().contains(recipient.getLocalPart());

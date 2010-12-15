@@ -40,7 +40,6 @@ public class RemoteManagerTest extends AbstractRemoteManagerTest{
         SimpleLog log = new SimpleLog("Mock");
         log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         remotemanager.setLog(log);
-        remotemanager.setMailServer(mailServer);
                
     }
 

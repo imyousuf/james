@@ -22,7 +22,7 @@ import java.io.FileNotFoundException;
 
 import org.apache.james.mailbox.maildir.MaildirStore;
 import org.apache.james.services.FileSystem;
-import org.apache.james.services.MailServer;
+import org.apache.james.user.api.UsersRepository;
 
 /**
  * Utility to instance a {@link MaildirStore} object
@@ -40,10 +40,10 @@ public class MaildirStoreUtil{
      * @return store
      * @throws FileNotFoundException
      */
-    public static MaildirStore create(FileSystem fs, MailServer mailServer, String rootURL) throws FileNotFoundException {
+    public static MaildirStore create(FileSystem fs, UsersRepository usersRepos, String rootURL) throws FileNotFoundException {
         StringBuffer root = new StringBuffer();
         root.append(fs.getFile(rootURL).getAbsolutePath());
-        if (mailServer.supportVirtualHosting()) {
+        if (usersRepos.supportVirtualHosting()) {
             root.append("/%domain/%user/");
         } else {
             root.append("/%user/");

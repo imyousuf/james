@@ -50,7 +50,6 @@ import org.apache.james.domainlist.api.SimpleDomainList;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.services.MockFileSystem;
-import org.apache.james.services.MockMailServer;
 import org.apache.james.socket.JamesProtocolHandlerChain;
 import org.apache.james.user.lib.MockUsersRepository;
 import org.apache.james.util.TestUtil;
@@ -141,7 +140,6 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     }
 
     protected final int m_smtpListenerPort;
-    protected MockMailServer m_mailServer;
     //private SMTPServer m_smtpServer;
     protected SMTPTestConfiguration m_testConfiguration;
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
@@ -187,7 +185,6 @@ public abstract class AbstractSMTPServerTest extends TestCase {
 
 
     protected void tearDown() throws Exception {
-        LifecycleUtil.dispose(m_mailServer);
         queue.clear();
         super.tearDown();
         
@@ -216,8 +213,6 @@ public abstract class AbstractSMTPServerTest extends TestCase {
 
     protected void setUpFakeLoader() throws Exception {
         m_serviceManager = new MockJSR250Loader();
-        m_mailServer = new MockMailServer();
-        m_serviceManager.put("mailserver", m_mailServer);
         m_serviceManager.put("localusersrepository", m_usersRepository);
 
         m_dnsServer = new AlterableDNSServer();

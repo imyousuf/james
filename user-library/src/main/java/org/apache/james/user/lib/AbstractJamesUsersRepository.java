@@ -69,6 +69,8 @@ public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtu
 
     private Log logger;
 
+    private boolean virtualHosting;
+
     public void setLog(Log logger) {
         this.logger = logger;
     }
@@ -77,7 +79,8 @@ public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtu
         setIgnoreCase(configuration.getBoolean("ignoreCase", false));
         setEnableAliases(configuration.getBoolean("enableAliases", false));
         setEnableForwarding(configuration.getBoolean("enableForwarding", false));
-        
+        virtualHosting = configuration.getBoolean("enableVirtualHosting", false);
+
         doConfigure(configuration);
     }
     
@@ -85,6 +88,9 @@ public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtu
         
     }
 
+    public void setEnableVirtualHosting(boolean virtualHosting) {
+        this.virtualHosting = virtualHosting;
+    }
     /**
      * Adds a user to the underlying Repository. The user name must not clash
      * with an existing user.
@@ -274,4 +280,13 @@ public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtu
         return new ArrayList<String>();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
+     */
+    public boolean supportVirtualHosting() {
+        return virtualHosting;
+    }
+
+    
 }

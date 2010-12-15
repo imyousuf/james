@@ -26,7 +26,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
-import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.apache.james.smtpserver.netty.SMTPResponseEncoder;
 import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
@@ -44,18 +43,12 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
      * value, 0, means no limit.
      */
     private long maxMessageSize = 0;
-    private MailServer mailServer;
     private ProtocolHandlerChain handlerChain;
     private LMTPConfiguration lmtpConfig = new LMTPConfiguration();
     private String lmtpGreeting;
     private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
     
 
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
-    
 
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
@@ -110,11 +103,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getHelloName()
          */
         public String getHelloName() {
-            if (LMTPServer.this.getHelloName() == null) {
-                return LMTPServer.this.mailServer.getHelloName();
-            } else {
-                return LMTPServer.this.getHelloName();
-            }
+            return LMTPServer.this.getHelloName();
         }
 
         /**

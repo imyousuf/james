@@ -607,4 +607,11 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         this.log = log;
     }
 
+    /**
+     * VirtualHosting not supported
+     */
+    public boolean supportVirtualHosting() {
+        return false;
+    }
+
 }

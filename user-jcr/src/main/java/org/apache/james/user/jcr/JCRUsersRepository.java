@@ -60,6 +60,8 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
 	private String workspace;
 
 	private Log logger;
+
+    private boolean virtualHosting;
 	
     @Resource(name="jcrRepository")
     public void setRepository(Repository repository) {
@@ -79,6 +81,8 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
 		if (username != null && password != null) {
 			this.creds = new SimpleCredentials(username, password.toCharArray());
 		}
+        virtualHosting = config.getBoolean("enableVirtualHosting", false);
+
 	}
 
 
@@ -477,6 +481,14 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
             }
         }
         return userNames.iterator();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
+     */
+    public boolean supportVirtualHosting() {
+        return virtualHosting;
     }
 
 }

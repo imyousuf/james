@@ -40,7 +40,6 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
-import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 
 /**
@@ -73,8 +72,6 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
     private DNSService dns;
 
 
-    private MailServer mailserver;
-
 
     private UsersRepository urepos;
     
@@ -102,11 +99,6 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
         this.dns = dns;
     }
 
-
-    @Resource(name="mailserver")
-    public void setMailServer(MailServer mailserver) {
-        this.mailserver = mailserver;
-    }
    
     @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository urepos) {
@@ -142,7 +134,6 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
                     
                 fetcher.setLog(logger);
                 fetcher.setDNSService(dns);
-                fetcher.setMailServer(mailserver);
                 fetcher.setUsersRepository(urepos);
                 fetcher.setMailQueue(queue);
                 fetcher.configure(fetchConf);

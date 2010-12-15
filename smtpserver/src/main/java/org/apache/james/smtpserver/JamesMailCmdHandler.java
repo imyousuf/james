@@ -20,35 +20,23 @@ package org.apache.james.smtpserver;
 
 import javax.annotation.Resource;
 
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.protocols.smtp.core.MailCmdHandler;
-import org.apache.james.services.MailServer;
 
 public class JamesMailCmdHandler extends MailCmdHandler{
 
-    private MailServer mailServer;
-        
-    /**
-     * Gets the mail server.
-     * @return the mailServer
-     */
-    public final MailServer getMailServer() {
-        return mailServer;
-    }
+    private DomainList domainList;
 
-    /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
+    @Resource(name="domainlist")
+    public final void setDomainList(DomainList domainList) {
+        this.domainList = domainList;
     }
 
     /**
      * @see org.apache.james.protocols.smtp.core.MailCmdHandler#getDefaultDomain()
      */
     public String getDefaultDomain() {
-        return mailServer.getDefaultDomain();
+        return domainList.getDefaultDomain();
     }
     
     

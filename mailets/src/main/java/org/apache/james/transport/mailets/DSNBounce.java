@@ -320,7 +320,7 @@ public class DSNBounce extends AbstractNotify {
         // failure reports into DSNs
         nameType = "dns";
         try {
-            String myAddress = mailServer.getHelloName();
+            String myAddress = dns.getHostName(dns.getLocalHost());//mailServer.getHelloName();
             /*
             String myAddress = InetAddress.getLocalHost().getCanonicalHostName();
             */

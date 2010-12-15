@@ -30,12 +30,11 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.SimpleDomainList;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
-import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.lib.MockUsersRepository;
@@ -60,55 +59,13 @@ public class ValidRcptHandlerTest extends TestCase {
         handler = new ValidRcptHandler();
         handler.setUsers(users);
         handler.setVirtualUserTable(setUpVirtualUserTable());
-        handler.setMailServer(new MailServer() {
+       
+        handler.setDomainList(new SimpleDomainList() {
 
-            public String getDefaultDomain() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public String getHelloName() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public String getId() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public boolean supportVirtualHosting() {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            public MailAddress getPostmaster() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-            
-        });
-        handler.setDomainList(new DomainList() {
-
-            public boolean addDomain(String domain) {
-                // TODO Auto-generated method stub
-                return false;
-            }
 
             public boolean containsDomain(String domain) {
                 return domain.equals(VALID_DOMAIN);
             }
-
-            public String[] getDomains() {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public boolean removeDomain(String domain) {
-                // TODO Auto-generated method stub
-                return false;
-            }
-            
         });
     }
 

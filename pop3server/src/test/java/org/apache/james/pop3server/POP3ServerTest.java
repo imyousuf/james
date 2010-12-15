@@ -44,7 +44,6 @@ public class POP3ServerTest extends AbstractAsyncPOP3ServerTest{
         SimpleLog log = new SimpleLog("Mock");
         log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         m_pop3Server.setLog(log);
-        m_pop3Server.setMailServer(m_mailServer);        
     }
 
     @Override

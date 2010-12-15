@@ -21,7 +21,8 @@
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
 <mailetcontainer>
-
+    <postmaster>Postmaster@localhost</postmaster>
+    
     <threads> 20 </threads>
 
     <mailetpackages>

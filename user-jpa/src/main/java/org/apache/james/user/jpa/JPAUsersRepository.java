@@ -52,6 +52,8 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
 
     private Log logger;
 
+    private boolean virtualHosting;
+
 
     /**
      * Sets entity manager.
@@ -349,6 +351,8 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         algo = config.getString("algorithm","MD5");
+        virtualHosting = config.getBoolean("enableVirtualHosting", false);
+
     }
 
     /*
@@ -366,6 +370,14 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
      */
     private EntityManager createEntityManager() {
         return entityManagerFactory.createEntityManager();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
+     */
+    public boolean supportVirtualHosting() {
+        return virtualHosting;
     }
 
 }

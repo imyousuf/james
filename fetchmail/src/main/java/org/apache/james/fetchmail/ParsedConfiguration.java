@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.queue.api.MailQueue;
-import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.MailAddress;
 
@@ -202,11 +201,6 @@ class ParsedConfiguration
      */
     private boolean fieldRecurse = false;
     
-
-    /**
-     * The MailServer service
-     */
-    private MailServer fieldServer;    
     
 
     /**
@@ -328,16 +322,14 @@ class ParsedConfiguration
      * Constructor for ParsedConfiguration.
      * @param configuration
      * @param logger
-     * @param server
      * @param localUsers
      * @param dnsServer
      * @throws ConfigurationException
      */
-    public ParsedConfiguration(HierarchicalConfiguration configuration, Log logger, MailServer server, UsersRepository localUsers,DNSService dnsServer) throws ConfigurationException
+    public ParsedConfiguration(HierarchicalConfiguration configuration, Log logger, UsersRepository localUsers,DNSService dnsServer) throws ConfigurationException
     {
         this();
         setLogger(logger);
-        setServer(server);
         setLocalUsers(localUsers);   
         setDNSServer(dnsServer);
         configure(configuration);
@@ -517,15 +509,6 @@ class ParsedConfiguration
     }
 
     /**
-     * Returns the server.
-     * @return MailServer
-     */
-    public MailServer getServer()
-    {
-        return fieldServer;
-    }
-
-    /**
      * Sets the fetchAll.
      * @param fetchAll The fetchAll to set
      */
@@ -577,15 +560,6 @@ class ParsedConfiguration
     protected void setRecurse(boolean recurse)
     {
         fieldRecurse = recurse;
-    }
-
-    /**
-     * Sets the server.
-     * @param server The server to set
-     */
-    protected void setServer(MailServer server)
-    {
-        fieldServer = server;
     }
 
     /**

@@ -25,8 +25,8 @@ import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
-import org.apache.james.services.MailServer;
 import org.apache.james.smtpserver.netty.SMTPNettySession;
+import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -34,17 +34,12 @@ import org.apache.mailet.MailAddress;
  */
 public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthIdentifyVerificationRcptHook {
 
-    private MailServer mailServer;
     private DomainList domains;
-    
+    private UsersRepository users;
 
-    /**
-     * Sets the mail server.
-     * @param mailServer the mailServer to set
-     */
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
+    @Resource(name="localusersrepository")
+    public final void setUsersRepository(UsersRepository users) {
+        this.users = users;
     }
 
 
@@ -74,6 +69,6 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
 
     @Override
     protected boolean useVirtualHosting() {
-        return mailServer.supportVirtualHosting();
+        return users.supportVirtualHosting();
     }
 }

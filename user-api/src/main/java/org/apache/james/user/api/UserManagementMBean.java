@@ -149,4 +149,13 @@ public interface UserManagementMBean {
      * @return List<String> of repository names
      */
     List<String> getUserRepositoryNames();
+    
+    /**
+     * Return true if the UserRepository has VirtualHosting enabled
+     * 
+     * @param repositoryName The user repository, to which the operation should be applied. If NULL, the LocalUsers
+     *        repository is used.
+     * @return virtual
+     */
+    public boolean getVirtualHostingEnabled(String repositoryName);
 }

@@ -192,4 +192,12 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
         return result;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#getVirtualHostingEnabled(java.lang.String)
+     */
+    public boolean getVirtualHostingEnabled(String repositoryName) {
+        return getUserRepository(repositoryName).supportVirtualHosting();
+    }
+
 }

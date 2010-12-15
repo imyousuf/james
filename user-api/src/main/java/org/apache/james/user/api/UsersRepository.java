@@ -171,5 +171,14 @@ public interface UsersRepository {
      * @return Iterator over a collection of Strings, each being one user in the repository.
      */
     Iterator<String> list();
+    
+    
+    
+    /**
+     * Return true if virtualHosting support is enabled, otherwise false
+     * 
+     * @return true or false
+     */
+    boolean supportVirtualHosting();
 
 }

@@ -23,12 +23,12 @@ package org.apache.james.transport.mailets;
 
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.api.MailQueue.MailQueueException;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
-import org.apache.james.services.MailServer;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.HostAddress;
@@ -190,7 +190,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private MailQueue queue;
 
-    private MailServer mailServer;
+    private String heloName;
+
     
     
     @Resource(name="mailQueueFactory")
@@ -203,11 +204,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         this.dnsServer = dnsService;
     }
     
-    @Resource(name="mailserver")
-    public void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
+    private DomainList domainList;
+
+    @Resource(name="domainlist")
+    public void setDomainList(DomainList domainList) {
+        this.domainList = domainList;
     }
-    
     
     
     /**
@@ -376,6 +378,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         if (dnsRetry != null && !dnsRetry.equals("")) {
             dnsProblemRetry = Integer.parseInt(dnsRetry); 
         }
+        
+        heloName = getInitParameter("heloName");
+
     }
 
     /**
@@ -649,12 +654,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
          * fix.
          */
         long stop = System.currentTimeMillis() + 60000;
-        while (mailServer.getHelloName() == null
-               && stop > System.currentTimeMillis()) {
-            try {
-                Thread.sleep(1000);
-            } catch (Exception ignored) {} // wait for James to finish initializing
-        }
 
         //Checks the pool and delivers a mail message
         Properties props = new Properties();
@@ -674,16 +673,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         props.put("mail.smtp.connectiontimeout", connectionTimeout + "");
         props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
 
-        //Set the hostname we'll use as this server
-        if (mailServer.getHelloName() != null) {
-            props.put("mail.smtp.localhost", mailServer.getHelloName());
-        }
-        else {
-            String defaultDomain = mailServer.getDefaultDomain();
-            if (defaultDomain != null) {
-                props.put("mail.smtp.localhost", defaultDomain);
-            }
-        }
+        props.put("mail.smtp.localhost", getHeloName());
+
 
         if (isBindUsed) {
             // undocumented JavaMail 1.2 feature, smtp transport will use
@@ -1474,7 +1465,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         PrintWriter out = new PrintWriter(sout, true);
         String machine = "[unknown]";
         try {
-            machine = mailServer.getHelloName();
+            machine = getHeloName();
             
         } catch(Exception e){
             machine = "[address unknown]";
@@ -1617,6 +1608,15 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                 throw new UnsupportedOperationException ("remove not supported by this iterator");
             }
         };
+    }
+    
+    protected String getHeloName() {
+        if (heloName == null) {
+            //TODO: Maybe we should better just lookup the hostname via dns
+            return domainList.getDefaultDomain();
+        } else {
+            return heloName;
+        }
     }
   
 }

@@ -19,6 +19,9 @@
  --> 
 <!-- This block is responsible for processing messages on the spool. -->
  <mailetcontainer>
+      <!-- MailAddress used for PostMaster -->
+      <postmaster>Postmaster@localhost</postmaster>
+
       <!-- Number of spool threads -->
       <threads> 20 </threads>
 

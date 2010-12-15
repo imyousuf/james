@@ -49,7 +49,6 @@ import org.apache.mailet.base.RFC822DateFormat;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageUtil;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.services.MailServer;
 
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
@@ -234,15 +233,9 @@ public abstract class AbstractRedirect extends GenericMailet {
 
     private RFC822DateFormat rfc822DateFormat = new RFC822DateFormat();
 
-    protected MailServer mailServer;
-
     protected DNSService dns;
 
     
-    @Resource(name="mailserver")
-    public void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
     
 
     @Resource(name="dnsservice")

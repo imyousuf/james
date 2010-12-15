@@ -29,7 +29,6 @@ import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
-import org.apache.james.services.MailServer;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
@@ -46,8 +45,6 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	private VirtualUserTable vut;
 
     private boolean useVut = true;
-
-    private MailServer mailServer;
 
     private DomainList domains;
 
@@ -87,11 +84,6 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
     public void setDomainList(DomainList domains) {
         this.domains = domains;
     }
-    
-    @Resource(name="mailserver")
-    public final void setMailServer(MailServer mailServer) {
-        this.mailServer = mailServer;
-    }
 
 	/**
 	 * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
@@ -119,7 +111,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	    String username = recipient.toString();
 	    
 	    // check if the server use virtualhosting, if not use only the localpart as username
-	    if (mailServer.supportVirtualHosting() == false) {
+	    if (users.supportVirtualHosting() == false) {
 	        username = recipient.getLocalPart();
 	    }
 	    

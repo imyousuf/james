@@ -38,7 +38,6 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.services.MockFileSystem;
-import org.apache.james.services.MockMailServer;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.domainlist.api.DomainList;
@@ -60,7 +59,6 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	private InternetPrintWriter m_writer;
 	private TelnetClient m_telnetClient;
 	private MockUsersRepository m_mockUsersRepository;
-	protected MockMailServer mailServer;
 	private MockJSR250Loader serviceManager;
 	private MockUsersStore usersStore;
 	protected DNSService dnsservice;
@@ -80,10 +78,6 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 				m_remoteManagerListenerPort);
 	}
 
-	protected void tearDown() throws Exception {
-	    LifecycleUtil.dispose(mailServer);
-		super.tearDown();
-	}
 
 	protected void finishSetUp(RemoteManagerTestConfiguration testConfiguration)
 			throws Exception {
@@ -175,8 +169,6 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 		usersStore = new MockUsersStore(m_mockUsersRepository);
 		serviceManager.put("usersstore", usersStore);
 
-		mailServer = new MockMailServer();
-		serviceManager.put("mailserver", mailServer);
 		
 		filesystem = new MockFileSystem();
 		serviceManager.put("filesystem", filesystem);

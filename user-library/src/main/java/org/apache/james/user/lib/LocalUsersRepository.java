@@ -141,4 +141,13 @@ public class LocalUsersRepository implements UsersRepository {
         return users.list();
     }
 
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
+     */
+    public boolean supportVirtualHosting() {
+        return users.supportVirtualHosting();
+    }
+
 }
