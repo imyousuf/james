@@ -16,37 +16,22 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.server;
+package org.apache.james.server.jmx;
+
+import org.apache.james.server.jmx.HandlerStatsMBean;
+
 
 /**
- * JMX MBean for Handler statistics
- * 
+ * JMX MBean for CommandHandler
  *
  */
-public interface HandlerStatsMBean {
+public interface CommandHandlerStatsMBean extends HandlerStatsMBean{
 
-    
+   
     /**
-     * Return the count of all processed transactions by the handler
+     * Return all implemented commands by this handler
      * 
-     * @return all
+     * @return commands
      */
-    public long getAll();
-    
-    /**
-     * Return the name of the handler
-     * 
-     * @return name
-     */
-    public String getName();
-    
-
-    
-    /**
-     * Return how often the Handler issued a disconnect
-     * 
-     * @return disconnect
-     */
-    public long getDisconnect();
-    
+    public String[] getCommands();
 }

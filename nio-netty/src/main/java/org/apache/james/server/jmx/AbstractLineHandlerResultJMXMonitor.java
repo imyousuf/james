@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.server;
+package org.apache.james.server.jmx;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,39 +26,39 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.Configurable;
-import org.apache.james.protocols.api.ConnectHandler;
-import org.apache.james.protocols.api.ConnectHandlerResultHandler;
 import org.apache.james.protocols.api.ExtensibleHandler;
+import org.apache.james.protocols.api.LineHandler;
+import org.apache.james.protocols.api.LineHandlerResultHandler;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.api.WiringException;
 
 /**
- * Handler which will gather statistics for {@link ConnectHandler}'s
+ * Handler which will gather statistics for {@link LineHandler}'s
+
  *
  * @param <S>
  */
-public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolSession> implements ConnectHandlerResultHandler<S>, ExtensibleHandler, Configurable{
+public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSession> implements LineHandlerResultHandler<S>, ExtensibleHandler, Configurable{
 
-    private Map<String, ConnectHandlerStats> cStats = new HashMap<String, ConnectHandlerStats>();
+    private Map<String, LineHandlerStats> lStats = new HashMap<String, LineHandlerStats>();
     private String jmxName;
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ConnectHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, boolean, long, org.apache.james.protocols.api.ConnectHandler)
+     * @see org.apache.james.protocols.api.LineHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, boolean, long, org.apache.james.protocols.api.LineHandler)
      */
-    public boolean onResponse(ProtocolSession session, boolean response, long executionTime, ConnectHandler<S> handler) {
-        cStats.get(handler.getClass().getName()).increment(response);
-        return response;     
+    public boolean onResponse(ProtocolSession session, boolean response, long executionTime, LineHandler<S> handler) {
+        lStats.get(handler.getClass().getName()).increment(response);
+        return response;
     }
-
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> marker = new ArrayList<Class<?>>();
-        marker.add(ConnectHandler.class);
-
+        marker.add(LineHandler.class);
         return marker;
     }
 
@@ -68,14 +68,15 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolS
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {
-        if (interfaceName.equals(ConnectHandler.class)) {
+       
+        if (interfaceName.equals(LineHandler.class)) {
             // add stats for all hooks
             for (int i = 0; i < extension.size(); i++ ) {
-                ConnectHandler c =  (ConnectHandler) extension.get(i);
+                LineHandler c =  (LineHandler) extension.get(i);
                 if (equals(c) == false) {
                     String cName = c.getClass().getName();
                     try {
-                        cStats.put(cName, new ConnectHandlerStats(jmxName, cName));
+                        lStats.put(cName, new LineHandlerStats(jmxName, cName));
                     } catch (Exception e) {
                         throw new WiringException("Unable to wire Hooks",  e);
                     }
@@ -83,21 +84,21 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolS
             }
         }
     }
-    
-    /**
-     * Return the default JMXName to use if none is configured
-     * 
-     * @return defaultJMXName
-     */
-    protected abstract String getDefaultJMXName();
 
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.jmxName = config.getString("jmxName", getDefaultJMXName());
+        
     }
-    
 
+    /**
+     * Return default JMX Name if none is configured
+     * 
+     * @return defaultJMXName
+     */
+    protected abstract String getDefaultJMXName();
 }
