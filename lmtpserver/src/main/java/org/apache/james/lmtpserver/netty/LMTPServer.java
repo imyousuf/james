@@ -165,26 +165,25 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
     
     private final class LMTPChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
 
-        public LMTPChannelPipelineFactory(int timeout, int maxConnections,
-                int maxConnectsPerIp, ChannelGroup group) {
+        public LMTPChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group) {
             super(timeout, maxConnections, maxConnectsPerIp, group);
         }
 
         @Override
-		public ChannelPipeline getPipeline() throws Exception {
-			ChannelPipeline pipeLine = super.getPipeline();
-			pipeLine.addBefore("coreHandler", "countHandler", countHandler);
-			return pipeLine;
-		}
+        public ChannelPipeline getPipeline() throws Exception {
+            ChannelPipeline pipeLine = super.getPipeline();
+            pipeLine.addBefore("coreHandler", "countHandler", countHandler);
+            return pipeLine;
+        }
 
-		@Override
+        @Override
         protected SSLContext getSSLContext() {
             return null;
         }
 
         @Override
         protected boolean isSSLSocket() {
-            return  false;
+            return false;
         }
 
         @Override
@@ -196,53 +195,56 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
         protected ChannelUpstreamHandler createHandler() {
             return new SMTPChannelUpstreamHandler(handlerChain, lmtpConfig, getLogger());
         }
-        
+
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.SMTPServerMBean#getAddressBracketsEnforcement()
+     * 
+     * @see
+     * org.apache.james.smtpserver.SMTPServerMBean#getAddressBracketsEnforcement
+     * ()
      */
-	public boolean getAddressBracketsEnforcement() {
-		return lmtpConfig.useAddressBracketsEnforcement();
-	}
+    public boolean getAddressBracketsEnforcement() {
+        return lmtpConfig.useAddressBracketsEnforcement();
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.smtpserver.SMTPServerMBean#getHeloEhloEnforcement()
+     */
+    public boolean getHeloEhloEnforcement() {
+        return lmtpConfig.useHeloEhloEnforcement();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.smtpserver.SMTPServerMBean#getHeloEhloEnforcement()
-	 */
-	public boolean getHeloEhloEnforcement() {
-		return lmtpConfig.useHeloEhloEnforcement();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.smtpserver.SMTPServerMBean#getMaximalMessageSize()
+     */
+    public long getMaximalMessageSize() {
+        return lmtpConfig.getMaxMessageSize();
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
+     */
+    public int getCurrentConnections() {
+        return countHandler.getCurrentConnectionCount();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.smtpserver.SMTPServerMBean#getMaximalMessageSize()
-	 */
-	public long getMaximalMessageSize() {
-		return lmtpConfig.getMaxMessageSize();
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
-	 */
-	public int getCurrentConnections() {
-		return countHandler.getCurrentConnectionCount();
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
-	 */
-	public String getNetworkInterface() {
-		return "unknown";
-	}
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
+     */
+    public String getNetworkInterface() {
+        return "unknown";
+    }
 
     @Override
     protected String getDefaultJMXName() {
