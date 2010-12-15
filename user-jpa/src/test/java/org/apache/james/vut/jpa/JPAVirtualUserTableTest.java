@@ -49,8 +49,8 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
 
         // Use a memory database.
         properties = new HashMap<String, String>();
-        properties.put("openjpa.ConnectionDriverName", org.apache.derby.jdbc.EmbeddedDriver.class.getName());
-        properties.put("openjpa.ConnectionURL", "jdbc:derby:memory:JPAVirtualUserTableTestDB;create=true");
+        properties.put("openjpa.ConnectionDriverName", "org.h2.Driver");
+        properties.put("openjpa.ConnectionURL", "jdbc:h2:target/users/db");
         properties.put("openjpa.Log", "JDBC=WARN, SQL=WARN, Runtime=WARN");
         properties.put("openjpa.ConnectionFactoryProperties", "PrettyPrint=true, PrettyPrintLineLength=72");
         properties.put("openjpa.jdbc.SynchronizeMappings", "buildSchema(ForeignKeys=true)");

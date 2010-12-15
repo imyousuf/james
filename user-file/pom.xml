@@ -31,10 +31,6 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
     </dependency>
     <dependency>
@@ -67,21 +63,9 @@
       <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${javax.mail.groupId}</groupId>
-      <artifactId>${javax.mail.artifactId}</artifactId>
-    </dependency>
-    <dependency>
       <groupId>javax.annotation</groupId>
       <artifactId>jsr250-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jpa_2.0_spec</artifactId>
-    </dependency>       
 
     <!-- Test dependencies -->
     <dependency>

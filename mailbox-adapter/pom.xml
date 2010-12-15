@@ -36,6 +36,11 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-api</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-james-mailbox-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-store</artifactId>
@@ -43,6 +48,10 @@
      <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-maildir</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.annotation</groupId>

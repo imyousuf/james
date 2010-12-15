@@ -73,6 +73,10 @@
       <artifactId>james-server-domainlist-library</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-dnsservice-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
     </dependency>
@@ -80,10 +84,6 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
-    </dependency>    
 
     <!-- Test dependencies -->
     <dependency>
