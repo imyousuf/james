@@ -26,8 +26,8 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
-import org.apache.james.socket.AbstractCommandHandlerResultJMXMonitor;
-import org.apache.james.socket.AbstractCommandHandlerStats;
+import org.apache.james.server.jmx.AbstractCommandHandlerResultJMXMonitor;
+import org.apache.james.server.jmx.AbstractCommandHandlerStats;
 
 /**
  * Gather JMX stats for {@link CommandHandler}

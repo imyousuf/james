@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
-import org.apache.james.socket.ServerMBean;
+import org.apache.james.server.jmx.ServerMBean;
 
 public interface POP3ServerMBean extends ServerMBean{
 

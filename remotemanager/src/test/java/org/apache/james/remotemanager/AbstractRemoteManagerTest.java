@@ -36,6 +36,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.james.server.JamesProtocolHandlerChain;
 import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.dnsservice.api.DNSService;
@@ -44,7 +45,6 @@ import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.SimpleDomainList;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
-import org.apache.james.socket.JamesProtocolHandlerChain;
 import org.apache.james.user.lib.MockUsersRepository;
 import org.apache.james.user.lib.MockUsersStore;
 import org.apache.james.util.InternetPrintWriter;

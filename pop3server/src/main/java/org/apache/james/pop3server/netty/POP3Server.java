@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
-import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -26,8 +25,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
-import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
-import org.apache.james.socket.netty.ConnectionCountHandler;
+import org.apache.james.server.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.server.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;

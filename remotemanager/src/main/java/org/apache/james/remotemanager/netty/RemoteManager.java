@@ -23,15 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
 import org.apache.james.remotemanager.RemoteManagerHandlerConfigurationData;
-import org.apache.james.socket.netty.AbstractConfigurableAsyncServer;
-import org.apache.james.socket.netty.ConnectionCountHandler;
+import org.apache.james.server.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.server.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;

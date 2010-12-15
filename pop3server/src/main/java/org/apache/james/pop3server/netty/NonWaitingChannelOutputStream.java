@@ -21,8 +21,8 @@ package org.apache.james.pop3server.netty;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.james.server.netty.ChannelOutputStream;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.handler.stream.ChannelOutputStream;
 
 /**
  * Allow to write via an {@link OutputStream} to the underlying {@link Channel}. All writes are just passed to the {@link Channel} without waiting for 

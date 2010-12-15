@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.imapserver.netty;
 
-import org.apache.james.socket.ServerMBean;
+import org.apache.james.server.jmx.ServerMBean;
 
 public interface IMAPServerMBean extends ServerMBean{
 

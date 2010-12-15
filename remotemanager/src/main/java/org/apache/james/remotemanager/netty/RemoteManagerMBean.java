@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.remotemanager.netty;
 
-import org.apache.james.socket.ServerMBean;
+import org.apache.james.server.jmx.ServerMBean;
 
 public interface RemoteManagerMBean extends ServerMBean{
 
