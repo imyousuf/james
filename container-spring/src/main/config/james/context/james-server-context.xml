@@ -168,7 +168,7 @@
     <bean id="remotemanager" class="org.apache.james.remotemanager.netty.RemoteManager" >
         <property name="protocolHandlerChain" ref="remoteProtocolHandlerChain"/>
     </bean>
-    <bean id="remoteProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
+    <bean id="remoteProtocolHandlerChain" class="org.apache.james.server.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
     </bean>
 
@@ -178,7 +178,7 @@
     <bean id="smtpserver" class="org.apache.james.smtpserver.netty.SMTPServer">
         <property name="protocolHandlerChain" ref="smtpProtocolHandlerChain"/>
     </bean>
-    <bean id="smtpProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
+    <bean id="smtpProtocolHandlerChain" class="org.apache.james.server.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
     </bean>
 
@@ -188,7 +188,7 @@
     <bean id="lmtpserver" class="org.apache.james.lmtpserver.netty.LMTPServer">
         <property name="protocolHandlerChain" ref="lmtpProtocolHandlerChain"/>
     </bean>
-    <bean id="lmtpProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
+    <bean id="lmtpProtocolHandlerChain" class="org.apache.james.server.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
     </bean>
     
@@ -203,7 +203,7 @@
     <bean id="pop3server"  class="org.apache.james.pop3server.netty.POP3Server" >
         <property name="protocolHandlerChain" ref="pop3ProtocolHandlerChain"/>
     </bean>
-    <bean id="pop3ProtocolHandlerChain" class="org.apache.james.socket.JamesProtocolHandlerChain">
+    <bean id="pop3ProtocolHandlerChain" class="org.apache.james.server.JamesProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
     </bean>
 
