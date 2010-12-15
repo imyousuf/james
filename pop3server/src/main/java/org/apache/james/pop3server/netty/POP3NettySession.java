@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +43,6 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
 
     private MessageManager mailbox;
 
-    private NonWaitingChannelOutputStream out;
 
     public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext) {
         this(configData, logger, handlerContext, null);
@@ -54,7 +52,6 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
     public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         super(logger, handlerContext, engine);
         this.configData = configData;
-        this.out = new NonWaitingChannelOutputStream(getChannelHandlerContext().getChannel());
     }
 
 
@@ -121,13 +118,5 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
         this.mailbox = mailbox;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.pop3server.POP3Session#getOutputStream()
-     */
-    public OutputStream getOutputStream() {
-        return out;
-    }
 
 }
