@@ -51,7 +51,14 @@ public interface ServerMBean {
      */
 	public boolean getStartTLSSupported();
 
-	
+
+    /**
+     * Return the IPAddress to which the server is bound
+     *  
+     * @return ipAddress or null if not bound to some specifc ip
+     */
+    public String getIPAddress();
+    
     /**
      * Return the port number to which ther server is bound
      * @return

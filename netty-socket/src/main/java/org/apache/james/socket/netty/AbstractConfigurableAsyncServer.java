@@ -509,4 +509,12 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#getIPAddress()
+     */
+    public String getIPAddress() {
+        return getIP();
+    }
+
 }
