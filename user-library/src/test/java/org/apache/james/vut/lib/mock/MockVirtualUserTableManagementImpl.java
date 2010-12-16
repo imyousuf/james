@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.vut.lib;
+package org.apache.james.vut.lib.mock;
 
 import java.util.Collection;
 import java.util.HashMap;

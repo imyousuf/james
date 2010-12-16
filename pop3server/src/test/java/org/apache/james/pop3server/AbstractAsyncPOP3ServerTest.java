@@ -41,7 +41,7 @@ import org.apache.james.resolver.api.mock.MockFileSystem;
 import org.apache.james.resolver.api.mock.MockJSR250Loader;
 import org.apache.james.server.JamesProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.dnsservice.api.MockDNSService;
+import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxManager;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxSessionMapperFactory;
 import org.apache.james.mailbox.inmemory.mail.InMemoryCachingUidProvider;
@@ -50,7 +50,7 @@ import org.apache.james.mailbox.MessageManager;
 import org.apache.james.mailbox.MailboxConstants;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.store.Authenticator;
-import org.apache.james.user.lib.MockUsersRepository;
+import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 import org.apache.james.util.TestUtil;
 

@@ -30,14 +30,14 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.james.domainlist.api.SimpleDomainList;
+import org.apache.james.domainlist.api.mock.SimpleDomainList;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.lib.MockUsersRepository;
+import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 

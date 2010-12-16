@@ -16,10 +16,12 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.dnsservice.api;
+package org.apache.james.dnsservice.api.mock;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
+import org.apache.james.dnsservice.api.DNSService;
 
 
 /**

@@ -31,7 +31,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.dnsservice.api.MockDNSService;
+import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.domainlist.xml.XMLDomainList;
 
 import junit.framework.TestCase;

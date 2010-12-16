@@ -27,6 +27,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.james.user.lib.UserManagement;
+import org.apache.james.user.lib.mock.MockUsersRepository;
 
 /**
  * Tests the UserManagement

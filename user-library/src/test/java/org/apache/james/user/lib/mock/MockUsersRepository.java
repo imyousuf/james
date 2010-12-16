@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.user.lib;
+package org.apache.james.user.lib.mock;
 
 import org.apache.james.user.api.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;

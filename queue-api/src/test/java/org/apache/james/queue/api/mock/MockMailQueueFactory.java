@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.queue.api;
+package org.apache.james.queue.api.mock;
 
 import java.util.HashMap;
 import java.util.Map;

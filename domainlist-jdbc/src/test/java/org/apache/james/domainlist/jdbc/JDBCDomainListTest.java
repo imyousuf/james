@@ -39,7 +39,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.dnsservice.api.MockDNSService;
+import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.domainlist.jdbc.JDBCDomainList;
 import org.apache.james.resolver.api.mock.MockFileSystem;
 import org.apache.james.util.sql.JDBCUtil;

@@ -29,7 +29,7 @@ import java.util.Map;
 import javax.mail.internet.ParseException;
 
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.dnsservice.api.MockDNSService;
+import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;

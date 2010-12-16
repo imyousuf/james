@@ -25,6 +25,7 @@ import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.user.api.User;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.lib.DefaultJamesUser;
+import org.apache.james.user.lib.mock.MockUsersRepository;
 
 import java.util.ArrayList;
 import java.util.Iterator;

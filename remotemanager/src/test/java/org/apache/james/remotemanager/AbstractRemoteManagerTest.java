@@ -40,15 +40,15 @@ import org.apache.james.resolver.api.mock.MockFileSystem;
 import org.apache.james.resolver.api.mock.MockJSR250Loader;
 import org.apache.james.server.JamesProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.dnsservice.api.MockDNSService;
+import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.domainlist.api.DomainList;
-import org.apache.james.domainlist.api.SimpleDomainList;
+import org.apache.james.domainlist.api.mock.SimpleDomainList;
 import org.apache.james.lifecycle.api.LifecycleUtil;
-import org.apache.james.mailstore.MockMailStore;
-import org.apache.james.user.lib.MockUsersRepository;
+import org.apache.james.mailstore.mock.MockMailStore;
+import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.TestUtil;
-import org.apache.james.vut.lib.MockVirtualUserTableManagementImpl;
+import org.apache.james.vut.lib.mock.MockVirtualUserTableManagementImpl;
 
 public abstract class AbstractRemoteManagerTest extends TestCase {
     private int m_remoteManagerListenerPort = TestUtil.getNonPrivilegedPort();

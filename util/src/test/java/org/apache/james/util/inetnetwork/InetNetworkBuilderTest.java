@@ -22,7 +22,7 @@ import java.net.UnknownHostException;
 
 import junit.framework.TestCase;
 
-import org.apache.james.dnsservice.api.DNSFixture;
+import org.apache.james.dnsservice.api.mock.DNSFixture;
 import org.apache.james.util.inetnetwork.InetNetworkBuilder;
 import org.apache.james.util.inetnetwork.model.InetNetwork;
 

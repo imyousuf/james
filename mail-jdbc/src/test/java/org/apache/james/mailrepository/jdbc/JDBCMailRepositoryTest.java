@@ -29,7 +29,7 @@ import org.apache.derby.jdbc.EmbeddedDriver;
 import org.apache.james.mailrepository.AbstractMailRepositoryTest;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.jdbc.JDBCMailRepository;
-import org.apache.james.mailstore.MockMailStore;
+import org.apache.james.mailstore.mock.MockMailStore;
 import org.apache.james.repository.file.FilePersistentStreamRepository;
 import org.apache.james.resolver.api.mock.MockFileSystem;
 

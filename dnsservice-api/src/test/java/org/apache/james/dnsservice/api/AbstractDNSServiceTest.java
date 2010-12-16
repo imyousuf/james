@@ -21,6 +21,8 @@ package org.apache.james.dnsservice.api;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.james.dnsservice.api.mock.MockDNSService;
+
 
 import junit.framework.TestCase;
 

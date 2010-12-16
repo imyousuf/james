@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailstore;
+package org.apache.james.mailstore.mock;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationUtils;

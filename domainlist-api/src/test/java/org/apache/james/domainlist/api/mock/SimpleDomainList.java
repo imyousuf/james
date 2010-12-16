@@ -18,11 +18,13 @@
  ****************************************************************/
 
 
-package org.apache.james.domainlist.api;
+package org.apache.james.domainlist.api.mock;
 
 
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.james.domainlist.api.DomainList;
 
 /**
  * Simplest implementation for ManageableDomainList
