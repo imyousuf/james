@@ -293,7 +293,7 @@
         <property name="serverSocketFactory" ref="restrictedRmiSocketFactory"/>
         <property name="clientSocketFactory" ref="restrictedRmiSocketFactory"/>
     </bean> 
-    <bean id="restrictedRmiSocketFactory" class="org.apache.james.container.spring.RestrictingRMISocketFactory">
+    <bean id="restrictedRmiSocketFactory" class="org.apache.james.util.RestrictingRMISocketFactory">
         <constructor-arg value="${jmx.address}"/>
     </bean>   
 
