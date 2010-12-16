@@ -20,7 +20,7 @@
 package org.apache.james.mailrepository.jdbc;
 
 import org.apache.james.core.MimeMessageUtil;
-import org.apache.james.repository.StreamRepository;
+import org.apache.james.repository.api.StreamRepository;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;

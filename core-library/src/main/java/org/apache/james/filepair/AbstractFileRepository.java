@@ -26,7 +26,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
-import org.apache.james.repository.Repository;
+import org.apache.james.repository.api.Repository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.util.io.ExtensionFileFilter;
 

@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.james.repository.StreamRepository;
+import org.apache.james.repository.api.StreamRepository;
 
 /**
  * Implementation of a StreamRepository to a File.
@@ -50,7 +50,7 @@ public class FilePersistentStreamRepository
     /**
      * Get the object associated to the given unique key.
      * 
-     * @see org.apache.james.repository.avalon.cornerstone.services.store.StreamRepository#get(String)
+     * @see org.apache.james.repository.api.avalon.cornerstone.services.store.StreamRepository#get(String)
      */
     public synchronized InputStream get( final String key )
     {
@@ -69,7 +69,7 @@ public class FilePersistentStreamRepository
     /**
      * Store the given object and associates it to the given key
      * 
-     * @see org.apache.james.repository.avalon.cornerstone.services.store.StreamRepository#put(String)
+     * @see org.apache.james.repository.api.avalon.cornerstone.services.store.StreamRepository#put(String)
      */
     public synchronized OutputStream put( final String key )
     {

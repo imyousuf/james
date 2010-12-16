@@ -28,8 +28,8 @@ import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.mailrepository.lib.AbstractMailRepository;
 import org.apache.james.mailstore.api.MailStore;
-import org.apache.james.repository.ObjectRepository;
-import org.apache.james.repository.StreamRepository;
+import org.apache.james.repository.api.ObjectRepository;
+import org.apache.james.repository.api.StreamRepository;
 import org.apache.mailet.Mail;
 
 import javax.annotation.PostConstruct;

@@ -17,9 +17,22 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.repository;
+package org.apache.james.repository.api;
 
-public interface Repository {
+import java.util.Iterator;
 
-    public Repository getChildRepository(String childName);
+public interface ObjectRepository extends Repository{
+
+    public boolean containsKey(String key);
+    
+    public Object get(String key);
+    
+    public Object get(String key, ClassLoader loader);
+
+    
+    public Iterator<String> list();
+    
+    public void put(String key, Object value);
+    
+    public void remove(String key);
 }
