@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util.io;
+package org.apache.james.repository.file;
 
 import java.io.IOException;
 import java.io.InputStream;

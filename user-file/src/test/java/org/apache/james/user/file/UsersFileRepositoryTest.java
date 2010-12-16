@@ -29,9 +29,9 @@ import java.util.Iterator;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.filepair.FilePersistentObjectRepository;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
+import org.apache.james.repository.file.FilePersistentObjectRepository;
 import org.apache.james.services.FileSystem;
 import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.UsersRepository;

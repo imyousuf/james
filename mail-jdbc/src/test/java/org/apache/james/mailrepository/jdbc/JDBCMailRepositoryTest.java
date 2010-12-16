@@ -24,11 +24,11 @@ import javax.sql.DataSource;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.filepair.FilePersistentStreamRepository;
 import org.apache.james.mailrepository.AbstractMailRepositoryTest;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.jdbc.JDBCMailRepository;
 import org.apache.james.mailstore.MockMailStore;
+import org.apache.james.repository.file.FilePersistentStreamRepository;
 import org.apache.james.services.MockFileSystem;
 import org.apache.james.util.TestUtil;
 

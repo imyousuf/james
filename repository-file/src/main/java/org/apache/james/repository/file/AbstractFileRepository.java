@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.filepair;
+package org.apache.james.repository.file;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -28,7 +28,6 @@ import org.apache.james.lifecycle.Configurable;
 import org.apache.james.lifecycle.LogEnabled;
 import org.apache.james.repository.api.Repository;
 import org.apache.james.services.FileSystem;
-import org.apache.james.util.io.ExtensionFileFilter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -196,7 +195,7 @@ public abstract class AbstractFileRepository
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.services.store.Repository#getChildRepository(java.lang.String)
+     * @see org.apache.james.repository.api.Repository#getChildRepository(java.lang.String)
      */
     public Repository getChildRepository( final String childName )
     {

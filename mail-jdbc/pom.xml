@@ -30,11 +30,15 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mail-api</artifactId>
+      <artifactId>james-server-repository-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-repository-api</artifactId>
+      <artifactId>james-server-repository-file</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mail-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>

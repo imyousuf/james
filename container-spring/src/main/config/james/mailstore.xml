@@ -63,7 +63,7 @@
           </types>
           <config FIFO="false"/> 
       </repository>
-      <repository class="org.apache.james.filepair.FilePersistentObjectRepository">
+      <repository class="org.apache.james.repository.file.FilePersistentObjectRepository">
           <protocols>
               <protocol>file</protocol>
           </protocols>
@@ -76,7 +76,7 @@
               <model>CACHE</model>
           </models>
       </repository>
-      <repository class="org.apache.james.filepair.FilePersistentStreamRepository">
+      <repository class="org.apache.james.repository.file.FilePersistentStreamRepository">
           <protocols>
               <protocol>file</protocol>
           </protocols>

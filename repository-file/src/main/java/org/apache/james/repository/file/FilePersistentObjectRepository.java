@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.filepair;
+package org.apache.james.repository.file;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -27,7 +27,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 import org.apache.james.repository.api.ObjectRepository;
-import org.apache.james.util.io.ClassLoaderObjectInputStream;
 
 /**
  * This is a simple implementation of persistent object store using
@@ -38,16 +37,19 @@ public class FilePersistentObjectRepository
     extends AbstractFileRepository
     implements ObjectRepository
 {
-    /**
-     * @see org.apache.james.filepair.AbstractFileRepository#getExtensionDecorator()
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.repository.file.AbstractFileRepository#getExtensionDecorator()
      */
     protected String getExtensionDecorator()
     {
         return ".FileObjectStore";
     }
 
-    /**
-     * @see org.apache.james.repository.api.avalon.cornerstone.services.store.ObjectRepository#get(String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.repository.api.ObjectRepository#get(java.lang.String)
      */
     public synchronized Object get( final String key )
     {
@@ -83,8 +85,10 @@ public class FilePersistentObjectRepository
         }
     }
 
-    /**
-     * @see org.apache.james.repository.api.avalon.cornerstone.services.store.ObjectRepository#get(String, ClassLoader)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.repository.api.ObjectRepository#get(java.lang.String, java.lang.ClassLoader)
      */
     public synchronized Object get( final String key, final ClassLoader classLoader )
     {
@@ -122,10 +126,10 @@ public class FilePersistentObjectRepository
 
     }
 
-    /**
-     * Store the given object and associates it to the given key
-     * 
-     * @see org.apache.james.repository.api.avalon.cornerstone.services.store.ObjectRepository#put(String, Object)
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.repository.api.ObjectRepository#put(java.lang.String, java.lang.Object)
      */
     public synchronized void put( final String key, final Object value )
     {

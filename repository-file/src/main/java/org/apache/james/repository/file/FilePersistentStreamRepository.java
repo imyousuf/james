@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.filepair;
+package org.apache.james.repository.file;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -38,19 +38,20 @@ public class FilePersistentStreamRepository
     extends AbstractFileRepository
     implements StreamRepository
 {
- 
-    /**
-     * @see org.apache.james.filepair.AbstractFileRepository#getExtensionDecorator()
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.repository.file.AbstractFileRepository#getExtensionDecorator()
      */
     protected String getExtensionDecorator()
     {
         return ".FileStreamStore";
     }
 
-    /**
-     * Get the object associated to the given unique key.
-     * 
-     * @see org.apache.james.repository.api.avalon.cornerstone.services.store.StreamRepository#get(String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.repository.api.StreamRepository#get(java.lang.String)
      */
     public synchronized InputStream get( final String key )
     {
@@ -66,10 +67,10 @@ public class FilePersistentStreamRepository
         }
     }
 
-    /**
-     * Store the given object and associates it to the given key
-     * 
-     * @see org.apache.james.repository.api.avalon.cornerstone.services.store.StreamRepository#put(String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.repository.api.StreamRepository#put(java.lang.String)
      */
     public synchronized OutputStream put( final String key )
     {

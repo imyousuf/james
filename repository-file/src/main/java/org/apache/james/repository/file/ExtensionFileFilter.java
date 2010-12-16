@@ -18,32 +18,55 @@
  ****************************************************************/
 
 
-package org.apache.james.util.io;
+
+package org.apache.james.repository.file;
 
 import java.io.File;
 import java.io.FilenameFilter;
 
 /**
- * This filter accepts <code>File</code>s that are directories.
- * <p>Eg., here is how to print out a list of the current directory's subdirectories:</p>
+ * This filters files based on the extension (what the filename
+ * ends with). This is used in retrieving all the files of a
+ * particular type.
+ *
+ * <p>Eg., to retrieve and print all <code>*.java</code> files in the current directory:</p>
  *
  * <pre>
  * File dir = new File(".");
- * String[] files = dir.list( new DirectoryFileFilter() );
- * for ( int i=0; i&lt;files.length; i++ )
+ * String[] files = dir.list( new ExtensionFileFilter( new String[]{"java"} ) );
+ * for (int i=0; i&lt;files.length; i++)
  * {
  *     System.out.println(files[i]);
  * }
  * </pre>
  *
- * @version $Revision$ $Date$
+ * @version CVS $Revision$ $Date$
  */
-public class DirectoryFileFilter
+public class ExtensionFileFilter
     implements FilenameFilter
 {
+    private String[] m_extensions;
+
+    public ExtensionFileFilter( final String[] extensions )
+    {
+        m_extensions = extensions;
+    }
+
+    public ExtensionFileFilter( final String extension )
+    {
+        m_extensions = new String[]{extension};
+    }
+
     public boolean accept( final File file, final String name )
     {
-        return new File( file, name ).isDirectory();
+        for( int i = 0; i < m_extensions.length; i++ )
+        {
+            if( name.endsWith( m_extensions[ i ] ) )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
