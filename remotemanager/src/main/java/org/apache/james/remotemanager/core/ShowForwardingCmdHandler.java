@@ -34,7 +34,6 @@ import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.User;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.UsersStore;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -46,19 +45,18 @@ public class ShowForwardingCmdHandler implements CommandHandler{
     private final static String COMMAND_NAME = "SHOWFORWARDING";
     private CommandHelp help = new CommandHelp("showforwarding [username]","shows a user's current email forwarding");
 
-    private UsersStore uStore;
+    private UsersRepository users;
 
     /**
-     * Sets the users store.
+     * Sets the users repository.
      * 
      * @param users
      *            the users to set
      */
-    @Resource(name = "usersstore")
-    public final void setUsers(UsersStore uStore) {
-        this.uStore = uStore;
+    @Resource(name = "localusersrepository")
+    public final void setUsers(UsersRepository users) {
+        this.users = users;
     }
-    
     /**
      * @see org.apache.james.remotemanager.CommandHandler#getHelp()
      */
@@ -77,8 +75,6 @@ public class ShowForwardingCmdHandler implements CommandHandler{
             response = new RemoteManagerResponse("Usage: " + help.getSyntax());
             return response;
         }
-
-        UsersRepository users = uStore.getRepository((String) session.getState().get(RemoteManagerSession.CURRENT_USERREPOSITORY));
 
         
         // Verify user exists

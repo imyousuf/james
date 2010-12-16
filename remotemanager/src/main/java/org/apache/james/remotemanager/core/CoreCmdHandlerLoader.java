@@ -47,7 +47,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
     private final static String UNKNOWNCMDHANDLER = UnknownCmdHandler.class.getName();
     private final static String UNSETALIASCMDHANDLER = UnsetAliasCmdHandler.class.getName();
     private final static String UNSETFORWARDINGCMDHANDLER = UnsetForwardingCmdHandler.class.getName();
-    private final static String USERCMDHANDLER = UserCmdHandler.class.getName();
     private final static String VERIFYCMDHANDLER = VerifyCmdHandler.class.getName();
     private final static String COMMANDDISPATCHER = RemoteManagerCommandDispatcherLineHandler.class.getName();
     private final static String AUTHORIZATIONHANDLER = AuthorizationHandler.class.getName();
@@ -78,7 +77,6 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
         commands.add(UNKNOWNCMDHANDLER);
         commands.add(UNSETALIASCMDHANDLER);
         commands.add(UNSETFORWARDINGCMDHANDLER);
-        commands.add(USERCMDHANDLER);
         commands.add(VERIFYCMDHANDLER);
 
         

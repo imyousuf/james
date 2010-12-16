@@ -33,7 +33,6 @@ import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.UsersStore;
 
 /**
  * Handler called upon receipt of an UNSETALIAS command.
@@ -42,19 +41,18 @@ public class UnsetAliasCmdHandler implements CommandHandler{
     public final static String COMMAND_NAME = "UNSETALIAS";
     private CommandHelp help = new CommandHelp("unsetalias [user]","unsets an alias for 'user'");
 
-    private UsersStore uStore;
+    private UsersRepository users;
 
     /**
-     * Sets the users store.
+     * Sets the users repository.
      * 
      * @param users
      *            the users to set
      */
-    @Resource(name = "usersstore")
-    public final void setUsers(UsersStore uStore) {
-        this.uStore = uStore;
+    @Resource(name = "localusersrepository")
+    public final void setUsers(UsersRepository users) {
+        this.users = users;
     }
-    
     /**
      * @see org.apache.james.remotemanager.CommandHandler#getHelp()
      */
@@ -74,8 +72,6 @@ public class UnsetAliasCmdHandler implements CommandHandler{
             response = new RemoteManagerResponse("Usage: " + help.getSyntax());
             return response;
         }
-        UsersRepository users = uStore.getRepository((String) session.getState().get(RemoteManagerSession.CURRENT_USERREPOSITORY));
-
         String username = parameters;
         JamesUser user = (JamesUser) users.getUserByName(username);
         if (user == null) {

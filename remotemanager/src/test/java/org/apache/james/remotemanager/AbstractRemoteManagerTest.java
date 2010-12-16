@@ -46,7 +46,6 @@ import org.apache.james.domainlist.api.SimpleDomainList;
 import org.apache.james.lifecycle.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.user.lib.MockUsersRepository;
-import org.apache.james.user.lib.MockUsersStore;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.TestUtil;
 import org.apache.james.vut.lib.MockVirtualUserTableManagementImpl;
@@ -60,7 +59,6 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	private TelnetClient m_telnetClient;
 	private MockUsersRepository m_mockUsersRepository;
 	private MockJSR250Loader serviceManager;
-	private MockUsersStore usersStore;
 	protected DNSService dnsservice;
 	protected MockFileSystem filesystem;
 	private MockVirtualUserTableManagementImpl vutManagement;
@@ -164,10 +162,6 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 
 		m_mockUsersRepository = new MockUsersRepository();
 		serviceManager.put("localusersrepository", m_mockUsersRepository);
-
-
-		usersStore = new MockUsersStore(m_mockUsersRepository);
-		serviceManager.put("usersstore", usersStore);
 
 		
 		filesystem = new MockFileSystem();

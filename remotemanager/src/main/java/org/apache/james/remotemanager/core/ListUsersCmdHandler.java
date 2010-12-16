@@ -33,26 +33,24 @@ import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.UsersStore;
 
 public class ListUsersCmdHandler implements CommandHandler{
 
     private final static String COMMAND_NAME = "LISTUSERS";
     private CommandHelp help = new CommandHelp("listusers","display existing accounts");
 
-    protected UsersStore uStore;
+    protected UsersRepository users;
 
     /**
-     * Sets the users store.
+     * Sets the users repository.
      * 
      * @param users
      *            the users to set
      */
-    @Resource(name = "usersstore")
-    public final void setUsers(UsersStore uStore) {
-        this.uStore = uStore;
+    @Resource(name = "localusersrepository")
+    public final void setUsers(UsersRepository users) {
+        this.users = users;
     }
-
     
     /**
     
@@ -70,7 +68,6 @@ public class ListUsersCmdHandler implements CommandHandler{
     public Response onCommand(RemoteManagerSession session, Request request) {
         RemoteManagerResponse response;
         String parameters = request.getArgument();
-        UsersRepository users = uStore.getRepository(((String) session.getState().get(RemoteManagerSession.CURRENT_USERREPOSITORY)));
 
         if (parameters == null) {
             response = new RemoteManagerResponse("Existing accounts " + users.countUsers());

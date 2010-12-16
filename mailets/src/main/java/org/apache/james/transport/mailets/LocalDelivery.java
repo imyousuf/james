@@ -23,7 +23,6 @@ package org.apache.james.transport.mailets;
 
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.UsersStore;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
@@ -57,8 +56,6 @@ public class LocalDelivery extends GenericMailet {
     
     private UsersRepository usersRepository;
 
-    private UsersStore usersStore;
-
 
     private MailboxManager mailboxManager;
 
@@ -69,11 +66,6 @@ public class LocalDelivery extends GenericMailet {
         this.usersRepository = usersRepository;
     }
     
-    
-    @Resource(name="usersstore")
-    public void setUsersStore(UsersStore usersStore) {
-        this.usersStore = usersStore;
-    }
     
     
 
@@ -115,7 +107,6 @@ public class LocalDelivery extends GenericMailet {
         
         aliasingMailet = new UsersRepositoryAliasingForwarding();
         aliasingMailet.setUsersRepository(usersRepository);
-        aliasingMailet.setUsersStore(usersStore);
         aliasingMailet.init(getMailetConfig());
         sieveMailet = new SieveMailet();
         MailetConfig m = new MailetConfig() {

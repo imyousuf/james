@@ -34,7 +34,6 @@ import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.User;
 import org.apache.james.user.api.UserManagementMBean;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.UsersStore;
 
 public class UserManagement extends StandardMBean implements UserManagementMBean {
     
@@ -42,162 +41,142 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
      * The administered UsersRepository
      */
     private UsersRepository localUsers;
-    private UsersStore usersStore;
 
     @Resource(name="localusersrepository")
     public void setUsersRepository(UsersRepository localUsers) {
         this.localUsers = localUsers;
     }
     
-    @Resource(name="usersstore")
-    public void setUsersStore(UsersStore usersStore) {
-        this.usersStore = usersStore;
-    }
-
     
     public UserManagement() throws NotCompliantMBeanException {
         super(UserManagementMBean.class);
     }
 
 
-    private JamesUser getJamesUser(String userName, String repositoryName) {
-        User baseuser = getUserRepository(repositoryName).getUserByName(userName);
+    private JamesUser getJamesUser(String userName) {
+        User baseuser = localUsers.getUserByName(userName);
         if (baseuser == null) throw new IllegalArgumentException("user not found: " + userName);
         if (! (baseuser instanceof JamesUser ) ) throw new IllegalArgumentException("user is not of type JamesUser: " + userName);
 
         return (JamesUser) baseuser;
     }
 
-    private UsersRepository getUserRepository(String repositoryName) {
-        if (repositoryName == null) return localUsers; // return default
 
-        if (usersStore == null) throw new IllegalArgumentException("cannot access user repository named " + repositoryName);
-
-        UsersRepository repository = usersStore.getRepository(repositoryName);
-        if (repository == null) throw new IllegalArgumentException("user repository does not exist: " + repositoryName);
-        
-        return repository;
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#addUser(java.lang.String, java.lang.String)
+     */
+    public boolean addUser(String userName, String password) {
+        return localUsers.addUser(userName, password);
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#addUser(java.lang.String, java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#deleteUser(java.lang.String)
      */
-    public boolean addUser(String userName, String password, String repositoryName) {
-        return getUserRepository(repositoryName).addUser(userName, password);
-    }
-
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#deleteUser(java.lang.String, java.lang.String)
-     */
-    public boolean deleteUser(String userName, String repositoryName) {
-        UsersRepository users = getUserRepository(repositoryName);
-        if (!users.contains(userName)) return false;
-        users.removeUser(userName);
+    public boolean deleteUser(String userName) {
+        if (!localUsers.contains(userName)) return false;
+        localUsers.removeUser(userName);
         return true;
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#verifyExists(java.lang.String, java.lang.String)
+    /*
+     * /(non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#verifyExists(java.lang.String)
      */
-    public boolean verifyExists(String userName, String repositoryName) {
-        UsersRepository users = getUserRepository(repositoryName);
-        return users.contains(userName);
+    public boolean verifyExists(String userName) {
+        return localUsers.contains(userName);
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#countUsers(java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#countUsers()
      */
-    public long countUsers(String repositoryName) {
-        UsersRepository users = getUserRepository(repositoryName);
-        return users.countUsers();
+    public long countUsers() {
+        return localUsers.countUsers();
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#listAllUsers(java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#listAllUsers()
      */
-    public String[] listAllUsers(String repositoryName) {
+    public String[] listAllUsers() {
         List<String> userNames = new ArrayList<String>();
-        UsersRepository users = getUserRepository(repositoryName);
-        for (Iterator<String> it = users.list(); it.hasNext();) {
+        for (Iterator<String> it = localUsers.list(); it.hasNext();) {
             userNames.add(it.next());
         }
         return (String[])userNames.toArray(new String[]{});
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#setPassword(java.lang.String, java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#setPassword(java.lang.String, java.lang.String)
      */
-    public boolean setPassword(String userName, String password, String repositoryName) {
-        UsersRepository users = getUserRepository(repositoryName);
-        User user = users.getUserByName(userName);
+    public boolean setPassword(String userName, String password) {
+        User user = localUsers.getUserByName(userName);
         if (user == null) throw new IllegalArgumentException("user not found: " + userName);
         return user.setPassword(password);
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#unsetAlias(java.lang.String, java.lang.String)
+
+    /*
+     * 
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#unsetAlias(java.lang.String)
      */
-    public boolean unsetAlias(String userName, String repositoryName) {
-        JamesUser user = getJamesUser(userName, null);
+    public boolean unsetAlias(String userName) {
+        JamesUser user = getJamesUser(userName);
         if (!user.getAliasing()) return false;
         
         user.setAliasing(false);
-        getUserRepository(repositoryName).updateUser(user);
+        localUsers.updateUser(user);
         return true;
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#getAlias(java.lang.String, java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#getAlias(java.lang.String)
      */
-    public String getAlias(String userName, String repositoryName) {
-        JamesUser user = getJamesUser(userName, null);
+    public String getAlias(String userName) {
+        JamesUser user = getJamesUser(userName);
         if (!user.getAliasing()) return null;
         return user.getAlias();
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#unsetForwardAddress(java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#unsetForwardAddress(java.lang.String)
      */
-    public boolean unsetForwardAddress(String userName, String repositoryName) {
-        JamesUser user = getJamesUser(userName, null);
+    public boolean unsetForwardAddress(String userName) {
+        JamesUser user = getJamesUser(userName);
 
         if (!user.getForwarding()) return false;
         
         user.setForwarding(false);
-        getUserRepository(repositoryName).updateUser(user);
+        localUsers.updateUser(user);
         return true;
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#getForwardAddress(java.lang.String, java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UserManagementMBean#getForwardAddress(java.lang.String)
      */
-    public String getForwardAddress(String userName, String repositoryName) {
-        JamesUser user = getJamesUser(userName, null);
+    public String getForwardAddress(String userName) {
+        JamesUser user = getJamesUser(userName);
         if (!user.getForwarding()) return null;
         return user.getForwardingDestination().toString();
     }
 
-    /**
-     * @see org.apache.james.user.api.UserManagementMBean#getUserRepositoryNames()
-     */
-    public List<String> getUserRepositoryNames() {
-        List<String> result = new ArrayList<String>();
-        if (usersStore == null) return result;
-        
-        Iterator<String> repositoryNames = usersStore.getRepositoryNames();
-        while (repositoryNames.hasNext()) {
-            String name = repositoryNames.next();
-            result.add(name);
-        }
-        return result;
-    }
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#getVirtualHostingEnabled(java.lang.String)
+     * @see org.apache.james.user.api.UserManagementMBean#getVirtualHostingEnabled()
      */
-    public boolean getVirtualHostingEnabled(String repositoryName) {
-        return getUserRepository(repositoryName).supportVirtualHosting();
+    public boolean getVirtualHostingEnabled() {
+        return localUsers.supportVirtualHosting();
     }
 
 }

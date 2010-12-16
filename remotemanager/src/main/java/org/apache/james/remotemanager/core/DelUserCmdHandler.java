@@ -33,7 +33,6 @@ import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.UsersStore;
 
 /**
  * Handler called upon receipt of an DELUSER command.
@@ -42,20 +41,19 @@ public class DelUserCmdHandler implements CommandHandler {
 
     private final static String COMMAND_NAME = "DELUSER";
     private CommandHelp help = new CommandHelp("deluser [username]", "delete existing user");
-
-    private UsersStore uStore;
+   
+    private UsersRepository users;
 
     /**
-     * Sets the users store.
+     * Sets the users repository.
      * 
      * @param users
      *            the users to set
      */
-    @Resource(name = "usersstore")
-    public final void setUsers(UsersStore uStore) {
-        this.uStore = uStore;
+    @Resource(name = "localusersrepository")
+    public final void setUsers(UsersRepository users) {
+        this.users = users;
     }
-
     /**
      * @see org.apache.james.remotemanager.CommandHandler#getHelp()
      */
@@ -76,7 +74,6 @@ public class DelUserCmdHandler implements CommandHandler {
             response = new RemoteManagerResponse("Usage: " + help.getSyntax());
             return response;
         } else {
-            UsersRepository users = uStore.getRepository(((String) session.getState().get(RemoteManagerSession.CURRENT_USERREPOSITORY)));
             if (users.contains(user)) {
                 try {
                     users.removeUser(user);

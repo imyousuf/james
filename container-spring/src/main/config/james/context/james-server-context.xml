@@ -54,7 +54,6 @@
                 <entry key="mailetloader" value="mailetcontainer"/>
                 <entry key="matcherloader" value="mailetcontainer"/>
                 <entry key="mailetcontext" value="mailetcontainer"/>
-                <entry key="usersstore" value="usersrepository"/>
              </map>
         </property>
     </bean>
@@ -77,7 +76,6 @@
                 <entry key="mailspooler" value="mailetcontainer"/>
                 <entry key="mailetloader" value="mailetcontainer"/>
                 <entry key="matcherloader" value="mailetcontainer"/>
-                <entry key="usersstore" value="usersrepository"/>
             </map>
         </property>
     </bean>
@@ -219,10 +217,7 @@
     <!-- 
       Users
      -->
-    <bean id="usersstore" class="org.apache.james.user.lib.JamesUsersStore" >
-        <property name="defaultRepository" value="LocalUsers"/>
-    </bean>
-    <bean id="localusersrepository" class="org.apache.james.user.lib.LocalUsersRepository" />
+    <bean id="usersrepository" name="localusersrepository" class="org.apache.james.user.lib.JamesUsersRepository"/>
     <bean id="virtualusertable" class="org.apache.james.vut.lib.JamesVirtualUserTable" />
 
     <!-- 
@@ -235,11 +230,6 @@
      -->
     <bean id="mailstore" class="org.apache.james.mailstore.lib.JamesMailStore" />
 
-    <!-- 
-      Mailstore Import 2.3
-      INFO: This sections still needs to be completed with beans responsible to import James 2.3 mailstore.
-     -->
-          
     <!-- 
       Mailbox
      -->

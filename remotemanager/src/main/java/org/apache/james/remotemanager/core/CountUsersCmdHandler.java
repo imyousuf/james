@@ -28,7 +28,6 @@ import org.apache.james.protocols.api.Response;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.user.api.UsersRepository;
 
 public class CountUsersCmdHandler extends ListUsersCmdHandler{
 
@@ -51,7 +50,6 @@ public class CountUsersCmdHandler extends ListUsersCmdHandler{
     public Response onCommand(RemoteManagerSession session, Request request) {      
     	RemoteManagerResponse response;
         String parameters = request.getArgument();
-        UsersRepository users = uStore.getRepository(((String) session.getState().get(RemoteManagerSession.CURRENT_USERREPOSITORY)));
         System.out.println("users " +users);
         if (parameters == null) {
             response = new RemoteManagerResponse("Existing accounts " + users.countUsers());

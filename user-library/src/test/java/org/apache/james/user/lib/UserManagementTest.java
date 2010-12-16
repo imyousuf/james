@@ -41,52 +41,36 @@ public class UserManagementTest extends TestCase {
 
         m_userManagement = new UserManagement();      
         m_userManagement.setUsersRepository(m_mockUsersRepository);
-        m_userManagement.setUsersStore(new MockUsersStore(m_mockUsersRepository));
     }
 
    
 
     public void testUserCount() {
-        assertEquals("no user yet", 0, m_userManagement.countUsers(null));
+        assertEquals("no user yet", 0, m_userManagement.countUsers());
         m_mockUsersRepository.addUser("testCount1", "testCount");
-        assertEquals("1 user", 1, m_userManagement.countUsers(null));
+        assertEquals("1 user", 1, m_userManagement.countUsers());
         m_mockUsersRepository.addUser("testCount2", "testCount");
-        assertEquals("2 users", 2, m_userManagement.countUsers(null));
+        assertEquals("2 users", 2, m_userManagement.countUsers());
         m_mockUsersRepository.removeUser("testCount1");
-        assertEquals("1 user", 1, m_userManagement.countUsers(null));
+        assertEquals("1 user", 1, m_userManagement.countUsers());
     }
 
-    public void testDefaultRepositoryIsLocalUsers() {
-        m_userManagement.addUser("testCount1", "testCount", null);
-        m_userManagement.addUser("testCount2", "testCount", "LocalUsers");
 
-        assertEquals("2 users", 2, m_userManagement.countUsers(null));
-        assertEquals("2 users", 2, m_userManagement.countUsers("LocalUsers"));
-    }
-
-    public void testNonExistingRepository() {
-        try {
-            m_userManagement.addUser("testCount1", "testCount", "NonExisting");
-            fail("retrieved non-existing repository");
-        } catch (IllegalArgumentException e) {
-            // success
-        }
-    }
 
     public void testAddUserAndVerify() {
         assertTrue("user added", m_mockUsersRepository.addUser("testCount1", "testCount"));
-        assertFalse("user not there", m_userManagement.verifyExists("testNotAdded", null));
-        assertTrue("user is there", m_userManagement.verifyExists("testCount1", null));
+        assertFalse("user not there", m_userManagement.verifyExists("testNotAdded"));
+        assertTrue("user is there", m_userManagement.verifyExists("testCount1"));
         m_mockUsersRepository.removeUser("testCount1");
-        assertFalse("user not there", m_userManagement.verifyExists("testCount1", null));
+        assertFalse("user not there", m_userManagement.verifyExists("testCount1"));
     }
 
     public void testDelUser() {
         assertTrue("user added", m_mockUsersRepository.addUser("testDel", "test"));
-        assertFalse("user not there", m_userManagement.verifyExists("testNotDeletable", null));
-        assertTrue("user is there", m_userManagement.verifyExists("testDel", null));
+        assertFalse("user not there", m_userManagement.verifyExists("testNotDeletable"));
+        assertTrue("user is there", m_userManagement.verifyExists("testDel"));
         m_mockUsersRepository.removeUser("testDel");
-        assertFalse("user no longer there", m_userManagement.verifyExists("testDel", null));
+        assertFalse("user no longer there", m_userManagement.verifyExists("testDel"));
     }
 
     public void testListUsers() {
@@ -99,7 +83,7 @@ public class UserManagementTest extends TestCase {
             assertTrue("user added", m_mockUsersRepository.addUser(user, "test"));
         }
 
-        String[] userNames = m_userManagement.listAllUsers(null);
+        String[] userNames = m_userManagement.listAllUsers();
         assertEquals("user count", users.size(), userNames.length);
 
         for (int i = 0; i < userNames.length; i++) {
@@ -111,27 +95,23 @@ public class UserManagementTest extends TestCase {
     
     public void testSetPassword() {
 
-        assertTrue("user added", m_userManagement.addUser("testPwdUser", "pwd1", null));
+        assertTrue("user added", m_userManagement.addUser("testPwdUser", "pwd1"));
 
         assertTrue("initial password", m_mockUsersRepository.test("testPwdUser", "pwd1"));
 
         // set empty pwd
-        assertTrue("changed to empty password", m_userManagement.setPassword("testPwdUser", "", null));
+        assertTrue("changed to empty password", m_userManagement.setPassword("testPwdUser", ""));
         assertTrue("password changed to empty", m_mockUsersRepository.test("testPwdUser", ""));
 
         // change pwd
-        assertTrue("changed password", m_userManagement.setPassword("testPwdUser", "pwd2", null));
+        assertTrue("changed password", m_userManagement.setPassword("testPwdUser", "pwd2"));
         assertTrue("password not changed to pwd2", m_mockUsersRepository.test("testPwdUser", "pwd2"));
 
         // assure case sensitivity
-        assertTrue("changed password", m_userManagement.setPassword("testPwdUser", "pWD2", null));
+        assertTrue("changed password", m_userManagement.setPassword("testPwdUser", "pWD2"));
         assertFalse("password no longer pwd2", m_mockUsersRepository.test("testPwdUser", "pwd2"));
         assertTrue("password changed to pWD2", m_mockUsersRepository.test("testPwdUser", "pWD2"));
 
     }
     
-    public void testListRepositories() {
-        List<String> userRepositoryNames = m_userManagement.getUserRepositoryNames();
-        assertTrue("default is there", userRepositoryNames.contains("LocalUsers"));
-    }
 }

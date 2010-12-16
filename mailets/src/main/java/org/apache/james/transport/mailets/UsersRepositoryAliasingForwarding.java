@@ -29,7 +29,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.UsersStore;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
 import org.apache.mailet.MailAddress;
@@ -46,8 +45,6 @@ import org.apache.mailet.MailAddress;
  * <enableForwarding>true</enableForwarding>: enable the forwarding. Default to
  * false.
  * 
- * <usersRepository>LocalAdmins</usersRepository>: specific users repository
- * name. Default to empty. If empty does lookup the default userRepository.
  * 
  * @deprecated use org.apache.james.transport.mailets.VirtualUserTable
  * 
@@ -60,7 +57,6 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
      * inboxes on this server.
      */
     private UsersRepository usersRepository;
-    private UsersStore usersStore;
 
     /**
      * Return a string describing this mailet.
@@ -75,12 +71,7 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
     public void setUsersRepository(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }
-    
-    @Resource(name="usersstore")
-    public void setUsersStore(UsersStore usersStore) {
-        this.usersStore = usersStore;
-    }
-    
+
     /**
      * Return null when the mail should be GHOSTed, the username string when it
      * should be changed due to the ignoreUser configuration.
@@ -131,16 +122,4 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
     }
 
     
-    /**
-     * @see org.apache.mailet.GenericMailet#init()
-     */
-    public void init() throws MessagingException {
-        super.init();
-        String userRep = getInitParameter("usersRepository");
-        if (userRep != null && userRep.length() > 0) {
-            usersRepository = usersStore.getRepository(userRep);
-        }
-
-    }
-
 }

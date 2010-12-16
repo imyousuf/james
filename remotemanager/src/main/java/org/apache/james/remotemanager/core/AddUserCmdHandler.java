@@ -34,7 +34,6 @@ import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.UsersStore;
 
 /**
  * Handler method called upon receipt of an ADDUSER command.
@@ -44,8 +43,6 @@ public class AddUserCmdHandler implements CommandHandler{
     private final static String COMMAND_NAME = "ADDUSER";
     private CommandHelp help = new CommandHelp("adduser [username] [password]","add a new user");
 
-    private UsersStore uStore;
-
     private DomainList domList;
 
     @Resource(name="domainlist")
@@ -53,13 +50,17 @@ public class AddUserCmdHandler implements CommandHandler{
         this.domList = domList;
     }
     
+    private UsersRepository users;
+
     /**
-     * Sets the users store.
-     * @param users the users to set
+     * Sets the users repository.
+     * 
+     * @param users
+     *            the users to set
      */
-    @Resource(name="usersstore")
-    public final void setUsers(UsersStore uStore) {
-        this.uStore = uStore;
+    @Resource(name = "localusersrepository")
+    public final void setUsers(UsersRepository users) {
+        this.users = users;
     }
     
 
@@ -90,8 +91,6 @@ public class AddUserCmdHandler implements CommandHandler{
             response = new RemoteManagerResponse("Usage: " + getHelp().getSyntax());
             return response;
         }
-        UsersRepository users = uStore.getRepository((String)session.getState().get(RemoteManagerSession.CURRENT_USERREPOSITORY));
-
         boolean success = false;
         if (users.contains(username)) {
             StringBuilder responseBuffer =
