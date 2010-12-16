@@ -21,8 +21,8 @@ package org.apache.james.user.lib.mock;
 
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;
-import org.apache.james.user.lib.DefaultJamesUser;
-import org.apache.james.user.lib.DefaultUser;
+import org.apache.james.user.lib.model.DefaultJamesUser;
+import org.apache.james.user.lib.model.DefaultUser;
 import org.apache.james.user.lib.util.DigestUtil;
 
 import java.security.NoSuchAlgorithmException;

@@ -30,6 +30,7 @@ import org.apache.james.user.api.JamesUsersRepository;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.api.model.User;
+import org.apache.james.user.lib.model.DefaultUser;
 import org.apache.james.vut.lib.AbstractReadOnlyVirtualUserTable;
 
 import java.util.ArrayList;

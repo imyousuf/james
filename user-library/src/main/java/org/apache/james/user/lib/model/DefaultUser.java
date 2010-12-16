@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.user.lib;
+package org.apache.james.user.lib.model;
 
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.util.DigestUtil;
