@@ -68,11 +68,7 @@
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-api</artifactId>
     </dependency>
-   <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
-      <scope>runtime</scope>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.james.protocols</groupId>
       <artifactId>protocols-smtp</artifactId>
@@ -110,11 +106,11 @@
       <artifactId>jsr250-api</artifactId>
     </dependency>
 
-    <!-- Test dependencies -->
+    <!-- Test dependencies -->   
     <dependency>
       <artifactId>dnsjava</artifactId>
       <groupId>dnsjava</groupId>
-      <scope>runtime</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -126,6 +122,11 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core-library</artifactId>
       <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+   <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-library</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
