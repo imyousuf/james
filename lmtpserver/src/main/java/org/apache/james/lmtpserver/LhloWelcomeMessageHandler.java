@@ -20,7 +20,6 @@
 
 package org.apache.james.lmtpserver;
 
-import org.apache.james.Constants;
 import org.apache.james.protocols.smtp.core.WelcomeMessageHandler;
 
 /**
@@ -30,8 +29,7 @@ import org.apache.james.protocols.smtp.core.WelcomeMessageHandler;
  */
 public class LhloWelcomeMessageHandler extends WelcomeMessageHandler{
 
-    private final static String SOFTWARE_TYPE = "JAMES LMTP Server "
-                                                 + Constants.SOFTWARE_VERSION;
+    private final static String SOFTWARE_TYPE = "JAMES LMTP Server"; //+ Constants.SOFTWARE_VERSION;
 
     @Override
     protected String getProductName() {
