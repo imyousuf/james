@@ -23,6 +23,8 @@ package org.apache.james.user.api;
 
 import java.util.Iterator;
 
+import org.apache.james.user.api.model.User;
+
 /**
  * Interface for a repository of users. A repository represents a logical
  * grouping of users, typically by common purpose. E.g. the users served by an

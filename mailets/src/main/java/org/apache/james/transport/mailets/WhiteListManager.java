@@ -21,8 +21,8 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.base.GenericMailet;

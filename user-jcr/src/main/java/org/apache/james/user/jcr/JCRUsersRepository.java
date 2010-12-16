@@ -39,8 +39,8 @@ import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
-import org.apache.james.user.api.User;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.model.User;
 import org.apache.james.user.jcr.model.JCRUser;
 
 /**

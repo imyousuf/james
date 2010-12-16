@@ -26,7 +26,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.mailstore.api.MailStore;
 import org.apache.james.repository.api.ObjectRepository;
-import org.apache.james.user.api.User;
+import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;
 import org.apache.james.user.lib.DefaultJamesUser;
 
@@ -129,7 +129,7 @@ public class UsersFileRepository
     }
 
     /**
-     * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doAddUser(org.apache.james.user.api.User)
+     * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doAddUser(org.apache.james.user.api.model.User)
      */
     protected void doAddUser(User user) {
         try {
@@ -207,7 +207,7 @@ public class UsersFileRepository
     }
     
     /**
-     * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doUpdateUser(org.apache.james.user.api.User)
+     * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doUpdateUser(org.apache.james.user.api.model.User)
      */
     public void doUpdateUser(User user) {
         try {

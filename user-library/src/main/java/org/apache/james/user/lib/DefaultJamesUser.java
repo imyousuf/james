@@ -21,7 +21,7 @@
 
 package org.apache.james.user.lib;
 
-import org.apache.james.user.api.JamesUser;
+import org.apache.james.user.api.model.JamesUser;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -80,21 +80,21 @@ public class DefaultJamesUser
     }
 
     /**
-     * @see org.apache.james.user.api.JamesUser#setForwarding(boolean)
+     * @see org.apache.james.user.api.model.JamesUser#setForwarding(boolean)
      */
     public void setForwarding(boolean forward) {
         forwarding = forward;
     }
 
     /**
-     * @see org.apache.james.user.api.JamesUser#getForwarding()
+     * @see org.apache.james.user.api.model.JamesUser#getForwarding()
      */
     public boolean getForwarding() {
         return forwarding;
     }
 
     /**
-     * @see org.apache.james.user.api.JamesUser#setForwardingDestination(org.apache.mailet.MailAddress)
+     * @see org.apache.james.user.api.model.JamesUser#setForwardingDestination(org.apache.mailet.MailAddress)
      */
     public boolean setForwardingDestination(MailAddress address) {
         /* TODO: Some verification would be good */
@@ -103,28 +103,28 @@ public class DefaultJamesUser
     }
 
     /**
-     * @see org.apache.james.user.api.JamesUser#getForwardingDestination()
+     * @see org.apache.james.user.api.model.JamesUser#getForwardingDestination()
      */
     public MailAddress getForwardingDestination() {
         return forwardingDestination;
     }
 
     /**
-     * @see org.apache.james.user.api.JamesUser#setAliasing(boolean)
+     * @see org.apache.james.user.api.model.JamesUser#setAliasing(boolean)
      */
     public void setAliasing(boolean alias) {
         aliasing = alias;
     }
 
     /**
-     * @see org.apache.james.user.api.JamesUser#getAliasing()
+     * @see org.apache.james.user.api.model.JamesUser#getAliasing()
      */
     public boolean getAliasing() {
         return aliasing;
     }
 
     /**
-     * @see org.apache.james.user.api.JamesUser#setAlias(java.lang.String)
+     * @see org.apache.james.user.api.model.JamesUser#setAlias(java.lang.String)
      */
     public boolean setAlias(String address) {
         /* TODO: Some verification would be good */
@@ -133,7 +133,7 @@ public class DefaultJamesUser
     }
 
     /**
-     * @see org.apache.james.user.api.JamesUser#getAlias()
+     * @see org.apache.james.user.api.model.JamesUser#getAlias()
      */
     public String getAlias() {
         return alias;

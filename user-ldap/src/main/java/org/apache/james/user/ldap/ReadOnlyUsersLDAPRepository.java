@@ -40,8 +40,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
-import org.apache.james.user.api.User;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.model.User;
 
 /**
  * <p>

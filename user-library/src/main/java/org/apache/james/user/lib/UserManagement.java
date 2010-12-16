@@ -30,10 +30,10 @@ import javax.annotation.Resource;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
-import org.apache.james.user.api.JamesUser;
-import org.apache.james.user.api.User;
 import org.apache.james.user.api.UserManagementMBean;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.model.JamesUser;
+import org.apache.james.user.api.model.User;
 
 public class UserManagement extends StandardMBean implements UserManagementMBean {
     

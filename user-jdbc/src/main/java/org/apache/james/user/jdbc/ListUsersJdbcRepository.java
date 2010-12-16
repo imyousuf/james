@@ -21,7 +21,7 @@
 
 package org.apache.james.user.jdbc;
 
-import org.apache.james.user.api.User;
+import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.DefaultUser;
 
 import java.sql.PreparedStatement;
@@ -58,7 +58,7 @@ public class ListUsersJdbcRepository extends AbstractJdbcUsersRepository {
     }
 
     /**
-     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.user.api.User, java.sql.PreparedStatement)
+     * @see org.apache.james.user.jdbc.AbstractJdbcUsersRepository#setUserForInsertStatement(org.apache.james.user.api.model.User, java.sql.PreparedStatement)
      */
     protected void setUserForInsertStatement(User user, 
                                              PreparedStatement userInsert) 

@@ -21,7 +21,7 @@
 
 package org.apache.james.user.lib;
 
-import org.apache.james.user.api.User;
+import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.util.DigestUtil;
 
 import java.io.Serializable;
@@ -70,14 +70,14 @@ public class DefaultUser implements User, Serializable {
     }
 
     /**
-     * @see org.apache.james.user.api.User#getUserName()
+     * @see org.apache.james.user.api.model.User#getUserName()
      */
     public String getUserName() {
         return userName;
     }
 
     /**
-     * @see org.apache.james.user.api.User#verifyPassword(java.lang.String)
+     * @see org.apache.james.user.api.model.User#verifyPassword(java.lang.String)
      */
     public boolean verifyPassword(String pass) {
         try {
@@ -89,7 +89,7 @@ public class DefaultUser implements User, Serializable {
     }
 
     /**
-     * @see org.apache.james.user.api.User#setPassword(java.lang.String)
+     * @see org.apache.james.user.api.model.User#setPassword(java.lang.String)
      */
     public boolean setPassword(String newPass) {
         try {

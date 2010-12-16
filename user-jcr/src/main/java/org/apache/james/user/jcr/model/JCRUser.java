@@ -20,7 +20,7 @@
 package org.apache.james.user.jcr.model;
 
 import org.apache.jackrabbit.util.Text;
-import org.apache.james.user.api.User;
+import org.apache.james.user.api.model.User;
 
 /**
  * User backed by JCR data. 

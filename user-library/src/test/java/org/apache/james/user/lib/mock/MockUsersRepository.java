@@ -19,7 +19,7 @@
 
 package org.apache.james.user.lib.mock;
 
-import org.apache.james.user.api.User;
+import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;
 import org.apache.james.user.lib.DefaultJamesUser;
 import org.apache.james.user.lib.DefaultUser;

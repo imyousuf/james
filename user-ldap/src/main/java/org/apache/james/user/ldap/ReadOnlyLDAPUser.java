@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 import javax.naming.NamingException;
 
-import org.apache.james.user.api.User;
+import org.apache.james.user.api.model.User;
 
 /**
  * <p>

@@ -31,8 +31,8 @@ import org.apache.james.remotemanager.CommandHandler;
 import org.apache.james.remotemanager.CommandHelp;
 import org.apache.james.remotemanager.RemoteManagerResponse;
 import org.apache.james.remotemanager.RemoteManagerSession;
-import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.model.JamesUser;
 
 /**
  * Handler called upon receipt of an UNSETALIAS command.

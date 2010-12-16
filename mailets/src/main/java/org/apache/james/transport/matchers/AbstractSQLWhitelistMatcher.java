@@ -37,8 +37,8 @@ import javax.sql.DataSource;
 
 import org.apache.james.resolver.api.FileSystem;
 import org.apache.james.transport.mailets.WhiteListManager;
-import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.Mail;
