@@ -29,7 +29,7 @@ import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.services.MockJSR250Loader;
+import org.apache.james.resolver.api.mock.MockJSR250Loader;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 

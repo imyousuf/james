@@ -44,15 +44,14 @@ import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.queue.api.MockMailQueue;
 import org.apache.james.queue.api.MockMailQueueFactory;
+import org.apache.james.resolver.api.mock.MockFileSystem;
+import org.apache.james.resolver.api.mock.MockJSR250Loader;
 import org.apache.james.server.JamesProtocolHandlerChain;
-import org.apache.james.services.MockJSR250Loader;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.SimpleDomainList;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.mailstore.MockMailStore;
-import org.apache.james.services.MockFileSystem;
 import org.apache.james.user.lib.MockUsersRepository;
-import org.apache.james.util.TestUtil;
 import org.apache.james.util.codec.Base64;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.HostAddress;
@@ -154,7 +153,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     
     public AbstractSMTPServerTest() {
         super("AsyncSMTPServerTest");
-        m_smtpListenerPort = TestUtil.getNonPrivilegedPort();
+        m_smtpListenerPort = Util.getNonPrivilegedPort();
     }
 
     protected void setUp() throws Exception {

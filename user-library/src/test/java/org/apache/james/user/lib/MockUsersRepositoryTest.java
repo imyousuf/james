@@ -21,7 +21,7 @@ package org.apache.james.user.lib;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.user.api.User;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.lib.DefaultJamesUser;

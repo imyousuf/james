@@ -22,7 +22,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.impl.AbstractChannelUpstreamHandler;

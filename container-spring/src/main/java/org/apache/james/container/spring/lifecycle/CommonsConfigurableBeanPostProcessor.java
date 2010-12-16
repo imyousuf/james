@@ -19,7 +19,7 @@
 package org.apache.james.container.spring.lifecycle;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.api.Configurable;
 
 /**
  * Inject Commons Configuration to beans which implement the Configurable interface

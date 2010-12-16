@@ -19,14 +19,11 @@
 
 package org.apache.james.util;
 
-import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.derby.jdbc.EmbeddedDriver;
 
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import javax.sql.DataSource;
 
 /**
  * some utilities for James unit testing
@@ -81,19 +78,5 @@ public class TestUtil {
         return PORT_LAST_USED;
     }
 
-
-    /**
-     * @return
-     * @throws Exception
-     */
-    public static DataSource getDataSource() throws Exception {
-        BasicDataSource ds = new BasicDataSource();
-        ds.setDriverClassName(EmbeddedDriver.class.getName());
-        ds.setUrl("jdbc:derby:target/testdb;create=true");
-        ds.setUsername("james");
-        ds.setPassword("james");
-        return ds;
-    }
-    
     
 }

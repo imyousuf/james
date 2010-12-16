@@ -35,8 +35,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
-import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.lifecycle.api.LogEnabled;
 
 /**
  * All implementations of the DomainList interface should extends this abstract class

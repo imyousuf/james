@@ -22,15 +22,16 @@ package org.apache.james.user.jdbc;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.services.MockFileSystem;
+import org.apache.derby.jdbc.EmbeddedDriver;
+import org.apache.james.lifecycle.api.LifecycleUtil;
+import org.apache.james.resolver.api.mock.MockFileSystem;
 import org.apache.james.user.api.JamesUser;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.jdbc.AbstractJdbcUsersRepository;
 import org.apache.james.user.jdbc.JamesUsersJdbcRepository;
 import org.apache.james.user.lib.MockUsersRepositoryTest;
-import org.apache.james.util.TestUtil;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 
@@ -65,7 +66,7 @@ public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        DataSource dataSource = TestUtil.getDataSource();  
+        DataSource dataSource = getDataSource();  
         res.setDatasource(dataSource );      
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
         configuration.addProperty("[@destinationURL]", "db://maildb/"+tableString);
@@ -75,6 +76,16 @@ public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         res.init();
     }
 
+    
+    private BasicDataSource getDataSource() {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(EmbeddedDriver.class.getName());
+        ds.setUrl("jdbc:derby:target/testdb;create=true");
+        ds.setUsername("james");
+        ds.setPassword("james");
+        return ds;
+    }
+    
     /**
      * @return
      */

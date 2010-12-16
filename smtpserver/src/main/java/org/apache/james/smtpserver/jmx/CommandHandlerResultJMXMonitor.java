@@ -22,7 +22,7 @@ import java.util.Collection;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.api.CommandHandler;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPSession;

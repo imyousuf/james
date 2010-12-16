@@ -29,7 +29,7 @@ import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.mailrepository.lib.AbstractMailRepository;
 import org.apache.james.repository.api.StreamRepository;
-import org.apache.james.services.FileSystem;
+import org.apache.james.resolver.api.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.Mail;

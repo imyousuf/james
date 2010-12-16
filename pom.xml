@@ -34,7 +34,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>container-spring</module>
-    <module>core-api</module>
     <module>core-library</module>
     <module>dnsservice-api</module>
     <module>dnsservice-dnsjava</module>
@@ -46,6 +45,7 @@
     <module>domainlist-jpa</module>
     <module>domainlist-library</module>
     <module>domainlist-xml</module>
+    <module>lifecycle-api</module>
     <module>mailbox-adapter</module>
     <module>mailetcontainer-api</module>
     <module>mailetcontainer-library</module>
@@ -62,6 +62,7 @@
     <module>remotemanager</module>
     <module>repository-api</module>
     <module>repository-file</module>
+    <module>resolver-api</module>
     <module>smtpserver</module>
     <module>queue-api</module>
     <module>queue-jms</module>
@@ -308,6 +309,18 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-resolver-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-resolver-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsservice-api</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -463,7 +476,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-core-api</artifactId>
+      <artifactId>james-server-lifecycle-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

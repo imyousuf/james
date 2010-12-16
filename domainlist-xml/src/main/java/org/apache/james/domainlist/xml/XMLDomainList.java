@@ -28,7 +28,7 @@ import java.util.Locale;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.domainlist.lib.AbstractDomainList;
-import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.api.Configurable;
 
 
 /**

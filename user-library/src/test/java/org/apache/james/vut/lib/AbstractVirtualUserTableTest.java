@@ -24,7 +24,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;

@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.lifecycle;
+package org.apache.james.lifecycle.api;
 
 import org.apache.commons.logging.Log;
 

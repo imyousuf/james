@@ -17,9 +17,9 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.services;
+package org.apache.james.resolver.api.mock;
 
-import org.apache.james.services.FileSystem;
+import org.apache.james.resolver.api.FileSystem;
 
 import java.io.File;
 import java.io.FileNotFoundException;

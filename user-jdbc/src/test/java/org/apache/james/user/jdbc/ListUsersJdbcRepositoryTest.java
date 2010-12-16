@@ -21,14 +21,15 @@ package org.apache.james.user.jdbc;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.services.MockFileSystem;
+import org.apache.derby.jdbc.EmbeddedDriver;
+import org.apache.james.lifecycle.api.LifecycleUtil;
+import org.apache.james.resolver.api.mock.MockFileSystem;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.jdbc.AbstractJdbcUsersRepository;
 import org.apache.james.user.jdbc.ListUsersJdbcRepository;
 import org.apache.james.user.lib.MockUsersRepositoryTest;
-import org.apache.james.util.TestUtil;
 
 import java.util.Iterator;
 
@@ -69,7 +70,7 @@ public class ListUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        DataSource dataSource = TestUtil.getDataSource();  
+        DataSource dataSource = getDataSource();  
         res.setDatasource(dataSource );        
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
         configuration.addProperty("[@destinationURL]", "db://maildb/"+tableString);
@@ -80,6 +81,16 @@ public class ListUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
         res.init();
     }
 
+    
+    private BasicDataSource getDataSource() {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(EmbeddedDriver.class.getName());
+        ds.setUrl("jdbc:derby:target/testdb;create=true");
+        ds.setUsername("james");
+        ds.setPassword("james");
+        return ds;
+    }
+    
     protected void disposeUsersRepository() {
         Iterator<String> i = this.usersRepository.list();
         while (i.hasNext()) {

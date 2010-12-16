@@ -28,7 +28,7 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.smtpserver.SMTPServerDNSServiceAdapter;
 
 public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail.DNSRBLHandler implements Configurable{

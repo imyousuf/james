@@ -21,8 +21,8 @@
 
 package org.apache.james.core;
 
-import org.apache.james.lifecycle.Disposable;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.Disposable;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -499,7 +499,7 @@ public class MailImpl implements Disposable, Mail {
     }
 
     /**
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
+     * @see org.apache.james.lifecycle.api.avalon.framework.activity.Disposable#dispose()
      */
     public void dispose() {
         LifecycleUtil.dispose(message);

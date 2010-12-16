@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.services;
+package org.apache.james.resolver.api.mock;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,6 +29,8 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.resolver.api.InstanceFactory;
+import org.apache.james.resolver.api.InstanceFactory.InstanceException;
 
 /**
  * Abstract base class which implements a JSR250 based LoaderService

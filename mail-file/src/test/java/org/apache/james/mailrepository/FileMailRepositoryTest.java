@@ -27,7 +27,7 @@ import org.apache.james.mailrepository.file.FileMailRepository;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.repository.file.FilePersistentObjectRepository;
 import org.apache.james.repository.file.FilePersistentStreamRepository;
-import org.apache.james.services.MockFileSystem;
+import org.apache.james.resolver.api.mock.MockFileSystem;
 
 public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
 

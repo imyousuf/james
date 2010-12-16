@@ -4,7 +4,7 @@
  * distributed with this work for additional information        *
  * regarding copyright ownership.  The ASF licenses this file   *
  * to you under the Apache License, Version 2.0 (the            *
- * "License.class.getName()); you may not use this file except in compliance   *
+ * "License"); you may not use this file except in compliance   *
  * with the License.  You may obtain a copy of the License at   *
  *                                                              *
  *   http://www.apache.org/licenses/LICENSE-2.0                 *
@@ -17,36 +17,18 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.services;
+package org.apache.james.lifecycle.api;
 
-import java.util.HashMap;
-import java.util.Map;
+/**
+ * Classes which implement this interface need some special handling on destroy.
+ * So the {@link #dispose()} method need to get called
+ * 
+ *
+ */
+public interface Disposable {
 
-import org.apache.james.services.AbstractJSR250InstanceFactory;
-
-public class MockJSR250Loader extends AbstractJSR250InstanceFactory {
-
-    private final Map<String, Object> servicesByName;
-    
-
-    public MockJSR250Loader() {
-
-        servicesByName = new HashMap<String, Object>();
-
-    }
-
-    public Object get(String name) { 
-        Object service = servicesByName.get(name);
-        return service;
-    }
-   
-    public void put(String role, Object service) {
-        servicesByName.put(role, service);
-    }
-
-	@Override
-	public Object getObjectForName(String name) {
-		return get(name);
-	}
-
+    /**
+     * Dispose the object
+     */
+    public void dispose();
 }

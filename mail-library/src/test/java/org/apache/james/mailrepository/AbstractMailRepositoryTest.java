@@ -22,7 +22,7 @@ package org.apache.james.mailrepository;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

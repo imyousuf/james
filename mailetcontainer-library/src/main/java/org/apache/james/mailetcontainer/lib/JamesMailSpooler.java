@@ -34,9 +34,9 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.lifecycle.api.LifecycleUtil;
+import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailProcessorList;
 import org.apache.james.mailetcontainer.api.MailSpooler;
@@ -213,7 +213,7 @@ public class JamesMailSpooler implements Runnable, MailSpooler, Configurable, Lo
      * This implementation shuts down the LinearProcessors managed by this
      * JamesSpoolManager
      * 
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
+     * @see org.apache.james.lifecycle.api.avalon.framework.activity.Disposable#dispose()
      */
     @PreDestroy
     public void dispose() {

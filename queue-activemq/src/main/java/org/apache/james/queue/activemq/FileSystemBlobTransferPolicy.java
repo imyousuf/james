@@ -23,7 +23,7 @@ import javax.annotation.Resource;
 import org.apache.activemq.blob.BlobDownloadStrategy;
 import org.apache.activemq.blob.BlobTransferPolicy;
 import org.apache.activemq.blob.BlobUploadStrategy;
-import org.apache.james.services.FileSystem;
+import org.apache.james.resolver.api.FileSystem;
 
 /**
  * {@link BlobTransferPolicy} which use the {@link FileSystem} to download and upload data.

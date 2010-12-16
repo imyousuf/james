@@ -28,7 +28,7 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxMetaData;

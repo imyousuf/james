@@ -20,7 +20,7 @@ package org.apache.james.container.spring;
 
 import java.io.FileNotFoundException;
 
-import org.apache.james.services.FileSystem;
+import org.apache.james.resolver.api.FileSystem;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanDefinition;

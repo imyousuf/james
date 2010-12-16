@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.lifecycle;
+package org.apache.james.lifecycle.api;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;

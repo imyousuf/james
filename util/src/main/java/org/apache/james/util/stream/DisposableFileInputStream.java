@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.api.Disposable;
 
 /**
  * {@link FileInputStream} which offers a method to dispose the underlying {@link File}

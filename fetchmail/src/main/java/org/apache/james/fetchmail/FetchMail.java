@@ -39,8 +39,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration.Node;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.user.api.UsersRepository;
 
@@ -416,7 +416,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
      * configured static account and a <code>ParsedDynamicAccountParameters</code>
      * for each dynamic account.
      * 
-     * @see org.apache.avalon.framework.configuration.Configurable#configure(Configuration)
+     * @see org.apache.james.lifecycle.api.avalon.framework.configuration.Configurable#configure(Configuration)
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration configuration)

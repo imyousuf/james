@@ -17,18 +17,18 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.lifecycle;
+package org.apache.james.lifecycle.api;
 
-/**
- * Classes which implement this interface need some special handling on destroy.
- * So the {@link #dispose()} method need to get called
- * 
- *
- */
-public interface Disposable {
+public class LifecycleUtil {
 
     /**
-     * Dispose the object
+     * Dispose the given object if its an instanceof {@link Disposable}
+     * 
+     * @param obj
      */
-    public void dispose();
+    public static void dispose(Object obj) {
+        if (obj instanceof Disposable && obj != null) {
+            ((Disposable) obj).dispose();
+        }
+    }
 }

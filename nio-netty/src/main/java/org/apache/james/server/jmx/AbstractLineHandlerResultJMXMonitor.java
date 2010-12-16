@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.protocols.api.LineHandlerResultHandler;

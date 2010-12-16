@@ -22,7 +22,7 @@
 package org.apache.james.transport.mailets;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailstore.api.MailStore;
 import org.apache.mailet.base.GenericMailet;

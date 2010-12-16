@@ -24,7 +24,7 @@ import java.io.InputStream;
 
 import javax.mail.internet.SharedInputStream;
 
-import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.api.Disposable;
 
 
 /**

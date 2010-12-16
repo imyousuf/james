@@ -19,7 +19,7 @@
 
 package org.apache.james.core;
 
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.mailet.base.RFC2822Headers;
 
 import javax.mail.MessagingException;

@@ -35,11 +35,11 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.impl.AbstractAsyncServer;
+import org.apache.james.resolver.api.FileSystem;
 import org.apache.james.server.jmx.ServerMBean;
-import org.apache.james.services.FileSystem;
 import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
 
 

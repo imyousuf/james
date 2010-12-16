@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.domainlist.api.DomainList;
-import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
 import org.apache.james.user.api.UsersRepository;
@@ -86,7 +86,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
     }
 
 	/**
-	 * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.Configuration)
+	 * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.Configuration)
 	 */
 	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
 		setVirtualUserTableSupport(config.getBoolean("enableVirtualUserTable",

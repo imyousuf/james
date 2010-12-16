@@ -23,7 +23,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 /**
  * {@link FilterInputStream} which dispose wrapped {@link InputStream} after close is called
  * 

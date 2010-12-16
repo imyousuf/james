@@ -26,7 +26,7 @@ import javax.mail.util.SharedFileInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.api.Disposable;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

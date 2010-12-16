@@ -20,7 +20,7 @@ package org.apache.james.container.spring;
 
 import java.io.File;
 
-import org.apache.james.services.FileSystem;
+import org.apache.james.resolver.api.FileSystem;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;

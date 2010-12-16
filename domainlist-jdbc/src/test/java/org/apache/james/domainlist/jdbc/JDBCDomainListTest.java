@@ -35,12 +35,13 @@ import junit.framework.TestCase;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.derby.jdbc.EmbeddedDriver;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.MockDNSService;
 import org.apache.james.domainlist.jdbc.JDBCDomainList;
-import org.apache.james.services.MockFileSystem;
-import org.apache.james.util.TestUtil;
+import org.apache.james.resolver.api.mock.MockFileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 
 public class JDBCDomainListTest  extends TestCase {
@@ -49,7 +50,7 @@ public class JDBCDomainListTest  extends TestCase {
     private DataSource data;
     
     public void setUp() throws Exception {
-        data = TestUtil.getDataSource();
+        data = getDataSource();
     
         sqlQuery("create table " + table + " (domain VARCHAR (255))");
     }
@@ -58,6 +59,15 @@ public class JDBCDomainListTest  extends TestCase {
         sqlQuery("drop table " + table);
     }
 
+    
+    private BasicDataSource getDataSource() {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(EmbeddedDriver.class.getName());
+        ds.setUrl("jdbc:derby:target/testdb;create=true");
+        ds.setUsername("james");
+        ds.setPassword("james");
+        return ds;
+    }    
     private boolean sqlQuery(String query){
         Connection conn = null;
         PreparedStatement mappingStmt = null;

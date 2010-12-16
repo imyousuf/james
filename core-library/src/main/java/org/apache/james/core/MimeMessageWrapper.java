@@ -38,8 +38,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.util.SharedByteArrayInputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.james.lifecycle.Disposable;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.Disposable;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage

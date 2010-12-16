@@ -33,8 +33,8 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.LifecycleUtil;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.lifecycle.api.LifecycleUtil;
+import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.api.MailQueueManagementMBean;

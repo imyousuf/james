@@ -21,7 +21,7 @@ package org.apache.james.mailetcontainer.camel;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.mailet.Mail;
 
 /**

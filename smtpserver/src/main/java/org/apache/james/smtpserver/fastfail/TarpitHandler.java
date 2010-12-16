@@ -22,7 +22,7 @@ package org.apache.james.smtpserver.fastfail;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.lifecycle.Configurable;
+import org.apache.james.lifecycle.api.Configurable;
 
 public class TarpitHandler extends org.apache.james.protocols.smtp.core.fastfail.TarpitHandler implements Configurable{
 

@@ -33,10 +33,10 @@ import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.Configurable;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailstore.api.MailStore;
-import org.apache.james.services.InstanceFactory;
+import org.apache.james.resolver.api.InstanceFactory;
 
 /**
  * Provides a registry of mail repositories. A mail repository is uniquely

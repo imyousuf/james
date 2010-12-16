@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
-import org.apache.james.services.FileSystem;
+import org.apache.james.resolver.api.FileSystem;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

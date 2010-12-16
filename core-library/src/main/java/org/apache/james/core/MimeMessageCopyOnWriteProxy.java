@@ -33,8 +33,8 @@ import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.SearchTerm;
 
-import org.apache.james.lifecycle.Disposable;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.Disposable;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -177,7 +177,7 @@ public class MimeMessageCopyOnWriteProxy extends MimeMessage implements
 
 
     /**
-     * @see org.apache.avalon.framework.activity.Disposable#dispose()
+     * @see org.apache.james.lifecycle.api.avalon.framework.activity.Disposable#dispose()
      */
     public synchronized void dispose() {
         if (refCount != null) {

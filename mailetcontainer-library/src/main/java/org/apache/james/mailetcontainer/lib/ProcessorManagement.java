@@ -33,7 +33,7 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailProcessorList;
 import org.apache.james.mailetcontainer.api.MailetContainer;

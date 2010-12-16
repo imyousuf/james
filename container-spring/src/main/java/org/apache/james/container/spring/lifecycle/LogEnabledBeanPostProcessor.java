@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
-import org.apache.james.lifecycle.LogEnabled;
+import org.apache.james.lifecycle.api.LogEnabled;
 
 /**
  * Inject Commons Log to beans which implement LogEnabled

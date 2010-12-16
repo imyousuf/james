@@ -26,8 +26,8 @@ import javax.jms.ObjectMessage;
 import javax.mail.util.SharedByteArrayInputStream;
 
 import org.apache.james.core.MimeMessageSource;
-import org.apache.james.lifecycle.Disposable;
-import org.apache.james.lifecycle.LifecycleUtil;
+import org.apache.james.lifecycle.api.Disposable;
+import org.apache.james.lifecycle.api.LifecycleUtil;
 
 /**
  * {@link MimeMessageSource} implementation which reads the data from the payload of an {@link ObjectMessage}. 

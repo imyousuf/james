@@ -23,14 +23,15 @@ package org.apache.james.mailrepository.jdbc;
 import javax.sql.DataSource;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.derby.jdbc.EmbeddedDriver;
 import org.apache.james.mailrepository.AbstractMailRepositoryTest;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.jdbc.JDBCMailRepository;
 import org.apache.james.mailstore.MockMailStore;
 import org.apache.james.repository.file.FilePersistentStreamRepository;
-import org.apache.james.services.MockFileSystem;
-import org.apache.james.util.TestUtil;
+import org.apache.james.resolver.api.mock.MockFileSystem;
 
 public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
 
@@ -42,7 +43,7 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
      */
     protected MailRepository getMailRepository() throws Exception {
         MockFileSystem fs =  new MockFileSystem();
-        DataSource datasource = TestUtil.getDataSource();
+        DataSource datasource = getDataSource();
         JDBCMailRepository mr = new JDBCMailRepository();
         
         // only used for dbfile
@@ -71,6 +72,16 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
     
     protected String getType() {
         return "db";
+    }
+    
+    
+    private BasicDataSource getDataSource() {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(EmbeddedDriver.class.getName());
+        ds.setUrl("jdbc:derby:target/testdb;create=true");
+        ds.setUsername("james");
+        ds.setPassword("james");
+        return ds;
     }
 
 }

@@ -29,7 +29,7 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
-import org.apache.james.lifecycle.Disposable;
+import org.apache.james.lifecycle.api.Disposable;
 
 public class ConnectHandlerStats extends StandardMBean implements HandlerStatsMBean, Disposable{
 
