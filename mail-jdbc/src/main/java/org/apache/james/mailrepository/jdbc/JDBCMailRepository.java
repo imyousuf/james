@@ -28,7 +28,7 @@ import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.mailrepository.lib.AbstractMailRepository;
-import org.apache.james.repository.api.StreamRepository;
+import org.apache.james.repository.file.FilePersistentStreamRepository;
 import org.apache.james.resolver.api.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
@@ -100,7 +100,7 @@ public class JDBCMailRepository
     /**
      * The stream repository used in dbfile mode
      */
-    private StreamRepository sr = null;
+    private FilePersistentStreamRepository sr = null;
 
 
     /**
@@ -248,10 +248,13 @@ public class JDBCMailRepository
                     = new DefaultConfigurationBuilder();
 
                 streamConfiguration.addProperty( "[@destinationURL]", filestore );
-                streamConfiguration.addProperty( "[@type]", "STREAM" );
-                streamConfiguration.addProperty( "[@model]", "SYNCHRONOUS" );
-                sr = (StreamRepository) store.select(streamConfiguration);
-
+              
+                sr = new FilePersistentStreamRepository();
+                sr.setLog(getLogger());
+                sr.setFileSystem(fileSystem);
+                sr.configure(streamConfiguration);
+                sr.init();
+                
                 if (getLogger().isDebugEnabled()) {
                     getLogger().debug("Got filestore for JdbcMailRepository: " + filestore);
                 }

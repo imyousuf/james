@@ -24,9 +24,6 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.file.FileMailRepository;
-import org.apache.james.mailstore.mock.MockMailStore;
-import org.apache.james.repository.file.FilePersistentObjectRepository;
-import org.apache.james.repository.file.FilePersistentStreamRepository;
 import org.apache.james.resolver.api.mock.MockFileSystem;
 
 public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
@@ -40,27 +37,7 @@ public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
     protected MailRepository getMailRepository() throws Exception {
         MockFileSystem fs =  new MockFileSystem();
         FileMailRepository mr = new FileMailRepository();
-        MockMailStore mockStore = new MockMailStore();
-        FilePersistentStreamRepository file_Persistent_Stream_Repository = new FilePersistentStreamRepository();
-        file_Persistent_Stream_Repository.setFileSystem(fs);
-        file_Persistent_Stream_Repository.setLog(new SimpleLog("MockLog"));
-        
-        DefaultConfigurationBuilder defaultConfiguration2 = new DefaultConfigurationBuilder();
-        defaultConfiguration2.addProperty( "[@destinationURL]", "file://target/var/mr");
-        file_Persistent_Stream_Repository.configure(defaultConfiguration2);
-        file_Persistent_Stream_Repository.init();
-        
-        mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
-        FilePersistentObjectRepository file_Persistent_Object_Repository = new FilePersistentObjectRepository();
-        file_Persistent_Object_Repository.setFileSystem(fs);
-        file_Persistent_Object_Repository.setLog(new SimpleLog("MockLog"));
-        DefaultConfigurationBuilder defaultConfiguration22 = new DefaultConfigurationBuilder();
-        defaultConfiguration22.addProperty( "[@destinationURL]", "file://target/var/mr");
-        file_Persistent_Object_Repository.configure(defaultConfiguration22);
-        file_Persistent_Object_Repository.init();
-        mockStore.add("OBJECT.mr", file_Persistent_Object_Repository);
-        mr.setStore(mockStore);
-
+        mr.setFileSystem(fs);
         mr.setLog(new SimpleLog("MockLog"));
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
         defaultConfiguration.addProperty( "[@destinationURL]","file://target/var/mr");

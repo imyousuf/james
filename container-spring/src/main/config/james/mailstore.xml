@@ -23,13 +23,7 @@
 <mailstore>
   <repositories>
       <repository class="org.apache.james.mailrepository.file.FileMailRepository">
-          <protocols>
-              <protocol>file</protocol>
-          </protocols>
-          <types>
-              <type>MAIL</type>
-          </types>
-          <config FIFO="false"/> 
+          <config FIFO="false" CACHEKEYS="true"/> 
       </repository>
       <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
           <protocols>
@@ -62,32 +56,6 @@
               <type>MAIL</type>
           </types>
           <config FIFO="false"/> 
-      </repository>
-      <repository class="org.apache.james.repository.file.FilePersistentObjectRepository">
-          <protocols>
-              <protocol>file</protocol>
-          </protocols>
-          <types>
-              <type>OBJECT</type>
-          </types>
-          <models>
-              <model>SYNCHRONOUS</model>
-              <model>ASYNCHRONOUS</model>
-              <model>CACHE</model>
-          </models>
-      </repository>
-      <repository class="org.apache.james.repository.file.FilePersistentStreamRepository">
-          <protocols>
-              <protocol>file</protocol>
-          </protocols>
-          <types>
-              <type>STREAM</type>
-          </types>
-          <models>
-              <model>SYNCHRONOUS</model>
-              <model>ASYNCHRONOUS</model>
-              <model>CACHE</model>
-          </models>
       </repository>
   </repositories>
 </mailstore>

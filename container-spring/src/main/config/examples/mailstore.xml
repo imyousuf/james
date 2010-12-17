@@ -30,7 +30,7 @@
                 <type>MAIL</type>
             </types>
             <!-- Set if the messages should be listed sorted. False by default -->
-            <config FIFO="false"/> 
+          <config FIFO="false" CACHEKEYS="true"/> 
         </repository>
 
         <!-- JDBC based repositories.  These repositories store all message data -->
@@ -80,33 +80,6 @@
             <config FIFO="false"/> 
         </repository>
         
-        <repository class="org.apache.james.filepair.FilePersistentObjectRepository">
-            <protocols>
-                <protocol>file</protocol>
-            </protocols>
-            <types>
-                <type>OBJECT</type>
-            </types>
-            <models>
-                <model>SYNCHRONOUS</model>
-                <model>ASYNCHRONOUS</model>
-                <model>CACHE</model>
-            </models>
-        </repository>
-
-        <repository class="org.apache.james.filepair.FilePersistentStreamRepository">
-            <protocols>
-                <protocol>file</protocol>
-            </protocols>
-            <types>
-                <type>STREAM</type>
-            </types>
-            <models>
-                <model>SYNCHRONOUS</model>
-                <model>ASYNCHRONOUS</model>
-                <model>CACHE</model>
-            </models>
-        </repository>
         
         <!-- If you enable this you need to make sure that embedded Jackrabbit instance is started as well. Check the container configuration -->  
         <!--

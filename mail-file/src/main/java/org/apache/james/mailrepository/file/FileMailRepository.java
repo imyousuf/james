@@ -21,21 +21,6 @@
 
 package org.apache.james.mailrepository.file;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.core.MimeMessageCopyOnWriteProxy;
-import org.apache.james.core.MimeMessageWrapper;
-import org.apache.james.mailrepository.lib.AbstractMailRepository;
-import org.apache.james.mailstore.api.MailStore;
-import org.apache.james.repository.api.ObjectRepository;
-import org.apache.james.repository.api.StreamRepository;
-import org.apache.mailet.Mail;
-
-import javax.annotation.PostConstruct;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -44,6 +29,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
+import org.apache.james.core.MimeMessageWrapper;
+import org.apache.james.mailrepository.lib.AbstractMailRepository;
+import org.apache.james.repository.file.FilePersistentObjectRepository;
+import org.apache.james.repository.file.FilePersistentStreamRepository;
+import org.apache.james.resolver.api.FileSystem;
+import org.apache.mailet.Mail;
 
 /**
  * Implementation of a MailRepository on a FileSystem.
@@ -59,13 +59,18 @@ import java.util.Set;
 public class FileMailRepository
     extends AbstractMailRepository {
 
-    private StreamRepository streamRepository;
-    private ObjectRepository objectRepository;
+    private FilePersistentStreamRepository streamRepository;
+    private FilePersistentObjectRepository objectRepository;
     private String destination;
     private Set keys;
     private boolean fifo;
     private boolean cacheKeys; // experimental: for use with write mostly repositories such as spam and error
+    private FileSystem fs;
 
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem fs) {
+        this.fs = fs;
+    }
     
     @Override
     protected void doConfigure(HierarchicalConfiguration config)
@@ -73,16 +78,7 @@ public class FileMailRepository
         super.doConfigure(config);
         destination = config.getString("[@destinationURL]");
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("AvalonMailRepository.destinationURL: " + destination);
-        }
-        String checkType = config.getString("[@type]");
-        if (! (checkType.equals("MAIL") || checkType.equals("SPOOL")) ) {
-            String exceptionString = "Attempt to configure AvalonMailRepository as " +
-                                     checkType;
-            if (getLogger().isWarnEnabled()) {
-                getLogger().warn(exceptionString);
-            }
-            throw new ConfigurationException(exceptionString);
+            getLogger().debug("FileMailRepository.destinationURL: " + destination);
         }
         fifo = config.getBoolean("[@FIFO]", false);
         cacheKeys = config.getBoolean("[@CACHEKEYS]", true);
@@ -94,9 +90,21 @@ public class FileMailRepository
     public void init()
             throws Exception {
         try {
-            objectRepository = (ObjectRepository) selectRepository(store, "OBJECT");
-            streamRepository = (StreamRepository) selectRepository(store, "STREAM");
+            DefaultConfigurationBuilder reposConfiguration = new DefaultConfigurationBuilder();
 
+            reposConfiguration.addProperty("[@destinationURL]", destination);
+            objectRepository = new FilePersistentObjectRepository();
+            objectRepository.setLog(getLogger());
+            objectRepository.setFileSystem(fs);
+            objectRepository.configure(reposConfiguration);
+            objectRepository.init();
+            
+            streamRepository = new FilePersistentStreamRepository();
+            streamRepository.setLog(getLogger());
+            streamRepository.setFileSystem(fs);
+            streamRepository.configure(reposConfiguration);
+            streamRepository.init();
+            
             if (cacheKeys) keys = Collections.synchronizedSet(new HashSet());
 
             //Finds non-matching pairs and deletes the extra files
@@ -144,16 +152,6 @@ public class FileMailRepository
             getLogger().error( message, e );
             throw e;
         }
-    }
-
-    private Object selectRepository(MailStore store, String type) throws Exception {
-        DefaultConfigurationBuilder objectConfiguration
-            = new DefaultConfigurationBuilder();
-
-        objectConfiguration.addProperty("[@destinationURL]", destination);
-        objectConfiguration.addProperty("[@type]", type);
-        objectConfiguration.addProperty("[@model]", "SYNCHRONOUS");
-        return store.select(objectConfiguration);
     }
 
     /**

@@ -29,8 +29,6 @@ import org.apache.derby.jdbc.EmbeddedDriver;
 import org.apache.james.mailrepository.AbstractMailRepositoryTest;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.jdbc.JDBCMailRepository;
-import org.apache.james.mailstore.mock.MockMailStore;
-import org.apache.james.repository.file.FilePersistentStreamRepository;
 import org.apache.james.resolver.api.mock.MockFileSystem;
 
 public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
@@ -46,23 +44,11 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
         DataSource datasource = getDataSource();
         JDBCMailRepository mr = new JDBCMailRepository();
         
-        // only used for dbfile
-        MockMailStore mockStore = new MockMailStore();
-        FilePersistentStreamRepository file_Persistent_Stream_Repository = new FilePersistentStreamRepository();
-        file_Persistent_Stream_Repository.setFileSystem(fs);
-        file_Persistent_Stream_Repository.setLog(new SimpleLog("MockLog"));
-        DefaultConfigurationBuilder defaultConfiguration2 = new DefaultConfigurationBuilder();
-        defaultConfiguration2.addProperty("[@destinationURL]", "file://target/var/mr/testrepo");
-        file_Persistent_Stream_Repository.configure(defaultConfiguration2);
-        file_Persistent_Stream_Repository.init();
-        mockStore.add("STREAM.mr", file_Persistent_Stream_Repository);
-        
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
         defaultConfiguration.addProperty("[@destinationURL]","db://maildb/mr/testrepo");
         defaultConfiguration.addProperty("sqlFile","file://conf/sqlResources.xml");
         defaultConfiguration.addProperty("[@type]","MAIL");
         mr.setFileSystem(fs);
-        mr.setStore(mockStore);
         mr.setDatasource(datasource);
         mr.setLog(new SimpleLog("MockLog"));
         mr.configure(defaultConfiguration);
