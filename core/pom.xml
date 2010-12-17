@@ -41,10 +41,6 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-lifecycle-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-util</artifactId>
     </dependency>   
 
@@ -58,15 +54,6 @@
       <artifactId>apache-mailet-base</artifactId>
     </dependency>
 
-    
-    <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
