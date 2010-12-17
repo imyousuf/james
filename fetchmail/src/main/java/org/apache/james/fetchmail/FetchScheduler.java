@@ -96,7 +96,7 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
     }
 
    
-    @Resource(name="localusersrepository")
+    @Resource(name="usersrepository")
     public void setUsersRepository(UsersRepository urepos) {
         this.urepos = urepos;
     }

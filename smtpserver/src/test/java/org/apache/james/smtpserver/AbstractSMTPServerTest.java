@@ -212,7 +212,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
 
     protected void setUpFakeLoader() throws Exception {
         m_serviceManager = new MockJSR250Loader();
-        m_serviceManager.put("localusersrepository", m_usersRepository);
+        m_serviceManager.put("usersrepository", m_usersRepository);
 
         m_dnsServer = new AlterableDNSServer();
         m_serviceManager.put("dnsservice", m_dnsServer);

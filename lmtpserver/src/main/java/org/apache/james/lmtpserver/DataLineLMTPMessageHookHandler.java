@@ -56,7 +56,7 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
     private UsersRepository users;
     private MailboxManager mailboxManager;
 
-   @Resource(name="localusersrepository")
+   @Resource(name="usersrepository")
    public final void setUsersRepository(UsersRepository users) {
        this.users = users;
    }

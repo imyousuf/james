@@ -161,7 +161,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 		serviceManager = new MockJSR250Loader();
 
 		m_mockUsersRepository = new MockUsersRepository();
-		serviceManager.put("localusersrepository", m_mockUsersRepository);
+		serviceManager.put("usersrepository", m_mockUsersRepository);
 
 		
 		filesystem = new MockFileSystem();

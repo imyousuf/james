@@ -37,7 +37,7 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
     private DomainList domains;
     private UsersRepository users;
 
-    @Resource(name="localusersrepository")
+    @Resource(name="usersrepository")
     public final void setUsersRepository(UsersRepository users) {
         this.users = users;
     }
@@ -67,7 +67,10 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
         return domains.containsDomain(domain);
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook#useVirtualHosting()
+     */
     protected boolean useVirtualHosting() {
         return users.supportVirtualHosting();
     }

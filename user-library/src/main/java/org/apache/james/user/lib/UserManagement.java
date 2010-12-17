@@ -42,7 +42,7 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
      */
     private UsersRepository localUsers;
 
-    @Resource(name="localusersrepository")
+    @Resource(name="usersrepository")
     public void setUsersRepository(UsersRepository localUsers) {
         this.localUsers = localUsers;
     }

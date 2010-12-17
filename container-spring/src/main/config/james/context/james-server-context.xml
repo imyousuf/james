@@ -224,7 +224,8 @@
               <key>
                 <value>usersrepository</value>
               </key>
-              <value>localusersrepository</value>
+               <!-- no alias needed -->
+              <value></value>
             </entry>
             <entry>
               <key>

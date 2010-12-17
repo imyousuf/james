@@ -163,7 +163,7 @@ public class WhiteListManager extends GenericMailet {
         this.datasource = datasource;
     }
     
-    @Resource(name="localusersrepository")
+    @Resource(name="usersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }

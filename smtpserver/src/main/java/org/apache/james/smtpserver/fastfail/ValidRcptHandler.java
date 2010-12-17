@@ -63,7 +63,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements
 	 * @param users
 	 *            the users to set
 	 */
-	@Resource(name = "localusersrepository")
+	@Resource(name = "usersrepository")
 	public final void setUsers(UsersRepository users) {
 		this.users = users;
 	}

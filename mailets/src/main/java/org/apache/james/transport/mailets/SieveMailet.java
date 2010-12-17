@@ -47,7 +47,7 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
     private UsersRepository usersRepos;
     private MailboxManager mailboxManager;
 
-    @Resource(name="localusersrepository")
+    @Resource(name="usersrepository")
     public void setUsersRepository(UsersRepository usersRepos) {
         this.usersRepos = usersRepos;
     }

@@ -32,7 +32,7 @@ public class UserRepositoryAuthenticator implements Authenticator{
 
     private UsersRepository repos;
 
-    @Resource(name="localusersrepository")
+    @Resource(name="usersrepository")
     public void setUsersRepository(UsersRepository repos) {
         this.repos = repos;
     }

@@ -61,7 +61,7 @@ public class LocalDelivery extends GenericMailet {
 
 
     
-    @Resource(name="localusersrepository")
+    @Resource(name="usersrepository")
     public void setUsersRepository(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
     }

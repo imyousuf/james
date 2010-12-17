@@ -87,7 +87,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         this.dns = dns;
     }
 
-    @Resource(name = "localusersrepository")
+    @Resource(name = "usersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }

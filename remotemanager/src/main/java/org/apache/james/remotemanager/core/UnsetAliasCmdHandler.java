@@ -49,7 +49,7 @@ public class UnsetAliasCmdHandler implements CommandHandler{
      * @param users
      *            the users to set
      */
-    @Resource(name = "localusersrepository")
+    @Resource(name = "usersrepository")
     public final void setUsers(UsersRepository users) {
         this.users = users;
     }

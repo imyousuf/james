@@ -41,7 +41,7 @@
     </bean>
     <bean id="maildirStore" name="maildir-uidProvider" class="org.apache.james.adapter.mailbox.maildir.MaildirStoreUtil" factory-method="create">
         <constructor-arg index="0" ref="filesystem"/>
-        <constructor-arg index="1" ref="localusersrepository"/>
+        <constructor-arg index="1" ref="usersrepository"/>
         <constructor-arg index="2" value="file://var/store/maildir/"/>
     </bean>
 

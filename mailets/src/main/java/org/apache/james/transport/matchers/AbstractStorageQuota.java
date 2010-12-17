@@ -63,7 +63,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
         this.manager = manager;
     }
     
-    @Resource(name="localusersrepository")
+    @Resource(name="usersrepository")
     public void setUsersRepository(UsersRepository localusers) {
         this.localusers = localusers;
     }

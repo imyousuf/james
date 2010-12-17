@@ -98,7 +98,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     
     protected void setUpServiceManager() throws Exception {
         serviceManager = new MockJSR250Loader();
-        serviceManager.put("localusersrepository",
+        serviceManager.put("usersrepository",
                 m_usersRepository);
         
         InMemoryMailboxSessionMapperFactory factory = new InMemoryMailboxSessionMapperFactory();
