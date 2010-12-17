@@ -53,13 +53,16 @@ import org.apache.james.mailetcontainer.api.MatcherLoader;
 import org.apache.james.mailetcontainer.api.ProcessorManagementMBean;
 import org.apache.james.mailetcontainer.lib.MailetConfigImpl;
 import org.apache.james.mailetcontainer.lib.MailetManagement;
+import org.apache.james.mailetcontainer.lib.MatcherConfigImpl;
 import org.apache.james.mailetcontainer.lib.MatcherManagement;
 import org.apache.james.mailetcontainer.lib.ProcessorDetail;
 import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
+import org.apache.mailet.MailetContext;
 import org.apache.mailet.Matcher;
+import org.apache.mailet.MatcherConfig;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.base.MatcherInverter;
 
@@ -84,6 +87,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     
     private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
     private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
+    private MailetContext mailetContext;
        
     @Resource(name = "matcherloader")
     public void setMatcherLoader(MatcherLoader matcherLoader) {
@@ -93,6 +97,11 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     @Resource(name = "mailetloader")
     public void setMailetLoader(MailetLoader mailetLoader) {
         this.mailetLoader = mailetLoader;
+    }
+    
+    @Resource(name= "mailetcontext")
+    public void setMailetContext(MailetContext mailetContext) {
+        this.mailetContext = mailetContext;
     }
 
     private ProducerTemplate producerTemplate;
@@ -383,20 +392,20 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                             matcher = compositeMatchers.get(matcherName);
                             if (matcher == null) {
                                 // no composite Matcher found, try to load it via MatcherLoader
-                                matcher = matcherLoader.getMatcher(matcherName);
+                                matcher = matcherLoader.getMatcher(createMatcherConfig(matcherName));
                             }
                         } else if (invertedMatcherName != null) {
                             // try to load from compositeMatchers first
                             matcher = compositeMatchers.get(matcherName);
                             if (matcher == null) {
                                 // no composite Matcher found, try to load it via MatcherLoader
-                                matcher = matcherLoader.getMatcher(invertedMatcherName);
+                                matcher = matcherLoader.getMatcher(createMatcherConfig(invertedMatcherName));
                             }
                             matcher = new MatcherInverter(matcher);
 
                         } else {
                             // default matcher is All
-                            matcher = matcherLoader.getMatcher("All");
+                            matcher = matcherLoader.getMatcher(createMatcherConfig("All"));
                         }
 
                         // The matcher itself should log that it's been inited.
@@ -419,7 +428,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                         throw new ConfigurationException("Unable to init matcher", ex);
                     }
                     try {
-                        mailet = mailetLoader.getMailet(mailetClassName, c);
+                        mailet = mailetLoader.getMailet(createMailetConfig(mailetClassName, c));
                         if (logger.isInfoEnabled()) {
                             StringBuffer infoBuffer = new StringBuffer(64).append("Mailet ").append(mailetClassName).append(" instantiated.");
                             logger.info(infoBuffer.toString());
@@ -504,7 +513,33 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
             checkProcessors();
   
         }
-        
+       
+    }
+    
+    
+    private MailetConfig createMailetConfig(String mailetName, HierarchicalConfiguration configuration) {
+
+        final MailetConfigImpl configImpl = new MailetConfigImpl();
+        configImpl.setMailetName(mailetName);
+        configImpl.setConfiguration(configuration);
+        configImpl.setMailetContext(mailetContext);
+        return configImpl;
+    }
+    
+    private MatcherConfig createMatcherConfig(String matchName) {
+
+        String condition = (String) null;
+        int i = matchName.indexOf('=');
+        if (i != -1) {
+            condition = matchName.substring(i + 1);
+            matchName = matchName.substring(0, i);
+        }
+        final MatcherConfigImpl configImpl = new MatcherConfigImpl();
+        configImpl.setMatcherName(matchName);
+        configImpl.setCondition(condition);
+        configImpl.setMailetContext(mailetContext);
+        return configImpl;
+
     }
     
     /**
@@ -562,7 +597,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                 // if no matcher is configured throw an Exception
                 throw new ConfigurationException("Please configure only match or nomatch per mailet");
             } else if (matcherName != null) {
-                matcher = matcherLoader.getMatcher(matcherName);
+                matcher = matcherLoader.getMatcher(createMatcherConfig(matcherName));
                 if (matcher instanceof CompositeMatcher) {
                     CompositeMatcher compMatcher = (CompositeMatcher) matcher;
                     
@@ -572,7 +607,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                     }
                 }
             } else if (invertedMatcherName != null) {
-                Matcher m = matcherLoader.getMatcher(invertedMatcherName);
+                Matcher m = matcherLoader.getMatcher(createMatcherConfig(invertedMatcherName));
                 if (m instanceof CompositeMatcher) {
                     CompositeMatcher compMatcher = (CompositeMatcher) m;
                     

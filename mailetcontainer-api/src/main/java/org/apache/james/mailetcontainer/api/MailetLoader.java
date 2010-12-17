@@ -21,23 +21,26 @@
 
 package org.apache.james.mailetcontainer.api;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
 
 import javax.mail.MessagingException;
 
+/**
+ * Implementations of this interface are responsible to create {@link Mailet} instances
+ * 
+ *
+ */
 public interface MailetLoader {
     
     /**
-     * Get a new Mailet with the specified name acting
-     * in the specified context.
+     * Get a new {@link Mailet} instance for the given {@link MailetConfig}. The returned {@link Mailet} needs to
+     * be fully initialized, so the returned instance is "read-to-use"
      *
-     * @param mailetName the name of the mailet to be loaded
-     * @param configuration the Configuration to be passed to the new
-     *                mailet
+     * @param config
      * @throws MessagingException if an error occurs
      */
-    public Mailet getMailet(String mailetName, Configuration configuration)
+    public Mailet getMailet(MailetConfig config)
             throws MessagingException;
 
 }

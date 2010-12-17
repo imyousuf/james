@@ -22,18 +22,24 @@
 package org.apache.james.mailetcontainer.api;
 
 import org.apache.mailet.Matcher;
+import org.apache.mailet.MatcherConfig;
 
 import javax.mail.MessagingException;
 
+/**
+ * Implementations of this interface are responsible for loading {@link Matcher} instances
+ * 
+ *
+ */
 public interface MatcherLoader {
 
     /**
-     * Get a new Matcher with the specified name acting
-     * in the specified context.
+     * Get a new {@link Matcher} for the given {@link MatcherConfig}. The returned {@link Matcher} needs to
+     * be fully initialized, so the returned instance is "read-to-use"
      *
-     * @param matchName the name of the matcher to be loaded
+     * @param config
      * @throws MessagingException if an error occurs
      */
-    public Matcher getMatcher(String matchName) throws MessagingException;
+    public Matcher getMatcher(MatcherConfig config) throws MessagingException;
 
 }
