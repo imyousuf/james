@@ -19,14 +19,12 @@
  -->
  
 <!-- See http://james.apache.org/server/3/config.html for usage -->
- 
-<domainlists>
-  <domainlist class="org.apache.james.domainlist.xml.XMLDomainList">
-    <domainnames>
-      <domainname>localhost</domainname>
-    </domainnames>
-    <autodetect>true</autodetect>
-    <autodetectIP>true</autodetectIP>
-    <defaultDomain>localhost</defaultDomain>
-  </domainlist>
-</domainlists>
+
+<domainlist class="org.apache.james.domainlist.xml.XMLDomainList">
+  <domainnames>
+    <domainname>localhost</domainname>
+  </domainnames>
+  <autodetect>true</autodetect>
+  <autodetectIP>true</autodetectIP>
+  <defaultDomain>localhost</defaultDomain>
+</domainlist>

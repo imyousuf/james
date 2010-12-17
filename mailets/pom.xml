@@ -106,6 +106,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-resolver-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-api</artifactId>
     </dependency>
     <dependency>

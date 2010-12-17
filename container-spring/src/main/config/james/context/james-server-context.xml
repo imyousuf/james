@@ -214,16 +214,37 @@
     <bean id="imapEncoder" factory-bean="imapEncoderFactory"  factory-method="buildImapEncoder"/>
     <bean id="imapEncoderFactory" class="org.apache.james.imap.encode.main.DefaultImapEncoderFactory"/>
 
-    <!-- 
-      Users
-     -->
-    <bean id="usersrepository" name="localusersrepository" class="org.apache.james.user.lib.JamesUsersRepository"/>
-    <bean id="virtualusertable" class="org.apache.james.vut.lib.JamesVirtualUserTable" />
 
-    <!-- 
-      Domain List
-     -->
-    <bean id="domainlist" class="org.apache.james.domainlist.lib.JamesDomainList" />
+    <!-- BeanFactoryPostProcessor which take care of register beans from james specific configuration files -->
+    <bean class="org.apache.james.container.spring.JamesLoaderBeanFactoryPostProcessor">
+        <property name="beans">
+          <map>
+            <!-- Users-->
+            <entry>
+              <key>
+                <value>usersrepository</value>
+              </key>
+              <value>localusersrepository</value>
+            </entry>
+            <entry>
+              <key>
+                <value>virtualusertable</value>
+              </key>
+              <!-- no alias needed -->
+              <value></value>
+            </entry>
+            
+            <!-- Domain List -->
+            <entry>
+              <key>
+                <value>domainlist</value>
+              </key>
+              <!-- no alias needed -->
+              <value></value>
+            </entry>
+          </map>
+        </property>
+    </bean>
 
     <!-- 
       MailStore

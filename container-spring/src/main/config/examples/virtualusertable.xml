@@ -17,40 +17,35 @@
   specific language governing permissions and limitations      
   under the License.                                           
  -->
-<!-- The VirtualUserTable block -->
-<virtualusertable>
-    <!-- Configure VirtualUserTable here. -->
-    <!-- Only one table can be active -->
     
-    <!-- -->
-    <!-- If set recursiveMapping false only the first mapping will get processed. -->
-    <!-- Default true. -->
-    <!-- By setting the mappingLimit you can specify how much mapping will get processed -->
-    <!-- before a bounce will send. This avoid infinity loops. Default 10.  -->
-    <!--
-    <table  class="org.apache.james.vut.xml.XMLVirtualUserTable">
-        <recursiveMapping> true </recursiveMapping>
-        <mappingLimit> 10 </mappingLimit>
-         
-        <mapping> some@domain=someuser </mapping>
-    </table>
-    -->
-
-    <!-- Database backed VirtualUsertable -->
-    <!-- -->
-    <!-- Use these configurations to store the VirtualUserTable in a database. -->
-    <!-- 
-    <table class="org.apache.james.vut.jdbc.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
-        <recursiveMapping> true </recursiveMapping>
-        <mappingLimit> 10 </mappingLimit>
-        <sqlFile>file://conf/sqlResources.xml</sqlFile>
-    </table>
-    -->
+<!-- -->
+<!-- If set recursiveMapping false only the first mapping will get processed. -->
+<!-- Default true. -->
+<!-- By setting the mappingLimit you can specify how much mapping will get processed -->
+<!-- before a bounce will send. This avoid infinity loops. Default 10.  -->
+<!--
+<virtualusertable  class="org.apache.james.vut.xml.XMLVirtualUserTable">
+    <recursiveMapping> true </recursiveMapping>
+    <mappingLimit> 10 </mappingLimit>
     
-    <!-- The default table for storing James' VirtualUserTable mappings. -->
-    <table class="org.apache.james.vut.jpa.JPAVirtualUserTable">
-        <recursiveMapping> true </recursiveMapping>
-        <mappingLimit> 10 </mappingLimit>
-    </table>
-
+    <mapping> some@domain=someuser </mapping>
 </virtualusertable>
+-->
+
+<!-- Database backed VirtualUsertable -->
+<!-- -->
+<!-- Use these configurations to store the VirtualUserTable in a database. -->
+<!-- 
+<virtualusertable class="org.apache.james.vut.jdbc.JDBCVirtualUserTable" destinationURL="db://maildb/VirtualUserTable">
+    <recursiveMapping> true </recursiveMapping>
+    <mappingLimit> 10 </mappingLimit>
+    <sqlFile>file://conf/sqlResources.xml</sqlFile>
+</virtualusertable>
+-->
+    
+<!-- The default table for storing James' VirtualUserTable mappings. -->
+<virtualusertable class="org.apache.james.vut.jpa.JPAVirtualUserTable">
+    <recursiveMapping> true </recursiveMapping>
+    <mappingLimit> 10 </mappingLimit>
+</virtualusertable>
+
