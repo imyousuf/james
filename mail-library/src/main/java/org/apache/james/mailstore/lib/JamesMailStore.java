@@ -35,6 +35,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
+import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailstore.api.MailStore;
 import org.apache.james.resolver.api.InstanceFactory;
 
@@ -47,7 +48,7 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
 
 
     // map of [destinationURL + type]->Repository
-    private Map<String, Object> repositories;
+    private Map<String, MailRepository> repositories;
 
     // map of [protocol(destinationURL) + type ]->classname of repository;
     private Map<String,String> classes;
@@ -181,12 +182,10 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
      *                            Configuration or retrieving the 
      *                            MailRepository
      */
-    public synchronized Object select(HierarchicalConfiguration repConf) throws StoreException {
+    public synchronized MailRepository select(String destination) throws StoreException {
  
-        String destination = null;
         String protocol = null;
 
-        destination = repConf.getString("[@destinationURL]");
         int idx = destination.indexOf(':');
         if ( idx == -1 )
             throw new StoreException("Destination is malformed. Must be a valid URL: "
@@ -194,9 +193,8 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
         protocol = destination.substring(0,idx);
         
 
-        String type = repConf.getString("[@type]");
-        String repID = destination + type;
-        Object reply = repositories.get(repID);
+        String repID = destination;
+        MailRepository reply = repositories.get(repID);
         StringBuffer logBuffer = null;
         if (reply != null) {
             if (getLogger().isDebugEnabled()) {
@@ -210,7 +208,7 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
             }
             return reply;
         } else {
-            String key = protocol + type;
+            String key = protocol;
             String repClass = (String) classes.get( key );
              if (getLogger().isDebugEnabled()) {
                 logBuffer =
@@ -219,8 +217,6 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
                             .append(repClass)
                             .append(" to handle: ")
                             .append(protocol)
-                            .append(",")
-                            .append(type)
                             .append(" with key ")
                             .append(key);
                 getLogger().debug( logBuffer.toString() );
@@ -232,16 +228,12 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
             // If no default values, just use the selector.
             final CombinedConfiguration config =  new CombinedConfiguration();
             HierarchicalConfiguration defConf = defaultConfigs.get(key);
-            if ( defConf == null) {
-                config.addConfiguration(repConf);
-            }
-            else {
-                config.addConfiguration(repConf);
+            if ( defConf != null) {
                 config.addConfiguration(defConf);
             }
 
             try {               
-                reply =  factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(repClass), logger, config);
+                reply =  (MailRepository) factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(repClass), logger, config);
 
                 repositories.put(repID, reply);
                 if (getLogger().isInfoEnabled()) {

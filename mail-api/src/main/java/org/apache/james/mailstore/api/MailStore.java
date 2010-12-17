@@ -19,11 +19,11 @@
 
 package org.apache.james.mailstore.api;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.mailrepository.api.MailRepository;
 
 public interface MailStore {
 
-    public Object select(HierarchicalConfiguration config) throws StoreException;
+    public MailRepository select(String url) throws StoreException;
     
     @SuppressWarnings("serial")
     public class StoreException extends Exception {

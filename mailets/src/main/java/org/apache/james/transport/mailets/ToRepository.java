@@ -22,8 +22,8 @@
 package org.apache.james.transport.mailets;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
 
-import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailstore.api.MailStore;
 import org.apache.mailet.base.GenericMailet;
@@ -66,7 +66,7 @@ public class ToRepository extends GenericMailet {
     /**
      * Initialize the mailet, loading configuration information.
      */
-    public void init() {
+    public void init() throws MessagingException{
         repositoryPath = getInitParameter("repositoryPath");
         try {
             passThrough = new Boolean(getInitParameter("passThrough")).booleanValue();
@@ -75,14 +75,9 @@ public class ToRepository extends GenericMailet {
         }
 
         try {
-            DefaultConfigurationBuilder mailConf
-                = new DefaultConfigurationBuilder();
-            mailConf.addProperty("[@destinationURL]", repositoryPath);
-            mailConf.addProperty("[@type]", "MAIL");
-            mailConf.addProperty("[@CACHEKEYS]", getInitParameter("CACHEKEYS","TRUE"));
-            repository = (MailRepository) mailStore.select(mailConf);
+            repository = mailStore.select(repositoryPath);
         } catch (Exception e) {
-            log("Failed to retrieve Store component:" + e.getMessage());
+            throw new MessagingException("Failed to retrieve MailRepository for url " + repositoryPath, e);
         }
 
     }

@@ -21,54 +21,28 @@
 
 package org.apache.james.mailstore.mock;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationUtils;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.mailstore.api.MailStore;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.james.mailrepository.api.MailRepository;
+import org.apache.james.mailstore.api.MailStore;
+
 public class MockMailStore implements MailStore {
 
-    Map m_storedObjectMap = new HashMap();
+    Map<String,MailRepository> m_storedObjectMap = new HashMap<String,MailRepository>();
 
-    public void add(Object key, Object obj) {
-        m_storedObjectMap.put(key, obj);
+    public void add(String url, MailRepository obj) {
+        m_storedObjectMap.put(url, obj);
     }
     
-    public Object select(HierarchicalConfiguration object) throws StoreException {
-        Object result = get(object);
+    public MailRepository select(String url) throws StoreException {
+        MailRepository result = get(url);
         return result;
     }
 
-    private Object get(Object object) {
-        Object key = extractKeyObject(object);
+    private MailRepository get(String key) {
         System.out.println(key);
         return m_storedObjectMap.get(key);
     }
 
-    private Object extractKeyObject(Object object) {
-        if (object instanceof Configuration) {
-            Configuration repConf = (Configuration) object;
-            System.out.println(ConfigurationUtils.toString(repConf));
-
-            String type = repConf.getString("[@type]");
-            String prefix = "";
-            if (!"MAIL".equals(type) && !"SPOOL".equals(type)) {
-                prefix = type + ".";
-            }
-            String attribute = repConf.getString("[@destinationURL]");
-            String[] strings = attribute.split("/");
-            if (strings.length > 0) {
-                return prefix + strings[strings.length - 1];
-            }
-
-        }
-        return object;
-    }
-
-    public boolean isSelectable(Object object) {
-        return get(object) != null;
-    }
 }

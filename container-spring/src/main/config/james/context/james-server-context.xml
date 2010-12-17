@@ -134,8 +134,8 @@
     <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
     <bean id="mailspooler" class="org.apache.james.mailetcontainer.lib.JamesMailSpooler"/>
     <bean id="mailetcontext" class="org.apache.james.mailetcontainer.lib.JamesMailetContext"/>
-    <bean id="mailetloader" class="org.apache.james.container.spring.mailetcontainer.JamesMailetLoader" />
-    <bean id="matcherloader" class="org.apache.james.container.spring.mailetcontainer.JamesMatcherLoader" />
+    <bean id="mailetloader" class="org.apache.james.container.spring.mailetcontainer.BeanFactoryMailetLoader" />
+    <bean id="matcherloader" class="org.apache.james.container.spring.mailetcontainer.BeanFactoryMatcherLoader" />
 
     <!-- 
       DNS Service
