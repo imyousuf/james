@@ -24,8 +24,8 @@ package org.apache.james.user.file;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.mailstore.api.MailStore;
-import org.apache.james.repository.api.ObjectRepository;
+import org.apache.james.repository.file.FilePersistentObjectRepository;
+import org.apache.james.resolver.api.FileSystem;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;
 import org.apache.james.user.lib.model.DefaultJamesUser;
@@ -58,8 +58,7 @@ public class UsersFileRepository
      */
     protected static boolean DEEP_DEBUG = false;
 
-    private MailStore store;
-    private ObjectRepository objectRepository;
+    private FilePersistentObjectRepository objectRepository;
     private static String urlSeparator = "/"; 
 
     /**
@@ -67,16 +66,13 @@ public class UsersFileRepository
      */
     private String destination;
 
-    /**
-     * Set the Store
-     * 
-     * @param store the Store
-     */
-    @Resource(name="mailstore")
-    public void setStore(MailStore store) {
-        this.store = store;
-    }
+    private FileSystem fs;
 
+
+    @Resource(name="filesystem")
+    public void setFileSystem(FileSystem fs) {
+        this.fs = fs;
+    }
 
     /**
      * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
@@ -101,10 +97,12 @@ public class UsersFileRepository
                 = new DefaultConfigurationBuilder();
 
             objectConfiguration.addProperty( "[@destinationURL]", destination );
-            objectConfiguration.addProperty( "[@type]", "OBJECT" );
-            objectConfiguration.addProperty( "[@model]", "SYNCHRONOUS" );
-
-            objectRepository = (ObjectRepository)store.select( objectConfiguration );
+            
+            objectRepository = new FilePersistentObjectRepository();
+            objectRepository.setLog(getLogger());
+            objectRepository.setFileSystem(fs);
+            objectRepository.configure(objectConfiguration);
+            objectRepository.init();
             if (getLogger().isDebugEnabled()) {
                 StringBuffer logBuffer =
                     new StringBuffer(192)

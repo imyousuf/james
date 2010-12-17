@@ -30,8 +30,6 @@ import java.util.Iterator;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.lifecycle.api.LifecycleUtil;
-import org.apache.james.mailstore.mock.MockMailStore;
-import org.apache.james.repository.file.FilePersistentObjectRepository;
 import org.apache.james.resolver.api.FileSystem;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.JamesUser;
@@ -52,9 +50,6 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
      * @throws Exception 
      */
     protected UsersRepository getUsersRepository() throws Exception {
-        
-        UsersFileRepository res = new UsersFileRepository();
-
         FileSystem fs = new FileSystem() {
 
             public File getBasedir() throws FileNotFoundException {
@@ -70,19 +65,15 @@ public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
             }
             
         };
-        MockMailStore mockStore = new MockMailStore();
-        FilePersistentObjectRepository filePersistentObjectRepository = new FilePersistentObjectRepository();
-        filePersistentObjectRepository.setFileSystem(fs);
-        filePersistentObjectRepository.setLog(new SimpleLog("MockLog"));
-        DefaultConfigurationBuilder defaultConfiguration22 = new DefaultConfigurationBuilder();
-        defaultConfiguration22.addProperty("[@destinationURL]", "file://target/var/users");
-        filePersistentObjectRepository.configure(defaultConfiguration22);
-        filePersistentObjectRepository.init();
         
-        mockStore.add("OBJECT.users", filePersistentObjectRepository);
-        res.setStore(mockStore);
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder("test");
         configuration.addProperty("destination.[@URL]", "file://target/var/users");
+        
+        UsersFileRepository res = new UsersFileRepository();
+
+        
+
+        res.setFileSystem(fs);
         res.setLog(new SimpleLog("MockLog"));
         res.configure(configuration);
         res.init();
