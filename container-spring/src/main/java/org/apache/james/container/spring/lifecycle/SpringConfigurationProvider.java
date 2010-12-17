@@ -38,30 +38,30 @@ import org.springframework.core.io.ResourceLoader;
  */
 public class SpringConfigurationProvider implements ConfigurationProvider, ResourceLoaderAware, InitializingBean {
 
-	private ResourceLoader loader;
-	private Map<String,HierarchicalConfiguration> confMap = new HashMap<String,HierarchicalConfiguration>();
-    private Map<String,String> resources;
+    private ResourceLoader loader;
+    private Map<String, HierarchicalConfiguration> confMap = new HashMap<String, HierarchicalConfiguration>();
+    private Map<String, String> resources;
 
+    /**
+     * Return the configuration prefix to load the config. In this case its
+     * file://conf/
+     * 
+     * @return prefix
+     */
+    protected String getConfigPrefix() {
+        return "file://conf/";
+    }
 
-
-	/**
-	 * Return the configuration prefix to load the config. In this case its
-	 * file://conf/
-	 * 
-	 * @return prefix
-	 */
-	protected String getConfigPrefix() {
-		return "file://conf/";
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.context.ResourceLoaderAware#setResourceLoader(org.springframework.core.io.ResourceLoader)
-	 */
-	public void setResourceLoader(ResourceLoader loader) {
-		this.loader = loader;
-	}
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.springframework.context.ResourceLoaderAware#setResourceLoader(org
+     * .springframework.core.io.ResourceLoader)
+     */
+    public void setResourceLoader(ResourceLoader loader) {
+        this.loader = loader;
+    }
     
     private XMLConfiguration getConfig(Resource r) throws ConfigurationException, IOException {
         XMLConfiguration config = new XMLConfiguration();
@@ -85,8 +85,10 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
     }
 
 
+
     /*
-     * 
+     * (non-Javadoc)
+     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
      */
     public void afterPropertiesSet() throws Exception {
         if (resources != null) {
@@ -95,11 +97,15 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
             while (it.hasNext()) {
                 String key = it.next();
                 String value = resources.get(key);
-                confMap.put(key,getConfiguration(value));
+                registerConfiguration(key,getConfiguration(value));
             }
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.container.spring.lifecycle.ConfigurationProvider#getConfiguration(java.lang.String)
+     */
     public HierarchicalConfiguration getConfiguration(String name) throws ConfigurationException {
         HierarchicalConfiguration conf = confMap.get(name);
         if (conf != null) {
@@ -115,6 +121,14 @@ public class SpringConfigurationProvider implements ConfigurationProvider, Resou
             }
         }
         throw new ConfigurationException("Unable to load configuration for component " + name);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.container.spring.lifecycle.ConfigurationProvider#registerConfiguration(java.lang.String, org.apache.commons.configuration.HierarchicalConfiguration)
+     */
+    public void registerConfiguration(String beanName, HierarchicalConfiguration conf) {
+        confMap.put(beanName,conf);
     }
 
 }

@@ -34,4 +34,12 @@ public interface LogProvider {
      * @return log
      */
     public Log getLog(String beanName);
+    
+    /**
+     * Register a {@link Log} for a beanName. The registered Log will get returned by {@link #getLog(String)}
+     * 
+     * @param beanName
+     * @param log
+     */
+    public void registerLog(String beanName, Log log);
 }

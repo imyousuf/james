@@ -51,4 +51,9 @@ public class OsgiConfigurationProvider implements ConfigurationProvider{
         
     }
 
+    public void registerConfiguration(String beanName, HierarchicalConfiguration conf) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

@@ -36,4 +36,12 @@ public interface ConfigurationProvider {
      * @throws ConfigurationException
      */
     public HierarchicalConfiguration getConfiguration(String beanName) throws ConfigurationException;
+    
+    /**
+     * Register a {@link HierarchicalConfiguration} for a bean name
+     * 
+     * @param beanName
+     * @param conf
+     */
+    public void registerConfiguration(String beanName, HierarchicalConfiguration conf);
 }

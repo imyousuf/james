@@ -37,4 +37,9 @@ public class OsgiLogProvider implements LogProvider{
         return LogFactory.getLog(beanName);
     }
 
+    public void registerLog(String beanName, Log log) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

@@ -42,6 +42,7 @@ import org.apache.james.resolver.api.InstanceFactory;
  * ProtocolHandlerchain implementation which instance all the configured handlers
  * 
  *
+ * TODO: Move this to test package as it is the only place where it get used
  */
 @SuppressWarnings("unchecked")
 public class JamesProtocolHandlerChain implements ProtocolHandlerChain, Configurable, LogEnabled {

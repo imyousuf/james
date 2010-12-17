@@ -33,24 +33,27 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class SpringLogProvider implements LogProvider, InitializingBean {
 
-    private final Map<String,Log> logMap = new HashMap<String,Log>();
+    private final Map<String, Log> logMap = new HashMap<String, Log>();
     private Map<String, String> logs;
     private final static String PREFIX = "james.";
 
-	/**
-	 * Use {@link Log4JLogger} to create the Log
-	 * 
-	 * @param loggerName
-	 * @return log
-	 */
-	protected Log createLog(String loggerName) {
-		return new Log4JLogger(loggerName);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.container.spring.Registry#registerForComponent(java.lang.String, java.lang.Object)
-	 */
+    /**
+     * Use {@link Log4JLogger} to create the Log
+     * 
+     * @param loggerName
+     * @return log
+     */
+    protected Log createLog(String loggerName) {
+        return new Log4JLogger(loggerName);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.container.spring.Registry#registerForComponent(java.
+     * lang.String, java.lang.Object)
+     */
     public void registerForComponent(String name, Log log) {
         logMap.put(name, log);
     }
@@ -69,12 +72,15 @@ public class SpringLogProvider implements LogProvider, InitializingBean {
             while(it.hasNext()) {
                 String key = it.next();
                 String value = logs.get(key);
-                
-                logMap.put(key, new Log4JLogger(PREFIX + value));
+                registerLog(key, new Log4JLogger(PREFIX + value));
             }
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.container.spring.lifecycle.LogProvider#getLog(java.lang.String)
+     */
     public Log getLog(String name) {
         Log log = logMap.get(name);
         if (log != null) {
@@ -82,5 +88,13 @@ public class SpringLogProvider implements LogProvider, InitializingBean {
         } else {
             return createLog(PREFIX + name);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.container.spring.lifecycle.LogProvider#registerLog(java.lang.String, org.apache.commons.logging.Log)
+     */
+    public void registerLog(String beanName, Log log) {
+        logMap.put(beanName, log);
     }
 }
