@@ -93,7 +93,7 @@ public class BeanFactoryMailRepositoryStore implements MailRepositoryStore, LogE
         classes = new HashMap<String,String>();
         defaultConfigs = new HashMap<String, HierarchicalConfiguration>();
         List<HierarchicalConfiguration> registeredClasses
-            = configuration.configurationsAt("repositories.repository");
+            = configuration.configurationsAt("mailrepositories.mailrepository");
         for ( int i = 0; i < registeredClasses.size(); i++ )
         {
             registerRepository(registeredClasses.get(i));
@@ -173,13 +173,13 @@ public class BeanFactoryMailRepositoryStore implements MailRepositoryStore, LogE
      *                            Configuration or retrieving the 
      *                            MailRepository
      */
-    public synchronized MailRepository select(String destination) throws StoreException {
+    public synchronized MailRepository select(String destination) throws MailRepostoryStoreException {
  
         String protocol = null;
 
         int idx = destination.indexOf(':');
         if ( idx == -1 )
-            throw new StoreException("Destination is malformed. Must be a valid URL: "
+            throw new MailRepostoryStoreException("Destination is malformed. Must be a valid URL: "
                 + destination);
         protocol = destination.substring(0,idx);
         
@@ -258,7 +258,7 @@ public class BeanFactoryMailRepositoryStore implements MailRepositoryStore, LogE
                     getLogger().warn( "Exception while creating repository:" +
                                       e.getMessage(), e );
                 }
-                throw new StoreException("Cannot find or init repository", e);
+                throw new MailRepostoryStoreException("Cannot find or init repository", e);
             }
         }
         

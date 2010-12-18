@@ -21,23 +21,23 @@
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
 <mailrepositorystore>
-  <repositories>
-      <repository class="org.apache.james.mailrepository.file.FileMailRepository">
+  <mailrepositories>
+      <mailrepository class="org.apache.james.mailrepository.file.FileMailRepository">
           <config FIFO="false" CACHEKEYS="true"/> 
           <protocols>
               <protocol>file</protocol>
           </protocols>
-      </repository>
+      </mailrepository>
       
-      <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
+      <mailrepository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
           <protocols>
               <protocol>db</protocol>
           </protocols>
           <config>
               <sqlFile>file://conf/sqlResources.xml</sqlFile>
           </config>
-      </repository>
-      <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
+      </mailrepository>
+      <mailrepository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
           <protocols>
               <protocol>dbfile</protocol>
           </protocols>
@@ -45,12 +45,12 @@
               <sqlFile>file://conf/sqlResources.xml</sqlFile>
               <filestore>file://var/dbmail</filestore>
           </config>
-      </repository>
-      <repository class="org.apache.james.mailrepository.file.MBoxMailRepository">
+      </mailrepository>
+      <mailrepository class="org.apache.james.mailrepository.file.MBoxMailRepository">
           <protocols>
               <protocol>mbox</protocol>
           </protocols>
           <config FIFO="false"/> 
-      </repository>
-  </repositories>
+      </mailrepository>
+  </mailrepositories>
 </mailrepositorystore>

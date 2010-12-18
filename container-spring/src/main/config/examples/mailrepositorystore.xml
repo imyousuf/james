@@ -19,20 +19,20 @@
  -->
 <!-- The Mailstore block -->
 <<mailrepositorystore>
-    <repositories>
+    <mailrepositories>
         <!-- File based repositories.  These repositories store all message data -->
         <!-- in the file system. -->
-        <repository class="org.apache.james.mailrepository.file.FileMailRepository">
+        <mailrepository class="org.apache.james.mailrepository.file.FileMailRepository">
             <protocols>
                 <protocol>file</protocol>
             </protocols>
             <!-- Set if the messages should be listed sorted. False by default -->
           <config FIFO="false" CACHEKEYS="true"/> 
-        </repository>
+        </mailrepository>
 
         <!-- JDBC based repositories.  These repositories store all message data -->
         <!-- in the database. -->
-        <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
+        <mailrepository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
             <protocols>
                 <protocol>db</protocol>
             </protocols>
@@ -46,10 +46,10 @@
                 <inMemorySizeLimit>4096</inMemorySizeLimit>
                 -->
             </config>
-        </repository>
+        </mailrepository>
 
         <!-- These repositories store message delivery and headers in the DB, and the body to the filesystem -->
-        <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
+        <mailrepository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
             <protocols>
                 <protocol>dbfile</protocol>
             </protocols>
@@ -57,21 +57,21 @@
                 <sqlFile>file://conf/sqlResources.xml</sqlFile>
                 <filestore>file://var/dbmail</filestore>
             </config>
-        </repository>
+        </mailrepository>
  
         <!-- The mbox repository is designed for MAIL only; SPOOL performance would be less than ideal-->
-        <repository class="org.apache.james.mailrepository.file.MBoxMailRepository">
+        <mailrepository class="org.apache.james.mailrepository.file.MBoxMailRepository">
             <protocols>
                 <protocol>mbox</protocol>
             </protocols>
             <!-- Set if the messages should be listed sorted. False by default -->
             <config FIFO="false"/> 
-        </repository>
+        </mailrepository>
         
         
         <!-- If you enable this you need to make sure that embedded Jackrabbit instance is started as well. Check the container configuration -->  
         <!--
-        <repository class="org.apache.james.mailrepository.jcr.JCRMailRepository">
+        <mailrepository class="org.apache.james.mailrepository.jcr.JCRMailRepository">
             <protocols>
                 <protocol>jcr</protocol>
             </protocols>
@@ -81,7 +81,7 @@
                 <password>admin</password>
                 <workspace>default</workspace>
             </config>
-        </repository>
+        </mailrepository>
         -->
-    </repositories>
+    </mailrepositories>
 </mailrepositorystore>

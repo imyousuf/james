@@ -24,17 +24,29 @@ import java.util.List;
 
 public interface MailRepositoryStore {
 
-    public MailRepository select(String url) throws StoreException;
+    /**
+     * Select the {@link MailRepository} for the given url
+     * 
+     * @param url
+     * @return repository
+     * @throws MailRepostoryStoreException
+     */
+    public MailRepository select(String url) throws MailRepostoryStoreException;
     
+    /**
+     * Return a {@link List} which contains all urls of the selected {@link MailRepository}'s
+     * 
+     * @return urls
+     */
     public List<String> getUrls();
     
     @SuppressWarnings("serial")
-    public class StoreException extends Exception {
-        public StoreException(String msg, Throwable t) {
+    public class MailRepostoryStoreException extends Exception {
+        public MailRepostoryStoreException(String msg, Throwable t) {
             super(msg, t);
         }
         
-        public StoreException(String msg) {
+        public MailRepostoryStoreException(String msg) {
             super(msg);
         }
     }

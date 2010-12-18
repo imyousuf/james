@@ -37,7 +37,7 @@ public class MockMailRepositoryStore implements MailRepositoryStore {
         m_storedObjectMap.put(url, obj);
     }
     
-    public MailRepository select(String url) throws StoreException {
+    public MailRepository select(String url) throws MailRepostoryStoreException {
         MailRepository result = get(url);
         return result;
     }
