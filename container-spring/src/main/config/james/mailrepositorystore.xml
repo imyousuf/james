@@ -20,7 +20,7 @@
 
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
-<mailstore>
+<mailrepositorystore>
   <repositories>
       <repository class="org.apache.james.mailrepository.file.FileMailRepository">
           <config FIFO="false" CACHEKEYS="true"/> 
@@ -53,4 +53,4 @@
           <config FIFO="false"/> 
       </repository>
   </repositories>
-</mailstore>
+</mailrepositorystore>

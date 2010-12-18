@@ -17,13 +17,12 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailstore.api;
+package org.apache.james.mailrepository.api;
 
 import java.util.List;
 
-import org.apache.james.mailrepository.api.MailRepository;
 
-public interface MailStore {
+public interface MailRepositoryStore {
 
     public MailRepository select(String url) throws StoreException;
     

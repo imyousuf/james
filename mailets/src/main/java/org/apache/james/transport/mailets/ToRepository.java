@@ -25,7 +25,7 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.james.mailrepository.api.MailRepository;
-import org.apache.james.mailstore.api.MailStore;
+import org.apache.james.mailrepository.api.MailRepositoryStore;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.Mail;
 
@@ -55,11 +55,11 @@ public class ToRepository extends GenericMailet {
      */
     private String repositoryPath;
 
-    private MailStore mailStore;
+    private MailRepositoryStore mailStore;
 
     
-    @Resource(name="mailstore")
-    public void setStore(MailStore mailStore) {
+    @Resource(name="mailrepositorystore")
+    public void setStore(MailRepositoryStore mailStore) {
         this.mailStore = mailStore;
     }
     

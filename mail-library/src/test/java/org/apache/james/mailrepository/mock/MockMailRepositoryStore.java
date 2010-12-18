@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailstore.mock;
+package org.apache.james.mailrepository.mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.james.mailrepository.api.MailRepository;
-import org.apache.james.mailstore.api.MailStore;
+import org.apache.james.mailrepository.api.MailRepositoryStore;
 
-public class MockMailStore implements MailStore {
+public class MockMailRepositoryStore implements MailRepositoryStore {
 
     Map<String,MailRepository> m_storedObjectMap = new HashMap<String,MailRepository>();
 

@@ -42,7 +42,7 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.mock.SimpleDomainList;
-import org.apache.james.mailstore.mock.MockMailStore;
+import org.apache.james.mailrepository.mock.MockMailRepositoryStore;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
 import org.apache.james.util.TestUtil;
@@ -177,7 +177,7 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	
 		serviceManager.put("domainlist", xml);
 
-		serviceManager.put("mailStore", new MockMailStore());
+		serviceManager.put("mailStore", new MockMailRepositoryStore());
 	
 	}
 

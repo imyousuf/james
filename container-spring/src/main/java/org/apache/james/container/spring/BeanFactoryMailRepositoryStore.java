@@ -37,7 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailrepository.api.MailRepository;
-import org.apache.james.mailstore.api.MailStore;
+import org.apache.james.mailrepository.api.MailRepositoryStore;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -48,7 +48,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * identified by its destinationURL, type and model.
  *
  */
-public class BeanFactoryMailStore implements MailStore, LogEnabled, Configurable, BeanFactoryAware {
+public class BeanFactoryMailRepositoryStore implements MailRepositoryStore, LogEnabled, Configurable, BeanFactoryAware {
 
 
     // map of [destinationURL + type]->Repository

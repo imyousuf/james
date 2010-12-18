@@ -242,7 +242,7 @@
     <!-- 
       MailStore
      -->
-    <bean id="mailstore" class="org.apache.james.container.spring.BeanFactoryMailStore" />
+    <bean id="mailrepositorystore" class="org.apache.james.container.spring.BeanFactoryMailRepositoryStore" />
 
     <!-- 
       Mailbox

@@ -49,7 +49,7 @@ import org.apache.james.server.mock.MockJSR250Loader;
 import org.apache.james.server.mock.MockProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.mock.SimpleDomainList;
-import org.apache.james.mailstore.mock.MockMailStore;
+import org.apache.james.mailrepository.mock.MockMailRepositoryStore;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.codec.Base64;
 import org.apache.james.vut.api.VirtualUserTable;
@@ -143,7 +143,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
     protected MockJSR250Loader m_serviceManager;
     protected AlterableDNSServer m_dnsServer;
-    protected MockMailStore store;
+    protected MockMailRepositoryStore store;
     protected MockFileSystem fileSystem;
     protected SMTPServerDNSServiceAdapter dnsAdapter;
     protected MockProtocolHandlerChain chain;
@@ -216,7 +216,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         m_dnsServer = new AlterableDNSServer();
         m_serviceManager.put("dnsservice", m_dnsServer);
 
-        store = new MockMailStore();
+        store = new MockMailRepositoryStore();
         m_serviceManager.put("mailStore", store);
         fileSystem = new MockFileSystem();
 
