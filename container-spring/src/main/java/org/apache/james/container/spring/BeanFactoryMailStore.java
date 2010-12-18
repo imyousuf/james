@@ -19,14 +19,14 @@
 
 
 
-package org.apache.james.mailstore.lib;
+package org.apache.james.container.spring;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.configuration.CombinedConfiguration;
@@ -38,14 +38,17 @@ import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailstore.api.MailStore;
-import org.apache.james.resolver.api.InstanceFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
  * Provides a registry of mail repositories. A mail repository is uniquely
  * identified by its destinationURL, type and model.
  *
  */
-public class JamesMailStore implements MailStore, LogEnabled, Configurable {
+public class BeanFactoryMailStore implements MailStore, LogEnabled, Configurable, BeanFactoryAware {
 
 
     // map of [destinationURL + type]->Repository
@@ -64,7 +67,7 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
 
     private Log logger;
 
-    private InstanceFactory factory;
+    private ConfigurableListableBeanFactory beanFactory;
 
     public void setLog(Log logger) {
         this.logger = logger;
@@ -78,11 +81,6 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
         this.configuration = configuration;
     }
 
-
-    @Resource(name="instanceFactory")
-    public void setInstanceFactory(InstanceFactory factory) {
-        this.factory = factory;
-    }
     
     @PostConstruct
     @SuppressWarnings("unchecked")
@@ -229,7 +227,20 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
             config.addConfiguration(builder);
             
             try {               
-                reply =  (MailRepository) factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(repClass), logger, config);
+                // Use the classloader which is used for bean instance stuff
+                Class<MailRepository> clazz = (Class<MailRepository>) beanFactory.getBeanClassLoader().loadClass(repClass);
+                reply = (MailRepository) beanFactory.autowire(clazz, ConfigurableListableBeanFactory.AUTOWIRE_NO, false);
+
+                if (reply instanceof LogEnabled) {
+                    ((LogEnabled) reply).setLog(logger);
+                }
+                
+                if (reply instanceof Configurable) {
+                    ((Configurable) reply).configure(config);
+                } 
+                
+                reply = (MailRepository) beanFactory.initializeBean(reply, key);
+                
 
                 repositories.put(repID, reply);
                 if (getLogger().isInfoEnabled()) {
@@ -251,5 +262,17 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
             }
         }
         
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailstore.api.MailStore#getUrls()
+     */
+    public synchronized List<String> getUrls() {
+        return new ArrayList<String>(repositories.keySet());
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;        
     }
 }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.server;
+package org.apache.james.server.mock;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,7 +35,6 @@ import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.WiringException;
-import org.apache.james.resolver.api.InstanceFactory;
 
 
 /**
@@ -45,21 +44,20 @@ import org.apache.james.resolver.api.InstanceFactory;
  * TODO: Move this to test package as it is the only place where it get used
  */
 @SuppressWarnings("unchecked")
-public class JamesProtocolHandlerChain implements ProtocolHandlerChain, Configurable, LogEnabled {
+public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configurable, LogEnabled {
   
     private Log log;
     private String coreHandlersPackage;
     private LinkedList handlers = new LinkedList();
     private HierarchicalConfiguration config;
-    private InstanceFactory factory;
+    private MockJSR250Loader factory;
 
 
     public void setCoreHandlersPackage(String coreHandlersPackage) {
         this.coreHandlersPackage = coreHandlersPackage;
     }
    
-    @Resource(name="instanceFactory")
-    public void setInstanceFactory(InstanceFactory factory) {
+    public void setLoader(MockJSR250Loader factory) {
         this.factory = factory;
     }
     

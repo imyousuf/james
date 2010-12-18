@@ -30,20 +30,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.mail.MessagingException;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.james.resolver.api.mock.MockFileSystem;
-import org.apache.james.resolver.api.mock.MockJSR250Loader;
-import org.apache.james.server.JamesProtocolHandlerChain;
+import org.apache.james.server.mock.MockJSR250Loader;
+import org.apache.james.server.mock.MockProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.mock.SimpleDomainList;
-import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.mailstore.mock.MockMailStore;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
@@ -62,13 +60,13 @@ public abstract class AbstractRemoteManagerTest extends TestCase {
 	protected DNSService dnsservice;
 	protected MockFileSystem filesystem;
 	private MockVirtualUserTableManagementImpl vutManagement;
-	protected JamesProtocolHandlerChain chain;
+	protected MockProtocolHandlerChain chain;
 	
 	protected void setUp() throws Exception {
 		setUpFakeLoader();
 
-        chain = new JamesProtocolHandlerChain();
-	    chain.setInstanceFactory(serviceManager);
+        chain = new MockProtocolHandlerChain();
+	    chain.setLoader(serviceManager);
 	    chain.setLog(new SimpleLog("ChainLog"));
 	        
 	    setUpRemoteManager();

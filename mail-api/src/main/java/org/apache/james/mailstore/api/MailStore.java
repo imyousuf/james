@@ -19,11 +19,15 @@
 
 package org.apache.james.mailstore.api;
 
+import java.util.List;
+
 import org.apache.james.mailrepository.api.MailRepository;
 
 public interface MailStore {
 
     public MailRepository select(String url) throws StoreException;
+    
+    public List<String> getUrls();
     
     @SuppressWarnings("serial")
     public class StoreException extends Exception {

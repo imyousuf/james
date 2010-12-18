@@ -72,7 +72,6 @@
     <!-- 
       Injection
      -->
-    <bean id="instanceFactory" class="org.apache.james.container.spring.SpringInstanceFactory"/>
     <bean class= "org.springframework.context.annotation.CommonAnnotationBeanPostProcessor">
         <property name="order" value="3" />
     </bean>
@@ -243,7 +242,7 @@
     <!-- 
       MailStore
      -->
-    <bean id="mailstore" class="org.apache.james.mailstore.lib.JamesMailStore" />
+    <bean id="mailstore" class="org.apache.james.container.spring.BeanFactoryMailStore" />
 
     <!-- 
       Mailbox

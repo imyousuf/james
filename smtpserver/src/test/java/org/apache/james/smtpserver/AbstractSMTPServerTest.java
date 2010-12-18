@@ -45,11 +45,10 @@ import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.queue.api.mock.MockMailQueue;
 import org.apache.james.queue.api.mock.MockMailQueueFactory;
 import org.apache.james.resolver.api.mock.MockFileSystem;
-import org.apache.james.resolver.api.mock.MockJSR250Loader;
-import org.apache.james.server.JamesProtocolHandlerChain;
+import org.apache.james.server.mock.MockJSR250Loader;
+import org.apache.james.server.mock.MockProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.mock.SimpleDomainList;
-import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.mailstore.mock.MockMailStore;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.codec.Base64;
@@ -147,7 +146,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     protected MockMailStore store;
     protected MockFileSystem fileSystem;
     protected SMTPServerDNSServiceAdapter dnsAdapter;
-    protected JamesProtocolHandlerChain chain;
+    protected MockProtocolHandlerChain chain;
     protected MockMailQueueFactory queueFactory;
     protected MockMailQueue queue;
     
@@ -163,8 +162,8 @@ public abstract class AbstractSMTPServerTest extends TestCase {
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
 
         
-        chain = new JamesProtocolHandlerChain();
-        chain.setInstanceFactory(m_serviceManager);
+        chain = new MockProtocolHandlerChain();
+        chain.setLoader(m_serviceManager);
         chain.setLog(log);
         setUpSMTPServer();
     }

@@ -21,7 +21,6 @@ package org.apache.james.container.osgi;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.james.container.spring.SpringInstanceFactory;
 import org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor;
 import org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor;
 import org.osgi.framework.BundleContext;
@@ -75,10 +74,6 @@ public class JamesOsgiBeanFactoryPostProcessor implements OsgiBeanFactoryPostPro
         commAnnotationProcessor.setDestroyAnnotationType(PreDestroy.class);
         commAnnotationProcessor.setResourceFactory(factory);
         factory.addBeanPostProcessor(commAnnotationProcessor);
-        
-        // Add SpringInstanceFactory to the context so we can load the classes via it
-        SpringInstanceFactory instanceFactory = new SpringInstanceFactory();
-        instanceFactory.setBeanFactory(factory);
-        factory.registerSingleton("instanceFactory", instanceFactory);
+     
     }
 }

@@ -38,8 +38,8 @@ import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.commons.net.pop3.POP3Reply;
 import org.apache.james.resolver.api.mock.MockFileSystem;
-import org.apache.james.resolver.api.mock.MockJSR250Loader;
-import org.apache.james.server.JamesProtocolHandlerChain;
+import org.apache.james.server.mock.MockJSR250Loader;
+import org.apache.james.server.mock.MockProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.mailbox.inmemory.InMemoryMailboxManager;
@@ -63,7 +63,7 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     private MockJSR250Loader serviceManager;
     protected DNSService dnsservice;
     protected MockFileSystem fSystem;
-    protected JamesProtocolHandlerChain chain;
+    protected MockProtocolHandlerChain chain;
     private InMemoryMailboxManager manager;
     private byte[] content =        ("Return-path: return@test.com\r\n"+
             "Content-Transfer-Encoding: plain\r\n"+
@@ -77,8 +77,8 @@ public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
     protected void setUp() throws Exception {
         setUpServiceManager();
         
-        chain = new JamesProtocolHandlerChain();
-        chain.setInstanceFactory(serviceManager);
+        chain = new MockProtocolHandlerChain();
+        chain.setLoader(serviceManager);
         chain.setLog(new SimpleLog("ChainLog"));
    
         setUpPOP3Server();

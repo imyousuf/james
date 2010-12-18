@@ -21,7 +21,9 @@
 
 package org.apache.james.mailstore.mock;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.james.mailrepository.api.MailRepository;
@@ -43,6 +45,10 @@ public class MockMailStore implements MailStore {
     private MailRepository get(String key) {
         System.out.println(key);
         return m_storedObjectMap.get(key);
+    }
+
+    public List<String> getUrls() {
+        return new ArrayList<String>(m_storedObjectMap.keySet());
     }
 
 }
