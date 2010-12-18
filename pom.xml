@@ -41,7 +41,6 @@
     <module>imapserver</module>
     <module>lmtpserver</module>
     <module>domainlist-api</module>
-    <module>domainlist-jdbc</module>
     <module>domainlist-jpa</module>
     <module>domainlist-library</module>
     <module>domainlist-xml</module>
@@ -506,11 +505,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-domainlist-xml</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domainlist-jdbc</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

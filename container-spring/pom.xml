@@ -594,11 +594,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domainlist-jdbc</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-domainlist-jpa</artifactId>
       <scope>runtime</scope>
     </dependency>

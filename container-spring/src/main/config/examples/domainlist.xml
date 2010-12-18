@@ -56,14 +56,3 @@
 </domainlist>
 -->
 
-<!-- JDBC implementation for DomainList. This is deprecated and should not be used. -->
-<!-- Use JPADomainList if you need a db backend DomainList -->
-<!-- 
-<domainlist class="org.apache.james.domainlist.jdbc.JDBCDomainList">
-  <repositoryPath>db://maildb/domain</repositoryPath>
-  <sqlFile>file://conf/sqlResources.xml</sqlFile>
-  <autodetect>true</autodetect>
-  <autodetectIP>true</autodetectIP>
-  <defaultDomain>localhost</defaultDomain>
-</domainlist>  
--->
