@@ -37,104 +37,99 @@ import org.apache.mailet.MailAddress;
 /**
  * Handler which reject invalid recipients
  */
-public class ValidRcptHandler extends AbstractValidRcptHandler implements
-		Configurable {
+public class ValidRcptHandler extends AbstractValidRcptHandler implements Configurable {
 
-	private UsersRepository users;
+    private UsersRepository users;
 
-	private VirtualUserTable vut;
+    private VirtualUserTable vut;
 
     private boolean useVut = true;
 
     private DomainList domains;
 
-	/**
-	 * Gets the users repository.
-	 * 
-	 * @return the users
-	 */
-	public final UsersRepository getUsers() {
-		return users;
-	}
+    /**
+     * Gets the users repository.
+     * 
+     * @return the users
+     */
+    public final UsersRepository getUsers() {
+        return users;
+    }
 
-	/**
-	 * Sets the users repository.
-	 * 
-	 * @param users
-	 *            the users to set
-	 */
-	@Resource(name = "usersrepository")
-	public final void setUsers(UsersRepository users) {
-		this.users = users;
-	}
+    /**
+     * Sets the users repository.
+     * 
+     * @param users
+     *            the users to set
+     */
+    @Resource(name = "usersrepository")
+    public final void setUsers(UsersRepository users) {
+        this.users = users;
+    }
 
-	/**
-	 * Sets the virtual user table store.
-	 * 
-	 * @param tableStore
-	 *            the tableStore to set
-	 */
-	@Resource(name = "virtualusertable")
-	public final void setVirtualUserTable(VirtualUserTable vut) {
-		this.vut = vut;
-	}
+    /**
+     * Sets the virtual user table store.
+     * 
+     * @param tableStore
+     *            the tableStore to set
+     */
+    @Resource(name = "virtualusertable")
+    public final void setVirtualUserTable(VirtualUserTable vut) {
+        this.vut = vut;
+    }
 
-
-    @Resource(name="domainlist")
+    @Resource(name = "domainlist")
     public void setDomainList(DomainList domains) {
         this.domains = domains;
     }
 
-	/**
-	 * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.Configuration)
-	 */
-	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-		setVirtualUserTableSupport(config.getBoolean("enableVirtualUserTable",
-				true));
-	}
+    /**
+     * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.Configuration)
+     */
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        setVirtualUserTableSupport(config.getBoolean("enableVirtualUserTable", true));
+    }
 
-	public void setVirtualUserTableSupport(boolean useVut) {
-		this.useVut = useVut;
-	}
+    public void setVirtualUserTableSupport(boolean useVut) {
+        this.useVut = useVut;
+    }
 
+    @Override
+    protected boolean isValidRecipient(SMTPSession session, MailAddress recipient) {
 
-	@Override
-	protected boolean isValidRecipient(SMTPSession session,
-			MailAddress recipient) {
-
-	    if (domains.containsDomain(recipient.getDomain()) == false) {
+        if (domains.containsDomain(recipient.getDomain()) == false) {
             session.getLogger().debug("Unknown domain " + recipient.getDomain() + " so reject it");
 
-	        return false;
-	    }
-	    
-	    String username = recipient.toString();
-	    
-	    // check if the server use virtualhosting, if not use only the localpart as username
-	    if (users.supportVirtualHosting() == false) {
-	        username = recipient.getLocalPart();
-	    }
-	    
-		if (users.contains(username) == true) {
-			return true;
-		} else {
+            return false;
+        }
 
-			if (useVut == true) {
-	            session.getLogger().debug("Unknown user " + username + " check if its an alias");
+        String username = recipient.toString();
 
-				try {
-					Collection<String> targetString = vut.getMappings(
-							recipient.getLocalPart(), recipient.getDomain());
+        // check if the server use virtualhosting, if not use only the localpart
+        // as username
+        if (users.supportVirtualHosting() == false) {
+            username = recipient.getLocalPart();
+        }
 
-					if (targetString != null && targetString.isEmpty() == false) {
-						return true;
-					}
-				} catch (ErrorMappingException e) {
-					return false;
-				}
-			}
+        if (users.contains(username) == true) {
+            return true;
+        } else {
 
-			return false;
-		}
-	}
+            if (useVut == true) {
+                session.getLogger().debug("Unknown user " + username + " check if its an alias");
+
+                try {
+                    Collection<String> targetString = vut.getMappings(recipient.getLocalPart(), recipient.getDomain());
+
+                    if (targetString != null && targetString.isEmpty() == false) {
+                        return true;
+                    }
+                } catch (ErrorMappingException e) {
+                    return false;
+                }
+            }
+
+            return false;
+        }
+    }
 }
