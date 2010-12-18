@@ -27,18 +27,12 @@
           <protocols>
               <protocol>file</protocol>
           </protocols>
-          <types>
-                <type>MAIL</type>
-           </types>
       </repository>
       
       <repository class="org.apache.james.mailrepository.jdbc.JDBCMailRepository">
           <protocols>
               <protocol>db</protocol>
           </protocols>
-          <types>
-              <type>MAIL</type>
-          </types>
           <config>
               <sqlFile>file://conf/sqlResources.xml</sqlFile>
           </config>
@@ -47,9 +41,6 @@
           <protocols>
               <protocol>dbfile</protocol>
           </protocols>
-          <types>
-              <type>MAIL</type>
-          </types>
           <config>
               <sqlFile>file://conf/sqlResources.xml</sqlFile>
               <filestore>file://var/dbmail</filestore>
@@ -59,9 +50,6 @@
           <protocols>
               <protocol>mbox</protocol>
           </protocols>
-          <types>
-              <type>MAIL</type>
-          </types>
           <config FIFO="false"/> 
       </repository>
   </repositories>

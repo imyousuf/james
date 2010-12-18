@@ -31,6 +31,7 @@ import javax.annotation.Resource;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
@@ -121,7 +122,6 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
         String className = repConf.getString("[@class]");
         boolean infoEnabled = getLogger().isInfoEnabled();
         List<String> protocols = repConf.getList("protocols.protocol");
-        List<String >types = repConf.getList("types.type");
         
         for ( int i = 0; i < protocols.size(); i++ )
         {
@@ -134,31 +134,24 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
                 defConf = repConf.configurationAt("config");
             }
             
-
-            for ( int j = 0; j < types.size(); j++ )
-            {
-                String type = types.get(j);
-                String key = protocol + type ;
-                if (infoEnabled) {
-                    StringBuffer infoBuffer =
-                        new StringBuffer(128)
-                            .append("Registering Repository instance of class ")
-                            .append(className)
-                            .append(" to handle ")
-                            .append(protocol)
-                            .append(" protocol requests for repositories of type ")
-                            .append(type)
-                            .append(" with key ")
-                            .append(key);
-                    getLogger().info(infoBuffer.toString());
-                }
-                if (classes.get(key) != null) {
-                    throw new ConfigurationException("The combination of protocol and type comprise a unique key for repositories.  This constraint has been violated.  Please check your repository configuration.");
-                }
-                classes.put(key, className);
-                if (defConf != null) {
-                    defaultConfigs.put(key, defConf);
-                }
+            String key = protocol ;
+            if (infoEnabled) {
+                StringBuffer infoBuffer =
+                    new StringBuffer(128)
+                        .append("Registering Repository instance of class ")
+                        .append(className)
+                        .append(" to handle ")
+                        .append(protocol)
+                        .append(" protocol requests for repositories with key ")
+                        .append(key);
+                getLogger().info(infoBuffer.toString());
+            }
+            if (classes.get(key) != null) {
+                throw new ConfigurationException("The combination of protocol and type comprise a unique key for repositories.  This constraint has been violated.  Please check your repository configuration.");
+            }
+            classes.put(key, className);
+            if (defConf != null) {
+                defaultConfigs.put(key, defConf);
             }
         }
 
@@ -231,7 +224,10 @@ public class JamesMailStore implements MailStore, LogEnabled, Configurable {
             if ( defConf != null) {
                 config.addConfiguration(defConf);
             }
-
+            DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
+            builder.addProperty("[@destinationURL]", destination);
+            config.addConfiguration(builder);
+            
             try {               
                 reply =  (MailRepository) factory.newInstance(Thread.currentThread().getContextClassLoader().loadClass(repClass), logger, config);
 
