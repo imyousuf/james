@@ -16,36 +16,33 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.lifecycle.impl;
+package org.apache.james.container.spring.lifecycle;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.container.spring.lifecycle.api.AbstractLifeCycleBeanPostProcessor;
-import org.apache.james.container.spring.lifecycle.api.ConfigurationProvider;
-import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.container.spring.io.api.LogProvider;
+import org.apache.james.lifecycle.api.LogEnabled;
 
 /**
- * Inject Commons Configuration to beans which implement the Configurable interface
+ * Inject Commons Log to beans which implement LogEnabled
  * 
  *
  */
-public class CommonsConfigurableBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<Configurable> {
+public class LogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<LogEnabled> {
 
-    private ConfigurationProvider provider;
-
+    private LogProvider provider;
 
     @Override
-    protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname) throws Exception {
-        HierarchicalConfiguration config = provider.getConfiguration(beanname);
-        bean.configure(config);
+    protected Class<LogEnabled> getLifeCycleInterface() {
+        return LogEnabled.class;
     }
 
-    public void setConfigurationProvider(ConfigurationProvider provider) {
+    public void setLogProvider(LogProvider provider) {
         this.provider = provider;
     }
 
     @Override
-    protected Class<Configurable> getLifeCycleInterface() {
-        return Configurable.class;
+    protected void executeLifecycleMethodBeforeInit(LogEnabled bean, String beanname) throws Exception {
+        bean.setLog(provider.getLog(beanname));
     }
 
+ 
 }
