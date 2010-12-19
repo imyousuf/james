@@ -37,7 +37,7 @@ import org.springframework.core.io.ResourceLoader;
  * 
  *
  */
-public class SpringConfigurationProvider implements ConfigurationProvider, ResourceLoaderAware, InitializingBean {
+public class ResourceLoaderConfigurationProvider implements ConfigurationProvider, ResourceLoaderAware, InitializingBean {
 
     private ResourceLoader loader;
     private Map<String, HierarchicalConfiguration> confMap = new HashMap<String, HierarchicalConfiguration>();

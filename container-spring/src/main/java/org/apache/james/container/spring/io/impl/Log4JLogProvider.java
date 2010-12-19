@@ -32,7 +32,7 @@ import org.springframework.beans.factory.InitializingBean;
  * 
  *
  */
-public class SpringLogProvider implements LogProvider, InitializingBean {
+public class Log4JLogProvider implements LogProvider, InitializingBean {
 
     private final Map<String, Log> logMap = new HashMap<String, Log>();
     private Map<String, String> logs;
