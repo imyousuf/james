@@ -25,88 +25,100 @@ import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 
 /**
- * Abstract base class which BeanPostProcessors should extend if they provide an LifeCycle handling
+ * Abstract base class which BeanPostProcessors should extend if they provide an
+ * LifeCycle handling
  * 
- *
+ * 
  * @param <T>
  */
-public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostProcessor, PriorityOrdered{
+public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostProcessor, PriorityOrdered {
 
-	private int order = Ordered.HIGHEST_PRECEDENCE;
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization(java.lang.Object, java.lang.String)
-	 */
-	@SuppressWarnings("unchecked")
-    public final Object postProcessAfterInitialization(Object bean, String name)
-			throws BeansException {
-		try {
-			Class<T> lClass = getLifeCycleInterface();
-			if (lClass.isInstance(bean)) executeLifecycleMethodAfterInit((T)bean, name);
-		} catch (Exception e) {
-			throw new FatalBeanException("Unable to execute lifecycle method on bean" + name,e);
-		}
-		return bean;	}
-	
-	/**
-	 * Return the class which mark the lifecycle
-	 * 
-	 * @return interfaceClass
-	 */
-	protected abstract Class<T> getLifeCycleInterface();
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)
-	 */
-	@SuppressWarnings("unchecked")
-	public final Object postProcessBeforeInitialization(Object bean, String name)
-			throws BeansException {
-		try {
-			Class<T> lClass = getLifeCycleInterface();
-			if (lClass.isInstance(bean)) executeLifecycleMethodBeforeInit((T)bean, name);
-		} catch (Exception e) {
-			throw new FatalBeanException("Unable to execute lifecycle method on bean" + name,e);
-		}
-		return bean;
-	}
+    private int order = Ordered.HIGHEST_PRECEDENCE;
 
-	/**
-	 * Method which gets executed if the bean implement the LifeCycleInterface. Override this if you wish perform any action. 
-	 * Default is todo nothing
-	 * 
-	 * @param bean the actual bean
-	 * @param beanname then name of the bean
-	 * @throws Exception 
-	 */
-	protected void executeLifecycleMethodBeforeInit(T bean, String beanname) throws Exception {
-		
-	}
-	
-	/**
-	 * Method which gets executed if the bean implement the LifeCycleInterface. Override this if you wish perform any action. 
-	 * Default is todo nothing
-	 * 
-	 * @param bean the actual bean
-	 * @param beanname then name of the bean
-	 * @param componentName the component name 
-	 * @throws Exception 
-	 */
-	protected void executeLifecycleMethodAfterInit(T bean, String beanname) throws Exception {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.beans.factory.config.BeanPostProcessor#
+     * postProcessAfterInitialization(java.lang.Object, java.lang.String)
+     */
+    @SuppressWarnings("unchecked")
+    public final Object postProcessAfterInitialization(Object bean, String name) throws BeansException {
+        try {
+            Class<T> lClass = getLifeCycleInterface();
+            if (lClass.isInstance(bean))
+                executeLifecycleMethodAfterInit((T) bean, name);
+        } catch (Exception e) {
+            throw new FatalBeanException("Unable to execute lifecycle method on bean" + name, e);
+        }
+        return bean;
+    }
 
-	}
-	
-	public void setOrder(int order) {
-		this.order = order;
-	}
+    /**
+     * Return the class which mark the lifecycle
+     * 
+     * @return interfaceClass
+     */
+    protected abstract Class<T> getLifeCycleInterface();
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.core.Ordered#getOrder()
-	 */
-	public int getOrder() {
-		return order;
-	}
-	
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.beans.factory.config.BeanPostProcessor#
+     * postProcessBeforeInitialization(java.lang.Object, java.lang.String)
+     */
+    @SuppressWarnings("unchecked")
+    public final Object postProcessBeforeInitialization(Object bean, String name) throws BeansException {
+        try {
+            Class<T> lClass = getLifeCycleInterface();
+            if (lClass.isInstance(bean))
+                executeLifecycleMethodBeforeInit((T) bean, name);
+        } catch (Exception e) {
+            throw new FatalBeanException("Unable to execute lifecycle method on bean" + name, e);
+        }
+        return bean;
+    }
+
+    /**
+     * Method which gets executed if the bean implement the LifeCycleInterface.
+     * Override this if you wish perform any action. Default is todo nothing
+     * 
+     * @param bean
+     *            the actual bean
+     * @param beanname
+     *            then name of the bean
+     * @throws Exception
+     */
+    protected void executeLifecycleMethodBeforeInit(T bean, String beanname) throws Exception {
+
+    }
+
+    /**
+     * Method which gets executed if the bean implement the LifeCycleInterface.
+     * Override this if you wish perform any action. Default is todo nothing
+     * 
+     * @param bean
+     *            the actual bean
+     * @param beanname
+     *            then name of the bean
+     * @param componentName
+     *            the component name
+     * @throws Exception
+     */
+    protected void executeLifecycleMethodAfterInit(T bean, String beanname) throws Exception {
+
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.core.Ordered#getOrder()
+     */
+    public int getOrder() {
+        return order;
+    }
+
 }
