@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.io.impl;
+package org.apache.james.container.spring.provider.impl;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.Log4JLogger;
-import org.apache.james.container.spring.io.api.LogProvider;
+import org.apache.james.container.spring.provider.api.LogProvider;
 import org.springframework.beans.factory.InitializingBean;
 
 /**

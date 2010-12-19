@@ -20,7 +20,7 @@ package org.apache.james.container.osgi;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.james.container.spring.io.api.LogProvider;
+import org.apache.james.container.spring.provider.api.LogProvider;
 
 
 /**

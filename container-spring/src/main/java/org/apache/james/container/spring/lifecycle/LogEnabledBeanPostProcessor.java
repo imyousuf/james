@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle;
 
-import org.apache.james.container.spring.io.api.LogProvider;
+import org.apache.james.container.spring.provider.api.LogProvider;
 import org.apache.james.lifecycle.api.LogEnabled;
 
 /**

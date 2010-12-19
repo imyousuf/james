@@ -19,7 +19,7 @@
 package org.apache.james.container.spring.lifecycle;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.container.spring.io.api.ConfigurationProvider;
+import org.apache.james.container.spring.provider.api.ConfigurationProvider;
 import org.apache.james.lifecycle.api.Configurable;
 
 /**
