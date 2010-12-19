@@ -64,7 +64,7 @@
           <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
           <environmentSetupFileName>setenv</environmentSetupFileName>
           <!--  set some sane defaults for memory -->
-          <extraJvmArguments>-Xms128m -Xmx512m -Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader ${jmx.system-properties} ${javamail.system-properties} ${james.system-properties}</extraJvmArguments>
+          <extraJvmArguments>-Xms128m -Xmx512m -Djava.system.class.loader=org.apache.james.container.spring.context.JamesClassLoader ${jmx.system-properties} ${javamail.system-properties} ${james.system-properties}</extraJvmArguments>
           <!-- Generate bin scripts for windows and unix per default -->
           <platforms>
             <platform>windows</platform>
@@ -146,7 +146,7 @@
                     </property>
                     <property>
                       <name>wrapper.java.additional.1</name>
-                      <value>-Djava.system.class.loader=org.apache.james.container.spring.JamesClassLoader</value>
+                      <value>-Djava.system.class.loader=org.apache.james.container.spring.context.JamesClassLoader</value>
                     </property>
                     <property>
                       <name>wrapper.java.additional.2</name>

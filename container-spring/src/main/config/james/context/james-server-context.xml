@@ -30,10 +30,10 @@
     <!-- 
       File System
      -->
-    <bean class="org.apache.james.container.spring.FileSystemResolver">
+    <bean class="org.apache.james.container.spring.config.FileSystemResolver">
         <property name="fileSystem" ref="filesystem" />
     </bean>
-    <bean id="filesystem" class="org.apache.james.container.spring.SpringFileSystem" />
+    <bean id="filesystem" class="org.apache.james.resolver.spring.SpringFileSystem" />
 
     <!-- 
       Configuration Provider
@@ -42,7 +42,7 @@
         <property name="configurationProvider" ref="configurationProvider" />
         <property name="order" value="1" />
     </bean>
-    <bean id="configurationProvider" class="org.apache.james.container.spring.lifecycle.SpringConfigurationProvider">
+    <bean id="configurationProvider" class="org.apache.james.container.spring.provider.impl.ResourceLoaderConfigurationProvider">
         <property name="configurationMappings">
             <map>
                 <entry key="mailProcessor" value="mailetcontainer"/>
@@ -59,7 +59,7 @@
         <property name="logProvider" ref="logProvider" />
         <property name="order" value="0" />
     </bean>
-    <bean id="logProvider" class="org.apache.james.container.spring.lifecycle.SpringLogProvider">
+    <bean id="logProvider" class="org.apache.james.container.spring.provider.impl.Log4JLogProvider">
         <property name="logMappings">
             <map>
                 <entry key="mailProcessor" value="mailetcontainer"/>
@@ -133,8 +133,8 @@
     <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
     <bean id="mailspooler" class="org.apache.james.mailetcontainer.lib.JamesMailSpooler"/>
     <bean id="mailetcontext" class="org.apache.james.mailetcontainer.lib.JamesMailetContext"/>
-    <bean id="mailetloader" class="org.apache.james.container.spring.mailetcontainer.BeanFactoryMailetLoader" />
-    <bean id="matcherloader" class="org.apache.james.container.spring.mailetcontainer.BeanFactoryMatcherLoader" />
+    <bean id="mailetloader" class="org.apache.james.mailetcontainer.spring.BeanFactoryMailetLoader" />
+    <bean id="matcherloader" class="org.apache.james.mailetcontainer.spring.BeanFactoryMatcherLoader" />
 
     <!-- 
       DNS Service
@@ -147,7 +147,7 @@
     <bean id="remotemanager" class="org.apache.james.remotemanager.netty.RemoteManager" >
         <property name="protocolHandlerChain" ref="remoteProtocolHandlerChain"/>
     </bean>
-    <bean id="remoteProtocolHandlerChain" class="org.apache.james.container.spring.SpringProtocolHandlerChain">
+    <bean id="remoteProtocolHandlerChain" class="org.apache.james.protocols.spring.BeanFactoryProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
         <property name="beanName" value="remotemanager"/>
     </bean>
@@ -158,7 +158,7 @@
     <bean id="smtpserver" class="org.apache.james.smtpserver.netty.SMTPServer">
         <property name="protocolHandlerChain" ref="smtpProtocolHandlerChain"/>
     </bean>
-    <bean id="smtpProtocolHandlerChain" class="org.apache.james.container.spring.SpringProtocolHandlerChain">
+    <bean id="smtpProtocolHandlerChain" class="org.apache.james.protocols.spring.BeanFactoryProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
         <property name="beanName" value="smtpserver"/>
     </bean>
@@ -169,7 +169,7 @@
     <bean id="lmtpserver" class="org.apache.james.lmtpserver.netty.LMTPServer">
         <property name="protocolHandlerChain" ref="lmtpProtocolHandlerChain"/>
     </bean>
-    <bean id="lmtpProtocolHandlerChain" class="org.apache.james.container.spring.SpringProtocolHandlerChain">
+    <bean id="lmtpProtocolHandlerChain" class="org.apache.james.protocols.spring.BeanFactoryProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
         <property name="beanName" value="lmtpserver"/>
     </bean>
@@ -185,7 +185,7 @@
     <bean id="pop3server"  class="org.apache.james.pop3server.netty.POP3Server" >
         <property name="protocolHandlerChain" ref="pop3ProtocolHandlerChain"/>
     </bean>
-    <bean id="pop3ProtocolHandlerChain" class="org.apache.james.container.spring.SpringProtocolHandlerChain">
+    <bean id="pop3ProtocolHandlerChain" class="org.apache.james.protocols.spring.BeanFactoryProtocolHandlerChain">
         <property name="coreHandlersPackage" value="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
         <property name="beanName" value="lmtpserver"/>
     </bean>
@@ -208,7 +208,7 @@
 
 
     <!-- BeanFactoryPostProcessor which take care of register beans from james specific configuration files -->
-    <bean class="org.apache.james.container.spring.JamesLoaderBeanFactoryPostProcessor">
+    <bean class="org.apache.james.container.spring.config.JamesLoaderBeanFactoryPostProcessor">
         <property name="beans">
           <map>
             <!-- Users-->
@@ -242,7 +242,7 @@
     <!-- 
       MailStore
      -->
-    <bean id="mailrepositorystore" class="org.apache.james.container.spring.BeanFactoryMailRepositoryStore" />
+    <bean id="mailrepositorystore" class="org.apache.james.mailrepository.spring.BeanFactoryMailRepositoryStore" />
 
     <!-- 
       Mailbox
