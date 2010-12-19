@@ -16,9 +16,11 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.lifecycle;
+package org.apache.james.container.spring.lifecycle.impl;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.container.spring.lifecycle.api.ConfigurationProvider;
+import org.apache.james.container.spring.lifecycle.api.RestrictedLifeCycleBeanPostProcessor;
 import org.apache.james.lifecycle.api.Configurable;
 
 /**

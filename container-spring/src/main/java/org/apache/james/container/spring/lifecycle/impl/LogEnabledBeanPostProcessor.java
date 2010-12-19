@@ -16,8 +16,10 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.lifecycle;
+package org.apache.james.container.spring.lifecycle.impl;
 
+import org.apache.james.container.spring.lifecycle.api.LogProvider;
+import org.apache.james.container.spring.lifecycle.api.RestrictedLifeCycleBeanPostProcessor;
 import org.apache.james.lifecycle.api.LogEnabled;
 
 /**

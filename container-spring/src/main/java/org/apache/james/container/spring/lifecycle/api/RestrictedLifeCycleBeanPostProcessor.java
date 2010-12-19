@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.lifecycle;
+package org.apache.james.container.spring.lifecycle.api;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
