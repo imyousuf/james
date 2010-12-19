@@ -23,7 +23,7 @@ import java.io.File;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.james.container.spring.lifecycle.api.ConfigurationProvider;
+import org.apache.james.container.spring.io.api.ConfigurationProvider;
 
 /**
  * Load configuration files from the specified configuration directory
