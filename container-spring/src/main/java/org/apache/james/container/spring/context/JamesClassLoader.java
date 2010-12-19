@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring;
+package org.apache.james.container.spring.context;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.apache.james.container.spring.context.JamesServerApplicationContext;
 
 /**
  * The JamesClassLoader uses the provided system classloader
