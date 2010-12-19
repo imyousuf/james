@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.resolver.spring;
 
-import org.apache.james.container.spring.JamesResourceLoader;
+import org.apache.james.container.spring.io.JamesResourceLoader;
 import org.apache.james.resolver.api.FileSystem;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

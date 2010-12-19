@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring;
+package org.apache.james.container.spring.io;
 
 import org.springframework.core.io.ResourceLoader;
 

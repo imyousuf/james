@@ -24,6 +24,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.apache.james.container.spring.context.JamesServerApplicationContext;
+
 /**
  * The JamesClassLoader uses the provided system classloader
  * and adds all jars found in the external library directory.

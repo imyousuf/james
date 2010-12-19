@@ -20,6 +20,8 @@ package org.apache.james.container.spring;
 
 import java.io.IOException;
 
+import org.apache.james.container.spring.context.JamesServerApplicationContext;
+
 /**
  * Bootstraps James using a Spring container
  */

@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.web;
+package org.apache.james.container.spring.context.web;
 
-import org.apache.james.container.spring.AbstractJamesResourceLoader;
-import org.apache.james.container.spring.JamesResourceLoader;
+import org.apache.james.container.spring.io.AbstractJamesResourceLoader;
+import org.apache.james.container.spring.io.JamesResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
