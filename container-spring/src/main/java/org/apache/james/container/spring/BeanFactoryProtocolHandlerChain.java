@@ -54,7 +54,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
  * 
  */
 @SuppressWarnings("unchecked")
-public class SpringProtocolHandlerChain implements ProtocolHandlerChain, BeanFactoryPostProcessor, BeanPostProcessor {
+public class BeanFactoryProtocolHandlerChain implements ProtocolHandlerChain, BeanFactoryPostProcessor, BeanPostProcessor {
 
     private String coreHandlersPackage;
     private List<String> handlers = new LinkedList<String>();

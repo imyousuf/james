@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.container.spring.mailetcontainer;
+package org.apache.james.mailetcontainer.spring;
 import javax.mail.MessagingException;
 
 import org.apache.james.mailetcontainer.api.MatcherLoader;
