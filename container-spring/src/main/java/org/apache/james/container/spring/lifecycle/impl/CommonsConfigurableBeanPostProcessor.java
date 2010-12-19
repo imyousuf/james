@@ -19,8 +19,8 @@
 package org.apache.james.container.spring.lifecycle.impl;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.container.spring.lifecycle.api.AbstractLifeCycleBeanPostProcessor;
 import org.apache.james.container.spring.lifecycle.api.ConfigurationProvider;
-import org.apache.james.container.spring.lifecycle.api.RestrictedLifeCycleBeanPostProcessor;
 import org.apache.james.lifecycle.api.Configurable;
 
 /**
@@ -28,15 +28,15 @@ import org.apache.james.lifecycle.api.Configurable;
  * 
  *
  */
-public class CommonsConfigurableBeanPostProcessor extends RestrictedLifeCycleBeanPostProcessor<Configurable> {
+public class CommonsConfigurableBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<Configurable> {
 
     private ConfigurationProvider provider;
 
+
     @Override
-    protected void executeLifecycleMethodBeforeInitChecked(Configurable bean, String beanname) throws Exception {
+    protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname) throws Exception {
         HierarchicalConfiguration config = provider.getConfiguration(beanname);
         bean.configure(config);
-
     }
 
     public void setConfigurationProvider(ConfigurationProvider provider) {

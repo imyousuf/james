@@ -18,8 +18,8 @@
  ****************************************************************/
 package org.apache.james.container.spring.lifecycle.impl;
 
+import org.apache.james.container.spring.lifecycle.api.AbstractLifeCycleBeanPostProcessor;
 import org.apache.james.container.spring.lifecycle.api.LogProvider;
-import org.apache.james.container.spring.lifecycle.api.RestrictedLifeCycleBeanPostProcessor;
 import org.apache.james.lifecycle.api.LogEnabled;
 
 /**
@@ -27,7 +27,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
  * 
  *
  */
-public class LogEnabledBeanPostProcessor extends RestrictedLifeCycleBeanPostProcessor<LogEnabled> {
+public class LogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<LogEnabled> {
 
     private LogProvider provider;
 
@@ -41,8 +41,9 @@ public class LogEnabledBeanPostProcessor extends RestrictedLifeCycleBeanPostProc
     }
 
     @Override
-    protected void executeLifecycleMethodBeforeInitChecked(LogEnabled bean, String beanname) throws Exception {
+    protected void executeLifecycleMethodBeforeInit(LogEnabled bean, String beanname) throws Exception {
         bean.setLog(provider.getLog(beanname));
     }
 
+ 
 }
