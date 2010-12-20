@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean.postprocessor.logenabled.provider;
+package org.apache.james.container.spring.provider.log;
 
 import java.util.HashMap;
 import java.util.Iterator;

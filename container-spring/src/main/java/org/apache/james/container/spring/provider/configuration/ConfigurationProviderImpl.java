@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean.postprocessor.configurable.provider;
+package org.apache.james.container.spring.provider.configuration;
 
 import java.io.IOException;
 import java.util.HashMap;

@@ -18,8 +18,8 @@
  ****************************************************************/
 package org.apache.james.container.spring.bean.postprocessor.logenabled;
 
-import org.apache.james.container.spring.bean.postprocessor.AbstractLifeCycleBeanPostProcessor;
-import org.apache.james.container.spring.bean.postprocessor.logenabled.provider.LogProvider;
+import org.apache.james.container.spring.bean.postprocessor.AbstractJamesBeanPostProcessor;
+import org.apache.james.container.spring.provider.log.LogProvider;
 import org.apache.james.lifecycle.api.LogEnabled;
 
 /**
@@ -27,7 +27,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
  * 
  *
  */
-public class LogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<LogEnabled> {
+public class LogEnabledBeanPostProcessor extends AbstractJamesBeanPostProcessor<LogEnabled> {
 
     private LogProvider provider;
 

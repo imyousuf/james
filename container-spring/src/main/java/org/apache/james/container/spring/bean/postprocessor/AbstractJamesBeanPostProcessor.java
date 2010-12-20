@@ -34,7 +34,7 @@ import org.springframework.core.PriorityOrdered;
  * 
  * @param <T>
  */
-public abstract class AbstractLifeCycleBeanPostProcessor<T> implements BeanPostProcessor, PriorityOrdered, BeanFactoryAware {
+public abstract class AbstractJamesBeanPostProcessor<T> implements BeanPostProcessor, PriorityOrdered, BeanFactoryAware {
 
     private int order = Ordered.HIGHEST_PRECEDENCE;
     private ListableBeanFactory factory;

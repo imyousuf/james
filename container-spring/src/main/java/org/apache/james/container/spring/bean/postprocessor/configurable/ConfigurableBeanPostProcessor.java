@@ -19,8 +19,8 @@
 package org.apache.james.container.spring.bean.postprocessor.configurable;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.container.spring.bean.postprocessor.AbstractLifeCycleBeanPostProcessor;
-import org.apache.james.container.spring.bean.postprocessor.configurable.provider.ConfigurationProvider;
+import org.apache.james.container.spring.bean.postprocessor.AbstractJamesBeanPostProcessor;
+import org.apache.james.container.spring.provider.configuration.ConfigurationProvider;
 import org.apache.james.lifecycle.api.Configurable;
 
 /**
@@ -28,7 +28,7 @@ import org.apache.james.lifecycle.api.Configurable;
  * 
  *
  */
-public class ConfigurableBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<Configurable> {
+public class ConfigurableBeanPostProcessor extends AbstractJamesBeanPostProcessor<Configurable> {
 
     private ConfigurationProvider provider;
 
