@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean.postprocessor.logenabled;
+package org.apache.james.container.spring.bean.postprocessor;
 
-import org.apache.james.container.spring.bean.postprocessor.AbstractJamesBeanPostProcessor;
 import org.apache.james.container.spring.provider.log.LogProvider;
 import org.apache.james.lifecycle.api.LogEnabled;
 

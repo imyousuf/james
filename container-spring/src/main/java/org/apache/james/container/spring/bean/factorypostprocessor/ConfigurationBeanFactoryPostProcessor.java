@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean.factorypostprocessor.configuration;
+package org.apache.james.container.spring.bean.factorypostprocessor;
 
 import java.util.Iterator;
 import java.util.Map;

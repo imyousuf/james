@@ -21,8 +21,8 @@ package org.apache.james.container.osgi;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.james.container.spring.bean.postprocessor.configurable.ConfigurableBeanPostProcessor;
-import org.apache.james.container.spring.bean.postprocessor.logenabled.LogEnabledBeanPostProcessor;
+import org.apache.james.container.spring.bean.postprocessor.ConfigurableBeanPostProcessor;
+import org.apache.james.container.spring.bean.postprocessor.LogEnabledBeanPostProcessor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;

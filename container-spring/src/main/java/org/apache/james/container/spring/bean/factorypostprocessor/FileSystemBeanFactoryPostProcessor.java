@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean.factorypostprocessor.filesystem;
+package org.apache.james.container.spring.bean.factorypostprocessor;
 
 import java.io.FileNotFoundException;
 
