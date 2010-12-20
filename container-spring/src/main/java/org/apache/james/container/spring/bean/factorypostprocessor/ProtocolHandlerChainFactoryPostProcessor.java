@@ -16,12 +16,11 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean.factory.protocolhandlerchain;
+package org.apache.james.container.spring.bean.factorypostprocessor;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConfigurationUtils;
@@ -33,12 +32,10 @@ import org.apache.james.container.spring.provider.log.LogProvider;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
-import org.apache.james.protocols.api.WiringException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -54,13 +51,15 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
  * 
  */
 @SuppressWarnings("unchecked")
-public class ProtocolHandlerChainBeanFactory implements ProtocolHandlerChain, BeanFactoryPostProcessor, BeanPostProcessor {
+public abstract class ProtocolHandlerChainFactoryPostProcessor implements ProtocolHandlerChain, BeanFactoryPostProcessor {
 
     private String coreHandlersPackage;
-    private List<String> handlers = new LinkedList<String>();
-    private String beanname;
-    private ConfigurableListableBeanFactory beanFactory;
     
+    private List<String> handlers = new LinkedList<String>();
+    
+    private String beanname;
+    
+    private ConfigurableListableBeanFactory beanFactory;
     
     public void setBeanName(String beanname) {
         this.beanname = beanname;
@@ -106,19 +105,32 @@ public class ProtocolHandlerChainBeanFactory implements ProtocolHandlerChain, Be
         
         return classHandlers;
     }
-
+    
+    /**
+     * Returns the Handlers List.
+     * 
+     * @return
+     */
+    public List<String> getHandlers() {
+        return handlers;
+    }
 
     /**
      * Lookup the {@link HierarchicalConfiguration} for the beanname which was configured via {@link #setBeanName(String)} and parse it for handlers which should be 
      * registered in the {@link ConfigurableListableBeanFactory}. 
      */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+
         this.beanFactory = beanFactory;
+        
         ConfigurationProvider confProvider = beanFactory.getBean(ConfigurationProvider.class);
+        
         LogProvider logProvider = beanFactory.getBean(LogProvider.class);
         
         try {
+
             Log log = logProvider.getLog(beanname);
+            
             HierarchicalConfiguration config = confProvider.getConfiguration(beanname);
             HierarchicalConfiguration handlerchainConfig = config.configurationAt("handler.handlerchain");
             List<org.apache.commons.configuration.HierarchicalConfiguration> children = handlerchainConfig.configurationsAt("handler");
@@ -128,7 +140,6 @@ public class ProtocolHandlerChainBeanFactory implements ProtocolHandlerChain, Be
                 handlerchainConfig.addProperty("[@coreHandlersPackage]", coreHandlersPackage);
 
             String coreCmdName = handlerchainConfig.getString("[@coreHandlersPackage]");
-
             
             BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
 
@@ -188,37 +199,4 @@ public class ProtocolHandlerChainBeanFactory implements ProtocolHandlerChain, Be
         return beanname + ":" + name;
     }
 
-
-    /**
-     * Check if the bean was registered within the instance and if so see if it is an {@link ExtensibleHandler} implementation
-     * 
-     * If thats the case it will do all the needed wiring 
-     */
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        
-        // check if ths instance is responsible for the bean and if so if the bean is an instance of ExtensibleHandler
-        if (handlers.contains(beanName) && bean instanceof ExtensibleHandler) {
-            final ExtensibleHandler extensibleHandler = (ExtensibleHandler) bean;
-            final List<Class<?>> markerInterfaces = extensibleHandler.getMarkerInterfaces();
-            for (int i = 0; i < markerInterfaces.size(); i++) {
-                final Class<?> markerInterface = markerInterfaces.get(i);
-                final List<?> extensions = getHandlers(markerInterface);
-                try {
-                    // ok now time for try the wiring
-                    extensibleHandler.wireExtensions(markerInterface, extensions);
-                } catch (WiringException e) {
-                    throw new FatalBeanException("Unable to wire the handler " + bean + " with name " + beanName, e);
-                }
-            }
-        }
-        
-        return bean;
-    }
-
-    /**
-     * Nothing todo so just return the bean
-     */
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
 }
