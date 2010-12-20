@@ -21,7 +21,7 @@ package org.apache.james.user.jdbc;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.resolver.api.FileSystem;
+import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;
 import org.apache.james.util.sql.JDBCUtil;

@@ -35,7 +35,7 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.sql.DataSource;
 
-import org.apache.james.resolver.api.FileSystem;
+import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.transport.mailets.WhiteListManager;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.JamesUser;

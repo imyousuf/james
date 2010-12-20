@@ -20,8 +20,8 @@ package org.apache.james.adapter.mailbox.maildir;
 
 import java.io.FileNotFoundException;
 
+import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.mailbox.maildir.MaildirStore;
-import org.apache.james.resolver.api.FileSystem;
 import org.apache.james.user.api.UsersRepository;
 
 /**

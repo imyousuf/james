@@ -26,10 +26,10 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.derby.jdbc.EmbeddedDriver;
+import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.mailrepository.AbstractMailRepositoryTest;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.jdbc.JDBCMailRepository;
-import org.apache.james.resolver.api.mock.MockFileSystem;
 
 public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
 

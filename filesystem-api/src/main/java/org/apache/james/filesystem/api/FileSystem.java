@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.resolver.api;
+package org.apache.james.filesystem.api;
 
 import java.io.File;
 import java.io.FileNotFoundException;

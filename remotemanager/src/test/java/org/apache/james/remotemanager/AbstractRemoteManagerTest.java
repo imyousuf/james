@@ -34,13 +34,13 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.james.resolver.api.mock.MockFileSystem;
 import org.apache.james.server.mock.MockJSR250Loader;
 import org.apache.james.server.mock.MockProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.mock.SimpleDomainList;
+import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.mailrepository.mock.MockMailRepositoryStore;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;

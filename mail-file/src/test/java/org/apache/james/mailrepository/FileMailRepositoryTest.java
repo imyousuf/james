@@ -22,9 +22,9 @@ package org.apache.james.mailrepository;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.file.FileMailRepository;
-import org.apache.james.resolver.api.mock.MockFileSystem;
 
 public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
 

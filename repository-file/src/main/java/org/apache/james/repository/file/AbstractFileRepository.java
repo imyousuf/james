@@ -24,10 +24,10 @@ package org.apache.james.repository.file;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.repository.api.Repository;
-import org.apache.james.resolver.api.FileSystem;
 
 import java.io.File;
 import java.io.FileInputStream;

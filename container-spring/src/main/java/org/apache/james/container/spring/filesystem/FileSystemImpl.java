@@ -19,7 +19,7 @@
 package org.apache.james.container.spring.filesystem;
 
 import org.apache.james.container.spring.resource.JamesResourceLoader;
-import org.apache.james.resolver.api.FileSystem;
+import org.apache.james.filesystem.api.FileSystem;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
