@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.provider.impl;
+package org.apache.james.container.spring.bean.postprocessor.configurable.provider;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,7 +26,6 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.james.container.spring.provider.api.ConfigurationProvider;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
@@ -37,7 +36,7 @@ import org.springframework.core.io.ResourceLoader;
  * 
  *
  */
-public class ResourceLoaderConfigurationProvider implements ConfigurationProvider, ResourceLoaderAware, InitializingBean {
+public class ConfigurationProviderImpl implements ConfigurationProvider, ResourceLoaderAware, InitializingBean {
 
     private ResourceLoader loader;
     private Map<String, HierarchicalConfiguration> confMap = new HashMap<String, HierarchicalConfiguration>();

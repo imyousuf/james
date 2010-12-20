@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.resolver.spring;
+package org.apache.james.container.spring.bean.factory.filesystem;
 
-import org.apache.james.container.spring.context.JamesResourceLoader;
+import org.apache.james.container.spring.resource.JamesResourceLoader;
 import org.apache.james.resolver.api.FileSystem;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -34,7 +34,7 @@ import java.io.InputStream;
  * resources
  *
  */
-public class SpringFileSystem implements FileSystem, ApplicationContextAware {
+public class FileSystemBeanFactory implements FileSystem, ApplicationContextAware {
    
     private JamesResourceLoader resourceLoader = null;
 

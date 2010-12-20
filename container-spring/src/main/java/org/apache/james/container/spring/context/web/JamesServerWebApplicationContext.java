@@ -18,8 +18,8 @@
  ****************************************************************/
 package org.apache.james.container.spring.context.web;
 
-import org.apache.james.container.spring.context.AbstractJamesResourceLoader;
-import org.apache.james.container.spring.context.JamesResourceLoader;
+import org.apache.james.container.spring.resource.AbstractJamesResourceLoader;
+import org.apache.james.container.spring.resource.JamesResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 

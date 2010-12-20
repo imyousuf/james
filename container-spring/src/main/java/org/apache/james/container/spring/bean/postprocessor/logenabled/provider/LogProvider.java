@@ -16,32 +16,30 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.provider.api;
+package org.apache.james.container.spring.bean.postprocessor.logenabled.provider;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
 
 /**
- * Load {@link HierarchicalConfiguration} for beans
+ * Provide {@link Log} instances for Beans
  * 
  *
  */
-public interface ConfigurationProvider {
+public interface LogProvider {
 
     /**
-     * Load the configuration for the bean with the given name
+     * Return the Log for the bean with the given name
      * 
-     * @param beanName
-     * @return config
-     * @throws ConfigurationException
+     * @param name
+     * @return log
      */
-    public HierarchicalConfiguration getConfiguration(String beanName) throws ConfigurationException;
+    public Log getLog(String beanName);
     
     /**
-     * Register a {@link HierarchicalConfiguration} for a bean name
+     * Register a {@link Log} for a beanName. The registered Log will get returned by {@link #getLog(String)}
      * 
      * @param beanName
-     * @param conf
+     * @param log
      */
-    public void registerConfiguration(String beanName, HierarchicalConfiguration conf);
+    public void registerLog(String beanName, Log log);
 }

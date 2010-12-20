@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.config;
+package org.apache.james.container.spring.bean.factorypostprocessor.filesystem;
 
 import java.io.FileNotFoundException;
 
@@ -34,7 +34,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  *  prefixed with {@link #FS_PREFIX}. If such a property is found it will try to resolve the given path via the {@link FileSystem} service
  *  and replace it.
  */
-public class FileSystemResolver implements BeanFactoryPostProcessor{
+public class FileSystemBeanFactoryPostProcessor implements BeanFactoryPostProcessor{
 
     private static final String FS_PREFIX ="filesystem=";
 

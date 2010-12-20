@@ -16,35 +16,46 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.lifecycle;
+package org.apache.james.container.spring.resource;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.container.spring.provider.api.ConfigurationProvider;
-import org.apache.james.lifecycle.api.Configurable;
+import org.springframework.core.io.ResourceLoader;
 
 /**
- * Inject Commons Configuration to beans which implement the Configurable interface
- * 
+ * {@link ResourceLoader} which offer extra methods to retrieve the Path to all important
+ * Directories, which are in use by JAMES.
  *
  */
-public class CommonsConfigurableBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<Configurable> {
+public interface JamesResourceLoader extends ResourceLoader{
 
-    private ConfigurationProvider provider;
+    /**
+     * Return the configuration directory of the application
+     * 
+     * @return confDir
+     */
+    public String getAbsoluteDirectory();
 
+    
+    /**
+     * Return the var directory of the application
+     * 
+     * @return var
+     */
+    public String getConfDirectory();
 
-    @Override
-    protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname) throws Exception {
-        HierarchicalConfiguration config = provider.getConfiguration(beanname);
-        bean.configure(config);
-    }
+    
+    /**
+     * Return the absolute directory of the application
+     * 
+     * @return absolute
+     */
+    public String getVarDirectory();
 
-    public void setConfigurationProvider(ConfigurationProvider provider) {
-        this.provider = provider;
-    }
+    /**
+     * Return the root directory of the application
+     * 
+     * @return rootDir
+     */
+    public String getRootDirectory();
 
-    @Override
-    protected Class<Configurable> getLifeCycleInterface() {
-        return Configurable.class;
-    }
-
+    
 }

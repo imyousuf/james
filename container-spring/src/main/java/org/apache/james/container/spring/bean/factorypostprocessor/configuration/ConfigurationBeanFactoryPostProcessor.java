@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.config;
+package org.apache.james.container.spring.bean.factorypostprocessor.configuration;
 
 import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.container.spring.provider.api.ConfigurationProvider;
+import org.apache.james.container.spring.bean.postprocessor.configurable.provider.ConfigurationProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -42,7 +42,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
  * If you don't need to register an alias just us an empty value.
  *
  */
-public class JamesLoaderBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+public class ConfigurationBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
     private Map<String, String> beans;
 

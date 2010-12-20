@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailrepository.spring;
+package org.apache.james.container.spring.bean.factory.mailrepositorystore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * identified by its destinationURL, type and model.
  *
  */
-public class BeanFactoryMailRepositoryStore implements MailRepositoryStore, LogEnabled, Configurable, BeanFactoryAware {
+public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogEnabled, Configurable, BeanFactoryAware {
 
 
     // map of [destinationURL + type]->Repository

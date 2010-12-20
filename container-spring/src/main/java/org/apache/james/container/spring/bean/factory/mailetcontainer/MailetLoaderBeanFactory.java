@@ -18,7 +18,7 @@
  ****************************************************************/
 
 
-package org.apache.james.mailetcontainer.spring;
+package org.apache.james.container.spring.bean.factory.mailetcontainer;
 import javax.mail.MessagingException;
 
 import org.apache.james.mailetcontainer.api.MailetLoader;
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * The Mailets are not registered in the factory after loading them!
  *
  */
-public class BeanFactoryMailetLoader implements MailetLoader, BeanFactoryAware {
+public class MailetLoaderBeanFactory implements MailetLoader, BeanFactoryAware {
     
     private ConfigurableListableBeanFactory beanFactory;
     

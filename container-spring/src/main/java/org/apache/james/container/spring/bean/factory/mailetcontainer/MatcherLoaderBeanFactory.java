@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.mailetcontainer.spring;
+package org.apache.james.container.spring.bean.factory.mailetcontainer;
 import javax.mail.MessagingException;
 
 import org.apache.james.mailetcontainer.api.MatcherLoader;
@@ -37,7 +37,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * The Matchers are not registered in the factory after loading them!
  *
  */
-public class BeanFactoryMatcherLoader implements MatcherLoader, BeanFactoryAware {
+public class MatcherLoaderBeanFactory implements MatcherLoader, BeanFactoryAware {
 
     
     private ConfigurableListableBeanFactory beanFactory;

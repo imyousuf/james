@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.protocols.spring;
+package org.apache.james.container.spring.bean.factory.protocolhandlerchain;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -28,8 +28,8 @@ import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.container.spring.provider.api.ConfigurationProvider;
-import org.apache.james.container.spring.provider.api.LogProvider;
+import org.apache.james.container.spring.bean.postprocessor.configurable.provider.ConfigurationProvider;
+import org.apache.james.container.spring.bean.postprocessor.logenabled.provider.LogProvider;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
@@ -54,7 +54,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
  * 
  */
 @SuppressWarnings("unchecked")
-public class BeanFactoryProtocolHandlerChain implements ProtocolHandlerChain, BeanFactoryPostProcessor, BeanPostProcessor {
+public class ProtocolHandlerChainBeanFactory implements ProtocolHandlerChain, BeanFactoryPostProcessor, BeanPostProcessor {
 
     private String coreHandlersPackage;
     private List<String> handlers = new LinkedList<String>();

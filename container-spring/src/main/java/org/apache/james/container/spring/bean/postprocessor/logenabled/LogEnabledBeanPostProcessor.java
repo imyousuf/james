@@ -16,46 +16,34 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.context;
+package org.apache.james.container.spring.bean.postprocessor.logenabled;
 
-import org.springframework.core.io.ResourceLoader;
+import org.apache.james.container.spring.bean.postprocessor.AbstractLifeCycleBeanPostProcessor;
+import org.apache.james.container.spring.bean.postprocessor.logenabled.provider.LogProvider;
+import org.apache.james.lifecycle.api.LogEnabled;
 
 /**
- * {@link ResourceLoader} which offer extra methods to retrieve the Path to all important
- * Directories, which are in use by JAMES.
+ * Inject Commons Log to beans which implement LogEnabled
+ * 
  *
  */
-public interface JamesResourceLoader extends ResourceLoader{
+public class LogEnabledBeanPostProcessor extends AbstractLifeCycleBeanPostProcessor<LogEnabled> {
 
-    /**
-     * Return the configuration directory of the application
-     * 
-     * @return confDir
-     */
-    public String getAbsoluteDirectory();
+    private LogProvider provider;
 
-    
-    /**
-     * Return the var directory of the application
-     * 
-     * @return var
-     */
-    public String getConfDirectory();
+    @Override
+    protected Class<LogEnabled> getLifeCycleInterface() {
+        return LogEnabled.class;
+    }
 
-    
-    /**
-     * Return the absolute directory of the application
-     * 
-     * @return absolute
-     */
-    public String getVarDirectory();
+    public void setLogProvider(LogProvider provider) {
+        this.provider = provider;
+    }
 
-    /**
-     * Return the root directory of the application
-     * 
-     * @return rootDir
-     */
-    public String getRootDirectory();
+    @Override
+    protected void executeLifecycleMethodBeforeInit(LogEnabled bean, String beanname) throws Exception {
+        bean.setLog(provider.getLog(beanname));
+    }
 
-    
+ 
 }

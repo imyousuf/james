@@ -21,8 +21,8 @@ package org.apache.james.container.osgi;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.james.container.spring.lifecycle.CommonsConfigurableBeanPostProcessor;
-import org.apache.james.container.spring.lifecycle.LogEnabledBeanPostProcessor;
+import org.apache.james.container.spring.bean.postprocessor.configurable.ConfigurableBeanPostProcessor;
+import org.apache.james.container.spring.bean.postprocessor.logenabled.LogEnabledBeanPostProcessor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -62,7 +62,7 @@ public class JamesOsgiBeanFactoryPostProcessor implements OsgiBeanFactoryPostPro
         
         // Life-cycle for Configurable
         OsgiConfigurationProvider confProvider = new OsgiConfigurationProvider(confDir);
-        CommonsConfigurableBeanPostProcessor confProcessor = new CommonsConfigurableBeanPostProcessor();
+        ConfigurableBeanPostProcessor confProcessor = new ConfigurableBeanPostProcessor();
         confProcessor.setConfigurationProvider(confProvider);
         confProcessor.setBeanFactory(factory);
         factory.addBeanPostProcessor(confProcessor);

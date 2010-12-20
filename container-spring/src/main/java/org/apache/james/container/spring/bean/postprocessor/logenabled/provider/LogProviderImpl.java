@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.provider.impl;
+package org.apache.james.container.spring.bean.postprocessor.logenabled.provider;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.Log4JLogger;
-import org.apache.james.container.spring.provider.api.LogProvider;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -32,7 +31,7 @@ import org.springframework.beans.factory.InitializingBean;
  * 
  *
  */
-public class Log4JLogProvider implements LogProvider, InitializingBean {
+public class LogProviderImpl implements LogProvider, InitializingBean {
 
     private final Map<String, Log> logMap = new HashMap<String, Log>();
     private Map<String, String> logs;
