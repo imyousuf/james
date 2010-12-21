@@ -20,6 +20,7 @@
 package org.apache.james.mailetcontainer.camel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.management.JMException;
+import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 
 import org.apache.camel.CamelContext;
@@ -44,18 +47,20 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.lifecycle.api.Disposable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailProcessorList;
+import org.apache.james.mailetcontainer.api.MailProcessorListListener;
+import org.apache.james.mailetcontainer.api.MailetContainerListener;
 import org.apache.james.mailetcontainer.api.MailetContainer;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
-import org.apache.james.mailetcontainer.api.ProcessorManagementMBean;
+import org.apache.james.mailetcontainer.api.jmx.ProcessorManagementMBean;
 import org.apache.james.mailetcontainer.lib.MailetConfigImpl;
-import org.apache.james.mailetcontainer.lib.MailetManagement;
 import org.apache.james.mailetcontainer.lib.MatcherConfigImpl;
-import org.apache.james.mailetcontainer.lib.MatcherManagement;
-import org.apache.james.mailetcontainer.lib.ProcessorDetail;
+import org.apache.james.mailetcontainer.lib.jmx.JMXMailProcessorListListener;
+import org.apache.james.mailetcontainer.lib.jmx.JMXMailetContainerListener;
 import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
@@ -82,13 +87,13 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     private MailetLoader mailetLoader;
     private Log logger;
 
-    private final Map<String,List<MailetManagement>> mailets = new HashMap<String,List<MailetManagement>>();
-    private final Map<String,List<MatcherManagement>> matchers = new HashMap<String,List<MatcherManagement>>();
+    private final Map<String,List<Mailet>> mailets = new HashMap<String,List<Mailet>>();
+    private final Map<String,List<Matcher>> matchers = new HashMap<String,List<Matcher>>();
     
     private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
     private final UseLatestAggregationStrategy aggr = new UseLatestAggregationStrategy();
     private MailetContext mailetContext;
-       
+    
     @Resource(name = "matcherloader")
     public void setMatcherLoader(MatcherLoader matcherLoader) {
         this.matcherLoader = matcherLoader;
@@ -105,13 +110,44 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     }
 
     private ProducerTemplate producerTemplate;
-	private CamelContext camelContext;
+    private CamelContext camelContext;
     
-
-
+    private List<MailProcessorListListener> listeners = Collections.synchronizedList(new ArrayList<MailProcessorListListener>());
+    private JMXMailProcessorListListener jmxListener;
+    private boolean enableJmx;
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.api.MailProcessorList#addListener(org.apache.james.mailetcontainer.api.MailProcessorListListener)
+     */
+    public void addListener(MailProcessorListListener listener) {
+        listeners.add(listener);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.api.MailProcessorList#getListeners()
+     */
+    public List<MailProcessorListListener> getListeners() {
+        return listeners;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.api.MailProcessorList#removeListener(org.apache.james.mailetcontainer.api.MailProcessorListListener)
+     */
+    public void removeListener(MailProcessorListListener listener) {
+        listeners.remove(listener);
+    }
+    
 	@PostConstruct
     public void init() throws Exception {
         getCamelContext().addRoutes(new SpoolRouteBuilder());
+        
+        if (enableJmx) {
+            this.jmxListener = new JMXMailProcessorListListener(this);
+            addListener(jmxListener);
+        }
         producerTemplate = getCamelContext().createProducerTemplate();
         
         // Make sure the camel context get started
@@ -119,6 +155,8 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
         if (getCamelContext().getStatus().isStopped()) {
             getCamelContext().start();
         }
+        
+        
 
     }
 
@@ -129,11 +167,11 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     public void dispose() {
         boolean debugEnabled = logger.isDebugEnabled();
 
-        Iterator<List<MailetManagement>> it = mailets.values().iterator();
+        Iterator<List<Mailet>> it = mailets.values().iterator();
         while (it.hasNext()) {
-            List<MailetManagement> mList = it.next();
+            List<Mailet> mList = it.next();
             for (int i = 0; i < mList.size(); i++) {
-                Mailet m = mList.get(i).getMailet();
+                Mailet m = mList.get(i);
                 if (debugEnabled) {
                     logger.debug("Shutdown mailet " + m.getMailetInfo());
                 }
@@ -142,9 +180,9 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
            
         }
         
-        Iterator<List<MatcherManagement>> mit = matchers.values().iterator();     
+        Iterator<List<Matcher>> mit = matchers.values().iterator();     
         while (mit.hasNext()) {
-            List<MatcherManagement> mList = mit.next();
+            List<Matcher> mList = mit.next();
             for (int i = 0; i < mList.size(); i++) {
                 Matcher m = mList.get(i);
                 if (debugEnabled) {
@@ -153,7 +191,10 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                 m.destroy();
             }
            
-        }      
+        }
+        if (jmxListener != null) {
+            jmxListener.dispose();
+        }
     }
     
     /*
@@ -162,6 +203,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.config = config;
+        this.enableJmx = config.getBoolean("enableJmx", true);;
     }
 
     /*
@@ -241,14 +283,30 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
         return "direct:processor." + processorName;
     }
     
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.transport.MailProcessor#service(org.apache.mailet.Mail)
+     * @see org.apache.james.mailetcontainer.api.MailProcessor#service(org.apache.mailet.Mail)
      */
     public void service(Mail mail) throws MessagingException {
+        long start = System.currentTimeMillis();
+        MessagingException ex = null;
         MailProcessor processor = getProcessor(mail.getState());
+     
         if (processor != null) {
-            processor.service(mail);
+            try {
+                processor.service(mail);
+            } catch (MessagingException e) {
+                ex = e;
+                throw e;
+            } finally {
+                long end = System.currentTimeMillis() - start;
+                for (int i = 0; i < listeners.size(); i++) {
+                    MailProcessorListListener listener = listeners.get(i);
+                    
+                    listener.afterProcessor(processor, mail.getName(), end, ex);
+                } 
+            }
         } else {
             throw new MessagingException("No processor found for mail " + mail.getName() + " with state " + mail.getState());
         }
@@ -285,20 +343,21 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
     }
     
     
-    private final class ChildProcessor implements MailetContainer {
+    private final class ChildProcessor implements MailetContainer, Disposable {
        
         
         private String processorName;
-
-        public ChildProcessor(String processorName) {
+        private List<MailetContainerListener> listeners = Collections.synchronizedList(new ArrayList<MailetContainerListener>());
+        private JMXMailetContainerListener jmxListener;
+        
+        public ChildProcessor(String processorName){
             this.processorName = processorName;
         }
         
 
- 
         /*
          * (non-Javadoc)
-         * @see org.apache.james.mailetcontainer.MailProcessor#service(org.apache.mailet.Mail)
+         * @see org.apache.james.mailetcontainer.api.MailProcessor#service(org.apache.mailet.Mail)
          */
         public void service(Mail mail) throws MessagingException {
             try {
@@ -308,28 +367,79 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                  throw new MessagingException("Unable to process mail " + mail.getName(),ex);
              }        
          }
-        
+
         /*
          * (non-Javadoc)
-         * @see org.apache.james.transport.MailetContainer#getMailets()
+         * @see org.apache.james.mailetcontainer.api.MailetContainer#getMailets()
          */
         public List<Mailet> getMailets() {
-            return new ArrayList<Mailet>(mailets.get(processorName));
+            return Collections.unmodifiableList(mailets.get(processorName));
         }
 
         /*
          * (non-Javadoc)
-         * @see org.apache.james.transport.MailetContainer#getMatchers()
+         * @see org.apache.james.mailetcontainer.api.MailetContainer#getMatchers()
          */
         public List<Matcher> getMatchers() {
-            return new ArrayList<Matcher>(matchers.get(processorName));       
+            return Collections.unmodifiableList(matchers.get(processorName));       
+        }
+
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.mailetcontainer.api.MailetContainer#addListener(org.apache.james.mailetcontainer.api.MailetContainerListener)
+         */
+        public void addListener(MailetContainerListener listener) {
+            listeners.add(listener);
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.mailetcontainer.api.MailetContainer#removeListener(org.apache.james.mailetcontainer.api.MailetContainerListener)
+         */
+        public void removeListener(MailetContainerListener listener) {
+            listeners.remove(listener);            
+        }
+
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.mailetcontainer.api.MailetContainer#getListeners()
+         */
+        public List<MailetContainerListener> getListeners() {
+            return listeners;
+        }
+
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.lifecycle.api.Disposable#dispose()
+         */
+        public void dispose() {
+            listeners.clear();
+            if (jmxListener!= null) {
+                jmxListener.dispose();
+            }
+        }
+        
+        public void registerJMX() throws MalformedObjectNameException, JMException {
+            this.jmxListener = new JMXMailetContainerListener(processorName, ChildProcessor.this);
+            addListener(jmxListener);
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.camel.CamelContextAware#getCamelContext()
+     */
 	public CamelContext getCamelContext() {
         return camelContext;
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.CamelContext)
+	 */
     public void setCamelContext(CamelContext camelContext) {
         this.camelContext = camelContext;
     }
@@ -343,7 +453,6 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
         @SuppressWarnings("unchecked")
         @Override
         public void configure() throws Exception {
-            Processor terminatingMailetProcessor = new MailetProcessor(new TerminatingMailet(), logger);
             Processor disposeProcessor = new DisposeProcessor();
             Processor mailProcessor = new MailCamelProcessor();
             Processor removePropsProcessor = new RemovePropertiesProcessor();
@@ -353,17 +462,20 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                 final HierarchicalConfiguration processorConf = processorConfs.get(i);
                 String processorName = processorConf.getString("[@name]");
                 
+                ChildProcessor container = new ChildProcessor(processorName);
+                
+                
                 if (processorName.equals(Mail.GHOST)) throw new ConfigurationException("ProcessorName of " + Mail.GHOST + " is reserved for internal use, choose a different name");
                 
-                mailets.put(processorName, new ArrayList<MailetManagement>());
-                matchers.put(processorName, new ArrayList<MatcherManagement>());
+                mailets.put(processorName, new ArrayList<Mailet>());
+                matchers.put(processorName, new ArrayList<Matcher>());
 
                 RouteDefinition processorDef = from(getEndpoint(processorName)).routeId(processorName).inOnly()
                 // store the logger in properties
-                .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(logger));   
+                .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(logger));
 
                 // load composite matchers if there are any
-                Map<String,MatcherManagement> compositeMatchers = new HashMap<String, MatcherManagement>();
+                Map<String,Matcher> compositeMatchers = new HashMap<String, Matcher>();
                 loadCompositeMatchers(processorName, compositeMatchers, processorConf.configurationsAt("matcher"));
                 
                 
@@ -447,32 +559,18 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                         throw new ConfigurationException("Unable to init mailet", ex);
                     }
                     if (mailet != null && matcher != null) {
-                        MailetManagement wrappedMailet;
-                        if (mailet instanceof MailetManagement) {
-                            wrappedMailet = (MailetManagement) mailet;
-                        } else {
-                            wrappedMailet  = new MailetManagement(mailet);
-                        }
-                        
-                        MatcherManagement wrappedMatcher;
-                        if (matcher instanceof MatcherManagement) {
-                            wrappedMatcher = (MatcherManagement) matcher;
-                        } else {
-                            wrappedMatcher = new MatcherManagement(matcher);
-                        }
-                        
-                        
+
                         String onMatchException = null;
-                        MailetConfig mailetConfig = wrappedMailet.getMailetConfig();
+                        MailetConfig mailetConfig = mailet.getMailetConfig();
                     
                         if (mailetConfig instanceof MailetConfigImpl) {
                             onMatchException = ((MailetConfigImpl) mailetConfig).getInitAttribute("onMatchException");
                         }
                     
-                        MailetProcessor mailetProccessor = new MailetProcessor(wrappedMailet, logger);
+                        MailetProcessor mailetProccessor = new MailetProcessor(mailet, logger, container);
                         // Store the matcher to use for splitter in properties
                         processorDef
-                            .setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(wrappedMatcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException))
+                            .setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException)).setProperty(MatcherSplitter.MAILETCONTAINER_PROPERTY, constant(container))
                             
                             // do splitting of the mail based on the stored matcher
                             .split().method(MatcherSplitter.class).aggregationStrategy(aggr).parallelProcessing()
@@ -484,12 +582,15 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                             .choice().when(new MailStateNotEquals(processorName)).process(mailProcessor).stop().end();
 
                         // store mailet and matcher
-                        mailets.get(processorName).add(wrappedMailet);
-                        matchers.get(processorName).add(wrappedMatcher);
+                        mailets.get(processorName).add(mailet);
+                        matchers.get(processorName).add(matcher);
                     }
               
 
                 }
+                
+                Processor terminatingMailetProcessor = new MailetProcessor(new TerminatingMailet(), logger, container);
+
                 
                 processorDef
                     // start choice
@@ -505,8 +606,13 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                     
                      // route it to the next processor
                     .otherwise().process(mailProcessor).stop();
-                  
-                processors.put(processorName, new ProcessorDetail(processorName,new ChildProcessor(processorName)));
+                
+               
+                
+                processors.put(processorName, container);
+                if (enableJmx) {
+                    container.registerJMX();
+                }
             }
             
             // check if all needed processors are configured
@@ -583,8 +689,8 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
      * @throws NotCompliantMBeanException
      */
     @SuppressWarnings("unchecked")
-    private List<MatcherManagement> loadCompositeMatchers(String processorName, Map<String,MatcherManagement> compMap, List<HierarchicalConfiguration> compMatcherConfs) throws ConfigurationException, MessagingException, NotCompliantMBeanException {
-        List<MatcherManagement> matchers = new ArrayList<MatcherManagement>();
+    private List<Matcher> loadCompositeMatchers(String processorName, Map<String,Matcher> compMap, List<HierarchicalConfiguration> compMatcherConfs) throws ConfigurationException, MessagingException, NotCompliantMBeanException {
+        List<Matcher> matchers = new ArrayList<Matcher>();
 
         for (int j= 0 ; j < compMatcherConfs.size(); j++) {
             HierarchicalConfiguration c = compMatcherConfs.get(j);
@@ -601,7 +707,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                 if (matcher instanceof CompositeMatcher) {
                     CompositeMatcher compMatcher = (CompositeMatcher) matcher;
                     
-                    List<MatcherManagement> childMatcher = loadCompositeMatchers(processorName, compMap,c.configurationsAt("matcher"));
+                    List<Matcher> childMatcher = loadCompositeMatchers(processorName, compMap,c.configurationsAt("matcher"));
                     for (int i = 0 ; i < childMatcher.size(); i++) {
                         compMatcher.add(childMatcher.get(i));
                     }
@@ -611,7 +717,7 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                 if (m instanceof CompositeMatcher) {
                     CompositeMatcher compMatcher = (CompositeMatcher) m;
                     
-                    List<MatcherManagement> childMatcher = loadCompositeMatchers(processorName, compMap,c.configurationsAt("matcher"));
+                    List<Matcher> childMatcher = loadCompositeMatchers(processorName, compMap,c.configurationsAt("matcher"));
                     for (int i = 0 ; i < childMatcher.size(); i++) {
                         compMatcher.add(childMatcher.get(i));
                     }
@@ -619,12 +725,11 @@ public class CamelMailProcessorList implements Configurable, LogEnabled, MailPro
                 matcher = new MatcherInverter(m);
             }
             if (matcher == null) throw new ConfigurationException("Unable to load matcher instance");
-            MatcherManagement mgmtMatcher = new MatcherManagement(matcher);
-            matchers.add(mgmtMatcher);
+            matchers.add(matcher);
             if (compName != null) {
                 // check if there is already a composite Matcher with the name registered in the processor
                 if (compMap.containsKey(compName)) throw new ConfigurationException("CompositeMatcher with name " + compName + " is already defined in processor " + processorName);
-                compMap.put(compName, mgmtMatcher);
+                compMap.put(compName, matcher);
             }
         }
         return matchers;

@@ -24,6 +24,9 @@
 
       <!-- Number of spool threads -->
       <threads> 20 </threads>
+      
+      <!-- expose JMX MBeans -->
+      <enableJmx>true</enableJmx>
 
       
       <!-- The root processor is a required processor - James routes all mail on the spool -->

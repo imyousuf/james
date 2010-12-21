@@ -16,15 +16,46 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.mailetcontainer.api;
 
+import java.util.Collection;
+
+import javax.mail.MessagingException;
+
+import org.apache.mailet.MailAddress;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.Matcher;
+
 /**
- * management interface for one Mailet instance
+ * A Listener which will get notified after {@link Mailet#service(org.apache.mailet.Mail)} and {@link Matcher#match(org.apache.mailet.Mail)} methods are called from
+ * the container
+ *  
+ *
  */
-public interface MailetManagementMBean extends MailProcessingMBean{
+public interface MailetContainerListener {
+
+    /**
+     * Get called after each {@link Mailet} call was complete 
+     * 
+     * @param m
+     * @param mailName
+     * @param state
+     * @param processTime in ms
+     * @param e or null if no {@link MessagingException} was thrown
+     */
+    public void afterMailet( Mailet m, String mailName, String state, long processTime, MessagingException e);
     
-    public String getMailetName();
+    /**
+     * Get called after each {@link Matcher} call was complete 
+
+     * @param m
+     * @param mailName
+     * @param recipients
+     * @param matches 
+     * @param processTime in ms
+     * @param e or null if no {@link MessagingException} was thrown
+     * 
+     */
+    public void afterMatcher( Matcher m,  String mailName, Collection<MailAddress> recipients, Collection<MailAddress> matches, long processTime, MessagingException e);
     
-    public String[] getMailetParameters();
 }

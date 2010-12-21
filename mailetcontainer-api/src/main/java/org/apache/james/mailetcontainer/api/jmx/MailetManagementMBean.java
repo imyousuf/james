@@ -17,20 +17,14 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailetcontainer.api;
+package org.apache.james.mailetcontainer.api.jmx;
 
 /**
- * Expose processor management functionality through JMX.
- *
+ * management interface for one Mailet instance
  */
-public interface ProcessorManagementMBean {
-
-    /**
-     * Retrieves all existing processors
-     *
-     *
-     * @return names of all configured processors
-     */
-    String[] getProcessorNames();
-
+public interface MailetManagementMBean extends MailProcessingMBean{
+    
+    public String getMailetName();
+    
+    public String[] getMailetParameters();
 }

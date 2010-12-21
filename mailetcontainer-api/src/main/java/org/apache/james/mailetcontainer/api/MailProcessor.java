@@ -53,5 +53,6 @@ public interface MailProcessor {
      *      an exception that interferes with the mailet's normal operation
      */
     void service(Mail mail) throws javax.mail.MessagingException;
+    
 }
 

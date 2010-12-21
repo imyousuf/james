@@ -35,13 +35,34 @@ public interface MailetContainer extends MailProcessor{
      * retrieve mailet configuration data for introspection
      * @return List<MailetConfig>
      */
-    List<Mailet> getMailets();
+    public List<Mailet> getMailets();
 
     /**
      * retrieve matcher configuration data for introspection
      * @return List<MatcherConfig>
      */
-    List<Matcher> getMatchers();
+    public List<Matcher> getMatchers();
+    
+    /**
+     * Add a {@link MailetContainerListener} which will get triggered after a matcher / mailet was called
+     * 
+     * @param listener
+     */
+    public void addListener(MailetContainerListener listener);
+    
+    /**
+     * Remove a {@link MailetContainerListener}
+     * 
+     * @param listener
+     */
+    public void removeListener(MailetContainerListener listener);
+    
+    /**
+     * Return a unmodifiable {@link List} of {@link MailetContainerListener} which are registered 
+     * 
+     * @return listeners
+     */
+    public List<MailetContainerListener> getListeners();
 
 }
 

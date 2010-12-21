@@ -16,19 +16,24 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.mailetcontainer.api;
 
-public interface MailProcessingMBean {
+import javax.mail.MessagingException;
 
-    public long getHandledMailCount();
-    
-    public long getFastestProcessing();
-   
-    public long getSlowestProcessing();
-  
-    public long getSuccessCount();
-   
-    public long getErrorCount();
-    
+/**
+ * A Listener which will get called after {@link MailProcessor#service(org.apache.mailet.Mail)} was called
+ *
+ */
+public interface MailProcessorListListener {
+
+    /**
+     * Get called after the processing via a {@link MailProcessor} was complete
+     * 
+     * @param processor
+     * @param mailName
+     * @param processTime in ms
+     * @param e or null if no exception was thrown
+     */
+    public void afterProcessor(MailProcessor processor, String mailName, long processTime, MessagingException e);
+
 }

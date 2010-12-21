@@ -16,34 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailetcontainer.api;
 
-/**
- * JMX MBean for MailSpooler 
- * 
- *
- */
-public interface MailSpoolerMBean {
+package org.apache.james.mailetcontainer.api.jmx;
 
-    /**
-     * Return the number of threads used for spooling
-     * 
-     * @return threadCount
-     */
-    public int getThreadCount();
+public interface MailProcessingMBean {
+
+    public long getHandledMailCount();
     
-    /**
-     * 
-     * @return
-     */
-    public int getCurrentSpoolCount();
+    public long getFastestProcessing();
+   
+    public long getSlowestProcessing();
+  
+    public long getSuccessCount();
+   
+    public long getErrorCount();
     
-
-    /**
-     * Return all processor names
-     * 
-     * @return pNames
-     */
-    public String[] getProcessorNames();
-
 }

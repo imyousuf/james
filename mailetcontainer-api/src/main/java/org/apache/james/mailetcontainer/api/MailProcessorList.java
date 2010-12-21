@@ -18,6 +18,8 @@
  ****************************************************************/
 package org.apache.james.mailetcontainer.api;
 
+import java.util.List;
+
 
 /**
  * {@link MailProcessor} which delegate the work to child {@link MailProcessor}
@@ -28,11 +30,32 @@ public interface MailProcessorList extends MailProcessor{
     /**
      * @return names of all configured processor
      */
-    String[] getProcessorNames();
+    public String[] getProcessorNames();
 
     /**
      * @return access the child processor
      */
-    MailProcessor getProcessor(String name);
+    public MailProcessor getProcessor(String name);
 
+    /**
+     * Add a {@link MailProcessorListListener} which will get triggered after a child {@link MailProcessor} finish
+     * processing
+     * 
+     * @param listener
+     */
+    public void addListener(MailProcessorListListener listener);
+    
+    /**
+     * Remove a {@link MailProcessorListListener}
+     * 
+     * @param listener
+     */
+    public void removeListener(MailProcessorListListener listener);
+    
+    /**
+     * Return a unmodifiable {@link List} of {@link MailProcessorListListener} which are registered 
+     * 
+     * @return listeners
+     */
+    public List<MailProcessorListListener> getListeners();
 }

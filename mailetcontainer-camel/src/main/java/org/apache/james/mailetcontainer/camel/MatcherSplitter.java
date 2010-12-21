@@ -33,6 +33,8 @@ import org.apache.camel.InOnly;
 import org.apache.camel.Property;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
+import org.apache.james.mailetcontainer.api.MailetContainer;
+import org.apache.james.mailetcontainer.api.MailetContainerListener;
 import org.apache.james.mailetcontainer.lib.ProcessorUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -60,6 +62,9 @@ public class MatcherSplitter {
     public final static String ON_MATCH_EXCEPTION_PROPERTY = "onMatchException";
     
     public final static String LOGGER_PROPERTY = "logger";
+    
+    public final static String MAILETCONTAINER_PROPERTY = "container";
+
 
     
     /**
@@ -73,78 +78,101 @@ public class MatcherSplitter {
      */
     @SuppressWarnings("unchecked")
     @Handler
-    public List<Mail> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Log logger, @Body Mail mail) throws MessagingException {
-        List<Mail> mails = new ArrayList<Mail>();
-        boolean fullMatch = false;
-        
-        // call the matcher
+    public List<Mail> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Log logger, @Property(MAILETCONTAINER_PROPERTY) MailetContainer container,
+            @Body Mail mail) throws MessagingException {
         Collection<MailAddress> matchedRcpts = null;
+        Collection<MailAddress> origRcpts = new ArrayList<MailAddress>(mail.getRecipients());
+        long start = System.currentTimeMillis();
+        MessagingException ex = null;
         
         try {
-            matchedRcpts = matcher.match(mail);
-            if (matchedRcpts == null) {
-                //In case the matcher returned null, create an empty Collection
-                matchedRcpts = new ArrayList<MailAddress>(0);
-            } else if (matchedRcpts != mail.getRecipients()) {
-                //Make sure all the objects are MailAddress objects
-                ProcessorUtil.verifyMailAddresses(matchedRcpts);
-            }
-        } catch (MessagingException me) {
-        
-            if (onMatchException == null) {
-                onMatchException = Mail.ERROR;
-            } else {
-                onMatchException = onMatchException.trim().toLowerCase(Locale.US);
-            }
-            if (onMatchException.compareTo("nomatch") == 0) {
-                //In case the matcher returned null, create an empty Collection
-                matchedRcpts = new ArrayList<MailAddress>(0);
-            } else if (onMatchException.compareTo("matchall") == 0) {
-                matchedRcpts = mail.getRecipients();
-                // no need to verify addresses
-            } else {
-                ProcessorUtil.handleException(me, mail, matcher.getMatcherConfig().getMatcherName(), onMatchException, logger);
-            }
-        }
-        
-        // check if the matcher matched
-        if ( matchedRcpts != null && matchedRcpts.isEmpty() == false) {
-            List<MailAddress> rcpts = new ArrayList<MailAddress>(mail.getRecipients());
-            
-            Iterator<MailAddress> rcptsIterator = matchedRcpts.iterator();
-            
-            while(rcptsIterator.hasNext()) {
-                // loop through the recipients and remove the recipients that matched
-                rcpts.remove(rcptsIterator.next());
-            }
-            
-            if (rcpts.isEmpty()) {
-                // all recipients matched
-                fullMatch = true;
-            } else {
-                mail.setRecipients(rcpts);
-                
-                Mail newMail = new MailImpl(mail);
-                newMail.setRecipients(matchedRcpts);
-                
-              
-                // Set a header because the matcher matched. This can be used later when processing the route
-                newMail.setAttribute(MATCHER_MATCHED_ATTRIBUTE, true);
-                
-                // add the new generated mail to the mails list
-                mails.add(newMail);
-            }
-        }
-            
-        if (fullMatch) {
-            // Set a header because the matcher matched. This can be used later when processing the route
-            mail.setAttribute(MATCHER_MATCHED_ATTRIBUTE, true);
-        }
-        
-        // add mailMsg to the mails list
-        mails.add(mail);
-        
-        return mails;
-    }
+            List<Mail> mails = new ArrayList<Mail>();
+            boolean fullMatch = false;
 
+            try {
+                // call the matcher
+                matchedRcpts = matcher.match(mail);
+
+                if (matchedRcpts == null) {
+                    // In case the matcher returned null, create an empty
+                    // Collection
+                    matchedRcpts = new ArrayList<MailAddress>(0);
+                } else if (matchedRcpts != mail.getRecipients()) {
+                    // Make sure all the objects are MailAddress objects
+                    ProcessorUtil.verifyMailAddresses(matchedRcpts);
+                }
+
+            } catch (MessagingException me) {
+                ex = me;
+                if (onMatchException == null) {
+                    onMatchException = Mail.ERROR;
+                } else {
+                    onMatchException = onMatchException.trim().toLowerCase(Locale.US);
+                }
+                if (onMatchException.compareTo("nomatch") == 0) {
+                    // In case the matcher returned null, create an empty
+                    // Collection
+                    matchedRcpts = new ArrayList<MailAddress>(0);
+                } else if (onMatchException.compareTo("matchall") == 0) {
+                    matchedRcpts = mail.getRecipients();
+                    // no need to verify addresses
+                } else {
+                    ProcessorUtil.handleException(me, mail, matcher.getMatcherConfig().getMatcherName(), onMatchException, logger);
+                }
+            }
+
+            // check if the matcher matched
+            if (matchedRcpts != null && matchedRcpts.isEmpty() == false) {
+                List<MailAddress> rcpts = new ArrayList<MailAddress>(mail.getRecipients());
+
+                Iterator<MailAddress> rcptsIterator = matchedRcpts.iterator();
+
+                while (rcptsIterator.hasNext()) {
+                    // loop through the recipients and remove the recipients
+                    // that matched
+                    rcpts.remove(rcptsIterator.next());
+                }
+
+                if (rcpts.isEmpty()) {
+                    // all recipients matched
+                    fullMatch = true;
+                } else {
+                    mail.setRecipients(rcpts);
+
+                    Mail newMail = new MailImpl(mail);
+                    newMail.setRecipients(matchedRcpts);
+
+                    // Set a header because the matcher matched. This can be
+                    // used later when processing the route
+                    newMail.setAttribute(MATCHER_MATCHED_ATTRIBUTE, true);
+
+                    // add the new generated mail to the mails list
+                    mails.add(newMail);
+                }
+            }
+
+            if (fullMatch) {
+                // Set a header because the matcher matched. This can be used
+                // later when processing the route
+                mail.setAttribute(MATCHER_MATCHED_ATTRIBUTE, true);
+            }
+
+            // add mailMsg to the mails list
+            mails.add(mail);
+
+            return mails;
+        } finally {
+
+            long complete = System.currentTimeMillis() - start;
+            List<MailetContainerListener> listeners = container.getListeners();
+            for (int i = 0; i < listeners.size(); i++) {
+                MailetContainerListener listener = listeners.get(i);
+                if (matchedRcpts.isEmpty()) {
+                    listener.afterMatcher(matcher, mail.getName(), origRcpts, null,  complete, ex);
+                } else {
+                    listener.afterMatcher(matcher, mail.getName(), origRcpts, matchedRcpts, complete, ex);
+                }
+            }
+        }
+    }
 }

@@ -16,111 +16,56 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailetcontainer.lib;
+package org.apache.james.mailetcontainer.lib.jmx;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
-import javax.mail.MessagingException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
-import org.apache.james.mailetcontainer.api.MailetManagementMBean;
-import org.apache.mailet.Mail;
-import org.apache.mailet.Mailet;
+import org.apache.james.mailetcontainer.api.jmx.MailetManagementMBean;
 import org.apache.mailet.MailetConfig;
 
-/**
- * Class which wraps a {@link Mailet} and expose statistics via JMX
- * 
- * 
- * 
- *
- */
-public final class MailetManagement extends StandardMBean implements Mailet, MailetManagementMBean{
+public final class MailetManagement extends StandardMBean implements MailetManagementMBean{
 
-    private final Mailet mailet;
-    private long errorCount = 0;
-    private long successCount = 0;
-    private long fastestProcessing = -1;
-    private long slowestProcessing = -1;
+    private AtomicLong errorCount = new AtomicLong(0);
+    private AtomicLong successCount = new AtomicLong(0);
+    private AtomicLong fastestProcessing = new AtomicLong(-1);
+    private AtomicLong slowestProcessing = new AtomicLong(-1);
+    private final MailetConfig config;
     
-    public MailetManagement(Mailet mailet) throws NotCompliantMBeanException {
+    public MailetManagement(MailetConfig config) throws NotCompliantMBeanException {
         super(MailetManagementMBean.class);
-        this.mailet = mailet;
+        this.config = config;
         
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mailet.Mailet#destroy()
-     */
-    public void destroy() {
-        mailet.destroy();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mailet.Mailet#getMailetConfig()
-     */
-    public MailetConfig getMailetConfig() {
-        return mailet.getMailetConfig();
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mailet.Mailet#getMailetInfo()
-     */
-    public String getMailetInfo() {
-        return mailet.getMailetInfo();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mailet.Mailet#init(org.apache.mailet.MailetConfig)
-     */
-    public void init(MailetConfig config) throws MessagingException {
-        mailet.init(config);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.mailet.Mailet#service(org.apache.mailet.Mail)
-     */
-    public void service(Mail mail) throws MessagingException {
-        long startProcessing = System.currentTimeMillis();
-        try {
-            mailet.service(mail);
-            long processTime = System.currentTimeMillis() - startProcessing;
-            if (processTime > slowestProcessing) {
-                slowestProcessing = processTime;
-            }
-            if (fastestProcessing == -1 || fastestProcessing > processTime) {
-                fastestProcessing = processTime;
-            }
-            successCount++;
-        } catch (MessagingException e) {
-            errorCount++;
-            throw e;
+ 
+   
+    public void update(long processTime, boolean success) {
+        long fastest = fastestProcessing.get();
+        
+        if ( fastest > processTime || fastest == -1) {
+            fastestProcessing.set(processTime);
         }
-    }
-    
-    /**
-     * Return the wrapped {@link Mailet}
-     * 
-     * @return mailet
-     */
-    public Mailet getMailet() {
-        return mailet;
-    }
-
+        
+        if (slowestProcessing.get() < processTime) {
+            slowestProcessing.set(processTime);
+        }
+        if (success) {
+            successCount.incrementAndGet();
+        } else {
+            errorCount.incrementAndGet();
+        }
+    } 
     /*
      * (non-Javadoc)
      * @see org.apache.james.mailetcontainer.MailetManagementMBean#getMailetName()
      */
     public String getMailetName() {
-        return mailet.getMailetConfig().getMailetName();
+        return config.getMailetName();
     }
 
     /*
@@ -129,11 +74,10 @@ public final class MailetManagement extends StandardMBean implements Mailet, Mai
     @SuppressWarnings("unchecked")
     public String[] getMailetParameters() {
         List<String> parameterList = new ArrayList<String>();
-        MailetConfig mailetConfig = getMailet().getMailetConfig();
-        Iterator<String> iterator = mailetConfig.getInitParameterNames();
+        Iterator<String> iterator = config.getInitParameterNames();
         while (iterator.hasNext()) {
             String name = (String) iterator.next();
-            String value = mailetConfig.getInitParameter(name);
+            String value = config.getInitParameter(name);
             parameterList.add(name + "=" + value);
         }
         String[] result = (String[]) parameterList.toArray(new String[] {});
@@ -145,7 +89,7 @@ public final class MailetManagement extends StandardMBean implements Mailet, Mai
      * @see org.apache.james.mailetcontainer.MailetManagementMBean#getErrorCount()
      */
     public long getErrorCount() {
-        return errorCount;
+        return errorCount.get();
     }
 
     /*
@@ -153,7 +97,7 @@ public final class MailetManagement extends StandardMBean implements Mailet, Mai
      * @see org.apache.james.mailetcontainer.MailetManagementMBean#getFastestProcessing()
      */
     public long getFastestProcessing() {
-        return fastestProcessing;
+        return fastestProcessing.get();
     }
 
     /*
@@ -169,7 +113,7 @@ public final class MailetManagement extends StandardMBean implements Mailet, Mai
      * @see org.apache.james.mailetcontainer.MailetManagementMBean#getSlowestProcessing()
      */
     public long getSlowestProcessing() {
-        return slowestProcessing;
+        return slowestProcessing.get();
     }
 
     /*
@@ -177,7 +121,7 @@ public final class MailetManagement extends StandardMBean implements Mailet, Mai
      * @see org.apache.james.mailetcontainer.MailetManagementMBean#getSuccessCount()
      */
     public long getSuccessCount() {
-        return successCount;
+        return successCount.get();
     }
 
 }

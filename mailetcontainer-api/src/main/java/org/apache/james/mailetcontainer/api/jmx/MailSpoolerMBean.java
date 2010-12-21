@@ -16,20 +16,34 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-package org.apache.james.mailetcontainer.api;
+package org.apache.james.mailetcontainer.api.jmx;
 
 /**
- * management interface for one Matcher instance
+ * JMX MBean for MailSpooler 
+ * 
+ *
  */
-public interface MatcherManagementMBean extends MailProcessingMBean{
+public interface MailSpoolerMBean {
+
+    /**
+     * Return the number of threads used for spooling
+     * 
+     * @return threadCount
+     */
+    public int getThreadCount();
     
-    public String getMatcherName();
+    /**
+     * 
+     * @return
+     */
+    public int getCurrentSpoolCount();
     
-    public String getMatcherCondition();
-    
-    public long getMatchedRecipientCount();
-    
-    public long getNotMatchedRecipientCount();
+
+    /**
+     * Return all processor names
+     * 
+     * @return pNames
+     */
+    public String[] getProcessorNames();
 
 }

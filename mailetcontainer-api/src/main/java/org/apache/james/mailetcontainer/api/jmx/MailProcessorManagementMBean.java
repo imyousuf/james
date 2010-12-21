@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailetcontainer.api;
+package org.apache.james.mailetcontainer.api.jmx;
+
 
 
 /**
  * MBean for one processor instance
  */
-public interface ProcessorDetailMBean extends MailProcessingMBean{
+public interface MailProcessorManagementMBean extends MailProcessingMBean{
 
     public String getName();
     

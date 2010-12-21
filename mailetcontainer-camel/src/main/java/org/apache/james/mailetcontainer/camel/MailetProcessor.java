@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.mailetcontainer.camel;
 
+import java.util.List;
 import java.util.Locale;
 
 import javax.mail.MessagingException;
@@ -25,6 +26,8 @@ import javax.mail.MessagingException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
+import org.apache.james.mailetcontainer.api.MailetContainer;
+import org.apache.james.mailetcontainer.api.MailetContainerListener;
 import org.apache.james.mailetcontainer.lib.MailetConfigImpl;
 import org.apache.james.mailetcontainer.lib.ProcessorUtil;
 import org.apache.mailet.Mail;
@@ -39,15 +42,17 @@ public class MailetProcessor implements Processor{
 
     private Mailet mailet;
     private Log logger;
-   
+    private MailetContainer container;
+    
     /**
      * Mailet to call on process
      * 
      * @param mailet
      */
-    public MailetProcessor(Mailet mailet, Log logger) {
+    public MailetProcessor(Mailet mailet, Log logger, MailetContainer container) {
         this.mailet = mailet;
         this.logger = logger;
+        this.container = container;
     }
     
     /**
@@ -56,11 +61,14 @@ public class MailetProcessor implements Processor{
     @SuppressWarnings("unchecked")
     public void process(Exchange exchange) throws Exception {
         Mail mail = exchange.getIn().getBody(Mail.class);
+        long start = System.currentTimeMillis();
+        MessagingException ex = null;
         try {
-            mailet.service(mail);
+            mailet.service(mail);       
         } catch (MessagingException me) {
+            ex = me;
             String onMailetException = null;
-            
+
             MailetConfig mailetConfig = mailet.getMailetConfig();
             if (mailetConfig instanceof MailetConfigImpl) {
                 onMailetException = ((MailetConfigImpl) mailetConfig).getInitAttribute("onMailetException");
@@ -77,6 +85,14 @@ public class MailetProcessor implements Processor{
                 ProcessorUtil.verifyMailAddresses(mail.getRecipients());
             } else {
                 ProcessorUtil.handleException(me, mail, mailet.getMailetConfig().getMailetName(), onMailetException, logger);
+            }
+
+        } finally {
+            List<MailetContainerListener> listeners = container.getListeners();
+            long complete = System.currentTimeMillis() - start;
+            for (int i = 0; i < listeners.size(); i++) {
+                MailetContainerListener listener = listeners.get(i);
+                listener.afterMailet(mailet, mail.getName(), mail.getState(), complete, ex);
             }
         }
     }
