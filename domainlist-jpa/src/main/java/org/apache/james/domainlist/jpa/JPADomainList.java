@@ -67,6 +67,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+        super.configure(config);
         // TODO The common configuration could be migrated to AbstractDomainList (should it implement Configurable?)
         setAutoDetect(config.getBoolean("autodetect", true));    
         setAutoDetectIP(config.getBoolean("autodetectIP", true));    
