@@ -20,12 +20,12 @@
 
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
-<mailetcontainer>
+<mailetcontainer enableJmx="true">
     <postmaster>Postmaster@localhost</postmaster>
     
     <threads> 20 </threads>
 
-    <processor name="root">
+    <processor name="root" enableJmx="true">
        <mailet match="All" class="PostmasterAlias"/>
        <mailet match="RelayLimit=30" class="Null"/>
        <mailet match="SMTPAuthSuccessful" class="ToProcessor">
@@ -40,7 +40,7 @@
        </mailet>
     </processor>
 
-    <processor name="transport">
+    <processor name="transport" enableJmx="true">
        <mailet match="SMTPAuthSuccessful" class="SetMimeHeader">
           <name>X-UserIsAuth</name>
           <value>true</value>
@@ -69,31 +69,31 @@
        </mailet>
     </processor>
 
-    <processor name="error">
+    <processor name="error" enableJmx="true">
        <mailet match="All" class="ToRepository">
           <repositoryPath>file://var/mail/error/</repositoryPath>
        </mailet>
     </processor>
 
-    <processor name="spam">
+    <processor name="spam" enableJmx="true">
        <mailet match="All" class="ToRepository">
           <repositoryPath>file://var/mail/spam/</repositoryPath>
        </mailet>
     </processor>
 
-    <processor name="local-address-error">
+    <processor name="local-address-error" enableJmx="true">
        <mailet match="All" class="ToRepository">
           <repositoryPath>file://var/mail/address-error/</repositoryPath>
        </mailet>
     </processor>
 
-    <processor name="relay-denied">
+    <processor name="relay-denied" enableJmx="true">
        <mailet match="All" class="ToRepository">
           <repositoryPath>file://var/mail/relay-denied/</repositoryPath>
        </mailet>
     </processor>
 
-    <processor name="bounces">
+    <processor name="bounces" enableJmx="true">
        <mailet match="All" class="DSNBounce">
           <passThrough>false</passThrough>
         </mailet>
