@@ -43,6 +43,11 @@ import org.apache.james.mailetcontainer.api.jmx.ProcessorManagementMBean;
 import org.apache.james.mailetcontainer.lib.jmx.JMXMailProcessorListListener;
 import org.apache.mailet.Mail;
 
+/**
+ * Abstract base class for {@link MailProcessorList} which service the {@link Mail} with a {@link MailetContainer} instances
+ * 
+ *
+ */
 public abstract class AbstractMailProcessorList implements MailProcessorList, Configurable, LogEnabled, ProcessorManagementMBean{
 
     private List<MailProcessorListListener> listeners = Collections.synchronizedList(new ArrayList<MailProcessorListListener>());
