@@ -39,11 +39,4 @@ public interface MailSpoolerMBean {
     public int getCurrentSpoolCount();
     
 
-    /**
-     * Return all processor names
-     * 
-     * @return pNames
-     */
-    public String[] getProcessorNames();
-
 }

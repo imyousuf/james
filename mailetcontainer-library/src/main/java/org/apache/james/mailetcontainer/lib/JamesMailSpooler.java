@@ -21,9 +21,7 @@
 
 package org.apache.james.mailetcontainer.lib;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,16 +36,11 @@ import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.james.mailetcontainer.api.MailProcessorList;
-import org.apache.james.mailetcontainer.api.MailSpooler;
-import org.apache.james.mailetcontainer.api.MailetContainer;
 import org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean;
 import org.apache.james.queue.api.MailQueue;
-import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
+import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.mailet.Mail;
-import org.apache.mailet.Mailet;
-import org.apache.mailet.Matcher;
 
 /**
  * Manages the mail spool.  This class is responsible for retrieving
@@ -59,7 +52,7 @@ import org.apache.mailet.Matcher;
  * 
  * TODO: We should better use a ExecutorService here and only spawn a new Thread if needed
  */
-public class JamesMailSpooler implements Runnable, MailSpooler, Configurable, LogEnabled, MailSpoolerMBean {
+public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, MailSpoolerMBean {
 
     
     private MailQueue queue;
@@ -91,7 +84,7 @@ public class JamesMailSpooler implements Runnable, MailSpooler, Configurable, Lo
     /**
      * The mail processor 
      */
-    private MailProcessorList mailProcessor;
+    private MailProcessor mailProcessor;
 
     private Log logger;
 
@@ -104,7 +97,7 @@ public class JamesMailSpooler implements Runnable, MailSpooler, Configurable, Lo
     }
 
     @Resource(name="mailProcessor")
-    public void setMailProcessorList(MailProcessorList mailProcessor) {
+    public void setMailProcessor(MailProcessor mailProcessor) {
         this.mailProcessor = mailProcessor;
     }
     
@@ -233,45 +226,6 @@ public class JamesMailSpooler implements Runnable, MailSpooler, Configurable, Lo
         
         logger.info(getClass().getName() +" thread shutdown completed.");
     }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailSpooler#getProcessorNames()
-     */
-    public String[] getProcessorNames() {
-        return mailProcessor.getProcessorNames();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailSpooler#getMailets(java.lang.String)
-     */
-    public List<Mailet> getMailets(String processorName) {
-        MailetContainer mailetContainer = getMailetContainerByName(processorName);
-        if (mailetContainer == null) return new ArrayList<Mailet>();
-        return mailetContainer.getMailets();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailSpooler#getMatchers(java.lang.String)
-     */
-    public List<Matcher> getMatchers(String processorName) {
-        MailetContainer mailetContainer = getMailetContainerByName(processorName);
-        if (mailetContainer == null) return new ArrayList<Matcher>();
-        return mailetContainer.getMatchers();
-    }
-
-    
-    private MailetContainer getMailetContainerByName(String processorName) {        
-        MailProcessor processor = mailProcessor.getProcessor(processorName);
-        if (!(processor instanceof MailetContainer)) return null;
-        // TODO: decide, if we have to visit all sub-processors for being ProcessorLists 
-        // on their very own and collecting the processor names deeply.
-        return (MailetContainer)processor;
-    }
-
-
 
     /*
      * (non-Javadoc)
