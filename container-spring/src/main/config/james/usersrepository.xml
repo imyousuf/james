@@ -20,6 +20,6 @@
 
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 <usersrepository name="LocalUsers" class="org.apache.james.user.jpa.JPAUsersRepository">
-  <enableVirtualHosting>false</enableVirtualHosting>
+  <enableVirtualHosting>true</enableVirtualHosting>
   <algorithm>MD5</algorithm>
 </usersrepository>
