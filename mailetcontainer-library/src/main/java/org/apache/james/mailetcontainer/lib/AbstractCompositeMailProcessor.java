@@ -38,7 +38,6 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.CompositeMailProcessor;
 import org.apache.james.mailetcontainer.api.CompositeMailProcessorListener;
-import org.apache.james.mailetcontainer.api.MailetContainer;
 import org.apache.james.mailetcontainer.api.jmx.ProcessorManagementMBean;
 import org.apache.james.mailetcontainer.lib.jmx.JMXCompositeMailProcessorListener;
 import org.apache.mailet.Mail;
@@ -198,7 +197,7 @@ public abstract class AbstractCompositeMailProcessor implements CompositeMailPro
             final HierarchicalConfiguration processorConf = processorConfs.get(i);
             String processorName = processorConf.getString("[@name]");
             
-            processors.put(processorName, createMailetContainer(processorName, processorConf));
+            processors.put(processorName, createMailProcessor(processorName, processorConf));
         }
         
         
@@ -220,13 +219,13 @@ public abstract class AbstractCompositeMailProcessor implements CompositeMailPro
     }
     
     /**
-     * Create a new {@link MailetContainer} 
+     * Create a new {@link MailProcessor} 
      * 
      * @param name
      * @param config
      * @return container
      * @throws Exception
      */
-    protected abstract MailetContainer createMailetContainer(String name, HierarchicalConfiguration config) throws Exception;
+    protected abstract MailProcessor createMailProcessor(String name, HierarchicalConfiguration config) throws Exception;
     
 }

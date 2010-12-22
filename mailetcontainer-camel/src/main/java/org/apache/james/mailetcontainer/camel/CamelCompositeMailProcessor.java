@@ -26,7 +26,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.mailetcontainer.api.CompositeMailProcessor;
-import org.apache.james.mailetcontainer.api.MailetContainer;
+import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
 import org.apache.james.mailetcontainer.lib.AbstractCompositeMailProcessor;
@@ -89,19 +89,22 @@ public class CamelCompositeMailProcessor extends AbstractCompositeMailProcessor 
         return camelContext;
     }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.CamelContext)
-	 */
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.camel.CamelContextAware#setCamelContext(org.apache.camel.
+     * CamelContext)
+     */
     public void setCamelContext(CamelContext camelContext) {
         this.camelContext = camelContext;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.lib.AbstractMailetProcessorList#createMailetContainer(java.lang.String, org.apache.commons.configuration.HierarchicalConfiguration)
+     * @see org.apache.james.mailetcontainer.lib.AbstractCompositeMailProcessor#createMailProcessor(java.lang.String, org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    protected MailetContainer createMailetContainer(String name, HierarchicalConfiguration config) throws Exception{
+    protected MailProcessor createMailProcessor(String name, HierarchicalConfiguration config) throws Exception{
         CamelMailetContainer container = new CamelMailetContainer();
         container.setLog(logger);
         container.setCamelContext(camelContext);
@@ -117,8 +120,11 @@ public class CamelCompositeMailProcessor extends AbstractCompositeMailProcessor 
     public void dispose() {
         String names[] = getProcessorNames();
         for (int i = 0; i < names.length; i++) {
-            CamelMailetContainer container = (CamelMailetContainer) getProcessor(names[i]);
-            container.destroy();
+            MailProcessor processor = getProcessor(names[i]);
+            if (processor instanceof CamelMailetContainer) {
+                ((CamelMailetContainer) processor).destroy();
+            }
+
         }
         super.dispose();
     }
