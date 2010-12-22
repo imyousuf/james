@@ -21,82 +21,88 @@
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
 <mailetcontainer enableJmx="true">
-    <postmaster>Postmaster@localhost</postmaster>
-    
-    <threads> 20 </threads>
 
-    <processor name="root" enableJmx="true">
-       <mailet match="All" class="PostmasterAlias"/>
-       <mailet match="RelayLimit=30" class="Null"/>
-       <mailet match="SMTPAuthSuccessful" class="ToProcessor">
-          <processor>transport</processor>
-       </mailet>
-       <mailet match="InSpammerBlacklist=dnsbl.njabl.org." class="ToProcessor">
-         <processor>spam</processor>
-         <notice>550 Requested action not taken: rejected - see http://njabl.org/ </notice>
+  <context>
+    <postmaster>Postmaster@localhost</postmaster>
+  </context>
+  
+  <spooler>
+    <threads> 20 </threads>
+  </spooler>
+    
+  <states>
+    <state name="root" enableJmx="true">
+      <mailet match="All" class="PostmasterAlias"/>
+      <mailet match="RelayLimit=30" class="Null"/>
+      <mailet match="SMTPAuthSuccessful" class="ToProcessor">
+        <processor>transport</processor>
+      </mailet>
+      <mailet match="InSpammerBlacklist=dnsbl.njabl.org." class="ToProcessor">
+        <processor>spam</processor>
+        <notice>550 Requested action not taken: rejected - see http://njabl.org/ </notice>
        </mailet>
        <mailet match="All" class="ToProcessor">
-          <processor>transport</processor>
+        <processor>transport</processor>
        </mailet>
-    </processor>
+     </state>
 
-    <processor name="transport" enableJmx="true">
-       <mailet match="SMTPAuthSuccessful" class="SetMimeHeader">
-          <name>X-UserIsAuth</name>
-          <value>true</value>
-       </mailet>
-       <mailet match="All" class="VirtualUserTable">
-           <virtualusertable>DefaultVirtualUserTable</virtualusertable>
-       </mailet>
-       <mailet match="RecipientIsLocal" class="LocalDelivery"/>
-       <mailet match="HostIsLocal" class="ToProcessor">
-          <processor>local-address-error</processor>
-          <notice>550 - Requested action not taken: no such user here</notice>
-       </mailet>
-       <mailet match="All" class="RemoteDelivery">
-          <outgoingQueue>outgoing</outgoingQueue>
-          <delayTime>5 minutes</delayTime>
-          <delayTime>10 minutes</delayTime>
-          <delayTime>45 minutes</delayTime>
-          <delayTime>2 hours</delayTime>
-          <delayTime>3 hours</delayTime>
-          <delayTime>6 hours</delayTime>
-          <maxRetries>25</maxRetries>
-          <maxDnsProblemRetries>0</maxDnsProblemRetries>
-          <deliveryThreads>10</deliveryThreads>
-          <sendpartial>true</sendpartial>
-          <bounceProcessor>bounces</bounceProcessor>
-       </mailet>
-    </processor>
+    <state name="transport" enableJmx="true">
+      <mailet match="SMTPAuthSuccessful" class="SetMimeHeader">
+        <name>X-UserIsAuth</name>
+        <value>true</value>
+      </mailet>
+      <mailet match="All" class="VirtualUserTable">
+        <virtualusertable>DefaultVirtualUserTable</virtualusertable>
+      </mailet>
+      <mailet match="RecipientIsLocal" class="LocalDelivery"/>
+      <mailet match="HostIsLocal" class="ToProcessor">
+        <processor>local-address-error</processor>
+        <notice>550 - Requested action not taken: no such user here</notice>
+      </mailet>
+      <mailet match="All" class="RemoteDelivery">
+        <outgoingQueue>outgoing</outgoingQueue>
+        <delayTime>5 minutes</delayTime>
+        <delayTime>10 minutes</delayTime>
+        <delayTime>45 minutes</delayTime>
+        <delayTime>2 hours</delayTime>
+        <delayTime>3 hours</delayTime>
+        <delayTime>6 hours</delayTime>
+        <maxRetries>25</maxRetries>
+        <maxDnsProblemRetries>0</maxDnsProblemRetries>
+        <deliveryThreads>10</deliveryThreads>
+        <sendpartial>true</sendpartial>
+        <bounceProcessor>bounces</bounceProcessor>
+      </mailet>
+    </state>
 
-    <processor name="error" enableJmx="true">
-       <mailet match="All" class="ToRepository">
-          <repositoryPath>file://var/mail/error/</repositoryPath>
-       </mailet>
-    </processor>
+    <state name="error" enableJmx="true">
+      <mailet match="All" class="ToRepository">
+        <repositoryPath>file://var/mail/error/</repositoryPath>
+      </mailet>
+    </state>
 
-    <processor name="spam" enableJmx="true">
-       <mailet match="All" class="ToRepository">
-          <repositoryPath>file://var/mail/spam/</repositoryPath>
-       </mailet>
-    </processor>
+    <state name="spam" enableJmx="true">
+      <mailet match="All" class="ToRepository">
+        <repositoryPath>file://var/mail/spam/</repositoryPath>
+      </mailet>
+    </state>
 
-    <processor name="local-address-error" enableJmx="true">
-       <mailet match="All" class="ToRepository">
-          <repositoryPath>file://var/mail/address-error/</repositoryPath>
-       </mailet>
-    </processor>
+    <state name="local-address-error" enableJmx="true">
+      <mailet match="All" class="ToRepository">
+        <repositoryPath>file://var/mail/address-error/</repositoryPath>
+      </mailet>
+    </state>
 
-    <processor name="relay-denied" enableJmx="true">
-       <mailet match="All" class="ToRepository">
-          <repositoryPath>file://var/mail/relay-denied/</repositoryPath>
-       </mailet>
-    </processor>
+    <state name="relay-denied" enableJmx="true">
+      <mailet match="All" class="ToRepository">
+        <repositoryPath>file://var/mail/relay-denied/</repositoryPath>
+      </mailet>
+    </state>
 
-    <processor name="bounces" enableJmx="true">
-       <mailet match="All" class="DSNBounce">
-          <passThrough>false</passThrough>
-        </mailet>
-    </processor>
-    
+    <state name="bounces" enableJmx="true">
+      <mailet match="All" class="DSNBounce">
+        <passThrough>false</passThrough>
+      </mailet>
+    </state>
+  </states>
 </mailetcontainer>

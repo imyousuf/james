@@ -180,7 +180,7 @@ public abstract class AbstractCompositeProcessor implements MailProcessor, Confi
     @SuppressWarnings("unchecked")
     @PostConstruct
     public void init() throws Exception {
-        List<HierarchicalConfiguration> processorConfs = config.configurationsAt("processor");
+        List<HierarchicalConfiguration> processorConfs = config.configurationsAt("state");
         for (int i = 0; i < processorConfs.size(); i++) {
             final HierarchicalConfiguration processorConf = processorConfs.get(i);
             String processorName = processorConf.getString("[@name]");

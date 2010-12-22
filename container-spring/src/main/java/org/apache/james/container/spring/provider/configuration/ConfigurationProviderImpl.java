@@ -111,10 +111,28 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
         if (conf != null) {
             return conf;
         } else {
-            Resource r = loader.getResource(getConfigPrefix()+ name + ".xml");
+            
+            int i = name.indexOf(".");
+            String configName;
+            String configPart = null;
+            
+            if (i > -1) {
+                configPart = name.substring(i+1);
+                configName = name.substring(0, i);
+            } else {
+                configName = name;
+            }
+
+            Resource r = loader.getResource(getConfigPrefix()+ configName + ".xml");
             if (r.exists()) {
                 try {
-                    return getConfig(r);
+                    HierarchicalConfiguration config = getConfig(r);
+                    if (configPart != null) {
+                        return config.configurationAt(configPart);
+                    } else {
+                        return config;
+                    }
+                    
                 } catch (Exception e) {
                     throw new ConfigurationException("Unable to load configuration for component " + name, e);                    
                 }

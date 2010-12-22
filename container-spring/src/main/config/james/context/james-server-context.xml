@@ -52,7 +52,6 @@
             <map>
                 <entry key="mailetcontext" value="mailetcontainer"/>
                 <entry key="mailprocessor" value="mailetcontainer"/>
-                <entry key="matcherloader" value="mailetcontainer"/>
             </map>
         </property>
     </bean>
@@ -102,9 +101,9 @@
     <bean id="configurationProvider" class="org.apache.james.container.spring.provider.configuration.ConfigurationProviderImpl">
         <property name="configurationMappings">
             <map>
-                <entry key="mailprocessor" value="mailetcontainer"/>
-                <entry key="mailspooler" value="mailetcontainer"/>
-                <entry key="mailetcontext" value="mailetcontainer"/>
+                <entry key="mailprocessor" value="mailetcontainer.states"/>
+                <entry key="mailspooler" value="mailetcontainer.spooler"/>
+                <entry key="mailetcontext" value="mailetcontainer.context"/>
              </map>
         </property>
     </bean>
