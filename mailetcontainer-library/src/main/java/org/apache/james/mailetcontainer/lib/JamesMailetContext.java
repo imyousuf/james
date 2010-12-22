@@ -76,7 +76,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
     private MailAddress postmaster;
 
 
-    @Resource(name="mailProcessor")
+    @Resource(name="mailprocessor")
     public void setMailProcessor(MailProcessor processorList) {
         this.processorList = processorList;
     }

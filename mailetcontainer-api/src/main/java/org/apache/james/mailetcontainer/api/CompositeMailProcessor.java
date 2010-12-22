@@ -25,7 +25,7 @@ import java.util.List;
  * {@link MailProcessor} which delegate the work to child {@link MailProcessor}
  * implementations
  */
-public interface MailProcessorList extends MailProcessor{
+public interface CompositeMailProcessor extends MailProcessor{
 
     /**
      * @return names of all configured processor
@@ -38,24 +38,24 @@ public interface MailProcessorList extends MailProcessor{
     public MailProcessor getProcessor(String name);
 
     /**
-     * Add a {@link MailProcessorListListener} which will get triggered after a child {@link MailProcessor} finish
+     * Add a {@link CompositeMailProcessorListener} which will get triggered after a child {@link MailProcessor} finish
      * processing
      * 
      * @param listener
      */
-    public void addListener(MailProcessorListListener listener);
+    public void addListener(CompositeMailProcessorListener listener);
     
     /**
-     * Remove a {@link MailProcessorListListener}
+     * Remove a {@link CompositeMailProcessorListener}
      * 
      * @param listener
      */
-    public void removeListener(MailProcessorListListener listener);
+    public void removeListener(CompositeMailProcessorListener listener);
     
     /**
-     * Return a unmodifiable {@link List} of {@link MailProcessorListListener} which are registered 
+     * Return a unmodifiable {@link List} of {@link CompositeMailProcessorListener} which are registered 
      * 
      * @return listeners
      */
-    public List<MailProcessorListListener> getListeners();
+    public List<CompositeMailProcessorListener> getListeners();
 }

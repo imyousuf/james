@@ -32,21 +32,21 @@ import javax.management.ObjectName;
 
 import org.apache.james.lifecycle.api.Disposable;
 import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.james.mailetcontainer.api.MailProcessorList;
-import org.apache.james.mailetcontainer.api.MailProcessorListListener;
+import org.apache.james.mailetcontainer.api.CompositeMailProcessor;
+import org.apache.james.mailetcontainer.api.CompositeMailProcessorListener;
 
 /**
- * {@link MailProcessorListListener} implementation which register MBeans for its child {@link MailProcessor} 
+ * {@link CompositeMailProcessorListener} implementation which register MBeans for its child {@link MailProcessor} 
  * and keep track of the stats
  *
  */
-public class JMXMailProcessorListListener implements MailProcessorListListener, Disposable{
+public class JMXCompositeMailProcessorListener implements CompositeMailProcessorListener, Disposable{
 
-    private MailProcessorList mList;
+    private CompositeMailProcessor mList;
     private MBeanServer mbeanserver;
     private List<ObjectName> mbeans = new ArrayList<ObjectName>();
     private Map<MailProcessor, MailProcessorManagement> mMap = new HashMap<MailProcessor, MailProcessorManagement>();
-    public JMXMailProcessorListListener(MailProcessorList mList) throws MalformedObjectNameException, JMException {
+    public JMXCompositeMailProcessorListener(CompositeMailProcessor mList) throws MalformedObjectNameException, JMException {
         this.mList = mList;
         
         mbeanserver = ManagementFactory.getPlatformMBeanServer();

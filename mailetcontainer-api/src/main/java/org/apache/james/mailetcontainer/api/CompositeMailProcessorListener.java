@@ -21,10 +21,10 @@ package org.apache.james.mailetcontainer.api;
 import javax.mail.MessagingException;
 
 /**
- * A Listener which will get called after {@link MailProcessor#service(org.apache.mailet.Mail)} was called
+ * A Listener which will get called after {@link CompositeMailProcessor#service(org.apache.mailet.Mail)} was called
  *
  */
-public interface MailProcessorListListener {
+public interface CompositeMailProcessorListener {
 
     /**
      * Get called after the processing via a {@link MailProcessor} was complete

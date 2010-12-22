@@ -36,26 +36,26 @@ import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.james.mailetcontainer.api.MailProcessorList;
-import org.apache.james.mailetcontainer.api.MailProcessorListListener;
+import org.apache.james.mailetcontainer.api.CompositeMailProcessor;
+import org.apache.james.mailetcontainer.api.CompositeMailProcessorListener;
 import org.apache.james.mailetcontainer.api.MailetContainer;
 import org.apache.james.mailetcontainer.api.jmx.ProcessorManagementMBean;
-import org.apache.james.mailetcontainer.lib.jmx.JMXMailProcessorListListener;
+import org.apache.james.mailetcontainer.lib.jmx.JMXCompositeMailProcessorListener;
 import org.apache.mailet.Mail;
 
 /**
- * Abstract base class for {@link MailProcessorList} which service the {@link Mail} with a {@link MailetContainer} instances
+ * Abstract base class for {@link CompositeMailProcessor} which service the {@link Mail} with a {@link MailetContainer} instances
  * 
  *
  */
-public abstract class AbstractMailProcessorList implements MailProcessorList, Configurable, LogEnabled, ProcessorManagementMBean{
+public abstract class AbstractCompositeMailProcessor implements CompositeMailProcessor, Configurable, LogEnabled, ProcessorManagementMBean{
 
-    private List<MailProcessorListListener> listeners = Collections.synchronizedList(new ArrayList<MailProcessorListListener>());
+    private List<CompositeMailProcessorListener> listeners = Collections.synchronizedList(new ArrayList<CompositeMailProcessorListener>());
     private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
     protected Log logger;
     protected HierarchicalConfiguration config;
 
-    private JMXMailProcessorListListener jmxListener;
+    private JMXCompositeMailProcessorListener jmxListener;
     private boolean enableJmx = true;
     
     /*
@@ -67,27 +67,30 @@ public abstract class AbstractMailProcessorList implements MailProcessorList, Co
 
     }
     
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailProcessorList#addListener(org.apache.james.mailetcontainer.api.MailProcessorListListener)
+     * @see org.apache.james.mailetcontainer.api.CompositeMailProcessor#addListener(org.apache.james.mailetcontainer.api.CompositeMailProcessorListener)
      */
-    public void addListener(MailProcessorListListener listener) {
+    public void addListener(CompositeMailProcessorListener listener) {
         listeners.add(listener);
     }
     
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailProcessorList#getListeners()
+     * @see org.apache.james.mailetcontainer.api.CompositeMailProcessor#getListeners()
      */
-    public List<MailProcessorListListener> getListeners() {
+    public List<CompositeMailProcessorListener> getListeners() {
         return listeners;
     }
     
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailProcessorList#removeListener(org.apache.james.mailetcontainer.api.MailProcessorListListener)
+     * @see org.apache.james.mailetcontainer.api.CompositeMailProcessor#removeListener(org.apache.james.mailetcontainer.api.CompositeMailProcessorListener)
      */
-    public void removeListener(MailProcessorListListener listener) {
+    public void removeListener(CompositeMailProcessorListener listener) {
         listeners.remove(listener);
     }
     
@@ -131,7 +134,7 @@ public abstract class AbstractMailProcessorList implements MailProcessorList, Co
             } finally {
                 long end = System.currentTimeMillis() - start;
                 for (int i = 0; i < listeners.size(); i++) {
-                    MailProcessorListListener listener = listeners.get(i);
+                    CompositeMailProcessorListener listener = listeners.get(i);
                     
                     listener.afterProcessor(processor, mail.getName(), end, ex);
                 } 
@@ -200,7 +203,7 @@ public abstract class AbstractMailProcessorList implements MailProcessorList, Co
         
         
         if (enableJmx) {
-            this.jmxListener = new JMXMailProcessorListListener(this);
+            this.jmxListener = new JMXCompositeMailProcessorListener(this);
             addListener(jmxListener);
         }
         

@@ -51,7 +51,7 @@
         <property name="logMappings">
             <map>
                 <entry key="mailetcontext" value="mailetcontainer"/>
-                <entry key="mailProcessor" value="mailetcontainer"/>
+                <entry key="mailprocessor" value="mailetcontainer"/>
                 <entry key="matcherloader" value="mailetcontainer"/>
             </map>
         </property>
@@ -102,7 +102,7 @@
     <bean id="configurationProvider" class="org.apache.james.container.spring.provider.configuration.ConfigurationProviderImpl">
         <property name="configurationMappings">
             <map>
-                <entry key="mailProcessor" value="mailetcontainer"/>
+                <entry key="mailprocessor" value="mailetcontainer"/>
                 <entry key="mailspooler" value="mailetcontainer"/>
                 <entry key="mailetcontext" value="mailetcontainer"/>
              </map>
@@ -184,7 +184,7 @@
     <!-- 
       Mailet Container Beans.
      -->
-    <bean id="mailProcessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelMailProcessorList"/>
+    <bean id="mailprocessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelCompositeMailProcessor"/>
     <!-- 
       mailcontext bean must be defined after mailProcessor 
       otherwise LogEnabled injection via LogEnabledBeanPostProcessor will not occur before 

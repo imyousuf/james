@@ -25,11 +25,11 @@ import javax.annotation.Resource;
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.mailetcontainer.api.MailProcessorList;
+import org.apache.james.mailetcontainer.api.CompositeMailProcessor;
 import org.apache.james.mailetcontainer.api.MailetContainer;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
-import org.apache.james.mailetcontainer.lib.AbstractMailProcessorList;
+import org.apache.james.mailetcontainer.lib.AbstractCompositeMailProcessor;
 import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
@@ -39,13 +39,13 @@ import org.apache.mailet.Matcher;
 /**
  * Build up the Camel Routes by parsing the mailetcontainer.xml configuration file. 
  * 
- * It also offer the {@link MailProcessorList} implementation which allow to inject {@link Mail} into the routes.
+ * It also offer the {@link CompositeMailProcessor} implementation which allow to inject {@link Mail} into the routes.
  *
  * Beside the basic {@link Mailet} / {@link Matcher} support this implementation also supports {@link CompositeMatcher} implementations.
  * See JAMES-948 
  * 
  */
-public class CamelMailProcessorList extends AbstractMailProcessorList implements CamelContextAware{
+public class CamelCompositeMailProcessor extends AbstractCompositeMailProcessor implements CamelContextAware{
 
     private CamelContext camelContext;
     private MailetContext mailetContext;
