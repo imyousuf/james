@@ -114,7 +114,7 @@ public abstract class AbstractMailProcessorList implements MailProcessorList, Co
         MailProcessor processor = getProcessor(mail.getState());
      
         if (processor != null) {
-            logger.info("Call MailProcessor " + mail.getState());
+            logger.debug("Call MailProcessor " + mail.getState());
             try {
                 processor.service(mail);
                 
