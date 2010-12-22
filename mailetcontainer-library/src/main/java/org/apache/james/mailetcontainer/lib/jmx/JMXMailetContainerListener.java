@@ -33,22 +33,22 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.james.lifecycle.api.Disposable;
-import org.apache.james.mailetcontainer.api.MailetContainer;
-import org.apache.james.mailetcontainer.api.MailetContainerListener;
+import org.apache.james.mailetcontainer.lib.AbstractMailetProcessor;
+import org.apache.james.mailetcontainer.lib.AbstractMailetProcessor.MailetProcessorListener;
 import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.Matcher;
 
 /**
- * {@link MailetContainerListener} implementation which register MBean's for all the contained
+ * {@link MailetProcessorListener} implementation which register MBean's for all the contained
  * {@link Mailet} and {@link Matcher} and keep track of the stats
  * 
  *
  */
-public class JMXMailetContainerListener implements MailetContainerListener, Disposable{
+public class JMXMailetContainerListener implements MailetProcessorListener, Disposable{
 
-    private MailetContainer container;
+    private AbstractMailetProcessor processor;
     private MBeanServer mbeanserver;
     private List<ObjectName> mbeans = new ArrayList<ObjectName>();
     private Map<Mailet, MailetManagement> mailetMap = new HashMap<Mailet, MailetManagement>();
@@ -56,8 +56,8 @@ public class JMXMailetContainerListener implements MailetContainerListener, Disp
 
     private String name;
 
-    public JMXMailetContainerListener(String name, MailetContainer container) throws MalformedObjectNameException, JMException {
-        this.container = container;
+    public JMXMailetContainerListener(String name, AbstractMailetProcessor processor) throws MalformedObjectNameException, JMException {
+        this.processor = processor;
         this.name = name;
         
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
@@ -102,8 +102,8 @@ public class JMXMailetContainerListener implements MailetContainerListener, Disp
     private void registerMBeans() throws MalformedObjectNameException, JMException {
         String baseObjectName = "org.apache.james:type=component,name=processor,processor=" + name;
         
-        registerMailets(baseObjectName, container.getMailets().iterator());
-        registerMatchers(baseObjectName, container.getMatchers().iterator(), 0);
+        registerMailets(baseObjectName, processor.getMailets().iterator());
+        registerMatchers(baseObjectName, processor.getMatchers().iterator(), 0);
     }
 
    

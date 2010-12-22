@@ -25,11 +25,10 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
 import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.james.mailetcontainer.api.MailetContainer;
 import org.apache.james.mailetcontainer.api.jmx.MailProcessorManagementMBean;
 
 /**
- * Wrapper which helps to expose JMX statistics for {@link MailProcessor} and {@link MailetContainer} implementations
+ * Wrapper which helps to expose JMX statistics for {@link MailProcessor} and {@link CamelProcessor} implementations
  * 
  *
  */

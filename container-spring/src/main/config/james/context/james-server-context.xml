@@ -184,7 +184,7 @@
     <!-- 
       Mailet Container Beans.
      -->
-    <bean id="mailprocessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelCompositeMailProcessor"/>
+    <bean id="mailprocessor" name="processorRoute" class="org.apache.james.mailetcontainer.camel.CamelCompositeProcessor"/>
     <!-- 
       mailcontext bean must be defined after mailProcessor 
       otherwise LogEnabled injection via LogEnabledBeanPostProcessor will not occur before 

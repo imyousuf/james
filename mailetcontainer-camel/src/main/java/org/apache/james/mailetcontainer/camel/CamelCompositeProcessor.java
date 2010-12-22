@@ -25,11 +25,10 @@ import javax.annotation.Resource;
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.james.mailetcontainer.api.CompositeMailProcessor;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
-import org.apache.james.mailetcontainer.lib.AbstractCompositeMailProcessor;
+import org.apache.james.mailetcontainer.lib.AbstractCompositeProcessor;
 import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
@@ -39,13 +38,13 @@ import org.apache.mailet.Matcher;
 /**
  * Build up the Camel Routes by parsing the mailetcontainer.xml configuration file. 
  * 
- * It also offer the {@link CompositeMailProcessor} implementation which allow to inject {@link Mail} into the routes.
+ * It also offer the {@link CompositeProcessor} implementation which allow to inject {@link Mail} into the routes.
  *
  * Beside the basic {@link Mailet} / {@link Matcher} support this implementation also supports {@link CompositeMatcher} implementations.
  * See JAMES-948 
  * 
  */
-public class CamelCompositeMailProcessor extends AbstractCompositeMailProcessor implements CamelContextAware{
+public class CamelCompositeProcessor extends AbstractCompositeProcessor implements CamelContextAware{
 
     private CamelContext camelContext;
     private MailetContext mailetContext;
@@ -105,7 +104,7 @@ public class CamelCompositeMailProcessor extends AbstractCompositeMailProcessor 
      * @see org.apache.james.mailetcontainer.lib.AbstractCompositeMailProcessor#createMailProcessor(java.lang.String, org.apache.commons.configuration.HierarchicalConfiguration)
      */
     protected MailProcessor createMailProcessor(String name, HierarchicalConfiguration config) throws Exception{
-        CamelMailetContainer container = new CamelMailetContainer();
+        CamelMailetProcessor container = new CamelMailetProcessor();
         container.setLog(logger);
         container.setCamelContext(camelContext);
         container.setMailetContext(mailetContext);
@@ -121,8 +120,8 @@ public class CamelCompositeMailProcessor extends AbstractCompositeMailProcessor 
         String names[] = getProcessorNames();
         for (int i = 0; i < names.length; i++) {
             MailProcessor processor = getProcessor(names[i]);
-            if (processor instanceof CamelMailetContainer) {
-                ((CamelMailetContainer) processor).destroy();
+            if (processor instanceof CamelMailetProcessor) {
+                ((CamelMailetProcessor) processor).destroy();
             }
 
         }

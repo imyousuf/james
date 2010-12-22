@@ -33,8 +33,7 @@ import org.apache.camel.InOnly;
 import org.apache.camel.Property;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
-import org.apache.james.mailetcontainer.api.MailetContainer;
-import org.apache.james.mailetcontainer.api.MailetContainerListener;
+import org.apache.james.mailetcontainer.lib.AbstractMailetProcessor.MailetProcessorListener;
 import org.apache.james.mailetcontainer.lib.ProcessorUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -78,7 +77,7 @@ public class MatcherSplitter {
      */
     @SuppressWarnings("unchecked")
     @Handler
-    public List<Mail> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Log logger, @Property(MAILETCONTAINER_PROPERTY) MailetContainer container,
+    public List<Mail> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Log logger, @Property(MAILETCONTAINER_PROPERTY) CamelMailetProcessor container,
             @Body Mail mail) throws MessagingException {
         Collection<MailAddress> matchedRcpts = null;
         Collection<MailAddress> origRcpts = new ArrayList<MailAddress>(mail.getRecipients());
@@ -164,9 +163,9 @@ public class MatcherSplitter {
         } finally {
 
             long complete = System.currentTimeMillis() - start;
-            List<MailetContainerListener> listeners = container.getListeners();
+            List<MailetProcessorListener> listeners = container.getListeners();
             for (int i = 0; i < listeners.size(); i++) {
-                MailetContainerListener listener = listeners.get(i);
+                MailetProcessorListener listener = listeners.get(i);
                 if (matchedRcpts.isEmpty()) {
                     listener.afterMatcher(matcher, mail.getName(), origRcpts, null,  complete, ex);
                 } else {

@@ -33,7 +33,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.processor.aggregate.UseLatestAggregationStrategy;
 import org.apache.commons.logging.Log;
-import org.apache.james.mailetcontainer.lib.AbstractMailetContainer;
+import org.apache.james.mailetcontainer.lib.AbstractMailetProcessor;
 import org.apache.james.mailetcontainer.lib.MailetConfigImpl;
 import org.apache.james.mailetcontainer.lib.MatcherMailetPair;
 import org.apache.mailet.Mail;
@@ -43,10 +43,10 @@ import org.apache.mailet.Matcher;
 
 
 /**
- * {@link AbstractMailetContainer} implementation which use Camel DSL for the {@link Matcher} / {@link Mailet} routing
+ * {@link AbstractMailetProcessor} implementation which use Camel DSL for the {@link Matcher} / {@link Mailet} routing
  *
  */
-public class CamelMailetContainer extends AbstractMailetContainer implements CamelContextAware{
+public class CamelMailetProcessor extends AbstractMailetProcessor implements CamelContextAware{
 
     private CamelContext context;
 
@@ -159,10 +159,10 @@ public class CamelMailetContainer extends AbstractMailetContainer implements Cam
                     onMatchException = ((MailetConfigImpl) mailetConfig).getInitAttribute("onMatchException");
                 }
                 
-                MailetProcessor mailetProccessor = new MailetProcessor(mailet, logger, CamelMailetContainer.this);
+                CamelProcessor mailetProccessor = new CamelProcessor(mailet, logger, CamelMailetProcessor.this);
                 // Store the matcher to use for splitter in properties
                 processorDef
-                    .setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException)).setProperty(MatcherSplitter.MAILETCONTAINER_PROPERTY, constant(CamelMailetContainer.this))
+                    .setProperty(MatcherSplitter.MATCHER_PROPERTY, constant(matcher)).setProperty(MatcherSplitter.ON_MATCH_EXCEPTION_PROPERTY, constant(onMatchException)).setProperty(MatcherSplitter.MAILETCONTAINER_PROPERTY, constant(CamelMailetProcessor.this))
                    
                     // do splitting of the mail based on the stored matcher
                     .split().method(MatcherSplitter.class).aggregationStrategy(aggr).parallelProcessing()
@@ -178,7 +178,7 @@ public class CamelMailetContainer extends AbstractMailetContainer implements Cam
 
             
             
-            Processor terminatingMailetProcessor = new MailetProcessor(new TerminatingMailet(), getLogger(), CamelMailetContainer.this);
+            Processor terminatingMailetProcessor = new CamelProcessor(new TerminatingMailet(), getLogger(), CamelMailetProcessor.this);
 
             
             processorDef

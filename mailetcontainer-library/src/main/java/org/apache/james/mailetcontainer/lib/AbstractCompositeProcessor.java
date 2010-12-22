@@ -36,20 +36,18 @@ import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.james.mailetcontainer.api.CompositeMailProcessor;
-import org.apache.james.mailetcontainer.api.CompositeMailProcessorListener;
 import org.apache.james.mailetcontainer.api.jmx.ProcessorManagementMBean;
 import org.apache.james.mailetcontainer.lib.jmx.JMXCompositeMailProcessorListener;
 import org.apache.mailet.Mail;
 
 /**
- * Abstract base class for {@link CompositeMailProcessor} which service the {@link Mail} with a {@link MailetContainer} instances
+ * Abstract base class for {@link CompositeProcessor} which service the {@link Mail} with a {@link CamelProcessor} instances
  * 
  *
  */
-public abstract class AbstractCompositeMailProcessor implements CompositeMailProcessor, Configurable, LogEnabled, ProcessorManagementMBean{
+public abstract class AbstractCompositeProcessor implements MailProcessor, Configurable, LogEnabled, ProcessorManagementMBean{
 
-    private List<CompositeMailProcessorListener> listeners = Collections.synchronizedList(new ArrayList<CompositeMailProcessorListener>());
+    private List<CompositeProcessorListener> listeners = Collections.synchronizedList(new ArrayList<CompositeProcessorListener>());
     private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
     protected Log logger;
     protected HierarchicalConfiguration config;
@@ -67,29 +65,17 @@ public abstract class AbstractCompositeMailProcessor implements CompositeMailPro
     }
     
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.CompositeMailProcessor#addListener(org.apache.james.mailetcontainer.api.CompositeMailProcessorListener)
-     */
-    public void addListener(CompositeMailProcessorListener listener) {
+    public void addListener(CompositeProcessorListener listener) {
         listeners.add(listener);
     }
     
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.CompositeMailProcessor#getListeners()
-     */
-    public List<CompositeMailProcessorListener> getListeners() {
+    public List<CompositeProcessorListener> getListeners() {
         return listeners;
     }
     
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.CompositeMailProcessor#removeListener(org.apache.james.mailetcontainer.api.CompositeMailProcessorListener)
-     */
-    public void removeListener(CompositeMailProcessorListener listener) {
+    public void removeListener(CompositeProcessorListener listener) {
         listeners.remove(listener);
     }
     
@@ -133,7 +119,7 @@ public abstract class AbstractCompositeMailProcessor implements CompositeMailPro
             } finally {
                 long end = System.currentTimeMillis() - start;
                 for (int i = 0; i < listeners.size(); i++) {
-                    CompositeMailProcessorListener listener = listeners.get(i);
+                    CompositeProcessorListener listener = listeners.get(i);
                     
                     listener.afterProcessor(processor, mail.getName(), end, ex);
                 } 
@@ -143,9 +129,11 @@ public abstract class AbstractCompositeMailProcessor implements CompositeMailPro
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.transport.ProcessorList#getProcessor(java.lang.String)
+    /**
+     * Return a {@link MailProcessor} for a given name
+     * 
+     * @param name
+     * @return processor
      */
     public MailProcessor getProcessor(String name) {
         return processors.get(name);
@@ -197,6 +185,10 @@ public abstract class AbstractCompositeMailProcessor implements CompositeMailPro
             final HierarchicalConfiguration processorConf = processorConfs.get(i);
             String processorName = processorConf.getString("[@name]");
             
+            // if the "child" processor has no jmx config we just use the one of the composite
+            if (processorConf.containsKey("[@enableJmx]") == false) {
+                processorConf.addProperty("[@enableJmx]", enableJmx);
+            }
             processors.put(processorName, createMailProcessor(processorName, processorConf));
         }
         
@@ -228,4 +220,23 @@ public abstract class AbstractCompositeMailProcessor implements CompositeMailPro
      */
     protected abstract MailProcessor createMailProcessor(String name, HierarchicalConfiguration config) throws Exception;
     
+    
+    /**
+     * A Listener which will get called after {@link CompositeProcessor#service(org.apache.mailet.Mail)} was called
+     *
+     */
+    public interface CompositeProcessorListener {
+
+        /**
+         * Get called after the processing via a {@link MailProcessor} was complete
+         * 
+         * @param processor
+         * @param mailName
+         * @param processTime in ms
+         * @param e or null if no exception was thrown
+         */
+        public void afterProcessor(MailProcessor processor, String mailName, long processTime, MessagingException e);
+
+    }
+
 }

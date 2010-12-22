@@ -19,6 +19,7 @@
 package org.apache.james.mailetcontainer.lib;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -35,13 +36,13 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
-import org.apache.james.mailetcontainer.api.MailetContainer;
-import org.apache.james.mailetcontainer.api.MailetContainerListener;
+import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
 import org.apache.james.mailetcontainer.lib.jmx.JMXMailetContainerListener;
 import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
@@ -51,14 +52,14 @@ import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.base.MatcherInverter;
 
 /**
- * Abstract base class for {@link MailetContainer} implementations which simplify to implement your own implementation
+ * Abstract base class for {@link MailProcessor} implementations which want to process {@link Mail} via {@link Matcher} and {@link Mailet}
  *
  */
-public abstract class AbstractMailetContainer implements MailetContainer, Configurable, LogEnabled{
+public abstract class AbstractMailetProcessor implements MailProcessor, Configurable, LogEnabled{
 
     private MailetContext mailetContext;
     private MatcherLoader matcherLoader;
-    private List<MailetContainerListener> listeners = Collections.synchronizedList(new ArrayList<MailetContainerListener>());
+    private List<MailetProcessorListener> listeners = Collections.synchronizedList(new ArrayList<MailetProcessorListener>());
     private String processorName;
     private JMXMailetContainerListener jmxListener;
     private boolean enableJmx = true;
@@ -161,9 +162,10 @@ public abstract class AbstractMailetContainer implements MailetContainer, Config
         return processorName;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailetContainer#getMailets()
+    /**
+     * Return a unmodifiable {@link List} of the configured {@link Mailet}'s
+     * 
+     * @return mailets
      */
     public List<Mailet> getMailets() {
         List<Mailet> mailets = new ArrayList<Mailet>();
@@ -173,9 +175,11 @@ public abstract class AbstractMailetContainer implements MailetContainer, Config
         return Collections.unmodifiableList(mailets);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailetContainer#getMatchers()
+
+    /**
+     * Return a unmodifiable {@link List} of the configured {@link Matcher}'s
+     * 
+     * @return matchers
      */
     public List<Matcher> getMatchers() {
         List<Matcher> matchers = new ArrayList<Matcher>();
@@ -186,28 +190,16 @@ public abstract class AbstractMailetContainer implements MailetContainer, Config
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailetContainer#addListener(org.apache.james.mailetcontainer.api.MailetContainerListener)
-     */
-    public void addListener(MailetContainerListener listener) {
+    public void addListener(MailetProcessorListener listener) {
         listeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailetContainer#removeListener(org.apache.james.mailetcontainer.api.MailetContainerListener)
-     */
-    public void removeListener(MailetContainerListener listener) {
+    public void removeListener(MailetProcessorListener listener) {
         listeners.remove(listener);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailetContainer#getListeners()
-     */
-    public List<MailetContainerListener> getListeners() {
+    public List<MailetProcessorListener> getListeners() {
         return listeners;
     }
 
@@ -404,7 +396,7 @@ public abstract class AbstractMailetContainer implements MailetContainer, Config
     }
     
     /**
-     * Setup the routing for the configured {@link MatcherMailetPair}'s for this {@link MailetContainer}
+     * Setup the routing for the configured {@link MatcherMailetPair}'s for this {@link CamelProcessor}
      * 
      * 
      */
@@ -456,6 +448,40 @@ public abstract class AbstractMailetContainer implements MailetContainer, Config
         public String getMailetName() {
             return TERMINATING_MAILET_NAME;
         }
+    }
+    
+    /**
+     * A Listener which will get notified after {@link Mailet#service(org.apache.mailet.Mail)} and {@link Matcher#match(org.apache.mailet.Mail)} methods are called from
+     * the container
+     *  
+     *
+     */
+    public interface MailetProcessorListener {
+
+        /**
+         * Get called after each {@link Mailet} call was complete 
+         * 
+         * @param m
+         * @param mailName
+         * @param state
+         * @param processTime in ms
+         * @param e or null if no {@link MessagingException} was thrown
+         */
+        public void afterMailet( Mailet m, String mailName, String state, long processTime, MessagingException e);
+        
+        /**
+         * Get called after each {@link Matcher} call was complete 
+
+         * @param m
+         * @param mailName
+         * @param recipients
+         * @param matches 
+         * @param processTime in ms
+         * @param e or null if no {@link MessagingException} was thrown
+         * 
+         */
+        public void afterMatcher( Matcher m,  String mailName, Collection<MailAddress> recipients, Collection<MailAddress> matches, long processTime, MessagingException e);
+        
     }
     
 
