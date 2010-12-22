@@ -33,7 +33,7 @@ import org.apache.camel.InOnly;
 import org.apache.camel.Property;
 import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
-import org.apache.james.mailetcontainer.lib.AbstractMailetProcessor.MailetProcessorListener;
+import org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor.MailetProcessorListener;
 import org.apache.james.mailetcontainer.lib.ProcessorUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;

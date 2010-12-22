@@ -32,21 +32,21 @@ import javax.management.ObjectName;
 
 import org.apache.james.lifecycle.api.Disposable;
 import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.james.mailetcontainer.lib.AbstractCompositeProcessor;
-import org.apache.james.mailetcontainer.lib.AbstractCompositeProcessor.CompositeProcessorListener;
+import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor;
+import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor.CompositeProcessorListener;
 
 /**
  * {@link CompositeProcessorListener} implementation which register MBeans for its child {@link MailProcessor} 
  * and keep track of the stats
  *
  */
-public class JMXCompositeMailProcessorListener implements CompositeProcessorListener, Disposable{
+public class JMXStateCompositeProcessorListener implements CompositeProcessorListener, Disposable{
 
-    private AbstractCompositeProcessor mList;
+    private AbstractStateCompositeProcessor mList;
     private MBeanServer mbeanserver;
     private List<ObjectName> mbeans = new ArrayList<ObjectName>();
     private Map<MailProcessor, MailProcessorManagement> mMap = new HashMap<MailProcessor, MailProcessorManagement>();
-    public JMXCompositeMailProcessorListener(AbstractCompositeProcessor mList) throws MalformedObjectNameException, JMException {
+    public JMXStateCompositeProcessorListener(AbstractStateCompositeProcessor mList) throws MalformedObjectNameException, JMException {
         this.mList = mList;
         
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
@@ -82,7 +82,7 @@ public class JMXCompositeMailProcessorListener implements CompositeProcessorList
        
         String baseObjectName = "org.apache.james:type=component,name=processor,";
 
-        String[] processorNames = mList.getProcessorNames();
+        String[] processorNames = mList.getProcessorStates();
         for (int i = 0; i < processorNames.length; i++) {
             String processorName = processorNames[i];
             registerProcessorMBean(baseObjectName, processorName);

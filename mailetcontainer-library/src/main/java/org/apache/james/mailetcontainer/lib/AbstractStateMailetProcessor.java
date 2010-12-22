@@ -39,7 +39,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
-import org.apache.james.mailetcontainer.lib.jmx.JMXMailetContainerListener;
+import org.apache.james.mailetcontainer.lib.jmx.JMXStateMailetProcessorListener;
 import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -55,18 +55,18 @@ import org.apache.mailet.base.MatcherInverter;
  * Abstract base class for {@link MailProcessor} implementations which want to process {@link Mail} via {@link Matcher} and {@link Mailet}
  *
  */
-public abstract class AbstractMailetProcessor implements MailProcessor, Configurable, LogEnabled{
+public abstract class AbstractStateMailetProcessor implements MailProcessor, Configurable, LogEnabled{
 
     private MailetContext mailetContext;
     private MatcherLoader matcherLoader;
     private List<MailetProcessorListener> listeners = Collections.synchronizedList(new ArrayList<MailetProcessorListener>());
-    private String processorName;
-    private JMXMailetContainerListener jmxListener;
+    private JMXStateMailetProcessorListener jmxListener;
     private boolean enableJmx = true;
     private Log logger;
     private HierarchicalConfiguration config;
     private MailetLoader mailetLoader;
     private List<MatcherMailetPair> pairs = new ArrayList<MatcherMailetPair>();
+    private String state;
 
     
     @Resource(name = "matcherloader")
@@ -99,9 +99,9 @@ public abstract class AbstractMailetProcessor implements MailProcessor, Configur
      * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        this.processorName = config.getString("[@name]", null);
-        if (processorName == null) throw new ConfigurationException("Processor name must be configured");
-        if (processorName.equals(Mail.GHOST)) throw new ConfigurationException("ProcessorName of " + Mail.GHOST + " is reserved for internal use, choose a different name");
+        this.state = config.getString("[@state]", null);
+        if (state == null) throw new ConfigurationException("Processor state attribute must be configured");
+        if (state.equals(Mail.GHOST)) throw new ConfigurationException("Processor state of " + Mail.GHOST + " is reserved for internal use, choose a different one");
 
         this.enableJmx = config.getBoolean("[@enableJmx]", true);
         this.config = config;
@@ -120,7 +120,7 @@ public abstract class AbstractMailetProcessor implements MailProcessor, Configur
         setupRouting(pairs);
         
         if (enableJmx) {
-            this.jmxListener = new JMXMailetContainerListener(processorName, this);
+            this.jmxListener = new JMXStateMailetProcessorListener(state, this);
             addListener(jmxListener);
         }
     }
@@ -158,8 +158,8 @@ public abstract class AbstractMailetProcessor implements MailProcessor, Configur
         return logger;
     }
     
-    protected String getName() {
-        return processorName;
+    protected String getState() {
+        return state;
     }
 
     /**
@@ -257,7 +257,7 @@ public abstract class AbstractMailetProcessor implements MailProcessor, Configur
      * @throws NotCompliantMBeanException
      */
     @SuppressWarnings("unchecked")
-    private List<Matcher> loadCompositeMatchers(String processorName, Map<String,Matcher> compMap, List<HierarchicalConfiguration> compMatcherConfs) throws ConfigurationException, MessagingException {
+    private List<Matcher> loadCompositeMatchers(String state, Map<String,Matcher> compMap, List<HierarchicalConfiguration> compMatcherConfs) throws ConfigurationException, MessagingException {
         List<Matcher> matchers = new ArrayList<Matcher>();
 
         for (int j= 0 ; j < compMatcherConfs.size(); j++) {
@@ -275,7 +275,7 @@ public abstract class AbstractMailetProcessor implements MailProcessor, Configur
                 if (matcher instanceof CompositeMatcher) {
                     CompositeMatcher compMatcher = (CompositeMatcher) matcher;
                     
-                    List<Matcher> childMatcher = loadCompositeMatchers(processorName, compMap,c.configurationsAt("matcher"));
+                    List<Matcher> childMatcher = loadCompositeMatchers(state, compMap,c.configurationsAt("matcher"));
                     for (int i = 0 ; i < childMatcher.size(); i++) {
                         compMatcher.add(childMatcher.get(i));
                     }
@@ -285,7 +285,7 @@ public abstract class AbstractMailetProcessor implements MailProcessor, Configur
                 if (m instanceof CompositeMatcher) {
                     CompositeMatcher compMatcher = (CompositeMatcher) m;
                     
-                    List<Matcher> childMatcher = loadCompositeMatchers(processorName, compMap,c.configurationsAt("matcher"));
+                    List<Matcher> childMatcher = loadCompositeMatchers(state, compMap,c.configurationsAt("matcher"));
                     for (int i = 0 ; i < childMatcher.size(); i++) {
                         compMatcher.add(childMatcher.get(i));
                     }
@@ -296,7 +296,7 @@ public abstract class AbstractMailetProcessor implements MailProcessor, Configur
             matchers.add(matcher);
             if (compName != null) {
                 // check if there is already a composite Matcher with the name registered in the processor
-                if (compMap.containsKey(compName)) throw new ConfigurationException("CompositeMatcher with name " + compName + " is already defined in processor " + processorName);
+                if (compMap.containsKey(compName)) throw new ConfigurationException("CompositeMatcher with name " + compName + " is already defined in processor " + state);
                 compMap.put(compName, matcher);
             }
         }
@@ -308,7 +308,7 @@ public abstract class AbstractMailetProcessor implements MailProcessor, Configur
         
         // load composite matchers if there are any
         Map<String,Matcher> compositeMatchers = new HashMap<String, Matcher>();
-        loadCompositeMatchers(getName(), compositeMatchers, config.configurationsAt("matcher"));
+        loadCompositeMatchers(getState(), compositeMatchers, config.configurationsAt("matcher"));
         
         
         final List<HierarchicalConfiguration> mailetConfs = config.configurationsAt("mailet");

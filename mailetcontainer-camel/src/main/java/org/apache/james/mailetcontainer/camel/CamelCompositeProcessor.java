@@ -28,7 +28,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
-import org.apache.james.mailetcontainer.lib.AbstractCompositeProcessor;
+import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor;
 import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
@@ -44,7 +44,7 @@ import org.apache.mailet.Matcher;
  * See JAMES-948 
  * 
  */
-public class CamelCompositeProcessor extends AbstractCompositeProcessor implements CamelContextAware{
+public class CamelCompositeProcessor extends AbstractStateCompositeProcessor implements CamelContextAware{
 
     private CamelContext camelContext;
     private MailetContext mailetContext;
@@ -113,19 +113,6 @@ public class CamelCompositeProcessor extends AbstractCompositeProcessor implemen
         container.configure(config);
         container.init();
         return container;
-    }
-
-    @Override
-    public void dispose() {
-        String names[] = getProcessorNames();
-        for (int i = 0; i < names.length; i++) {
-            MailProcessor processor = getProcessor(names[i]);
-            if (processor instanceof CamelMailetProcessor) {
-                ((CamelMailetProcessor) processor).destroy();
-            }
-
-        }
-        super.dispose();
     }
  
 

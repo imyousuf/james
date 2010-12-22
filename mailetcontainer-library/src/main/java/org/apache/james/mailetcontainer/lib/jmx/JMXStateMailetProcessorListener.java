@@ -33,8 +33,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.james.lifecycle.api.Disposable;
-import org.apache.james.mailetcontainer.lib.AbstractMailetProcessor;
-import org.apache.james.mailetcontainer.lib.AbstractMailetProcessor.MailetProcessorListener;
+import org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor;
+import org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor.MailetProcessorListener;
 import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
@@ -46,9 +46,9 @@ import org.apache.mailet.Matcher;
  * 
  *
  */
-public class JMXMailetContainerListener implements MailetProcessorListener, Disposable{
+public class JMXStateMailetProcessorListener implements MailetProcessorListener, Disposable{
 
-    private AbstractMailetProcessor processor;
+    private AbstractStateMailetProcessor processor;
     private MBeanServer mbeanserver;
     private List<ObjectName> mbeans = new ArrayList<ObjectName>();
     private Map<Mailet, MailetManagement> mailetMap = new HashMap<Mailet, MailetManagement>();
@@ -56,7 +56,7 @@ public class JMXMailetContainerListener implements MailetProcessorListener, Disp
 
     private String name;
 
-    public JMXMailetContainerListener(String name, AbstractMailetProcessor processor) throws MalformedObjectNameException, JMException {
+    public JMXStateMailetProcessorListener(String name, AbstractStateMailetProcessor processor) throws MalformedObjectNameException, JMException {
         this.processor = processor;
         this.name = name;
         

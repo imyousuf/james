@@ -36,8 +36,7 @@ import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.james.mailetcontainer.api.jmx.ProcessorManagementMBean;
-import org.apache.james.mailetcontainer.lib.jmx.JMXCompositeMailProcessorListener;
+import org.apache.james.mailetcontainer.lib.jmx.JMXStateCompositeProcessorListener;
 import org.apache.mailet.Mail;
 
 /**
@@ -45,14 +44,14 @@ import org.apache.mailet.Mail;
  * 
  *
  */
-public abstract class AbstractCompositeProcessor implements MailProcessor, Configurable, LogEnabled, ProcessorManagementMBean{
+public abstract class AbstractStateCompositeProcessor implements MailProcessor, Configurable, LogEnabled{
 
     private List<CompositeProcessorListener> listeners = Collections.synchronizedList(new ArrayList<CompositeProcessorListener>());
     private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
     protected Log logger;
     protected HierarchicalConfiguration config;
 
-    private JMXCompositeMailProcessorListener jmxListener;
+    private JMXStateCompositeProcessorListener jmxListener;
     private boolean enableJmx = true;
     
     /*
@@ -130,22 +129,19 @@ public abstract class AbstractCompositeProcessor implements MailProcessor, Confi
     }
 
     /**
-     * Return a {@link MailProcessor} for a given name
+     * Return a {@link MailProcessor} for a given state
      * 
      * @param name
      * @return processor
      */
-    public MailProcessor getProcessor(String name) {
-        return processors.get(name);
+    public MailProcessor getProcessor(String state) {
+        return processors.get(state);
     }
 
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailProcessorList#getProcessorNames()
-     */
-    public String[] getProcessorNames() {
+
+    public String[] getProcessorStates() {
         return processors.keySet().toArray(new String[processors.size()]);
     }
 
@@ -180,10 +176,10 @@ public abstract class AbstractCompositeProcessor implements MailProcessor, Confi
     @SuppressWarnings("unchecked")
     @PostConstruct
     public void init() throws Exception {
-        List<HierarchicalConfiguration> processorConfs = config.configurationsAt("state");
+        List<HierarchicalConfiguration> processorConfs = config.configurationsAt("processor");
         for (int i = 0; i < processorConfs.size(); i++) {
             final HierarchicalConfiguration processorConf = processorConfs.get(i);
-            String processorName = processorConf.getString("[@name]");
+            String processorName = processorConf.getString("[@state]");
             
             // if the "child" processor has no jmx config we just use the one of the composite
             if (processorConf.containsKey("[@enableJmx]") == false) {
@@ -194,7 +190,7 @@ public abstract class AbstractCompositeProcessor implements MailProcessor, Confi
         
         
         if (enableJmx) {
-            this.jmxListener = new JMXCompositeMailProcessorListener(this);
+            this.jmxListener = new JMXStateCompositeProcessorListener(this);
             addListener(jmxListener);
         }
         
@@ -204,7 +200,15 @@ public abstract class AbstractCompositeProcessor implements MailProcessor, Confi
     
     @PreDestroy
     public void dispose() {
+        String names[] = getProcessorStates();
+        for (int i = 0; i < names.length; i++) {
+            MailProcessor processor = getProcessor(names[i]);
+            if (processor instanceof AbstractStateMailetProcessor) {
+                ((AbstractStateMailetProcessor) processor).destroy();
+            }
 
+        }
+        
         if (jmxListener != null) {
             jmxListener.dispose();
         }
@@ -213,12 +217,12 @@ public abstract class AbstractCompositeProcessor implements MailProcessor, Confi
     /**
      * Create a new {@link MailProcessor} 
      * 
-     * @param name
+     * @param state
      * @param config
      * @return container
      * @throws Exception
      */
-    protected abstract MailProcessor createMailProcessor(String name, HierarchicalConfiguration config) throws Exception;
+    protected abstract MailProcessor createMailProcessor(String state, HierarchicalConfiguration config) throws Exception;
     
     
     /**

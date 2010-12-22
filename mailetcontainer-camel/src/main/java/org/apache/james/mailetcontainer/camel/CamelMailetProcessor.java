@@ -33,7 +33,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.processor.aggregate.UseLatestAggregationStrategy;
 import org.apache.commons.logging.Log;
-import org.apache.james.mailetcontainer.lib.AbstractMailetProcessor;
+import org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor;
 import org.apache.james.mailetcontainer.lib.MailetConfigImpl;
 import org.apache.james.mailetcontainer.lib.MatcherMailetPair;
 import org.apache.mailet.Mail;
@@ -43,10 +43,10 @@ import org.apache.mailet.Matcher;
 
 
 /**
- * {@link AbstractMailetProcessor} implementation which use Camel DSL for the {@link Matcher} / {@link Mailet} routing
+ * {@link AbstractStateMailetProcessor} implementation which use Camel DSL for the {@link Matcher} / {@link Mailet} routing
  *
  */
-public class CamelMailetProcessor extends AbstractMailetProcessor implements CamelContextAware{
+public class CamelMailetProcessor extends AbstractStateMailetProcessor implements CamelContextAware{
 
     private CamelContext context;
 
@@ -97,7 +97,7 @@ public class CamelMailetProcessor extends AbstractMailetProcessor implements Cam
      * @return endPoint
      */
     protected String getEndpoint() {
-        return "direct:processor." + getName();
+        return "direct:processor." + getState();
     }
     
     
@@ -140,10 +140,10 @@ public class CamelMailetProcessor extends AbstractMailetProcessor implements Cam
             Processor disposeProcessor = new DisposeProcessor();
             Processor removePropsProcessor = new RemovePropertiesProcessor();
             Processor completeProcessor = new CompleteProcessor();
-            String name = getName();
+            String state = getState();
             Log logger = getLogger();
 
-            RouteDefinition processorDef = from(getEndpoint()).routeId(name).inOnly()
+            RouteDefinition processorDef = from(getEndpoint()).routeId(state).inOnly()
             // store the logger in properties
             .setProperty(MatcherSplitter.LOGGER_PROPERTY, constant(getLogger()));
             
@@ -171,7 +171,7 @@ public class CamelMailetProcessor extends AbstractMailetProcessor implements Cam
                     
                     .choice().when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop().otherwise().process(removePropsProcessor).end()
 
-                    .choice().when(new MailStateNotEquals(name)).process(completeProcessor).stop().end();
+                    .choice().when(new MailStateNotEquals(state)).process(completeProcessor).stop().end();
             }
                 
           
@@ -187,7 +187,7 @@ public class CamelMailetProcessor extends AbstractMailetProcessor implements Cam
              
                 // when the mail state did not change till yet ( the end of the route) we need to call the TerminatingMailet to
                 // make sure we don't fall into a endless loop
-                .when(new MailStateEquals(name)).process(terminatingMailetProcessor).stop()
+                .when(new MailStateEquals(state)).process(terminatingMailetProcessor).stop()
                 
                    
                 // dispose when needed
@@ -214,7 +214,7 @@ public class CamelMailetProcessor extends AbstractMailetProcessor implements Cam
         private final class CompleteProcessor implements Processor {
             
             public void process(Exchange ex) throws Exception {
-                getLogger().debug("End of mailetcontainer" + getName() + " reached");
+                getLogger().debug("End of mailetcontainer" + getState() + " reached");
                 ex.setProperty(Exchange.ROUTE_STOP, true);
             }
         }

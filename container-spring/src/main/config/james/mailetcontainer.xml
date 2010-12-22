@@ -30,8 +30,8 @@
     <threads> 20 </threads>
   </spooler>
     
-  <states>
-    <state name="root" enableJmx="true">
+  <processors>
+    <processor state="root" enableJmx="true">
       <mailet match="All" class="PostmasterAlias"/>
       <mailet match="RelayLimit=30" class="Null"/>
       <mailet match="SMTPAuthSuccessful" class="ToProcessor">
@@ -44,9 +44,9 @@
        <mailet match="All" class="ToProcessor">
         <processor>transport</processor>
        </mailet>
-     </state>
+     </processor>
 
-    <state name="transport" enableJmx="true">
+    <processor state="transport" enableJmx="true">
       <mailet match="SMTPAuthSuccessful" class="SetMimeHeader">
         <name>X-UserIsAuth</name>
         <value>true</value>
@@ -73,36 +73,36 @@
         <sendpartial>true</sendpartial>
         <bounceProcessor>bounces</bounceProcessor>
       </mailet>
-    </state>
+    </processor>
 
-    <state name="error" enableJmx="true">
+    <processor state="error" enableJmx="true">
       <mailet match="All" class="ToRepository">
         <repositoryPath>file://var/mail/error/</repositoryPath>
       </mailet>
-    </state>
+    </processor>
 
-    <state name="spam" enableJmx="true">
+    <processor state="spam" enableJmx="true">
       <mailet match="All" class="ToRepository">
         <repositoryPath>file://var/mail/spam/</repositoryPath>
       </mailet>
-    </state>
+    </processor>
 
-    <state name="local-address-error" enableJmx="true">
+    <processor state="local-address-error" enableJmx="true">
       <mailet match="All" class="ToRepository">
         <repositoryPath>file://var/mail/address-error/</repositoryPath>
       </mailet>
-    </state>
+    </processor>
 
-    <state name="relay-denied" enableJmx="true">
+    <processor state="relay-denied" enableJmx="true">
       <mailet match="All" class="ToRepository">
         <repositoryPath>file://var/mail/relay-denied/</repositoryPath>
       </mailet>
-    </state>
+    </processor>
 
-    <state name="bounces" enableJmx="true">
+    <processor state="bounces" enableJmx="true">
       <mailet match="All" class="DSNBounce">
         <passThrough>false</passThrough>
       </mailet>
-    </state>
-  </states>
+    </processor>
+  </processors>
 </mailetcontainer>

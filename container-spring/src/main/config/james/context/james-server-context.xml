@@ -101,7 +101,7 @@
     <bean id="configurationProvider" class="org.apache.james.container.spring.provider.configuration.ConfigurationProviderImpl">
         <property name="configurationMappings">
             <map>
-                <entry key="mailprocessor" value="mailetcontainer.states"/>
+                <entry key="mailprocessor" value="mailetcontainer.processors"/>
                 <entry key="mailspooler" value="mailetcontainer.spooler"/>
                 <entry key="mailetcontext" value="mailetcontainer.context"/>
              </map>
