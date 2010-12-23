@@ -264,7 +264,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
 
     
     @Override
-    protected List<Message> removeWithSelector(String selector) throws MailQueueException{
+    public List<Message> removeWithSelector(String selector) throws MailQueueException{
         List<Message> mList = super.removeWithSelector(selector);
         
         // Handle the blob messages

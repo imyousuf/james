@@ -626,12 +626,12 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
     }
     
     /**
-     * Remove a message with the fiven selector
+     * Remove messages with the given selector
      * 
      * @param selector
-     * @return count
+     * @return messages
      */
-    protected List<Message> removeWithSelector(String selector) throws MailQueueException{
+    public List<Message> removeWithSelector(String selector) throws MailQueueException{
         Connection connection = null;
         Session session = null;
         Message message = null;
