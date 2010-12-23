@@ -46,4 +46,52 @@ public class ExtraDotInputStreamTest extends TestCase{
         assertEquals(expectedOutput, output);
         
     }
+    
+    public void testNoDotCLRF() throws IOException {
+        String data = "ABCD\r\n";
+        ExtraDotInputStream in = new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes()));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        
+        int i = -1;
+        while((i = in.read()) != -1) {
+            out.write(i);
+        }
+        in.close();
+        out.close();
+        
+        String output = new String(out.toByteArray());
+        assertEquals(data, output);
+    }
+    
+    public void testNoDot() throws IOException {
+        String data = "ABCD";
+        ExtraDotInputStream in = new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes()));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        
+        int i = -1;
+        while((i = in.read()) != -1) {
+            out.write(i);
+        }
+        in.close();
+        out.close();
+        
+        String output = new String(out.toByteArray());
+        assertEquals(data, output);
+    }
+    // Proof of BUG JAMES-1152
+    public void testNoDotHeaderBody() throws IOException {
+        String data = "Subject: test\r\n\r\nABCD\r\n";
+        ExtraDotInputStream in = new ExtraDotInputStream(new ByteArrayInputStream(data.getBytes()));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        
+        int i = -1;
+        while((i = in.read()) != -1) {
+            out.write(i);
+        }
+        in.close();
+        out.close();
+        
+        String output = new String(out.toByteArray());
+        assertEquals(data, output);
+    }
 }
