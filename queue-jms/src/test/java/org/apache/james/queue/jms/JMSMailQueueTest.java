@@ -35,6 +35,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
+import org.apache.james.queue.api.ManageableMailQueue;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -126,7 +127,87 @@ public class JMSMailQueueTest extends TestCase{
         assertEquals(0, queue.getSize());
     }
     
-    private Mail createMail() throws MessagingException {
+    public void testRemoveWithRecipient() throws MessagingException, InterruptedException {
+        assertEquals(0, queue.getSize());
+
+        Mail mail = createMail();
+        mail.setRecipients(Arrays.asList(new MailAddress("remove@me1")));
+
+        Mail mail2 =createMail();
+        mail2.setRecipients(Arrays.asList(new MailAddress("remove@me2")));
+        
+
+        queue.enQueue(mail);
+        queue.enQueue(mail2);
+        
+        Thread.sleep(200);
+        
+        assertEquals(2, queue.getSize());
+        assertEquals(1,queue.remove(ManageableMailQueue.Type.Recipient, "remove@me1"));
+        
+        Thread.sleep(200);
+        assertEquals(1, queue.getSize());
+        
+        assertEquals(1,queue.remove(ManageableMailQueue.Type.Recipient, "remove@me2"));
+        assertEquals(0, queue.getSize());
+
+
+    }
+    public void testRemoveWithSender() throws MessagingException, InterruptedException {
+        assertEquals(0, queue.getSize());
+
+        MailImpl mail = createMail();
+        mail.setSender(new MailAddress("remove@me1"));
+
+        MailImpl mail2 =createMail();
+        mail2.setSender(new MailAddress("remove@me2"));
+        
+
+        queue.enQueue(mail);
+        queue.enQueue(mail2);
+        
+        Thread.sleep(200);
+        
+        assertEquals(2, queue.getSize());
+        assertEquals(1,queue.remove(ManageableMailQueue.Type.Sender, "remove@me1"));
+        
+        Thread.sleep(200);
+        assertEquals(1, queue.getSize());
+        
+        assertEquals(1,queue.remove(ManageableMailQueue.Type.Sender, "remove@me2"));
+        assertEquals(0, queue.getSize());
+
+
+    }
+     
+    public void testRemoveWithName() throws MessagingException, InterruptedException {
+        assertEquals(0, queue.getSize());
+
+        MailImpl mail = createMail();
+        mail.setName("remove@me1");
+
+        MailImpl mail2 =createMail();
+        mail2.setName("remove@me2");
+        
+
+        queue.enQueue(mail);
+        queue.enQueue(mail2);
+        
+        Thread.sleep(200);
+        
+        assertEquals(2, queue.getSize());
+        assertEquals(1,queue.remove(ManageableMailQueue.Type.Name, "remove@me1"));
+        
+        Thread.sleep(200);
+        assertEquals(1, queue.getSize());
+        
+        assertEquals(1,queue.remove(ManageableMailQueue.Type.Name, "remove@me2"));
+        assertEquals(0, queue.getSize());
+
+
+    }
+    
+    private MailImpl createMail() throws MessagingException {
         MailImpl mail = new MailImpl();
         mail.setName("" + System.currentTimeMillis());
         mail.setAttribute("test1", System.currentTimeMillis());
