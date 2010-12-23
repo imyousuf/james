@@ -38,6 +38,8 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
     private AtomicLong successCount = new AtomicLong(0);
     private AtomicLong fastestProcessing = new AtomicLong(-1);
     private AtomicLong slowestProcessing = new AtomicLong(-1);
+    private AtomicLong lastProcessing = new AtomicLong(-1);
+
 
         
     public MailProcessorManagement(String processorName) throws NotCompliantMBeanException {
@@ -45,9 +47,12 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
         this.processorName = processorName;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.api.MailProcessor#service(org.apache.mailet.Mail)
+
+    /**
+     * Update the stats
+     * 
+     * @param processTime
+     * @param success
      */
     public void update(long processTime, boolean success) {
         long fastest = fastestProcessing.get();
@@ -65,6 +70,9 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
         } else {
             errorCount.incrementAndGet();
         }
+        
+        lastProcessing.set(processTime);
+
        
      }
     
@@ -117,6 +125,14 @@ public class MailProcessorManagement extends StandardMBean implements MailProces
      */
     public long getSuccessCount() {
         return successCount.get();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getLastProcessing()
+     */
+    public long getLastProcessing() {
+        return lastProcessing.get();
     }
 
 }

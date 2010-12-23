@@ -57,7 +57,7 @@ import org.apache.mailet.base.MatcherInverter;
  */
 public abstract class AbstractStateMailetProcessor implements MailProcessor, Configurable, LogEnabled{
 
-    protected MailetContext mailetContext;
+    private MailetContext mailetContext;
     private MatcherLoader matcherLoader;
     private List<MailetProcessorListener> listeners = Collections.synchronizedList(new ArrayList<MailetProcessorListener>());
     private JMXStateMailetProcessorListener jmxListener;
@@ -153,6 +153,15 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
         }
     }
     
+    /**
+     * Hand the mail over to another processor
+     * 
+     * @param mail
+     * @throws MessagingException
+     */
+    protected void toProcessor(Mail mail) throws MessagingException{
+        mailetContext.sendMail(mail);
+    }
     
     protected Log getLogger() {
         return logger;

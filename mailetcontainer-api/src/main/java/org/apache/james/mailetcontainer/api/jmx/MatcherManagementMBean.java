@@ -22,14 +22,34 @@ package org.apache.james.mailetcontainer.api.jmx;
 /**
  * management interface for one Matcher instance
  */
-public interface MatcherManagementMBean extends MailProcessingMBean{
+public interface MatcherManagementMBean extends MailProcessorManagementMBean{
     
+    /**
+     * Return the name of the Matcher
+     * 
+     * @return name
+     */
     public String getMatcherName();
     
+    /**
+     * Return the matcher condition
+     * 
+     * @return condition
+     */
     public String getMatcherCondition();
     
-    public long getMatchedRecipientCount();
+    /**
+     * Return the count of how many times the Matcher matched
+     * 
+     * @return matched
+     */
+    public long getMatchedCount();
     
-    public long getNotMatchedRecipientCount();
+    /**
+     * Return the count of how many times the Matcher not matches
+     * 
+     * @return notmatched
+     */
+    public long getNotMatchedCount();
 
 }

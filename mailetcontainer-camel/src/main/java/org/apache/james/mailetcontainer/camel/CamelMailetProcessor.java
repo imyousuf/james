@@ -225,7 +225,7 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
 
             public void process(Exchange arg0) throws Exception {
                 Mail mail = arg0.getIn().getBody(Mail.class);
-                mailetContext.sendMail(mail);
+                toProcessor(mail);
                 
             }
             

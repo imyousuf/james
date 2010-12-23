@@ -16,17 +16,56 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
+
 package org.apache.james.mailetcontainer.api.jmx;
 
-
-
 /**
- * MBean for one processor instance
+ *
+ * MBean for Mail processing components
+ *
  */
-public interface MailProcessorManagementMBean extends MailProcessingMBean{
+public interface MailProcessorManagementMBean {
 
-    public String getName();
+    /**
+     * Return the count of handled mail 
+     * 
+     * @return handledCount
+     */
+    public long getHandledMailCount();
     
-
-
+    /**
+     * Return the time in ms of the fastest processing
+     * 
+     * @return fastest
+     */
+    public long getFastestProcessing();
+   
+    /**
+     * Return the time in ms of the slowest processing
+     * 
+     * @return slowest
+     */
+    public long getSlowestProcessing();
+  
+    /**
+     * Return the count of how many time the processing was done without and error
+     * 
+     * @return successCount
+     */
+    public long getSuccessCount();
+   
+    /**
+     * Return the count of how many times an error was detected while processing
+     * 
+     * @return errorCount
+     */
+    public long getErrorCount();
+    
+    /**
+     * Return the time in ms of the last processing
+     * 
+     * @return last
+     */
+    public long getLastProcessing();
+    
 }

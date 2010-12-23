@@ -35,6 +35,8 @@ public final class MailetManagement extends StandardMBean implements MailetManag
     private AtomicLong successCount = new AtomicLong(0);
     private AtomicLong fastestProcessing = new AtomicLong(-1);
     private AtomicLong slowestProcessing = new AtomicLong(-1);
+    private AtomicLong lastProcessing = new AtomicLong(-1);
+
     private final MailetConfig config;
     
     public MailetManagement(MailetConfig config) throws NotCompliantMBeanException {
@@ -59,17 +61,20 @@ public final class MailetManagement extends StandardMBean implements MailetManag
         } else {
             errorCount.incrementAndGet();
         }
+        lastProcessing.set(processTime);
     } 
+    
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailetManagementMBean#getMailetName()
+     * @see org.apache.james.mailetcontainer.api.jmx.MailetManagementMBean#getMailetName()
      */
     public String getMailetName() {
         return config.getMailetName();
     }
 
     /*
-     * 
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.api.jmx.MailetManagementMBean#getMailetParameters()
      */
     @SuppressWarnings("unchecked")
     public String[] getMailetParameters() {
@@ -84,25 +89,28 @@ public final class MailetManagement extends StandardMBean implements MailetManag
         return result;
     }
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailetManagementMBean#getErrorCount()
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getErrorCount()
      */
     public long getErrorCount() {
         return errorCount.get();
     }
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailetManagementMBean#getFastestProcessing()
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getFastestProcessing()
      */
     public long getFastestProcessing() {
         return fastestProcessing.get();
     }
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailetManagementMBean#getHandledMailCount()
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getHandledMailCount()
      */
     public long getHandledMailCount() {
         return getErrorCount() + getSuccessCount();
@@ -110,7 +118,7 @@ public final class MailetManagement extends StandardMBean implements MailetManag
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.mailetcontainer.MailetManagementMBean#getSlowestProcessing()
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getSlowestProcessing()
      */
     public long getSlowestProcessing() {
         return slowestProcessing.get();
@@ -122,6 +130,15 @@ public final class MailetManagement extends StandardMBean implements MailetManag
      */
     public long getSuccessCount() {
         return successCount.get();
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.mailetcontainer.api.jmx.MailProcessingMBean#getLastProcessing()
+     */
+    public long getLastProcessing() {
+        return lastProcessing.get();
     }
 
 }
