@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.ConnectionFactory;
 import javax.mail.MessagingException;
@@ -125,6 +126,86 @@ public class JMSMailQueueTest extends TestCase{
 
         // should be empty
         assertEquals(0, queue.getSize());
+    }
+    
+    public void testDelayedDeQueue() throws MessagingException, InterruptedException, IOException {
+        // should be empty
+        assertEquals(0, queue.getSize());
+        
+        Mail mail = createMail();
+        Mail mail2 = createMail();
+
+        long enqueueTime = System.currentTimeMillis();
+        queue.enQueue(mail, 3, TimeUnit.SECONDS);
+        queue.enQueue(mail2);
+        
+        Thread.sleep(200);
+        
+        assertEquals(2, queue.getSize());
+        
+   
+        // as we enqueued the mail with delay we should get mail2 first
+        MailQueueItem item = queue.deQueue();
+        checkMail(mail2, item.getMail());
+        item.done(true);
+
+        Thread.sleep(200);
+
+        
+        
+        assertEquals(1, queue.getSize());
+        MailQueueItem item2 = queue.deQueue();
+        long dequeueTime = System.currentTimeMillis() - enqueueTime;
+        checkMail(mail, item2.getMail());
+        item2.done(true);
+        assertTrue(dequeueTime >= 2000);
+        Thread.sleep(200);
+
+        // should be empty
+        assertEquals(0, queue.getSize());
+    }
+    
+    public void testFlush() throws MessagingException, InterruptedException, IOException {
+        // should be empty
+        assertEquals(0, queue.getSize());
+        
+        final Mail mail = createMail();
+
+        
+        long enqueueTime = System.currentTimeMillis();
+        queue.enQueue(mail, 30, TimeUnit.SECONDS);
+        
+        Thread.sleep(200);
+        
+        assertEquals(1, queue.getSize());
+        
+        Thread flushThread = new Thread(new Runnable() {
+            
+            public void run() {
+                try {
+                    // wait for 2 seconds then flush the queue
+                    Thread.sleep(4000);
+                    assertEquals(1, queue.flush());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                
+            }
+        });
+        flushThread.start();
+
+        // this will block until flush is called
+        MailQueueItem item = queue.deQueue();
+        checkMail(mail, item.getMail());
+        item.done(true);
+        
+        long dequeueTime = System.currentTimeMillis() - enqueueTime;
+
+        
+        assertEquals(0, queue.getSize());
+        
+        // check if the flush kicked in
+        assertTrue(dequeueTime < 30 * 1000);
     }
     
     public void testRemoveWithRecipient() throws MessagingException, InterruptedException {
