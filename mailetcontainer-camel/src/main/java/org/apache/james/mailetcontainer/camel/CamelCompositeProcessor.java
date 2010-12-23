@@ -29,19 +29,14 @@ import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
 import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor;
-import org.apache.james.mailetcontainer.lib.matchers.CompositeMatcher;
 import org.apache.mailet.Mail;
-import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetContext;
-import org.apache.mailet.Matcher;
 
 /**
  * Build up the Camel Routes by parsing the mailetcontainer.xml configuration file. 
  * 
- * It also offer the {@link CompositeProcessor} implementation which allow to inject {@link Mail} into the routes.
+ * It also offer the {@link AbstractStateCompositeProcessor} implementation which allow to inject {@link Mail} into the routes.
  *
- * Beside the basic {@link Mailet} / {@link Matcher} support this implementation also supports {@link CompositeMatcher} implementations.
- * See JAMES-948 
  * 
  */
 public class CamelCompositeProcessor extends AbstractStateCompositeProcessor implements CamelContextAware{
@@ -104,15 +99,21 @@ public class CamelCompositeProcessor extends AbstractStateCompositeProcessor imp
      * @see org.apache.james.mailetcontainer.lib.AbstractCompositeMailProcessor#createMailProcessor(java.lang.String, org.apache.commons.configuration.HierarchicalConfiguration)
      */
     protected MailProcessor createMailProcessor(String name, HierarchicalConfiguration config) throws Exception{
-        CamelMailetProcessor container = new CamelMailetProcessor();
-        container.setLog(logger);
-        container.setCamelContext(camelContext);
-        container.setMailetContext(mailetContext);
-        container.setMailetLoader(mailetLoader);
-        container.setMatcherLoader(matcherLoader);
-        container.configure(config);
-        container.init();
-        return container;
+        CamelMailetProcessor processor = new CamelMailetProcessor();
+        try {
+            processor.setLog(logger);
+            processor.setCamelContext(camelContext);
+            processor.setMailetContext(mailetContext);
+            processor.setMailetLoader(mailetLoader);
+            processor.setMatcherLoader(matcherLoader);
+            processor.configure(config);
+            processor.init();
+            return processor;
+        } catch (Exception e) {
+            processor.destroy();
+            
+            throw e;
+        }
     }
  
 

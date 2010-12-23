@@ -57,7 +57,7 @@ import org.apache.mailet.base.MatcherInverter;
  */
 public abstract class AbstractStateMailetProcessor implements MailProcessor, Configurable, LogEnabled{
 
-    private MailetContext mailetContext;
+    protected MailetContext mailetContext;
     private MatcherLoader matcherLoader;
     private List<MailetProcessorListener> listeners = Collections.synchronizedList(new ArrayList<MailetProcessorListener>());
     private JMXStateMailetProcessorListener jmxListener;

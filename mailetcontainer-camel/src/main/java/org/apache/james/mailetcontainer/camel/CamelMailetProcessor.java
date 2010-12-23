@@ -140,6 +140,8 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
             Processor disposeProcessor = new DisposeProcessor();
             Processor removePropsProcessor = new RemovePropertiesProcessor();
             Processor completeProcessor = new CompleteProcessor();
+            Processor stateChangedProcessor = new StateChangedProcessor();
+            
             String state = getState();
             Log logger = getLogger();
 
@@ -171,7 +173,7 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
                     
                     .choice().when(new MailStateEquals(Mail.GHOST)).process(disposeProcessor).stop().otherwise().process(removePropsProcessor).end()
 
-                    .choice().when(new MailStateNotEquals(state)).process(completeProcessor).stop().end();
+                    .choice().when(new MailStateNotEquals(state)).process(stateChangedProcessor).process(completeProcessor).stop().end();
             }
                 
           
@@ -217,6 +219,16 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
                 getLogger().debug("End of mailetcontainer" + getState() + " reached");
                 ex.setProperty(Exchange.ROUTE_STOP, true);
             }
+        }
+        
+        private final class StateChangedProcessor implements Processor {
+
+            public void process(Exchange arg0) throws Exception {
+                Mail mail = arg0.getIn().getBody(Mail.class);
+                mailetContext.sendMail(mail);
+                
+            }
+            
         }
         
     }
