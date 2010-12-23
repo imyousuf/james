@@ -333,7 +333,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
             msg.setJMSReplyTo(replyTo);
             producer.send(query, msg);
             MapMessage reply = (MapMessage) consumer.receive(2000);
-            if (reply.itemExists("size")) {
+            if (reply != null && reply.itemExists("size")) {
                 try {
                     size = reply.getLong("size");
                     return size;

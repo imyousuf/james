@@ -60,5 +60,16 @@
        <groupId>org.apache.geronimo.specs</groupId>
        <artifactId>geronimo-annotation_1.0_spec</artifactId>
     </dependency>
+    
+    <!-- test dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-core</artifactId>
+    </dependency>
   </dependencies>
 </project>
