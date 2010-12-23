@@ -44,7 +44,7 @@ import org.apache.mailet.MailAddress;
 import junit.framework.TestCase;
 
 public class JMSMailQueueTest extends TestCase{
-    private JMSMailQueue queue;
+    protected JMSMailQueue queue;
     private BrokerService broker;
     
     public void setUp() throws Exception{
@@ -288,7 +288,7 @@ public class JMSMailQueueTest extends TestCase{
 
     }
     
-    private MailImpl createMail() throws MessagingException {
+    protected MailImpl createMail() throws MessagingException {
         MailImpl mail = new MailImpl();
         mail.setName("" + System.currentTimeMillis());
         mail.setAttribute("test1", System.currentTimeMillis());
@@ -306,7 +306,7 @@ public class JMSMailQueueTest extends TestCase{
 
     }
     @SuppressWarnings("unchecked")
-    private void checkMail(Mail enqueuedMail, Mail dequeuedMail) throws MessagingException, IOException {
+    protected void checkMail(Mail enqueuedMail, Mail dequeuedMail) throws MessagingException, IOException {
         assertEquals(enqueuedMail.getErrorMessage(), dequeuedMail.getErrorMessage());
         assertEquals(enqueuedMail.getMessageSize(), dequeuedMail.getMessageSize());
         assertEquals(enqueuedMail.getName(), dequeuedMail.getName());
