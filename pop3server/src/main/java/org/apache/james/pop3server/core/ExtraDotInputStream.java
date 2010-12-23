@@ -70,7 +70,19 @@ public class ExtraDotInputStream extends FilterInputStream{
         
         if (startLine) {
             int i = 0;
-            while (i < 3) {
+            // check if we still have something in the buffer
+            // if so we need to copy it so we don't lose data
+            
+            // See JAMES-1152
+            if (pos != -1 && pos != 0) {
+                byte[] tmpBuf = new byte[3];
+                while(pos < buf.length) {
+                    tmpBuf[i++] = buf[pos++];
+                }
+                
+                buf = tmpBuf;
+            }
+            while (i < buf.length) {
                 buf[i++] = (byte) in.read();
             }
             if (buf[0] == '.' && buf[1] == '\r' && buf[2] ==  '\n') {
