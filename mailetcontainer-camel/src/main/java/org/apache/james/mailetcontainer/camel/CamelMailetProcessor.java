@@ -216,7 +216,7 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
         private final class CompleteProcessor implements Processor {
             
             public void process(Exchange ex) throws Exception {
-                getLogger().debug("End of mailetcontainer" + getState() + " reached");
+                getLogger().debug("End of mailetprocessor for state " + getState() + " reached");
                 ex.setProperty(Exchange.ROUTE_STOP, true);
             }
         }
