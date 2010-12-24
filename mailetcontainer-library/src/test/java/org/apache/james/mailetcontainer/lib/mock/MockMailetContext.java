@@ -38,6 +38,7 @@ import org.apache.mailet.MailetContext;
 public class MockMailetContext implements MailetContext{
 
     private Map<String, Object> attributes = new HashMap<String, Object>();
+    private List<Mail> mails = new ArrayList<Mail>();
     
     public void bounce(Mail arg0, String arg1) throws MessagingException {
         throw new UnsupportedOperationException("Not implemented");
@@ -134,9 +135,8 @@ public class MockMailetContext implements MailetContext{
         
     }
 
-    public void sendMail(Mail arg0) throws MessagingException {
-        throw new UnsupportedOperationException("Not implemented");
-        
+    public void sendMail(Mail mail) throws MessagingException {
+        mails.add(mail);        
     }
 
     public void sendMail(MailAddress arg0, Collection arg1, MimeMessage arg2) throws MessagingException {
@@ -157,4 +157,7 @@ public class MockMailetContext implements MailetContext{
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    public List<Mail> getSentMails() {
+        return mails;
+    }
 }

@@ -105,13 +105,17 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
             try {
                 processor.service(mail);
                 
+                if (Mail.GHOST.equals(mail.getState())) {
+                    LifecycleUtil.dispose(mail);
+                }
+                /*
                 // check the mail needs further processing
                 if (Mail.GHOST.equalsIgnoreCase(mail.getState()) == false) {
                     service(mail);
                 } else {
                     LifecycleUtil.dispose(mail);
                 }
-                
+*/                
             } catch (MessagingException e) {
                 ex = e;
                 throw e;

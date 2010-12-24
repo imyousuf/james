@@ -20,13 +20,11 @@ package org.apache.james.mailetcontainer.lib;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.MessagingException;
+
+import junit.framework.TestCase;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
@@ -37,32 +35,21 @@ import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.lib.mock.MockMailProcessor;
 import org.apache.mailet.Mail;
 
-import junit.framework.TestCase;
-
 public abstract class AbstractStateCompositeProcessorTest extends TestCase{
 
     
     public void testChooseRightProcessor() throws Exception {
-
-        Map<String,String> configMap = new HashMap<String, String>();
-        configMap.put("root", "test");
-        configMap.put("test", "invalid");
-        configMap.put("error", "invalid");
-        
-        final AtomicInteger count = new AtomicInteger(0);
         AbstractStateCompositeProcessor processor = new AbstractStateCompositeProcessor() {
             
             @Override
             protected MailProcessor createMailProcessor(final String state, HierarchicalConfiguration config) throws Exception {
-                String newstate = config.getString("[@newstate]");
-                return new MockMailProcessor(newstate) {
+                return new MockMailProcessor("") {
 
                     @Override
                     public void service(Mail mail) throws MessagingException {
                         // check if the right processor was selected depending on the state
                         assertEquals(state, mail.getState());
                         super.service(mail);
-                        count.incrementAndGet();
                     }
                     
                 };
@@ -71,15 +58,32 @@ public abstract class AbstractStateCompositeProcessorTest extends TestCase{
         SimpleLog log = new SimpleLog("MockLog");
         log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         processor.setLog(log);
-        processor.configure(createMockConfig(configMap));
+        processor.configure(createConfig(Arrays.asList("root","error","test")));
         processor.init();
         
         try {
-            processor.service(new MailImpl());
-            fail("Should have failed because of an not configured processor");
-        } catch (MessagingException ex) {
-            // we should have gone throw 2 processors
-            assertEquals(2, count.get());
+            Mail mail1 = new MailImpl();
+            mail1.setState(Mail.DEFAULT);
+            Mail mail2 = new MailImpl();
+            mail2.setState(Mail.ERROR);
+
+            Mail mail3 = new MailImpl();
+            mail3.setState("test");
+
+            Mail mail4 = new MailImpl();
+            mail4.setState("invalid");
+            
+            processor.service(mail1);
+            processor.service(mail2);
+            processor.service(mail3);
+            
+            try {
+                processor.service(mail4);
+                fail("should fail because of no mapping to a processor for this state");
+            } catch (MessagingException e) {
+                
+            }
+            
         } finally {
             processor.dispose();
         }
@@ -152,25 +156,4 @@ public abstract class AbstractStateCompositeProcessorTest extends TestCase{
         return builder;
     }
     
-    private HierarchicalConfiguration createMockConfig(Map<String,String> states) throws ConfigurationException {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("<?xml version=\"1.0\"?>");
-        sb.append("<processors>");
-        Iterator<String> keys = states.keySet().iterator();
-        while(keys.hasNext()) {
-            String state = keys.next();
-            String newstate = states.get(state);
-            sb.append("<processor state=\"");
-            sb.append(state);
-            sb.append("\" newstate=\"");
-            sb.append(newstate);
-            sb.append("\"/>");
-        }
-        sb.append("</processors>");
-
-        DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
-        builder.load(new ByteArrayInputStream(sb.toString().getBytes()));
-        return builder;
-    }
 }
