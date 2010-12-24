@@ -215,13 +215,13 @@ public class ValidRcptHandlerTest extends TestCase {
         assertEquals("Rejected",rCode,HookReturnCode.DENY);
     }
     
-    public void testNotRejectInvalidUserRelay() throws Exception {
+    public void testRejectInvalidUserRelay() throws Exception {
         MailAddress mailAddress = new MailAddress(INVALID_USER + "@localhost");
         SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,true);
 
         int rCode = handler.doRcpt(session, null, mailAddress).getResult();
         
-        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
+        assertEquals("Rejected",rCode,HookReturnCode.DENY);
     }
     
     public void testNotRejectValidUser() throws Exception {

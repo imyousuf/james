@@ -97,12 +97,6 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
     @Override
     protected boolean isValidRecipient(SMTPSession session, MailAddress recipient) {
 
-        if (domains.containsDomain(recipient.getDomain()) == false) {
-            session.getLogger().debug("Unknown domain " + recipient.getDomain() + " so reject it");
-
-            return false;
-        }
-
         String username = recipient.toString();
 
         // check if the server use virtualhosting, if not use only the localpart
@@ -131,5 +125,13 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
 
             return false;
         }
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler#isLocalDomain(org.apache.james.protocols.smtp.SMTPSession, java.lang.String)
+     */
+    protected boolean isLocalDomain(SMTPSession session, String domain) {
+        return domains.containsDomain(domain);
     }
 }
