@@ -41,6 +41,7 @@ import javax.mail.util.SharedByteArrayInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.james.lifecycle.api.Disposable;
 import org.apache.james.lifecycle.api.LifecycleUtil;
+import org.apache.james.util.stream.CombinedInputStream;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
@@ -570,6 +571,7 @@ public class MimeMessageWrapper
      * @throws MessagingException
      */
     
+    @SuppressWarnings("unchecked")
     public synchronized InputStream getMessageInputStream() throws MessagingException{
         if (!messageParsed && !isModified() && source != null) {
             try {
@@ -578,13 +580,22 @@ public class MimeMessageWrapper
                 throw new MessagingException("Unable to get inputstream", e);
             }
         } else {
-            
-            //TODO: Optimise me...
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
-                writeTo(out);
-                return new ByteArrayInputStream(out.toByteArray());
 
+                if (!bodyModified && headersModified && source != null) {
+                    // ok only the headers were modified so we don't need to copy the whole message content into memory 
+                    InputStream in = source.getInputStream();
+                    // skip over headers from original stream we want to use the in memory ones
+                    new MailHeaders(in);
+                
+                    // now construct the new stream using the in memory headers and the body from the original source
+                    return new CombinedInputStream(new InputStream[]{new InternetHeadersInputStream(getAllHeaderLines()), in});
+                } else {
+                    // the body was changed so we have no other solution to copy it into memory first :(
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    writeTo(out);
+                    return new ByteArrayInputStream(out.toByteArray());
+                }
             } catch (IOException e) {
                 throw new MessagingException("Unable to get inputstream", e);
             }
