@@ -45,9 +45,7 @@ public class MimeMessageInputStream extends InputStream {
      */
     public MimeMessageInputStream(MimeMessage message, boolean tryCast) throws MessagingException {
         MimeMessage m = message;
-       
-        m.saveChanges();
-        
+               
         // check if we need to use the wrapped message
         if (tryCast && m instanceof MimeMessageCopyOnWriteProxy) {
             m = ((MimeMessageCopyOnWriteProxy) m).getWrappedMessage();
