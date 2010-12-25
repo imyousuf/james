@@ -23,12 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.jms.ConnectionFactory;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.filesystem.api.FileSystem;
-import org.apache.james.queue.jms.JMSMailQueue;
 
 public class ActiveMQMailQueueBlobTest extends ActiveMQMailQueueTest{
     public final static String BASE_DIR = "file://target/james-test";
@@ -36,7 +32,7 @@ public class ActiveMQMailQueueBlobTest extends ActiveMQMailQueueTest{
     private MyFileSystem fs;
     
     protected ActiveMQConnectionFactory createConnectionFactory() {
-        ActiveMQConnectionFactory factory =  new ActiveMQConnectionFactory("vm://localhost?create=false");
+        ActiveMQConnectionFactory factory =  super.createConnectionFactory();
         
         FileSystemBlobTransferPolicy policy = new FileSystemBlobTransferPolicy();
         policy.setFileSystem(fs);
@@ -62,11 +58,8 @@ public class ActiveMQMailQueueBlobTest extends ActiveMQMailQueueTest{
     }
 
     @Override
-    protected JMSMailQueue createQueue(ConnectionFactory factory) {
-        SimpleLog log = new SimpleLog("MockLog");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        ActiveMQMailQueue queue = new ActiveMQMailQueue(factory, "test", true,log);
-        return queue;
+    protected boolean useBlobMessages() {
+        return true;
     }
 
     private final class MyFileSystem implements FileSystem {

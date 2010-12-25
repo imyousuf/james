@@ -34,6 +34,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.region.policy.PolicyEntry;
+import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.queue.api.ManageableMailQueue;
@@ -46,13 +48,14 @@ import junit.framework.TestCase;
 public class JMSMailQueueTest extends TestCase{
     protected JMSMailQueue queue;
     private BrokerService broker;
+    protected final static String QUEUE_NAME = "test";
     
     public void setUp() throws Exception{
         broker = createBroker();
         broker.start();
         
         ConnectionFactory connectionFactory = createConnectionFactory();
-        queue = createQueue(connectionFactory);
+        queue = createQueue(connectionFactory, QUEUE_NAME);
         
         super.setUp();
         
@@ -66,14 +69,24 @@ public class JMSMailQueueTest extends TestCase{
         broker.setPersistent(false);
         broker.setUseJmx(false);
         broker.addConnector("tcp://127.0.0.1:61616");
+        
+        
+        // Enable priority support
+        PolicyMap pMap = new PolicyMap();
+        PolicyEntry entry = new PolicyEntry();
+        entry.setPrioritizedMessages(true);
+        entry.setQueue(QUEUE_NAME);
+        pMap.setPolicyEntries(Arrays.asList(entry));
+        broker.setDestinationPolicy(pMap);
+        
         return broker;
         
     }
     
-    protected JMSMailQueue createQueue(ConnectionFactory factory) {
+    protected JMSMailQueue createQueue(ConnectionFactory factory, String queueName) {
         SimpleLog log = new SimpleLog("MockLog");
         log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        JMSMailQueue queue = new JMSMailQueue(factory, "testqueue", log );
+        JMSMailQueue queue = new JMSMailQueue(factory, queueName, log );
         return queue;
     }
     
@@ -338,4 +351,43 @@ public class JMSMailQueueTest extends TestCase{
 
 
     }
+    
+    public void testPrioritySupport() throws InterruptedException, MessagingException, IOException {
+        // should be empty
+        assertEquals(0, queue.getSize());
+        
+        Mail mail = createMail();
+        Mail mail2 =createMail();
+        mail2.setAttribute(JMSMailQueue.MAIL_PRIORITY, JMSMailQueue.HIGH_PRIORITY);
+
+        queue.enQueue(mail);
+        queue.enQueue(mail2);
+        
+        Thread.sleep(200);
+        
+        assertEquals(2, queue.getSize());
+
+        
+        // we should get mail2 first as it has a higher priority set
+        assertEquals(2, queue.getSize());
+        MailQueueItem item2 = queue.deQueue();
+        checkMail(mail2, item2.getMail());
+        item2.done(true);
+
+        Thread.sleep(200);
+
+        
+        
+        assertEquals(1, queue.getSize());
+        MailQueueItem item3 = queue.deQueue();
+        checkMail(mail, item3.getMail());
+        item3.done(true);
+        
+        Thread.sleep(200);
+
+        // should be empty
+        assertEquals(0, queue.getSize());
+    }
+    
+
 }
