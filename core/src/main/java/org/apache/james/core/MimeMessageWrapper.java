@@ -21,6 +21,7 @@
 
 package org.apache.james.core;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -545,7 +546,7 @@ public class MimeMessageWrapper
     /**
      * @see javax.mail.internet.MimeMessage#getRawInputStream()
      */
-    public InputStream getRawInputStream() throws MessagingException {
+    public synchronized InputStream getRawInputStream() throws MessagingException {
         if (!messageParsed && !isModified() && source != null) {
             InputStream is;
             try {
@@ -556,16 +557,19 @@ public class MimeMessageWrapper
             } catch (IOException e) {
                 throw new MessagingException("Unable to read the stream: " + e.getMessage(), e);
             }
-        } else return super.getRawInputStream();
+        } else {
+            return super.getRawInputStream();
+        }
     }
 
     /**
      * Return an {@link InputStream} which holds the full content of the message. This method
-     * tries to optimize this call as far as possible
+     * tries to optimize this call as far as possible. This stream contains the updated {@link MimeMessage} content if something was changed
      * 
      * @return messageInputStream
      * @throws MessagingException
      */
+    
     public synchronized InputStream getMessageInputStream() throws MessagingException{
         if (!messageParsed && !isModified() && source != null) {
             try {
@@ -574,7 +578,16 @@ public class MimeMessageWrapper
                 throw new MessagingException("Unable to get inputstream", e);
             }
         } else {
-            return new MimeMessageInputStream(this, false);
+            
+            //TODO: Optimise me...
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                writeTo(out);
+                return new ByteArrayInputStream(out.toByteArray());
+
+            } catch (IOException e) {
+                throw new MessagingException("Unable to get inputstream", e);
+            }
         }
     }
     

@@ -27,7 +27,6 @@ import java.io.InputStream;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.james.util.stream.CombinedInputStream;
 
 /**
  * Provide an {@link InputStream} over an {@link MimeMessage}
@@ -44,10 +43,11 @@ public class MimeMessageInputStream extends InputStream {
      *                if possible
      * @throws MessagingException
      */
-    @SuppressWarnings("unchecked")
     public MimeMessageInputStream(MimeMessage message, boolean tryCast) throws MessagingException {
         MimeMessage m = message;
        
+        m.saveChanges();
+        
         // check if we need to use the wrapped message
         if (tryCast && m instanceof MimeMessageCopyOnWriteProxy) {
             m = ((MimeMessageCopyOnWriteProxy) m).getWrappedMessage();
@@ -57,20 +57,15 @@ public class MimeMessageInputStream extends InputStream {
         if (tryCast && m instanceof MimeMessageWrapper) {
             in = ((MimeMessageWrapper) m).getMessageInputStream();
         } else {
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
             try {
-                in = new CombinedInputStream(new InputStream[] { new InternetHeadersInputStream(message.getAllHeaderLines()), message.getRawInputStream() });
-            } catch (MessagingException e) {
-                // its possible that MimeMessage.getRawInputStream throws an exception when try to access the method on a self constructed MimeMessage.
-                // so try to read it in memory 
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                try {
-                    message.writeTo(out);
-                    in = new ByteArrayInputStream(out.toByteArray());
-                } catch (IOException e1) {
-                    throw new MessagingException("Unable to read message " + message, e);
-                }
-                
+                message.writeTo(out);
+                in = new ByteArrayInputStream(out.toByteArray());
+            } catch (IOException e1) {
+                throw new MessagingException("Unable to read message " + message, e1);
             }
+
         }
 
     }
