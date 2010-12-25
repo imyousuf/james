@@ -246,4 +246,52 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         LifecycleUtil.dispose(message);
     }
 
+
+    /**
+     * Test for JAMES-1154
+     */
+    public void testMessageStreamWithUpatedHeaders() throws MessagingException, IOException {
+        mw.addHeader("X-Test", "X-Value");
+
+        assertEquals("X-Value", mw.getHeader("X-Test")[0]);
+
+        mw.saveChanges();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(mw.getMessageInputStream()));
+        String line = null;
+
+        boolean headerUpdated = false;
+        while ((line = reader.readLine()) != null) {
+            if (line.equals("X-Test: X-Value")) {
+                headerUpdated = true;
+                break;
+            }
+        }
+        reader.close();
+        assertTrue(headerUpdated);
+    }
+
+    /**
+     * Test for JAMES-1154
+     */
+    public void testMessageStreamWithUpatedContent() throws MessagingException, IOException {
+        String newContent = "This is the new message content!";
+        mw.setText(newContent);        
+        assertEquals(newContent, (String)mw.getContent());
+
+        mw.saveChanges();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(mw.getMessageInputStream()));
+        String line = null;
+
+        boolean contentUpdated = false;
+        while ((line = reader.readLine()) != null) {
+            if (line.equals(newContent)) {
+                contentUpdated = true;
+                break;
+            }
+        }
+        reader.close();
+        assertTrue(contentUpdated);
+    }
 }
