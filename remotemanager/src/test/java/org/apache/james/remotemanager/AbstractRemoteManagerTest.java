@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.james.server.PortUtil;
 import org.apache.james.server.mock.MockJSR250Loader;
 import org.apache.james.server.mock.MockProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
@@ -44,11 +45,10 @@ import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.mailrepository.mock.MockMailRepositoryStore;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.InternetPrintWriter;
-import org.apache.james.util.TestUtil;
 import org.apache.james.vut.lib.mock.MockVirtualUserTableManagementImpl;
 
 public abstract class AbstractRemoteManagerTest extends TestCase {
-    private int m_remoteManagerListenerPort = TestUtil.getNonPrivilegedPort();
+    private int m_remoteManagerListenerPort = PortUtil.getNonPrivilegedPort();
     private RemoteManagerTestConfiguration m_testConfiguration;
     private String m_host = "127.0.0.1";
     private BufferedReader m_reader;

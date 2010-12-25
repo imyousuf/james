@@ -33,11 +33,11 @@ import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
+import org.apache.james.server.PortUtil;
 import org.apache.james.smtpserver.fastfail.SpamAssassinHandler;
 import org.apache.james.test.mock.MockMimeMessage;
 import org.apache.james.test.mock.mailet.MockMail;
 import org.apache.james.test.mock.util.MockSpamd;
-import org.apache.james.util.TestUtil;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
  
@@ -126,7 +126,7 @@ public class SpamAssassinHandlerTest extends TestCase {
 
     public void testSpam() throws IOException, MessagingException {
 
-        int port = TestUtil.getNonPrivilegedPort();
+        int port = PortUtil.getNonPrivilegedPort();
         new Thread(new MockSpamd(port)).start();
 
         SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessage(MockSpamd.GTUBE)));
@@ -147,7 +147,7 @@ public class SpamAssassinHandlerTest extends TestCase {
 
     public void testSpamReject() throws IOException, MessagingException {
 
-        int port = TestUtil.getNonPrivilegedPort();
+        int port = PortUtil.getNonPrivilegedPort();
         new Thread(new MockSpamd(port)).start();
 
         SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessage(MockSpamd.GTUBE)));

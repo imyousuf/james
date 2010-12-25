@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.util;
+package org.apache.james.server;
 
 
 
@@ -28,7 +28,7 @@ import java.net.ServerSocket;
 /**
  * some utilities for James unit testing
  */
-public class TestUtil {
+public class PortUtil {
 
     private static final int PORT_RANGE_START =  8000; // the lowest possible port number assigned for testing
     private static final int PORT_RANGE_END   = 11000; // the highest possible port number assigned for testing

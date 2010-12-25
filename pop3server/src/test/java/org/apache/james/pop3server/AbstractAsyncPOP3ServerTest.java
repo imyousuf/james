@@ -37,6 +37,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.commons.net.pop3.POP3Reply;
+import org.apache.james.server.PortUtil;
 import org.apache.james.server.mock.MockJSR250Loader;
 import org.apache.james.server.mock.MockProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
@@ -52,11 +53,10 @@ import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
-import org.apache.james.util.TestUtil;
 
 public abstract class AbstractAsyncPOP3ServerTest extends TestCase {
 
-    private int m_pop3ListenerPort = TestUtil.getNonPrivilegedPort();
+    private int m_pop3ListenerPort = PortUtil.getNonPrivilegedPort();
     private POP3TestConfiguration m_testConfiguration;
     private MockUsersRepository m_usersRepository = new MockUsersRepository();
     private POP3Client m_pop3Protocol = null;
