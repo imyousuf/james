@@ -103,7 +103,7 @@ public class SpamAssassinHandlerTest extends TestCase {
 
     public void testNonSpam() throws IOException, MessagingException {
 
-        int port = Util.getNonPrivilegedPort();
+        int port = PortUtil.getNonPrivilegedPort();
         MockSpamd spamd = new MockSpamd(port);
         new Thread(spamd).start();
 

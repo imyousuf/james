@@ -44,6 +44,7 @@ import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.queue.api.mock.MockMailQueue;
 import org.apache.james.queue.api.mock.MockMailQueueFactory;
+import org.apache.james.server.PortUtil;
 import org.apache.james.server.mock.MockJSR250Loader;
 import org.apache.james.server.mock.MockProtocolHandlerChain;
 import org.apache.james.dnsservice.api.DNSService;
@@ -152,7 +153,7 @@ public abstract class AbstractSMTPServerTest extends TestCase {
     
     public AbstractSMTPServerTest() {
         super("AsyncSMTPServerTest");
-        m_smtpListenerPort = Util.getNonPrivilegedPort();
+        m_smtpListenerPort = PortUtil.getNonPrivilegedPort();
     }
 
     protected void setUp() throws Exception {
