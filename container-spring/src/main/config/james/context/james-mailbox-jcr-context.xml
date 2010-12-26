@@ -27,7 +27,7 @@
       Mailbox JCR
      -->
 
-    <bean id="jcr-mailboxmanager" class="org.apache.james.mailbox.jcr.JCRMailboxManager">
+    <bean id="jcr-mailboxmanager" class="org.apache.james.mailbox.jcr.JCRMailboxManager" init-method="init">
         <constructor-arg index="0" ref="jcr-sessionMapperFactory"/>
         <constructor-arg index="1" ref="authenticator"/>
         <constructor-arg index="2" ref="jcr-uidProvider"/>
