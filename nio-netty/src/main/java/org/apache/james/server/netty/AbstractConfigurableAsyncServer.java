@@ -308,8 +308,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      * Configure the helloName for the given Configuration
      * 
      * @param handlerConfiguration
+     * @throws ConfigurationException 
      */
-    protected void configureHelloName(Configuration handlerConfiguration) {
+    protected void configureHelloName(Configuration handlerConfiguration) throws ConfigurationException {
         StringBuilder infoBuffer;
         String hostName = null;
         try {
@@ -329,8 +330,10 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         if (autodetect) {
             helloName = hostName;
         } else {
-            // Should we use the defaultdomain here ?
-            helloName = handlerConfiguration.getString(HELLO_NAME + ".localhost");
+            helloName = handlerConfiguration.getString(HELLO_NAME);
+            if (helloName == null || helloName.trim().length() < 1) {
+                throw new ConfigurationException("Please configure the helloName or use autodetect");
+            }
         }
 
         infoBuffer =
