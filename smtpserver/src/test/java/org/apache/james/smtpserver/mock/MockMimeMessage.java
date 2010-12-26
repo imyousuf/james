@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.test.mock;
+package org.apache.james.smtpserver.mock;
 
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.InternetHeaders;

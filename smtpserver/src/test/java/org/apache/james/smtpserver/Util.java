@@ -27,8 +27,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
-import org.apache.james.test.mock.MockMimeMessage;
-import org.apache.james.test.mock.mailet.MockMail;
+import org.apache.james.smtpserver.mock.MockMimeMessage;
+import org.apache.james.smtpserver.mock.mailet.MockMail;
 import org.apache.mailet.MailAddress;
 
 /**

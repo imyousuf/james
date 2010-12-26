@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.mock.util;
+package org.apache.james.smtpserver.mock.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

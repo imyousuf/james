@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.test.mock.mailet;
+package org.apache.james.smtpserver.mock.mailet;
 
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.Mail;
