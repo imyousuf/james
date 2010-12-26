@@ -26,8 +26,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.core.MailImpl;
-import org.apache.james.mailetcontainer.lib.mock.MockMailet;
-import org.apache.james.mailetcontainer.lib.mock.MockMatcher;
+import org.apache.james.mailetcontainer.api.mock.MockMailet;
+import org.apache.james.mailetcontainer.api.mock.MockMatcher;
 import org.apache.mailet.MailAddress;
 
 import junit.framework.TestCase;

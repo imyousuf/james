@@ -16,32 +16,27 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailetcontainer.lib.mock;
+package org.apache.james.mailetcontainer.api.mock;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.mailet.Mail;
+import org.apache.james.mailetcontainer.api.MailetLoader;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
 
-public class MockMailProcessor implements MailProcessor{
+public class MockMailetLoader implements MailetLoader{
 
-    private boolean shouldThrow = false;
-    private String newState = null;
-    
-    public MockMailProcessor(boolean shouldThrow) {
-        this.shouldThrow = shouldThrow;
-    }
-    
-    public MockMailProcessor(String newState) {
-        this.newState = newState;
-    }
-
-    public void service(Mail mail) throws MessagingException {
-        if (shouldThrow) {
-            throw new MessagingException();
-        } else {
-            mail.setState(newState);
+    @SuppressWarnings("unchecked")
+    public Mailet getMailet(MailetConfig config) throws MessagingException {
+        try {
+            Class<Mailet> clazz = (Class<Mailet>)Thread.currentThread().getContextClassLoader().loadClass(config.getMailetName());
+            Mailet m = clazz.newInstance();
+            m.init(config);
+            return m;
+        } catch (Exception e) {
+            throw new MessagingException("Unable to load mailet " + config.getMailetName());
         }
+
     }
 
 }

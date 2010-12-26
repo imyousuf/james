@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailetcontainer.lib.mock;
+package org.apache.james.mailetcontainer.api.mock;
 
 import java.util.ArrayList;
 import java.util.Collection;

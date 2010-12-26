@@ -17,57 +17,35 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailetcontainer.lib.mock;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+package org.apache.james.mailetcontainer.api.mock;
 
 import javax.mail.MessagingException;
 
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
-import org.apache.mailet.Matcher;
-import org.apache.mailet.MatcherConfig;
+import org.apache.mailet.Mailet;
+import org.apache.mailet.MailetConfig;
 
-public class MockMatcher implements Matcher{
+public class MockMailet implements Mailet{
 
-    private List<String> matches = new ArrayList<String>();
-    private MatcherConfig config;
+    private MailetConfig config;
     
-    public void destroy() {
-        
+    public void destroy() {        
     }
 
-    public MatcherConfig getMatcherConfig() {
+    public MailetConfig getMailetConfig() {
         return config;
     }
 
-    public String getMatcherInfo() {
-        return getClass().getName();
+    public String getMailetInfo() {
+        return "";
     }
 
-    public void init(MatcherConfig config) throws MessagingException {
+    public void init(MailetConfig config) throws MessagingException {
         this.config = config;
-        matches.addAll(Arrays.asList(config.getCondition().split(",")));
     }
 
-    public Collection match(Mail mail) throws MessagingException {
-        List<MailAddress> match = new ArrayList<MailAddress>();
-        
-        Iterator<MailAddress> rcpts = mail.getRecipients().iterator();
-        while (rcpts.hasNext()) {
-            MailAddress addr = rcpts.next();
-            if (matches.contains(addr.toString())) {
-                match.add(addr);
-            }
-        }
-        if (match.isEmpty()) {
-            return null;
-        }
-        return match;
+    public void service(Mail mail) throws MessagingException {
+        mail.setAttribute(config.getInitParameter("flag"), mail);
     }
 
 }

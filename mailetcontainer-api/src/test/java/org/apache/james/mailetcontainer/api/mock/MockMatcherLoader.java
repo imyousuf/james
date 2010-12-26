@@ -16,25 +16,26 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailetcontainer.lib.mock;
+package org.apache.james.mailetcontainer.api.mock;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.mailetcontainer.api.MailetLoader;
-import org.apache.mailet.Mailet;
-import org.apache.mailet.MailetConfig;
+import org.apache.james.mailetcontainer.api.MatcherLoader;
+import org.apache.mailet.Matcher;
+import org.apache.mailet.MatcherConfig;
 
-public class MockMailetLoader implements MailetLoader{
+public class MockMatcherLoader implements MatcherLoader{
 
     @SuppressWarnings("unchecked")
-    public Mailet getMailet(MailetConfig config) throws MessagingException {
+    public Matcher getMatcher(MatcherConfig config) throws MessagingException {
+       
         try {
-            Class<Mailet> clazz = (Class<Mailet>)Thread.currentThread().getContextClassLoader().loadClass(config.getMailetName());
-            Mailet m = clazz.newInstance();
+            Class<Matcher> clazz = (Class<Matcher>)Thread.currentThread().getContextClassLoader().loadClass(config.getMatcherName());
+            Matcher m = clazz.newInstance();
             m.init(config);
             return m;
         } catch (Exception e) {
-            throw new MessagingException("Unable to load mailet " + config.getMailetName());
+            throw new MessagingException("Unable to load matcher " + config.getMatcherName());
         }
 
     }

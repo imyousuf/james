@@ -32,7 +32,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailetcontainer.api.MailProcessor;
-import org.apache.james.mailetcontainer.lib.mock.MockMailProcessor;
+import org.apache.james.mailetcontainer.api.mock.MockMailProcessor;
 import org.apache.mailet.Mail;
 
 public abstract class AbstractStateCompositeProcessorTest extends TestCase{

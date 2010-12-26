@@ -16,28 +16,58 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.mailetcontainer.lib.mock;
+
+package org.apache.james.mailetcontainer.api.mock;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.mailetcontainer.api.MatcherLoader;
+import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 
-public class MockMatcherLoader implements MatcherLoader{
+public class MockMatcher implements Matcher{
 
-    @SuppressWarnings("unchecked")
-    public Matcher getMatcher(MatcherConfig config) throws MessagingException {
-       
-        try {
-            Class<Matcher> clazz = (Class<Matcher>)Thread.currentThread().getContextClassLoader().loadClass(config.getMatcherName());
-            Matcher m = clazz.newInstance();
-            m.init(config);
-            return m;
-        } catch (Exception e) {
-            throw new MessagingException("Unable to load matcher " + config.getMatcherName());
+    private List<String> matches = new ArrayList<String>();
+    private MatcherConfig config;
+    
+    public void destroy() {
+        
+    }
+
+    public MatcherConfig getMatcherConfig() {
+        return config;
+    }
+
+    public String getMatcherInfo() {
+        return getClass().getName();
+    }
+
+    public void init(MatcherConfig config) throws MessagingException {
+        this.config = config;
+        matches.addAll(Arrays.asList(config.getCondition().split(",")));
+    }
+
+    public Collection match(Mail mail) throws MessagingException {
+        List<MailAddress> match = new ArrayList<MailAddress>();
+        
+        Iterator<MailAddress> rcpts = mail.getRecipients().iterator();
+        while (rcpts.hasNext()) {
+            MailAddress addr = rcpts.next();
+            if (matches.contains(addr.toString())) {
+                match.add(addr);
+            }
         }
-
+        if (match.isEmpty()) {
+            return null;
+        }
+        return match;
     }
 
 }
