@@ -19,8 +19,6 @@
 
 package org.apache.james.smtpserver;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -38,53 +36,9 @@ import org.apache.mailet.MailAddress;
  */
 public class Util {
 
-    private static final int PORT_RANGE_START =  8000; // the lowest possible port number assigned for testing
-    private static final int PORT_RANGE_END   = 11000; // the highest possible port number assigned for testing
-    private static int PORT_LAST_USED = PORT_RANGE_START;
+   
     private static final Random RANDOM = new Random();
-    /**
-     * assigns a port from the range of test ports
-     * @return port number
-     */
-    public static int getNonPrivilegedPort() {
-        return getNextNonPrivilegedPort(); // uses sequential assignment of ports
-    }
-
-    /**
-     * assigns a random port from the range of test ports
-     * @return port number
-     */
-    protected static int getRandomNonPrivilegedPortInt() {
-        return ((int)( Math.random() * (PORT_RANGE_END - PORT_RANGE_START) + PORT_RANGE_START));
-    }
-
-    /**
-     * assigns ports sequentially from the range of test ports
-     * @return port number
-     */
-    protected synchronized static int getNextNonPrivilegedPort() {
-        // Hack to increase probability that the port is bindable
-        int nextPortCandidate = PORT_LAST_USED;
-        while (true) {
-            try {
-                nextPortCandidate++;
-                if (PORT_LAST_USED == nextPortCandidate) throw new RuntimeException("no free port found");
-                if (nextPortCandidate > PORT_RANGE_END) nextPortCandidate = PORT_RANGE_START; // start over
-
-                // test, port is available
-                ServerSocket ss;
-                ss = new ServerSocket(nextPortCandidate);
-                ss.setReuseAddress(true);
-                ss.close();
-                break;
-            } catch (IOException e) {
-                e.printStackTrace();
-                continue; // try next port
-            }
-        }
-        PORT_LAST_USED = nextPortCandidate;
-        return PORT_LAST_USED;
-    }
+  
 
     public static MockMail createMockMail2Recipients(MimeMessage m) throws ParseException {
         MockMail mockedMail = new MockMail();
