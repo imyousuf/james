@@ -20,11 +20,9 @@ package org.apache.james.container.spring.bean.factory.mailetcontainer;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.container.spring.bean.AbstractBeanFactory;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
-import org.apache.mailet.MailetException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
@@ -33,27 +31,18 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * The Mailets are not registered in the factory after loading them!
  *
  */
-public class MailetLoaderBeanFactory extends AbstractBeanFactory implements MailetLoader {
+public class MailetLoaderBeanFactory extends AbstractLoaderBeanFactory<Mailet> implements MailetLoader {
     
     /*
      * (non-Javadoc)
      * @see org.apache.james.mailetcontainer.api.MailetLoader#getMailet(org.apache.mailet.MailetConfig)
      */
-    @SuppressWarnings("unchecked")
     public Mailet getMailet(final MailetConfig config) throws MessagingException {
         String mailetName = config.getMailetName();
 
         try {
-            String fullName;
-            if (mailetName.indexOf(".") < 1) {
-                fullName = "org.apache.james.transport.mailets." + mailetName;
-            } else {
-                fullName = mailetName;
-            }
-            
-            // Use the classloader which is used for bean instance stuff
-            Class clazz = getBeanFactory().getBeanClassLoader().loadClass(fullName);
-            final Mailet mailet = (Mailet) getBeanFactory().createBean(clazz);
+
+            final Mailet mailet = load(mailetName);
 
             // init the mailet
             mailet.init(config);
@@ -63,22 +52,15 @@ public class MailetLoaderBeanFactory extends AbstractBeanFactory implements Mail
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
-            throw loadFailed(mailetName, e);
+            throw loadFailed(mailetName, "mailet", e);
         }
     }
 
-    /**
-     * Constructs an appropriate exception with an appropriate message.
-     * @param name not null
-     * @param e not null
-     * @return not null
-     */
-    protected MailetException loadFailed(String name, Exception e) {
-        final StringBuilder builder =
-            new StringBuilder(128).append("Could not load ").append("mailet")
-                .append(" (").append(name).append(")");
-        final MailetException mailetException = new MailetException(builder.toString(), e);
-        return mailetException;
+
+    @Override
+    protected String getStandardPackage() {
+        return "org.apache.james.transport.mailets";
     }
+
     
 }

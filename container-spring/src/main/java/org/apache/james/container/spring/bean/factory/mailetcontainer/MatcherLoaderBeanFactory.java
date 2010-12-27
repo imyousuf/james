@@ -20,9 +20,7 @@ package org.apache.james.container.spring.bean.factory.mailetcontainer;
 
 import javax.mail.MessagingException;
 
-import org.apache.james.container.spring.bean.AbstractBeanFactory;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
-import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -33,54 +31,37 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * The Matchers are not registered in the factory after loading them!
  *
  */
-public class MatcherLoaderBeanFactory extends AbstractBeanFactory implements MatcherLoader {
+public class MatcherLoaderBeanFactory extends AbstractLoaderBeanFactory<Matcher> implements MatcherLoader {
     
     /*
      * (non-Javadoc)
      * @see org.apache.james.mailetcontainer.api.MatcherLoader#getMatcher(org.apache.mailet.MatcherConfig)
      */
-    @SuppressWarnings("unchecked")
     public Matcher getMatcher(MatcherConfig config) throws MessagingException {
         
         String matchName = config.getMatcherName();
         
         try {
-            
-            String fullName;
-            if (matchName.indexOf(".") < 1) {
-                fullName = "org.apache.james.transport.matchers." + matchName;
-            } else {
-                fullName = matchName;
-            }
-            // Use the classloader which is used for bean instance stuff
-            Class clazz = getBeanFactory().getBeanClassLoader().loadClass(fullName);
-            final Matcher matcher = (Matcher) getBeanFactory().createBean(clazz);
+
+            final Matcher matcher = load(matchName);
 
             // init the matcher
             matcher.init(config);
-            
             return matcher;
 
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
-            throw loadFailed(matchName, e);
+            throw loadFailed(matchName, "matcher", e);
         }
     }
     
 
-    /**
-     * Constructs an appropriate exception with an appropriate message.
-     * @param name not null
-     * @param e not null
-     * @return not null
-     */
-    protected MailetException loadFailed(String name, Exception e) {
-        final StringBuilder builder =
-            new StringBuilder(128).append("Could not load ").append("mailet")
-                .append(" (").append(name).append(")");
-        final MailetException mailetException = new MailetException(builder.toString(), e);
-        return mailetException;
+
+
+    @Override
+    protected String getStandardPackage() {
+        return "org.apache.james.transport.matchers";
     }
     
 }
