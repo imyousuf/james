@@ -64,34 +64,29 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
      */
     private HierarchicalConfiguration configuration;
 
+    /**
+     * The Logger
+     */
     private Log logger;
 
-    public void setLog(Log logger) {
-        this.logger = logger;
-    }
-    
-    protected Log getLogger() {
-        return logger;
-    }
-      
+    /* (non-Javadoc)
+     * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     */
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
     }
     
     @PostConstruct
     @SuppressWarnings("unchecked")
-    public void init()
-        throws Exception {
+    public void init() throws Exception {
 
         getLogger().info("JamesMailStore init...");
         
         repositories = new ReferenceMap();
         classes = new HashMap<String,String>();
         defaultConfigs = new HashMap<String, HierarchicalConfiguration>();
-        List<HierarchicalConfiguration> registeredClasses
-            = configuration.configurationsAt("mailrepositories.mailrepository");
-        for ( int i = 0; i < registeredClasses.size(); i++ )
-        {
+        List<HierarchicalConfiguration> registeredClasses = configuration.configurationsAt("mailrepositories.mailrepository");
+        for ( int i = 0; i < registeredClasses.size(); i++ ) {
             registerRepository(registeredClasses.get(i));
         }
 
@@ -116,8 +111,8 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
         
         List<String> protocols = repConf.getList("protocols.protocol");
         
-        for ( int i = 0; i < protocols.size(); i++ )
-        {
+        for ( int i = 0; i < protocols.size(); i++ ) {
+            
             String protocol = protocols.get(i);
 
             HierarchicalConfiguration defConf = null;
@@ -146,6 +141,7 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
             }
             
             classes.put(key, className);
+            
             if (defConf != null) {
                 defaultConfigs.put(key, defConf);
             }
@@ -165,7 +161,7 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
      *
      * @param hint the Configuration object used to look up the repository
      * @return the selected repository
-     * @throws MailRepostoryStoreException if any error occurs while parsing the 
+     * @throws MailRepositoryStoreException if any error occurs while parsing the 
      *         Configuration or retrieving the MailRepository
      */
     public synchronized MailRepository select(String destination) throws MailRepostoryStoreException {
@@ -178,7 +174,6 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
                 + destination);
         protocol = destination.substring(0,idx);
         
-
         String repID = destination;
         MailRepository reply = repositories.get(repID);
         StringBuffer logBuffer = null;
@@ -266,4 +261,12 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
         return new ArrayList<String>(repositories.keySet());
     }
 
+    public void setLog(Log logger) {
+        this.logger = logger;
+    }
+    
+    private Log getLogger() {
+        return logger;
+    }
+      
 }
