@@ -73,10 +73,8 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
      * Return a DefaultConfiguration build on the given command name and
      * classname
      * 
-     * @param cmdName
-     *            The command name
-     * @param className
-     *            The class name
+     * @param cmdName The command name
+     * @param className The class name
      * @return DefaultConfiguration
      * @throws ConfigurationException
      */
@@ -116,7 +114,8 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
     }
 
     /**
-     * Lookup the {@link HierarchicalConfiguration} for the beanname which was configured via {@link #setBeanName(String)} and parse it for handlers which should be 
+     * Lookup the {@link HierarchicalConfiguration} for the beanname which was 
+     * configured via {@link #setBeanName(String)} and parse it for handlers which should be 
      * registered in the {@link ConfigurableListableBeanFactory}. 
      */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {

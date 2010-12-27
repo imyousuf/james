@@ -54,21 +54,24 @@ public class ConfigurationBeanFactoryPostProcessor implements BeanFactoryPostPro
      * Parse the configuration file and depending on it register the beans
      */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+
         ConfigurationProvider confProvider = beanFactory.getBean(ConfigurationProvider.class);
+        
         Iterator<String> beanNames = beans.keySet().iterator();
        
         // loop over the beans
         while (beanNames.hasNext()) {
+      
             String name = beanNames.next();
 
             try {
 
                 HierarchicalConfiguration config = confProvider.getConfiguration(name);
 
-                // get the configuration for the class
+                // Get the configuration for the class
                 String repClass = config.getString("[@class]");
 
-                // create the definitation and register it
+                // Create the definition and register it
                 BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
                 BeanDefinition def = BeanDefinitionBuilder.genericBeanDefinition(repClass).getBeanDefinition();
                 registry.registerBeanDefinition(name, def);
@@ -92,4 +95,5 @@ public class ConfigurationBeanFactoryPostProcessor implements BeanFactoryPostPro
         }
 
     }
+    
 }

@@ -24,19 +24,10 @@ import org.apache.james.lifecycle.api.Configurable;
 
 /**
  * Inject Commons Configuration to beans which implement the Configurable interface
- * 
- *
  */
-public class ConfigurableBeanPostProcessor extends AbstractJamesBeanPostProcessor<Configurable> {
+public class ConfigurableBeanPostProcessor extends AbstractLifecycleBeanPostProcessor<Configurable> {
 
     private ConfigurationProvider provider;
-
-
-    @Override
-    protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname) throws Exception {
-        HierarchicalConfiguration config = provider.getConfiguration(beanname);
-        bean.configure(config);
-    }
 
     public void setConfigurationProvider(ConfigurationProvider provider) {
         this.provider = provider;
@@ -45,6 +36,17 @@ public class ConfigurableBeanPostProcessor extends AbstractJamesBeanPostProcesso
     @Override
     protected Class<Configurable> getLifeCycleInterface() {
         return Configurable.class;
+    }
+
+    @Override
+    protected void executeLifecycleMethodBeforeInit(Configurable bean, String beanname) throws Exception {
+        HierarchicalConfiguration config = provider.getConfiguration(beanname);
+        bean.configure(config);
+    }
+
+    @Override
+    protected void executeLifecycleMethodAfterInit(Configurable bean, String beanname) throws Exception {
+        // Do nothing
     }
 
 }

@@ -22,26 +22,29 @@ import org.apache.james.container.spring.provider.log.LogProvider;
 import org.apache.james.lifecycle.api.LogEnabled;
 
 /**
- * Inject Commons Log to beans which implement LogEnabled
- * 
- *
+ * Inject Commons Log to beans which implement LogEnabled.
  */
-public class LogEnabledBeanPostProcessor extends AbstractJamesBeanPostProcessor<LogEnabled> {
+public class LogEnabledBeanPostProcessor extends AbstractLifecycleBeanPostProcessor<LogEnabled> {
 
     private LogProvider provider;
-
-    @Override
-    protected Class<LogEnabled> getLifeCycleInterface() {
-        return LogEnabled.class;
-    }
 
     public void setLogProvider(LogProvider provider) {
         this.provider = provider;
     }
 
     @Override
+    protected Class<LogEnabled> getLifeCycleInterface() {
+        return LogEnabled.class;
+    }
+
+    @Override
     protected void executeLifecycleMethodBeforeInit(LogEnabled bean, String beanname) throws Exception {
         bean.setLog(provider.getLog(beanname));
+    }
+
+    @Override
+    protected void executeLifecycleMethodAfterInit(LogEnabled bean, String beanname) throws Exception {
+        // Do nothing
     }
 
  

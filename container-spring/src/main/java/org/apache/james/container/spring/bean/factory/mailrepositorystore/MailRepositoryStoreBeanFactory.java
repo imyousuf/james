@@ -16,9 +16,6 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.container.spring.bean.factory.mailrepositorystore;
 
 import java.util.ArrayList;
@@ -34,13 +31,11 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.container.spring.bean.factory.AbstractBeanFactoryAware;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.api.MailRepositoryStore;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
@@ -48,26 +43,29 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * identified by its destinationURL, type and model.
  *
  */
-public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogEnabled, Configurable, BeanFactoryAware {
+public class MailRepositoryStoreBeanFactory extends AbstractBeanFactoryAware implements MailRepositoryStore, LogEnabled, Configurable {
 
-
-    // map of [destinationURL + type]->Repository
+    /**
+     * Map of [destinationURL + type]->Repository
+     */
     private Map<String, MailRepository> repositories;
 
-    // map of [protocol(destinationURL) + type ]->classname of repository;
+    /**
+     * Map of [protocol(destinationURL) + type ]->classname of repository;
+     */
     private Map<String,String> classes;
 
-    // map of [protocol(destinationURL) + type ]->default config for repository.
+    /**
+     * Map of [protocol(destinationURL) + type ]->default config for repository.
+     */
     private Map<String,HierarchicalConfiguration> defaultConfigs;
 
     /**
-     * The Avalon configuration used by the instance
+     * The configuration used by the instance
      */
-    private HierarchicalConfiguration          configuration;
+    private HierarchicalConfiguration configuration;
 
     private Log logger;
-
-    private ConfigurableListableBeanFactory beanFactory;
 
     public void setLog(Log logger) {
         this.logger = logger;
@@ -80,7 +78,6 @@ public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogE
     public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
         this.configuration = configuration;
     }
-
     
     @PostConstruct
     @SuppressWarnings("unchecked")
@@ -115,10 +112,12 @@ public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogE
      *                                Configuration object
      */
     @SuppressWarnings("unchecked")
-    public synchronized void registerRepository(HierarchicalConfiguration repConf)
-        throws ConfigurationException {
+    public synchronized void registerRepository(HierarchicalConfiguration repConf) throws ConfigurationException {
+
         String className = repConf.getString("[@class]");
+        
         boolean infoEnabled = getLogger().isInfoEnabled();
+        
         List<String> protocols = repConf.getList("protocols.protocol");
         
         for ( int i = 0; i < protocols.size(); i++ )
@@ -133,6 +132,7 @@ public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogE
             }
             
             String key = protocol ;
+            
             if (infoEnabled) {
                 StringBuffer infoBuffer =
                     new StringBuffer(128)
@@ -144,9 +144,11 @@ public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogE
                         .append(key);
                 getLogger().info(infoBuffer.toString());
             }
+            
             if (classes.get(key) != null) {
                 throw new ConfigurationException("The combination of protocol and type comprise a unique key for repositories.  This constraint has been violated.  Please check your repository configuration.");
             }
+            
             classes.put(key, className);
             if (defConf != null) {
                 defaultConfigs.put(key, defConf);
@@ -166,10 +168,8 @@ public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogE
      * </repository>
      *
      * @param hint the Configuration object used to look up the repository
-     *
      * @return the selected repository
-     *
-     * @throws ServiceException if any error occurs while parsing the 
+     * @throws MailRepostoryStoreException if any error occurs while parsing the 
      *                            Configuration or retrieving the 
      *                            MailRepository
      */
@@ -228,8 +228,8 @@ public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogE
             
             try {               
                 // Use the classloader which is used for bean instance stuff
-                Class<MailRepository> clazz = (Class<MailRepository>) beanFactory.getBeanClassLoader().loadClass(repClass);
-                reply = (MailRepository) beanFactory.autowire(clazz, ConfigurableListableBeanFactory.AUTOWIRE_NO, false);
+                Class<MailRepository> clazz = (Class<MailRepository>) getBeanFactory().getBeanClassLoader().loadClass(repClass);
+                reply = (MailRepository) getBeanFactory().autowire(clazz, ConfigurableListableBeanFactory.AUTOWIRE_NO, false);
 
                 if (reply instanceof LogEnabled) {
                     ((LogEnabled) reply).setLog(logger);
@@ -239,9 +239,8 @@ public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogE
                     ((Configurable) reply).configure(config);
                 } 
                 
-                reply = (MailRepository) beanFactory.initializeBean(reply, key);
+                reply = (MailRepository) getBeanFactory().initializeBean(reply, key);
                 
-
                 repositories.put(repID, reply);
                 if (getLogger().isInfoEnabled()) {
                     logBuffer =
@@ -272,7 +271,4 @@ public class MailRepositoryStoreBeanFactory implements MailRepositoryStore, LogE
         return new ArrayList<String>(repositories.keySet());
     }
 
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;        
-    }
 }

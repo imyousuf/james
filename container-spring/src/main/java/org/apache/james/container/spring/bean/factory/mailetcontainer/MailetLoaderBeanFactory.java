@@ -16,30 +16,25 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
 package org.apache.james.container.spring.bean.factory.mailetcontainer;
+
 import javax.mail.MessagingException;
 
+import org.apache.james.container.spring.bean.factory.AbstractBeanFactoryAware;
 import org.apache.james.mailetcontainer.api.MailetLoader;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetException;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+
 /**
  * Loads Mailets for use inside James by using the {@link ConfigurableListableBeanFactory} of spring.
  * 
  * The Mailets are not registered in the factory after loading them!
  *
  */
-public class MailetLoaderBeanFactory implements MailetLoader, BeanFactoryAware {
+public class MailetLoaderBeanFactory extends AbstractBeanFactoryAware implements MailetLoader {
     
-    private ConfigurableListableBeanFactory beanFactory;
-    
-
     /*
      * (non-Javadoc)
      * @see org.apache.james.mailetcontainer.api.MailetLoader#getMailet(org.apache.mailet.MailetConfig)
@@ -57,12 +52,11 @@ public class MailetLoaderBeanFactory implements MailetLoader, BeanFactoryAware {
             }
             
             // Use the classloader which is used for bean instance stuff
-            Class clazz = beanFactory.getBeanClassLoader().loadClass(fullName);
-            final Mailet mailet = (Mailet) beanFactory.createBean(clazz);
+            Class clazz = getBeanFactory().getBeanClassLoader().loadClass(fullName);
+            final Mailet mailet = (Mailet) getBeanFactory().createBean(clazz);
 
             // init the mailet
             mailet.init(config);
-
             
             return mailet;
             
@@ -87,11 +81,4 @@ public class MailetLoaderBeanFactory implements MailetLoader, BeanFactoryAware {
         return mailetException;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.springframework.beans.factory.BeanFactoryAware#setBeanFactory(org.springframework.beans.factory.BeanFactory)
-     */
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
-    }
 }

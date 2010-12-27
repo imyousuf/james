@@ -18,11 +18,9 @@
  ****************************************************************/
 package org.apache.james.container.spring.bean.postprocessor;
 
+import org.apache.james.container.spring.bean.factory.AbstractBeanFactoryAware;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
@@ -31,57 +29,78 @@ import org.springframework.core.PriorityOrdered;
  * Abstract base class which BeanPostProcessors should extend if they provide an
  * LifeCycle handling
  * 
- * 
  * @param <T>
  */
-public abstract class AbstractJamesBeanPostProcessor<T> implements BeanPostProcessor, PriorityOrdered, BeanFactoryAware {
-
+public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBeanFactoryAware implements BeanPostProcessor, PriorityOrdered {
+    
     private int order = Ordered.HIGHEST_PRECEDENCE;
-    private ListableBeanFactory factory;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.springframework.beans.factory.config.BeanPostProcessor#
-     * postProcessAfterInitialization(java.lang.Object, java.lang.String)
-     */
-    @SuppressWarnings("unchecked")
-    public final Object postProcessAfterInitialization(Object bean, String name) throws BeansException {
-        try {
-            Class<T> lClass = getLifeCycleInterface();
-            if (lClass.isInstance(bean))
-                // check if the bean is registered in the context. If not it was create by the InstanceFactory and so there is no need to execute the callback
-                if (factory.containsBeanDefinition(name)) {
-                    executeLifecycleMethodAfterInit((T) bean, name);
-                }
-        } catch (Exception e) {
-            throw new FatalBeanException("Unable to execute lifecycle method on bean" + name, e);
-        }
-        return bean;
-    }
 
     /**
-     * Return the class which mark the lifecycle
+     * Return the class which mark the lifecycle.
      * 
      * @return interfaceClass
      */
     protected abstract Class<T> getLifeCycleInterface();
 
+    /**
+     * Method which gets executed if the bean implement the LifeCycleInterface.
+     * Override this if you wish perform any action. Default is todo nothing
+     * 
+     * @param bean
+     *            the actual bean
+     * @param beanname
+     *            then name of the bean
+     * @throws Exception
+     */
+    protected abstract void executeLifecycleMethodBeforeInit(T bean, String beanname) throws Exception;
+
+    /**
+     * Method which gets executed if the bean implement the LifeCycleInterface.
+     * Override this if you wish perform any action. Default is todo nothing
+     * 
+     * @param bean the actual bean
+     * @param beanname then name of the bean
+     * @param componentName the component name
+     * @throws Exception
+     */
+    protected abstract void executeLifecycleMethodAfterInit(T bean, String beanname) throws Exception;
+
     /*
      * (non-Javadoc)
      * 
-     * @see org.springframework.beans.factory.config.BeanPostProcessor#
-     * postProcessBeforeInitialization(java.lang.Object, java.lang.String)
+     * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)
      */
     @SuppressWarnings("unchecked")
     public final Object postProcessBeforeInitialization(Object bean, String name) throws BeansException {
         try {
             Class<T> lClass = getLifeCycleInterface();
-            if (lClass.isInstance(bean))
+            if (lClass.isInstance(bean)) {
                 // check if the bean is registered in the context. If not it was create by the InstanceFactory and so there is no need to execute the callback
-                if (factory.containsBeanDefinition(name)) {
+                if (getBeanFactory().containsBeanDefinition(name)) {
                     executeLifecycleMethodBeforeInit((T) bean, name);
                 }
+            }
+        } catch (Exception e) {
+            throw new FatalBeanException("Unable to execute lifecycle method on bean" + name, e);
+        }
+        return bean;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization(java.lang.Object, java.lang.String)
+     */
+    @SuppressWarnings("unchecked")
+    public final Object postProcessAfterInitialization(Object bean, String name) throws BeansException {
+        try {
+            Class<T> lClass = getLifeCycleInterface();
+            if (lClass.isInstance(bean)) {
+                // check if the bean is registered in the context. If not it was create by the InstanceFactory and so there is no need to execute the callback
+                if (getBeanFactory().containsBeanDefinition(name)) {
+                    executeLifecycleMethodAfterInit((T) bean, name);
+                }
+            }
         } catch (Exception e) {
             throw new FatalBeanException("Unable to execute lifecycle method on bean" + name, e);
         }
@@ -89,35 +108,8 @@ public abstract class AbstractJamesBeanPostProcessor<T> implements BeanPostProce
     }
 
     /**
-     * Method which gets executed if the bean implement the LifeCycleInterface.
-     * Override this if you wish perform any action. Default is todo nothing
-     * 
-     * @param bean
-     *            the actual bean
-     * @param beanname
-     *            then name of the bean
-     * @throws Exception
+     * @param order
      */
-    protected void executeLifecycleMethodBeforeInit(T bean, String beanname) throws Exception {
-
-    }
-
-    /**
-     * Method which gets executed if the bean implement the LifeCycleInterface.
-     * Override this if you wish perform any action. Default is todo nothing
-     * 
-     * @param bean
-     *            the actual bean
-     * @param beanname
-     *            then name of the bean
-     * @param componentName
-     *            the component name
-     * @throws Exception
-     */
-    protected void executeLifecycleMethodAfterInit(T bean, String beanname) throws Exception {
-
-    }
-
     public void setOrder(int order) {
         this.order = order;
     }
@@ -131,14 +123,4 @@ public abstract class AbstractJamesBeanPostProcessor<T> implements BeanPostProce
         return order;
     }
     
-
-    /*
-     * (non-Javadoc)
-     * @see org.springframework.beans.factory.BeanFactoryAware#setBeanFactory(org.springframework.beans.factory.BeanFactory)
-     */
-    public void setBeanFactory(BeanFactory factory) throws BeansException {
-        this.factory = (ListableBeanFactory) factory;
-    }
-
-
 }

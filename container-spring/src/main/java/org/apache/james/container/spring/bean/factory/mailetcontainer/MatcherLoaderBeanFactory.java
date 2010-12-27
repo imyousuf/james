@@ -16,19 +16,15 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
-
 package org.apache.james.container.spring.bean.factory.mailetcontainer;
+
 import javax.mail.MessagingException;
 
+import org.apache.james.container.spring.bean.factory.AbstractBeanFactoryAware;
 import org.apache.james.mailetcontainer.api.MatcherLoader;
 import org.apache.mailet.MailetException;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
@@ -37,19 +33,17 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
  * The Matchers are not registered in the factory after loading them!
  *
  */
-public class MatcherLoaderBeanFactory implements MatcherLoader, BeanFactoryAware {
-
+public class MatcherLoaderBeanFactory extends AbstractBeanFactoryAware implements MatcherLoader {
     
-    private ConfigurableListableBeanFactory beanFactory;
-
-
     /*
      * (non-Javadoc)
      * @see org.apache.james.mailetcontainer.api.MatcherLoader#getMatcher(org.apache.mailet.MatcherConfig)
      */
     @SuppressWarnings("unchecked")
     public Matcher getMatcher(MatcherConfig config) throws MessagingException {
+        
         String matchName = config.getMatcherName();
+        
         try {
             
             String fullName;
@@ -59,13 +53,14 @@ public class MatcherLoaderBeanFactory implements MatcherLoader, BeanFactoryAware
                 fullName = matchName;
             }
             // Use the classloader which is used for bean instance stuff
-            Class clazz = beanFactory.getBeanClassLoader().loadClass(fullName);
-            final Matcher matcher = (Matcher) beanFactory.createBean(clazz);
+            Class clazz = getBeanFactory().getBeanClassLoader().loadClass(fullName);
+            final Matcher matcher = (Matcher) getBeanFactory().createBean(clazz);
 
             // init the matcher
             matcher.init(config);
             
             return matcher;
+
         } catch (MessagingException me) {
             throw me;
         } catch (Exception e) {
@@ -88,12 +83,4 @@ public class MatcherLoaderBeanFactory implements MatcherLoader, BeanFactoryAware
         return mailetException;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.springframework.beans.factory.BeanFactoryAware#setBeanFactory(org.springframework.beans.factory.BeanFactory)
-     */
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory =  (ConfigurableListableBeanFactory) beanFactory;
-    }
-
 }
