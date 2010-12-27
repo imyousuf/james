@@ -16,14 +16,19 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean.factory;
+package org.apache.james.container.spring.bean;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
-public abstract class AbstractBeanFactoryAware implements BeanFactoryAware {
+/**
+ * Simple abstract base class which BeanFactory, FactoryBeanPostProcessors 
+ * and BeanPostProcessors implementations should 
+ * extend if they want to access the context's beanFactory.
+ */
+public abstract class AbstractBeanFactory implements BeanFactoryAware {
 
     private ConfigurableListableBeanFactory beanFactory;
     

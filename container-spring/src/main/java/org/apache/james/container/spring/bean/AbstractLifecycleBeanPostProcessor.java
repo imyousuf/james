@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.container.spring.bean.postprocessor;
+package org.apache.james.container.spring.bean;
 
-import org.apache.james.container.spring.bean.factory.AbstractBeanFactoryAware;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -26,44 +25,14 @@ import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 
 /**
- * Abstract base class which BeanPostProcessors should extend if they provide an
- * LifeCycle handling
+ * Abstract base class which BeanPostProcessors should 
+ * extend if they provide an LifeCycle handling.
  * 
  * @param <T>
  */
-public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBeanFactoryAware implements BeanPostProcessor, PriorityOrdered {
+public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBeanFactory implements BeanPostProcessor, PriorityOrdered {
     
     private int order = Ordered.HIGHEST_PRECEDENCE;
-
-    /**
-     * Return the class which mark the lifecycle.
-     * 
-     * @return interfaceClass
-     */
-    protected abstract Class<T> getLifeCycleInterface();
-
-    /**
-     * Method which gets executed if the bean implement the LifeCycleInterface.
-     * Override this if you wish perform any action. Default is todo nothing
-     * 
-     * @param bean
-     *            the actual bean
-     * @param beanname
-     *            then name of the bean
-     * @throws Exception
-     */
-    protected abstract void executeLifecycleMethodBeforeInit(T bean, String beanname) throws Exception;
-
-    /**
-     * Method which gets executed if the bean implement the LifeCycleInterface.
-     * Override this if you wish perform any action. Default is todo nothing
-     * 
-     * @param bean the actual bean
-     * @param beanname then name of the bean
-     * @param componentName the component name
-     * @throws Exception
-     */
-    protected abstract void executeLifecycleMethodAfterInit(T bean, String beanname) throws Exception;
 
     /*
      * (non-Javadoc)
@@ -75,7 +44,9 @@ public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBean
         try {
             Class<T> lClass = getLifeCycleInterface();
             if (lClass.isInstance(bean)) {
-                // check if the bean is registered in the context. If not it was create by the InstanceFactory and so there is no need to execute the callback
+                // Check if the bean is registered in the context. 
+                //   If not it was created by the container and so there 
+                //   is no need to execute the callback.
                 if (getBeanFactory().containsBeanDefinition(name)) {
                     executeLifecycleMethodBeforeInit((T) bean, name);
                 }
@@ -96,7 +67,9 @@ public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBean
         try {
             Class<T> lClass = getLifeCycleInterface();
             if (lClass.isInstance(bean)) {
-                // check if the bean is registered in the context. If not it was create by the InstanceFactory and so there is no need to execute the callback
+                // Check if the bean is registered in the context. 
+                //   If not it was created by the container and so there is no 
+                //   need to execute the callback.
                 if (getBeanFactory().containsBeanDefinition(name)) {
                     executeLifecycleMethodAfterInit((T) bean, name);
                 }
@@ -106,6 +79,34 @@ public abstract class AbstractLifecycleBeanPostProcessor<T> extends AbstractBean
         }
         return bean;
     }
+
+    /**
+     * Return the class which mark the lifecycle.
+     * 
+     * @return interfaceClass
+     */
+    protected abstract Class<T> getLifeCycleInterface();
+
+    /**
+     * Method which gets executed if the bean implement the LifeCycleInterface.
+     * Override this if you wish perform any action. Default is todo nothing
+     * 
+     * @param bean the actual bean
+     * @param beanname then name of the bean
+     * @throws Exception
+     */
+    protected abstract void executeLifecycleMethodBeforeInit(T bean, String beanname) throws Exception;
+
+    /**
+     * Method which gets executed if the bean implement the LifeCycleInterface.
+     * Override this if you wish perform any action. Default is todo nothing
+     * 
+     * @param bean the actual bean
+     * @param beanname then name of the bean
+     * @param componentName the component name
+     * @throws Exception
+     */
+    protected abstract void executeLifecycleMethodAfterInit(T bean, String beanname) throws Exception;
 
     /**
      * @param order

@@ -31,7 +31,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.container.spring.bean.factory.AbstractBeanFactoryAware;
+import org.apache.james.container.spring.bean.AbstractBeanFactory;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailrepository.api.MailRepository;
@@ -41,9 +41,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 /**
  * Provides a registry of mail repositories. A mail repository is uniquely
  * identified by its destinationURL, type and model.
- *
  */
-public class MailRepositoryStoreBeanFactory extends AbstractBeanFactoryAware implements MailRepositoryStore, LogEnabled, Configurable {
+public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implements MailRepositoryStore, LogEnabled, Configurable {
 
     /**
      * Map of [destinationURL + type]->Repository
@@ -105,11 +104,8 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactoryAware imp
      * <p>This is presumably synchronized to prevent corruption of the
      * internal registry.</p>
      *
-     * @param repConf the Configuration object used to register the
-     *                repository
-     *
-     * @throws ConfigurationException if an error occurs accessing the
-     *                                Configuration object
+     * @param repConf the Configuration object used to register the repository
+     * @throws ConfigurationException if an error occurs accessing the Configuration object
      */
     @SuppressWarnings("unchecked")
     public synchronized void registerRepository(HierarchicalConfiguration repConf) throws ConfigurationException {
@@ -170,8 +166,7 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactoryAware imp
      * @param hint the Configuration object used to look up the repository
      * @return the selected repository
      * @throws MailRepostoryStoreException if any error occurs while parsing the 
-     *                            Configuration or retrieving the 
-     *                            MailRepository
+     *         Configuration or retrieving the MailRepository
      */
     public synchronized MailRepository select(String destination) throws MailRepostoryStoreException {
  

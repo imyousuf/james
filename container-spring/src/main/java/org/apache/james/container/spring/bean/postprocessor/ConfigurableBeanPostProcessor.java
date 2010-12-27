@@ -19,6 +19,7 @@
 package org.apache.james.container.spring.bean.postprocessor;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.container.spring.bean.AbstractLifecycleBeanPostProcessor;
 import org.apache.james.container.spring.provider.configuration.ConfigurationProvider;
 import org.apache.james.lifecycle.api.Configurable;
 
@@ -46,7 +47,7 @@ public class ConfigurableBeanPostProcessor extends AbstractLifecycleBeanPostProc
 
     @Override
     protected void executeLifecycleMethodAfterInit(Configurable bean, String beanname) throws Exception {
-        // Do nothing
+        // Do nothing.
     }
 
 }

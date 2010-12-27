@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.container.spring.bean.postprocessor;
 
+import org.apache.james.container.spring.bean.AbstractLifecycleBeanPostProcessor;
 import org.apache.james.container.spring.provider.log.LogProvider;
 import org.apache.james.lifecycle.api.LogEnabled;
 
@@ -44,7 +45,7 @@ public class LogEnabledBeanPostProcessor extends AbstractLifecycleBeanPostProces
 
     @Override
     protected void executeLifecycleMethodAfterInit(LogEnabled bean, String beanname) throws Exception {
-        // Do nothing
+        // Do nothing.
     }
 
  

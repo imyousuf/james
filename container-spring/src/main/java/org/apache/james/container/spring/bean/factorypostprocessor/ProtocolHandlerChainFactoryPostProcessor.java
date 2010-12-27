@@ -42,77 +42,27 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
 /**
  *
- * {@link ProtocolHandlerChain} implementation which will parse a configuration file and register all configured handlers in the Spring {@link ConfigurableListableBeanFactory} instance
- * Here the @class attribute of the handler configuration will be used as bean name prefixed with the value of {@link #setBeanName(String)} + :
+ * {@link ProtocolHandlerChain} implementation which will parse a configuration file and 
+ * register all configured handlers in the Spring {@link ConfigurableListableBeanFactory} 
+ * instance.
  * 
+ * Here the @class attribute of the handler configuration will be used as bean name prefixed 
+ * with the value of {@link #setBeanName(String)} + :
  * 
- * This implementation take also care of wire the {@link ExtensibleHandler} for which it is responsible
- * 
- * 
+ * This implementation take also care of wire the {@link ExtensibleHandler} 
+ * for which it is responsible.
  */
 @SuppressWarnings("unchecked")
 public abstract class ProtocolHandlerChainFactoryPostProcessor implements ProtocolHandlerChain, BeanFactoryPostProcessor {
 
+    private ConfigurableListableBeanFactory beanFactory;
+    
     private String coreHandlersPackage;
     
     private List<String> handlers = new LinkedList<String>();
     
     private String beanname;
     
-    private ConfigurableListableBeanFactory beanFactory;
-    
-    public void setBeanName(String beanname) {
-        this.beanname = beanname;
-    }
-
-    public void setCoreHandlersPackage(String coreHandlersPackage) {
-        this.coreHandlersPackage = coreHandlersPackage;
-    }
-
-    /**
-     * Return a DefaultConfiguration build on the given command name and
-     * classname
-     * 
-     * @param cmdName The command name
-     * @param className The class name
-     * @return DefaultConfiguration
-     * @throws ConfigurationException
-     */
-    private HierarchicalConfiguration addHandler(String className) throws ConfigurationException {
-        HierarchicalConfiguration hConf = new DefaultConfigurationBuilder();
-        hConf.addProperty("[@class]", className);
-        return hConf;
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ProtocolHandlerChain#getHandlers(java.lang.Class)
-     */
-    public <T> LinkedList<T> getHandlers(Class<T> type) {
-        LinkedList<T> classHandlers = new LinkedList<T>();
-        String[] names = beanFactory.getBeanNamesForType(type);
-
-        for (int i = 0; i < names.length; i++) {
-            String name = names[i];
-            // check if the handler is registered in the handler chain
-            if (handlers.contains(name)) {
-                classHandlers.add(beanFactory.getBean(name, type));
-            }
-        }
-        
-        return classHandlers;
-    }
-    
-    /**
-     * Returns the Handlers List.
-     * 
-     * @return
-     */
-    public List<String> getHandlers() {
-        return handlers;
-    }
-
     /**
      * Lookup the {@link HierarchicalConfiguration} for the beanname which was 
      * configured via {@link #setBeanName(String)} and parse it for handlers which should be 
@@ -192,6 +142,57 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             throw new FatalBeanException("Unable to load configuration for bean " + beanname, e);
         }
 
+    }
+
+    public void setCoreHandlersPackage(String coreHandlersPackage) {
+        this.coreHandlersPackage = coreHandlersPackage;
+    }
+
+    /**
+     * Return a DefaultConfiguration build on the given command name and
+     * classname.
+     * 
+     * @param cmdName The command name
+     * @param className The class name
+     * @return DefaultConfiguration
+     * @throws ConfigurationException
+     */
+    private HierarchicalConfiguration addHandler(String className) throws ConfigurationException {
+        HierarchicalConfiguration hConf = new DefaultConfigurationBuilder();
+        hConf.addProperty("[@class]", className);
+        return hConf;
+    }
+
+    /**
+     * Returns the Handlers List.
+     * 
+     * @return
+     */
+    public List<String> getHandlers() {
+        return handlers;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.api.ProtocolHandlerChain#getHandlers(java.lang.Class)
+     */
+    public <T> LinkedList<T> getHandlers(Class<T> type) {
+        LinkedList<T> classHandlers = new LinkedList<T>();
+        String[] names = beanFactory.getBeanNamesForType(type);
+
+        for (int i = 0; i < names.length; i++) {
+            String name = names[i];
+            // check if the handler is registered in the handler chain
+            if (handlers.contains(name)) {
+                classHandlers.add(beanFactory.getBean(name, type));
+            }
+        }
+        
+        return classHandlers;
+    }
+    
+    public void setBeanName(String beanname) {
+        this.beanname = beanname;
     }
 
     private String getBeanName(String name) {
