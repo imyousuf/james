@@ -315,10 +315,7 @@
     <!-- 
       Mailbox Copier
      -->
-    <bean id="mailboxCopier" class="org.apache.james.mailbox.copier.MailboxCopierImpl">
-        <property name="srcMailboxManager" ref="jpa-mailboxmanager"/>
-        <property name="dstMailboxManager" ref="jcr-mailboxmanager"/>
-    </bean>
+    <bean id="mailboxcopier" class="org.apache.james.mailbox.copier.MailboxCopierImpl"/>
           
     <!-- 
     ===========================================================================
@@ -399,7 +396,7 @@
       </property>
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean,org.apache.james.mailbox.copier.MailboxCopierManagementMBean,org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean"/>
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean,org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean,org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean"/>
           </bean>
       </property>
     </bean>
@@ -407,6 +404,6 @@
     <bean id="virtualusertablemanagement" class="org.apache.james.vut.lib.VirtualUserTableManagement" />
     <bean id="domainlistmanagement" class="org.apache.james.domainlist.lib.DomainListManagement" />
     <bean id="mailboxmanagermanagement" class="org.apache.james.adapter.mailbox.MailboxManagerManagement" />
-    <bean id="mailboxcopiermanagement" class="org.apache.james.mailbox.copier.MailboxCopierManagement" />
+    <bean id="mailboxcopiermanagement" class="org.apache.james.container.spring.mailbox.MailboxCopierManagement" />
 
 </beans>
