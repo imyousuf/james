@@ -29,25 +29,13 @@
   <name>Apache James Server Mailets</name>
   <packaging>jar</packaging>
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.james</groupId>
-          <artifactId>maven-mailetdocs-plugin</artifactId>
-          <version>0.1</version>
-          <configuration>
-            <outputDirectory>target/mailtedocs</outputDirectory>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.james</groupId>
         <artifactId>maven-mailetdocs-plugin</artifactId>
-        <version>0.1</version>
+        <version>0.2-SNAPSHOT</version>
         <configuration>
-            <outputDirectory>target/mailtedocs</outputDirectory>
+            <outputDirectory>target/mailetdocs</outputDirectory>
         </configuration>
       </plugin>
       <plugin>
@@ -218,16 +206,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-<reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.james</groupId>
-        <artifactId>maven-mailetdocs-plugin</artifactId>
-        <version>0.1</version>
-        <configuration>
-            <outputDirectory>target/mailtedocs</outputDirectory>
-        </configuration>
-      </plugin>
-</plugins>
-</reporting>
 </project>
