@@ -110,6 +110,19 @@
     </repository>
   </repositories>
   
+  <pluginRepositories>
+    <pluginRepository>
+      <id>repository.apache.org</id>
+      <url>http://repository.apache.org/content/groups/snapshots//</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
+  
   <build>
     <plugins>
       <plugin>
