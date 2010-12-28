@@ -29,9 +29,9 @@ public interface MailRepositoryStore {
      * 
      * @param url
      * @return repository
-     * @throws MailRepostoryStoreException
+     * @throws MailRepositoryStoreException
      */
-    public MailRepository select(String url) throws MailRepostoryStoreException;
+    public MailRepository select(String url) throws MailRepositoryStoreException;
     
     /**
      * Return a {@link List} which contains all urls of the selected {@link MailRepository}'s
@@ -41,12 +41,12 @@ public interface MailRepositoryStore {
     public List<String> getUrls();
     
     @SuppressWarnings("serial")
-    public class MailRepostoryStoreException extends Exception {
-        public MailRepostoryStoreException(String msg, Throwable t) {
+    public class MailRepositoryStoreException extends Exception {
+        public MailRepositoryStoreException(String msg, Throwable t) {
             super(msg, t);
         }
         
-        public MailRepostoryStoreException(String msg) {
+        public MailRepositoryStoreException(String msg) {
             super(msg);
         }
     }
