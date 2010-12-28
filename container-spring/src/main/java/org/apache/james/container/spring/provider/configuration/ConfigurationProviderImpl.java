@@ -76,15 +76,6 @@ public class ConfigurationProviderImpl implements ConfigurationProvider, Resourc
         this.resources = resources;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.container.spring.Registry#registerForComponent(java.lang.String, java.lang.Object)
-     */
-    public void registerForComponent(String name, HierarchicalConfiguration conf) {
-        confMap.put(name, conf);        
-    }
-
-
 
     /*
      * (non-Javadoc)
