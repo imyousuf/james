@@ -434,7 +434,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
                 configuration,
                 logger,
                 getLocalUsers(),
-                getDNSService(), getDomainList());
+                getDNSService(), getDomainList(), getMailQueue());
         
         setParsedConfiguration(parsedConfiguration);
 

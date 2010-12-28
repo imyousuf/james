@@ -326,13 +326,14 @@ class ParsedConfiguration
      * @param dnsServer
      * @throws ConfigurationException
      */
-    public ParsedConfiguration(HierarchicalConfiguration configuration, Log logger, UsersRepository localUsers,DNSService dnsServer, DomainList domainList) throws ConfigurationException
+    public ParsedConfiguration(HierarchicalConfiguration configuration, Log logger, UsersRepository localUsers,DNSService dnsServer, DomainList domainList, MailQueue queue) throws ConfigurationException
     {
         this();
         setLogger(logger);
         setLocalUsers(localUsers);   
         setDNSServer(dnsServer);
         setDomainList(domainList);
+        setMailQueue(queue);
         configure(configuration);
     }
     
