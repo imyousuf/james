@@ -434,8 +434,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
                 configuration,
                 logger,
                 getLocalUsers(),
-                getDNSService());
-        parsedConfiguration.setDomainList(domainList);
+                getDNSService(), getDomainList());
         
         setParsedConfiguration(parsedConfiguration);
 
@@ -992,4 +991,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
         this.domainList = domainList;
     }
 
+    public DomainList getDomainList() {
+        return domainList;
+    }
 }
