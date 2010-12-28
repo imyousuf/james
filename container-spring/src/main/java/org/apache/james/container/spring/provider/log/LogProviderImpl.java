@@ -47,16 +47,6 @@ public class LogProviderImpl implements LogProvider, InitializingBean {
         return new Log4JLogger(loggerName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.container.spring.Registry#registerForComponent(java.
-     * lang.String, java.lang.Object)
-     */
-    public void registerForComponent(String name, Log log) {
-        logMap.put(name, log);
-    }
 
     public void setLogMappings(Map<String,String> logs) {
         this.logs = logs;
