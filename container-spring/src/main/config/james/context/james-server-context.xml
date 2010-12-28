@@ -87,6 +87,13 @@
               <!-- no alias needed -->
               <value></value>
             </entry>
+            <entry>
+              <key>
+                <value>importjames23-usersrepository</value>
+              </key>
+<!--               no alias needed -->
+              <value></value>
+            </entry>
           </map>
         </property>
     </bean>
@@ -316,6 +323,11 @@
       Mailbox Copier
      -->
     <bean id="mailboxcopier" class="org.apache.james.mailbox.copier.MailboxCopierImpl"/>
+          
+    <!-- 
+      Mailbox Import
+     -->
+    <bean id="importjames23" class="org.apache.james.container.spring.tool.James23Importer"/>
           
     <!-- 
     ===========================================================================
