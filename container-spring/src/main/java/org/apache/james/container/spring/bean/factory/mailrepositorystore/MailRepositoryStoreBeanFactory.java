@@ -164,13 +164,13 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
      * @throws MailRepositoryStoreException if any error occurs while parsing the 
      *         Configuration or retrieving the MailRepository
      */
-    public synchronized MailRepository select(String destination) throws MailRepostoryStoreException {
+    public synchronized MailRepository select(String destination) throws MailRepositoryStoreException {
  
         String protocol = null;
 
         int idx = destination.indexOf(':');
         if ( idx == -1 )
-            throw new MailRepostoryStoreException("Destination is malformed. Must be a valid URL: "
+            throw new MailRepositoryStoreException("Destination is malformed. Must be a valid URL: "
                 + destination);
         protocol = destination.substring(0,idx);
         
@@ -247,7 +247,7 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
                     getLogger().warn( "Exception while creating repository:" +
                                       e.getMessage(), e );
                 }
-                throw new MailRepostoryStoreException("Cannot find or init repository", e);
+                throw new MailRepositoryStoreException("Cannot find or init repository", e);
             }
         }
         

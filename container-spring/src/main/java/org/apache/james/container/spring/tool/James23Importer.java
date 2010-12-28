@@ -31,7 +31,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.api.MailRepositoryStore;
-import org.apache.james.mailrepository.api.MailRepositoryStore.MailRepostoryStoreException;
+import org.apache.james.mailrepository.api.MailRepositoryStore.MailRepositoryStoreException;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.Mail;
 
@@ -77,10 +77,10 @@ public class James23Importer implements Configurable, LogEnabled {
      * 
      * TODO: This is just a skeleton to talk about the architecture (conf,...)
      * 
-     * @throws MailRepostoryStoreException
+     * @throws MailRepositoryStoreException
      * @throws MessagingException
      */
-    public void importFromJames23() throws MailRepostoryStoreException, MessagingException {
+    public void importFromJames23() throws MailRepositoryStoreException, MessagingException {
         
         String james23MailRepositoryPath = config.getString("repositoryPath");
         
