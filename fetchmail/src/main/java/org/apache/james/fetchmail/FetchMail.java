@@ -39,6 +39,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration.Node;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
@@ -401,6 +402,8 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     private Log logger;
 
     private MailQueue queue;
+
+    private DomainList domainList;
     
     /**
      * Constructor for POP3mail.
@@ -432,6 +435,8 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
                 logger,
                 getLocalUsers(),
                 getDNSService());
+        parsedConfiguration.setDomainList(domainList);
+        
         setParsedConfiguration(parsedConfiguration);
 
         // Setup the Accounts
@@ -981,6 +986,10 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
     
     public MailQueue getMailQueue() {
         return queue;
+    }
+
+    public void setDomainList(DomainList domainList) {
+        this.domainList = domainList;
     }
 
 }

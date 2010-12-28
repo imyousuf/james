@@ -36,6 +36,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
@@ -81,6 +82,9 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
 
     private MailQueue queue;
     private MailQueueFactory queueFactory;
+
+
+    private DomainList domainList;
  
 
     
@@ -99,6 +103,13 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
     @Resource(name="usersrepository")
     public void setUsersRepository(UsersRepository urepos) {
         this.urepos = urepos;
+    }
+
+
+    
+    @Resource(name="domainlist")
+    public void setDomainList(DomainList domainList) {
+        this.domainList = domainList;
     }
     
     /*
@@ -145,6 +156,8 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
                 fetcher.setDNSService(dns);
                 fetcher.setUsersRepository(urepos);
                 fetcher.setMailQueue(queue);
+                fetcher.setDomainList(domainList);
+
                 fetcher.configure(fetchConf);
                 
                 // initialize scheduling
