@@ -21,16 +21,14 @@
 
 package org.apache.james.core;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetHeaders;
-
 import java.io.ByteArrayOutputStream;
-import java.io.FilterInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Enumeration;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetHeaders;
 
 import org.apache.mailet.base.RFC2822Headers;
 
@@ -165,8 +163,6 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      */
     @SuppressWarnings("unchecked")
     public synchronized long getSize() {
-        System.out.println("modified=" + modified);
-
         if (size == -1 || modified) {
             long c = 0;
             Enumeration<String> headerLines = getAllHeaderLines();
