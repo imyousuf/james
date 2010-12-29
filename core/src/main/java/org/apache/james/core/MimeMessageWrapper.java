@@ -271,18 +271,8 @@ public class MimeMessageWrapper
      * Rewritten for optimization purposes
      */
     public synchronized void writeTo(OutputStream os) throws IOException, MessagingException {
-        if (source != null && !isModified()) {
-            // We do not want to instantiate the message... just read from source
-            // and write to this outputstream
-            InputStream in = source.getInputStream();
-            try {
-                IOUtils.copy(in, os);
-            } finally {
-                IOUtils.closeQuietly(in);
-            }
-        } else {
             writeTo(os, os);
-        }
+        
     }
 
     /**
@@ -300,6 +290,9 @@ public class MimeMessageWrapper
     }
 
     public synchronized void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
+        if (!saved)
+            saveChanges();
+
         if (source != null && !isModified()) {
             //We do not want to instantiate the message... just read from source
             //  and write to this outputstream
@@ -307,14 +300,19 @@ public class MimeMessageWrapper
             //First handle the headers
             InputStream in = source.getInputStream();
             try {
-                InternetHeaders headers = new InternetHeaders(in);
-                IOUtils.copy(new InternetHeadersInputStream(headers), headerOs);
+                MailHeaders headers = new MailHeaders(in);
+                IOUtils.copy(new InternetHeadersInputStream(headers.getNonMatchingHeaderLines(ignoreList)), headerOs);
                 IOUtils.copy(in, bodyOs);
             } finally {
                 IOUtils.closeQuietly(in);
             }
         } else {
-            MimeMessageUtil.writeToInternal(this, headerOs, bodyOs, ignoreList);
+            //MimeMessageUtil.writeToInternal(this, headerOs, bodyOs, ignoreList);
+            if (headers == null) {
+                loadHeaders();
+            }
+            IOUtils.copy(new InternetHeadersInputStream(headers.getNonMatchingHeaderLines(ignoreList)), headerOs);
+            MimeMessageUtil.writeMessageBodyTo(this, bodyOs);
         }
     }
 
