@@ -270,7 +270,7 @@ public class MimeMessageWrapper
     /**
      * Rewritten for optimization purposes
      */
-    public synchronized void writeTo(OutputStream os) throws IOException, MessagingException {
+    public void writeTo(OutputStream os) throws IOException, MessagingException {
             writeTo(os, os);
         
     }
@@ -330,7 +330,6 @@ public class MimeMessageWrapper
             if (preLoad && messageParsed == false) {
                 loadMessage();
             }
-            System.out.println(getContent());
             MimeMessageUtil.writeMessageBodyTo(this, bodyOs);
         }
     }
