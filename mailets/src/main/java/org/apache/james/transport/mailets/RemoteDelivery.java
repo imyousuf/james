@@ -206,6 +206,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     
     private DomainList domainList;
 
+    private boolean startTLS = false;
+
     @Resource(name="domainlist")
     public void setDomainList(DomainList domainList) {
         this.domainList = domainList;
@@ -332,6 +334,10 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
         bounceProcessor = getInitParameter("bounceProcessor");
 
+        String sTLS = getInitParameter("startTLS");
+        if (sTLS != null) {
+            startTLS  = new Boolean(sTLS).booleanValue();
+        }
         String gateway = getInitParameter("gateway");
         String gatewayPort = getInitParameter("gatewayPort");
 
@@ -674,7 +680,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         props.put("mail.smtp.sendpartial",String.valueOf(sendPartial));
 
         props.put("mail.smtp.localhost", getHeloName());
-
+        
+        // handle starttls
+        props.put("mail.smtp.starttls.enable", String.valueOf(startTLS));
 
         if (isBindUsed) {
             // undocumented JavaMail 1.2 feature, smtp transport will use
