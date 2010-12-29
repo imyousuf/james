@@ -294,4 +294,27 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         reader.close();
         assertTrue(contentUpdated);
     }
+    
+    public void testSize() throws MessagingException {
+        assertEquals(body.length(), mw.getSize());
+    }
+    
+    
+    public void testSizeModifiedHeaders() throws MessagingException {
+        mw.addHeader("whatever", "test");
+        assertEquals(body.length(), mw.getSize());
+    }
+   
+    public void testSizeModifiedBodyWithoutSave() throws MessagingException {
+        String newBody = "This is the new body of the message";
+        mw.setText(newBody);
+        assertEquals(body.length(), mw.getSize());
+    }
+    
+    public void testSizeModifiedBodyWithSave() throws MessagingException {
+        String newBody = "This is the new body of the message";
+        mw.setText(newBody);
+        mw.saveChanges();
+        assertEquals(body.length(), mw.getSize());
+    }
 }

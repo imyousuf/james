@@ -25,9 +25,12 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Enumeration;
 
 import org.apache.mailet.base.RFC2822Headers;
 
@@ -39,7 +42,9 @@ import org.apache.mailet.base.RFC2822Headers;
 public class MailHeaders extends InternetHeaders implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 238748126601L;
-
+    private boolean modified = false;
+    private long size = -1;
+    
 	/**
      * No argument constructor
      *
@@ -62,6 +67,7 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
         super();
         load(in);
     }
+
 
     /**
      * Write the headers to an output stream
@@ -100,12 +106,13 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      *
      * @see javax.mail.internet.InternetHeaders#addHeader(java.lang.String, java.lang.String)
      */
-    public void addHeader(String arg0, String arg1) {
+    public synchronized void addHeader(String arg0, String arg1) {
         if (RFC2822Headers.RETURN_PATH.equalsIgnoreCase(arg0)) {
             headers.add(0, new InternetHeader(arg0, arg1));
         } else {
             super.addHeader(arg0, arg1);
         }
+        modified();
     }
 
     /**
@@ -115,13 +122,32 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      *
      * @see javax.mail.internet.InternetHeaders#setHeader(java.lang.String, java.lang.String)
      */
-    public void setHeader(String arg0, String arg1) {
+    public synchronized void setHeader(String arg0, String arg1) {
         if (RFC2822Headers.RETURN_PATH.equalsIgnoreCase(arg0)) {
             super.removeHeader(arg0);
         }
         super.setHeader(arg0, arg1);
+        
+        modified();
     }
 
+    @Override
+    public synchronized void removeHeader(String name) {
+        super.removeHeader(name);
+        modified();
+    }
+
+    @Override
+    public synchronized void addHeaderLine(String line) {
+        super.addHeaderLine(line);
+        modified();
+    }
+
+    private void modified() {
+        modified = true;
+        size = -1;
+    }
+    
     /**
      * Check if all REQUIRED headers fields as specified in RFC 822
      * are present.
@@ -130,5 +156,29 @@ public class MailHeaders extends InternetHeaders implements Serializable, Clonea
      */
     public boolean isValid() {
         return (isSet(RFC2822Headers.DATE) && isSet(RFC2822Headers.TO) && isSet(RFC2822Headers.FROM));
+    }
+    
+    /**
+     * Return the size of the headers
+     * 
+     * @return size
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized long getSize() {
+        System.out.println("modified=" + modified);
+
+        if (size == -1 || modified) {
+            long c = 0;
+            Enumeration<String> headerLines = getAllHeaderLines();
+            while (headerLines.hasMoreElements()) {
+                c += headerLines.nextElement().length();
+                // CRLF
+                c += 2;
+            }
+            size = c;
+            modified = false;
+        }
+        return size;
+
     }
 }

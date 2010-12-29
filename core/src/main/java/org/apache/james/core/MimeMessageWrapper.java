@@ -84,6 +84,8 @@ public class MimeMessageWrapper
      */
     private InputStream sourceIn;
 
+    private long initialHeaderSize;
+
     private MimeMessageWrapper(Session session) throws MessagingException {
         super(session);
         this.headers = null;
@@ -197,6 +199,7 @@ public class MimeMessageWrapper
                 InputStream in = source.getInputStream();
                 try {
                     headers = createInternetHeaders(in);
+
                 } finally {
                     IOUtils.closeQuietly(in);
                 }
@@ -246,6 +249,24 @@ public class MimeMessageWrapper
         return headersModified || bodyModified || modified;
     }
 
+    /**
+     * Get whether the body of the message has been modified
+     * 
+     * @return bodyModified
+     */
+    public synchronized boolean isBodyModified() {
+        return bodyModified;
+    }
+    
+    /**
+     * Get whether the header of the message has been modified
+     * 
+     * @return headersModified
+     */
+    public synchronized boolean isHeaderModified() {
+        return headersModified;
+    }
+    
     /**
      * Rewritten for optimization purposes
      */
@@ -299,14 +320,29 @@ public class MimeMessageWrapper
 
     /**
      * This is the MimeMessage implementation - this should return ONLY the
-     * body, not the entire message (should not count headers).  Will have
-     * to parse the message.
+     * body, not the entire message (should not count headers).  This size will never change on {@link #saveChanges()}
      */
-    public int getSize() throws MessagingException {
-        if (!messageParsed) {
-            loadMessage();
+    public synchronized int getSize() throws MessagingException {
+        if (source != null) {
+            try {
+                long fullSize = source.getMessageSize();
+                if (headers == null) {
+                    loadHeaders();
+                }
+                // 2 == CRLF 
+                return (int) (fullSize - initialHeaderSize - 2);
+                
+            } catch (IOException e) {
+                throw new MessagingException("Unable to calculate message size");
+            } 
+        } else {
+            if (!messageParsed) {
+                loadMessage();
+            } 
+           
+            return super.getSize();
         }
-        return super.getSize();
+       
     }
 
     /**
@@ -425,9 +461,11 @@ public class MimeMessageWrapper
 
     private synchronized void checkModifyHeaders() throws MessagingException {
         // Disable only-header loading optimizations for JAMES-559
+       
         if (!messageParsed) {
             loadMessage();
         }
+   
         // End JAMES-559
         if (headers == null) {
             loadHeaders();
@@ -530,6 +568,8 @@ public class MimeMessageWrapper
         if (headers != null) {
             return headers;
         } else {
+            initialHeaderSize = newHeaders.getSize();
+
             return newHeaders;
         }
     }
