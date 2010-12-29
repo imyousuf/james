@@ -217,7 +217,7 @@ public class MimeMessageWrapper
      * @throws MessagingException if an error is encountered while
      *                            loading the message
      */
-    protected synchronized void loadMessage() throws MessagingException {
+    public synchronized void loadMessage() throws MessagingException {
         if (messageParsed) {
             //Another thread has already loaded this message
             return;
@@ -289,19 +289,33 @@ public class MimeMessageWrapper
         writeTo(headerOs, bodyOs, new String[0]);
     }
 
-    public synchronized void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
+    public  void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList) throws IOException, MessagingException {
+        writeTo(headerOs, bodyOs, ignoreList, false);
+    }
+
+
+    public synchronized void writeTo(OutputStream headerOs, OutputStream bodyOs, String[] ignoreList, boolean preLoad) throws IOException, MessagingException {
         if (!saved)
             saveChanges();
 
-        if (source != null && !isModified()) {
+        
+        if (preLoad == false && source != null && !isBodyModified()) {
             //We do not want to instantiate the message... just read from source
             //  and write to this outputstream
 
             //First handle the headers
             InputStream in = source.getInputStream();
             try {
-                MailHeaders headers = new MailHeaders(in);
-                IOUtils.copy(new InternetHeadersInputStream(headers.getNonMatchingHeaderLines(ignoreList)), headerOs);
+                InternetHeaders myHeaders;
+                MailHeaders parsedHeaders = new MailHeaders(in);
+
+                // check if we should use the parsed headers or not
+                if (isHeaderModified() == false) {
+                    myHeaders = parsedHeaders;
+                } else {
+                    myHeaders = headers;
+                }
+                IOUtils.copy(new InternetHeadersInputStream(myHeaders.getNonMatchingHeaderLines(ignoreList)), headerOs);
                 IOUtils.copy(in, bodyOs);
             } finally {
                 IOUtils.closeQuietly(in);
@@ -312,10 +326,14 @@ public class MimeMessageWrapper
                 loadHeaders();
             }
             IOUtils.copy(new InternetHeadersInputStream(headers.getNonMatchingHeaderLines(ignoreList)), headerOs);
+            
+            if (preLoad && messageParsed == false) {
+                loadMessage();
+            }
+            System.out.println(getContent());
             MimeMessageUtil.writeMessageBodyTo(this, bodyOs);
         }
     }
-
     /**
      * This is the MimeMessage implementation - this should return ONLY the
      * body, not the entire message (should not count headers).  This size will never change on {@link #saveChanges()}
@@ -459,10 +477,11 @@ public class MimeMessageWrapper
 
     private synchronized void checkModifyHeaders() throws MessagingException {
         // Disable only-header loading optimizations for JAMES-559
-       
+       /*
         if (!messageParsed) {
             loadMessage();
         }
+        */
    
         // End JAMES-559
         if (headers == null) {

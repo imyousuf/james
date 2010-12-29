@@ -87,7 +87,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
             }
         }
 
-        protected synchronized void loadMessage() throws MessagingException {
+        public synchronized void loadMessage() throws MessagingException {
             if (messageLoadable) {
                 super.loadMessage();
             } else {

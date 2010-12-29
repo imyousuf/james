@@ -447,6 +447,29 @@ public class JDBCMailRepository
             conn = datasource.getConnection();
             //Need to determine whether need to insert this record, or update it.
     
+            //Determine whether the message body has changed, and possibly avoid
+            //  updating the database.
+            boolean saveBody = false;
+            
+            MimeMessage messageBody = mc.getMessage();
+            // if the message is a CopyOnWrite proxy we check the modified wrapped object.
+            if (messageBody instanceof MimeMessageCopyOnWriteProxy) {
+                MimeMessageCopyOnWriteProxy messageCow = (MimeMessageCopyOnWriteProxy) messageBody;
+                messageBody = messageCow.getWrappedMessage();
+            }
+            if (messageBody instanceof MimeMessageWrapper) {
+                MimeMessageWrapper message = (MimeMessageWrapper)messageBody;
+                saveBody = message.isModified();
+                if (saveBody) {
+                    message.loadMessage();
+                }
+            } else {
+                saveBody = true;
+            }
+            MessageInputStream is = new MessageInputStream(mc,sr,inMemorySizeLimit, true);
+
+            
+
             //Begin a transaction
             conn.setAutoCommit(false);
     
@@ -466,6 +489,8 @@ public class JDBCMailRepository
             }
     
             if (exists) {
+                //MessageInputStream is = new MessageInputStream(mc,sr,inMemorySizeLimit, true);
+
                 //Update the existing record
                 PreparedStatement updateMessage = null;
     
@@ -545,27 +570,13 @@ public class JDBCMailRepository
                     }
                 }
     
-                //Determine whether the message body has changed, and possibly avoid
-                //  updating the database.
-                MimeMessage messageBody = mc.getMessage();
-                boolean saveBody = false;
-                // if the message is a CopyOnWrite proxy we check the modified wrapped object.
-                if (messageBody instanceof MimeMessageCopyOnWriteProxy) {
-                    MimeMessageCopyOnWriteProxy messageCow = (MimeMessageCopyOnWriteProxy) messageBody;
-                    messageBody = messageCow.getWrappedMessage();
-                }
-                if (messageBody instanceof MimeMessageWrapper) {
-                    MimeMessageWrapper message = (MimeMessageWrapper)messageBody;
-                    saveBody = message.isModified();
-                } else {
-                    saveBody = true;
-                }
+
                 
                 if (saveBody) {
+
                     PreparedStatement updateMessageBody = 
                         conn.prepareStatement(sqlQueries.getSqlString("updateMessageBodySQL", true));
                     try {
-                        MessageInputStream is = new MessageInputStream(mc,sr,inMemorySizeLimit);
                         updateMessageBody.setBinaryStream(1,is,(int) is.getSize());
                         updateMessageBody.setString(2, mc.getName());
                         updateMessageBody.setString(3, repositoryName);
@@ -606,7 +617,6 @@ public class JDBCMailRepository
                     insertMessage.setString(8, mc.getRemoteAddr());
                     insertMessage.setTimestamp(9, new java.sql.Timestamp(mc.getLastUpdated().getTime()));
     
-                    MessageInputStream is = new MessageInputStream(mc, sr, inMemorySizeLimit);
     
                     insertMessage.setBinaryStream(10, is, (int) is.getSize());
                     

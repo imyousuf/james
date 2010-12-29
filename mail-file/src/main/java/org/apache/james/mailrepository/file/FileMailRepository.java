@@ -163,6 +163,7 @@ public class FileMailRepository
             keys.add(key);
         }
         boolean saveStream = true;
+        boolean update = true;
 
         MimeMessage message = mc.getMessage();
         // if the message is a Copy on Write proxy we check the wrapped message
@@ -189,18 +190,35 @@ public class FileMailRepository
                     .append(destination)
                     .append("/")
                     .append(mc.getName());
-            if (destinationBuffer.toString().equals(wrapper.getSourceId()) && !wrapper.isModified()) {
-                //We're trying to save to the same place, and it's not modified... we shouldn't save.
-                //More importantly, if we try to save, we will create a 0-byte file since we're
-                //retrying to retrieve from a file we'll be overwriting.
-                saveStream = false;
+            if (destinationBuffer.toString().equals(wrapper.getSourceId())) {
+                if (!wrapper.isModified()) {
+                    //We're trying to save to the same place, and it's not modified... we shouldn't save.
+                    //More importantly, if we try to save, we will create a 0-byte file since we're
+                    //retrying to retrieve from a file we'll be overwriting.
+                    saveStream = false;
+                }
+                
+                // its an update
+                update = true;
             }
         }
         if (saveStream) {
             OutputStream out = null;
             try {
-                out = streamRepository.put(key);
-                mc.getMessage().writeTo(out);
+                if (update && message instanceof MimeMessageWrapper) {
+                    // we need to force the loading of the message from the stream as we want to override the old message
+                    ((MimeMessageWrapper)message).loadMessage();
+                    out = streamRepository.put(key);
+
+                    ((MimeMessageWrapper)message).writeTo(out, out, null, true);;
+
+                } else {
+                    out = streamRepository.put(key);
+                    mc.getMessage().writeTo(out);
+
+                }
+
+
             } finally {
                 if (out != null) out.close();
             }

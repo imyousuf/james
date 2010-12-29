@@ -19,11 +19,14 @@
 
 package org.apache.james.mailrepository.jdbc;
 
+import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageUtil;
+import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.repository.api.StreamRepository;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -72,11 +75,13 @@ final class MessageInputStream extends InputStream {
      * @throws IOException get thrown if an IO error detected
      * @throws MessagingException get thrown if an error detected while reading informations of the mail 
      */
-    public MessageInputStream(Mail mc, StreamRepository srep, int sizeLimit) throws IOException, MessagingException {
+    public MessageInputStream(Mail mc, StreamRepository srep, int sizeLimit, final boolean update) throws IOException, MessagingException {
         super();
         caughtException = null;
         streamRep = srep;
         size = mc.getMessageSize();
+        
+        
         // we use the pipes only when streamRep is null and the message size is greater than 4096
         // Otherwise we should calculate the header size and not the message size when streamRep is not null (JAMES-475)
         if (streamRep == null && size > sizeLimit) {
@@ -88,7 +93,7 @@ final class MessageInputStream extends InputStream {
 
                 public void run() {
                     try {
-                        writeStream(mail,out);
+                        writeStream(mail,out, update);
                     } catch (IOException e) {
                         caughtException = e;
                     } catch (MessagingException e) {
@@ -105,7 +110,7 @@ final class MessageInputStream extends InputStream {
             wrapped = new PipedInputStream(headerOut);
         } else {
             ByteArrayOutputStream headerOut = new ByteArrayOutputStream();
-            writeStream(mc,headerOut);
+            writeStream(mc,headerOut, update);
             wrapped = new ByteArrayInputStream(headerOut.toByteArray());
             size = headerOut.size();
         }
@@ -131,7 +136,22 @@ final class MessageInputStream extends InputStream {
      * @throws IOException get thrown if an IO error detected
      * @throws MessagingException get thrown if an error detected while reading informations of the mail 
      */
-    private void writeStream(Mail mail, OutputStream out) throws IOException, MessagingException {
+    private void writeStream(Mail mail, OutputStream out, boolean update) throws IOException, MessagingException {
+        MimeMessage msg = mail.getMessage();
+
+        if (update) {
+        
+            if (msg instanceof MimeMessageCopyOnWriteProxy) {
+                msg = ((MimeMessageCopyOnWriteProxy)msg).getWrappedMessage();
+            }
+        
+            if (msg instanceof MimeMessageWrapper) {
+                MimeMessageWrapper wrapper = (MimeMessageWrapper) msg;
+                wrapper.loadMessage();
+                
+            }
+        }
+        
         OutputStream bodyOut = null;
         try {
             if (streamRep == null) {
@@ -143,8 +163,13 @@ final class MessageInputStream extends InputStream {
                 bodyOut = streamRep.put(mail.getName());
             }
         
-            //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
-            MimeMessageUtil.writeTo(mail.getMessage(), out, bodyOut);
+            if (msg instanceof MimeMessageWrapper) {
+                ((MimeMessageWrapper)msg).writeTo(out, bodyOut, null, true);
+            } else {
+                //Write the message to the headerOut and bodyOut.  bodyOut goes straight to the file
+                MimeMessageUtil.writeTo(mail.getMessage(), out, bodyOut); 
+            }
+
             out.flush();
             bodyOut.flush();
         
