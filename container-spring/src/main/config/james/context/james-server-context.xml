@@ -269,7 +269,7 @@
     </bean>
     <bean id="pop3ProtocolHandlerChain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
         <property name="coreHandlersPackage" value="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
-        <property name="beanName" value="lmtpserver"/>
+        <property name="beanName" value="pop3server"/>
     </bean>
 
     <!-- 
