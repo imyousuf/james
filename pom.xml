@@ -59,7 +59,6 @@
     <module>nio-netty</module>
     <module>osgi</module>
     <module>pop3server</module>
-    <module>remotemanager</module>
     <module>repository-api</module>
     <module>repository-file</module>
     <module>smtpserver</module>
@@ -685,11 +684,7 @@
       <artifactId>james-server-mailets</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-remotemanager</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-maildir</artifactId>

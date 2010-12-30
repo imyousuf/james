@@ -232,19 +232,6 @@
 
     <bean id="fetchmail" class="org.apache.james.fetchmail.FetchScheduler" />
 
-    <!-- 
-    ===========================================================================
-       Remote Manager
-    ===========================================================================
-    -->
-          
-    <bean id="remotemanager" class="org.apache.james.remotemanager.netty.RemoteManager" >
-        <property name="protocolHandlerChain" ref="remoteProtocolHandlerChain"/>
-    </bean>
-    <bean id="remoteProtocolHandlerChain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
-        <property name="coreHandlersPackage" value="org.apache.james.remotemanager.core.CoreCmdHandlerLoader"/>
-        <property name="beanName" value="remotemanager"/>
-    </bean>
 
     <!-- 
     ===========================================================================
@@ -395,7 +382,6 @@
           <entry key="org.apache.james:type=server,name=lmtpserver" value-ref="lmtpserver"/>
           <entry key="org.apache.james:type=server,name=pop3server" value-ref="pop3server"/>
           <entry key="org.apache.james:type=server,name=imapserver" value-ref="imapserver"/>
-          <entry key="org.apache.james:type=server,name=remotemanager" value-ref="remotemanager"/>
           <entry key="org.apache.james:type=component,name=domainlist" value-ref="domainlistmanagement"/>
           <entry key="org.apache.james:type=component,name=dnsservice" value-ref="dnsservice"/>
           <entry key="org.apache.james:type=component,name=virtualusertable" value-ref="virtualusertablemanagement"/>
@@ -408,7 +394,7 @@
       </property>
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.remotemanager.netty.RemoteManagerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean,org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean,org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean"/>
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UserManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean,org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean,org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean"/>
           </bean>
       </property>
     </bean>

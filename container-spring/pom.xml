@@ -638,11 +638,6 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-remotemanager</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-core</artifactId>
       <scope>runtime</scope>
