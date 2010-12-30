@@ -32,7 +32,7 @@ import org.apache.james.user.lib.mock.MockUsersRepository;
 /**
  * Tests the UserManagement
  */
-public class UserManagementTest extends TestCase {
+public class UsersRepositoryManagementTest extends TestCase {
 
     private MockUsersRepository m_mockUsersRepository;
     private UsersRepositoryManagement m_userManagement;
