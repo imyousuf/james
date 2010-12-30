@@ -43,7 +43,7 @@ public class ConnectHandlerStats extends StandardMBean implements HandlerStatsMB
         super(HandlerStatsMBean.class);
         this.handlerName = handlerName;
         
-        this.name = "org.apache.james:type=server,name=" + jmxName + ",handler=connecthandler,connecthandler=" + handlerName;
+        this.name = "org.apache.james:type=server,name=" + jmxName + ",chain=handlerchain,handler=connecthandler,connecthandler=" + handlerName;
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         ObjectName baseObjectName = new ObjectName(name);
         mbeanserver.registerMBean(this, baseObjectName);

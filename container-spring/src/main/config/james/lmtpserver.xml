@@ -31,6 +31,11 @@
       <maxmessagesize>0</maxmessagesize>
       <handlerchain>
           <handler class="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
+          
+          <!-- jmx stats -->
+          <handler class="org.apache.james.lmtpserver.jmx.CommandHandlerResultJMXMonitor"/>
+          <handler class="org.apache.james.lmtpserver.jmx.ConnectHandlerResultJMXMonitor"/>
+          <handler class="org.apache.james.lmtpserver.jmx.LineHandlerResultJMXMonitor"/>
       </handlerchain>
   </handler>
 </lmtpserver>

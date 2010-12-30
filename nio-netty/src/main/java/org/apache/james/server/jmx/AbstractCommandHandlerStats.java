@@ -52,7 +52,7 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
         this.handlerName = handlerName;
         this.commands = commands;
         
-        name = "org.apache.james:type=server,name=" + jmxName  + ",handler=commandhandler,commandhandler=" + handlerName;
+        name = "org.apache.james:type=server,name=" + jmxName  + ",chain=handlerchain,handler=commandhandler,commandhandler=" + handlerName;
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         ObjectName baseObjectName = new ObjectName(name);
         mbeanserver.registerMBean(this, baseObjectName);

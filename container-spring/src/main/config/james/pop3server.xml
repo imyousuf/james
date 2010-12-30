@@ -34,6 +34,11 @@
       <connectionLimitPerIP> 0 </connectionLimitPerIP>
       <handlerchain>
           <handler class="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
+          
+         <!-- jmx stats -->
+         <handler class="org.apache.james.pop3server.jmx.CommandHandlerResultJMXMonitor"/>
+         <handler class="org.apache.james.pop3server.jmx.ConnectHandlerResultJMXMonitor"/>
+         <handler class="org.apache.james.pop3server.jmx.LineHandlerResultJMXMonitor"/>
       </handlerchain>
   </handler>
 </pop3server>
