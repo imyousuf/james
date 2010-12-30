@@ -30,12 +30,12 @@ import javax.annotation.Resource;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
-import org.apache.james.user.api.UserManagementMBean;
+import org.apache.james.user.api.UsersRepositoryManagementMBean;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.api.model.User;
 
-public class UserManagement extends StandardMBean implements UserManagementMBean {
+public class UsersRepositoryManagement extends StandardMBean implements UsersRepositoryManagementMBean {
     
     /**
      * The administered UsersRepository
@@ -48,8 +48,8 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
     }
     
     
-    public UserManagement() throws NotCompliantMBeanException {
-        super(UserManagementMBean.class);
+    public UsersRepositoryManagement() throws NotCompliantMBeanException {
+        super(UsersRepositoryManagementMBean.class);
     }
 
 
@@ -64,7 +64,7 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#addUser(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#addUser(java.lang.String, java.lang.String)
      */
     public boolean addUser(String userName, String password) {
         return localUsers.addUser(userName, password);
@@ -72,7 +72,7 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#deleteUser(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#deleteUser(java.lang.String)
      */
     public boolean deleteUser(String userName) {
         if (!localUsers.contains(userName)) return false;
@@ -80,9 +80,10 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
         return true;
     }
 
+
     /*
-     * /(non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#verifyExists(java.lang.String)
+     * (non-Javadoc)
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#verifyExists(java.lang.String)
      */
     public boolean verifyExists(String userName) {
         return localUsers.contains(userName);
@@ -91,16 +92,17 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#countUsers()
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#countUsers()
      */
     public long countUsers() {
         return localUsers.countUsers();
     }
 
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#listAllUsers()
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#listAllUsers()
      */
     public String[] listAllUsers() {
         List<String> userNames = new ArrayList<String>();
@@ -110,9 +112,11 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
         return (String[])userNames.toArray(new String[]{});
     }
 
+
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#setPassword(java.lang.String, java.lang.String)
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#setPassword(java.lang.String, java.lang.String)
      */
     public boolean setPassword(String userName, String password) {
         User user = localUsers.getUserByName(userName);
@@ -122,9 +126,8 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
 
 
     /*
-     * 
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#unsetAlias(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#unsetAlias(java.lang.String)
      */
     public boolean unsetAlias(String userName) {
         JamesUser user = getJamesUser(userName);
@@ -138,7 +141,7 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#getAlias(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#getAlias(java.lang.String)
      */
     public String getAlias(String userName) {
         JamesUser user = getJamesUser(userName);
@@ -146,9 +149,10 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
         return user.getAlias();
     }
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#unsetForwardAddress(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#unsetForwardAddress(java.lang.String)
      */
     public boolean unsetForwardAddress(String userName) {
         JamesUser user = getJamesUser(userName);
@@ -163,7 +167,7 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#getForwardAddress(java.lang.String)
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#getForwardAddress(java.lang.String)
      */
     public String getForwardAddress(String userName) {
         JamesUser user = getJamesUser(userName);
@@ -173,7 +177,7 @@ public class UserManagement extends StandardMBean implements UserManagementMBean
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UserManagementMBean#getVirtualHostingEnabled()
+     * @see org.apache.james.user.api.UsersRepositoryManagementMBean#getVirtualHostingEnabled()
      */
     public boolean getVirtualHostingEnabled() {
         return localUsers.supportVirtualHosting();

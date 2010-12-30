@@ -26,7 +26,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.james.user.lib.UserManagement;
+import org.apache.james.user.lib.UsersRepositoryManagement;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 
 /**
@@ -35,12 +35,12 @@ import org.apache.james.user.lib.mock.MockUsersRepository;
 public class UserManagementTest extends TestCase {
 
     private MockUsersRepository m_mockUsersRepository;
-    private UserManagement m_userManagement;
+    private UsersRepositoryManagement m_userManagement;
 
     protected void setUp() throws Exception {
         m_mockUsersRepository = new MockUsersRepository();
 
-        m_userManagement = new UserManagement();      
+        m_userManagement = new UsersRepositoryManagement();      
         m_userManagement.setUsersRepository(m_mockUsersRepository);
     }
 

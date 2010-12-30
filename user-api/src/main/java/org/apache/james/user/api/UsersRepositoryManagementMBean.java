@@ -21,13 +21,12 @@
 
 package org.apache.james.user.api;
 
-import java.util.List;
 
 /**
  * Expose user account management functionality through JMX.
  * 
  */
-public interface UserManagementMBean {
+public interface UsersRepositoryManagementMBean {
 
     /**
      * Adds a user to this mail server.
