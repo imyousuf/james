@@ -186,4 +186,10 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
     protected void doUpdateUser(User user) {
         // unused
     }
+
+    @Override
+    protected boolean doAddUser(String username, String password) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

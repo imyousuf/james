@@ -29,7 +29,7 @@ import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.jdbc.AbstractJdbcUsersRepository;
 import org.apache.james.user.jdbc.DefaultUsersJdbcRepository;
-import org.apache.james.user.lib.MockUsersRepositoryTest;
+import org.apache.james.user.lib.AbstractUsersRepositoryTest;
 
 import java.util.Iterator;
 
@@ -38,7 +38,7 @@ import javax.sql.DataSource;
 /**
  * Test basic behaviours of UsersFileRepository
  */
-public class DefaultUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
+public class DefaultUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
 
     /**
      * Create the repository to be tested.

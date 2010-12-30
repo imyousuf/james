@@ -23,15 +23,12 @@ package org.apache.james.user.lib;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.api.Configurable;
-import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.user.api.JamesUsersRepository;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.api.model.User;
-import org.apache.james.user.lib.model.DefaultUser;
-import org.apache.james.vut.lib.AbstractReadOnlyVirtualUserTable;
+import org.apache.james.user.lib.model.DefaultJamesUser;
+import org.apache.james.vut.api.VirtualUserTable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,8 +36,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 /**
  * A partial implementation of a Repository to store users.
@@ -50,7 +45,7 @@ import javax.annotation.Resource;
  *@deprecated Please implement {@link UsersRepository}
  */
 @Deprecated
-public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtualUserTable implements JamesUsersRepository, LogEnabled, Configurable {
+public abstract class AbstractJamesUsersRepository extends AbstractUsersRepository implements JamesUsersRepository, VirtualUserTable {
 
     /**
      * Ignore case in usernames
@@ -68,30 +63,16 @@ public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtu
     protected boolean enableForwarding;
 
 
-    private Log logger;
-
-    private boolean virtualHosting;
-
-    public void setLog(Log logger) {
-        this.logger = logger;
-    }
     
-    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException{
+    
+    @Override
+    public void configure(HierarchicalConfiguration configuration) throws ConfigurationException {
         setIgnoreCase(configuration.getBoolean("ignoreCase", false));
         setEnableAliases(configuration.getBoolean("enableAliases", false));
         setEnableForwarding(configuration.getBoolean("enableForwarding", false));
-        virtualHosting = configuration.getBoolean("enableVirtualHosting", false);
-
-        doConfigure(configuration);
-    }
-    
-    protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException{
-        
+        super.configure(configuration);
     }
 
-    public void setEnableVirtualHosting(boolean virtualHosting) {
-        this.virtualHosting = virtualHosting;
-    }
     /**
      * Adds a user to the underlying Repository. The user name must not clash
      * with an existing user.
@@ -110,47 +91,16 @@ public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtu
     protected abstract void doUpdateUser(User user);
 
 
-    /**
-     * Adds a user to the repository with the specified attributes. In current
-     * implementations, the Object attributes is generally a String password.
-     * 
-     * @param name
-     *            the name of the user to be added
-     * @param attributes
-     *            the password value as a String
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang.String, java.lang.String)
      */
-    public void addUser(String name, Object attributes) {
-        if (attributes instanceof String) {
-            User newbie = new DefaultUser(name, "SHA");
-            newbie.setPassword((String) attributes);
-            addUser(newbie);
-        } else {
-            throw new RuntimeException("Improper use of deprecated method"
-                    + " - use addUser(User user)");
-        }
-    }
-
-    //
-    // UsersRepository interface implementation.
-    //
-    /**
-     * Adds a user to the repository with the specified User object. Users names
-     * must be unique-case-insensitive in the repository.
-     * 
-     * @param user
-     *            the user to be added
-     * 
-     * @return true if succesful, false otherwise
-     * @since James 1.2.2
-     */
-    public boolean addUser(User user) {
-        String username = user.getUserName();
-
-        if (contains(username)) {
-            return false;
-        }
-
-        doAddUser(user);
+    protected boolean doAddUser(String username, String password) {
+        User newbie = new DefaultJamesUser(username, "SHA");
+        newbie.setPassword(password);
+        doAddUser(newbie);
         return true;
     }
 
@@ -215,11 +165,6 @@ public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtu
         }
     }
 
-    protected Log getLogger() {
-        return logger;
-    }
-    
-    
     
     /**
      * @see org.apache.james.user.api.JamesUsersRepository#setEnableAliases(boolean)
@@ -281,12 +226,75 @@ public abstract class AbstractJamesUsersRepository extends AbstractReadOnlyVirtu
         return new ArrayList<String>();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
+
+    /**
+     * Do nothing and return false
      */
-    public boolean supportVirtualHosting() {
-        return virtualHosting;
+    public boolean addAddressMapping(String user, String domain, String address) {
+        return false;
+    }
+
+    /**
+     * Do nothing and return false
+     */
+    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) {
+        return false;
+    }
+
+    /**
+     * Do nothing and return false
+     */
+    public boolean addErrorMapping(String user, String domain, String error) {
+        return false;
+    }
+
+    /**
+     * Do nothing and return false
+     */
+    public boolean addMapping(String user, String domain, String mapping) {
+        return false;
+    }
+
+    /**
+     * Do nothing and return false
+     */
+    public boolean addRegexMapping(String user, String domain, String regex) {
+        return false;
+    }
+
+    /**
+     * Do nothing and return false
+     */
+    public boolean removeAddressMapping(String user, String domain, String address) {
+        return false;
+    }
+
+    /**
+     * Do nothing and return false
+     */
+    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) {
+        return false;
+    }
+
+    /**
+     * Do nothing and return false
+     */
+    public boolean removeErrorMapping(String user, String domain, String error) {
+        return false;
+    }
+
+    /**
+     * Do nothing and return false
+     */
+    public boolean removeMapping(String user, String domain, String mapping) {
+        return false;
+    }
+
+    /**
+     * Do nothing and return false
+     */
+    public boolean removeRegexMapping(String user, String domain, String regex) {
+        return false;
     }
 
     

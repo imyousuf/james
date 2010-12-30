@@ -34,20 +34,18 @@ import javax.jcr.SimpleCredentials;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
-import org.apache.james.lifecycle.api.Configurable;
-import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.jcr.model.JCRUser;
+import org.apache.james.user.lib.AbstractUsersRepository;
 
 /**
  * {@link UsersRepository} implementation which stores users to a JCR {@link Repository}
  *
  */
-public class JCRUsersRepository implements UsersRepository, Configurable, LogEnabled {
+public class JCRUsersRepository extends AbstractUsersRepository {
     
     //TODO: Add namespacing
     private static final String PASSWD_PROPERTY = "passwd";
@@ -55,138 +53,25 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
     private static final String USERNAME_PROPERTY = "username";
     private static final String USERS_PATH = "users";
 
-	private Repository repository;
-	private SimpleCredentials creds;
-	private String workspace;
+    private Repository repository;
+    private SimpleCredentials creds;
+    private String workspace;
 
-	private Log logger;
-
-    private boolean virtualHosting;
-	
     @Resource(name="jcrRepository")
     public void setRepository(Repository repository) {
     	this.repository = repository;
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-	public void configure(HierarchicalConfiguration config)
-			throws ConfigurationException {
-		this.workspace = config.getString("workspace",null);
-		String username = config.getString("username", null);
-		String password = config.getString("password",null);
-		
-		if (username != null && password != null) {
-			this.creds = new SimpleCredentials(username, password.toCharArray());
-		}
-        virtualHosting = config.getBoolean("enableVirtualHosting", false);
 
-	}
+    public void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
+        this.workspace = config.getString("workspace", null);
+        String username = config.getString("username", null);
+        String password = config.getString("password", null);
 
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
-	 */
-	public void setLog(Log log) {		
-		this.logger = log;
-	}
-
-    /**
-     * Adds a user to the repository with the specified User object.
-     *
-     * @param user the user to be added
-     *
-     * @return true if succesful, false otherwise
-     * 
-     * @deprecated James 2.4 user should be added using username/password
-     * because specific implementations of UsersRepository will support specific 
-     * implementations of users object.
-     */
-    public boolean addUser(User user) {
-        throw new UnsupportedOperationException("Unsupported by JCR");
-    }
-
-    /**
-     * Adds a user to the repository with the specified attributes.  In current
-     * implementations, the Object attributes is generally a String password.
-     *
-     * @param name the name of the user to be added
-     * @param attributes see decription
-     * 
-     * @deprecated James 2.4 user is always added using username/password and
-     * eventually modified by retrieving it later.
-     */
-    public void addUser(String name, Object attributes) {
-        if (attributes instanceof String) {
-            addUser(name, (String) attributes);
-        } else {
-            throw new IllegalArgumentException("Expected password string");
+        if (username != null && password != null) {
+            this.creds = new SimpleCredentials(username, password.toCharArray());
         }
     }
-    
-    /**
-     * Adds a user to the repository with the specified password
-     * 
-     * @param username the username of the user to be added
-     * @param password the password of the user to add
-     * @return true if succesful, false otherwise
-     * 
-     */
-    public boolean addUser(String username, String password) {
 
-        try {
-            final Session session = login();
-            try {
-                final String name = toSafeName(username);
-                final String path = USERS_PATH + "/" + name;
-                final Node rootNode = session.getRootNode();
-                try {
-                    rootNode.getNode(path);
-                    logger.info("User already exists");
-                    return false;
-                } catch (PathNotFoundException e) {
-                    // user does not exist
-                }
-                Node parent;
-                try {
-                    parent = rootNode.getNode(USERS_PATH);
-                } catch (PathNotFoundException e) {
-                    // TODO: Need to consider whether should insist that parent
-                    // TODO: path exists.
-                    parent = rootNode.addNode(USERS_PATH);
-                }
-                
-                Node node = parent.addNode(name);
-                node.setProperty(USERNAME_PROPERTY, username);
-                final String hashedPassword;
-                if (password == null)
-                {
-                    // Support easy password reset
-                    hashedPassword = "";
-                }
-                else
-                {
-                    hashedPassword = JCRUser.hashPassword(username, password);
-                }
-                node.setProperty(PASSWD_PROPERTY, hashedPassword);
-                session.save();
-                return true;
-            } finally {
-                session.logout();
-            }
-            
-        } catch (RepositoryException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to add user: " + username, e);
-            }
-        }
-
-        return false;
-    }
-    
     protected String toSafeName(String key) {
         String name = ISO9075.encode(Text.escapeIllegalJcrChars(key));
         return name;
@@ -226,28 +111,14 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
             }
             
         } catch (RepositoryException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to add user: " + username, e);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Failed to add user: " + username, e);
             }
             user = null;
         }
         return user;
     }
 
-    /**
-     * Get the user object with the specified user name. Match user naems on
-     * a case insensitive basis.  Return null if no such user.
-     *
-     * @param name the name of the user to retrieve
-     * @return the user being retrieved, null if the user doesn't exist
-     *
-     * @since James 1.2.2
-     * @deprecated James 2.4 now caseSensitive is a property of the repository
-     * implementations and the getUserByName will search according to this property.
-     */
-    public User getUserByNameCaseInsensitive(String name) {
-        throw new UnsupportedOperationException();
-    }
 
     /**
      * Returns the user name of the user matching name on an equalsIgnoreCase
@@ -285,15 +156,15 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
                         return true;
                     } catch (PathNotFoundException e) {
                         // user not found
-                        logger.debug("User not found");
+                        getLogger().debug("User not found");
                     }
                 } finally {
                     session.logout();
                 }
                 
             } catch (RepositoryException e) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("Failed to add user: " + userName, e);
+                if (getLogger().isInfoEnabled()) {
+                    getLogger().info("Failed to add user: " + userName, e);
                 }
             }
         }
@@ -322,8 +193,8 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
             }
             
         } catch (RepositoryException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to add user: " + username, e);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Failed to add user: " + username, e);
             }
         }
     }
@@ -347,27 +218,14 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
             }
             
         } catch (RepositoryException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("User not found: " + name, e);
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("User not found: " + name, e);
             }
         }
 
         return false;
     }
 
-    /**
-     * Returns whether or not this user is in the repository. Names are
-     * matched on a case insensitive basis.
-     *
-     * @param name the name to check in the repository
-     * @return whether the user is in the repository
-     * 
-     * @deprecated James 2.4 now caseSensitive is a property of the repository
-     * implementations and the contains will search according to this property.
-     */
-    public boolean containsCaseInsensitive(String name) {
-        throw new UnsupportedOperationException();
-    }
 
     /**
      * Test if user with name 'name' has password 'password'.
@@ -399,7 +257,7 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
                     return current.equals(hashPassword);
                 } catch (PathNotFoundException e) {
                     // user not found
-                    logger.debug("User not found");
+                    getLogger().debug("User not found");
                     return false;
                 }
             } finally {
@@ -407,8 +265,8 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
             }
             
         } catch (RepositoryException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to add user: " + username, e);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Failed to add user: " + username, e);
             }
             return false;
         }
@@ -438,8 +296,8 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
                 session.logout();
             }
         } catch (RepositoryException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to count user", e);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Failed to count user", e);
             }
             return 0;
         }
@@ -466,29 +324,74 @@ public class JCRUsersRepository implements UsersRepository, Configurable, LogEna
                             final String userName = node.getProperty(USERNAME_PROPERTY).getString();
                             userNames.add(userName);
                         } catch (PathNotFoundException e) {
-                            logger.info("Node missing user name. Ignoring.");
+                            getLogger().info("Node missing user name. Ignoring.");
                         }
                     }
                 } catch (PathNotFoundException e) {
-                    logger.info("Path not found. Forgotten to setup the repository?");
+                    getLogger().info("Path not found. Forgotten to setup the repository?");
                 }
             } finally {
                 session.logout();
             }
         } catch (RepositoryException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to count user", e);
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Failed to count user", e);
             }
         }
         return userNames.iterator();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
-     */
-    public boolean supportVirtualHosting() {
-        return virtualHosting;
+
+    @Override
+    protected boolean doAddUser(String username, String password) {
+        try {
+            final Session session = login();
+            try {
+                final String name = toSafeName(username);
+                final String path = USERS_PATH + "/" + name;
+                final Node rootNode = session.getRootNode();
+                try {
+                    rootNode.getNode(path);
+                    getLogger().info("User already exists");
+                    return false;
+                } catch (PathNotFoundException e) {
+                    // user does not exist
+                }
+                Node parent;
+                try {
+                    parent = rootNode.getNode(USERS_PATH);
+                } catch (PathNotFoundException e) {
+                    // TODO: Need to consider whether should insist that parent
+                    // TODO: path exists.
+                    parent = rootNode.addNode(USERS_PATH);
+                }
+                
+                Node node = parent.addNode(name);
+                node.setProperty(USERNAME_PROPERTY, username);
+                final String hashedPassword;
+                if (password == null)
+                {
+                    // Support easy password reset
+                    hashedPassword = "";
+                }
+                else
+                {
+                    hashedPassword = JCRUser.hashPassword(username, password);
+                }
+                node.setProperty(PASSWD_PROPERTY, hashedPassword);
+                session.save();
+                return true;
+            } finally {
+                session.logout();
+            }
+            
+        } catch (RepositoryException e) {
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info("Failed to add user: " + username, e);
+            }
+        }
+
+        return false;
     }
 
 }

@@ -34,14 +34,14 @@ import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.file.UsersFileRepository;
-import org.apache.james.user.lib.MockUsersRepositoryTest;
+import org.apache.james.user.lib.AbstractUsersRepositoryTest;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 
 /**
  * Test basic behaviours of UsersFileRepository
  */
-public class UsersFileRepositoryTest extends MockUsersRepositoryTest {
+public class UsersFileRepositoryTest extends AbstractUsersRepositoryTest {
 
     /**
      * Create the repository to be tested.

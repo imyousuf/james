@@ -19,23 +19,19 @@
 
 package org.apache.james.user.lib;
 
-import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
-import org.apache.james.lifecycle.api.LifecycleUtil;
-import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.model.User;
-import org.apache.james.user.lib.mock.MockUsersRepository;
-import org.apache.james.user.lib.model.DefaultJamesUser;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import junit.framework.TestCase;
 
+import org.apache.james.lifecycle.api.LifecycleUtil;
+import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.model.User;
+
 /**
  * Test basic behaviours of UsersFileRepository
  */
-public class MockUsersRepositoryTest extends TestCase {
+public abstract class AbstractUsersRepositoryTest extends TestCase {
 
     /**
      * Users repository
@@ -48,44 +44,29 @@ public class MockUsersRepositoryTest extends TestCase {
      * @return the user repository
      * @throws Exception 
      */
-    protected UsersRepository getUsersRepository() throws Exception {
-        MockUsersRepository repos = new MockUsersRepository();
-        repos.setLog(new SimpleLog("MockLog"));
-        repos.configure(new DefaultConfigurationBuilder());
-        return repos;
-    }
+    protected abstract UsersRepository getUsersRepository() throws Exception;
 
     public void testUsersRepositoryEmpty() {
         assertEquals("users repository not empty", 0, usersRepository.countUsers());
         assertFalse("users repository not empty", usersRepository.list().hasNext());
     }
     
-    @SuppressWarnings("deprecation")
     public void testAddUserOnce() {
         boolean res = usersRepository.addUser("username", "password");
         assertTrue("User not added", res);
         res = usersRepository.addUser("username", "password2");
         assertFalse("User added twice!", res);
         try {
-            usersRepository.addUser("username2", (Object) "password2");
+            usersRepository.addUser("username2", "password2");
             assertTrue(usersRepository.contains("username2"));
-            User u = new DefaultJamesUser("username3","SHA","password3");
-            usersRepository.addUser(u);
+            usersRepository.addUser("username3", "password3");
             assertTrue(usersRepository.contains("username3"));
         } catch (UnsupportedOperationException e) {
             
         }
         
-        try {
-            usersRepository.addUser("username2", new Object());
-            fail("adduser should throw an exception if a non string is passed");
-        } catch (Exception e) {
-            
-        }
-        
     }
     
-    @SuppressWarnings("deprecation")
     public void testUserAddedIsFound() {
         boolean res = usersRepository.addUser("username", "password");
         assertTrue("User not added", res);
@@ -93,11 +74,6 @@ public class MockUsersRepositoryTest extends TestCase {
         assertNotNull(user);
         assertEquals("username does not match", user.getUserName(), "username");
         assertTrue("user not contained in the repository", usersRepository.contains("username"));
-        try {
-            assertTrue("case insensitive user not found in the repository", usersRepository.containsCaseInsensitive("userName"));
-        } catch (UnsupportedOperationException e) {
-            // some implementation could not support deprecated methods
-        }
         
         User u = usersRepository.getUserByName("uSERNAMe");
         assertNull("found the user searching for a different case!", u);
@@ -182,18 +158,7 @@ public class MockUsersRepositoryTest extends TestCase {
     }
     
     
-    @SuppressWarnings("deprecation")
-    public void testCaseInsensitivesMethods() {
-        assertTrue("User not added", usersRepository.addUser("userName", "password"));
-        try {
-            assertTrue(usersRepository.containsCaseInsensitive("usERname"));
-            assertNotNull(usersRepository.getUserByNameCaseInsensitive("userNAMe"));
-        } catch (UnsupportedOperationException e) {
-            // some implementations do not support it.
-        }
-        assertEquals(usersRepository.addUser("USERNAME", "password"), getAllowMultipleUsersWithDifferentCases());
-        
-    }
+  
     
     
     /**

@@ -148,14 +148,5 @@ public class JamesUsersJdbcRepository extends AbstractJdbcUsersRepository {
     
     
     
-    /**
-     * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String,
-     *      java.lang.String)
-     */
-    public boolean addUser(String username, String password)  {
-        User newbie = new DefaultJamesUser(username, "SHA");
-        newbie.setPassword(password);
-        return addUser(newbie);
-    }
     
 }

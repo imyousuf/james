@@ -31,7 +31,7 @@ import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.jdbc.AbstractJdbcUsersRepository;
 import org.apache.james.user.jdbc.JamesUsersJdbcRepository;
-import org.apache.james.user.lib.MockUsersRepositoryTest;
+import org.apache.james.user.lib.AbstractUsersRepositoryTest;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 
@@ -43,7 +43,7 @@ import javax.sql.DataSource;
 /**
  * Test basic behaviours of UsersFileRepository
  */
-public class JamesUsersJdbcRepositoryTest extends MockUsersRepositoryTest {
+public class JamesUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
 
     /**
      * Create the repository to be tested.

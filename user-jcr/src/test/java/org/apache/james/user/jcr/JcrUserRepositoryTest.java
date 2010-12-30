@@ -27,10 +27,10 @@ import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.jcr.JCRUsersRepository;
-import org.apache.james.user.lib.MockUsersRepositoryTest;
+import org.apache.james.user.lib.AbstractUsersRepositoryTest;
 import org.xml.sax.InputSource;
 
-public class JcrUserRepositoryTest extends MockUsersRepositoryTest {
+public class JcrUserRepositoryTest extends AbstractUsersRepositoryTest {
 
     private static final String JACKRABBIT_HOME = "target/jackrabbit";
     private RepositoryImpl repository;

@@ -28,7 +28,6 @@ import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.repository.file.FilePersistentObjectRepository;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;
-import org.apache.james.user.lib.model.DefaultJamesUser;
 
 
 import java.util.Iterator;
@@ -137,14 +136,7 @@ public class UsersFileRepository
         }
     }
 
-    /**
-     * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String, java.lang.String)
-     */
-    public boolean addUser(String username, String password) {
-        User newbie = new DefaultJamesUser(username, "SHA");
-        newbie.setPassword(password);
-        return addUser(newbie);
-    }
+
 
     /**
      * @see org.apache.james.user.api.UsersRepository#getUserByName(java.lang.String)
@@ -166,17 +158,6 @@ public class UsersFileRepository
         } else {
             return null;
         }
-    }
-
-    /**
-     * @see org.apache.james.user.api.UsersRepository#getUserByNameCaseInsensitive(java.lang.String)
-     */
-    public User getUserByNameCaseInsensitive(String name) {
-        String realName = getRealName(name, true);
-        if (realName == null ) {
-            return null;
-        }
-        return getUserByName(realName);
     }
 
     /**

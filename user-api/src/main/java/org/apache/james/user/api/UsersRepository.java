@@ -41,32 +41,7 @@ public interface UsersRepository {
     String ROLE = "org.apache.james.api.user.UsersRepository";
 
     String USER = "USER";
-
-    /**
-     * Adds a user to the repository with the specified User object.
-     *
-     * @param user the user to be added
-     *
-     * @return true if succesful, false otherwise
-     * @since James 1.2.2
-     * 
-     * @deprecated James 2.4 user should be added using username/password
-     * because specific implementations of UsersRepository will support specific 
-     * implementations of users object.
-     */
-    boolean addUser(User user);
-
-    /**
-     * Adds a user to the repository with the specified attributes.  In current
-     * implementations, the Object attributes is generally a String password.
-     *
-     * @param name the name of the user to be added
-     * @param attributes see decription
-     * 
-     * @deprecated James 2.4 user is always added using username/password and
-     * eventually modified by retrieving it later.
-     */
-    void addUser(String name, Object attributes);
+    
     
     /**
      * Adds a user to the repository with the specified password
@@ -90,18 +65,6 @@ public interface UsersRepository {
      */
     User getUserByName(String name);
 
-    /**
-     * Get the user object with the specified user name. Match user naems on
-     * a case insensitive basis.  Return null if no such user.
-     *
-     * @param name the name of the user to retrieve
-     * @return the user being retrieved, null if the user doesn't exist
-     *
-     * @since James 1.2.2
-     * @deprecated James 2.4 now caseSensitive is a property of the repository
-     * implementations and the getUserByName will search according to this property.
-     */
-    User getUserByNameCaseInsensitive(String name);
 
     /**
      * Returns the user name of the user matching name on an equalsIgnoreCase
@@ -135,17 +98,6 @@ public interface UsersRepository {
      */
     boolean contains(String name);
 
-    /**
-     * Returns whether or not this user is in the repository. Names are
-     * matched on a case insensitive basis.
-     *
-     * @param name the name to check in the repository
-     * @return whether the user is in the repository
-     * 
-     * @deprecated James 2.4 now caseSensitive is a property of the repository
-     * implementations and the contains will search according to this property.
-     */
-    boolean containsCaseInsensitive(String name);
 
     /**
      * Test if user with name 'name' has password 'password'.

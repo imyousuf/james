@@ -33,26 +33,20 @@ import javax.persistence.PersistenceUnit;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.api.Configurable;
-import org.apache.james.lifecycle.api.LogEnabled;
-import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.jpa.model.JPAUser;
+import org.apache.james.user.lib.AbstractUsersRepository;
 
 
 /**
  * JPA based UserRepository
  *
  */
-public class JPAUsersRepository implements UsersRepository, Configurable, LogEnabled {
+public class JPAUsersRepository extends AbstractUsersRepository {
 
     private EntityManagerFactory entityManagerFactory;
 
     private String algo;
-
-    private Log logger;
-
-    private boolean virtualHosting;
 
 
     /**
@@ -71,69 +65,7 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
         createEntityManager().close();
     }
 
-    /**
-     * Adds a user to the repository with the specified User object.
-     * 
-     * @param user
-     *            the user to be added
-     * 
-     * @return true if succesful, false otherwise
-     * @since James 1.2.2
-     * 
-     * @deprecated James 2.4 user should be added using username/password
-     *             because specific implementations of UsersRepository will
-     *             support specific implementations of users object.
-     */
-    public boolean addUser(User user) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Adds a user to the repository with the specified attributes. In current
-     * implementations, the Object attributes is generally a String password.
-     * 
-     * @param name
-     *            the name of the user to be added
-     * @param attributes
-     *            see decription
-     * 
-     * @deprecated James 2.4 user is always added using username/password and
-     *             eventually modified by retrieving it later.
-     */
-    public void addUser(String name, Object attributes) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Adds a user to the repository with the specified password
-     * 
-     * @param username
-     *            the username of the user to be added
-     * @param password
-     *            the password of the user to add
-     * @return true if succesful, false otherwise
-     * 
-     * @since James 2.3.0
-     */
-    public boolean addUser(String username, String password) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final EntityTransaction transaction = entityManager.getTransaction();
-        try {
-            transaction.begin();
-            JPAUser user = new JPAUser(username, password, algo);
-            entityManager.persist(user);
-            transaction.commit();
-            return true;
-        } catch (PersistenceException e) {
-            logger.debug("Failed to save user", e);
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-        } finally {
-            entityManager.close();
-        }
-        return false;
-    }
+   
 
     /**
      * Get the user object with the specified user name. Return null if no such
@@ -151,29 +83,13 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
         try {
             return (JPAUser) entityManager.createNamedQuery("findUserByName").setParameter("name", name).getSingleResult();
         } catch (PersistenceException e) {
-            logger.debug("Failed to find user", e);
+            getLogger().debug("Failed to find user", e);
             return null;
         } finally {
             entityManager.close();
         }    
     }
 
-    /**
-     * Get the user object with the specified user name. Match user naems on a
-     * case insensitive basis. Return null if no such user.
-     * 
-     * @param name
-     *            the name of the user to retrieve
-     * @return the user being retrieved, null if the user doesn't exist
-     * 
-     * @since James 1.2.2
-     * @deprecated James 2.4 now caseSensitive is a property of the repository
-     *             implementations and the getUserByName will search according
-     *             to this property.
-     */
-    public User getUserByNameCaseInsensitive(String name) {
-        throw new UnsupportedOperationException();
-    }
 
     /**
      * Returns the user name of the user matching name on an equalsIgnoreCase
@@ -207,11 +123,11 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
                 entityManager.merge(user);
                 transaction.commit();
             } else {
-                logger.debug("User not found");
+                getLogger().debug("User not found");
                 return false;
             }
         } catch (PersistenceException e) {
-            logger.debug("Failed to update user", e);
+            getLogger().debug("Failed to update user", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
@@ -237,7 +153,7 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
             entityManager.createNamedQuery("deleteUserByName").setParameter("name", name).executeUpdate();
             transaction.commit();
         } catch (PersistenceException e) {
-            logger.debug("Failed to remove user", e);
+            getLogger().debug("Failed to remove user", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
@@ -259,27 +175,11 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
         try {
             return ((Long) entityManager.createNamedQuery("containsUser").setParameter("name", name).getSingleResult()).longValue() > 0;
         } catch (PersistenceException e) {
-            logger.debug("Failed to find user", e);
+            getLogger().debug("Failed to find user", e);
             return false;
         } finally {
             entityManager.close();
         }
-    }
-
-    /**
-     * Returns whether or not this user is in the repository. Names are matched
-     * on a case insensitive basis.
-     * 
-     * @param name
-     *            the name to check in the repository
-     * @return whether the user is in the repository
-     * 
-     * @deprecated James 2.4 now caseSensitive is a property of the repository
-     *             implementations and the contains will search according to
-     *             this property.
-     */
-    public boolean containsCaseInsensitive(String name) {
-        throw new UnsupportedOperationException();
     }
 
     /**
@@ -317,7 +217,7 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
         try {
             return ((Long) entityManager.createNamedQuery("countUsers").getSingleResult()).intValue();
         } catch (PersistenceException e) {
-            logger.debug("Failed to find user", e);
+            getLogger().debug("Failed to find user", e);
             return 0;
         } finally {
             entityManager.close();
@@ -338,29 +238,20 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
             return Collections.unmodifiableList(entityManager.createNamedQuery("listUserNames").getResultList()).iterator();
 
         } catch (PersistenceException e) {
-            logger.debug("Failed to find user", e);
+            getLogger().debug("Failed to find user", e);
             return new ArrayList<String>().iterator();
         } finally {
             entityManager.close();
         }
     }
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * @see org.apache.james.user.lib.AbstractUsersRepository#doConfigure(org.apache.commons.configuration.HierarchicalConfiguration)
      */
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+    public void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
         algo = config.getString("algorithm","MD5");
-        virtualHosting = config.getBoolean("enableVirtualHosting", false);
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
-     */
-    public void setLog(Log log) {
-        this.logger = log;
     }
 
     /**
@@ -372,12 +263,29 @@ public class JPAUsersRepository implements UsersRepository, Configurable, LogEna
         return entityManagerFactory.createEntityManager();
     }
 
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
+     * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang.String, java.lang.String)
      */
-    public boolean supportVirtualHosting() {
-        return virtualHosting;
+    protected boolean doAddUser(String username, String password) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            JPAUser user = new JPAUser(username, password, algo);
+            entityManager.persist(user);
+            transaction.commit();
+            return true;
+        } catch (PersistenceException e) {
+            getLogger().debug("Failed to save user", e);
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+        } finally {
+            entityManager.close();
+        }
+        return false;
     }
 
 }

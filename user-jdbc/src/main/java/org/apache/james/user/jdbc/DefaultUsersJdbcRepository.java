@@ -28,7 +28,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.annotation.PostConstruct;
 
 
 /**
@@ -90,9 +89,13 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
      * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String, java.lang.String)
      */
     public boolean addUser(String username, String password)  {
+        if (contains(username) == true ||  isValidUsername(username) == false) {
+            return false;
+        }
         User newbie = new DefaultUser(username, "SHA");
         newbie.setPassword(password);
-        return addUser(newbie);
+        doAddUser(newbie);
+        return true;
     }
 
 
