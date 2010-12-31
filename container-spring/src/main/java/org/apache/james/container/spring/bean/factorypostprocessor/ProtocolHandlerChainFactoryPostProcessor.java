@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
@@ -83,7 +84,7 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             Log log = logProvider.getLog(beanname);
             
             HierarchicalConfiguration config = confProvider.getConfiguration(beanname);
-            
+            String jmxName = config.getString("jmxName", beanname);;
             HierarchicalConfiguration handlerchainConfig = config.configurationAt("handlerchain");
             List<org.apache.commons.configuration.HierarchicalConfiguration> children = handlerchainConfig.configurationsAt("handler");
 
@@ -102,7 +103,7 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             registry.registerBeanDefinition(coreCmdBeanName, def);
             HandlersPackage handlersPackage = beanFactory.getBean(coreCmdBeanName, HandlersPackage.class);
 
-            registerHandlersPackage(handlersPackage,children);
+            registerHandlersPackage(handlersPackage, null, children);
           
             String jmxCmdName = jmxHandlersPackage;
             
@@ -114,7 +115,9 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
                 registry.registerBeanDefinition(jmxCmdBeanName, jmxDef);
                 HandlersPackage jmxPackage = beanFactory.getBean(jmxCmdBeanName, HandlersPackage.class);
 
-                registerHandlersPackage(jmxPackage,children);
+                DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
+                builder.addProperty("jmxName", jmxName);
+                registerHandlersPackage(jmxPackage, builder, children);
             }
             
 
@@ -150,15 +153,20 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
 
         
     }
-    private void registerHandlersPackage(HandlersPackage handlersPackage, List<HierarchicalConfiguration> children) {
+    private void registerHandlersPackage(HandlersPackage handlersPackage, HierarchicalConfiguration handlerConfig, List<HierarchicalConfiguration> children) {
         List<String> c = handlersPackage.getHandlers();
 
         for (Iterator<String> i = c.iterator(); i.hasNext();) {
             String cName = i.next();
 
             try {
+                CombinedConfiguration conf = new CombinedConfiguration();
                 HierarchicalConfiguration cmdConf = addHandler(cName);
-                children.add(cmdConf);
+                conf.addConfiguration(cmdConf);
+                if (handlerConfig != null) {
+                    conf.addConfiguration(handlerConfig);
+                }
+                children.add(conf);
             } catch (ConfigurationException e) {
                 throw new FatalBeanException("Unable to create configuration for handler " + cName, e);
             }
