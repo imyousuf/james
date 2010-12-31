@@ -29,13 +29,8 @@
       <connectionLimit> 0 </connectionLimit>
       <connectionLimitPerIP> 0 </connectionLimitPerIP>
       <maxmessagesize>0</maxmessagesize>
-      <handlerchain>
+      <handlerchain enableJmx="true">
           <handler class="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
-          
-          <!-- jmx stats -->
-          <handler class="org.apache.james.lmtpserver.jmx.CommandHandlerResultJMXMonitor"/>
-          <handler class="org.apache.james.lmtpserver.jmx.ConnectHandlerResultJMXMonitor"/>
-          <handler class="org.apache.james.lmtpserver.jmx.LineHandlerResultJMXMonitor"/>
       </handlerchain>
   </handler>
 </lmtpserver>

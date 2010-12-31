@@ -62,6 +62,8 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
     private List<String> handlers = new LinkedList<String>();
     
     private String beanname;
+
+    private String jmxHandlersPackage;
     
     /**
      * Lookup the {@link HierarchicalConfiguration} for the beanname which was 
@@ -81,6 +83,7 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             Log log = logProvider.getLog(beanname);
             
             HierarchicalConfiguration config = confProvider.getConfiguration(beanname);
+            
             HierarchicalConfiguration handlerchainConfig = config.configurationAt("handler.handlerchain");
             List<org.apache.commons.configuration.HierarchicalConfiguration> children = handlerchainConfig.configurationsAt("handler");
 
@@ -99,18 +102,21 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             registry.registerBeanDefinition(coreCmdBeanName, def);
             HandlersPackage handlersPackage = beanFactory.getBean(coreCmdBeanName, HandlersPackage.class);
 
-            List<String> c = handlersPackage.getHandlers();
+            registerHandlersPackage(handlersPackage,children);
+          
+            String jmxCmdName = jmxHandlersPackage;
+            
+            if (handlerchainConfig.getBoolean("[@enableJmx]", true)) {
+                String jmxCmdBeanName = getBeanName(jmxCmdName);
 
-            for (Iterator<String> i = c.iterator(); i.hasNext();) {
-                String cName = i.next();
+                // now register the HandlerPackage for jmx
+                BeanDefinition jmxDef = BeanDefinitionBuilder.genericBeanDefinition(jmxCmdName).setLazyInit(false).getBeanDefinition();
+                registry.registerBeanDefinition(jmxCmdBeanName, jmxDef);
+                HandlersPackage jmxPackage = beanFactory.getBean(jmxCmdBeanName, HandlersPackage.class);
 
-                try {
-                    HierarchicalConfiguration cmdConf = addHandler(cName);
-                    children.add(cmdConf);
-                } catch (ConfigurationException e) {
-                    throw new FatalBeanException("Unable to create configuration for handler " + cName, e);
-                }
+                registerHandlersPackage(jmxPackage,children);
             }
+            
 
             for (int i = 0; i < children.size(); i++) {
                 HierarchicalConfiguration hConf = children.get(i);
@@ -142,12 +148,31 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             throw new FatalBeanException("Unable to load configuration for bean " + beanname, e);
         }
 
+        
+    }
+    private void registerHandlersPackage(HandlersPackage handlersPackage, List<HierarchicalConfiguration> children) {
+        List<String> c = handlersPackage.getHandlers();
+
+        for (Iterator<String> i = c.iterator(); i.hasNext();) {
+            String cName = i.next();
+
+            try {
+                HierarchicalConfiguration cmdConf = addHandler(cName);
+                children.add(cmdConf);
+            } catch (ConfigurationException e) {
+                throw new FatalBeanException("Unable to create configuration for handler " + cName, e);
+            }
+        }
     }
 
     public void setCoreHandlersPackage(String coreHandlersPackage) {
         this.coreHandlersPackage = coreHandlersPackage;
     }
 
+    public void setJmxHandlersPackage(String jmxHandlersPackage) {
+        this.jmxHandlersPackage = jmxHandlersPackage;
+    }
+    
     /**
      * Return a DefaultConfiguration build on the given command name and
      * classname.

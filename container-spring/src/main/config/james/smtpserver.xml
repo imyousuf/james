@@ -32,14 +32,9 @@
      <authRequired>true</authRequired>
      <maxmessagesize>0</maxmessagesize>
      <addressBracketsEnforcement>true</addressBracketsEnforcement>
-     <handlerchain>
+     <handlerchain enableJmx="true">
          <handler class="org.apache.james.smtpserver.fastfail.ValidRcptHandler"/>
-         <handler class="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
-         <!-- jmx stats -->
-         <handler class="org.apache.james.smtpserver.jmx.CommandHandlerResultJMXMonitor"/>
-         <handler class="org.apache.james.smtpserver.jmx.ConnectHandlerResultJMXMonitor"/>
-         <handler class="org.apache.james.smtpserver.jmx.LineHandlerResultJMXMonitor"/>
-         <handler class="org.apache.james.smtpserver.jmx.HookResultJMXMonitor"/>         
+         <handler class="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>       
      </handlerchain>            
   </handler>
 </smtpserver>

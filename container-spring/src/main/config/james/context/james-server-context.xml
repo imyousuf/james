@@ -247,6 +247,7 @@
     </bean>
     <bean id="smtpProtocolHandlerChain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
         <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
+        <property name="jmxHandlersPackage" value="org.apache.james.smtpserver.jmx.JMXHandlersLoader"/>
         <property name="beanName" value="smtpserver"/>
     </bean>
 
@@ -258,6 +259,7 @@
     </bean>
     <bean id="lmtpProtocolHandlerChain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
         <property name="coreHandlersPackage" value="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
+        <property name="jmxHandlersPackage" value="org.apache.james.lmtpserver.jmx.JMXHandlersLoader"/>
         <property name="beanName" value="lmtpserver"/>
     </bean>
 
@@ -269,6 +271,7 @@
     </bean>
     <bean id="pop3ProtocolHandlerChain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
         <property name="coreHandlersPackage" value="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
+        <property name="jmxHandlersPackage" value="org.apache.james.pop3server.jmx.JMXHandlersLoader"/>
         <property name="beanName" value="pop3server"/>
     </bean>
 

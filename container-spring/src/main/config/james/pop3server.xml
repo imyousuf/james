@@ -32,13 +32,8 @@
       <connectiontimeout>1200</connectiontimeout>
       <connectionLimit> 0 </connectionLimit>
       <connectionLimitPerIP> 0 </connectionLimitPerIP>
-      <handlerchain>
+      <handlerchain enableJmx="true">
           <handler class="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
-          
-         <!-- jmx stats -->
-         <handler class="org.apache.james.pop3server.jmx.CommandHandlerResultJMXMonitor"/>
-         <handler class="org.apache.james.pop3server.jmx.ConnectHandlerResultJMXMonitor"/>
-         <handler class="org.apache.james.pop3server.jmx.LineHandlerResultJMXMonitor"/>
       </handlerchain>
   </handler>
 </pop3server>
