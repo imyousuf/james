@@ -18,12 +18,18 @@
  ****************************************************************/
 package org.apache.james.container.spring.provider.log;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -31,9 +37,9 @@ import org.springframework.beans.factory.InitializingBean;
  * 
  *
  */
-public class LogProviderImpl implements LogProvider, InitializingBean {
+public class LogProviderImpl implements LogProvider, InitializingBean, LogProviderManagementMBean {
 
-    private final Map<String, Log> logMap = new HashMap<String, Log>();
+    private final ConcurrentHashMap<String, Log> logMap = new ConcurrentHashMap<String, Log>();
     private Map<String, String> logs;
     private final static String PREFIX = "james.";
 
@@ -62,7 +68,7 @@ public class LogProviderImpl implements LogProvider, InitializingBean {
             while(it.hasNext()) {
                 String key = it.next();
                 String value = logs.get(key);
-                registerLog(key, new Log4JLogger(PREFIX + value));
+                registerLog(key, createLog(PREFIX + value));
             }
         }
     }
@@ -72,12 +78,8 @@ public class LogProviderImpl implements LogProvider, InitializingBean {
      * @see org.apache.james.container.spring.lifecycle.LogProvider#getLog(java.lang.String)
      */
     public Log getLog(String name) {
-        Log log = logMap.get(name);
-        if (log != null) {
-            return log;
-        } else {
-            return createLog(PREFIX + name);
-        }
+        logMap.putIfAbsent(name, createLog(PREFIX + name));
+        return logMap.get(name);
     }
 
     /*
@@ -87,4 +89,62 @@ public class LogProviderImpl implements LogProvider, InitializingBean {
     public void registerLog(String beanName, Log log) {
         logMap.put(beanName, log);
     }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.container.spring.provider.log.LogProviderManagementMBean#getSupportedLogLevels()
+     */
+    public List<String> getSupportedLogLevels() {
+        return Arrays.asList("DEBUG", "INFO", "WARN", "ERROR", "OFF");
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.container.spring.provider.log.LogProviderManagementMBean#getLogLevels()
+     */
+    public Map<String, String> getLogLevels() {
+        TreeMap<String, String> levels = new TreeMap<String, String>();
+        Iterator<String> names = logMap.keySet().iterator();
+        while(names.hasNext()) {
+            String name = names.next();
+            String level = getLogLevel(name);
+            if (level != null) levels.put(name, level);
+        }
+        return levels;
+
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.container.spring.provider.log.LogProviderManagementMBean#getLogLevel(java.lang.String)
+     */
+    public String getLogLevel(String component) {
+        Log log = logMap.get(component);
+        if (log == null) {
+            throw new IllegalArgumentException("No Log for component "+ component);
+        }
+        Logger logger = ((Log4JLogger)log).getLogger();
+        if (logger == null || logger.getLevel() == null) {
+            return null;
+        }
+        Level level = logger.getLevel();
+        return level.toString();
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.container.spring.provider.log.LogProviderManagementMBean#setLogLevel(java.lang.String, java.lang.String)
+     */
+    public void setLogLevel(String component, String loglevel) {
+        if (getSupportedLogLevels().contains(loglevel) == false) {
+            throw new IllegalArgumentException("Not supported loglevel given");
+        } else {
+            ((Log4JLogger)logMap.get(component)).getLogger().setLevel(Level.toLevel(loglevel));
+        }
+    }
+    
 }

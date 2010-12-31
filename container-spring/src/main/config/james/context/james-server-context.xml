@@ -393,11 +393,12 @@
           <entry key="org.apache.james:type=component,name=mailboxmanagement" value-ref="mailboxmanagermanagement"/>
           <entry key="org.apache.james:type=component,component=mailetcontainer,name=mailspooler" value-ref="mailspooler"/>
           <entry key="org.apache.james:type=mailbox,name=mailboxcopier" value-ref="mailboxcopiermanagement"/>
+          <entry key="org.apache.james:type=container,name=logprovider" value-ref="logProvider"/>
         </map>
       </property>
       <property name="assembler">
           <bean class="org.springframework.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
-            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UsersRepositoryManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean,org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean,org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean"/>
+            <property name="managedInterfaces" value="org.apache.james.smtpserver.netty.SMTPServerMBean,org.apache.james.pop3server.netty.POP3ServerMBean,org.apache.james.imapserver.netty.IMAPServerMBean,org.apache.james.fetchmail.FetchSchedulerMBean,org.apache.james.domainlist.api.DomainListManagementMBean,org.apache.james.dnsservice.api.DNSServiceMBean,org.apache.james.vut.api.VirtualUserTableManagementMBean,org.apache.james.user.api.UsersRepositoryManagementMBean,org.apache.james.adapter.mailbox.MailboxManagerManagementMBean,org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean,org.apache.james.mailetcontainer.api.jmx.MailSpoolerMBean,org.apache.james.container.spring.provider.log.LogProviderManagementMBean"/>
           </bean>
       </property>
     </bean>

@@ -30,6 +30,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.container.spring.provider.configuration.ConfigurationProvider;
 import org.apache.james.container.spring.provider.log.LogProvider;
+import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
@@ -121,6 +123,7 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             }
             
 
+            ClassLoader loader = beanFactory.getBeanClassLoader();
             for (int i = 0; i < children.size(); i++) {
                 HierarchicalConfiguration hConf = children.get(i);
                 String className = hConf.getString("[@class]", null);
@@ -131,9 +134,15 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
 
                         String handlerBeanName = getBeanName(className);
 
-                        // register the log and configuration for it
-                        logProvider.registerLog(handlerBeanName, log);
-                        confProvider.registerConfiguration(handlerBeanName, hConf);
+                        Class<?> clazz =  loader.loadClass(className);
+                        if (Configurable.class.isAssignableFrom(clazz)) {
+                            confProvider.registerConfiguration(handlerBeanName, hConf);
+
+                        }
+                        if (LogEnabled.class.isAssignableFrom(clazz)) {
+                            logProvider.registerLog(handlerBeanName, log);
+                        }
+                       
 
                         // now register the BeanDefinition on the context and store the beanname for later usage
                         BeanDefinition handlerDef = BeanDefinitionBuilder.genericBeanDefinition(className).getBeanDefinition();
@@ -149,6 +158,8 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             
         } catch (ConfigurationException e) {
             throw new FatalBeanException("Unable to load configuration for bean " + beanname, e);
+        } catch (ClassNotFoundException ex) {
+            throw new FatalBeanException("Unable to load configuration for bean " + beanname, ex);
         }
 
         
