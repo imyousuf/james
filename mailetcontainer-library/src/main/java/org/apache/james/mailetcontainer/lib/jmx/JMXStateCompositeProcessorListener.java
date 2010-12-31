@@ -80,7 +80,7 @@ public class JMXStateCompositeProcessorListener implements CompositeProcessorLis
      */
     private void registerMBeans() throws MalformedObjectNameException, JMException {
        
-        String baseObjectName = "org.apache.james:type=component,name=processor,";
+        String baseObjectName = "org.apache.james:type=component,component=mailetcontainer,name=processor,";
 
         String[] processorNames = mList.getProcessorStates();
         for (int i = 0; i < processorNames.length; i++) {

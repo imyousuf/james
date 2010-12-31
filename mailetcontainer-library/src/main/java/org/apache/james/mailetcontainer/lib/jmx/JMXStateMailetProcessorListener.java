@@ -100,7 +100,7 @@ public class JMXStateMailetProcessorListener implements MailetProcessorListener,
      * @throws MalformedObjectNameException 
      */
     private void registerMBeans() throws MalformedObjectNameException, JMException {
-        String baseObjectName = "org.apache.james:type=component,name=processor,processor=" + name;
+        String baseObjectName = "org.apache.james:type=component,component=mailetcontainer,name=processor,processor=" + name;
         
         registerMailets(baseObjectName, processor.getMailets().iterator());
         registerMatchers(baseObjectName, processor.getMatchers().iterator(), 0);

@@ -391,7 +391,7 @@
           <entry key="org.apache.james:type=component,name=usersrepository" value-ref="usersrepositorymanagement"/>
           <entry key="org.apache.james:type=component,name=fetchmail" value-ref="fetchmail"/>
           <entry key="org.apache.james:type=component,name=mailboxmanagement" value-ref="mailboxmanagermanagement"/>
-          <entry key="org.apache.james:type=component,name=mailspooler" value-ref="mailspooler"/>
+          <entry key="org.apache.james:type=component,component=mailetcontainer,name=mailspooler" value-ref="mailspooler"/>
           <entry key="org.apache.james:type=mailbox,name=mailboxcopier" value-ref="mailboxcopiermanagement"/>
         </map>
       </property>
