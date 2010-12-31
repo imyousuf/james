@@ -106,13 +106,13 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
         }
 
         @Override
-		public ChannelPipeline getPipeline() throws Exception {
-			ChannelPipeline pipeLine =  super.getPipeline();
-			pipeLine.addBefore("coreHandler", "countHandler", countHandler);
-			return pipeLine;
-		}
+        public ChannelPipeline getPipeline() throws Exception {
+            ChannelPipeline pipeLine = super.getPipeline();
+            pipeLine.addBefore("coreHandler", "countHandler", countHandler);
+            return pipeLine;
+        }
 
-		@Override
+        @Override
         protected SSLContext getSSLContext() {
             return POP3Server.this.getSSLContext();
 
