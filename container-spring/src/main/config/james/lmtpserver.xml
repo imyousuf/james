@@ -24,13 +24,11 @@
   <port>24</port>
   <bind>127.0.0.1</bind>
   <connectionBacklog>200</connectionBacklog>
-  <handler>
-      <connectiontimeout>1200</connectiontimeout>
-      <connectionLimit> 0 </connectionLimit>
-      <connectionLimitPerIP> 0 </connectionLimitPerIP>
-      <maxmessagesize>0</maxmessagesize>
-      <handlerchain enableJmx="true">
-          <handler class="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
-      </handlerchain>
-  </handler>
+  <connectiontimeout>1200</connectiontimeout>
+  <connectionLimit> 0 </connectionLimit>
+  <connectionLimitPerIP> 0 </connectionLimitPerIP>
+  <maxmessagesize>0</maxmessagesize>
+  <handlerchain enableJmx="true">
+      <handler class="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
+  </handlerchain>
 </lmtpserver>

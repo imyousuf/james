@@ -84,7 +84,7 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             
             HierarchicalConfiguration config = confProvider.getConfiguration(beanname);
             
-            HierarchicalConfiguration handlerchainConfig = config.configurationAt("handler.handlerchain");
+            HierarchicalConfiguration handlerchainConfig = config.configurationAt("handlerchain");
             List<org.apache.commons.configuration.HierarchicalConfiguration> children = handlerchainConfig.configurationsAt("handler");
 
             // check if the coreHandlersPackage was specified inte hconfig if not add the default 

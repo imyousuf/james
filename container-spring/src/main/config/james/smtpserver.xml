@@ -24,17 +24,15 @@
   <connectionBacklog>200</connectionBacklog>
   <tls socketTLS="false" startTLS="false">
   </tls>
-  <handler>
-     <connectiontimeout>360</connectiontimeout>
-     <connectionLimit> 0 </connectionLimit>
-     <connectionLimitPerIP> 0 </connectionLimitPerIP>
-     <authorizedAddresses>127.0.0.0/8</authorizedAddresses>
-     <authRequired>true</authRequired>
-     <maxmessagesize>0</maxmessagesize>
-     <addressBracketsEnforcement>true</addressBracketsEnforcement>
-     <handlerchain enableJmx="true">
-         <handler class="org.apache.james.smtpserver.fastfail.ValidRcptHandler"/>
-         <handler class="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>       
-     </handlerchain>            
-  </handler>
+  <connectiontimeout>360</connectiontimeout>
+  <connectionLimit> 0 </connectionLimit>
+  <connectionLimitPerIP> 0 </connectionLimitPerIP>
+  <authorizedAddresses>127.0.0.0/8</authorizedAddresses>
+  <authRequired>true</authRequired>
+  <maxmessagesize>0</maxmessagesize>
+  <addressBracketsEnforcement>true</addressBracketsEnforcement>
+  <handlerchain enableJmx="true">
+    <handler class="org.apache.james.smtpserver.fastfail.ValidRcptHandler"/>
+    <handler class="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>       
+  </handlerchain>            
 </smtpserver>

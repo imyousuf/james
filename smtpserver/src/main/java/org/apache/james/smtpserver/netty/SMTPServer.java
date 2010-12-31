@@ -107,8 +107,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
     
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
-            HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
-            String authRequiredString = handlerConfiguration.getString("authRequired","false").trim().toLowerCase();
+            String authRequiredString = configuration.getString("authRequired","false").trim().toLowerCase();
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
             else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
             else authRequired = AUTH_DISABLED;
@@ -118,7 +117,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
                 getLogger().info("This SMTP server does not require authentication.");
             }
 
-            String authorizedAddresses = handlerConfiguration.getString("authorizedAddresses",null);
+            String authorizedAddresses = configuration.getString("authorizedAddresses",null);
             if (authRequired == AUTH_DISABLED && authorizedAddresses == null) {
                 /* if SMTP AUTH is not requred then we will use
                  * authorizedAddresses to determine whether or not to
@@ -153,7 +152,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
-            maxMessageSize = handlerConfiguration.getLong( "maxmessagesize",maxMessageSize ) * 1024;
+            maxMessageSize = configuration.getLong( "maxmessagesize",maxMessageSize ) * 1024;
             if (maxMessageSize > 0) {
                 getLogger().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
             } else {
@@ -168,16 +167,16 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
                 getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
             }
 
-            heloEhloEnforcement = handlerConfiguration.getBoolean("heloEhloEnforcement",true);
+            heloEhloEnforcement = configuration.getBoolean("heloEhloEnforcement",true);
 
             if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
 
             // get the smtpGreeting
-            smtpGreeting = handlerConfiguration.getString("smtpGreeting",null);
+            smtpGreeting = configuration.getString("smtpGreeting",null);
 
-            addressBracketsEnforcement = handlerConfiguration.getBoolean("addressBracketsEnforcement",true);
+            addressBracketsEnforcement = configuration.getBoolean("addressBracketsEnforcement",true);
             
-            verifyIdentity = handlerConfiguration.getBoolean("verifyIdentity",true);
+            verifyIdentity = configuration.getBoolean("verifyIdentity",true);
 
         }
     }

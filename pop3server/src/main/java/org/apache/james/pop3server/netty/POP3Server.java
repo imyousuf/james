@@ -20,8 +20,6 @@ package org.apache.james.pop3server.netty;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
@@ -39,11 +37,6 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
  *
  */
 public class POP3Server extends AbstractConfigurableAsyncServer implements POP3ServerMBean{
-    /**
-     * The number of bytes to read before resetting the connection timeout
-     * timer. Defaults to 20 KB.
-     */
-    private int lengthReset = 20 * 1024;
 
     /**
      * The configuration data to be passed to the handler
@@ -72,17 +65,6 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
         return "POP3 Service";
     }
 
-    @Override
-    protected void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
-        super.doConfigure(configuration);
-        HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
-        lengthReset = handlerConfiguration.getInteger("lengthReset", lengthReset);
-        if (getLogger().isInfoEnabled()) {
-            getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
-        }
-    }
-
-  
 
     /**
      * A class to provide POP3 handler configuration to the handlers
@@ -100,7 +82,7 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
          * @see org.apache.james.pop3server.POP3HandlerConfigurationData#getResetLength()
          */
         public int getResetLength() {
-            return POP3Server.this.lengthReset;
+            return -1;
         }
 
         /**

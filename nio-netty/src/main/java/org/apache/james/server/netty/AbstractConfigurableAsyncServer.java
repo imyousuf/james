@@ -132,8 +132,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      */
     public final void configure(HierarchicalConfiguration config) throws ConfigurationException{
         
-        Configuration handlerConfiguration = ((HierarchicalConfiguration)config).configurationAt("handler");
-
         enabled = config.getBoolean("[@enabled]", true);
         
         final Log logger = getLogger();
@@ -169,9 +167,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         int ioWorker = config.getInt("ioWorkerCount", DEFAULT_IO_WORKER_COUNT);
         setIoWorkerCount(ioWorker);
  
-        configureHelloName(handlerConfiguration);
+        configureHelloName(config);
 
-        setTimeout(handlerConfiguration.getInt(TIMEOUT_NAME,DEFAULT_TIMEOUT));
+        setTimeout(config.getInt(TIMEOUT_NAME,DEFAULT_TIMEOUT));
 
         infoBuffer =
             new StringBuilder(64)
@@ -210,7 +208,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             }
         } 
        
-        String connectionLimitPerIP = handlerConfiguration.getString("connectionLimitPerIP",null);
+        String connectionLimitPerIP = config.getString("connectionLimitPerIP",null);
         if (connectionLimitPerIP != null) {
             try {
             connPerIP = new Integer(connectionLimitPerIP).intValue();

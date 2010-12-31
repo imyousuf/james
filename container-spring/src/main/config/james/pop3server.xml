@@ -28,12 +28,10 @@
       <secret>yoursecret</secret>
       <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
   </tls>
-  <handler>
-      <connectiontimeout>1200</connectiontimeout>
-      <connectionLimit> 0 </connectionLimit>
-      <connectionLimitPerIP> 0 </connectionLimitPerIP>
-      <handlerchain enableJmx="true">
-          <handler class="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
-      </handlerchain>
-  </handler>
+  <connectiontimeout>1200</connectiontimeout>
+  <connectionLimit> 0 </connectionLimit>
+  <connectionLimitPerIP> 0 </connectionLimitPerIP>
+  <handlerchain enableJmx="true">
+      <handler class="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
+  </handlerchain>
 </pop3server>

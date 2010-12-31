@@ -151,42 +151,42 @@ public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
         if (m_connectionLimit != null) addProperty("connectionLimit",  ""+m_connectionLimit.intValue());
         if (m_connectionBacklog != null) addProperty("connectionBacklog", ""+ m_connectionBacklog.intValue());
         
-        addProperty("handler.helloName", "myMailServer");
-        addProperty("handler.connectiontimeout", 360000);
-        addProperty("handler.authorizedAddresses", m_authorizedAddresses);
-        addProperty("handler.maxmessagesize",  m_maxMessageSizeKB);
-        addProperty("handler.authRequired", m_authorizingMode);
-        addProperty("handler.heloEhloEnforcement", m_heloEhloEnforcement);
-        addProperty("handler.addressBracketsEnforcement", m_addressBracketsEnforcement);
+        addProperty("helloName", "myMailServer");
+        addProperty("connectiontimeout", 360000);
+        addProperty("authorizedAddresses", m_authorizedAddresses);
+        addProperty("maxmessagesize",  m_maxMessageSizeKB);
+        addProperty("authRequired", m_authorizingMode);
+        addProperty("heloEhloEnforcement", m_heloEhloEnforcement);
+        addProperty("addressBracketsEnforcement", m_addressBracketsEnforcement);
         
         addProperty("tls.[@startTLS]", m_startTLS);
         addProperty("tls.keystore","file://conf/test_keystore");
         addProperty("tls.secret", "jamestest");        
-        if (m_verifyIdentity) addProperty("handler.verifyIdentity", m_verifyIdentity);
+        if (m_verifyIdentity) addProperty("verifyIdentity", m_verifyIdentity);
  
         // add the rbl handler
         if (m_useRBL) {
             
-            addProperty("handler.handlerchain.handler.[@class]", DNSRBLHandler.class.getName());
-            addProperty("handler.handlerchain.handler.rblservers.blacklist","bl.spamcop.net.");
+            addProperty("handlerchain.handler.[@class]", DNSRBLHandler.class.getName());
+            addProperty("handlerchain.handler.rblservers.blacklist","bl.spamcop.net.");
         }
         if (m_heloResolv || m_ehloResolv) {
-            addProperty("handler.handlerchain.handler.[@class]", ResolvableEhloHeloHandler.class.getName());
-            addProperty("handler.handlerchain.handler.checkAuthNetworks", m_checkAuthNetworks);
+            addProperty("handlerchain.handler.[@class]", ResolvableEhloHeloHandler.class.getName());
+            addProperty("handlerchain.handler.checkAuthNetworks", m_checkAuthNetworks);
         }
         if (m_reverseEqualsHelo || m_reverseEqualsEhlo) {
-            addProperty("handler.handlerchain.handler.[@class]", ReverseEqualsEhloHeloHandler.class.getName());
-            addProperty("handler.handlerchain.handler.checkAuthNetworks", m_checkAuthNetworks);
+            addProperty("handlerchain.handler.[@class]", ReverseEqualsEhloHeloHandler.class.getName());
+            addProperty("handlerchain.handler.checkAuthNetworks", m_checkAuthNetworks);
         }
         if (m_senderDomainResolv) {
-            addProperty("handler.handlerchain.handler.[@class]", ValidSenderDomainHandler.class.getName());
-            addProperty("handler.handlerchain.handler.checkAuthNetworks", m_checkAuthNetworks);
+            addProperty("handlerchain.handler.[@class]", ValidSenderDomainHandler.class.getName());
+            addProperty("handlerchain.handler.checkAuthNetworks", m_checkAuthNetworks);
         }
         if (m_maxRcpt > 0) {
-            addProperty("handler.handlerchain.handler.[@class]", MaxRcptHandler.class.getName());
-            addProperty("handler.handlerchain.handler.maxRcpt", m_maxRcpt);
+            addProperty("handlerchain.handler.[@class]", MaxRcptHandler.class.getName());
+            addProperty("handlerchain.handler.maxRcpt", m_maxRcpt);
         }
-        addProperty("handler.handlerchain.[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
+        addProperty("handlerchain.[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
     }
     
 }

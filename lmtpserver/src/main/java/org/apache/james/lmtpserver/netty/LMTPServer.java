@@ -69,12 +69,10 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
     
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
-            HierarchicalConfiguration handlerConfiguration = configuration.configurationAt("handler");
            
-
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
-            maxMessageSize = handlerConfiguration.getLong( "maxmessagesize",maxMessageSize ) * 1024;
+            maxMessageSize = configuration.getLong( "maxmessagesize",maxMessageSize ) * 1024;
             if (maxMessageSize > 0) {
                 getLogger().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
             } else {
@@ -82,7 +80,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
             }
             
             // get the lmtpGreeting
-            lmtpGreeting = handlerConfiguration.getString("lmtpGreeting",null);
+            lmtpGreeting = configuration.getString("lmtpGreeting",null);
 
 
         }

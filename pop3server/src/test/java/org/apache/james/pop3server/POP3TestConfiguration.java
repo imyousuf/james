@@ -34,8 +34,8 @@ public class POP3TestConfiguration extends DefaultConfigurationBuilder {
     public void init() {
         addProperty("[@enabled]", true);
         addProperty("port", m_pop3ListenerPort);
-        addProperty("handler.helloName", "myMailServer");
-        addProperty("handler.connectiontimeout", "360000");
-        addProperty("handler.handlerchain.[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
+        addProperty("helloName", "myMailServer");
+        addProperty("connectiontimeout", "360000");
+        addProperty("handlerchain.[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
     }
 }

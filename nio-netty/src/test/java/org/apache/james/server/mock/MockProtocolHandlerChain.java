@@ -64,7 +64,7 @@ public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configura
     
     @PostConstruct
     public void init() throws Exception {
-        HierarchicalConfiguration handlerchainConfig = config.configurationAt("handler.handlerchain");
+        HierarchicalConfiguration handlerchainConfig = config.configurationAt("handlerchain");
         if (handlerchainConfig.getString("[@coreHandlersPackage]") == null)
             handlerchainConfig.addProperty("[@coreHandlersPackage]", coreHandlersPackage);
         
