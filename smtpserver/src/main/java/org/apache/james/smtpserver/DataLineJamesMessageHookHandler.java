@@ -21,6 +21,7 @@
 
 package org.apache.james.smtpserver;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -140,12 +141,19 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     private void processExtensions(SMTPSession session, Mail mail) {
         if (mail != null && messageHandlers != null) {
             try {
+                MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
+                OutputStream out = null;
+                try {
+                    out = mmiss.getWritableOutputStream();
+                } catch (FileNotFoundException e) {
+                    session.getLogger().debug("Unable to obtain OutputStream for Mail " + mail, e);
+                }
                 for (int i = 0; i < mHandlers.size(); i++) {
                     MessageHook rawHandler = mHandlers.get(i);
                     session.getLogger().debug("executing james message handler " + rawHandler);
                     long start = System.currentTimeMillis();
 
-                    HookResult hRes = rawHandler.onMessage(session, new MailToMailEnvelopeWrapper(mail));
+                    HookResult hRes = rawHandler.onMessage(session, new MailToMailEnvelopeWrapper(mail, out));
                     long executionTime = System.currentTimeMillis() - start;
 
                     if (rHooks != null) {
@@ -232,9 +240,11 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 
     private class MailToMailEnvelopeWrapper implements MailEnvelope {
         private Mail mail;
+        private OutputStream out;
 
-        public MailToMailEnvelopeWrapper(Mail mail) {
+        public MailToMailEnvelopeWrapper(Mail mail, OutputStream out) {
             this.mail = mail;
+            this.out = out;
         }
 
         /**
@@ -244,11 +254,13 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
             return mail.getMessage().getInputStream();
         }
 
-        /**
-         * Return just null. Not sure if this is a good idea ..
+
+        /*
+         * (non-Javadoc)
+         * @see org.apache.james.protocols.smtp.MailEnvelope#getMessageOutputStream()
          */
         public OutputStream getMessageOutputStream() {
-            return null;
+           return out;
         }
 
         /**
