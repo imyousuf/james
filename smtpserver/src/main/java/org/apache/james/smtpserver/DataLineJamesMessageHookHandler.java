@@ -113,8 +113,8 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                 
             // DotStuffing.
             } else if (line[0] == 46 && line[1] == 46) {
-                out.write(line,1,line.length-1);
-            // Standard write
+                out.write(line, 1, line.length - 1);
+                // Standard write
             } else {
                 // TODO: maybe we should handle the Header/Body recognition here
                 // and if needed let a filter to cache the headers to apply some
@@ -126,95 +126,82 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
             LifecycleUtil.dispose(mmiss);
 
             SMTPResponse response;
-            response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,
-                            DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
-            
-            session.getLogger().error(
-                    "Unknown error occurred while processing DATA.", e);
+            response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Error processing message: " + e.getMessage());
+
+            session.getLogger().error("Unknown error occurred while processing DATA.", e);
             session.writeResponse(response);
             return;
-        }  
+        }
     }
 
-	/**
-	 * @param session
-	 */
-	private void processExtensions(SMTPSession session, Mail mail) {
-		if (mail != null && messageHandlers != null) {
-			try {
-				for (int i = 0; i < mHandlers.size(); i++) {
-					MessageHook rawHandler = mHandlers.get(i);
-					session.getLogger().debug(
-							"executing james message handler " + rawHandler);
-	                long start = System.currentTimeMillis();
+    /**
+     * @param session
+     */
+    private void processExtensions(SMTPSession session, Mail mail) {
+        if (mail != null && messageHandlers != null) {
+            try {
+                for (int i = 0; i < mHandlers.size(); i++) {
+                    MessageHook rawHandler = mHandlers.get(i);
+                    session.getLogger().debug("executing james message handler " + rawHandler);
+                    long start = System.currentTimeMillis();
 
-					HookResult hRes = rawHandler.onMessage(session,
-							new MailToMailEnvelopeWrapper(mail));
+                    HookResult hRes = rawHandler.onMessage(session, new MailToMailEnvelopeWrapper(mail));
                     long executionTime = System.currentTimeMillis() - start;
 
-					if (rHooks != null) {
-						for (int i2 = 0; i2 < rHooks.size(); i2++) {
-							Object rHook = rHooks.get(i2);
-							session.getLogger()
-									.debug("executing hook " + rHook);
-							hRes = ((HookResultHook) rHook).onHookResult(
-									session, hRes, executionTime, rawHandler);
-						}
-					}
+                    if (rHooks != null) {
+                        for (int i2 = 0; i2 < rHooks.size(); i2++) {
+                            Object rHook = rHooks.get(i2);
+                            session.getLogger().debug("executing hook " + rHook);
+                            hRes = ((HookResultHook) rHook).onHookResult(session, hRes, executionTime, rawHandler);
+                        }
+                    }
 
-					SMTPResponse response = AbstractHookableCmdHandler
-							.calcDefaultSMTPResponse(hRes);
+                    SMTPResponse response = AbstractHookableCmdHandler.calcDefaultSMTPResponse(hRes);
 
-					// if the response is received, stop processing of command
-					// handlers
-					if (response != null) {
-						session.writeResponse(response);
-						return;
-					}
-				}
+                    // if the response is received, stop processing of command
+                    // handlers
+                    if (response != null) {
+                        session.writeResponse(response);
+                        return;
+                    }
+                }
 
-				int count = messageHandlers.size();
-				for (int i = 0; i < count; i++) {
-					Hook rawHandler = (Hook) messageHandlers.get(i);
-					session.getLogger().debug(
-							"executing james message handler " + rawHandler);
-					long start = System.currentTimeMillis();
-					HookResult hRes = ((JamesMessageHook) rawHandler)
-							.onMessage(session, (Mail) mail);
-					long executionTime = System.currentTimeMillis() - start;
-					if (rHooks != null) {
-						for (int i2 = 0; i2 < rHooks.size(); i2++) {
-							Object rHook = rHooks.get(i2);
-							session.getLogger()
-									.debug("executing hook " + rHook);
-							hRes = ((HookResultHook) rHook).onHookResult(
-									session, hRes, executionTime, rawHandler);
-						}
-					}
+                int count = messageHandlers.size();
+                for (int i = 0; i < count; i++) {
+                    Hook rawHandler = (Hook) messageHandlers.get(i);
+                    session.getLogger().debug("executing james message handler " + rawHandler);
+                    long start = System.currentTimeMillis();
+                    HookResult hRes = ((JamesMessageHook) rawHandler).onMessage(session, (Mail) mail);
+                    long executionTime = System.currentTimeMillis() - start;
+                    if (rHooks != null) {
+                        for (int i2 = 0; i2 < rHooks.size(); i2++) {
+                            Object rHook = rHooks.get(i2);
+                            session.getLogger().debug("executing hook " + rHook);
+                            hRes = ((HookResultHook) rHook).onHookResult(session, hRes, executionTime, rawHandler);
+                        }
+                    }
 
-					SMTPResponse response = AbstractHookableCmdHandler
-							.calcDefaultSMTPResponse(hRes);
+                    SMTPResponse response = AbstractHookableCmdHandler.calcDefaultSMTPResponse(hRes);
 
-					// if the response is received, stop processing of command
-					// handlers
-					if (response != null) {
-						session.writeResponse(response);
-						break;
-					}
-				}
-			} finally {
-				// Dispose the mail object and remove it
-				if (mail != null) {
-				    LifecycleUtil.dispose(mail);
-					mail = null;
-				}
-				// do the clean up
-				session.resetState();
-			}
-		}
-	}
+                    // if the response is received, stop processing of command
+                    // handlers
+                    if (response != null) {
+                        session.writeResponse(response);
+                        break;
+                    }
+                }
+            } finally {
+                // Dispose the mail object and remove it
+                if (mail != null) {
+                    LifecycleUtil.dispose(mail);
+                    mail = null;
+                }
+                // do the clean up
+                session.resetState();
+            }
+        }
+    }
 
-    
     /**
      * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
      */
@@ -243,52 +230,53 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
         return classes;
     }
 
-    
     private class MailToMailEnvelopeWrapper implements MailEnvelope {
-    	private Mail mail;
-    	public MailToMailEnvelopeWrapper(Mail mail) {
-    		this.mail = mail;
-    	}
-    	
-    	/**
-    	 * @see org.apache.james.protocols.smtp.MailEnvelope#getMessageInputStream()
-    	 */
-		public InputStream getMessageInputStream() throws Exception {
-			return mail.getMessage().getInputStream();
-		}
-		
-		/**
-		 * Return just null. Not sure if this is a good idea ..
-		 */
-		public OutputStream getMessageOutputStream() {
-			return null;
-		}
+        private Mail mail;
 
-		/**
-		 * @see org.apache.james.protocols.smtp.MailEnvelope#getRecipients()
-		 */
-		public List<MailAddress> getRecipients() {
-			return new ArrayList<MailAddress>(mail.getRecipients());
-		}
+        public MailToMailEnvelopeWrapper(Mail mail) {
+            this.mail = mail;
+        }
 
-		/**
-		 * (non-Javadoc)
-		 * @see org.apache.james.protocols.smtp.MailEnvelope#getSender()
-		 */
-		public MailAddress getSender() {
-			return mail.getSender();
-		}
-		
-		/**
-		 * @see org.apache.james.protocols.smtp.MailEnvelope#getSize()
-		 */
-		public int getSize() {
-			try {
-				return new Long(mail.getMessageSize()).intValue();
-			} catch (MessagingException e) {
-				return -1;
-			}
-		}
-    	
+        /**
+         * @see org.apache.james.protocols.smtp.MailEnvelope#getMessageInputStream()
+         */
+        public InputStream getMessageInputStream() throws Exception {
+            return mail.getMessage().getInputStream();
+        }
+
+        /**
+         * Return just null. Not sure if this is a good idea ..
+         */
+        public OutputStream getMessageOutputStream() {
+            return null;
+        }
+
+        /**
+         * @see org.apache.james.protocols.smtp.MailEnvelope#getRecipients()
+         */
+        public List<MailAddress> getRecipients() {
+            return new ArrayList<MailAddress>(mail.getRecipients());
+        }
+
+        /**
+         * (non-Javadoc)
+         * 
+         * @see org.apache.james.protocols.smtp.MailEnvelope#getSender()
+         */
+        public MailAddress getSender() {
+            return mail.getSender();
+        }
+
+        /**
+         * @see org.apache.james.protocols.smtp.MailEnvelope#getSize()
+         */
+        public int getSize() {
+            try {
+                return new Long(mail.getMessageSize()).intValue();
+            } catch (MessagingException e) {
+                return -1;
+            }
+        }
+
     }
 }
