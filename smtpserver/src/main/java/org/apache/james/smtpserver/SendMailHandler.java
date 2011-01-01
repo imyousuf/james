@@ -47,7 +47,7 @@ public class SendMailHandler implements JamesMessageHook {
  
 
     
-    @Resource(name="mailQueueFactory")
+    @Resource(name="mailqueuefactory")
     public void setMailQueueFactory(MailQueueFactory queueFactory) {
         this.queueFactory = queueFactory;
     }

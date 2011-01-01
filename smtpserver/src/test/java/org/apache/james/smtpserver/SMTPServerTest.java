@@ -368,7 +368,7 @@ public abstract class SMTPServerTest extends TestCase {
         m_serviceManager.put("org.apache.james.smtpserver.protocol.DNSService", dnsAdapter);
         queueFactory = new MockMailQueueFactory();
         queue = (MockMailQueue) queueFactory.getQueue(MockMailQueueFactory.SPOOL);
-        m_serviceManager.put("mailQueueFactory", queueFactory);
+        m_serviceManager.put("mailqueuefactory", queueFactory);
         m_serviceManager.put("domainlist", new SimpleDomainList() {
             public boolean containsDomain(String serverName) {
                 return "localhost".equals(serverName);

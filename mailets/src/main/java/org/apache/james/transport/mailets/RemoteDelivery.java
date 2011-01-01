@@ -194,7 +194,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     
     
-    @Resource(name="mailQueueFactory")
+    @Resource(name="mailqueuefactory")
     public void setMailQueueFactory(MailQueueFactory queueFactory) {
         this.queueFactory = queueFactory;
     }

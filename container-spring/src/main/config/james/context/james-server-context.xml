@@ -130,7 +130,7 @@
     <!-- 
       James Mail Queue Factory
      -->
-    <bean id="mailQueueFactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker"/>
+    <bean id="mailqueuefactory" class="org.apache.james.queue.activemq.ActiveMQMailQueueFactory" depends-on="broker"/>
 
     <!-- 
       ActiveMQ Broker, Connections, Blob

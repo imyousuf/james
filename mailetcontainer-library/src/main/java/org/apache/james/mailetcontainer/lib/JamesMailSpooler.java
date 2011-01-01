@@ -91,7 +91,7 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
     private MailQueueFactory queueFactory;
 
 
-    @Resource(name="mailQueueFactory")
+    @Resource(name="mailqueuefactory")
     public void setMailQueueFactory(MailQueueFactory queueFactory) {
         this.queueFactory = queueFactory;
     }
