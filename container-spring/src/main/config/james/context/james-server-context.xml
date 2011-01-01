@@ -52,6 +52,7 @@
             <map>
                 <entry key="mailetcontext" value="mailetcontainer"/>
                 <entry key="mailprocessor" value="mailetcontainer"/>
+                <entry key="mailspooler" value="mailetcontainer"/>
             </map>
         </property>
     </bean>
