@@ -48,13 +48,6 @@
         <property name="order" value="0" />
     </bean>
     <bean id="logProvider" class="org.apache.james.container.spring.provider.log.LogProviderImpl">
-        <property name="logMappings">
-            <map>
-                <entry key="mailetcontext" value="mailetcontainer"/>
-                <entry key="mailprocessor" value="mailetcontainer"/>
-                <entry key="mailspooler" value="mailetcontainer"/>
-            </map>
-        </property>
     </bean>
 
     <!-- 
