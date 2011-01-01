@@ -28,16 +28,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.lifecycle.api.LifecycleUtil;
-import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.protocols.api.WiringException;
@@ -60,13 +56,7 @@ import org.apache.mailet.MailAddress;
  * Handles the calling of JamesMessageHooks
  *
  */
-public final class DataLineJamesMessageHookHandler implements DataLineFilter, ExtensibleHandler, LogEnabled {
-
-    /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(DataLineJamesMessageHookHandler.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
-    private Log serviceLog = FALLBACK_LOG;
+public final class DataLineJamesMessageHookHandler implements DataLineFilter, ExtensibleHandler {
     
     private List<JamesMessageHook> messageHandlers;
     
@@ -231,10 +221,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (JamesMessageHook.class.equals(interfaceName)) {
             this.messageHandlers = extension;
-            if (messageHandlers.size() == 0) {
-                if (serviceLog.isErrorEnabled()) {
-                    serviceLog.error("No messageHandler configured. Check that SendMailHandler is configured in the SMTPHandlerChain");
-                }
+            if (messageHandlers == null || messageHandlers.size() == 0) {
                 throw new WiringException("No messageHandler configured");
             }
         } else if (MessageHook.class.equals(interfaceName)) {
@@ -256,14 +243,6 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
         return classes;
     }
 
-    /**
-     * Sets the service log.
-     * Where available, a context sensitive log should be used.
-     * @param Log not null
-     */
-    public void setLog(Log log) {
-        this.serviceLog = log;
-    }
     
     private class MailToMailEnvelopeWrapper implements MailEnvelope {
     	private Mail mail;
@@ -309,14 +288,6 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
 			} catch (MessagingException e) {
 				return -1;
 			}
-		}
-
-		/**
-		 * (non-Javadoc)
-		 * @see org.apache.james.protocols.smtp.MailEnvelope#setRecipients(java.util.List)
-		 */
-		public void setRecipients(List<MailAddress> recipientCollection) {
-			mail.setRecipients(recipientCollection);
 		}
     	
     }
