@@ -44,10 +44,10 @@
       Spring "Bean-Post-Processor" for LogEnabled interface.
      -->
     <bean class="org.apache.james.container.spring.bean.postprocessor.LogEnabledBeanPostProcessor">
-        <property name="logProvider" ref="logProvider" />
+        <property name="logProvider" ref="logprovider" />
         <property name="order" value="0" />
     </bean>
-    <bean id="logProvider" class="org.apache.james.container.spring.provider.log.LogProviderImpl">
+    <bean id="logprovider" class="org.apache.james.container.spring.provider.log.LogProviderImpl">
     </bean>
 
     <!-- 
@@ -96,10 +96,10 @@
       Spring "Bean-Post-Processor" for Configurable interface.
      -->
     <bean class="org.apache.james.container.spring.bean.postprocessor.ConfigurableBeanPostProcessor">
-        <property name="configurationProvider" ref="configurationProvider" />
+        <property name="configurationProvider" ref="configurationprovider" />
         <property name="order" value="1" />
     </bean>
-    <bean id="configurationProvider" class="org.apache.james.container.spring.provider.configuration.ConfigurationProviderImpl">
+    <bean id="configurationprovider" class="org.apache.james.container.spring.provider.configuration.ConfigurationProviderImpl">
         <property name="configurationMappings">
             <map>
                 <entry key="mailprocessor" value="mailetcontainer.processors"/>
@@ -387,7 +387,7 @@
           <entry key="org.apache.james:type=component,name=mailboxmanagement" value-ref="mailboxmanagermanagement"/>
           <entry key="org.apache.james:type=component,component=mailetcontainer,name=mailspooler" value-ref="mailspooler"/>
           <entry key="org.apache.james:type=mailbox,name=mailboxcopier" value-ref="mailboxcopiermanagement"/>
-          <entry key="org.apache.james:type=container,name=logprovider" value-ref="logProvider"/>
+          <entry key="org.apache.james:type=container,name=logprovider" value-ref="logprovider"/>
         </map>
       </property>
       <property name="assembler">
