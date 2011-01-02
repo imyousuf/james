@@ -30,6 +30,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.GenericMailet;
@@ -137,7 +138,11 @@ public abstract class AbstractVirtualUserTableMailet extends GenericMailet {
 
             if (rcpt.indexOf("@") < 0) {
                 // the mapping contains no domain name, use the default domain
-                rcpt = rcpt + "@" + domainList.getDefaultDomain();
+                try {
+                    rcpt = rcpt + "@" + domainList.getDefaultDomain();
+                } catch (DomainListException e) {
+                    throw new MessagingException("Unable to access DomainList" ,e);
+                }
             }
 
             MailAddress nextMap = new MailAddress(rcpt);

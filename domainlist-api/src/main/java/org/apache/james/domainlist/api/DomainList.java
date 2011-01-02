@@ -32,7 +32,7 @@ public interface DomainList {
      * 
      * @return domains
      */
-    public String[] getDomains();
+    public String[] getDomains() throws DomainListException;
     
     /**
      * Return true if the domain exists in the service 
@@ -40,7 +40,7 @@ public interface DomainList {
      * @param domain the domain
      * @return true if the given domain exists in the service
      */
-    public boolean containsDomain(String domain);
+    public boolean containsDomain(String domain) throws DomainListException;
 
     
     /**
@@ -49,7 +49,7 @@ public interface DomainList {
      * @param domain domain to add
      * @return true if successfull
      */
-    public boolean addDomain(String domain);
+    public void addDomain(String domain) throws DomainListException;
     
     /**
      * Remove domain from the service
@@ -57,7 +57,7 @@ public interface DomainList {
      * @param domain domain to remove
      * @return true if successfull
      */
-    public boolean removeDomain(String domain);
+    public void removeDomain(String domain) throws DomainListException;
     
     
     
@@ -67,6 +67,6 @@ public interface DomainList {
      * 
      * @return the defaultdomain
      */
-    public String getDefaultDomain();
+    public String getDefaultDomain() throws DomainListException;
     
 }

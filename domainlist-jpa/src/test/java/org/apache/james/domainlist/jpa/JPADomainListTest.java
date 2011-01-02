@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.mock.MockDNSService;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.domainlist.jpa.JPADomainList;
 import org.apache.james.domainlist.jpa.model.JPADomain;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
@@ -94,50 +95,55 @@ public class JPADomainListTest extends TestCase {
     
     /**
      * Add 3 domains and list them.
+     * @throws DomainListException 
      */
-    public void createListDomains() {
-        assertEquals(true, jpaDomainList.addDomain(DOMAIN_3));
-        assertEquals(true, jpaDomainList.addDomain(DOMAIN_4));
-        assertEquals(true, jpaDomainList.addDomain(DOMAIN_5));
+    public void createListDomains() throws DomainListException {
+        jpaDomainList.addDomain(DOMAIN_3);
+        jpaDomainList.addDomain(DOMAIN_4);
+        jpaDomainList.addDomain(DOMAIN_5);
         assertEquals(3, jpaDomainList.getDomains().length);
     }
 
     /**
      * Add a domain and check it is present.
+     * @throws DomainListException 
      */
-    public void testAddContainsDomain() {
-        assertEquals(true, jpaDomainList.addDomain(DOMAIN_2));
-        assertEquals(true, jpaDomainList.containsDomain(DOMAIN_2));
+    public void testAddContainsDomain() throws DomainListException {
+        jpaDomainList.addDomain(DOMAIN_2);
+        jpaDomainList.containsDomain(DOMAIN_2);
     }
 
     /**
      * Add and remove a domain, and check database is empty.
+     * @throws DomainListException 
      */
-    public void testAddRemoveContainsSameDomain() {
-        assertEquals(true, jpaDomainList.addDomain(DOMAIN_1));
-        assertEquals(true, jpaDomainList.removeDomain(DOMAIN_1));
+    public void testAddRemoveContainsSameDomain() throws DomainListException {
+        jpaDomainList.addDomain(DOMAIN_1);
+        jpaDomainList.removeDomain(DOMAIN_1);
         assertEquals(null, jpaDomainList.getDomains());
     }
 
     /**
      * Add a domain and remove another domain, and check first domain is still present.
+     * @throws DomainListException 
      */
-    public void testAddRemoveContainsDifferentDomain() {
-        assertEquals(true, jpaDomainList.addDomain(DOMAIN_1));
-        assertEquals(true, jpaDomainList.removeDomain(DOMAIN_2));
+    public void testAddRemoveContainsDifferentDomain() throws DomainListException {
+        jpaDomainList.addDomain(DOMAIN_1);
+        jpaDomainList.removeDomain(DOMAIN_2);
         assertEquals(1, jpaDomainList.getDomains().length);
         assertEquals(true, jpaDomainList.containsDomain(DOMAIN_1));
     }
     
     /**
      * Delete all possible domains from database.
+     * @throws DomainListException 
      */
-    private void deleteAll() {
-        assertEquals(true, jpaDomainList.removeDomain(DOMAIN_1));
-        assertEquals(true, jpaDomainList.removeDomain(DOMAIN_2));
-        assertEquals(true, jpaDomainList.removeDomain(DOMAIN_3));
-        assertEquals(true, jpaDomainList.removeDomain(DOMAIN_4));
-        assertEquals(true, jpaDomainList.removeDomain(DOMAIN_5));
+    private void deleteAll() throws DomainListException {
+        jpaDomainList.removeDomain(DOMAIN_1);
+        jpaDomainList.removeDomain(DOMAIN_2);
+        jpaDomainList.removeDomain(DOMAIN_3);
+        jpaDomainList.removeDomain(DOMAIN_4);
+        jpaDomainList.removeDomain(DOMAIN_5);
     }
 
     /**

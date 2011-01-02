@@ -22,6 +22,7 @@ package org.apache.james.smtpserver;
 import javax.annotation.Resource;
 
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.protocols.smtp.core.RcptCmdHandler;
 
 public class JamesRcptCmdHandler extends RcptCmdHandler{
@@ -37,6 +38,10 @@ public class JamesRcptCmdHandler extends RcptCmdHandler{
      * @see org.apache.james.protocols.smtp.core.MailCmdHandler#getDefaultDomain()
      */
     public String getDefaultDomain() {
-        return domainList.getDefaultDomain();
+        try {
+            return domainList.getDefaultDomain();
+        } catch (DomainListException e) {
+            return super.getDefaultDomain();
+        }
     }
 }

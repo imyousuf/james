@@ -26,6 +26,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.user.api.UsersRepository;
@@ -75,7 +76,7 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
         this.domainList = domainList;
     }
     
-    protected boolean isValidUsername(String username) {
+    protected boolean isValidUsername(String username) throws DomainListException {
         int i = username.indexOf("@");
         if (supportVirtualHosting()) {
             // need a @ in the username
@@ -105,8 +106,13 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
      */
     public boolean addUser(String username, String password) {
         
-        if (contains(username) == false && isValidUsername(username)) {
-            return doAddUser(username, password);
+        try {
+            if (contains(username) == false && isValidUsername(username)) {
+                return doAddUser(username, password);
+            }
+        } catch (DomainListException e) {
+            logger.error("Unable to access DomainList" ,e);
+            return false;
         }
         return false;
     }

@@ -37,6 +37,7 @@ import javax.mail.internet.ParseException;
 import org.apache.james.core.MailImpl;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -157,6 +158,8 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
                                 .append(targetAddress);
                             log(exceptionBuffer.toString());
                             continue;
+                        } catch (DomainListException e) {
+                            log("Unable to access DomainList" ,e);
                         }
                     }
                 }

@@ -27,6 +27,7 @@ import java.util.Locale;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.domainlist.lib.AbstractDomainList;
 import org.apache.james.lifecycle.api.Configurable;
 
@@ -49,8 +50,15 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
         super.configure(config);
         List<String> serverNameConfs = config.getList( "domainnames.domainname" );
         for ( int i = 0; i < serverNameConfs.size(); i++ ) {
-            addDomainInternal( serverNameConfs.get(i));
+            try {
+                addDomain( serverNameConfs.get(i));
+            } catch (DomainListException e) {
+                throw new ConfigurationException("Unable to add domain to memory", e);
+            }
         }
+        
+        managementDisabled = true;
+
         
     }
    
@@ -61,45 +69,41 @@ public class XMLDomainList extends AbstractDomainList implements Configurable{
      * @see org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal()
      */
     protected List<String> getDomainListInternal() {
-        // TODO: Remove temporary fix!
-        // This is set to true to get sure now new domain can get added or removed
-        // after the domains were retrieved by James.java. See is a workaround!
-        managementDisabled = true;
+        
         return new ArrayList<String>(domainNames);
     }
 
     /**
      * @see org.apache.james.domainlist.api.DomainList#containsDomain(java.lang.String)
      */
-    public boolean containsDomain(String domains) {
+    public boolean containsDomain(String domains) throws DomainListException{
         return domainNames.contains(domains);
     }
 
-    /**
-     * The added domains will only added in memory!
-     * 
-     * @see org.apache.james.domainlist.lib.AbstractDomainList#addDomainInternal(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.domainlist.api.DomainList#addDomain(java.lang.String)
      */
-    protected boolean addDomainInternal(String domain) {
+    public void addDomain(String domain) throws DomainListException{
         // TODO: Remove later. Temporary fix to get sure no domains can be added to the XMLDomainList
-        if (managementDisabled) throw new UnsupportedOperationException("Management not supported");
+        if (managementDisabled) throw new DomainListException("Read-Only DomainList implementation");
         
         String newDomain = domain.toLowerCase(Locale.US);
         if (containsDomain(newDomain) == false) {
             domainNames.add(newDomain);
-            return true;
-        } else {
-            return false;
         }
+        
     }
 
-    /**
-     * @see org.apache.james.domainlist.lib.AbstractDomainList#removeDomainInternal(java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.domainlist.api.DomainList#removeDomain(java.lang.String)
      */
-    protected boolean removeDomainInternal(String domain) {
+    public void removeDomain(String domain) throws DomainListException {
         // TODO: Remove later. Temporary fix to get sure no domains can be added to the XMLDomainList
-        if (managementDisabled) throw new UnsupportedOperationException("Management not supported");
+        if (managementDisabled) throw new DomainListException("Read-Only DomainList implementation");
        
-        return domainNames.remove(domain.toLowerCase(Locale.US));
+        domainNames.remove(domain.toLowerCase(Locale.US));
     }
 }

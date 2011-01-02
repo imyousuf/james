@@ -35,6 +35,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 
@@ -76,7 +77,7 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled, Con
      * (non-Javadoc)
      * @see org.apache.james.domainlist.api.DomainList#getDefaultDomain()
      */
-    public String getDefaultDomain() {
+    public String getDefaultDomain() throws DomainListException{
         return defaultDomain;
     }
 
@@ -85,7 +86,7 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled, Con
      * (non-Javadoc)
      * @see org.apache.james.api.domainlist.DomainList#getDomains()
      */
-    public String[] getDomains() {  
+    public String[] getDomains() throws DomainListException{  
         List<String> domains = getDomainListInternal();
         if (domains != null) {
             
@@ -164,27 +165,6 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled, Con
         return domainIP;
     }
     
-    /**
-     * @see org.apache.james.domainlist.api.ManageableDomainList#addDomain(java.lang.String)
-     */
-    public boolean addDomain(String domain) {
-        getLogger().info("Add domain " + domain + " to DomainList");
-    
-        //TODO: Should we care about autoDetectIP ?
-        return addDomainInternal(domain);
-    }
-    
-    /**
-     * @see org.apache.james.domainlist.api.ManageableDomainList#removeDomain(java.lang.String)
-     */
-    public boolean removeDomain(String domain) {
-        getLogger().info("Remove domain " + domain + " from DomainList");
-    
-    
-        //TODO: Should we care about autoDetectIP ?
-        return removeDomainInternal(domain);
-    }
-    
 
     /**
      * Set to true to autodetect the hostname of the host on which
@@ -225,21 +205,6 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled, Con
      * 
      * @return List
      */
-    protected abstract List<String> getDomainListInternal();
-    
-    /**
-     * Add domain
-     * 
-     * @param domain domain to add
-     * @return true if successfully
-     */
-    protected abstract boolean addDomainInternal(String domain);
-    
-    /**
-     * Remove domain
-     * 
-     * @param domain domain to remove
-     * @return true if successfully
-     */
-    protected abstract boolean removeDomainInternal(String domain);
+    protected abstract List<String> getDomainListInternal() throws DomainListException;
+
 }

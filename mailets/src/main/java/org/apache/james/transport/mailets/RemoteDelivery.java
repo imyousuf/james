@@ -24,6 +24,7 @@ package org.apache.james.transport.mailets;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
@@ -1621,7 +1622,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
     protected String getHeloName() {
         if (heloName == null) {
             //TODO: Maybe we should better just lookup the hostname via dns
-            return domainList.getDefaultDomain();
+            try {
+                return domainList.getDefaultDomain();
+            } catch (DomainListException e) {
+                log("Unable to access DomainList" ,e );
+                return "localhost";
+            }
         } else {
             return heloName;
         }

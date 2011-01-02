@@ -28,8 +28,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnit;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.domainlist.jpa.model.JPADomain;
 import org.apache.james.domainlist.lib.AbstractDomainList;
 import org.apache.james.lifecycle.api.Configurable;
@@ -61,22 +60,13 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
         createEntityManager().close();
     }
 
+   
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
-     */
-    @SuppressWarnings("unchecked")
-    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        super.configure(config);
-        // TODO The common configuration could be migrated to AbstractDomainList (should it implement Configurable?)
-        setAutoDetect(config.getBoolean("autodetect", true));    
-        setAutoDetectIP(config.getBoolean("autodetectIP", true));    
-    }
-   
-    /**
      * @see org.apache.james.domainlist.lib.AbstractDomainList#getDomainListInternal()
      */
-    protected List<String> getDomainListInternal() {
+    @SuppressWarnings("unchecked")
+    protected List<String> getDomainListInternal() throws DomainListException {
         List<String> domains = new ArrayList<String>();
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
@@ -89,6 +79,8 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            
+            throw new DomainListException("Unable to retrieve domains", e);
         } finally {
             entityManager.close();
         }
@@ -102,7 +94,7 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
     /**
      * @see org.apache.james.domainlist.api.DomainList#containsDomain(java.lang.String)
      */
-    public boolean containsDomain(String domain) {
+    public boolean containsDomain(String domain) throws DomainListException{
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -115,16 +107,18 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new DomainListException("Unable to retrieve domains", e);
         } finally {
             entityManager.close();
         }    
-        return false;
     }
 
-    /**
-     * @see org.apache.james.domainlist.lib.AbstractDomainList#addDomainInternal(java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.domainlist.api.DomainList#addDomain(java.lang.String)
      */
-    protected boolean addDomainInternal(String domain) {
+    public void addDomain(String domain) throws DomainListException{
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -132,38 +126,39 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             JPADomain jpaDomain = new JPADomain(domain);
             entityManager.persist(jpaDomain);
             transaction.commit();
-            return true;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to save domain", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new DomainListException("Unable to add domain " + domain, e);
         } finally {
             entityManager.close();
         }
-        return false;
     }
 
-    /**
-     * @see org.apache.james.domainlist.lib.AbstractDomainList#removeDomainInternal(java.lang.String)
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.domainlist.api.DomainList#removeDomain(java.lang.String)
      */
-    protected boolean removeDomainInternal(String domain) {
+    public void removeDomain(String domain) throws DomainListException{
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
             entityManager.createNamedQuery("deleteDomainByName").setParameter("name", domain).executeUpdate();
             transaction.commit();
-            return true;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to remove domain", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new DomainListException("Unable to remove domain " + domain, e);
+
         } finally {
             entityManager.close();
         }
-        return false;
     }
 
     /**

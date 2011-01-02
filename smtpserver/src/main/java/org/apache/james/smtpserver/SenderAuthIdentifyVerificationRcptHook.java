@@ -21,6 +21,7 @@ package org.apache.james.smtpserver;
 import javax.annotation.Resource;
 
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook;
 import org.apache.james.protocols.smtp.hook.HookResult;
@@ -64,7 +65,11 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
      * @see org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook#isLocalDomain(java.lang.String)
      */
     protected boolean isLocalDomain(String domain) {
-        return domains.containsDomain(domain);
+        try {
+            return domains.containsDomain(domain);
+        } catch (DomainListException e) {
+            return false;
+        }
     }
 
     /*

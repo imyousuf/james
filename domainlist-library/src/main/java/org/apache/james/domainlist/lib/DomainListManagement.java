@@ -23,6 +23,7 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.domainlist.api.DomainListManagementMBean;
 
 public class DomainListManagement extends StandardMBean implements DomainListManagementMBean{
@@ -38,23 +39,23 @@ public class DomainListManagement extends StandardMBean implements DomainListMan
         this.domainList = domainList;
     }
     
-    public boolean addDomain(String domain) {
-        return domainList.addDomain(domain);
+    public void addDomain(String domain) throws DomainListException{
+        domainList.addDomain(domain);
     }
 
-    public boolean containsDomain(String domain) {
+    public boolean containsDomain(String domain) throws DomainListException{
         return domainList.containsDomain(domain);
     }
 
-    public String[] getDomains() {
+    public String[] getDomains() throws DomainListException{
         return domainList.getDomains();
     }
 
-    public boolean removeDomain(String domain) {
-        return domainList.removeDomain(domain);
+    public void removeDomain(String domain) throws DomainListException{
+        domainList.removeDomain(domain);
     }
 
-    public String getDefaultDomain() {
+    public String getDefaultDomain() throws DomainListException{
         return domainList.getDefaultDomain();
     }
 

@@ -21,6 +21,7 @@ package org.apache.james.smtpserver;
 import javax.annotation.Resource;
 
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.protocols.smtp.core.MailCmdHandler;
 
 public class JamesMailCmdHandler extends MailCmdHandler{
@@ -36,7 +37,11 @@ public class JamesMailCmdHandler extends MailCmdHandler{
      * @see org.apache.james.protocols.smtp.core.MailCmdHandler#getDefaultDomain()
      */
     public String getDefaultDomain() {
-        return domainList.getDefaultDomain();
+        try {
+            return domainList.getDefaultDomain();
+        } catch (DomainListException e) {
+            return super.getDefaultDomain();
+        }
     }
     
     

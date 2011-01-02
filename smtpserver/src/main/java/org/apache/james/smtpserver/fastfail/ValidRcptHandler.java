@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
@@ -132,6 +133,11 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
      * @see org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler#isLocalDomain(org.apache.james.protocols.smtp.SMTPSession, java.lang.String)
      */
     protected boolean isLocalDomain(SMTPSession session, String domain) {
-        return domains.containsDomain(domain);
+        try {
+            return domains.containsDomain(domain);
+        } catch (DomainListException e) {
+            session.getLogger().error("Unable to get domains", e);
+            return false;
+        }
     }
 }

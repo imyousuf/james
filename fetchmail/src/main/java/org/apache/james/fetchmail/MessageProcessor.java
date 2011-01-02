@@ -36,6 +36,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.ParseException;
 
 import org.apache.james.core.MailImpl;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -912,7 +913,12 @@ public class MessageProcessor extends ProcessorAbstract
      */
     protected boolean isLocalServer(MailAddress recipient)
     {
-        return getConfiguration().getDomainList().containsDomain(recipient.getDomain());
+        try {
+            return getConfiguration().getDomainList().containsDomain(recipient.getDomain());
+        } catch (DomainListException e) {
+            getLogger().error("Unable to access DomainList",e);
+            return false;
+        }
     }
     
     /**
