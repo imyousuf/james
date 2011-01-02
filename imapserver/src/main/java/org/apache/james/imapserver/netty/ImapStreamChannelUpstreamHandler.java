@@ -40,7 +40,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.handler.ssl.SslHandler;
-import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
 
 /**
  * {@link StreamHandler} which handles IMAP
@@ -62,13 +62,13 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
     private final static String IMAP_SESSION = "IMAP_SESSION"; 
     private final static String BUFFERED_OUT = "BUFFERED_OUT";
     
-    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final long readTimeout) {
-        this(hello, handler, logger, readTimeout, null, null);
+    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final Timer timer, final long readTimeout) {
+        this(hello, handler, logger, timer, readTimeout, null, null);
     }
     
 
-    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final long readTimeout, SSLContext context, String[] enabledCipherSuites) {
-        super(new HashedWheelTimer(), readTimeout, TimeUnit.SECONDS);
+    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final Timer timer, final long readTimeout, SSLContext context, String[] enabledCipherSuites) {
+        super(timer, readTimeout, TimeUnit.SECONDS);
         this.logger = logger;
         this.hello = hello;
         this.handler = handler;
