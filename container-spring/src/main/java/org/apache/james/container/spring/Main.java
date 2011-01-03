@@ -19,17 +19,30 @@
 package org.apache.james.container.spring;
 
 import java.io.IOException;
+import java.util.Calendar;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.container.spring.context.JamesServerApplicationContext;
 
 /**
- * Bootstraps James using a Spring container
+ * Bootstraps James using a Spring container.
  */
 public class Main {
 
+    private static Log log = LogFactory.getLog(Main.class.getName());
+
     public static void main(String[] args) throws IOException {
+        
+        long start = Calendar.getInstance().getTimeInMillis();
+        
         final JamesServerApplicationContext context = new JamesServerApplicationContext(new String[] { "context/james-server-context.xml" });
         context.registerShutdownHook();
+        
+        long end = Calendar.getInstance().getTimeInMillis();
+
+        log.info("Apache James Server is successfully started in " + (end-start) + " milliseconds.");
+        
     }
 
 }
