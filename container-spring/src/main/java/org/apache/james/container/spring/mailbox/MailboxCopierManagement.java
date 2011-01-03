@@ -18,12 +18,14 @@
  ****************************************************************/
 package org.apache.james.container.spring.mailbox;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.copier.MailboxCopier;
 import org.springframework.beans.BeansException;
@@ -49,6 +51,7 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
      * @see org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean#getMailboxManagerBeans()
      */
     public Map<String,String> getMailboxManagerBeans() {
+        
         Map<String, String> bMap = new HashMap<String, String>();
        
         Map<String,MailboxManager> beans = context.getBeansOfType(MailboxManager.class);
@@ -66,9 +69,9 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
      * (non-Javadoc)
      * @see org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean#copy(java.lang.String, java.lang.String)
      */
-    public boolean copy(String srcBean, String dstBean) {
+    public void copy(String srcBean, String dstBean) throws MailboxException, IOException {
         if (srcBean.equals(dstBean)) throw new IllegalArgumentException("srcBean and dstBean can not have the same name!");
-        return copier.copyMailboxes(context.getBean(srcBean, MailboxManager.class), context.getBean(dstBean, MailboxManager.class));
+        copier.copyMailboxes(context.getBean(srcBean, MailboxManager.class), context.getBean(dstBean, MailboxManager.class));
     }
 
     
