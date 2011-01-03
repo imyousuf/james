@@ -25,6 +25,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnit;
 
@@ -102,6 +103,10 @@ public class JPADomainList extends AbstractDomainList implements Configurable {
             JPADomain jpaDomain = (JPADomain) entityManager.createNamedQuery("findDomainByName").setParameter("name", domain).getSingleResult();
             transaction.commit();
             return (jpaDomain != null) ? true : false;
+        } catch (NoResultException e) {
+            getLogger().debug("No domain found", e);
+            transaction.commit();
+            return false;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to find domain", e);
             if (transaction.isActive()) {
