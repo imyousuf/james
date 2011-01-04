@@ -29,6 +29,7 @@ import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.model.DefaultJamesUser;
 import org.apache.james.vut.api.VirtualUserTable;
+import org.apache.james.vut.api.VirtualUserTableException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -191,7 +192,7 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      * (non-Javadoc)
      * @see org.apache.james.vut.api.VirtualUserTable#getAllMappings()
      */
-    public Map<String, Collection<String>> getAllMappings() {
+    public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException{
         Map<String, Collection<String>> mappings = new HashMap<String, Collection<String>>();
         if (enableAliases == true || enableForwarding == true) {
             Iterator<String> users = list();
@@ -222,80 +223,57 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      * (non-Javadoc)
      * @see org.apache.james.vut.api.VirtualUserTable#getUserDomainMappings(java.lang.String, java.lang.String)
      */
-    public Collection<String> getUserDomainMappings(String user, String domain) {
+    public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException {
         return new ArrayList<String>();
     }
 
-
-    /**
-     * Do nothing and return false
-     */
-    public boolean addAddressMapping(String user, String domain, String address) {
-        return false;
+    public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
     }
 
-    /**
-     * Do nothing and return false
-     */
-    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) {
-        return false;
+    public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
+        
     }
 
-    /**
-     * Do nothing and return false
-     */
-    public boolean addErrorMapping(String user, String domain, String error) {
-        return false;
+    public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
+        
     }
 
-    /**
-     * Do nothing and return false
-     */
-    public boolean addMapping(String user, String domain, String mapping) {
-        return false;
+    public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
+        
     }
 
-    /**
-     * Do nothing and return false
-     */
-    public boolean addRegexMapping(String user, String domain, String regex) {
-        return false;
+    public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
+        // TODO Auto-generated method stub
+        
     }
 
-    /**
-     * Do nothing and return false
-     */
-    public boolean removeAddressMapping(String user, String domain, String address) {
-        return false;
+    public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
+        
     }
 
-    /**
-     * Do nothing and return false
-     */
-    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) {
-        return false;
+    public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException {
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
+        
     }
 
-    /**
-     * Do nothing and return false
-     */
-    public boolean removeErrorMapping(String user, String domain, String error) {
-        return false;
+    public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException {
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
+        
     }
 
-    /**
-     * Do nothing and return false
-     */
-    public boolean removeMapping(String user, String domain, String mapping) {
-        return false;
+    public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
+        
     }
 
-    /**
-     * Do nothing and return false
-     */
-    public boolean removeRegexMapping(String user, String domain, String regex) {
-        return false;
+    public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
+        
     }
 
-    
 }

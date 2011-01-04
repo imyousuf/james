@@ -39,6 +39,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
 
@@ -218,9 +219,10 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#addMappingInternal(String, String, String)
      */
-    protected boolean addMappingInternal(String user, String domain, String regex) {
+    protected void addMappingInternal(String user, String domain, String regex) throws VirtualUserTableException {
 
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
@@ -228,17 +230,17 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
         if (map != null && map.size() != 0) {
             map.add(regex);
-            return updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
+            updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
         }
     
-        return addRawMapping(newUser,newDomain,regex);
+        addRawMapping(newUser,newDomain,regex);
     
     }
     
     /**
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
      */
-    protected String mapAddressInternal(String user, String domain) {
+    protected String mapAddressInternal(String user, String domain) throws VirtualUserTableException{
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         try {
@@ -259,6 +261,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             
         } catch (SQLException sqle) {
             getLogger().error("Error accessing database", sqle);
+            throw new VirtualUserTableException("Error accessing database", sqle);
         } finally {
             theJDBCUtil.closeJDBCStatement(mappingStmt);
             theJDBCUtil.closeJDBCConnection(conn);
@@ -267,9 +270,10 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
     
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
      */
-    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) {
+    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) throws VirtualUserTableException {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         try {
@@ -288,6 +292,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             }
         } catch (SQLException sqle) {
             getLogger().error("Error accessing database", sqle);
+            throw new VirtualUserTableException("Error accessing database", sqle);
         } finally {
             theJDBCUtil.closeJDBCStatement(mappingStmt);
             theJDBCUtil.closeJDBCConnection(conn);
@@ -296,9 +301,10 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#getAllMappingsInternal()
      */
-    protected Map<String,Collection<String>> getAllMappingsInternal() {
+    protected Map<String,Collection<String>> getAllMappingsInternal() throws VirtualUserTableException {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
         Map<String,Collection<String>> mapping = new HashMap<String,Collection<String>>();
@@ -321,6 +327,7 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             
         } catch (SQLException sqle) {
             getLogger().error("Error accessing database", sqle);
+            throw new VirtualUserTableException("Error accessing database", sqle);
         } finally {
             theJDBCUtil.closeJDBCStatement(mappingStmt);
             theJDBCUtil.closeJDBCConnection(conn);
@@ -329,17 +336,18 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
     }
     
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
      */
-    protected boolean removeMappingInternal(String user, String domain, String mapping) {
+    protected void removeMappingInternal(String user, String domain, String mapping) throws VirtualUserTableException {
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
         Collection<String> map = getUserDomainMappings(newUser,newDomain);
         if (map != null && map.size() > 1) {
             map.remove(mapping);
-            return updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
+            updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
         } else {
-            return removeRawMapping(newUser,newDomain,mapping);
+            removeRawMapping(newUser,newDomain,mapping);
         }
     }
 
@@ -350,8 +358,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
      * @param domain the domain
      * @param mapping the mapping
      * @return true if update was successfully
+ * @throws VirtualUserTableException 
      */
-    private boolean updateMapping(String user, String domain, String mapping) {
+    private void updateMapping(String user, String domain, String mapping) throws VirtualUserTableException {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
 
@@ -366,8 +375,8 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
                 mappingStmt.setString(2, user);
                 mappingStmt.setString(3, domain);
                
-                if (mappingStmt.executeUpdate()> 0) {
-                   return true;
+                if (mappingStmt.executeUpdate()  < 1) {
+                    throw new VirtualUserTableException("Mapping not found");
                 }
             } finally {
                 theJDBCUtil.closeJDBCResultSet(mappingRS);
@@ -375,11 +384,11 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
 
         } catch (SQLException sqle) {
             getLogger().error("Error accessing database", sqle);
+            throw new VirtualUserTableException("Error accessing database", sqle);
         } finally {
             theJDBCUtil.closeJDBCStatement(mappingStmt);
             theJDBCUtil.closeJDBCConnection(conn);
         }
-        return false;
     }
     
     
@@ -390,8 +399,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
      * @param domain the domain
      * @param mapping the mapping
      * @return true if succesfully
+     * @throws VirtualUserTableException 
      */
-    private boolean removeRawMapping(String user, String domain, String mapping) {
+    private void removeRawMapping(String user, String domain, String mapping) throws VirtualUserTableException {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
 
@@ -405,8 +415,8 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
                 mappingStmt.setString(1, user);
                 mappingStmt.setString(2, domain);
                 mappingStmt.setString(3, mapping);
-                if(mappingStmt.executeUpdate() > 0) {
-                    return true;
+                if(mappingStmt.executeUpdate() <  1) {
+                    throw new VirtualUserTableException("Mapping not found");
                 }
             } finally {
                theJDBCUtil.closeJDBCResultSet(mappingRS);
@@ -418,7 +428,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             theJDBCUtil.closeJDBCStatement(mappingStmt);
             theJDBCUtil.closeJDBCConnection(conn);
         }
-        return false;
     }
     
     /**
@@ -428,8 +437,9 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
      * @param domain the domain
      * @param mapping the mapping 
      * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    private boolean addRawMapping(String user, String domain, String mapping) {
+    private void addRawMapping(String user, String domain, String mapping) throws VirtualUserTableException {
         Connection conn = null;
         PreparedStatement mappingStmt = null;
 
@@ -444,8 +454,8 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
                 mappingStmt.setString(2, domain);
                 mappingStmt.setString(3, mapping);
                
-                if(mappingStmt.executeUpdate() >0) {
-                    return true;
+                if(mappingStmt.executeUpdate() < 1) {
+                    throw new VirtualUserTableException("Mapping not found");
                 }
             } finally {
                 theJDBCUtil.closeJDBCResultSet(mappingRS);
@@ -457,7 +467,6 @@ public class JDBCVirtualUserTable extends AbstractVirtualUserTable {
             theJDBCUtil.closeJDBCStatement(mappingStmt);
             theJDBCUtil.closeJDBCConnection(conn);
         }
-        return false;
     }
 
     

@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.vut.api.VirtualUserTable;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.file.XMLVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTableTest;
@@ -50,9 +51,10 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
     
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean addMapping(String user, String domain, String mapping, int type) {
+    protected boolean addMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException {
 
         Collection<String> mappings = virtualUserTable.getUserDomainMappings(user, domain);
 
@@ -91,9 +93,10 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
 
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean removeMapping(String user, String domain, String mapping, int type)  {       
+    protected boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException  {       
 
         Collection<String> mappings = virtualUserTable.getUserDomainMappings(user, domain);
         

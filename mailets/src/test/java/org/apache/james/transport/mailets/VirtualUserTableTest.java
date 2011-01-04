@@ -30,6 +30,7 @@ import javax.mail.MessagingException;
 
 import junit.framework.TestCase;
 
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.test.FakeMail;
@@ -58,78 +59,73 @@ public class VirtualUserTableTest extends TestCase{
             
         };
         FakeMailetConfig mockMailetConfig = new FakeMailetConfig("vut", mockMailetContext, new Properties());
-        //mockMailetConfig.put("virtualusertable", "vut");
-        
-		table.setVirtualUserTable(new org.apache.james.vut.api.VirtualUserTable() {
-					public Collection<String> getMappings(String user,
-							String domain) throws ErrorMappingException {
-						if (user.equals("test") && domain.equals("localhost"))
-							return Arrays.asList(new String[] {
-									"whatever@localhost", "blah@localhost" });
-						return null;
-					}
+        // mockMailetConfig.put("virtualusertable", "vut");
 
-                    public boolean addAddressMapping(String user, String domain, String address) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+        table.setVirtualUserTable(new org.apache.james.vut.api.VirtualUserTable() {
+            public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, VirtualUserTableException {
+                if (user.equals("test") && domain.equals("localhost"))
+                    return Arrays.asList(new String[] { "whatever@localhost", "blah@localhost" });
+                return null;
+            }
 
-                    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+            public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+            }
 
-                    public boolean addErrorMapping(String user, String domain, String error) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+            public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
 
-                    public boolean addMapping(String user, String domain, String mapping) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+            }
 
-                    public boolean addRegexMapping(String user, String domain, String regex) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+            public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
 
-                    public Map<String, Collection<String>> getAllMappings() {
-                        // TODO Auto-generated method stub
-                        return null;
-                    }
+            }
 
-                    public Collection<String> getUserDomainMappings(String user, String domain) {
-                        // TODO Auto-generated method stub
-                        return null;
-                    }
+            public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
 
-                    public boolean removeAddressMapping(String user, String domain, String address) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+            }
 
-                    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+            public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
 
-                    public boolean removeErrorMapping(String user, String domain, String error) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+            }
 
-                    public boolean removeMapping(String user, String domain, String mapping) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+            public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
 
-                    public boolean removeRegexMapping(String user, String domain, String regex) {
-                        // TODO Auto-generated method stub
-                        return false;
-                    }
+            }
 
-				});
+            public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+            }
+
+            public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+
+            }
+
+            public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+
+            }
+
+            public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+            }
+
+            public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+
+            }
+
+            public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+
+            }
+
+        });
 
         table.init(mockMailetConfig);
 

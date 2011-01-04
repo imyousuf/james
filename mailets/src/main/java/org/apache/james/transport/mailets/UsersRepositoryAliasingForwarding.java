@@ -31,6 +31,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -97,6 +98,13 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
             try {
                 mappings = ((VirtualUserTable) usersRepository).getMappings(recipient.getLocalPart(), recipient.getDomain());
             } catch (ErrorMappingException e) {
+                StringBuilder errorBuffer = new StringBuilder(128)
+                    .append("A problem as occoured trying to alias and forward user ")
+                    .append(recipient)
+                    .append(": ")
+                    .append(e.getMessage());
+                    throw new MessagingException(errorBuffer.toString());
+            } catch (VirtualUserTableException e) {
                 StringBuilder errorBuffer = new StringBuilder(128)
                     .append("A problem as occoured trying to alias and forward user ")
                     .append(recipient)

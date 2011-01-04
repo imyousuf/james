@@ -27,6 +27,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -53,7 +54,8 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
      */
     public Collection<MailAddress> processMail(MailAddress sender, MailAddress recipient, MimeMessage message) throws MessagingException {
         try {
-            Collection<String> mappings = vut.getMappings(recipient.getLocalPart(), recipient.getDomain());
+            Collection<String>  mappings = vut.getMappings(recipient.getLocalPart(), recipient.getDomain());
+           
             
             if (mappings != null) {
                 return handleMappings(mappings, sender, recipient, message);
@@ -65,6 +67,8 @@ public class VirtualUserTable extends AbstractVirtualUserTableMailet {
                 .append(": ")
                 .append(e.getMessage());
                 throw new MessagingException(errorBuffer.toString());
+        } catch (VirtualUserTableException e) {
+            throw new MessagingException("Unable to access VirtualUserTable", e);
         }
         
         Collection<MailAddress> rcpts = new ArrayList<MailAddress>();

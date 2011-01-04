@@ -32,6 +32,7 @@ import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.vut.api.VirtualUserTable;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
 import org.apache.mailet.MailAddress;
 
@@ -120,6 +121,9 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
                         return true;
                     }
                 } catch (ErrorMappingException e) {
+                    return false;
+                } catch (VirtualUserTableException e) {
+                    session.getLogger().info("Unable to access VirtualUserTable", e);
                     return false;
                 }
             }

@@ -29,6 +29,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnit;
 
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.jpa.model.JPAVirtualUser;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
@@ -54,9 +55,10 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#addMappingInternal(String, String, String)
      */
-    protected boolean addMappingInternal(String user, String domain, String regex) {
+    protected void addMappingInternal(String user, String domain, String regex) throws VirtualUserTableException {
         
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
@@ -64,17 +66,19 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     
         if (map != null && map.size() != 0) {
             map.add(regex);
-            return updateMapping(newUser, newDomain, VirtualUserTableUtil.CollectionToMapping(map));
+            updateMapping(newUser, newDomain, VirtualUserTableUtil.CollectionToMapping(map));
+        } else {
+            addRawMapping(newUser,newDomain,regex);
         }
     
-        return addRawMapping(newUser,newDomain,regex);
     
     }
 
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddressInternal(java.lang.String, java.lang.String)
      */
-    protected String mapAddressInternal(String user, String domain) {
+    protected String mapAddressInternal(String user, String domain) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -91,6 +95,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new VirtualUserTableException("Error while retrieve mappings", e);
         } finally {
             entityManager.close();
         }
@@ -98,9 +103,10 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
     
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#mapAddress(java.lang.String, java.lang.String)
      */
-    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) {
+    protected Collection<String> getUserDomainMappingsInternal(String user, String domain) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -117,6 +123,8 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new VirtualUserTableException("Error while retrieve mappings", e);
+
         } finally {
             entityManager.close();
         }
@@ -124,9 +132,10 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#getAllMappingsInternal()
      */
-    protected Map<String,Collection<String>> getAllMappingsInternal() {
+    protected Map<String,Collection<String>> getAllMappingsInternal() throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         Map<String,Collection<String>> mapping = new HashMap<String,Collection<String>>();
@@ -143,6 +152,8 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new VirtualUserTableException("Error while retrieve mappings", e);
+
         } finally {
             entityManager.close();
         }
@@ -150,17 +161,18 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
     }
 
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.lib.AbstractVirtualUserTable#removeMappingInternal(String, String, String)
      */
-    protected boolean removeMappingInternal(String user, String domain, String mapping) {
+    protected void removeMappingInternal(String user, String domain, String mapping) throws VirtualUserTableException {
         String newUser = getUserString(user);
         String newDomain = getDomainString(domain);
         Collection<String> map = getUserDomainMappings(newUser,newDomain);
         if (map != null && map.size() > 1) {
             map.remove(mapping);
-            return updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
+            updateMapping(newUser,newDomain,VirtualUserTableUtil.CollectionToMapping(map));
         } else {
-            return removeRawMapping(newUser,newDomain,mapping);
+            removeRawMapping(newUser,newDomain,mapping);
         }
     }
 
@@ -171,8 +183,9 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
      * @param domain the domain
      * @param mapping the mapping
      * @return true if update was successfully
+     * @throws VirtualUserTableException 
      */
-    private boolean updateMapping(String user, String domain, String mapping) {
+    private boolean updateMapping(String user, String domain, String mapping) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -190,6 +203,7 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new VirtualUserTableException("Unable to update mapping", e);
         } finally {
             entityManager.close();
         }
@@ -203,9 +217,9 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
      * @param user the user
      * @param domain the domain
      * @param mapping the mapping
-     * @return true if successful
+     * @throws VirtualUserTableException 
      */
-    private boolean removeRawMapping(String user, String domain, String mapping) {
+    private void removeRawMapping(String user, String domain, String mapping) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -215,18 +229,17 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
                 .setParameter("domain", domain)
                 .setParameter("targetAddress", mapping).executeUpdate();
             transaction.commit();
-            if (deleted > 0) {
-                return true;
-            }
+           
         } catch (PersistenceException e) {
             getLogger().debug("Failed to remove mapping", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new VirtualUserTableException("Unable to remove mapping", e);
+
         } finally {
             entityManager.close();
         }
-        return false;
     }
     
     /**
@@ -236,8 +249,9 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
      * @param domain the domain
      * @param mapping the mapping 
      * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    private boolean addRawMapping(String user, String domain, String mapping) {
+    private void addRawMapping(String user, String domain, String mapping) throws VirtualUserTableException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -245,16 +259,15 @@ public class JPAVirtualUserTable extends AbstractVirtualUserTable {
             JPAVirtualUser jpaVirtualUser = new JPAVirtualUser(user, domain, mapping);
             entityManager.persist(jpaVirtualUser);
             transaction.commit();
-            return true;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to save virtual user", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new VirtualUserTableException("Unable to add mapping", e);
         } finally {
             entityManager.close();
         }
-        return false;
     }
     
     /**

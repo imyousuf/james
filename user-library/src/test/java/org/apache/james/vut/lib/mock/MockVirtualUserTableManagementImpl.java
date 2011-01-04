@@ -25,35 +25,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.james.vut.api.VirtualUserTable;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
 
 public class MockVirtualUserTableManagementImpl implements VirtualUserTable {
 
     HashMap store = new HashMap();
     
-    public boolean addAddressMapping(String user, String domain, String address) {
-        return addRawMapping(user,domain,address);
+    public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+        addRawMapping(user,domain,address);
     }
 
-    public boolean addErrorMapping(String user, String domain, String error) {
-        return addRawMapping(user,domain,VirtualUserTable.ERROR_PREFIX + error);
+    public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException{
+        addRawMapping(user,domain,VirtualUserTable.ERROR_PREFIX + error);
     }
 
-    public boolean addMapping(String user, String domain, String mapping) {
+    public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException{
         if (mapping.startsWith(VirtualUserTable.ERROR_PREFIX)){
-            return addErrorMapping(user,domain,mapping.substring(VirtualUserTable.ERROR_PREFIX.length()));
+            addErrorMapping(user,domain,mapping.substring(VirtualUserTable.ERROR_PREFIX.length()));
         } else if (mapping.startsWith(VirtualUserTable.REGEX_PREFIX)) {
-            return addErrorMapping(user,domain,mapping.substring(VirtualUserTable.REGEX_PREFIX.length()));
+            addErrorMapping(user,domain,mapping.substring(VirtualUserTable.REGEX_PREFIX.length()));
         } else {
-            return addAddressMapping(user,domain,mapping);
+            addAddressMapping(user,domain,mapping);
         }
     }
 
-    public boolean addRegexMapping(String user, String domain, String regex) {
-        return addRawMapping(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
+    public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
+        addRawMapping(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
     }
 
-    public Map getAllMappings() {
+    public Map getAllMappings() throws VirtualUserTableException {
         if (store.size() > 0) {
             return store;
         } else {
@@ -61,7 +62,7 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTable {
         }
     }
 
-    public Collection getUserDomainMappings(String user, String domain) {
+    public Collection getUserDomainMappings(String user, String domain) throws VirtualUserTableException{
         String mapping = (String) store.get(user + "@" + domain);
         if (mapping != null) {
             return VirtualUserTableUtil.mappingToCollection(mapping);
@@ -70,33 +71,33 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTable {
         }
     }
 
-    public boolean removeAddressMapping(String user, String domain, String address) {
-        return removeRawMapping(user,domain,address);
+    public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+        removeRawMapping(user,domain,address);
     }
 
-    public boolean removeErrorMapping(String user, String domain, String error) {
-        return removeRawMapping(user,domain,VirtualUserTable.ERROR_PREFIX + error);
+    public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
+        removeRawMapping(user,domain,VirtualUserTable.ERROR_PREFIX + error);
     }
 
-    public boolean removeMapping(String user, String domain, String mapping) {
+    public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException{
         if (mapping.startsWith(VirtualUserTable.ERROR_PREFIX)){
-            return removeErrorMapping(user,domain,mapping.substring(VirtualUserTable.ERROR_PREFIX.length()));
+            removeErrorMapping(user,domain,mapping.substring(VirtualUserTable.ERROR_PREFIX.length()));
         } else if (mapping.startsWith(VirtualUserTable.REGEX_PREFIX)) {
-            return removeErrorMapping(user,domain,mapping.substring(VirtualUserTable.REGEX_PREFIX.length()));
+            removeErrorMapping(user,domain,mapping.substring(VirtualUserTable.REGEX_PREFIX.length()));
         } else {
-            return removeAddressMapping(user,domain,mapping);
+            removeAddressMapping(user,domain,mapping);
         }
     }
 
-    public boolean removeRegexMapping(String user, String domain, String regex)  {
-        return removeRawMapping(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
+    public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException  {
+        removeRawMapping(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
     }
 
-    public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
+    public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, VirtualUserTableException{
         throw new UnsupportedOperationException("Not implemented yet");
     }
     
-    private boolean addRawMapping(String user,String domain, String mapping) {
+    private void addRawMapping(String user,String domain, String mapping) throws VirtualUserTableException {
         Collection map;
         String key = user + "@" + domain;
         String mappings = (String) store.get(key);
@@ -105,19 +106,17 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTable {
             map = VirtualUserTableUtil.mappingToCollection(mappings);
             
             if (map.contains(mapping)) {
-                return false;       
+                throw new VirtualUserTableException("Mapping " + mapping + " already exist!");
             } else {
                 map.add(mapping);
                 store.put(key, VirtualUserTableUtil.CollectionToMapping(map));
-                return true;
             }
         } else {
             store.put(key, mapping);
-            return true;
         }
     }
     
-    private boolean removeRawMapping(String user,String domain, String mapping) {
+    private void removeRawMapping(String user,String domain, String mapping) throws VirtualUserTableException {
         Collection map;
         String key = user + "@" + domain;
         String mappings = (String) store.get(key);
@@ -125,18 +124,17 @@ public class MockVirtualUserTableManagementImpl implements VirtualUserTable {
             map = VirtualUserTableUtil.mappingToCollection(mappings);
             if (map.remove(mapping)) {
                 store.put(key, VirtualUserTableUtil.CollectionToMapping(map));
-                return true;
             }
         }
-        return false;
+        throw new VirtualUserTableException("Mapping does not exist");
     }
 
-    public boolean addAliasDomainMapping(String aliasDomain, String realDomain)  {
-    return addRawMapping(null,aliasDomain,VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
+    public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException  {
+        addRawMapping(null,aliasDomain,VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
 
-    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) {
-        return removeRawMapping(null,aliasDomain,VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
+    public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
+        removeRawMapping(null,aliasDomain,VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
 
 }

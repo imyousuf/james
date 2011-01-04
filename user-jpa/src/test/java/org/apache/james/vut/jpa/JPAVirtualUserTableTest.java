@@ -22,6 +22,7 @@ import java.util.HashMap;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.jpa.JPAVirtualUserTable;
 import org.apache.james.vut.jpa.model.JPAVirtualUser;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
@@ -77,16 +78,21 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
     /**
      * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean addMapping(String user, String domain, String mapping, int type) {
-        if (type == ERROR_TYPE) {
-            return virtualUserTable.addErrorMapping(user, domain, mapping);
-        } else if (type == REGEX_TYPE) {
-            return virtualUserTable.addRegexMapping(user, domain, mapping);
-        } else if (type == ADDRESS_TYPE) {
-            return virtualUserTable.addAddressMapping(user, domain, mapping);
-        } else if (type == ALIASDOMAIN_TYPE) {
-            return virtualUserTable.addAliasDomainMapping(domain, mapping);
-        } else {
+    protected boolean addMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException{
+        try {
+            if (type == ERROR_TYPE) {
+                virtualUserTable.addErrorMapping(user, domain, mapping);
+            } else if (type == REGEX_TYPE) {
+                virtualUserTable.addRegexMapping(user, domain, mapping);
+            } else if (type == ADDRESS_TYPE) {
+                virtualUserTable.addAddressMapping(user, domain, mapping);
+            } else if (type == ALIASDOMAIN_TYPE) {
+                virtualUserTable.addAliasDomainMapping(domain, mapping);
+            } else {
+                return false;
+            }
+            return true;
+        } catch (VirtualUserTableException e) {
             return false;
         }
     }
@@ -94,18 +100,23 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
     /**
      * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
      */
-    protected boolean removeMapping(String user, String domain, String mapping, int type) {
+    protected boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException{
+        try {
         if (type == ERROR_TYPE) {
-            return virtualUserTable.removeErrorMapping(user, domain, mapping);
+            virtualUserTable.removeErrorMapping(user, domain, mapping);
         } else if (type == REGEX_TYPE) {
-            return virtualUserTable.removeRegexMapping(user, domain, mapping);
+            virtualUserTable.removeRegexMapping(user, domain, mapping);
         } else if (type == ADDRESS_TYPE) {
-            return virtualUserTable.removeAddressMapping(user, domain, mapping);
+            virtualUserTable.removeAddressMapping(user, domain, mapping);
         } else if (type == ALIASDOMAIN_TYPE) {
-            return virtualUserTable.removeAliasDomainMapping(domain, mapping);
+            virtualUserTable.removeAliasDomainMapping(domain, mapping);
         } else {
             return false;
         }
+        return true;
+    } catch (VirtualUserTableException e) {
+        return false;
+    }
     }
     
 }

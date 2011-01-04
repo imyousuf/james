@@ -53,8 +53,9 @@ public interface VirtualUserTable {
      * @param user the MailAddress
      * @return the mapped mailAddress
      * @throws ErrorMappingException get thrown if an error mapping was found
+     * @throws VirtualUserTableException 
      */
-    public Collection<String> getMappings(String user, String domain) throws ErrorMappingException;
+    public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, VirtualUserTableException;
     
     
     /**
@@ -63,9 +64,9 @@ public interface VirtualUserTable {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
-     * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    public boolean addRegexMapping(String user, String domain, String regex);
+    public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException;
     
     /**
      * Remove regex mapping
@@ -73,9 +74,10 @@ public interface VirtualUserTable {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
-     * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    public boolean removeRegexMapping(String user,String domain, String regex);
+    public void removeRegexMapping(String user,String domain, String regex) throws VirtualUserTableException 
+;
     
     /***
      * Add address mapping
@@ -83,9 +85,9 @@ public interface VirtualUserTable {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param address 
-     * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    public boolean addAddressMapping(String user, String domain, String address);
+    public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException;
     
     /**
      * Remove address mapping
@@ -93,9 +95,9 @@ public interface VirtualUserTable {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param address 
-     * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    public boolean removeAddressMapping(String user,String domain, String address);
+    public void removeAddressMapping(String user,String domain, String address) throws VirtualUserTableException;
     
     /**
      * Add error mapping
@@ -103,9 +105,9 @@ public interface VirtualUserTable {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param error the regex.
-     * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    public boolean addErrorMapping(String user, String domain, String error);
+    public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException;
 
     /**
      * Remove error mapping
@@ -114,9 +116,9 @@ public interface VirtualUserTable {
      * @param domain the domain. Null if no domain should be used
      * @param error
      * @return true if successfully
-     * @throws ManageableVirtualUserTableException get thrown if an invalid argument was given
+     * @throws VirtualUserTableException 
      */
-    public boolean removeErrorMapping(String user,String domain, String error);
+    public void removeErrorMapping(String user,String domain, String error) throws VirtualUserTableException;
     
     /**
      * Return the explicit mapping stored for the given user and domain. Return null
@@ -125,8 +127,9 @@ public interface VirtualUserTable {
      * @param user the username
      * @param domain the domain
      * @return the collection which holds the mappings. 
+     * @throws VirtualUserTableException 
      */
-    public Collection<String> getUserDomainMappings(String user, String domain);
+    public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException;
     
     /**
      * Add mapping
@@ -134,9 +137,9 @@ public interface VirtualUserTable {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param mapping the mapping
-     * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    public boolean addMapping(String user, String domain, String mapping);
+    public void addMapping(String user, String domain, String mapping)throws VirtualUserTableException;
     
     /**
      * Remove mapping
@@ -144,9 +147,9 @@ public interface VirtualUserTable {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param mapping the mapping
-     * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    public boolean removeMapping(String user, String domain, String mapping);
+    public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException;
 
 
     /**
@@ -154,17 +157,18 @@ public interface VirtualUserTable {
      * which holds all mappings
      * 
      * @return Map which holds all mappings
+     * @throws VirtualUserTableException 
      */
-    public Map<String,Collection<String>> getAllMappings();
+    public Map<String,Collection<String>> getAllMappings() throws VirtualUserTableException;
     
     /**
      * Add aliasDomain mapping
      * 
      * @param aliasDomain the aliasdomain which should be mapped to the realDomain
      * @param realDomain the realDomain
-     * @return true if successfully
+     * @throws VirtualUserTableException 
      */
-    public boolean addAliasDomainMapping(String aliasDomain, String realDomain);
+    public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException;
     
     /**
      * Remove aliasDomain mapping
@@ -173,7 +177,7 @@ public interface VirtualUserTable {
      * @param realDomain the realDomain
      * @return true if successfully
      */
-    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain);
+    public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException;
 
     public class ErrorMappingException extends Exception {
 

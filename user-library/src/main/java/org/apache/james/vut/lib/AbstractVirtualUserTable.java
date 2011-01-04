@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.vut.api.VirtualUserTable;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.MailAddress;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;
@@ -93,11 +94,11 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
     /**
      * @see org.apache.james.vut.api.VirtualUserTable#getMappings(String, String)
      */
-    public Collection<String> getMappings(String user,String domain) throws ErrorMappingException {
+    public Collection<String> getMappings(String user,String domain) throws ErrorMappingException, VirtualUserTableException{
         return getMappings(user,domain,mappingLimit);
     }
     
-    public Collection<String> getMappings(String user, String domain, int mappingLimit) throws ErrorMappingException {
+    public Collection<String> getMappings(String user, String domain, int mappingLimit) throws ErrorMappingException, VirtualUserTableException {
 
         // We have to much mappings throw ErrorMappingException to avoid infinity loop
         if (mappingLimit == 0) throw new ErrorMappingException("554 Too many mappings to process");
@@ -183,98 +184,92 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addRegexMapping(String user, String domain, String regex){     
+    public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {     
         try {
             new Perl5Compiler().compile(regex);
         } catch (MalformedPatternException e) {
-            throw new IllegalArgumentException("Invalid regex: " + regex);
+            throw new VirtualUserTableException("Invalid regex: " + regex, e);
         }
         
-        if (checkMapping(user,domain,regex) == true) {
-            getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
-            return addMappingInternal(user, domain, VirtualUserTable.REGEX_PREFIX + regex);
-        } else {
-            return false;
-        }
+        checkMapping(user,domain,regex);
+        getLogger().info("Add regex mapping => " + regex + " for user: " + user + " domain: " + domain);
+        addMappingInternal(user, domain, VirtualUserTable.REGEX_PREFIX + regex);
+        
     }
 
     
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeRegexMapping(String user, String domain, String regex) {
+    public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException{
         getLogger().info("Remove regex mapping => " + regex + " for user: " + user + " domain: " + domain);
-        return removeMappingInternal(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
+        removeMappingInternal(user,domain,VirtualUserTable.REGEX_PREFIX + regex);
     }
     
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addAddressMapping(String user, String domain, String address) {
+    public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException{
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
         } 
         try {
             new MailAddress(address);
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid emailAddress: " + address);
+            throw new VirtualUserTableException("Invalid emailAddress: " + address, e);
         }
-        if (checkMapping(user,domain,address) == true) {          
-            getLogger().info("Add address mapping => " + address + " for user: " + user + " domain: " + domain);
-            return addMappingInternal(user, domain, address);
-        } else {
-            return false;
-        }   
+        checkMapping(user,domain,address);     
+        getLogger().info("Add address mapping => " + address + " for user: " + user + " domain: " + domain);
+        addMappingInternal(user, domain, address);
+        
     }
     
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeAddressMapping(String user, String domain, String address) {
+    public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
         if (address.indexOf('@') < 0) {
             address =  address + "@localhost";
         } 
         getLogger().info("Remove address mapping => " + address + " for user: " + user + " domain: " + domain);
-        return removeMappingInternal(user,domain,address);
+        removeMappingInternal(user,domain,address);
     }
     
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addErrorMapping(String user, String domain, String error) {   
-        if (checkMapping(user,domain,error) == true) {          
-            getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);
-            return addMappingInternal(user,domain, VirtualUserTable.ERROR_PREFIX + error);
-        } else {
-            return false;
-        } 
+    public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException{   
+        checkMapping(user,domain,error);         
+        getLogger().info("Add error mapping => " + error + " for user: " + user + " domain: " + domain);
+        addMappingInternal(user,domain, VirtualUserTable.ERROR_PREFIX + error);
+        
     }
     
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeErrorMapping(String user, String domain, String error) {
+    public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException{
         getLogger().info("Remove error mapping => " + error + " for user: " + user + " domain: " + domain);     
-        return removeMappingInternal(user,domain,VirtualUserTable.ERROR_PREFIX + error);
+        removeMappingInternal(user,domain,VirtualUserTable.ERROR_PREFIX + error);
     }
 
 
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#addMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean addMapping(String user, String domain, String mapping) {
+    public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException{
 
         String map = mapping.toLowerCase();
         
         if (map.startsWith(VirtualUserTable.ERROR_PREFIX)) {
-            return addErrorMapping(user,domain,map.substring(VirtualUserTable.ERROR_PREFIX.length()));
+            addErrorMapping(user,domain,map.substring(VirtualUserTable.ERROR_PREFIX.length()));
         } else if (map.startsWith(VirtualUserTable.REGEX_PREFIX)) {
-            return addRegexMapping(user,domain,map.substring(VirtualUserTable.REGEX_PREFIX.length()));
+            addRegexMapping(user,domain,map.substring(VirtualUserTable.REGEX_PREFIX.length()));
         } else if (map.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
-            if (user != null) throw new IllegalArgumentException("User must be null for aliasDomain mappings");
-            return addAliasDomainMapping(domain,map.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length()));
+            if (user != null) throw new VirtualUserTableException("User must be null for aliasDomain mappings");
+            addAliasDomainMapping(domain,map.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length()));
         } else {
-            return addAddressMapping(user,domain,map);
+            addAddressMapping(user,domain,map);
         }
         
     }
@@ -282,19 +277,19 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeMapping(java.lang.String, java.lang.String, java.lang.String)
      */
-    public boolean removeMapping(String user, String domain, String mapping) {
+    public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException{
 
         String map = mapping.toLowerCase();
     
         if (map.startsWith(VirtualUserTable.ERROR_PREFIX)) {
-            return removeErrorMapping(user,domain,map.substring(VirtualUserTable.ERROR_PREFIX.length()));
+            removeErrorMapping(user,domain,map.substring(VirtualUserTable.ERROR_PREFIX.length()));
         } else if (map.startsWith(VirtualUserTable.REGEX_PREFIX)) {
-            return removeRegexMapping(user,domain,map.substring(VirtualUserTable.REGEX_PREFIX.length()));
+            removeRegexMapping(user,domain,map.substring(VirtualUserTable.REGEX_PREFIX.length()));
         } else if (map.startsWith(VirtualUserTable.ALIASDOMAIN_PREFIX)) {
-            if (user != null) throw new IllegalArgumentException("User must be null for aliasDomain mappings");
-            return removeAliasDomainMapping(domain,map.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length()));
+            if (user != null) throw new VirtualUserTableException("User must be null for aliasDomain mappings");
+            removeAliasDomainMapping(domain,map.substring(VirtualUserTable.ALIASDOMAIN_PREFIX.length()));
         } else {
-            return removeAddressMapping(user,domain,map);
+            removeAddressMapping(user,domain,map);
         }
         
     }
@@ -302,7 +297,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#getAllMappings()
      */
-    public Map<String,Collection<String>> getAllMappings() {
+    public Map<String,Collection<String>> getAllMappings() throws VirtualUserTableException{
         int count = 0;
         Map<String,Collection<String>> mappings = getAllMappingsInternal();
     
@@ -316,24 +311,25 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#getUserDomainMappings(java.lang.String, java.lang.String)
      */
-    public Collection<String> getUserDomainMappings(String user, String domain) {
+    public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException{
         return getUserDomainMappingsInternal(user, domain);
     }
 
     /**
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#addAliasDomainMapping(java.lang.String, java.lang.String)
      */
-    public boolean addAliasDomainMapping(String aliasDomain, String realDomain) {
+    public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException{
         getLogger().info("Add domain mapping: " + aliasDomain  + " => " + realDomain);
-        return addMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
+        addMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
     
     /**
+     * @return 
      * @see org.apache.james.vut.api.ManageableVirtualUserTable#removeAliasDomainMapping(java.lang.String, java.lang.String)
      */
-    public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) {
+    public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException{
         getLogger().info("Remove domain mapping: " + aliasDomain  + " => " + realDomain);
-        return removeMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
+        removeMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
     
     protected Log getLogger() {
@@ -349,7 +345,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
      * @return true if successfully
      * @throws InvalidMappingException 
      */
-    protected abstract boolean  addMappingInternal(String user, String domain, String mapping);
+    protected abstract void  addMappingInternal(String user, String domain, String mapping) throws VirtualUserTableException;
     
     /**
      * Remove mapping 
@@ -360,7 +356,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
      * @return true if successfully
      * @throws InvalidMappingException 
      */
-    protected abstract boolean  removeMappingInternal(String user, String domain, String mapping);
+    protected abstract void  removeMappingInternal(String user, String domain, String mapping) throws VirtualUserTableException;
 
     /**
      * Return Collection of all mappings for the given username and domain
@@ -369,14 +365,14 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
      * @param domain the domain
      * @return Collection which hold the mappings
      */
-    protected abstract Collection<String> getUserDomainMappingsInternal(String user, String domain);
+    protected abstract Collection<String> getUserDomainMappingsInternal(String user, String domain) throws VirtualUserTableException;
 
     /**
      * Return a Map which holds all Mappings
      * 
      * @return Map
      */
-    protected abstract Map<String,Collection<String>> getAllMappingsInternal();
+    protected abstract Map<String,Collection<String>> getAllMappingsInternal() throws VirtualUserTableException;
     
     /**
      * Override to map virtual recipients to real recipients, both local and non-local.
@@ -391,7 +387,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
      * @param user the mapping of virtual to real recipients, as 
      *    <code>MailAddress</code>es to <code>String</code>s.
      */
-    protected abstract String mapAddressInternal(String user, String domain);
+    protected abstract String mapAddressInternal(String user, String domain) throws VirtualUserTableException;
     
     /**
      * Get all mappings for the given user and domain. If a aliasdomain mapping was found get sure it is in the map as first mapping. 
@@ -400,7 +396,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
      * @param domain the domain
      * @return the mappings
      */
-    private String mapAddress(String user, String domain) {
+    private String mapAddress(String user, String domain) throws VirtualUserTableException{
 
         String mappings = mapAddressInternal(user, domain);
 
@@ -429,13 +425,11 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
         }
     }
       
-    private boolean checkMapping(String user,String domain, String mapping) {
+    private void checkMapping(String user,String domain, String mapping) throws VirtualUserTableException{
         Collection<String> mappings = getUserDomainMappings(user,domain);
         if (mappings != null && mappings.contains(mapping)) {
-            return false;
-        } else {
-            return true;
-        }
+            throw new VirtualUserTableException("Mapping " + mapping + " for user " + user + " domain " + domain + " already exist!");
+        } 
      }
 
 }

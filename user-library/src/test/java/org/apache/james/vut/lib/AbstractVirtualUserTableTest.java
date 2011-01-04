@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
 
 /**
@@ -77,7 +78,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
     
     }
 
-    public void testStoreAndRetrieveRegexMapping() throws org.apache.james.vut.api.VirtualUserTable.ErrorMappingException {
+    public void testStoreAndRetrieveRegexMapping() throws org.apache.james.vut.api.VirtualUserTable.ErrorMappingException, VirtualUserTableException {
         
         String user = "test";
         String domain = "localhost";
@@ -98,8 +99,8 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertTrue("remove virtual mapping", removeMapping(user, domain, regex, REGEX_TYPE));
 
             try {
-                assertTrue("Added virtual mapping", virtualUserTable.addRegexMapping(user, domain, invalidRegex));
-            } catch (IllegalArgumentException e) {
+                virtualUserTable.addRegexMapping(user, domain, invalidRegex);
+            } catch (VirtualUserTableException e) {
                 catched = true;
             }
             assertTrue("Invalid Mapping throw exception" , catched);
@@ -111,13 +112,14 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
             assertNull("No mappings", virtualUserTable.getAllMappings());
 
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             fail("Storing failed");
         }
 
     }
 
 
-    public void testStoreAndRetrieveAddressMapping() throws ErrorMappingException {
+    public void testStoreAndRetrieveAddressMapping() throws ErrorMappingException, VirtualUserTableException {
         
         String user = "test";
         String domain = "localhost";
@@ -161,7 +163,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
     }
 
-    public void testStoreAndRetrieveErrorMapping() throws ErrorMappingException {
+    public void testStoreAndRetrieveErrorMapping() throws ErrorMappingException, VirtualUserTableException {
         
         String user = "test";
         String domain = "localhost";
@@ -192,7 +194,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
     }
 
-    public void testStoreAndRetrieveWildCardAddressMapping() throws ErrorMappingException {
+    public void testStoreAndRetrieveWildCardAddressMapping() throws ErrorMappingException, VirtualUserTableException {
 
         String user = "test";
         String user2 = "test2";
@@ -221,7 +223,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
     }
 
-    public void testRecursiveMapping() throws ErrorMappingException {
+    public void testRecursiveMapping() throws ErrorMappingException, VirtualUserTableException {
         
         String user1 = "user1";
         String user2 = "user2";
@@ -258,7 +260,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
     }
 
 
-    public void testAliasDomainMapping() throws ErrorMappingException {
+    public void testAliasDomainMapping() throws ErrorMappingException, VirtualUserTableException {
         
         String domain = "realdomain";
         String aliasDomain = "aliasdomain";
@@ -287,11 +289,11 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
     protected abstract AbstractVirtualUserTable getVirtualUserTable() throws Exception;
 
-    protected abstract boolean addMapping(String user , String domain, String mapping,int type);
+    protected abstract boolean addMapping(String user , String domain, String mapping,int type) throws VirtualUserTableException;
 
-    protected abstract boolean removeMapping(String user, String domain, String mapping, int type);
+    protected abstract boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException;
 
-    private void removeMapping(String user, String domain, String rawMapping) {
+    private void removeMapping(String user, String domain, String rawMapping) throws VirtualUserTableException {
         if (rawMapping.startsWith(VirtualUserTable.ERROR_PREFIX)) {
             removeMapping(user, domain, rawMapping.substring(VirtualUserTable.ERROR_PREFIX.length()), ERROR_TYPE);
         } else if (rawMapping.startsWith(VirtualUserTable.REGEX_PREFIX)) {

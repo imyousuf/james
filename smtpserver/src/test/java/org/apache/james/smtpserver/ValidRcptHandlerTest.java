@@ -39,6 +39,7 @@ import org.apache.james.smtpserver.fastfail.ValidRcptHandler;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.vut.api.VirtualUserTable;
+import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.MailAddress;
 
 public class ValidRcptHandlerTest extends TestCase {
@@ -88,7 +89,7 @@ public class ValidRcptHandlerTest extends TestCase {
     private VirtualUserTable setUpVirtualUserTable() {
         final VirtualUserTable table = new VirtualUserTable() {
  
-            public Collection<String> getMappings(String user, String domain) throws ErrorMappingException {
+            public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, VirtualUserTableException {
                 Collection<String> mappings = new ArrayList<String>();
                 if (user.equals(USER1)) {
                     mappings.add("address@localhost");
@@ -98,65 +99,63 @@ public class ValidRcptHandlerTest extends TestCase {
                 return mappings;
             }
 
-            public boolean addAddressMapping(String user, String domain, String address) {
-                // TODO Auto-generated method stub
-                return false;
+            public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
             }
 
-            public boolean addAliasDomainMapping(String aliasDomain, String realDomain) {
-                // TODO Auto-generated method stub
-                return false;
+            public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+                
             }
 
-            public boolean addErrorMapping(String user, String domain, String error) {
-                // TODO Auto-generated method stub
-                return false;
+            public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+                
             }
 
-            public boolean addMapping(String user, String domain, String mapping) {
-                // TODO Auto-generated method stub
-                return false;
+            public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+                
             }
 
-            public boolean addRegexMapping(String user, String domain, String regex) {
-                // TODO Auto-generated method stub
-                return false;
+            public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+                
             }
 
-            public Map<String, Collection<String>> getAllMappings() {
-                // TODO Auto-generated method stub
-                return null;
+            public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+                
             }
 
-            public Collection<String> getUserDomainMappings(String user, String domain) {
-                // TODO Auto-generated method stub
-                return null;
+            public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
             }
 
-            public boolean removeAddressMapping(String user, String domain, String address) {
-                // TODO Auto-generated method stub
-                return false;
+            public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+                
             }
 
-            public boolean removeAliasDomainMapping(String aliasDomain, String realDomain) {
-                // TODO Auto-generated method stub
-                return false;
+            public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+                
             }
 
-            public boolean removeErrorMapping(String user, String domain, String error) {
-                // TODO Auto-generated method stub
-                return false;
+            public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
             }
 
-            public boolean removeMapping(String user, String domain, String mapping) {
-                // TODO Auto-generated method stub
-                return false;
+            public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+                
             }
 
-            public boolean removeRegexMapping(String user, String domain, String regex) {
-                // TODO Auto-generated method stub
-                return false;
+            public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
+                throw new UnsupportedOperationException("Not implemented");
+                
             }
+
         };
         return table;
     }

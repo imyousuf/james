@@ -39,9 +39,8 @@ public interface VirtualUserTableManagementMBean {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
-     * @return true if successfully
      */
-    public boolean addRegexMapping(String user, String domain, String regex);
+    public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException;
     
     /**
      * Remove regex mapping
@@ -51,9 +50,8 @@ public interface VirtualUserTableManagementMBean {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
-     * @return true if successfully
      */
-    public boolean removeRegexMapping(String user,String domain, String regex);
+    public void removeRegexMapping(String user,String domain, String regex) throws VirtualUserTableException;
     
     /***
      * Add address mapping
@@ -63,9 +61,8 @@ public interface VirtualUserTableManagementMBean {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param address the address.
-     * @return true if successfully
      */
-    public boolean addAddressMapping(String user, String domain, String address);
+    public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException;
     
     /**
      * Remove address mapping
@@ -75,9 +72,8 @@ public interface VirtualUserTableManagementMBean {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param address
-     * @return true if successfully
      */
-    public boolean removeAddressMapping(String user,String domain, String address);
+    public void removeAddressMapping(String user,String domain, String address) throws VirtualUserTableException;
     
     /**
      * Add error mapping
@@ -87,9 +83,8 @@ public interface VirtualUserTableManagementMBean {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param error
-     * @return true if successfully
      */
-    public boolean addErrorMapping(String user, String domain, String error);
+    public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException;
 
     /**
      * Remove error mapping
@@ -101,7 +96,7 @@ public interface VirtualUserTableManagementMBean {
      * @param error
      * @return true if successfully
      */
-    public boolean removeErrorMapping(String user,String domain, String error);
+    public void removeErrorMapping(String user,String domain, String error) throws VirtualUserTableException;
     
     /**
      * Return the explicit mapping stored for the given user and domain. Return null
@@ -114,7 +109,7 @@ public interface VirtualUserTableManagementMBean {
      * @param domain the domain
      * @return the collection which holds the mappings. 
      */
-    public Collection<String> getUserDomainMappings(String user, String domain);
+    public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException;
     
     /**
     * Try to identify the right method based on the prefix of the mapping and add it.
@@ -124,9 +119,8 @@ public interface VirtualUserTableManagementMBean {
     * @param user the username. Null if no username should be used
     * @param domain the domain. Null if no domain should be used
     * @param mapping the mapping.
-    * @return true if successfully
     */
-    public boolean addMapping(String user, String domain, String mapping);
+    public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException;
     
     /**
      * Try to identify the right method based on the prefix of the mapping and remove it.
@@ -136,9 +130,8 @@ public interface VirtualUserTableManagementMBean {
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
      * @param mapping the mapping.
-     * @return true if successfully
      */
-    public boolean removeMapping(String user, String domain, String mapping);
+    public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException;
     
 
     /**
@@ -147,5 +140,5 @@ public interface VirtualUserTableManagementMBean {
      * 
      * @return Map which holds all mappings
      */
-    public Map<String,Collection<String>> getAllMappings();
+    public Map<String,Collection<String>> getAllMappings() throws VirtualUserTableException;
 }
