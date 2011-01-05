@@ -31,6 +31,7 @@ import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.api.VirtualUserTable.ErrorMappingException;
@@ -103,6 +104,7 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
 
         // check if the server use virtualhosting, if not use only the localpart
         // as username
+        try {
         if (users.supportVirtualHosting() == false) {
             username = recipient.getLocalPart();
         }
@@ -129,6 +131,11 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
             }
 
             return false;
+        }
+        } catch (UsersRepositoryException e) {
+            session.getLogger().info("Unable to access UsersRepository", e);
+            return false;
+
         }
     }
     

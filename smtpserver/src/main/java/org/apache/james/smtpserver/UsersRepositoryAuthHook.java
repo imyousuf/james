@@ -25,6 +25,7 @@ import org.apache.james.protocols.smtp.hook.AuthHook;
 import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 
 /**
  * This Auth hook can be used to authenticate against the james user repository
@@ -55,10 +56,14 @@ public class UsersRepositoryAuthHook implements AuthHook {
      * @see org.apache.james.protocols.smtp.hook.AuthHook#doAuth(org.apache.james.protocols.smtp.SMTPSession, java.lang.String, java.lang.String)
      */
     public HookResult doAuth(SMTPSession session, String username, String password) {
-        if (users.test(username, password)) {
-            session.setUser(username);
-            session.setRelayingAllowed(true);
-            return new HookResult(HookReturnCode.OK, "Authentication Successful");
+        try {
+            if (users.test(username, password)) {
+                session.setUser(username);
+                session.setRelayingAllowed(true);
+                return new HookResult(HookReturnCode.OK, "Authentication Successful");
+            }
+        } catch (UsersRepositoryException e) {
+            session.getLogger().info("Unable to access UsersRepository", e);
         }
         return new HookResult(HookReturnCode.DECLINED);
     }

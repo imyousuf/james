@@ -52,6 +52,7 @@ import org.apache.james.mailbox.MessageManager;
 import org.apache.james.mailbox.MailboxConstants;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.store.Authenticator;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
 
@@ -127,7 +128,13 @@ public class POP3ServerTest extends TestCase {
         manager = new InMemoryMailboxManager(factory, new Authenticator() {
             
             public boolean isAuthentic(String userid, CharSequence passwd) {
-                return m_usersRepository.test(userid, passwd.toString());
+                try {
+                    return m_usersRepository.test(userid, passwd.toString());
+                } catch (UsersRepositoryException e) {
+
+                    e.printStackTrace();
+                    return false;
+                }
             }
         }, new InMemoryCachingUidProvider());
         

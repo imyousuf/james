@@ -52,6 +52,7 @@ import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -266,10 +267,17 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
         if (!isLocalServer(mailAddress.getDomain())) {
             return false;
         }
-        if (localusers.supportVirtualHosting() == false) {
-            userName = mailAddress.getLocalPart();
+        try {
+            if (localusers.supportVirtualHosting() == false) {
+                userName = mailAddress.getLocalPart();
+            }
+            return localusers.contains(userName);
+
+        } catch (UsersRepositoryException e) {
+            log("Unable to access UsersRepository", e);
+            
         }
-        return localusers.contains(userName);
+        return false;
     }
 
     /**

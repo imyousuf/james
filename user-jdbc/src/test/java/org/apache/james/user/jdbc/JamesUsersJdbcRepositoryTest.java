@@ -28,6 +28,7 @@ import org.apache.derby.jdbc.EmbeddedDriver;
 import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.jdbc.AbstractJdbcUsersRepository;
 import org.apache.james.user.jdbc.JamesUsersJdbcRepository;
@@ -93,7 +94,7 @@ public class JamesUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
         return true;
     }
 
-    protected void disposeUsersRepository() {
+    protected void disposeUsersRepository() throws UsersRepositoryException {
         Iterator<String> i = this.usersRepository.list();
         while (i.hasNext()) {
             this.usersRepository.removeUser((String) i.next());

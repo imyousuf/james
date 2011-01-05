@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.User;
 
 /**
@@ -389,7 +390,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * 
      * @see org.apache.james.api.user.UsersRepository#contains(java.lang.String)
      */
-    public boolean contains(String name) {
+    public boolean contains(String name) throws UsersRepositoryException {
         if (getUserByName(name) != null) {
             return true;
         }
@@ -403,7 +404,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * org.apache.james.api.user.UsersRepository#containsCaseInsensitive(java
      * .lang.String)
      */
-    public boolean containsCaseInsensitive(String name) {
+    public boolean containsCaseInsensitive(String name) throws UsersRepositoryException {
         if (getUserByNameCaseInsensitive(name) != null) {
             return true;
         }
@@ -415,13 +416,14 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * 
      * @see org.apache.james.api.user.UsersRepository#countUsers()
      */
-    public int countUsers() {
+    public int countUsers() throws UsersRepositoryException {
         try {
             return getValidUsers().size();
         } catch (NamingException e) {
             log.error("Unable to retrieve user count from ldap", e);
+            throw new UsersRepositoryException("Unable to retrieve user count from ldap", e);
+
         }
-        return 0;
     }
 
     /*
@@ -430,7 +432,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * @see
      * org.apache.james.api.user.UsersRepository#getRealName(java.lang.String)
      */
-    public String getRealName(String name) {
+    public String getRealName(String name) throws UsersRepositoryException {
         User u = getUserByNameCaseInsensitive(name);
         if (u != null) {
             return u.getUserName();
@@ -445,7 +447,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * @see
      * org.apache.james.api.user.UsersRepository#getUserByName(java.lang.String)
      */
-    public User getUserByName(String name) {
+    public User getUserByName(String name) throws UsersRepositoryException {
         try {
             Iterator<ReadOnlyLDAPUser> userIt = buildUserCollection(getValidUsers()).iterator();
             while (userIt.hasNext()) {
@@ -457,6 +459,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
 
         } catch (NamingException e) {
             log.error("Unable to retrieve user from ldap", e);
+            throw new UsersRepositoryException("Unable to retrieve user from ldap", e);
+
         }
         return null;
 
@@ -469,7 +473,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * org.apache.james.api.user.UsersRepository#getUserByNameCaseInsensitive
      * (java.lang.String)
      */
-    public User getUserByNameCaseInsensitive(String name) {
+    public User getUserByNameCaseInsensitive(String name) throws UsersRepositoryException {
         try {
             Iterator<ReadOnlyLDAPUser> userIt = buildUserCollection(getValidUsers()).iterator();
             while (userIt.hasNext()) {
@@ -481,6 +485,8 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
 
         } catch (NamingException e) {
             log.error("Unable to retrieve user from ldap", e);
+            throw new UsersRepositoryException("Unable to retrieve user from ldap", e);
+
         }
         return null;
     }
@@ -490,7 +496,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * 
      * @see org.apache.james.api.user.UsersRepository#list()
      */
-    public Iterator<String> list() {
+    public Iterator<String> list() throws UsersRepositoryException {
         List<String> result = new ArrayList<String>();
         try {
 
@@ -500,7 +506,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
                 result.add(userIt.next().getUserName());
             }
         } catch (NamingException namingException) {
-            throw new RuntimeException("Unable to retrieve users list from LDAP due to unknown naming error.", namingException);
+            throw new UsersRepositoryException("Unable to retrieve users list from LDAP due to unknown naming error.", namingException);
         }
 
         return result.iterator();
@@ -533,8 +539,10 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * @see
      * org.apache.james.api.user.UsersRepository#removeUser(java.lang.String)
      */
-    public void removeUser(String name) {
+    public void removeUser(String name) throws UsersRepositoryException {
         log.warn("This user-repository is read-only. Modifications are not permitted.");
+        throw new UsersRepositoryException("This user-repository is read-only. Modifications are not permitted.");
+
     }
 
     /*
@@ -543,7 +551,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * @see org.apache.james.api.user.UsersRepository#test(java.lang.String,
      * java.lang.String)
      */
-    public boolean test(String name, String password) {
+    public boolean test(String name, String password) throws UsersRepositoryException {
         User u = getUserByName(name);
         if (u != null) {
             return u.verifyPassword(password);
@@ -551,27 +559,6 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.apache.james.api.user.UsersRepository#addUser(org.apache.james.api
-     * .user.User)
-     */
-    public boolean addUser(User user) {
-        log.warn("This user-repository is read-only. Modifications are not permitted.");
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.api.user.UsersRepository#addUser(java.lang.String,
-     * java.lang.Object)
-     */
-    public void addUser(String name, Object attributes) {
-        log.warn("This user-repository is read-only. Modifications are not permitted.");
-    }
 
     /*
      * (non-Javadoc)
@@ -579,9 +566,9 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * @see org.apache.james.api.user.UsersRepository#addUser(java.lang.String,
      * java.lang.String)
      */
-    public boolean addUser(String username, String password) {
+    public void addUser(String username, String password) throws UsersRepositoryException {
         log.warn("This user-repository is read-only. Modifications are not permitted.");
-        return false;
+        throw new UsersRepositoryException("This user-repository is read-only. Modifications are not permitted.");
     }
 
     /*
@@ -591,9 +578,9 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * org.apache.james.api.user.UsersRepository#updateUser(org.apache.james
      * .api.user.User)
      */
-    public boolean updateUser(User user) {
+    public void updateUser(User user) throws UsersRepositoryException {
         log.warn("This user-repository is read-only. Modifications are not permitted.");
-        return false;
+        throw new UsersRepositoryException("This user-repository is read-only. Modifications are not permitted.");
     }
 
     /*
@@ -610,7 +597,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
     /**
      * VirtualHosting not supported
      */
-    public boolean supportVirtualHosting() {
+    public boolean supportVirtualHosting() throws UsersRepositoryException{
         return false;
     }
 

@@ -16,41 +16,18 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.adapter.mailbox.maildir;
 
-import java.io.FileNotFoundException;
 
-import org.apache.james.filesystem.api.FileSystem;
-import org.apache.james.mailbox.maildir.MaildirStore;
-import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.UsersRepositoryException;
 
-/**
- * Utility to instance a {@link MaildirStore} object
- * 
- *
- */
-public class MaildirStoreUtil{
+package org.apache.james.user.api;
 
-    /**
-     * Return a {@link MaildirStore} instance
-     * 
-     * @param fs
-     * @param mailServer
-     * @param rootURL
-     * @return store
-     * @throws FileNotFoundException
-     * @throws UsersRepositoryException 
-     */
-    public static MaildirStore create(FileSystem fs, UsersRepository usersRepos, String rootURL) throws FileNotFoundException, UsersRepositoryException {
-        StringBuffer root = new StringBuffer();
-        root.append(fs.getFile(rootURL).getAbsolutePath());
-        if (usersRepos.supportVirtualHosting()) {
-            root.append("/%domain/%user/");
-        } else {
-            root.append("/%user/");
-        }
+public class UsersRepositoryException extends Exception{
 
-        return new MaildirStore(root.toString());
+    public UsersRepositoryException(String msg, Throwable t) {
+        super(msg, t);
+    }
+    
+    public UsersRepositoryException(String msg) {
+        super(msg);
     }
 }

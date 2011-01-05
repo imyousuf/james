@@ -28,6 +28,7 @@ import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.smtpserver.netty.SMTPNettySession;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.mailet.MailAddress;
 
 /**
@@ -77,6 +78,10 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
      * @see org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook#useVirtualHosting()
      */
     protected boolean useVirtualHosting() {
-        return users.supportVirtualHosting();
+        try {
+            return users.supportVirtualHosting();
+        } catch (UsersRepositoryException e) {
+        }
+        return false;
     }
 }

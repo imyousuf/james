@@ -116,17 +116,11 @@ public class UsersRepositoryAliasingForwarding extends AbstractVirtualUserTableM
             if (mappings != null) {
                 return handleMappings(mappings, sender, recipient, message);
             }
-        }
-        String realName = usersRepository.getRealName(recipient.getLocalPart());
-      
+        }      
         ArrayList<MailAddress> ret = new ArrayList<MailAddress>();
-        if (realName != null) {
-            ret.add(new MailAddress(realName, recipient.getDomain()));
-            return ret;
-        } else {
-            ret.add(recipient);
-            return ret;
-        }
+        ret.add(recipient);
+        return ret;
+        
     }
 
     

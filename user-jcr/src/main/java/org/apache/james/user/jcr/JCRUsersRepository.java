@@ -37,6 +37,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.jcr.model.JCRUser;
 import org.apache.james.user.lib.AbstractUsersRepository;
@@ -137,7 +138,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
      *
      * @return true if successful.
      */
-    public boolean updateUser(final User user) {
+    public void updateUser(final User user) throws UsersRepositoryException{
         if (user != null && user instanceof JCRUser)
         {
             final JCRUser jcrUser = (JCRUser) user;
@@ -153,10 +154,11 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                         final String hashedSaltedPassword = jcrUser.getHashedSaltedPassword();
                         rootNode.getNode(path).setProperty(PASSWD_PROPERTY, hashedSaltedPassword);
                         session.save();
-                        return true;
+                        return;
                     } catch (PathNotFoundException e) {
                         // user not found
                         getLogger().debug("User not found");
+                        throw new UsersRepositoryException("User " + user.getUserName() + " not exist");
                     }
                 } finally {
                     session.logout();
@@ -166,17 +168,19 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                 if (getLogger().isInfoEnabled()) {
                     getLogger().info("Failed to add user: " + userName, e);
                 }
+                throw new UsersRepositoryException("Failed to add user: " + userName, e);
+
             }
         }
-        return false;
     }
 
     /**
      * Removes a user from the repository
      *
      * @param name the user to remove from the repository
+     * @throws UsersRepositoryException 
      */
-    public void removeUser(String username) {
+    public void removeUser(String username) throws UsersRepositoryException {
         try {
             final Session session = login();
             try {
@@ -187,6 +191,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                     session.save();
                 } catch (PathNotFoundException e) {
                     // user not found
+                    throw new UsersRepositoryException("User " + username + " not exists");
                 }
             } finally {
                 session.logout();
@@ -194,8 +199,10 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             
         } catch (RepositoryException e) {
             if (getLogger().isInfoEnabled()) {
-                getLogger().info("Failed to add user: " + username, e);
+                getLogger().info("Failed to remove user: " + username, e);
             }
+            throw new UsersRepositoryException("Failed to remove user: " + username, e);
+
         }
     }
 
@@ -204,8 +211,9 @@ public class JCRUsersRepository extends AbstractUsersRepository {
      *
      * @param name the name to check in the repository
      * @return whether the user is in the repository
+     * @throws UsersRepositoryException 
      */
-    public boolean contains(String name) {
+    public boolean contains(String name) throws UsersRepositoryException {
         try {
             final Session session = login();
             try {
@@ -216,11 +224,13 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             } finally {
                 session.logout();
             }
-            
-        } catch (RepositoryException e) {
+        } catch (PathNotFoundException e) {
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("User not found: " + name, e);
             }
+        } catch (RepositoryException e) {
+            throw new UsersRepositoryException("Failed to search for user: " + name, e);
+
         }
 
         return false;
@@ -235,10 +245,11 @@ public class JCRUsersRepository extends AbstractUsersRepository {
      *
      * @return true if the test is successful, false if the user
      *              doesn't exist or if the password is incorrect
+     * @throws UsersRepositoryException 
      *
      * @since James 1.2.2
      */
-    public boolean test(String username, String password) {
+    public boolean test(String username, String password) throws UsersRepositoryException {
         try {
             final Session session = login();
             try {
@@ -266,9 +277,10 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             
         } catch (RepositoryException e) {
             if (getLogger().isInfoEnabled()) {
-                getLogger().info("Failed to add user: " + username, e);
+                getLogger().info("Failed to search user: " + username, e);
             }
-            return false;
+            throw new UsersRepositoryException("Failed to search for user: " + username, e);
+
         }
 
     }
@@ -277,8 +289,9 @@ public class JCRUsersRepository extends AbstractUsersRepository {
      * Returns a count of the users in the repository.
      *
      * @return the number of users in the repository
+     * @throws UsersRepositoryException 
      */
-    public int countUsers() {
+    public int countUsers() throws UsersRepositoryException {
         try {
             final Session session = login();
             try {
@@ -299,7 +312,8 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("Failed to count user", e);
             }
-            return 0;
+            throw new UsersRepositoryException("Failed to count user", e);
+
         }
     }
 
@@ -307,8 +321,9 @@ public class JCRUsersRepository extends AbstractUsersRepository {
      * List users in repository.
      *
      * @return Iterator over a collection of Strings, each being one user in the repository.
+     * @throws UsersRepositoryException 
      */
-    public Iterator<String> list() {
+    public Iterator<String> list() throws UsersRepositoryException {
         final Collection<String> userNames = new ArrayList<String>();
         try {
             final Session session = login();
@@ -335,15 +350,16 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             }
         } catch (RepositoryException e) {
             if (getLogger().isInfoEnabled()) {
-                getLogger().info("Failed to count user", e);
+                getLogger().info("Failed to list users", e);
             }
+            throw new UsersRepositoryException("Failed to list users",e );
         }
         return userNames.iterator();
     }
 
 
     @Override
-    protected boolean doAddUser(String username, String password) {
+    protected void doAddUser(String username, String password) throws UsersRepositoryException {
         try {
             final Session session = login();
             try {
@@ -353,7 +369,7 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                 try {
                     rootNode.getNode(path);
                     getLogger().info("User already exists");
-                    return false;
+                    throw new UsersRepositoryException("User " + username + " already exists");
                 } catch (PathNotFoundException e) {
                     // user does not exist
                 }
@@ -380,7 +396,6 @@ public class JCRUsersRepository extends AbstractUsersRepository {
                 }
                 node.setProperty(PASSWD_PROPERTY, hashedPassword);
                 session.save();
-                return true;
             } finally {
                 session.logout();
             }
@@ -389,9 +404,10 @@ public class JCRUsersRepository extends AbstractUsersRepository {
             if (getLogger().isInfoEnabled()) {
                 getLogger().info("Failed to add user: " + username, e);
             }
+            throw new UsersRepositoryException("Failed to add user: " + username, e);
+
         }
 
-        return false;
     }
 
 }

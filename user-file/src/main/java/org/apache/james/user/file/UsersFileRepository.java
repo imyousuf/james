@@ -26,6 +26,7 @@ import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.repository.file.FilePersistentObjectRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;
 
@@ -128,20 +129,21 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doAddUser(org.apache.james.user.api.model.User)
      */
-    protected void doAddUser(User user) {
+    protected void doAddUser(User user) throws UsersRepositoryException{
         try {
             objectRepository.put(user.getUserName(), user);
         } catch (Exception e) {
-            throw new RuntimeException("Exception caught while storing user: " + e );
+            throw new UsersRepositoryException("Exception caught while storing user: " + e );
         }
     }
 
 
 
     /**
+     * @throws UsersRepositoryException 
      * @see org.apache.james.user.api.UsersRepository#getUserByName(java.lang.String)
      */
-    public synchronized User getUserByName(String name) {
+    public synchronized User getUserByName(String name) throws UsersRepositoryException {
         if (ignoreCase) {
             name = getRealName(name);
             if (name == null ) {
@@ -152,7 +154,7 @@ public class UsersFileRepository
             try {
                 return (User)objectRepository.get(name);
             } catch (Exception e) {
-                throw new RuntimeException("Exception while retrieving user: "
+                throw new UsersRepositoryException("Exception while retrieving user: "
                                            + e.getMessage());
             }
         } else {
@@ -163,7 +165,7 @@ public class UsersFileRepository
     /**
      * Return the real name, given the ignoreCase boolean parameter
      */
-    public String getRealName(String name, boolean ignoreCase) {
+    public String getRealName(String name, boolean ignoreCase)  throws UsersRepositoryException{
         if (ignoreCase) {
             Iterator<String> it = list();
             while (it.hasNext()) {
@@ -181,18 +183,19 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.api.UsersRepository#getRealName(java.lang.String)
      */
-    public String getRealName(String name) {
+    public String getRealName(String name) throws UsersRepositoryException{
         return getRealName(name, ignoreCase);
     }
     
     /**
+     * @throws UsersRepositoryException 
      * @see org.apache.james.user.lib.AbstractJamesUsersRepository#doUpdateUser(org.apache.james.user.api.model.User)
      */
-    public void doUpdateUser(User user) {
+    public void doUpdateUser(User user) throws UsersRepositoryException {
         try {
             objectRepository.put(user.getUserName(), user);
         } catch (Exception e) {
-            throw new RuntimeException("Exception caught while storing user: "
+            throw new UsersRepositoryException("Exception caught while storing user: "
                     + e);
         }
     }
@@ -200,14 +203,14 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.api.UsersRepository#removeUser(java.lang.String)
      */
-    public synchronized void removeUser(String name) {
+    public synchronized void removeUser(String name) throws UsersRepositoryException{
         objectRepository.remove(name);
     }
 
     /**
      * @see org.apache.james.user.api.UsersRepository#contains(java.lang.String)
      */
-    public boolean contains(String name) {
+    public boolean contains(String name) throws UsersRepositoryException{
         if (ignoreCase) {
             return containsCaseInsensitive(name);
         } else {
@@ -218,7 +221,7 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.api.UsersRepository#containsCaseInsensitive(java.lang.String)
      */
-    public boolean containsCaseInsensitive(String name) {
+    public boolean containsCaseInsensitive(String name) throws UsersRepositoryException{
         Iterator<String> it = list();
         while (it.hasNext()) {
             if (name.equalsIgnoreCase((String)it.next())) {
@@ -231,7 +234,7 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.api.UsersRepository#test(java.lang.String, java.lang.String)
      */
-    public boolean test(String name, String password) {
+    public boolean test(String name, String password) throws UsersRepositoryException{
         User user;
         try {
             user = getUserByName(name);
@@ -245,7 +248,7 @@ public class UsersFileRepository
     /**
      * @see org.apache.james.user.api.UsersRepository#countUsers()
      */
-    public int countUsers() {
+    public int countUsers() throws UsersRepositoryException{
         int count = 0;
         for (Iterator<String> it = list(); it.hasNext(); it.next()) {
             count++;

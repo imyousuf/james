@@ -21,7 +21,7 @@
 
 package org.apache.james.user.jdbc;
 
-import org.apache.james.domainlist.api.DomainListException;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.model.DefaultUser;
 
@@ -89,19 +89,14 @@ public class DefaultUsersJdbcRepository extends AbstractJdbcUsersRepository
     /**
      * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String, java.lang.String)
      */
-    public boolean addUser(String username, String password)  {
-        try {
-            if (contains(username) == true ||  isValidUsername(username) == false) {
-                return false;
-            }
-        } catch (DomainListException e) {
-            getLogger().error("Unable to access DomainList", e);
-            return false;
+    public void addUser(String username, String password) throws UsersRepositoryException {
+        if (contains(username) == true) {
+            throw new UsersRepositoryException("User " + username + " already exist");
         }
+        isValidUsername(username);
         User newbie = new DefaultUser(username, "SHA");
         newbie.setPassword(password);
         doAddUser(newbie);
-        return true;
     }
 
 

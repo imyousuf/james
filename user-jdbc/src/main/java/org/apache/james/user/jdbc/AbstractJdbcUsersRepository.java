@@ -22,6 +22,7 @@ package org.apache.james.user.jdbc;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.filesystem.api.FileSystem;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.AbstractJamesUsersRepository;
 import org.apache.james.util.sql.JDBCUtil;
@@ -105,11 +106,14 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @param userName
      *            the user to be removed
+     * @throws UsersRepositoryException 
      */
-    public void removeUser(String userName) {
+    public void removeUser(String userName) throws UsersRepositoryException {
         User user = getUserByName(userName);
         if (user != null) {
             doRemoveUser(user);
+        } else {
+            throw new UsersRepositoryException("User " + userName + " does not exist");
         }
     }
 
@@ -124,50 +128,18 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @since James 1.2.2
      */
-    public User getUserByName(String name) {
+    public User getUserByName(String name) throws UsersRepositoryException{
         return getUserByName(name, ignoreCase);
     }
 
-    /**
-     * Get the user object with the specified user name. Match user naems on a
-     * case insensitive basis. Return null if no such user.
-     * 
-     * @param name
-     *            the name of the user to retrieve
-     * 
-     * @return the user if found, null otherwise
-     * 
-     * @since James 1.2.2
-     */
-    public User getUserByNameCaseInsensitive(String name) {
-        return getUserByName(name, true);
-    }
 
-    /**
-     * Returns the user name of the user matching name on an equalsIgnoreCase
-     * basis. Returns null if no match.
-     * 
-     * @param name
-     *            the name of the user to retrieve
-     * 
-     * @return the correct case sensitive name of the user
-     */
-    public String getRealName(String name) {
-        // Get the user by name, ignoring case, and return the correct name.
-        User user = getUserByName(name, ignoreCase);
-        if (user == null) {
-            return null;
-        } else {
-            return user.getUserName();
-        }
-    }
-
+    
     /**
      * Returns whether or not this user is in the repository
      * 
      * @return true or false
      */
-    public boolean contains(String name) {
+    public boolean contains(String name) throws UsersRepositoryException {
         User user = getUserByName(name, ignoreCase);
         return (user != null);
     }
@@ -178,7 +150,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @return true or false
      */
-    public boolean containsCaseInsensitive(String name) {
+    public boolean containsCaseInsensitive(String name) throws UsersRepositoryException{
         User user = getUserByName(name, true);
         return (user != null);
     }
@@ -195,7 +167,7 @@ public abstract class AbstractJdbcUsersRepository extends
      *         incorrect or the user doesn't exist
      * @since James 1.2.2
      */
-    public boolean test(String name, String password) {
+    public boolean test(String name, String password) throws UsersRepositoryException{
         User user = getUserByName(name, ignoreCase);
         if (user == null) {
             return false;
@@ -209,7 +181,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @return the number of users in the repository
      */
-    public int countUsers() {
+    public int countUsers()  throws UsersRepositoryException{
         List<String> usernames = listUserNames();
         return usernames.size();
     }
@@ -220,7 +192,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * @return Iterator over a collection of Strings, each being one user in the
      *         repository.
      */
-    public Iterator<String> list() {
+    public Iterator<String> list() throws UsersRepositoryException{
         return listUserNames().iterator();
     }
 
@@ -456,7 +428,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * @return a <code>List</code> of <code>String</code>s representing
      *         user names.
      */
-    protected List<String> listUserNames() {
+    protected List<String> listUserNames() throws UsersRepositoryException{
         Collection<User> users = getAllUsers();
         List<String> userNames = new ArrayList<String>(users.size());
         for (Iterator<User> it = users.iterator(); it.hasNext();) {
@@ -471,7 +443,7 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @return an <code>Iterator</code> of <code>User</code>s.
      */
-    protected Iterator<User> listAllUsers() {
+    protected Iterator<User> listAllUsers() throws UsersRepositoryException{
         return getAllUsers().iterator();
     }
 
@@ -479,14 +451,16 @@ public abstract class AbstractJdbcUsersRepository extends
      * Returns a list populated with all of the Users in the repository.
      * 
      * @return a <code>Collection</code> of <code>JamesUser</code>s.
+     * @throws UsersRepositoryException 
      */
-    private Collection<User> getAllUsers() {
+    private Collection<User> getAllUsers() throws UsersRepositoryException {
         List<User> userList = new ArrayList<User>(); // Build the users into this list.
 
-        Connection conn = openConnection();
+        Connection conn = null; 
         PreparedStatement getUsersStatement = null;
         ResultSet rsUsers = null;
         try {
+            conn = openConnection();
             // Get a ResultSet containing all users.
             getUsersStatement = conn.prepareStatement(m_getUsersSql);
             rsUsers = getUsersStatement.executeQuery();
@@ -498,7 +472,7 @@ public abstract class AbstractJdbcUsersRepository extends
             }
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database",
+            throw new UsersRepositoryException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsUsers);
@@ -515,13 +489,15 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @param user
      *            the user to add
+     * @throws UsersRepositoryException 
      */
-    protected void doAddUser(User user) {
-        Connection conn = openConnection();
+    protected void doAddUser(User user) throws UsersRepositoryException {
+        Connection conn = null;
         PreparedStatement addUserStatement = null;
 
         // Insert into the database.
         try {
+            conn = openConnection();
             // Get a PreparedStatement for the insert.
             addUserStatement = conn.prepareStatement(m_insertUserSql);
 
@@ -530,7 +506,7 @@ public abstract class AbstractJdbcUsersRepository extends
             addUserStatement.execute();
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database",
+            throw new UsersRepositoryException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCStatement(addUserStatement);
@@ -544,21 +520,23 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @param user
      *            the user to remove
+     * @throws UsersRepositoryException 
      */
-    protected void doRemoveUser(User user) {
+    protected void doRemoveUser(User user) throws UsersRepositoryException {
         String username = user.getUserName();
 
-        Connection conn = openConnection();
+        Connection conn = null;
         PreparedStatement removeUserStatement = null;
 
         // Delete from the database.
         try {
+            conn = openConnection();
             removeUserStatement = conn.prepareStatement(m_deleteUserSql);
             removeUserStatement.setString(1, username);
             removeUserStatement.execute();
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database",
+            throw new UsersRepositoryException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCStatement(removeUserStatement);
@@ -571,19 +549,21 @@ public abstract class AbstractJdbcUsersRepository extends
      * 
      * @param user
      *            the user to update
+     * @throws UsersRepositoryException 
      */
-    protected void doUpdateUser(User user) {
-        Connection conn = openConnection();
+    protected void doUpdateUser(User user) throws UsersRepositoryException {
+        Connection conn = null;
         PreparedStatement updateUserStatement = null;
 
         // Update the database.
         try {
+            conn = openConnection();
             updateUserStatement = conn.prepareStatement(m_updateUserSql);
             setUserForUpdateStatement(user, updateUserStatement);
             updateUserStatement.execute();
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database",
+            throw new UsersRepositoryException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCStatement(updateUserStatement);
@@ -602,8 +582,9 @@ public abstract class AbstractJdbcUsersRepository extends
      *            whether the name is regarded as case-insensitive
      * 
      * @return the user being retrieved, null if the user doesn't exist
+     * @throws UsersRepositoryException 
      */
-    protected User getUserByNameIterating(String name, boolean ignoreCase) {
+    protected User getUserByNameIterating(String name, boolean ignoreCase) throws UsersRepositoryException {
         // Just iterate through all of the users until we find one matching.
         Iterator<User> users = listAllUsers();
         while (users.hasNext()) {
@@ -629,8 +610,9 @@ public abstract class AbstractJdbcUsersRepository extends
      *            whether the name is regarded as case-insensitive
      * 
      * @return the user being retrieved, null if the user doesn't exist
+     * @throws UsersRepositoryException 
      */
-    protected User getUserByName(String name, boolean ignoreCase) {
+    protected User getUserByName(String name, boolean ignoreCase) throws UsersRepositoryException {
         // See if this statement has been set, if not, use
         // simple superclass method.
         if (m_userByNameCaseInsensitiveSql == null) {
@@ -639,10 +621,11 @@ public abstract class AbstractJdbcUsersRepository extends
 
         // Always get the user via case-insensitive SQL,
         // then check case if necessary.
-        Connection conn = openConnection();
+        Connection conn = null;
         PreparedStatement getUsersStatement = null;
         ResultSet rsUsers = null;
         try {
+            conn = openConnection();
             // Get a ResultSet containing all users.
             String sql = m_userByNameCaseInsensitiveSql;
             getUsersStatement = conn.prepareStatement(sql);
@@ -667,7 +650,7 @@ public abstract class AbstractJdbcUsersRepository extends
             return user;
         } catch (SQLException sqlExc) {
             sqlExc.printStackTrace();
-            throw new RuntimeException("Error accessing database",
+            throw new UsersRepositoryException("Error accessing database",
                     sqlExc);
         } finally {
             theJDBCUtil.closeJDBCResultSet(rsUsers);
@@ -730,14 +713,10 @@ public abstract class AbstractJdbcUsersRepository extends
      * encountered in the process.
      * 
      * @return the new connection
+     * @throws SQLException 
      */
-    private Connection openConnection() {
-        try {
-            return m_datasource.getConnection();
-        } catch (SQLException sqle) {
-            throw new RuntimeException(
-                    "An exception occurred getting a database connection.",
-                    sqle);
-        }
+    private Connection openConnection() throws SQLException {
+        return m_datasource.getConnection();
+        
     }
 }

@@ -26,6 +26,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.lib.UsersRepositoryManagement;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 
@@ -46,7 +47,7 @@ public class UsersRepositoryManagementTest extends TestCase {
 
    
 
-    public void testUserCount() {
+    public void testUserCount() throws UsersRepositoryException {
         assertEquals("no user yet", 0, m_userManagement.countUsers());
         m_mockUsersRepository.addUser("testCount1", "testCount");
         assertEquals("1 user", 1, m_userManagement.countUsers());
@@ -58,30 +59,30 @@ public class UsersRepositoryManagementTest extends TestCase {
 
 
 
-    public void testAddUserAndVerify() {
-        assertTrue("user added", m_mockUsersRepository.addUser("testCount1", "testCount"));
+    public void testAddUserAndVerify() throws UsersRepositoryException {
+        m_mockUsersRepository.addUser("testCount1", "testCount");
         assertFalse("user not there", m_userManagement.verifyExists("testNotAdded"));
         assertTrue("user is there", m_userManagement.verifyExists("testCount1"));
         m_mockUsersRepository.removeUser("testCount1");
         assertFalse("user not there", m_userManagement.verifyExists("testCount1"));
     }
 
-    public void testDelUser() {
-        assertTrue("user added", m_mockUsersRepository.addUser("testDel", "test"));
+    public void testDelUser() throws UsersRepositoryException {
+        m_mockUsersRepository.addUser("testDel", "test");
         assertFalse("user not there", m_userManagement.verifyExists("testNotDeletable"));
         assertTrue("user is there", m_userManagement.verifyExists("testDel"));
         m_mockUsersRepository.removeUser("testDel");
         assertFalse("user no longer there", m_userManagement.verifyExists("testDel"));
     }
 
-    public void testListUsers() {
+    public void testListUsers() throws UsersRepositoryException {
 
         String[] usersArray = new String[] {"ccc", "aaa", "dddd", "bbbbb"};
         List<String> users = Arrays.asList(usersArray);
 
         for (int i = 0; i < users.size(); i++) {
             String user = users.get(i);
-            assertTrue("user added", m_mockUsersRepository.addUser(user, "test"));
+            m_mockUsersRepository.addUser(user, "test");
         }
 
         String[] userNames = m_userManagement.listAllUsers();
@@ -94,22 +95,22 @@ public class UsersRepositoryManagementTest extends TestCase {
     }
 
     
-    public void testSetPassword() {
+    public void testSetPassword() throws UsersRepositoryException {
 
-        assertTrue("user added", m_userManagement.addUser("testPwdUser", "pwd1"));
+        m_userManagement.addUser("testPwdUser", "pwd1");
 
         assertTrue("initial password", m_mockUsersRepository.test("testPwdUser", "pwd1"));
 
         // set empty pwd
-        assertTrue("changed to empty password", m_userManagement.setPassword("testPwdUser", ""));
+        m_userManagement.setPassword("testPwdUser", "");
         assertTrue("password changed to empty", m_mockUsersRepository.test("testPwdUser", ""));
 
         // change pwd
-        assertTrue("changed password", m_userManagement.setPassword("testPwdUser", "pwd2"));
+        m_userManagement.setPassword("testPwdUser", "pwd2");
         assertTrue("password not changed to pwd2", m_mockUsersRepository.test("testPwdUser", "pwd2"));
 
         // assure case sensitivity
-        assertTrue("changed password", m_userManagement.setPassword("testPwdUser", "pWD2"));
+        m_userManagement.setPassword("testPwdUser", "pWD2");
         assertFalse("password no longer pwd2", m_mockUsersRepository.test("testPwdUser", "pwd2"));
         assertTrue("password changed to pWD2", m_mockUsersRepository.test("testPwdUser", "pWD2"));
 

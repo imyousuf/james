@@ -32,6 +32,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.file.UsersFileRepository;
 import org.apache.james.user.lib.AbstractUsersRepositoryTest;
@@ -80,7 +81,7 @@ public class UsersFileRepositoryTest extends AbstractUsersRepositoryTest {
         return res;
     }
 
-    protected void disposeUsersRepository() {
+    protected void disposeUsersRepository() throws UsersRepositoryException {
         if (this.usersRepository != null) {
             Iterator<String> i = this.usersRepository.list();
             while (i.hasNext()) {

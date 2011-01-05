@@ -739,7 +739,7 @@ public class WhiteListManager extends GenericMailet {
     private String getPrimaryName(String originalUsername) {
         String username;
         try {
-            username = localusers.getRealName(originalUsername);
+            username = originalUsername;
             JamesUser user = (JamesUser) localusers.getUserByName(username);
             if (user.getAliasing()) {
                 username = user.getAlias();

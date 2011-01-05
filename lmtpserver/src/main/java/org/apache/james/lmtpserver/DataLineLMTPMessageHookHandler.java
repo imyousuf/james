@@ -44,6 +44,7 @@ import org.apache.james.protocols.smtp.core.DataLineFilter;
 import org.apache.james.protocols.smtp.dsn.DSNStatus;
 import org.apache.james.smtpserver.SMTPConstants;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -147,35 +148,38 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
         while (recipients.hasNext()) {
             MailAddress recipient = recipients.next();
             String username;
-            if (users.supportVirtualHosting()) {
-                username = recipient.toString();
-            } else {
-                username = recipient.getLocalPart();
-            }
+            SMTPResponse response = null;
 
-            SMTPResponse response;
-            
             try {
-                
+
+                if (users.supportVirtualHosting()) {
+                    username = recipient.toString();
+                } else {
+                    username = recipient.getLocalPart();
+                }
+
                 MailboxSession mailboxSession = mailboxManager.createSystemSession(username, session.getLogger());
                 MailboxPath inbox = MailboxPath.inbox(username);
-                
+
                 mailboxManager.startProcessingRequest(mailboxSession);
-                
+
                 // create inbox if not exist
                 if (mailboxManager.mailboxExists(inbox, mailboxSession) == false) {
                     mailboxManager.createMailbox(inbox, mailboxSession);
                 }
                 mailboxManager.getMailbox(MailboxPath.inbox(username), mailboxSession).appendMessage(new MimeMessageInputStream(mail.getMessage()), new Date(), mailboxSession, true, null);
                 mailboxManager.endProcessingRequest(mailboxSession);
-                response = new SMTPResponse(SMTPRetCode.MAIL_OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
-            
-            } catch (MessagingException e) {
-                session.getLogger().info("Unexpected error handling DATA stream",e);
+                response = new SMTPResponse(SMTPRetCode.MAIL_OK, DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.CONTENT_OTHER) + " Message received");
 
-                response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT,
-                        DSNStatus.UNDEFINED_STATUS) + " Temporary error deliver message to " + recipient);
-            } 
+            } catch (MessagingException e) {
+                session.getLogger().info("Unexpected error handling DATA stream", e);
+
+                response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Temporary error deliver message to " + recipient);
+            } catch (UsersRepositoryException e) {
+                session.getLogger().info("Unexpected error handling DATA stream", e);
+
+                response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Temporary error deliver message to " + recipient);
+            }
             session.writeResponse(response);
         }
         

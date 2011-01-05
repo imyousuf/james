@@ -33,6 +33,7 @@ import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.jsieve.mailet.Poster;
 import org.apache.jsieve.mailet.SieveMailboxMailet;
 import org.apache.mailet.Mail;
@@ -61,7 +62,11 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
     @Override
     public void init(MailetConfig config) throws MessagingException {
         // ATM Fixed implementation
-        setLocator(new ResourceLocatorImpl(usersRepos.supportVirtualHosting()));
+        try {
+            setLocator(new ResourceLocatorImpl(usersRepos.supportVirtualHosting()));
+        } catch (UsersRepositoryException e) {
+            throw new MessagingException("Unable to access UsersRepository", e);
+        }
         setPoster(this);
         super.init(config);
     }
@@ -79,10 +84,16 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
      * @return username
      */
     protected String getUsername(MailAddress m) {
-        if (usersRepos.supportVirtualHosting()) {
-            return m.toString();
-        } else {
+        try {
+            if (usersRepos.supportVirtualHosting()) {
+                return m.toString();
+            } else {
+                return super.getUsername(m);
+            }
+        } catch (UsersRepositoryException e) {
+            log("Unable to access UsersRepository", e);
             return super.getUsername(m);
+
         }
     }
    
@@ -134,8 +145,12 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
 
                     // check if we should use the full emailaddress as
                     // username
-                    if (usersRepos.supportVirtualHosting()) {
-                        user = user + "@" + host;
+                    try {
+                        if (usersRepos.supportVirtualHosting()) {
+                            user = user + "@" + host;
+                        }
+                    } catch (UsersRepositoryException e) {
+                        throw new MessagingException("Unable to accessUsersRepository", e);
                     }
 
                     final MailboxSession session = mailboxManager.createSystemSession(user, new MailetLog());

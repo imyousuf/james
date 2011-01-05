@@ -19,18 +19,17 @@
 
 package org.apache.james.user.lib.mock;
 
-import org.apache.james.user.api.model.User;
-import org.apache.james.user.lib.AbstractJamesUsersRepository;
-import org.apache.james.user.lib.model.DefaultJamesUser;
-import org.apache.james.user.lib.model.DefaultUser;
-import org.apache.james.user.lib.util.DigestUtil;
-
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+
+import org.apache.james.user.api.UsersRepositoryException;
+import org.apache.james.user.api.model.User;
+import org.apache.james.user.lib.AbstractJamesUsersRepository;
+import org.apache.james.user.lib.model.DefaultJamesUser;
+import org.apache.james.user.lib.model.DefaultUser;
 
 public class MockUsersRepository extends AbstractJamesUsersRepository {
 
@@ -48,67 +47,10 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
         m_forceUseJamesUser = true;
     }
 
-    public boolean addUser(User user) {
+ 
 
-        if (m_forceUseJamesUser && user instanceof DefaultUser ) {
-            DefaultUser aUser = (DefaultUser)user;
-            user = new DefaultJamesUser(aUser.getUserName(),
-                                             aUser.getHashedPassword(),
-                                             aUser.getHashAlgorithm());
-        }
 
-        String key = user.getUserName();
-        if (m_users.containsKey(key)) return false;
-        m_users.put(key, user);
-        return true;
-    }
-
-    public void addUser(String name, Object attributes) {
-        if (!(attributes instanceof String)) {
-            throw new IllegalArgumentException();
-        }
-        try {
-            String passwordHash = DigestUtil.digestString(((String) attributes), "SHA");
-
-            User user;
-
-            if (m_forceUseJamesUser) {
-                user = new DefaultJamesUser(name, passwordHash, "SHA");
-            } else {
-                user = new DefaultUser(name, passwordHash, "SHA");
-            }
-           
-            addUser(user);
-        } catch (Exception e) {
-            e.printStackTrace();  // encoding failed
-        }
-    }
-
-    public boolean addUser(String username, String password) {
-        if (m_users.containsKey(username)) return false;
-        try {
-            String passwordHash = DigestUtil.digestString((password), "SHA");
-
-            User user;
-
-            if (m_forceUseJamesUser) {
-                user = new DefaultJamesUser(username, passwordHash, "SHA");
-            } else {
-                user = new DefaultUser(username, passwordHash, "SHA");
-            }
-           
-            return addUser(user);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();  // encoding failed
-        }
-        return false;
-    }
-
-    public Object getAttributes(String name) {
-        return null;  // trivial implementation
-    }
-
-    public User getUserByName(String name) {
+    public User getUserByName(String name) throws UsersRepositoryException{
         if (ignoreCase) {
             return getUserByNameCaseInsensitive(name);
         } else {
@@ -116,11 +58,11 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
         }
     }
 
-    public User getUserByNameCaseInsensitive(String name) {
+    public User getUserByNameCaseInsensitive(String name)throws UsersRepositoryException {
         return (User) m_users.get(name.toLowerCase(Locale.US));
     }
 
-    public String getRealName(String name) {
+    public String getRealName(String name) throws UsersRepositoryException{
         if (ignoreCase) {
             return m_users.get(name.toLowerCase(Locale.US)) != null ? ((User) m_users.get(name.toLowerCase(Locale.US))).getUserName() : null;
         } else {
@@ -128,18 +70,16 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
         }
     }
 
-    public boolean updateUser(User user) {
-        if (m_users.containsKey(user.getUserName())) {
-            m_users.put(user.getUserName(), user);
-            return true;
-        } else return false;  // trivial implementation
+
+    public void removeUser(String name) throws UsersRepositoryException{
+       if ( m_users.containsKey(name) == false) {
+           throw new UsersRepositoryException("No such user");
+       } else {
+           m_users.remove(name);
+       }
     }
 
-    public void removeUser(String name) {
-        m_users.remove(name);
-    }
-
-    public boolean contains(String name) {
+    public boolean contains(String name) throws UsersRepositoryException {
         if (ignoreCase) {
             return containsCaseInsensitive(name);
         } else {
@@ -151,17 +91,14 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
         throw new UnsupportedOperationException("mock");
     }
 
-    public boolean test(String name, Object attributes) {
-        throw new UnsupportedOperationException("mock");
-    }
 
-    public boolean test(String name, String password) {
+    public boolean test(String name, String password) throws UsersRepositoryException{
         User user = getUserByName(name);
         if (user == null) return false;
         return user.verifyPassword(password);
     }
 
-    public int countUsers() {
+    public int countUsers() throws UsersRepositoryException{
         return m_users.size();
     }
 
@@ -175,21 +112,28 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
 
         return userNames;
     }
-    public Iterator<String> list() {
+    public Iterator<String> list() throws UsersRepositoryException{
         return listUserNames().iterator(); 
     }
 
-    protected void doAddUser(User user) {
-        // unused
+    protected void doAddUser(User user)  throws UsersRepositoryException{
+        if (m_forceUseJamesUser && user instanceof DefaultUser ) {
+            DefaultUser aUser = (DefaultUser)user;
+            user = new DefaultJamesUser(aUser.getUserName(),
+                                             aUser.getHashedPassword(),
+                                             aUser.getHashAlgorithm());
+        }
+
+        String key = user.getUserName();
+        m_users.put(key, user);
     }
 
-    protected void doUpdateUser(User user) {
-        // unused
+    protected void doUpdateUser(User user) throws UsersRepositoryException{
+        if (m_users.containsKey(user.getUserName())) {
+            m_users.put(user.getUserName(), user);
+        } else {
+            throw new UsersRepositoryException("No such user");
+        }
     }
 
-    @Override
-    protected boolean doAddUser(String username, String password) {
-        // TODO Auto-generated method stub
-        return false;
-    }
 }

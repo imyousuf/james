@@ -42,11 +42,10 @@ public interface UsersRepository {
      * 
      * @param username the username of the user to be added
      * @param password the password of the user to add
-     * @return true if succesful, false otherwise
+     * @throws UsersRepositoryException if error
      * 
-     * @since James 2.3.0
      */
-    boolean addUser(String username, String password);
+    void addUser(String username, String password) throws UsersRepositoryException;
 
     /**
      * Get the user object with the specified user name.  Return null if no
@@ -54,43 +53,35 @@ public interface UsersRepository {
      *
      * @param name the name of the user to retrieve
      * @return the user being retrieved, null if the user doesn't exist
-     *
-     * @since James 1.2.2
+     * @throws UsersRepositoryException if error
      */
-    User getUserByName(String name);
+    User getUserByName(String name) throws UsersRepositoryException;
 
-
-    /**
-     * Returns the user name of the user matching name on an equalsIgnoreCase
-     * basis. Returns null if no match.
-     *
-     * @param name the name to case-correct
-     * @return the case-correct name of the user, null if the user doesn't exist
-     */
-    String getRealName(String name);
 
     /**
      * Update the repository with the specified user object. A user object
      * with this username must already exist.
      *
-     * @return true if successful.
+     * @throws UsersRepositoryException if error
      */
-    boolean updateUser(User user);
+    void updateUser(User user) throws UsersRepositoryException;
 
     /**
      * Removes a user from the repository
      *
      * @param name the user to remove from the repository
+     * @throws UsersRepositoryException if error
      */
-    void removeUser(String name);
+    void removeUser(String name) throws UsersRepositoryException;
 
     /**
      * Returns whether or not this user is in the repository
      *
      * @param name the name to check in the repository
      * @return whether the user is in the repository
+     * @throws UsersRepositoryException if error
      */
-    boolean contains(String name);
+    boolean contains(String name) throws UsersRepositoryException;
 
 
     /**
@@ -101,24 +92,26 @@ public interface UsersRepository {
      *
      * @return true if the test is successful, false if the user
      *              doesn't exist or if the password is incorrect
+     * @throws UsersRepositoryException if error
      *
-     * @since James 1.2.2
      */
-    boolean test(String name, String password);
+    boolean test(String name, String password) throws UsersRepositoryException;
 
     /**
      * Returns a count of the users in the repository.
      *
      * @return the number of users in the repository
+     * @throws UsersRepositoryException if error
      */
-    int countUsers();
+    int countUsers() throws UsersRepositoryException;
 
     /**
      * List users in repository.
      *
      * @return Iterator over a collection of Strings, each being one user in the repository.
+     * @throws UsersRepositoryException if error
      */
-    Iterator<String> list();
+    Iterator<String> list() throws UsersRepositoryException;
     
     
     
@@ -127,6 +120,6 @@ public interface UsersRepository {
      * 
      * @return true or false
      */
-    boolean supportVirtualHosting();
+    boolean supportVirtualHosting() throws UsersRepositoryException;
 
 }

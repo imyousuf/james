@@ -25,6 +25,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.user.api.JamesUsersRepository;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.JamesUser;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.lib.model.DefaultJamesUser;
@@ -81,7 +82,7 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      * @param user
      *            the user to add
      */
-    protected abstract void doAddUser(User user);
+    protected abstract void doAddUser(User user) throws UsersRepositoryException;
 
     /**
      * Updates a user record to match the supplied User.
@@ -89,7 +90,7 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      * @param user
      *            the user to update
      */
-    protected abstract void doUpdateUser(User user);
+    protected abstract void doUpdateUser(User user) throws UsersRepositoryException;
 
 
 
@@ -98,11 +99,10 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      * (non-Javadoc)
      * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang.String, java.lang.String)
      */
-    protected boolean doAddUser(String username, String password) {
+    protected void doAddUser(String username, String password) throws UsersRepositoryException{
         User newbie = new DefaultJamesUser(username, "SHA");
         newbie.setPassword(password);
         doAddUser(newbie);
-        return true;
     }
 
     /**
@@ -113,51 +113,50 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
      *            the user to be updated
      * 
      * @return true if successful.
+     * @throws UsersRepositoryException 
      */
-    public boolean updateUser(User user) {
+    public void updateUser(User user) throws UsersRepositoryException {
         // Return false if it's not found.
         if (!contains(user.getUserName())) {
-            return false;
+            throw new UsersRepositoryException("User " + user.getUserName() + " does not exist");
         } else {
             doUpdateUser(user);
-            return true;
         }
     }
 
     /**
+     * @throws VirtualUserTableException 
      * @see org.apache.james.vut.api.VirtualUserTable#getMappings(java.lang.String,
      *      java.lang.String)
      */
     public Collection<String> getMappings(String username, String domain)
-            throws ErrorMappingException {
+            throws ErrorMappingException, VirtualUserTableException {
         Collection<String> mappings = new ArrayList<String>();
-        User user = getUserByName(username);
+        try {
+            User user = getUserByName(username);
 
-        if (user instanceof JamesUser) {
-            JamesUser jUser = (JamesUser) user;
+            if (user instanceof JamesUser) {
+                JamesUser jUser = (JamesUser) user;
 
-            if (enableAliases && jUser.getAliasing()) {
-                String alias = jUser.getAlias();
-                if (alias != null) {
-                    mappings.add(alias + "@" + domain);
+                if (enableAliases && jUser.getAliasing()) {
+                    String alias = jUser.getAlias();
+                    if (alias != null) {
+                        mappings.add(alias + "@" + domain);
+                    }
+                }
+
+                if (enableForwarding && jUser.getForwarding()) {
+                    String forward = null;
+                    if (jUser.getForwardingDestination() != null && ((forward = jUser.getForwardingDestination().toString()) != null)) {
+                        mappings.add(forward);
+                    } else {
+                        StringBuffer errorBuffer = new StringBuffer(128).append("Forwarding was enabled for ").append(username).append(" but no forwarding address was set for this account.");
+                        getLogger().error(errorBuffer.toString());
+                    }
                 }
             }
-
-            if (enableForwarding && jUser.getForwarding()) {
-                String forward = null;
-                if (jUser.getForwardingDestination() != null
-                        && ((forward = jUser.getForwardingDestination()
-                                .toString()) != null)) {
-                    mappings.add(forward);
-                } else {
-                    StringBuffer errorBuffer = new StringBuffer(128)
-                            .append("Forwarding was enabled for ")
-                            .append(username)
-                            .append(
-                                    " but no forwarding address was set for this account.");
-                    getLogger().error(errorBuffer.toString());
-                }
-            }
+        } catch (UsersRepositoryException e) {
+            throw new VirtualUserTableException("Unable to lookup forwards/aliases", e);
         }
         if (mappings.size() == 0) {
             return null;
@@ -195,25 +194,29 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
     public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException{
         Map<String, Collection<String>> mappings = new HashMap<String, Collection<String>>();
         if (enableAliases == true || enableForwarding == true) {
-            Iterator<String> users = list();
-            while(users.hasNext()) {
-                String user = users.next();
-                int index = user.indexOf("@");
-                String username;
-                String domain;
-                if (index != -1) {
-                    username = user.substring(0, index);
-                    domain = user.substring(index +1, user.length());
-                } else {
-                    username = user;
-                    domain = "localhost";
+            try {
+                Iterator<String> users = list();
+                while (users.hasNext()) {
+                    String user = users.next();
+                    int index = user.indexOf("@");
+                    String username;
+                    String domain;
+                    if (index != -1) {
+                        username = user.substring(0, index);
+                        domain = user.substring(index + 1, user.length());
+                    } else {
+                        username = user;
+                        domain = "localhost";
+                    }
+                    try {
+                        mappings.put(user, getMappings(username, domain));
+                    } catch (ErrorMappingException e) {
+                        // shold never happen here
+                    }
                 }
-                try {
-                    mappings.put(user, getMappings(username, domain));
-                } catch (ErrorMappingException e) {
-                    // shold never happen here
-                }
-            }        
+            } catch (UsersRepositoryException e) {
+                throw new VirtualUserTableException("Unable to access forwards/aliases", e);
+            }
         }
        
         return mappings;
@@ -247,7 +250,7 @@ public abstract class AbstractJamesUsersRepository extends AbstractUsersReposito
     }
 
     public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
-        // TODO Auto-generated method stub
+        throw new VirtualUserTableException("Read-Only VirtualUserTable");        
         
     }
 

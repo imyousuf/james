@@ -33,6 +33,7 @@ import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.api.MailRepositoryStore;
 import org.apache.james.mailrepository.api.MailRepositoryStore.MailRepositoryStoreException;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.mailet.Mail;
 
 public class James23Importer implements Configurable, LogEnabled {
@@ -84,7 +85,12 @@ public class James23Importer implements Configurable, LogEnabled {
         
         String james23MailRepositoryPath = config.getString("repositoryPath");
         
-        Iterator<String> j23uIt = james23UsersRepository.list();
+        Iterator<String> j23uIt;
+        try {
+            j23uIt = james23UsersRepository.list();
+        } catch (UsersRepositoryException e) {
+            throw new MessagingException("Unable to access UsersRepository", e);
+        }
         
         while (j23uIt.hasNext()) {
             String user = j23uIt.next();

@@ -34,19 +34,17 @@ public interface UsersRepositoryManagementMBean {
      *
      * @param userName The name of the user being added
      * @param password The password of the user being added
-
-     * @return if the operation was successful
      */
-    boolean addUser(String userName, String password);
+    void addUser(String userName, String password) throws UsersRepositoryException;
 
     /**
      * Deletes a user from this mail server.
      *
      *
      * @param userName The name of the user being deleted
-     * @return if the operation was successful
+     * @throws UsersRepositoryException if error
      */
-    boolean deleteUser(String userName);
+    void deleteUser(String userName) throws UsersRepositoryException;
 
     /**
      * Check if a user exists with the given name.
@@ -54,8 +52,9 @@ public interface UsersRepositoryManagementMBean {
      *
      * @param userName The name of the user
      * @return TRUE, if the user exists
+     * @throws UsersRepositoryException if error
      */
-    boolean verifyExists(String userName);
+    boolean verifyExists(String userName) throws UsersRepositoryException;
 
     /**
      * Total count of existing users
@@ -63,15 +62,16 @@ public interface UsersRepositoryManagementMBean {
      *
      * @return Total count of existing users
      */
-    long countUsers();
+    long countUsers() throws UsersRepositoryException;
 
     /**
      * List the names of all users
      *
      *
      * @return List of all user names
+     * @throws UsersRepositoryException if error
      */
-    String[] listAllUsers();
+    String[] listAllUsers() throws UsersRepositoryException;
 
     /**
      * Set a user's password
@@ -79,38 +79,39 @@ public interface UsersRepositoryManagementMBean {
      *
      * @param userName The name of the user whose password will be changed
      * @param password The new password 
-     * @return if the user has been found and the password was changed successfully
+     * @throws UsersRepositoryException if error
      */
-    boolean setPassword(String userName, String password);
+    void setPassword(String userName, String password) throws UsersRepositoryException;
 
     /**
      * Removes a user's alias which terminates local mail forwarding
      *
      *
      * @param userName The name of the user whose alias is unset
-     * @return if the user has been found and the alias was removed
+     * @throws UsersRepositoryException if error
      */
     @Deprecated
-    boolean unsetAlias(String userName);
+    void unsetAlias(String userName) throws UsersRepositoryException;
 
     /**
      * Retrieves the user's alias, if set
      *
      *
      * @return User's alias, or NULL, if no alias is set
+     * @throws UsersRepositoryException if error
      */
     @Deprecated
-    String getAlias(String userName) ;
+    String getAlias(String userName) throws UsersRepositoryException;
 
     /**
      * Removes a user's forward email address which terminates remote mail forwarding
      *
      *
      * @param userName The name of the user whose forward is unset
-     * @return if the user has been found and the forward was removed
+     * @throws UsersRepositoryException if error
      */
     @Deprecated
-    boolean unsetForwardAddress(String userName);
+    void unsetForwardAddress(String userName) throws UsersRepositoryException;
 
     /**
      * Retrieves the user's forward, if set
@@ -118,15 +119,17 @@ public interface UsersRepositoryManagementMBean {
      *
      * @param userName The name of the user whose forward is set
      * @return User's forward email address, or NULL, if no forward is set
+     * @throws UsersRepositoryException if error
      */
     @Deprecated
-    String getForwardAddress(String userName);
+    String getForwardAddress(String userName) throws UsersRepositoryException;
 
 
     /**
      * Return true if the UserRepository has VirtualHosting enabled
      * 
      * @return virtual
+     * @throws UsersRepositoryException 
      */
-    public boolean getVirtualHostingEnabled();
+    public boolean getVirtualHostingEnabled() throws UsersRepositoryException;
 }

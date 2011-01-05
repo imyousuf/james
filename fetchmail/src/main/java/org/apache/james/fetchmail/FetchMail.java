@@ -44,6 +44,7 @@ import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 
 /**
  * <p>Class <code>FetchMail</code> is an Avalon task that is periodically
@@ -741,10 +742,14 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
      */
     protected Map<DynamicAccountKey, DynamicAccount>  computeDynamicAccounts() throws ConfigurationException
     {
-        Map<DynamicAccountKey, DynamicAccount>  newAccounts =
-            new HashMap<DynamicAccountKey, DynamicAccount> (
+        Map<DynamicAccountKey, DynamicAccount> newAccounts;
+        try {
+            newAccounts = new HashMap<DynamicAccountKey, DynamicAccount> (
                 getLocalUsers().countUsers()
                     * getParsedDynamicAccountParameters().size());
+        } catch (UsersRepositoryException e) {
+            throw new ConfigurationException("Unable to acces UsersRepository", e);
+        }
         Map<DynamicAccountKey, DynamicAccount>  oldAccounts = getDynamicAccountsBasic();
         if (null == oldAccounts)
             oldAccounts = new HashMap<DynamicAccountKey, DynamicAccount> (0);
@@ -820,8 +825,16 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
         ParsedDynamicAccountParameters parameters)
         throws ConfigurationException
     {
-        Map<DynamicAccountKey, DynamicAccount> accounts = new HashMap<DynamicAccountKey, DynamicAccount>(getLocalUsers().countUsers());
-        Iterator<String> usersIterator = getLocalUsers().list();
+        
+        Map<DynamicAccountKey, DynamicAccount> accounts;
+        Iterator<String> usersIterator;
+        try {
+            accounts = new HashMap<DynamicAccountKey, DynamicAccount>(getLocalUsers().countUsers());
+            usersIterator = getLocalUsers().list();
+
+        } catch (UsersRepositoryException e) {
+            throw new ConfigurationException("Unable to access UsersRepository", e);
+        }
         while (usersIterator.hasNext())
         {
             String userName = usersIterator.next();

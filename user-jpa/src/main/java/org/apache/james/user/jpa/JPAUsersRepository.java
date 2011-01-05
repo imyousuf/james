@@ -19,7 +19,6 @@
 
 package org.apache.james.user.jpa;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -27,12 +26,13 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.PersistenceUnit;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.User;
 import org.apache.james.user.jpa.model.JPAUser;
 import org.apache.james.user.lib.AbstractUsersRepository;
@@ -77,14 +77,16 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * 
      * @since James 1.2.2
      */
-    public User getUserByName(String name) {
+    public User getUserByName(String name) throws UsersRepositoryException{
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         try {
             return (JPAUser) entityManager.createNamedQuery("findUserByName").setParameter("name", name).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to find user", e);
-            return null;
+            throw new UsersRepositoryException("Unable to search user", e);
         } finally {
             entityManager.close();
         }    
@@ -98,8 +100,9 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * @param name
      *            the name to case-correct
      * @return the case-correct name of the user, null if the user doesn't exist
+     * @throws UsersRepositoryException 
      */
-    public String getRealName(String name) {
+    public String getRealName(String name) throws UsersRepositoryException {
         User u = getUserByName(name);
         if (u != null) {
             u.getUserName();
@@ -112,8 +115,9 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * this username must already exist.
      * 
      * @return true if successful.
+     * @throws UsersRepositoryException 
      */
-    public boolean updateUser(User user) {
+    public void updateUser(User user) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         final EntityTransaction transaction = entityManager.getTransaction();
@@ -124,18 +128,17 @@ public class JPAUsersRepository extends AbstractUsersRepository {
                 transaction.commit();
             } else {
                 getLogger().debug("User not found");
-                return false;
+                throw new UsersRepositoryException("User " + user.getUserName() + " not found");
             }
         } catch (PersistenceException e) {
             getLogger().debug("Failed to update user", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            return false;
+            throw new UsersRepositoryException("Failed to update user " + user.getUserName(), e);
         }finally {
             entityManager.close();
         }
-        return true;
     }
 
     /**
@@ -143,20 +146,26 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * 
      * @param name
      *            the user to remove from the repository
+     * @throws UsersRepositoryException 
      */
-    public void removeUser(String name) {
+    public void removeUser(String name) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            entityManager.createNamedQuery("deleteUserByName").setParameter("name", name).executeUpdate();
-            transaction.commit();
+            if( entityManager.createNamedQuery("deleteUserByName").setParameter("name", name).executeUpdate() < 1) {
+                transaction.commit();
+                throw new UsersRepositoryException("User " + name + " does not exist");
+            } else {
+                transaction.commit();
+            }
         } catch (PersistenceException e) {
             getLogger().debug("Failed to remove user", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new UsersRepositoryException("Failed to remove user " + name, e);
         } finally {
             entityManager.close();
         }
@@ -168,15 +177,16 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * @param name
      *            the name to check in the repository
      * @return whether the user is in the repository
+     * @throws UsersRepositoryException 
      */
-    public boolean contains(String name) {
+    public boolean contains(String name) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         try {
             return ((Long) entityManager.createNamedQuery("containsUser").setParameter("name", name).getSingleResult()).longValue() > 0;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to find user", e);
-            return false;
+            throw new UsersRepositoryException("Failed to find user" + name, e);
         } finally {
             entityManager.close();
         }
@@ -195,7 +205,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * 
      * @since James 1.2.2
      */
-    public boolean test(String name, String password) {
+    public boolean test(String name, String password) throws UsersRepositoryException{
         final User user = getUserByName(name);
         final boolean result;
         if (user == null) {
@@ -210,15 +220,16 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * Returns a count of the users in the repository.
      * 
      * @return the number of users in the repository
+     * @throws UsersRepositoryException 
      */
-    public int countUsers() {
+    public int countUsers() throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         try {
             return ((Long) entityManager.createNamedQuery("countUsers").getSingleResult()).intValue();
         } catch (PersistenceException e) {
             getLogger().debug("Failed to find user", e);
-            return 0;
+            throw new UsersRepositoryException("Failed to count users", e);
         } finally {
             entityManager.close();
         }
@@ -229,9 +240,10 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * 
      * @return Iterator over a collection of Strings, each being one user in the
      *         repository.
+     * @throws UsersRepositoryException 
      */
     @SuppressWarnings("unchecked")
-    public Iterator<String> list() {
+    public Iterator<String> list() throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         try {
@@ -239,7 +251,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
 
         } catch (PersistenceException e) {
             getLogger().debug("Failed to find user", e);
-            return new ArrayList<String>().iterator();
+            throw new UsersRepositoryException("Failed to list users", e);
         } finally {
             entityManager.close();
         }
@@ -252,6 +264,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      */
     public void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
         algo = config.getString("algorithm","MD5");
+        super.doConfigure(config);
     }
 
     /**
@@ -268,7 +281,7 @@ public class JPAUsersRepository extends AbstractUsersRepository {
      * (non-Javadoc)
      * @see org.apache.james.user.lib.AbstractUsersRepository#doAddUser(java.lang.String, java.lang.String)
      */
-    protected boolean doAddUser(String username, String password) {
+    protected void doAddUser(String username, String password) throws UsersRepositoryException {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -276,16 +289,15 @@ public class JPAUsersRepository extends AbstractUsersRepository {
             JPAUser user = new JPAUser(username, password, algo);
             entityManager.persist(user);
             transaction.commit();
-            return true;
         } catch (PersistenceException e) {
             getLogger().debug("Failed to save user", e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
+            throw new UsersRepositoryException("Failed to add user" + username, e);
         } finally {
             entityManager.close();
         }
-        return false;
     }
 
 }

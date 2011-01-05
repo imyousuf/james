@@ -30,6 +30,7 @@ import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.user.api.UsersRepository;
+import org.apache.james.user.api.UsersRepositoryException;
 
 public abstract class AbstractUsersRepository implements UsersRepository, LogEnabled, Configurable{
 
@@ -76,27 +77,30 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
         this.domainList = domainList;
     }
     
-    protected boolean isValidUsername(String username) throws DomainListException {
+    protected void isValidUsername(String username) throws  UsersRepositoryException {
         int i = username.indexOf("@");
         if (supportVirtualHosting()) {
             // need a @ in the username
             if (i == -1) {
-                return false;
+                throw new UsersRepositoryException("Given Username needs to contain a @domainpart");
             } else {
                 String domain = username.substring(i + 1);
-                if (domainList.containsDomain(domain) == false) {
-                    return false;
-                } else {
-                    return true;
+                try {
+                    if (domainList.containsDomain(domain) == false) {
+                        throw new UsersRepositoryException("Domain does not exist in DomainList");
+                    } else {
+                        return;
+                    }
+                } catch (DomainListException e) {
+                    throw new UsersRepositoryException("Unable to query DomainList", e);
                 }
             }
         } else {
             // @ only allowed when virtualhosting is supported
             if (i != -1) {
-                return false;
+                throw new UsersRepositoryException("Given Username contains a @domainpart but virtualhosting support is disabled");
             }
         }
-        return true;
     }
 
 
@@ -104,24 +108,22 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
      * (non-Javadoc)
      * @see org.apache.james.user.api.UsersRepository#addUser(java.lang.String, java.lang.String)
      */
-    public boolean addUser(String username, String password) {
-        
-        try {
-            if (contains(username) == false && isValidUsername(username)) {
-                return doAddUser(username, password);
-            }
-        } catch (DomainListException e) {
-            logger.error("Unable to access DomainList" ,e);
-            return false;
+    public void addUser(String username, String password) throws UsersRepositoryException {
+
+        if (contains(username) == false) {
+            isValidUsername(username);
+            doAddUser(username, password);
+        } else {
+            throw new UsersRepositoryException("User with username " + username + " already exist!");
         }
-        return false;
+
     }
 
     /*
      * (non-Javadoc)
      * @see org.apache.james.user.api.UsersRepository#supportVirtualHosting()
      */
-    public boolean supportVirtualHosting() {
+    public boolean supportVirtualHosting() throws UsersRepositoryException{
         return virtualHosting;
     }
     
@@ -132,5 +134,5 @@ public abstract class AbstractUsersRepository implements UsersRepository, LogEna
      * @param password
      * @return successful
      */
-    protected abstract boolean doAddUser(String username, String password);
+    protected abstract void doAddUser(String username, String password) throws UsersRepositoryException;
 }

@@ -37,6 +37,7 @@ import javax.mail.internet.ParseException;
 
 import org.apache.james.core.MailImpl;
 import org.apache.james.domainlist.api.DomainListException;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -336,7 +337,11 @@ public class MessageProcessor extends ProcessorAbstract
         // Set the filter states
         setBlacklistedRecipient(isBlacklistedRecipient(intendedRecipient));
         setRemoteRecipient(!isLocalServer(intendedRecipient));
-        setUserUndefined(!isLocalRecipient(intendedRecipient));
+        try {
+            setUserUndefined(!isLocalRecipient(intendedRecipient));
+        } catch (UsersRepositoryException e) {
+            throw new MessagingException("Unable to access USersRepository", e);
+        }
 
         // Apply the filters. Return if rejected
         if (isRejectBlacklisted() && isBlacklistedRecipient())
@@ -891,8 +896,9 @@ public class MessageProcessor extends ProcessorAbstract
      * Method isLocalRecipient.
      * @param recipient
      * @return boolean
+     * @throws UsersRepositoryException 
      */
-    protected boolean isLocalRecipient(MailAddress recipient)
+    protected boolean isLocalRecipient(MailAddress recipient) throws UsersRepositoryException
     {
         if (isLocalServer(recipient)) {
             // check if we use virtualhosting or not and use the right part of the recipient in respect of this
