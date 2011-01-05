@@ -19,14 +19,13 @@
 
 package org.apache.james.pop3server.core;
 
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * Adds extra dot if dot occurs in message body at beginning of line (according to RFC1939)
  */
-public class ExtraDotInputStream extends FilterInputStream{
+public class ExtraDotInputStream extends ReadByteFilterInputStream{
 
     byte[] buf = new byte[3];
     int pos = 0;
@@ -40,30 +39,7 @@ public class ExtraDotInputStream extends FilterInputStream{
         startLine = true;
     }
 
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        int i;
-        for (i = 0; i < len; i++) {
-            int a = read();
-            if (i == 0 && a == - 1) {
-                return -1;
-            } else {
-                if (a == -1) {
-                    break;
-                } else {
-                    b[off++] =  (byte) a;
-                }
-            }
-        }
-        return i;
-        
-    }
-
-    @Override
-    public int read(byte[] b) throws IOException {
-        return read(b, 0, b.length);
-    }
-
+  
     @Override
     public synchronized int read() throws IOException {
         if (end) return -1;
