@@ -26,7 +26,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.lib.UsersRepositoryManagement;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 
@@ -47,7 +46,7 @@ public class UsersRepositoryManagementTest extends TestCase {
 
    
 
-    public void testUserCount() throws UsersRepositoryException {
+    public void testUserCount() throws Exception {
         assertEquals("no user yet", 0, m_userManagement.countUsers());
         m_mockUsersRepository.addUser("testCount1", "testCount");
         assertEquals("1 user", 1, m_userManagement.countUsers());
@@ -59,7 +58,7 @@ public class UsersRepositoryManagementTest extends TestCase {
 
 
 
-    public void testAddUserAndVerify() throws UsersRepositoryException {
+    public void testAddUserAndVerify() throws Exception {
         m_mockUsersRepository.addUser("testCount1", "testCount");
         assertFalse("user not there", m_userManagement.verifyExists("testNotAdded"));
         assertTrue("user is there", m_userManagement.verifyExists("testCount1"));
@@ -67,7 +66,7 @@ public class UsersRepositoryManagementTest extends TestCase {
         assertFalse("user not there", m_userManagement.verifyExists("testCount1"));
     }
 
-    public void testDelUser() throws UsersRepositoryException {
+    public void testDelUser() throws Exception {
         m_mockUsersRepository.addUser("testDel", "test");
         assertFalse("user not there", m_userManagement.verifyExists("testNotDeletable"));
         assertTrue("user is there", m_userManagement.verifyExists("testDel"));
@@ -75,7 +74,7 @@ public class UsersRepositoryManagementTest extends TestCase {
         assertFalse("user no longer there", m_userManagement.verifyExists("testDel"));
     }
 
-    public void testListUsers() throws UsersRepositoryException {
+    public void testListUsers() throws Exception {
 
         String[] usersArray = new String[] {"ccc", "aaa", "dddd", "bbbbb"};
         List<String> users = Arrays.asList(usersArray);
@@ -95,7 +94,7 @@ public class UsersRepositoryManagementTest extends TestCase {
     }
 
     
-    public void testSetPassword() throws UsersRepositoryException {
+    public void testSetPassword() throws Exception {
 
         m_userManagement.addUser("testPwdUser", "pwd1");
 

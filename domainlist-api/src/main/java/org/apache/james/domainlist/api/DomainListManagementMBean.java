@@ -22,6 +22,49 @@ package org.apache.james.domainlist.api;
  * JMX MBean for DomainList
  *
  */
-public interface DomainListManagementMBean extends DomainList{
+public interface DomainListManagementMBean{
+    
+    /**
+     * Return array of domains which should be used as localdomains.
+     * Return null if no domain is found.
+     * 
+     * @return domains
+     */
+    public String[] getDomains() throws Exception;
+    
+    /**
+     * Return true if the domain exists in the service 
+     * 
+     * @param domain the domain
+     * @return true if the given domain exists in the service
+     */
+    public boolean containsDomain(String domain) throws Exception;
+
+    
+    /**
+     * Add domain to the service
+     * 
+     * @param domain domain to add
+     * @return true if successfull
+     */
+    public void addDomain(String domain) throws Exception;
+    
+    /**
+     * Remove domain from the service
+     *  
+     * @param domain domain to remove
+     * @return true if successfull
+     */
+    public void removeDomain(String domain) throws Exception;
+    
+    
+    
+    /**
+     * Return the default domain which will get used to deliver mail to if only the localpart
+     * was given on rcpt to.
+     * 
+     * @return the defaultdomain
+     */
+    public String getDefaultDomain() throws Exception;
     
 }

@@ -26,37 +26,62 @@ import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.domainlist.api.DomainListManagementMBean;
 
-public class DomainListManagement extends StandardMBean implements DomainListManagementMBean{
+public class DomainListManagement extends StandardMBean implements DomainListManagementMBean {
 
     private DomainList domainList;
 
     public DomainListManagement() throws NotCompliantMBeanException {
         super(DomainListManagementMBean.class);
     }
-    
-    @Resource(name="domainlist")
+
+    @Resource(name = "domainlist")
     public void setDomainList(DomainList domainList) {
         this.domainList = domainList;
-    }
-    
-    public void addDomain(String domain) throws DomainListException{
-        domainList.addDomain(domain);
+
     }
 
-    public boolean containsDomain(String domain) throws DomainListException{
-        return domainList.containsDomain(domain);
+    public void addDomain(String domain) throws Exception {
+        try {
+            domainList.addDomain(domain);
+        } catch (DomainListException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public String[] getDomains() throws DomainListException{
-        return domainList.getDomains();
+    public boolean containsDomain(String domain) throws Exception {
+        try {
+
+            return domainList.containsDomain(domain);
+        } catch (DomainListException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public void removeDomain(String domain) throws DomainListException{
-        domainList.removeDomain(domain);
+    public String[] getDomains() throws Exception {
+        try {
+
+            return domainList.getDomains();
+        } catch (DomainListException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public String getDefaultDomain() throws DomainListException{
-        return domainList.getDefaultDomain();
+    public void removeDomain(String domain) throws Exception {
+        try {
+
+            domainList.removeDomain(domain);
+        } catch (DomainListException e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public String getDefaultDomain() throws Exception {
+        try {
+
+            return domainList.getDefaultDomain();
+        } catch (DomainListException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
 }

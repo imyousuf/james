@@ -49,82 +49,159 @@ public class VirtualUserTableManagement extends StandardMBean implements Virtual
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#addRegexMapping(java.lang.String, java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTableManagementMBean#addRegexMapping
+     * (java.lang.String, java.lang.String, java.lang.String)
      */
-    public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
-        vut.addRegexMapping(user, domain, regex);
+    public void addRegexMapping(String user, String domain, String regex) throws Exception {
+        try {
+            vut.addRegexMapping(user, domain, regex);
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#removeRegexMapping(java.lang.String, java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTableManagementMBean#removeRegexMapping
+     * (java.lang.String, java.lang.String, java.lang.String)
      */
-    public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
-        vut.removeRegexMapping(user, domain, regex);
+    public void removeRegexMapping(String user, String domain, String regex) throws Exception {
+        try {
+
+            vut.removeRegexMapping(user, domain, regex);
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#addAddressMapping(java.lang.String, java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTableManagementMBean#addAddressMapping
+     * (java.lang.String, java.lang.String, java.lang.String)
      */
-    public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
-        vut.addAddressMapping(user, domain, address);
+    public void addAddressMapping(String user, String domain, String address) throws Exception {
+        try {
+
+            vut.addAddressMapping(user, domain, address);
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#removeAddressMapping(java.lang.String, java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTableManagementMBean#removeAddressMapping
+     * (java.lang.String, java.lang.String, java.lang.String)
      */
-    public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
-        vut.removeAddressMapping(user, domain, address);
+    public void removeAddressMapping(String user, String domain, String address) throws Exception {
+        try {
+
+            vut.removeAddressMapping(user, domain, address);
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#addErrorMapping(java.lang.String, java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTableManagementMBean#addErrorMapping
+     * (java.lang.String, java.lang.String, java.lang.String)
      */
-    public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
-        vut.addErrorMapping(user, domain, error);
+    public void addErrorMapping(String user, String domain, String error) throws Exception {
+        try {
+
+            vut.addErrorMapping(user, domain, error);
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#removeErrorMapping(java.lang.String, java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTableManagementMBean#removeErrorMapping
+     * (java.lang.String, java.lang.String, java.lang.String)
      */
-    public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
-        vut.removeErrorMapping(user, domain, error);
+    public void removeErrorMapping(String user, String domain, String error) throws Exception {
+        try {
+
+            vut.removeErrorMapping(user, domain, error);
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#getUserDomainMappings(java.lang.String, java.lang.String)
+     * 
+     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#
+     * getUserDomainMappings(java.lang.String, java.lang.String)
      */
-    public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException {
-        return vut.getUserDomainMappings(user, domain);
+    public Collection<String> getUserDomainMappings(String user, String domain) throws Exception {
+        try {
+
+            return vut.getUserDomainMappings(user, domain);
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#addMapping(java.lang.String, java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTableManagementMBean#addMapping(java
+     * .lang.String, java.lang.String, java.lang.String)
      */
-    public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException {
-        vut.addMapping(user, domain, mapping);
+    public void addMapping(String user, String domain, String mapping) throws Exception {
+        try {
+
+            vut.addMapping(user, domain, mapping);
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#removeMapping(java.lang.String, java.lang.String, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTableManagementMBean#removeMapping
+     * (java.lang.String, java.lang.String, java.lang.String)
      */
-    public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException {
-        vut.removeMapping(user, domain, mapping);
+    public void removeMapping(String user, String domain, String mapping) throws Exception {
+        try {
+
+            vut.removeMapping(user, domain, mapping);
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.vut.api.VirtualUserTableManagementMBean#getAllMappings()
+     * 
+     * @see
+     * org.apache.james.vut.api.VirtualUserTableManagementMBean#getAllMappings()
      */
-    public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException {
-        return vut.getAllMappings();
+    public Map<String, Collection<String>> getAllMappings() throws Exception {
+        try {
+
+            return vut.getAllMappings();
+        } catch (VirtualUserTableException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
 }

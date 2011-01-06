@@ -35,7 +35,7 @@ public interface UsersRepositoryManagementMBean {
      * @param userName The name of the user being added
      * @param password The password of the user being added
      */
-    void addUser(String userName, String password) throws UsersRepositoryException;
+    void addUser(String userName, String password) throws Exception;
 
     /**
      * Deletes a user from this mail server.
@@ -44,7 +44,7 @@ public interface UsersRepositoryManagementMBean {
      * @param userName The name of the user being deleted
      * @throws UsersRepositoryException if error
      */
-    void deleteUser(String userName) throws UsersRepositoryException;
+    void deleteUser(String userName) throws Exception;
 
     /**
      * Check if a user exists with the given name.
@@ -54,7 +54,7 @@ public interface UsersRepositoryManagementMBean {
      * @return TRUE, if the user exists
      * @throws UsersRepositoryException if error
      */
-    boolean verifyExists(String userName) throws UsersRepositoryException;
+    boolean verifyExists(String userName) throws Exception;
 
     /**
      * Total count of existing users
@@ -62,7 +62,7 @@ public interface UsersRepositoryManagementMBean {
      *
      * @return Total count of existing users
      */
-    long countUsers() throws UsersRepositoryException;
+    long countUsers() throws Exception;
 
     /**
      * List the names of all users
@@ -71,7 +71,7 @@ public interface UsersRepositoryManagementMBean {
      * @return List of all user names
      * @throws UsersRepositoryException if error
      */
-    String[] listAllUsers() throws UsersRepositoryException;
+    String[] listAllUsers() throws Exception;
 
     /**
      * Set a user's password
@@ -81,7 +81,7 @@ public interface UsersRepositoryManagementMBean {
      * @param password The new password 
      * @throws UsersRepositoryException if error
      */
-    void setPassword(String userName, String password) throws UsersRepositoryException;
+    void setPassword(String userName, String password) throws Exception;
 
     /**
      * Removes a user's alias which terminates local mail forwarding
@@ -91,7 +91,7 @@ public interface UsersRepositoryManagementMBean {
      * @throws UsersRepositoryException if error
      */
     @Deprecated
-    void unsetAlias(String userName) throws UsersRepositoryException;
+    void unsetAlias(String userName) throws Exception;
 
     /**
      * Retrieves the user's alias, if set
@@ -101,7 +101,7 @@ public interface UsersRepositoryManagementMBean {
      * @throws UsersRepositoryException if error
      */
     @Deprecated
-    String getAlias(String userName) throws UsersRepositoryException;
+    String getAlias(String userName) throws Exception;
 
     /**
      * Removes a user's forward email address which terminates remote mail forwarding
@@ -111,7 +111,7 @@ public interface UsersRepositoryManagementMBean {
      * @throws UsersRepositoryException if error
      */
     @Deprecated
-    void unsetForwardAddress(String userName) throws UsersRepositoryException;
+    void unsetForwardAddress(String userName) throws Exception;
 
     /**
      * Retrieves the user's forward, if set
@@ -122,7 +122,7 @@ public interface UsersRepositoryManagementMBean {
      * @throws UsersRepositoryException if error
      */
     @Deprecated
-    String getForwardAddress(String userName) throws UsersRepositoryException;
+    String getForwardAddress(String userName) throws Exception;
 
 
     /**
@@ -131,5 +131,6 @@ public interface UsersRepositoryManagementMBean {
      * @return virtual
      * @throws UsersRepositoryException 
      */
-    public boolean getVirtualHostingEnabled() throws UsersRepositoryException;
+    public boolean getVirtualHostingEnabled() throws Exception;
+
 }
