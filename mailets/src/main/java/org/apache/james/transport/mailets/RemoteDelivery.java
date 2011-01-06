@@ -306,14 +306,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
         queue = queueFactory.getQueue(outgoing);
         
-        // Start Workers Threads.
-        workersThreadCount = Integer.parseInt(getInitParameter("deliveryThreads"));
-        for (int i = 0; i < workersThreadCount; i++) {
-            String threadName = "Remote delivery thread (" + i + ")";
-            Thread t = new Thread(this, threadName);
-            t.start();
-            workersThreads.add(t);
-        }
+
 
         try {
             if (getInitParameter("timeout") != null) {
@@ -388,8 +381,19 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         
         heloName = getInitParameter("heloName");
 
+        // Start Workers Threads.
+        workersThreadCount = Integer.parseInt(getInitParameter("deliveryThreads"));
+        initDeliveryThreads();
     }
 
+    private void initDeliveryThreads() {
+        for (int a = 0; a < workersThreadCount; a++) {
+            String threadName = "Remote delivery thread (" + a + ")";
+            Thread t = new Thread(this, threadName);
+            t.start();
+            workersThreads.add(t);
+        }
+    }
     /**
      * Calculates Total no. of attempts for the specified delayList.
      * 
@@ -714,6 +718,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
                     Mail mail = queueItem.getMail();
                     
                     String key = mail.getName();
+                    
                     try {
                         if (isDebug) {
                             String message = Thread.currentThread().getName()
