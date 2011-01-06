@@ -31,7 +31,30 @@ public class CRLFTerminatedInputStreamTest extends TestCase{
 
     public void testCRLFPresent() throws IOException {
         String data = "Subject: test\r\n\r\ndata\r\n";
-        CRLFTerminatedInputStream in = new CRLFTerminatedInputStream(new ByteArrayInputStream(data.getBytes()));
+        check(data, data);
+        checkWithArray(data, data);
+
+    }
+    
+    
+    public void testCRPresent() throws IOException {
+        String data = "Subject: test\r\n\r\ndata\r";
+        String expected = data + "\n";
+        check(data, expected);
+        checkWithArray(data, expected);
+    }
+    
+    public void testNonPresent() throws IOException {
+        String data = "Subject: test\r\n\r\ndata";
+        String expected = data + "\r\n";
+        check(data, expected);
+        checkWithArray(data, expected);
+
+    }
+    
+    
+    private void check(String source, String expected) throws IOException {
+        CRLFTerminatedInputStream in = new CRLFTerminatedInputStream(new ByteArrayInputStream(source.getBytes()));
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         
@@ -43,6 +66,24 @@ public class CRLFTerminatedInputStreamTest extends TestCase{
         out.close();
         
         String output = new String(out.toByteArray());
-        assertEquals(data, output);
+        assertEquals(expected, output);
+    }
+    
+    private void checkWithArray(String source, String expected) throws IOException {
+        CRLFTerminatedInputStream in = new CRLFTerminatedInputStream(new ByteArrayInputStream(source.getBytes()));
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        
+        byte[] buf = new byte[1024];
+        int i = 0;
+        while ((i = in.read(buf)) != -1) {
+            out.write(buf, 0, i);
+        }
+
+        in.close();
+        out.close();
+        
+        String output = new String(out.toByteArray());
+        assertEquals(expected, output);
     }
 }

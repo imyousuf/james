@@ -128,7 +128,7 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                             bodyIn = createInputStream(content);
                         }
                         // write body
-                        session.writeStream(new CountingBodyInputStream(bodyIn, lines));
+                        session.writeStream(new CountingBodyInputStream(new CRLFTerminatedInputStream(bodyIn), lines));
 
                     } finally {
                         // write a single dot to mark message as complete

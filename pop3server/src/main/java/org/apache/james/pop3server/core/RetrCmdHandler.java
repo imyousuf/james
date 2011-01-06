@@ -88,7 +88,9 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                         } else {
                             in = createInputStream(content);
                         }
-                        session.writeStream(new ExtraDotInputStream(in));
+                        //session.writeStream(new ExtraDotInputStream(in));
+                        session.writeStream(new ExtraDotInputStream(new CRLFTerminatedInputStream(in)));
+
                     } finally {                         
                         // write a single dot to mark message as complete
                         session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
