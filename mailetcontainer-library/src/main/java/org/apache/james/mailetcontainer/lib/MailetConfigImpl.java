@@ -22,6 +22,7 @@
 package org.apache.james.mailetcontainer.lib;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
 
@@ -84,6 +85,7 @@ public class MailetConfigImpl implements MailetConfig {
         while (it.hasNext()) {
             String param = it.next();
             if ((param.startsWith("[@") && param.endsWith("]")) == false) {
+                
                 params.add(param);
             }
         }
@@ -124,8 +126,23 @@ public class MailetConfigImpl implements MailetConfig {
      *
      * @param newConfiguration the new Configuration for the mailet
      */
+    @SuppressWarnings("unchecked")
     public void setConfiguration(Configuration newConfiguration) {
-        configuration = newConfiguration;
+        DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
+        Iterator<String> keys = newConfiguration.getKeys();
+        while(keys.hasNext()) {
+            String key = keys.next();
+            String value = newConfiguration.getString(key);
+            // See JAMES-1177
+            // Need to replace ".." with "." 
+            // See http://commons.apache.org/configuration/userguide-1.2/howto_xml.html 
+            // Escaping dot characters in XML tags
+            key = key.replaceAll("\\.\\.", "\\.");
+            builder.addProperty(key, value);
+        }
+     
+        
+        configuration = builder;
     }
 
     /**
