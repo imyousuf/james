@@ -41,7 +41,7 @@ public class ActiveMQMailQueueFactory extends JMSMailQueueFactory {
 
     
     @Override
-    protected MailQueue createMailQueue(String name, boolean useJMX) {
+    protected MailQueue createMailQueue(String name) {
         return new ActiveMQMailQueue(connectionFactory, name, useBlob, log);  
     }
 }

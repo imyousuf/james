@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.queue.jms;
+package org.apache.james.queue.library;
 
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
@@ -32,10 +32,10 @@ import org.apache.james.queue.api.ManageableMailQueue.Type;
  * 
  *
  */
-public class JMSMailQueueManagement extends StandardMBean implements MailQueueManagementMBean{
+public class MailQueueManagement extends StandardMBean implements MailQueueManagementMBean{
     private final ManageableMailQueue queue;
 
-    public JMSMailQueueManagement(ManageableMailQueue queue) throws NotCompliantMBeanException {
+    public MailQueueManagement(ManageableMailQueue queue) throws NotCompliantMBeanException {
         super(MailQueueManagementMBean.class);
         this.queue = queue;
         

@@ -18,136 +18,35 @@
  ****************************************************************/
 package org.apache.james.queue.jms;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.jms.ConnectionFactory;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.james.lifecycle.api.LifecycleUtil;
-import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
-import org.apache.james.queue.api.MailQueueManagementMBean;
-import org.apache.james.queue.api.ManageableMailQueue;
+import org.apache.james.queue.library.AbstractMailQueueFactory;
 
 /**
  * {@link MailQueueFactory} implementation which use JMS
  * 
  *
  */
-public class JMSMailQueueFactory implements MailQueueFactory, LogEnabled{
-
+public class JMSMailQueueFactory extends AbstractMailQueueFactory{
     
-    
-    protected final Map<String, MailQueue> queues = new HashMap<String, MailQueue>();
     protected ConnectionFactory connectionFactory;
-    protected Log log;
-    private boolean useJMX = true;
-    private MBeanServer mbeanServer;
-    private List<String> mbeans = new ArrayList<String>();
     
-    public void setUseJMX(boolean useJMX) {
-        this.useJMX = useJMX;
-    }
-    
-    @PostConstruct
-    public void init() {
-        mbeanServer = ManagementFactory.getPlatformMBeanServer(); 
-    }
-    
-    @PreDestroy
-    public void destroy() {
-        for (int i = 0; i < mbeans.size(); i++) {
-            unregisterMBean(mbeans.get(i));
-        }
-        
-        Iterator<MailQueue> it = queues.values().iterator();
-        while(it.hasNext()) {
-            LifecycleUtil.dispose(it.next());
-        }
-
-    }
+  
     
     @Resource(name="jmsConnectionFactory")
     public void setConnectionFactory(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
-    
+
+
     /*
-     * 
      * (non-Javadoc)
-     * @see org.apache.james.queue.activemq.MailQueueFactory#getQueue(java.lang.String)
+     * @see org.apache.james.queue.library.AbstractMailQueueFactory#createMailQueue(java.lang.String)
      */
-    public synchronized final MailQueue getQueue(String name) {
-        MailQueue queue = queues.get(name);
-        if (queue == null) {
-            queue = createMailQueue(name, useJMX);
-            if (useJMX) {
-                registerMBean(name, queue);
-             
-            }
-            queues.put(name, queue);
-        }
-
-        return queue;
-    }
-
-
-    /**
-     * Create a {@link MailQueue} for the given name
-     * 
-     * @param name
-     * @return queue
-     */
-    protected MailQueue createMailQueue(String name, boolean useJMX) {
+    protected MailQueue createMailQueue(String name) {
         return new JMSMailQueue(connectionFactory, name, log);
-    }
-
-    protected synchronized void registerMBean(String queuename, MailQueue queue) {
-        
-        String mbeanName = "org.apache.james:type=component,name=queue,queue=" + queuename;
-        try {
-            MailQueueManagementMBean mbean = null;
-            if (queue instanceof ManageableMailQueue) {
-                mbean = new JMSMailQueueManagement((ManageableMailQueue)queue);
-            } else if (queue instanceof MailQueueManagementMBean) {
-                mbean = (MailQueueManagementMBean) queue;
-            }
-            if (mbean != null) {
-                mbeanServer.registerMBean(mbean, new ObjectName(mbeanName));
-                mbeans.add(mbeanName);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to register mbean" , e);
-        }
-        
-    }
-    
-    protected synchronized void unregisterMBean(String mbeanName){
-        try {
-            mbeanServer.unregisterMBean(new ObjectName(mbeanName));
-            mbeans.remove(mbeanName);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to unregister mbean" , e);
-        }
-        
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
-     */
-    public void setLog(Log log) {
-        this.log = log;
     }
 }

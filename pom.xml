@@ -63,6 +63,7 @@
     <module>repository-file</module>
     <module>smtpserver</module>
     <module>queue-api</module>
+    <module>queue-library</module>
     <module>queue-jms</module>
     <module>queue-activemq</module>
     <module>user-api</module>
@@ -296,6 +297,12 @@
       <artifactId>james-server-repository-file</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-queue-library</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-queue-api</artifactId>
