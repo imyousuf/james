@@ -24,8 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.mail.MessagingException;
-
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
@@ -73,7 +72,7 @@ public class StatCmdHandler implements CommandHandler<POP3Session> {
                 }
                 StringBuilder responseBuffer = new StringBuilder(32).append(count).append(" ").append(size);
                 response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
-            } catch (MessagingException me) {
+            } catch (MailboxException me) {
                 response = new POP3Response(POP3Response.ERR_RESPONSE);
             }
         } else {

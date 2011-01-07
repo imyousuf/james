@@ -33,6 +33,7 @@ import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
 import org.apache.james.lifecycle.api.LifecycleUtil;
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxSession;
@@ -173,11 +174,12 @@ public class DataLineLMTPMessageHookHandler implements DataLineFilter {
 
             } catch (MessagingException e) {
                 session.getLogger().info("Unexpected error handling DATA stream", e);
-
+                response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Temporary error deliver message to " + recipient);
+            } catch (MailboxException e) {
+                session.getLogger().info("Unexpected error handling DATA stream", e);
                 response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Temporary error deliver message to " + recipient);
             } catch (UsersRepositoryException e) {
                 session.getLogger().info("Unexpected error handling DATA stream", e);
-
                 response = new SMTPResponse(SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Temporary error deliver message to " + recipient);
             }
             session.writeResponse(response);

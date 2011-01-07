@@ -24,13 +24,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.mail.MessagingException;
-
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
-import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
@@ -116,7 +114,7 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
                 } catch (NumberFormatException nfe) {
                     StringBuilder responseBuffer = new StringBuilder(64).append(parameters).append(" is not a valid number");
                     response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
-                } catch (MessagingException me) {
+                } catch (MailboxException me) {
                     response = new POP3Response(POP3Response.ERR_RESPONSE);
                 }
             }

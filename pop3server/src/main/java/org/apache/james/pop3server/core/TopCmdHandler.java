@@ -32,10 +32,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.mail.MessagingException;
-
 import org.apache.james.mailbox.Content;
 import org.apache.james.mailbox.InputStreamContent;
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
@@ -144,7 +143,7 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                 }
             } catch (IOException ioe) {
                 response = new POP3Response(POP3Response.ERR_RESPONSE, "Error while retrieving message.");
-            } catch (MessagingException me) {
+            } catch (MailboxException me) {
                 response = new POP3Response(POP3Response.ERR_RESPONSE, "Error while retrieving message.");
             } catch (IndexOutOfBoundsException iob) {
                 StringBuilder exceptionBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");

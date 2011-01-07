@@ -26,7 +26,9 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.core.MimeMessageInputStream;
+import org.apache.james.mailbox.BadCredentialsException;
 import org.apache.james.mailbox.MailboxConstants;
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxSession;
@@ -153,7 +155,14 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
                         throw new MessagingException("Unable to accessUsersRepository", e);
                     }
 
-                    final MailboxSession session = mailboxManager.createSystemSession(user, new MailetContextLog(getMailetContext()));
+                    MailboxSession session;
+                    try {
+                        session = mailboxManager.createSystemSession(user, new MailetContextLog(getMailetContext()));
+                    } catch (BadCredentialsException e) {
+                        throw new MessagingException("Unable to authenticate to mailbox", e);
+                    } catch (MailboxException e) {
+                        throw new MessagingException("Can not access mailbox", e);
+                    }
 
                     // start processing request
                     mailboxManager.startProcessingRequest(session);
@@ -179,9 +188,15 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
                         }
 
                         mailbox.appendMessage(new MimeMessageInputStream(mail), new Date(), session, true, null);
+                    } catch (MailboxException e) {
+                        throw new MessagingException("Unable to access mailbox.", e);
                     } finally {
                         session.close();
-                        mailboxManager.logout(session, true);
+                        try {
+                            mailboxManager.logout(session, true);
+                        } catch (MailboxException e) {
+                            throw new MessagingException("Can logout from mailbox", e);
+                        }
 
                         // stop processing request
                         mailboxManager.endProcessingRequest(session);

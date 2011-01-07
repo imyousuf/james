@@ -29,7 +29,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.mail.Flags;
-import javax.mail.MessagingException;
 
 import junit.framework.TestCase;
 
@@ -37,21 +36,22 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.commons.net.pop3.POP3Reply;
+import org.apache.james.dnsservice.api.DNSService;
+import org.apache.james.dnsservice.api.mock.MockDNSService;
+import org.apache.james.filesystem.api.mock.MockFileSystem;
+import org.apache.james.mailbox.MailboxConstants;
+import org.apache.james.mailbox.MailboxException;
+import org.apache.james.mailbox.MailboxPath;
+import org.apache.james.mailbox.MailboxSession;
+import org.apache.james.mailbox.MessageManager;
+import org.apache.james.mailbox.inmemory.InMemoryMailboxManager;
+import org.apache.james.mailbox.inmemory.InMemoryMailboxSessionMapperFactory;
+import org.apache.james.mailbox.inmemory.mail.InMemoryCachingUidProvider;
+import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.pop3server.netty.POP3Server;
 import org.apache.james.server.PortUtil;
 import org.apache.james.server.mock.MockJSR250Loader;
 import org.apache.james.server.mock.MockProtocolHandlerChain;
-import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.dnsservice.api.mock.MockDNSService;
-import org.apache.james.filesystem.api.mock.MockFileSystem;
-import org.apache.james.mailbox.inmemory.InMemoryMailboxManager;
-import org.apache.james.mailbox.inmemory.InMemoryMailboxSessionMapperFactory;
-import org.apache.james.mailbox.inmemory.mail.InMemoryCachingUidProvider;
-import org.apache.james.mailbox.MailboxPath;
-import org.apache.james.mailbox.MessageManager;
-import org.apache.james.mailbox.MailboxConstants;
-import org.apache.james.mailbox.MailboxSession;
-import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.lib.mock.MockUsersRepository;
 import org.apache.james.util.POP3BeforeSMTPHelper;
@@ -438,9 +438,7 @@ public class POP3ServerTest extends TestCase {
         manager.deleteMailbox(mailboxPath, session);
     }
 
-    private void setupTestMails(MailboxSession session, MessageManager mailbox) throws MessagingException {
-       
-        
+    private void setupTestMails(MailboxSession session, MessageManager mailbox) throws MailboxException {
         mailbox.appendMessage(new ByteArrayInputStream(content), new Date(), session, true, new Flags());
         byte[] content2 = ("EMPTY").getBytes();
         mailbox.appendMessage(new ByteArrayInputStream(content2), new Date(), session, true, new Flags());

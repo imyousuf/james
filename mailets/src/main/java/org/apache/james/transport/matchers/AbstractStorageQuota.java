@@ -27,6 +27,8 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.mailbox.BadCredentialsException;
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.mailbox.MailboxConstants;
@@ -93,95 +95,104 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      */    
     protected long getUsed(MailAddress recipient, Mail _) throws MessagingException {
         long size = 0;
-        MailboxSession session = manager.createSystemSession(getPrimaryName(recipient.getLocalPart()), new Log() {
+        MailboxSession session;
+        try {
+            session = manager.createSystemSession(getPrimaryName(recipient.getLocalPart()), new Log() {
 
-			public void debug(Object arg0) {
-				// just consume 				
-			}
+            	public void debug(Object arg0) {
+            		// just consume 				
+            	}
 
-			public void debug(Object arg0, Throwable arg1) {
-				// just consume 
-			}
+            	public void debug(Object arg0, Throwable arg1) {
+            		// just consume 
+            	}
 
-			public void error(Object arg0) {
-				log(arg0.toString());
+            	public void error(Object arg0) {
+            		log(arg0.toString());
 
-			}
+            	}
 
-			public void error(Object arg0, Throwable arg1) {
-				log(arg0.toString(),arg1);
-			}
+            	public void error(Object arg0, Throwable arg1) {
+            		log(arg0.toString(),arg1);
+            	}
 
-			public void fatal(Object arg0) {
-				log(arg0.toString());
-			}
+            	public void fatal(Object arg0) {
+            		log(arg0.toString());
+            	}
 
-			public void fatal(Object arg0, Throwable arg1) {
-				log(arg0.toString(), arg1);				
-			}
+            	public void fatal(Object arg0, Throwable arg1) {
+            		log(arg0.toString(), arg1);				
+            	}
 
-			public void info(Object arg0) {
-				log(arg0.toString());
-			}
+            	public void info(Object arg0) {
+            		log(arg0.toString());
+            	}
 
-			public void info(Object arg0, Throwable arg1) {
-				log(arg0.toString(), arg1);
-				
-			}
+            	public void info(Object arg0, Throwable arg1) {
+            		log(arg0.toString(), arg1);
+            		
+            	}
 
-			public boolean isDebugEnabled() {
-				return false;
-			}
+            	public boolean isDebugEnabled() {
+            		return false;
+            	}
 
-			public boolean isErrorEnabled() {
-				return true;
-			}
+            	public boolean isErrorEnabled() {
+            		return true;
+            	}
 
-			public boolean isFatalEnabled() {
-				return true;
-			}
+            	public boolean isFatalEnabled() {
+            		return true;
+            	}
 
-			public boolean isInfoEnabled() {
-				return true;
-			}
+            	public boolean isInfoEnabled() {
+            		return true;
+            	}
 
-			public boolean isTraceEnabled() {
-				return false;
-			}
+            	public boolean isTraceEnabled() {
+            		return false;
+            	}
 
-			public boolean isWarnEnabled() {
-				return true;
-			}
+            	public boolean isWarnEnabled() {
+            		return true;
+            	}
 
-			public void trace(Object arg0) {
-				// just consume 				
-			}
+            	public void trace(Object arg0) {
+            		// just consume 				
+            	}
 
-			public void trace(Object arg0, Throwable arg1) {
-				// just consume 				
-			}
+            	public void trace(Object arg0, Throwable arg1) {
+            		// just consume 				
+            	}
 
-			public void warn(Object arg0) {
-				log(arg0.toString());
-			}
+            	public void warn(Object arg0) {
+            		log(arg0.toString());
+            	}
 
-			public void warn(Object arg0, Throwable arg1) {
-				log(arg0.toString(), arg1);
-			}
-        	
-        });
-        manager.startProcessingRequest(session);
-        MessageManager mailbox = manager.getMailbox(new MailboxPath(MailboxConstants.USER_NAMESPACE,
-                                            session.getUser().getUserName(), "INBOX"),
-                                            session);
-        Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);
-        
-        while (results.hasNext()) {
-        	size += results.next().getSize();
+            	public void warn(Object arg0, Throwable arg1) {
+            		log(arg0.toString(), arg1);
+            	}
+            	
+            });
+            manager.startProcessingRequest(session);
+            MessageManager mailbox = manager.getMailbox(new MailboxPath(MailboxConstants.USER_NAMESPACE,
+                                                session.getUser().getUserName(), "INBOX"),
+                                                session);
+            Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);
+            
+            while (results.hasNext()) {
+            	size += results.next().getSize();
+            }
+            manager.endProcessingRequest(session);
+            manager.logout(session, true);
+        } catch (BadCredentialsException e) {
+            throw new MessagingException("Unable to authenticate to mailbox", e);
+        } catch (MailboxException e) {
+            throw new MessagingException("Unable to get used space from mailbox", e);
         }
-        manager.endProcessingRequest(session);
-        manager.logout(session, true);
+
         return size;
+
     }
 
     /**

@@ -24,8 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.mail.MessagingException;
-
+import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
 import org.apache.james.mailbox.MessageResult;
@@ -77,7 +76,7 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
             }
             session.getState().put(POP3Session.UID_LIST, uids);
             session.getState().put(POP3Session.DELETED_UID_LIST, new ArrayList<Long>());
-        } catch (MessagingException e) {
+        } catch (MailboxException e) {
             // In the event of an exception being thrown there may or may not be
             // anything in userMailbox
             session.getLogger().error("Unable to STAT mail box ", e);
