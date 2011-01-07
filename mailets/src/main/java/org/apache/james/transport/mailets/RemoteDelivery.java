@@ -21,7 +21,6 @@
 
 package org.apache.james.transport.mailets;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.domainlist.api.DomainList;
@@ -32,6 +31,7 @@ import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.api.MailQueue.MailQueueException;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
 import org.apache.james.util.MXHostAddressIterator;
+import org.apache.james.util.MailetContextLog;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.HostAddress;
@@ -194,7 +194,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private String heloName;
 
-    private final Log logAdapter = new MailetLog();
+    private MailetContextLog logAdapter;
     
     
     
@@ -229,6 +229,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         // Set isDebug flag.
         isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
 
+        logAdapter = new MailetContextLog(getMailetContext(), isDebug);
+        
         // Create list of Delay Times.
         ArrayList<Delay> delayTimesList = new ArrayList<Delay>();
         try {
@@ -1578,91 +1580,4 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
     }
   
-    private final class MailetLog implements Log {
-
-        public void debug(Object arg0) {
-            if (isDebug) {
-                log(arg0.toString());
-            }
-        }
-
-        public void debug(Object arg0, Throwable arg1) {
-            if (isDebug) {
-                log(arg0.toString(), arg1);
-            }            
-        }
-
-        public void error(Object arg0) {
-            log(arg0.toString());
-            
-        }
-
-        public void error(Object arg0, Throwable arg1) {
-            log(arg0.toString(), arg1);
-            
-        }
-
-        public void fatal(Object arg0) {
-            log(arg0.toString());
-            
-        }
-
-        public void fatal(Object arg0, Throwable arg1) {
-            log(arg0.toString(), arg1);
-            
-        }
-
-        public void info(Object arg0) {
-            log(arg0.toString());
-            
-        }
-
-        public void info(Object arg0, Throwable arg1) {
-            log(arg0.toString(), arg1);
-            
-        }
-
-        public boolean isDebugEnabled() {
-            return isDebug;
-        }
-
-        public boolean isErrorEnabled() {
-            return true;
-        }
-
-        public boolean isFatalEnabled() {
-            return true;
-        }
-
-        public boolean isInfoEnabled() {
-            return true;
-
-        }
-
-        public boolean isTraceEnabled() {
-            return false;
-        }
-
-        public boolean isWarnEnabled() {
-            return true;
-        }
-
-        public void trace(Object arg0) {            
-        }
-
-        public void trace(Object arg0, Throwable arg1) {
-            
-        }
-
-        public void warn(Object arg0) {
-            log(arg0.toString());
-            
-        }
-
-        public void warn(Object arg0, Throwable arg1) {
-            log(arg0.toString(), arg1);
-            
-        }
-        
-    }
 }

@@ -25,7 +25,6 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.mailbox.MailboxConstants;
 import org.apache.james.mailbox.MailboxManager;
@@ -34,6 +33,7 @@ import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
+import org.apache.james.util.MailetContextLog;
 import org.apache.jsieve.mailet.Poster;
 import org.apache.jsieve.mailet.SieveMailboxMailet;
 import org.apache.mailet.Mail;
@@ -153,7 +153,7 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
                         throw new MessagingException("Unable to accessUsersRepository", e);
                     }
 
-                    final MailboxSession session = mailboxManager.createSystemSession(user, new MailetLog());
+                    final MailboxSession session = mailboxManager.createSystemSession(user, new MailetContextLog(getMailetContext()));
 
                     // start processing request
                     mailboxManager.startProcessingRequest(session);
@@ -196,87 +196,4 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
             }
         }
     }
-
-    private final class MailetLog implements Log {
-
-        public void debug(Object arg0) {
-
-        }
-
-        public void debug(Object arg0, Throwable arg1) {
-        }
-
-        public void error(Object arg0) {
-            log(arg0.toString());
-        }
-
-        public void error(Object arg0, Throwable arg1) {
-            log(arg0.toString(), arg1);
-
-        }
-
-        public void fatal(Object arg0) {
-            log(arg0.toString());
-
-        }
-
-        public void fatal(Object arg0, Throwable arg1) {
-            log(arg0.toString(), arg1);
-
-        }
-
-        public void info(Object arg0) {
-            log(arg0.toString());
-
-        }
-
-        public void info(Object arg0, Throwable arg1) {
-            log(arg0.toString(), arg1);
-
-        }
-
-        public boolean isDebugEnabled() {
-            return false;
-        }
-
-        public boolean isErrorEnabled() {
-            return true;
-        }
-
-        public boolean isFatalEnabled() {
-            return true;
-        }
-
-        public boolean isInfoEnabled() {
-            return true;
-        }
-
-        public boolean isTraceEnabled() {
-            return false;
-        }
-
-        public boolean isWarnEnabled() {
-            return true;
-        }
-
-        public void trace(Object arg0) {
-
-        }
-
-        public void trace(Object arg0, Throwable arg1) {
-
-        }
-
-        public void warn(Object arg0) {
-            log(arg0.toString());
-
-        }
-
-        public void warn(Object arg0, Throwable arg1) {
-            log(arg0.toString(), arg1);
-
-        }
-
-    }
-
 }
