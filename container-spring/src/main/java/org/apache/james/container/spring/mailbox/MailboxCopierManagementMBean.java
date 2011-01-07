@@ -18,10 +18,8 @@
  ****************************************************************/
 package org.apache.james.container.spring.mailbox;
 
-import java.io.IOException;
 import java.util.Map;
 
-import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
 
 /**
@@ -46,6 +44,6 @@ public interface MailboxCopierManagementMBean {
      * @param dstBean
      * @return true if successful, false otherwise
      */
-    void copy(String srcBean, String dstBean) throws MailboxException, IOException;
+    void copy(String srcBean, String dstBean) throws Exception;
     
 }

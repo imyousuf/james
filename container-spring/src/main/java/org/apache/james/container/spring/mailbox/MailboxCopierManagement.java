@@ -62,6 +62,7 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
             String name = beans.get(key).getClass().getName();
             bMap.put(key, name);
         }
+        
         return bMap;
     }
 
@@ -69,12 +70,19 @@ public class MailboxCopierManagement implements MailboxCopierManagementMBean, Ap
      * (non-Javadoc)
      * @see org.apache.james.container.spring.mailbox.MailboxCopierManagementMBean#copy(java.lang.String, java.lang.String)
      */
-    public void copy(String srcBean, String dstBean) throws MailboxException, IOException {
+    public void copy(String srcBean, String dstBean) throws Exception {
         if (srcBean.equals(dstBean)) throw new IllegalArgumentException("srcBean and dstBean can not have the same name!");
-        copier.copyMailboxes(context.getBean(srcBean, MailboxManager.class), context.getBean(dstBean, MailboxManager.class));
+        try {
+            copier.copyMailboxes(context.getBean(srcBean, MailboxManager.class), context.getBean(dstBean, MailboxManager.class));
+        } catch (BeansException e) {
+            throw new Exception(e.getMessage());
+        } catch (MailboxException e) {
+            throw new Exception(e.getMessage());
+        } catch (IOException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    
     /*
      * (non-Javadoc)
      * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
