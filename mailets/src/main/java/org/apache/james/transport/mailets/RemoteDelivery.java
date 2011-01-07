@@ -21,6 +21,7 @@
 
 package org.apache.james.transport.mailets;
 
+import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.domainlist.api.DomainList;
@@ -30,6 +31,7 @@ import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.api.MailQueue.MailQueueException;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
+import org.apache.james.util.MXHostAddressIterator;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.HostAddress;
@@ -60,7 +62,6 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.ConnectException;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -193,6 +194,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
     private String heloName;
 
+    private final Log logAdapter = new MailetLog();
+    
     
     
     @Resource(name="mailqueuefactory")
@@ -1556,72 +1559,9 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * @return an Iterator over HostAddress instances, sorted by priority
      */
     private Iterator<HostAddress> getGatewaySMTPHostAddresses(final Collection<String> gatewayServers) {
-        return new Iterator<HostAddress>() {
-            private Iterator<String> gateways = gatewayServers.iterator();
-            private Iterator<HostAddress> addresses = null;
+        Iterator<String> gateways = gatewayServers.iterator();
 
-            public boolean hasNext() {
-                /* Make sure that when next() is called, that we can
-                 * provide a HostAddress.  This means that we need to
-                 * have an inner iterator, and verify that it has
-                 * addresses.  We could, for example, run into a
-                 * situation where the next gateway didn't have any
-                 * valid addresses.
-                 */
-                if (!hasNextAddress() && gateways.hasNext()) {
-                    do {
-                        String server = (String) gateways.next();
-                        String port = "25";
-
-                        int idx = server.indexOf(':');
-                        if ( idx > 0) {
-                            port = server.substring(idx+1);
-                            server = server.substring(0,idx);
-                        }
-
-                        final String nextGateway = server;
-                        final String nextGatewayPort = port;
-                        try {
-                            final InetAddress[] ips = dnsServer.getAllByName(nextGateway);
-                            addresses = new Iterator<HostAddress>() {
-                                private InetAddress[] ipAddresses = ips;
-                                int i = 0;
-
-                                public boolean hasNext() {
-                                    return i < ipAddresses.length;
-                                }
-
-                                public HostAddress next() {
-                                    return new org.apache.mailet.HostAddress(nextGateway, "smtp://" + (ipAddresses[i++]).getHostAddress() + ":" + nextGatewayPort);
-                                }
-
-                                public void remove() {
-                                    throw new UnsupportedOperationException ("remove not supported by this iterator");
-                                }
-                            };
-                        }
-                        catch (java.net.UnknownHostException uhe) {
-                            log("Unknown gateway host: " + uhe.getMessage().trim());
-                            log("This could be a DNS server error or configuration error.");
-                        }
-                    } while (!hasNextAddress() && gateways.hasNext());
-                } 
-
-                return hasNextAddress();
-            }
-
-            private boolean hasNextAddress() {
-                return addresses != null && addresses.hasNext();
-            }
-
-            public HostAddress next() {
-                return (addresses != null) ? addresses.next() : null;
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException ("remove not supported by this iterator");
-            }
-        };
+       return new MXHostAddressIterator(gateways, dnsServer, false, logAdapter);
     }
     
     protected String getHeloName() {
@@ -1638,4 +1578,91 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
         }
     }
   
+    private final class MailetLog implements Log {
+
+        public void debug(Object arg0) {
+            if (isDebug) {
+                log(arg0.toString());
+            }
+        }
+
+        public void debug(Object arg0, Throwable arg1) {
+            if (isDebug) {
+                log(arg0.toString(), arg1);
+            }            
+        }
+
+        public void error(Object arg0) {
+            log(arg0.toString());
+            
+        }
+
+        public void error(Object arg0, Throwable arg1) {
+            log(arg0.toString(), arg1);
+            
+        }
+
+        public void fatal(Object arg0) {
+            log(arg0.toString());
+            
+        }
+
+        public void fatal(Object arg0, Throwable arg1) {
+            log(arg0.toString(), arg1);
+            
+        }
+
+        public void info(Object arg0) {
+            log(arg0.toString());
+            
+        }
+
+        public void info(Object arg0, Throwable arg1) {
+            log(arg0.toString(), arg1);
+            
+        }
+
+        public boolean isDebugEnabled() {
+            return isDebug;
+        }
+
+        public boolean isErrorEnabled() {
+            return true;
+        }
+
+        public boolean isFatalEnabled() {
+            return true;
+        }
+
+        public boolean isInfoEnabled() {
+            return true;
+
+        }
+
+        public boolean isTraceEnabled() {
+            return false;
+        }
+
+        public boolean isWarnEnabled() {
+            return true;
+        }
+
+        public void trace(Object arg0) {            
+        }
+
+        public void trace(Object arg0, Throwable arg1) {
+            
+        }
+
+        public void warn(Object arg0) {
+            log(arg0.toString());
+            
+        }
+
+        public void warn(Object arg0, Throwable arg1) {
+            log(arg0.toString(), arg1);
+            
+        }
+        
+    }
 }

@@ -38,6 +38,7 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
+import org.apache.james.util.MXHostAddressIterator;
 import org.apache.mailet.HostAddress;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Cache;
@@ -444,67 +445,8 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
      * @see org.apache.james.dnsservice.api.DNSService#getSMTPHostAddresses(String)
      */
     public Iterator<HostAddress> getSMTPHostAddresses(final String domainName) throws TemporaryResolutionException {
-        return new Iterator<HostAddress>() {
-            private Iterator<String> mxHosts = findMXRecords(domainName).iterator();
-            private Iterator<HostAddress> addresses = null;
-
-            public boolean hasNext() {
-                /* Make sure that when next() is called, that we can
-                 * provide a HostAddress.  This means that we need to
-                 * have an inner iterator, and verify that it has
-                 * addresses.  We could, for example, run into a
-                 * situation where the next mxHost didn't have any valid
-                 * addresses.
-                 */
-                if ((addresses == null || !addresses.hasNext()) && mxHosts.hasNext()) do {
-                    final String nextHostname = (String)mxHosts.next();
-                    InetAddress[] addrs = null;
-                    try {
-                        if (singleIPPerMX) {
-                            addrs = new InetAddress[] {getByName(nextHostname)};
-                        } else {
-                            addrs = getAllByName(nextHostname);
-                        }
-                    } catch (UnknownHostException uhe) {
-                        // this should never happen, since we just got
-                        // this host from mxHosts, which should have
-                        // already done this check.
-                        StringBuffer logBuffer = new StringBuffer(128)
-                                                 .append("Couldn't resolve IP address for discovered host ")
-                                                 .append(nextHostname)
-                                                 .append(".");
-                        logger.error(logBuffer.toString());
-                    }
-                    final InetAddress[] ipAddresses = addrs;
-
-                    addresses = new Iterator<HostAddress>() {
-                        int i = 0;
-
-                        public boolean hasNext() {
-                            return ipAddresses != null && i < ipAddresses.length;
-                        }
-
-                        public HostAddress next() {
-                            return new org.apache.mailet.HostAddress(nextHostname, "smtp://" + ipAddresses[i++].getHostAddress());
-                        }
-
-                        public void remove() {
-                            throw new UnsupportedOperationException ("remove not supported by this iterator");
-                        }
-                    };
-                } while (!addresses.hasNext() && mxHosts.hasNext());
-
-                return addresses != null && addresses.hasNext();
-            }
-
-            public HostAddress next() {
-                return addresses != null ? addresses.next() : null;
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException ("remove not supported by this iterator");
-            }
-        };
+        Iterator<String> mxHosts = findMXRecords(domainName).iterator();
+        return new MXHostAddressIterator(mxHosts, this, singleIPPerMX, logger);
     }
 
     /* java.net.InetAddress.get[All]ByName(String) allows an IP literal
