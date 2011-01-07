@@ -53,6 +53,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
+import org.apache.james.util.MXHostAddressIterator;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -76,7 +77,8 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
     private DomainList domains;
 
     private MailAddress postmaster;
-
+    
+    
 
     @Resource(name="mailprocessor")
     public void setMailProcessor(MailProcessor processorList) {
@@ -318,7 +320,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
      */
     public Iterator<HostAddress> getSMTPHostAddresses(String domainName) {
         try {
-            return dns.getSMTPHostAddresses(domainName);
+            return new MXHostAddressIterator(dns.findMXRecords(domainName).iterator(), dns, false, log);
         } catch (TemporaryResolutionException e) {
             // TODO: We only do this to not break backward compatiblity. Should
             // fixed later

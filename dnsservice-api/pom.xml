@@ -63,15 +63,6 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>apache-mailet</artifactId>
-    </dependency>
-    <!-- needed for javax.mail.URLname (Iterable<HostAddress> ?) -->
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>

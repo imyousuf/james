@@ -835,7 +835,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
 
                 //Lookup the possible targets
                 try {
-                    targetServers = dnsServer.getSMTPHostAddresses(host);
+                    targetServers = new MXHostAddressIterator(dnsServer.findMXRecords(host).iterator(),  dnsServer, false, logAdapter);
                 } catch (TemporaryResolutionException e) {
                     log("Temporary problem looking up mail server for host: " + host);
                     StringBuilder exceptionBuffer =

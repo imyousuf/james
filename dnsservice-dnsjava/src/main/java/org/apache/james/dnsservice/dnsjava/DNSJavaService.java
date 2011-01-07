@@ -38,8 +38,6 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
-import org.apache.james.util.MXHostAddressIterator;
-import org.apache.mailet.HostAddress;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.Credibility;
@@ -100,12 +98,6 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
      * The MX Comparator used in the MX sort.
      */
     private Comparator<MXRecord> mxComparator = new MXRecordComparator();
-
-    /**
-     * If true than the DNS server will return only a single IP per each MX record
-     * when looking up SMTPServers
-     */
-    private boolean singleIPPerMX;
     
     /**
      * If true register this service as the default resolver/cache for DNSJava static
@@ -163,7 +155,7 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
             }
         }
 
-        singleIPPerMX = configuration.getBoolean( "singleIPperMX", false ); 
+        //singleIPPerMX = configuration.getBoolean( "singleIPperMX", false ); 
 
         setAsDNSJavaDefault = configuration.getBoolean( "setAsDNSJavaDefault" ,true );
         
@@ -441,13 +433,6 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
         }
     }
 
-    /**
-     * @see org.apache.james.dnsservice.api.DNSService#getSMTPHostAddresses(String)
-     */
-    public Iterator<HostAddress> getSMTPHostAddresses(final String domainName) throws TemporaryResolutionException {
-        Iterator<String> mxHosts = findMXRecords(domainName).iterator();
-        return new MXHostAddressIterator(mxHosts, this, singleIPPerMX, logger);
-    }
 
     /* java.net.InetAddress.get[All]ByName(String) allows an IP literal
      * to be passed, and will recognize it even with a trailing '.'.

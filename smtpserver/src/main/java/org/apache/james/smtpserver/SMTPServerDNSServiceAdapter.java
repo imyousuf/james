@@ -23,13 +23,17 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.smtp.DNSService;
 import org.apache.james.protocols.smtp.TemporaryResolutionException;
+import org.apache.james.util.MXHostAddressIterator;
 import org.apache.mailet.HostAddress;
 
-public class SMTPServerDNSServiceAdapter implements DNSService{
+public class SMTPServerDNSServiceAdapter implements DNSService, LogEnabled{
 
     private org.apache.james.dnsservice.api.DNSService dns;
+    private Log log;
     
     public SMTPServerDNSServiceAdapter(org.apache.james.dnsservice.api.DNSService dns) {    
         this.dns = dns;
@@ -85,11 +89,14 @@ public class SMTPServerDNSServiceAdapter implements DNSService{
      * @see org.apache.james.protocols.smtp.DNSService#getSMTPHostAddresses(java.lang.String)
      */
     public Iterator<HostAddress> getSMTPHostAddresses(String domainName) throws TemporaryResolutionException {
-        try {
-            return dns.getSMTPHostAddresses(domainName);
-        } catch (org.apache.james.dnsservice.api.TemporaryResolutionException e) {
-            throw new TemporaryResolutionException(e.getMessage());
-        }
+        return new MXHostAddressIterator(findMXRecords(domainName).iterator(), dns, false, log);
+    }
+
+    /*
+     * 
+     */
+    public void setLog(Log log) {
+        this.log = log;
     }
 
 }
