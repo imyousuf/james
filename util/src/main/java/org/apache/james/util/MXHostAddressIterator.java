@@ -38,12 +38,19 @@ public class MXHostAddressIterator implements Iterator<HostAddress>{
     private DNSService dns;
     private boolean useSingleIP;
     private Log logger;
+    private int defaultPort;
 
     public MXHostAddressIterator(Iterator<String> hosts, DNSService dns, boolean useSingleIP, Log logger) {
+        this(hosts, 25, dns, useSingleIP, logger);
+    }
+    
+
+    public MXHostAddressIterator(Iterator<String> hosts, int defaultPort, DNSService dns, boolean useSingleIP, Log logger) {
         this.hosts = hosts;
         this.dns = dns;
         this.useSingleIP = useSingleIP;
         this.logger = logger;
+        this.defaultPort = defaultPort;
     }
     
     /*
@@ -70,7 +77,7 @@ public class MXHostAddressIterator implements Iterator<HostAddress>{
                 hostname = nextHostname.substring(0,idx);
             } else {
                 hostname = nextHostname;
-                port = "25";
+                port = defaultPort + "";
             }
             
             InetAddress[] addrs = null;
