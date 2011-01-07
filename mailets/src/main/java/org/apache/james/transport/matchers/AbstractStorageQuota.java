@@ -26,7 +26,6 @@ import java.util.Iterator;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.mailbox.BadCredentialsException;
 import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxPath;
@@ -40,6 +39,7 @@ import org.apache.james.mailbox.MessageResult.FetchGroup;
 import org.apache.james.mailbox.util.FetchGroupImpl;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.JamesUser;
+import org.apache.james.util.MailetContextLog;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
@@ -74,6 +74,8 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      */
     private UsersRepository localusers;
 
+    private final MailetContextLog log = new MailetContextLog(getMailetContext());
+    
     /** 
      * Checks the recipient.
      * Does a <CODE>super.isRecipientChecked</CODE> and checks that the recipient
@@ -97,83 +99,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
         long size = 0;
         MailboxSession session;
         try {
-            session = manager.createSystemSession(getPrimaryName(recipient.getLocalPart()), new Log() {
-
-            	public void debug(Object arg0) {
-            		// just consume 				
-            	}
-
-            	public void debug(Object arg0, Throwable arg1) {
-            		// just consume 
-            	}
-
-            	public void error(Object arg0) {
-            		log(arg0.toString());
-
-            	}
-
-            	public void error(Object arg0, Throwable arg1) {
-            		log(arg0.toString(),arg1);
-            	}
-
-            	public void fatal(Object arg0) {
-            		log(arg0.toString());
-            	}
-
-            	public void fatal(Object arg0, Throwable arg1) {
-            		log(arg0.toString(), arg1);				
-            	}
-
-            	public void info(Object arg0) {
-            		log(arg0.toString());
-            	}
-
-            	public void info(Object arg0, Throwable arg1) {
-            		log(arg0.toString(), arg1);
-            		
-            	}
-
-            	public boolean isDebugEnabled() {
-            		return false;
-            	}
-
-            	public boolean isErrorEnabled() {
-            		return true;
-            	}
-
-            	public boolean isFatalEnabled() {
-            		return true;
-            	}
-
-            	public boolean isInfoEnabled() {
-            		return true;
-            	}
-
-            	public boolean isTraceEnabled() {
-            		return false;
-            	}
-
-            	public boolean isWarnEnabled() {
-            		return true;
-            	}
-
-            	public void trace(Object arg0) {
-            		// just consume 				
-            	}
-
-            	public void trace(Object arg0, Throwable arg1) {
-            		// just consume 				
-            	}
-
-            	public void warn(Object arg0) {
-            		log(arg0.toString());
-            	}
-
-            	public void warn(Object arg0, Throwable arg1) {
-            		log(arg0.toString(), arg1);
-            	}
-            	
-            });
+            session = manager.createSystemSession(getPrimaryName(recipient.getLocalPart()),log); 
             manager.startProcessingRequest(session);
             MessageManager mailbox = manager.getMailbox(new MailboxPath(MailboxConstants.USER_NAMESPACE,
                                                 session.getUser().getUserName(), "INBOX"),
