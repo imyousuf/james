@@ -105,6 +105,9 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
     public void init() throws Exception {
         producerTemplate = context.createProducerTemplate();
 
+        if (context.getStatus().isStopped()) {
+            context.start();
+        }
         super.init();
     }
 

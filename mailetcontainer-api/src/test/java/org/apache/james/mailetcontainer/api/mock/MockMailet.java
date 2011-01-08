@@ -45,7 +45,8 @@ public class MockMailet implements Mailet{
     }
 
     public void service(Mail mail) throws MessagingException {
-        mail.setAttribute(config.getInitParameter("flag"), mail);
+        String state = config.getInitParameter("state");
+        mail.setState(state);
     }
 
 }
