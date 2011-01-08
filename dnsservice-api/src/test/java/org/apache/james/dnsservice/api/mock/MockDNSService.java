@@ -21,10 +21,8 @@ package org.apache.james.dnsservice.api.mock;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.mailet.HostAddress;
 
 /**
  * Abstract class to simplify the mocks
@@ -56,13 +54,6 @@ public class MockDNSService implements DNSService {
      * @see org.apache.james.dnsservice.api.DNSService#getByName(String)
      */
     public InetAddress getByName(String host) throws UnknownHostException {
-        throw new UnsupportedOperationException("Unimplemented Stub Method");
-    }
-
-    /**
-     * @see org.apache.james.dnsservice.api.DNSService#getSMTPHostAddresses(String)
-     */
-    public Iterator<HostAddress> getSMTPHostAddresses(String domainName) {
         throw new UnsupportedOperationException("Unimplemented Stub Method");
     }
 
