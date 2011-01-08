@@ -46,10 +46,10 @@ public abstract class AbstractStateMailetProcessorTest extends TestCase{
 
 
     
-    private HierarchicalConfiguration createConfig() throws ConfigurationException {
+    private HierarchicalConfiguration createConfig(int count) throws ConfigurationException {
         StringBuilder sb = new StringBuilder();
         sb.append("<processor state=\"" + Mail.DEFAULT + "\">");
-        sb.append("<mailet match=\"").append(MockMatcher.class.getName()).append("=test@localhost\"").append(" class=\"").append(MockMailet.class.getName()).append("\">");
+        sb.append("<mailet match=\"").append(MockMatcher.class.getName()).append("=").append(count).append("\"").append(" class=\"").append(MockMailet.class.getName()).append("\">");
         sb.append("<state>test</state>");
         sb.append("</mailet>");
         
@@ -67,7 +67,7 @@ public abstract class AbstractStateMailetProcessorTest extends TestCase{
         mail.setSender(new MailAddress("test@localhost"));
         mail.setRecipients(Arrays.asList(new MailAddress("test@localhost"), new MailAddress("test2@localhost")));
         
-        AbstractStateMailetProcessor processor = createProcessor(createConfig());
+        AbstractStateMailetProcessor processor = createProcessor(createConfig(1));
         processor.addListener(new MailetProcessorListener() {
                         
             public void afterMatcher(Matcher m, String mailName, Collection<MailAddress> recipients, Collection<MailAddress> matches, long processTime, MessagingException e) {
@@ -100,6 +100,51 @@ public abstract class AbstractStateMailetProcessorTest extends TestCase{
         // the source mail should be ghosted as it reached the end of processor as only one recipient matched 
         assertEquals(Mail.GHOST, mail.getState());
         latch.await();
+        processor.destroy();
+
+    }
+    
+    public void testSimpleRoutingMatchAll() throws ConfigurationException, Exception {
+        final CountDownLatch latch = new CountDownLatch(2);
+        final MailImpl mail = new MailImpl();
+        mail.setName(MailImpl.getId());
+        mail.setSender(new MailAddress("test@localhost"));
+        mail.setRecipients(Arrays.asList(new MailAddress("test@localhost"), new MailAddress("test2@localhost")));
+        
+        AbstractStateMailetProcessor processor = createProcessor(createConfig(2));
+        processor.addListener(new MailetProcessorListener() {
+                        
+            public void afterMatcher(Matcher m, String mailName, Collection<MailAddress> recipients, Collection<MailAddress> matches, long processTime, MessagingException e) {
+                if (MockMatcher.class.equals(m.getClass())) {
+                    assertEquals(mail.getName(), mailName);
+                    // match one recipient
+                    assertEquals(2, matches.size());
+                    assertNull(e);
+                    latch.countDown();
+                }
+
+            }
+            
+            public void afterMailet(Mailet m, String mailName, String state, long processTime, MessagingException e) {
+                // check for class name as the terminating  mailet will kick in too
+
+                if (MockMailet.class.equals(m.getClass())) {
+                    //assertEquals(mail.getName(), mailName);
+                    assertEquals("test", state);
+                    assertNull(e);
+                    latch.countDown();
+                }
+            }
+        });
+       
+        assertEquals(Mail.DEFAULT, mail.getState());
+        processor.service(mail);
+        
+        
+        // the source mail should have the new state as it was a full match
+        assertEquals("test", mail.getState());
+        latch.await();
+        processor.destroy();
 
     }
 }
