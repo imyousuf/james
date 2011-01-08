@@ -20,7 +20,6 @@
 package org.apache.james.mailetcontainer.api.mock;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +33,8 @@ import org.apache.mailet.MatcherConfig;
 
 public class MockMatcher implements Matcher{
 
-    private List<String> matches = new ArrayList<String>();
+    private int matchCount = 0;
+    
     private MatcherConfig config;
     
     public void destroy() {
@@ -51,18 +51,17 @@ public class MockMatcher implements Matcher{
 
     public void init(MatcherConfig config) throws MessagingException {
         this.config = config;
-        matches.addAll(Arrays.asList(config.getCondition().split(",")));
+        matchCount = Integer.parseInt(config.getCondition());
     }
 
     public Collection match(Mail mail) throws MessagingException {
         List<MailAddress> match = new ArrayList<MailAddress>();
         
         Iterator<MailAddress> rcpts = mail.getRecipients().iterator();
-        while (rcpts.hasNext()) {
+        while (rcpts.hasNext() && match.size() < matchCount) {
             MailAddress addr = rcpts.next();
-            if (matches.contains(addr.toString())) {
-                match.add(addr);
-            }
+            match.add(addr);
+            
         }
         if (match.isEmpty()) {
             return null;
