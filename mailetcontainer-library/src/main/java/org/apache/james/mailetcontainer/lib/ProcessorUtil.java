@@ -75,7 +75,8 @@ public class ProcessorUtil {
      *
      * @throws MessagingException when the <code>Collection</code> contains objects that are not <code>MailAddress</code> objects
      */
-    public static void verifyMailAddresses(Collection<MailAddress> col) throws MessagingException {
+    @SuppressWarnings("rawtypes")
+    public static void verifyMailAddresses(Collection col) throws MessagingException {
         try {
             MailAddress addresses[] = (MailAddress[])col.toArray(new MailAddress[0]);
 
