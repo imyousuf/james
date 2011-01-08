@@ -33,17 +33,22 @@ public class CamelMailetProcessorTest extends AbstractStateMailetProcessorTest {
 
     @Override
     protected AbstractStateMailetProcessor createProcessor(HierarchicalConfiguration configuration) throws ConfigurationException, Exception {
-        CamelMailetProcessor processor = new CamelMailetProcessor();
-        SimpleLog log = new SimpleLog("MockLog");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        processor.setLog(log);
-        processor.setCamelContext(new DefaultCamelContext());
-        processor.setMailetContext(new MockMailetContext());
-        processor.setMailetLoader(new MockMailetLoader());
-        processor.setMatcherLoader(new MockMatcherLoader());
-        processor.configure(configuration);
-        processor.init();
-        return processor;
+        CamelMailetProcessor processor = null;
+        try {
+            processor = new CamelMailetProcessor();
+            SimpleLog log = new SimpleLog("MockLog");
+            log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
+            processor.setLog(log);
+            processor.setCamelContext(new DefaultCamelContext());
+            processor.setMailetContext(new MockMailetContext());
+            processor.setMailetLoader(new MockMailetLoader());
+            processor.setMatcherLoader(new MockMatcherLoader());
+            processor.configure(configuration);
+            processor.init();
+            return processor;
+        } finally {
+            if (processor != null) processor.destroy();
+        }
     }
 
 }
