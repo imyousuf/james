@@ -1121,6 +1121,10 @@
           <groupId>org.apache.pdfbox</groupId>
           <artifactId>pdfbox</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>edu.ucar</groupId>
+          <artifactId>netcdf</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
    
