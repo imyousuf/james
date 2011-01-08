@@ -72,6 +72,10 @@
       <artifactId>james-server-dnsservice-api</artifactId>
     </dependency> 
     <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mailet</artifactId>
+    </dependency>
+    <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
     </dependency>
