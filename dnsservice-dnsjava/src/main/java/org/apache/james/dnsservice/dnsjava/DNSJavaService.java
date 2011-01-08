@@ -553,26 +553,31 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.dnsservice.api.DNSServiceMBean#getMaximumCacheSize()
+     * 
+     * @see
+     * org.apache.james.dnsservice.api.DNSServiceMBean#getMaximumCacheSize()
      */
-	public int getMaximumCacheSize() {
-		return maxCacheSize;
-	}
+    public int getMaximumCacheSize() {
+        return maxCacheSize;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.dnsservice.api.DNSServiceMBean#getCurrentCacheSize()
-	 */
-	public int getCurrentCacheSize() {
-		return cache.getSize();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.dnsservice.api.DNSServiceMBean#getCurrentCacheSize()
+     */
+    public int getCurrentCacheSize() {
+        return cache.getSize();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.dnsservice.api.DNSServiceMBean#clearCache()
-	 */
-	public void clearCache() {
-		cache.clearCache();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.dnsservice.api.DNSServiceMBean#clearCache()
+     */
+    public void clearCache() {
+        cache.clearCache();
+    }
 
 }
