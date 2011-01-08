@@ -166,7 +166,8 @@ public class MatcherSplitter {
             List<MailetProcessorListener> listeners = container.getListeners();
             for (int i = 0; i < listeners.size(); i++) {
                 MailetProcessorListener listener = listeners.get(i);
-                if (matchedRcpts.isEmpty()) {
+                // need to check if its null or empty!
+                if (matchedRcpts == null || matchedRcpts.isEmpty()) {
                     listener.afterMatcher(matcher, mail.getName(), origRcpts, null,  complete, ex);
                 } else {
                     listener.afterMatcher(matcher, mail.getName(), origRcpts, matchedRcpts, complete, ex);
