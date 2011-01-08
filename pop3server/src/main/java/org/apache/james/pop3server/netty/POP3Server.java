@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.pop3server.netty;
 
+import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
@@ -48,6 +49,7 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
     private ProtocolHandlerChain handlerChain;
 
     
+    @Resource(name="pop3handlerchain")
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }

@@ -18,6 +18,7 @@
  ****************************************************************/
 package org.apache.james.lmtpserver.netty;
 
+import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -49,6 +50,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
     
 
 
+    @Resource(name="lmtphandlerchain")
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }

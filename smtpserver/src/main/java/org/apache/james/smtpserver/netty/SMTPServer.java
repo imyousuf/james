@@ -19,6 +19,7 @@
 package org.apache.james.smtpserver.netty;
 
 
+import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -100,6 +101,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
     private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
    
 
+    @Resource(name="smtphandlerchain")
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }

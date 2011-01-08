@@ -236,10 +236,9 @@
     <!-- 
       SMTP Server
      -->
-    <bean id="smtpserver" class="org.apache.james.smtpserver.netty.SMTPServer">
-        <property name="protocolHandlerChain" ref="smtpProtocolHandlerChain"/>
-    </bean>
-    <bean id="smtpProtocolHandlerChain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
+    <bean id="smtpserver" class="org.apache.james.smtpserver.netty.SMTPServer"/>
+    
+    <bean id="smtphandlerchain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
         <property name="coreHandlersPackage" value="org.apache.james.smtpserver.CoreCmdHandlerLoader"/>
         <property name="jmxHandlersPackage" value="org.apache.james.smtpserver.jmx.JMXHandlersLoader"/>
         <property name="beanName" value="smtpserver"/>
@@ -248,10 +247,9 @@
     <!-- 
       LMTP Server
      -->
-    <bean id="lmtpserver" class="org.apache.james.lmtpserver.netty.LMTPServer">
-        <property name="protocolHandlerChain" ref="lmtpProtocolHandlerChain"/>
-    </bean>
-    <bean id="lmtpProtocolHandlerChain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
+    <bean id="lmtpserver" class="org.apache.james.lmtpserver.netty.LMTPServer"/>
+    
+    <bean id="lmtphandlerchain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
         <property name="coreHandlersPackage" value="org.apache.james.lmtpserver.CoreCmdHandlerLoader"/>
         <property name="jmxHandlersPackage" value="org.apache.james.lmtpserver.jmx.JMXHandlersLoader"/>
         <property name="beanName" value="lmtpserver"/>
@@ -260,10 +258,8 @@
     <!-- 
       POP3 Server
      -->
-    <bean id="pop3server"  class="org.apache.james.pop3server.netty.POP3Server" >
-        <property name="protocolHandlerChain" ref="pop3ProtocolHandlerChain"/>
-    </bean>
-    <bean id="pop3ProtocolHandlerChain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
+    <bean id="pop3server"  class="org.apache.james.pop3server.netty.POP3Server"/>
+    <bean id="pop3handlerchain" class="org.apache.james.container.spring.bean.postprocessor.ProtocolHandlerChainPostProcessor">
         <property name="coreHandlersPackage" value="org.apache.james.pop3server.core.CoreCmdHandlerLoader"/>
         <property name="jmxHandlersPackage" value="org.apache.james.pop3server.jmx.JMXHandlersLoader"/>
         <property name="beanName" value="pop3server"/>
