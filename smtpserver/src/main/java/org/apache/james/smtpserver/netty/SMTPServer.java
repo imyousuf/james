@@ -28,7 +28,6 @@ import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.server.netty.AbstractConfigurableAsyncServer;
-import org.apache.james.server.netty.ConnectionCountHandler;
 import org.apache.james.util.netmatcher.NetMatcher;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -97,9 +96,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
     private boolean addressBracketsEnforcement = true;
 
     private boolean verifyIdentity;
-    
-    private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
-   
+       
 
     @Resource(name="smtphandlerchain")
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
@@ -305,7 +302,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
         @Override
 		public ChannelPipeline getPipeline() throws Exception {
 			ChannelPipeline pipeline = super.getPipeline();
-			pipeline.addBefore("coreHandler", "connectionCount", countHandler);
+			pipeline.addBefore("coreHandler", "connectionCount", getConnectionCountHandler());
 			
 			return pipeline;
 		}
@@ -335,56 +332,47 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
+     * 
+     * @see org.apache.james.smtpserver.SMTPServerMBean#getMaximalMessageSize()
      */
-	public int getCurrentConnections() {
-		return countHandler.getCurrentConnectionCount();
-	}
+    public long getMaximalMessageSize() {
+        return maxMessageSize;
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.smtpserver.SMTPServerMBean#getAddressBracketsEnforcement
+     * ()
+     */
+    public boolean getAddressBracketsEnforcement() {
+        return addressBracketsEnforcement;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.smtpserver.SMTPServerMBean#getMaximalMessageSize()
-	 */
-	public long getMaximalMessageSize() {
-		return maxMessageSize;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.james.smtpserver.SMTPServerMBean#getHeloEhloEnforcement()
+     */
+    public boolean getHeloEhloEnforcement() {
+        return heloEhloEnforcement;
+    }
 
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.smtpserver.SMTPServerMBean#getAddressBracketsEnforcement()
-	 */
-	public boolean getAddressBracketsEnforcement() {
-		return addressBracketsEnforcement;
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.smtpserver.SMTPServerMBean#getHeloEhloEnforcement()
-	 */
-	public boolean getHeloEhloEnforcement() {
-		return heloEhloEnforcement;
-	}
-
-
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
-	 */
-	public String getNetworkInterface() {
-		return "unknown";
-	}
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.protocols.smtp.SMTPServerMBean#getNetworkInterface()
+     */
+    public String getNetworkInterface() {
+        return "unknown";
+    }
 
     @Override
     protected String getDefaultJMXName() {
         return "smtpserver";
     }
-
-
    
 
 }

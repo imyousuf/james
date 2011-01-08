@@ -25,7 +25,6 @@ import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
 import org.apache.james.server.netty.AbstractConfigurableAsyncServer;
-import org.apache.james.server.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
@@ -43,8 +42,6 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
      * The configuration data to be passed to the handler
      */
     private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
-
-    private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
     
     private ProtocolHandlerChain handlerChain;
 
@@ -110,7 +107,7 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
         @Override
         public ChannelPipeline getPipeline() throws Exception {
             ChannelPipeline pipeLine = super.getPipeline();
-            pipeLine.addBefore("coreHandler", "countHandler", countHandler);
+            pipeLine.addBefore("coreHandler", "countHandler", getConnectionCountHandler());
             return pipeLine;
         }
 
@@ -138,14 +135,6 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
         }
         
     }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
-     */
-	public int getCurrentConnections() {
-		return countHandler.getCurrentConnectionCount();
-	}
 
     @Override
     protected String getDefaultJMXName() {

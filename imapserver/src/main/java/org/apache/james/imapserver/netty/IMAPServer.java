@@ -33,7 +33,6 @@ import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.protocols.impl.ChannelGroupHandler;
 import org.apache.james.protocols.impl.TimeoutHandler;
 import org.apache.james.server.netty.AbstractConfigurableAsyncServer;
-import org.apache.james.server.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -49,7 +48,6 @@ import org.jboss.netty.util.HashedWheelTimer;
 public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapConstants, IMAPServerMBean {
 
     private static final String softwaretype = "JAMES "+VERSION+" Server ";
-    private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
     
     private String hello;
     private ImapProcessor processor;
@@ -121,7 +119,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                     pipeline.addFirst("sslHandler", new SslHandler(engine));
                     
                 }
-                pipeline.addLast("connectionCountHandler", countHandler);
+                pipeline.addLast("connectionCountHandler", getConnectionCountHandler());
                 
                 final ImapRequestStreamHandler handler = new ImapRequestStreamHandler(decoder, processor, encoder);
                 
@@ -136,32 +134,6 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
            
         };
     }
-
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
-     */
-	public int getCurrentConnections() {
-		return countHandler.getCurrentConnectionCount();
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.imapserver.IMAPServerMBean#getStartTLSSupported()
-	 */
-	public boolean getStartTLSSupported() {
-		return isStartTLSSupported();
-	}
-	
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.james.socket.ServerMBean#getMaximumConcurrentConnections()
-	 */
-	public int getMaximumConcurrentConnections() {
-		return connectionLimit;
-	}
 
     @Override
     protected String getDefaultJMXName() {

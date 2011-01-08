@@ -107,6 +107,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     private String[] enabledCipherSuites;
 
+    private ConnectionCountHandler countHandler = new ConnectionCountHandler();
     @Resource(name="dnsservice")
     public final void setDNSService(DNSService dns) {
         this.dns = dns;
@@ -518,4 +519,25 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         return getIP();
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.server.jmx.ServerMBean#getHandledConnections()
+     */
+    public long getHandledConnections() {
+        return countHandler.getConnectionsTillStartup();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
+     */
+    public int getCurrentConnections() {
+        return countHandler.getCurrentConnectionCount();
+    }
+
+
+    
+    protected ConnectionCountHandler getConnectionCountHandler() {
+        return countHandler;
+    }
 }

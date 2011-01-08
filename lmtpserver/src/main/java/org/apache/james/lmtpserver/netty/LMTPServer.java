@@ -29,7 +29,6 @@ import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.apache.james.smtpserver.netty.SMTPResponseEncoder;
 import org.apache.james.server.netty.AbstractConfigurableAsyncServer;
-import org.apache.james.server.netty.ConnectionCountHandler;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
@@ -45,9 +44,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
     private long maxMessageSize = 0;
     private ProtocolHandlerChain handlerChain;
     private LMTPConfiguration lmtpConfig = new LMTPConfiguration();
-    private String lmtpGreeting;
-    private final ConnectionCountHandler countHandler = new ConnectionCountHandler();
-    
+    private String lmtpGreeting;    
 
 
     @Resource(name="lmtphandlerchain")
@@ -172,7 +169,7 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
         @Override
         public ChannelPipeline getPipeline() throws Exception {
             ChannelPipeline pipeLine = super.getPipeline();
-            pipeLine.addBefore("coreHandler", "countHandler", countHandler);
+            pipeLine.addBefore("coreHandler", "countHandler", getConnectionCountHandler());
             return pipeLine;
         }
 
@@ -225,15 +222,6 @@ public class LMTPServer extends AbstractConfigurableAsyncServer implements LMTPS
      */
     public long getMaximalMessageSize() {
         return lmtpConfig.getMaxMessageSize();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
-     */
-    public int getCurrentConnections() {
-        return countHandler.getCurrentConnectionCount();
     }
 
     /*

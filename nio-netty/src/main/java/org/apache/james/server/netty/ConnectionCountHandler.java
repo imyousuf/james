@@ -19,6 +19,7 @@
 package org.apache.james.server.netty;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -31,6 +32,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
 
     public AtomicInteger currentConnectionCount = new AtomicInteger();
+    public AtomicLong connectionsTillStartup = new AtomicLong();
 
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
@@ -41,6 +43,7 @@ public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         currentConnectionCount.incrementAndGet();
+        connectionsTillStartup.incrementAndGet();
         super.channelOpen(ctx, e);
     }
 
@@ -51,5 +54,9 @@ public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
      */
     public int getCurrentConnectionCount() {
         return currentConnectionCount.get();
+    }
+    
+    public long getConnectionsTillStartup() {
+        return connectionsTillStartup.get();
     }
 }

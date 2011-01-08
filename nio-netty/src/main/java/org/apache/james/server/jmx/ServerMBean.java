@@ -38,6 +38,13 @@ public interface ServerMBean {
 	public int getCurrentConnections();
 	
 	/**
+	 * Return the count of handled connections till startup
+	 * 
+	 * @return handledConnections
+	 */
+	public long getHandledConnections();
+	
+	/**
 	 * Return true if the server is enabled
 	 * 
 	 * @return isEnabled
