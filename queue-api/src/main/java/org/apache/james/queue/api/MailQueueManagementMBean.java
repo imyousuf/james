@@ -18,6 +18,10 @@
  ****************************************************************/
 package org.apache.james.queue.api;
 
+import java.util.List;
+
+import javax.management.openmbean.CompositeData;
+
 
 public interface MailQueueManagementMBean {
 
@@ -62,5 +66,13 @@ public interface MailQueueManagementMBean {
      * @return count the count of all removed mails or -1 if clear was not possible
      */
     public long removeWithRecipient(String address) throws Exception;
+    
+    /**
+     * Allow to browse the content of the queue
+     * 
+     * @return data
+     * @throws Exception
+     */
+    public List<CompositeData> browse() throws Exception;
     
 }

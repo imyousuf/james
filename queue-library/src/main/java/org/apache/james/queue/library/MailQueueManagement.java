@@ -18,13 +18,19 @@
  ****************************************************************/
 package org.apache.james.queue.library;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
+import javax.management.openmbean.CompositeData;
 
 import org.apache.james.queue.api.MailQueueManagementMBean;
 import org.apache.james.queue.api.ManageableMailQueue;
 import org.apache.james.queue.api.MailQueue.MailQueueException;
+import org.apache.james.queue.api.ManageableMailQueue.MailQueueIterator;
 import org.apache.james.queue.api.ManageableMailQueue.Type;
+import org.apache.mailet.Mail;
 
 /**
  * 
@@ -112,4 +118,24 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
             return -1;
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.queue.api.MailQueueManagementMBean#browse()
+     */
+    public List<CompositeData> browse() throws Exception {
+        MailQueueIterator it = queue.browse();
+        List<CompositeData> data = new ArrayList<CompositeData>();
+        while(it.hasNext()) {
+            Mail m = it.next();
+            
+            //TODO implement me!
+            
+        }
+        it.close();
+        // TODO Auto-generated method stub
+        return data;
+    }
+    
+    
 }
