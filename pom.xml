@@ -74,6 +74,7 @@
     <module>user-jpa</module>
     <module>user-ldap</module>
     <module>util</module>
+    <module>cli</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -880,6 +881,12 @@
       <artifactId>commons-codec</artifactId>
       <version>1.4</version>
     </dependency>
+    <dependency>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <version>1.2</version>
+    </dependency>
+    
     <!--  used by spring deployment  -->
     <dependency>
       <groupId>javax.servlet</groupId>
