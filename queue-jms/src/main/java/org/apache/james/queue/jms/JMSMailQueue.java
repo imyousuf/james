@@ -760,10 +760,17 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             
             return new MailQueueIterator() {
                 
+                /**
+                 * Not supported, read-only
+                 */
                 public void remove() {
                     throw new UnsupportedOperationException("Read-only");
                 }
                 
+                /*
+                 * (non-Javadoc)
+                 * @see java.util.Iterator#next()
+                 */
                 public Mail next() {
                     while (hasNext()) {
                         try {
@@ -779,6 +786,10 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                     
                 }
                 
+                /*
+                 * (non-Javadoc)
+                 * @see java.util.Iterator#hasNext()
+                 */
                 public boolean hasNext() {
                     return messages.hasMoreElements();
                 }
@@ -830,8 +841,8 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             } catch (JMSException e1) {
                 // ignore here
             }
-            logger.error("Unable to get size of queue " + queuename, e);
-            throw new MailQueueException("Unable to get size of queue " + queuename, e);
+            logger.error("Unable to browse queue " + queuename, e);
+            throw new MailQueueException("Unable to browse queue " + queuename, e);
         }
     }
 
