@@ -57,11 +57,11 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
      * (non-Javadoc)
      * @see org.apache.james.queue.api.MailQueueManagementMBean#clear()
      */
-    public long clear() {
+    public long clear() throws Exception{
         try {
             return queue.clear();
         } catch (MailQueueException e) {
-            return -1;
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -69,11 +69,11 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
      * (non-Javadoc)
      * @see org.apache.james.queue.api.MailQueueManagementMBean#flush()
      */
-    public long flush() {
+    public long flush() throws Exception {
         try {
             return queue.flush();
         } catch (MailQueueException e) {
-            return -1;
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -81,11 +81,11 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
      * (non-Javadoc)
      * @see org.apache.james.queue.api.MailQueueManagementMBean#getSize()
      */
-    public long getSize() {
+    public long getSize() throws Exception {
         try {
             return queue.getSize();
         } catch (MailQueueException e) {
-            return -1;
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -93,11 +93,11 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
      * (non-Javadoc)
      * @see org.apache.james.queue.api.MailQueueManagementMBean#removeWithName(java.lang.String)
      */
-    public long removeWithName(String name) {
+    public long removeWithName(String name) throws Exception {
         try {
             return queue.remove(Type.Name, name);
         } catch (MailQueueException e) {
-            return -1;
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -105,11 +105,11 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
      * (non-Javadoc)
      * @see org.apache.james.queue.api.MailQueueManagementMBean#removeWithRecipient(java.lang.String)
      */
-    public long removeWithRecipient(String address) {
+    public long removeWithRecipient(String address) throws Exception {
         try {
             return queue.remove(Type.Recipient, address);
         } catch (MailQueueException e) {
-            return -1;
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -117,11 +117,11 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
      * (non-Javadoc)
      * @see org.apache.james.queue.api.MailQueueManagementMBean#removeWithSender(java.lang.String)
      */
-    public long removeWithSender(String address) {
+    public long removeWithSender(String address) throws Exception {
         try {
             return queue.remove(Type.Sender, address);
         } catch (MailQueueException e) {
-            return -1;
+            throw new Exception(e.getMessage());
         }
     }
 
