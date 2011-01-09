@@ -79,7 +79,7 @@ public interface ManageableMailQueue extends MailQueue{
     
     
     /**
-     * {@link Iterator} subclass which allows to browse the content of a queue
+     * {@link Iterator} subclass which allows to browse the content of a queue. The content is not meant to be modifiable, everything is just READ-ONLY!
      * 
      *
      */
