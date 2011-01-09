@@ -132,11 +132,12 @@ public class ServerCmd {
                     System.exit(1);
                 }
             } else if (cmdName.equals("listusers")) {
-                if (arguments.length == 0)
+                if (arguments.length == 0) {
                     sCmd.print(probe.listUsers(), System.out);
-                else
+                } else {
                     printUsage();
-                System.exit(1);
+                    System.exit(1);
+                }
             } else if (cmdName.equals("adddomain")) {
                 if (arguments.length == 1) {
                     probe.addDomain(arguments[0]);
@@ -152,14 +153,13 @@ public class ServerCmd {
                     System.exit(1);
                 }
             } else if (cmdName.equals("listdomains")) {
-                if (arguments.length == 0)
+                if (arguments.length == 0) {
                     sCmd.print(probe.listDomains(), System.out);
-                else
+                } else {
                     printUsage();
-                System.exit(1);
-            }
-
-            else {
+                    System.exit(1);
+                }
+            } else {
                 System.err.println("Unrecognized command: " + cmdName + ".");
                 printUsage();
                 System.exit(1);
