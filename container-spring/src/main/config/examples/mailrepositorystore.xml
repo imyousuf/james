@@ -18,7 +18,7 @@
   under the License.                                           
  -->
 <!-- The Mailstore block -->
-<<mailrepositorystore>
+<mailrepositorystore>
     <mailrepositories>
         <!-- File based repositories.  These repositories store all message data -->
         <!-- in the file system. -->
