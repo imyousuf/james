@@ -19,11 +19,17 @@
 package org.apache.james.queue.library;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeDataSupport;
+import javax.management.openmbean.CompositeType;
+import javax.management.openmbean.OpenType;
+import javax.management.openmbean.SimpleType;
 
 import org.apache.james.queue.api.MailQueueManagementMBean;
 import org.apache.james.queue.api.ManageableMailQueue;
@@ -128,12 +134,14 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
         List<CompositeData> data = new ArrayList<CompositeData>();
         while(it.hasNext()) {
             Mail m = it.next();
-            
-            //TODO implement me!
-            
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("name", m.getName());
+            map.put("sender", m.getSender());
+            map.put("state", m.getState());
+            CompositeDataSupport c = new CompositeDataSupport(new CompositeType(Mail.class.getName(), "Mail", new String[] {"name", "sender", "state"}, new String[] {"The name of the Mail", "The sender of the Mail", "The state of the Mail"}, new OpenType[] { SimpleType.STRING, SimpleType.STRING, SimpleType.STRING}), map);
+            data.add(c);
         }
         it.close();
-        // TODO Auto-generated method stub
         return data;
     }
     
