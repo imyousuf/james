@@ -18,7 +18,9 @@
  ****************************************************************/
 package org.apache.james.queue.api;
 
-import java.util.List;
+import java.util.Iterator;
+
+import org.apache.mailet.Mail;
 
 /**
  * {@link MailQueue} which is manageable
@@ -67,23 +69,26 @@ public interface ManageableMailQueue extends MailQueue{
     public long remove(Type type, String value) throws MailQueueException;
     
     /**
-     * Return a View on the content of the queue
+     * Allow to browse the queues content. The returned content may get modified
+     * while browsing it during other threads.
+     * 
      * 
      * @return content
      */
-    public List<MailQueueItemView> view() throws MailQueueException;
+    public MailQueueIterator browse() throws MailQueueException;
     
     
     /**
-     * A View of a {@link MailQueueItem}
+     * {@link Iterator} subclass which allows to browse the content of a queue
      * 
      *
      */
-    public interface MailQueueItemView {
-        public String getName();
-        public String getSender();
-        public String[] getRecipients();
-        public long getSize();
-        public long getNextRetry();
+    public interface MailQueueIterator extends Iterator<Mail> {
+        
+        /**
+         * Close the iterator. After this was called the iterator MUST NOT be used again
+         */
+        public void close();
     }
+  
 }

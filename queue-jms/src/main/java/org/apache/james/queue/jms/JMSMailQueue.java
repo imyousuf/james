@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
@@ -734,17 +735,15 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         }
         return -1;
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.api.ManageableMailQueue#view()
+     * @see org.apache.james.queue.api.ManageableMailQueue#browse()
      */
-    @SuppressWarnings("unchecked")
-    public List<MailQueueItemView> view() throws MailQueueException {
+    public MailQueueIterator browse() throws MailQueueException {
         Connection connection = null;
         Session session = null;
         QueueBrowser browser = null;
-        List<MailQueueItemView> view = new ArrayList<MailQueueItemView>();
         try {
             connection = connectionFactory.createConnection();
             connection.start();
@@ -753,22 +752,64 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
             browser = session.createBrowser(queue);
             
-            Enumeration messages = browser.getEnumeration();
+            final Enumeration messages = browser.getEnumeration();
             
-            while(messages.hasMoreElements()) {
-                Message m = (Message) messages.nextElement();
-                String name = m.getStringProperty(JAMES_MAIL_NAME);
-                long size = m.getLongProperty(JAMES_MAIL_MESSAGE_SIZE);
-                String sender = m.getStringProperty(JAMES_MAIL_SENDER);
-                String[] recipients = m.getStringProperty(JAMES_MAIL_RECIPIENTS).split(JAMES_MAIL_SEPARATOR);
-                long retry = m.getLongProperty(JAMES_NEXT_DELIVERY);
-                view.add(new SimpleMailQueueItemView(name, sender, recipients, size, retry));
-            }
-            return view;
+            final Connection myconnection = connection;
+            final Session mysession = session;
+            final QueueBrowser mybrowser = browser;
+            
+            return new MailQueueIterator() {
+                
+                public void remove() {
+                    throw new UnsupportedOperationException("Read-only");
+                }
+                
+                public Mail next() {
+                    while (hasNext()) {
+                        try {
+                            return createMail((Message) messages.nextElement());
+                        } catch (MessagingException e) {
+                            logger.error("Unable to browse queue", e);
+                        } catch (JMSException e) {
+                            logger.error("Unable to browse queue", e);
+                        }
+                    }
+                        
+                    throw new NoSuchElementException();
+                    
+                }
+                
+                public boolean hasNext() {
+                    return messages.hasMoreElements();
+                }
+                
+                public void close() {
+                    
+                    try {
+                        if (mybrowser != null)
+                            mybrowser.close();
+                    } catch (JMSException e1) {
+                        // ignore here
+                    }
+
+                    try {
+                        if (mysession != null)
+                            mysession.close();
+                    } catch (JMSException e1) {
+                        // ignore here
+                    }
+
+                    try {
+                        if (myconnection != null)
+                            myconnection.close();
+                    } catch (JMSException e1) {
+                        // ignore here
+                    }                    
+                }
+            };
+            
         } catch (Exception e) {
-            logger.error("Unable to get size of queue " + queuename, e);
-            throw new MailQueueException("Unable to get size of queue " + queuename, e);
-        } finally {
+            
             try {
                 if (browser != null)
                     browser.close();
@@ -789,64 +830,9 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             } catch (JMSException e1) {
                 // ignore here
             }
-        }        
-    }
-    
-    protected class SimpleMailQueueItemView implements MailQueueItemView {
-        private String name;
-        private String sender;
-        private long size;
-        private long retry;
-        private String[] recipients;
-
-        public SimpleMailQueueItemView(String name, String sender, String[] recipients, long size, long retry) {
-            this.name = name;
-            this.sender = sender;
-            this.recipients = recipients;
-            this.size = size;
-            this.retry = retry;
+            logger.error("Unable to get size of queue " + queuename, e);
+            throw new MailQueueException("Unable to get size of queue " + queuename, e);
         }
-        
-        /*
-         * (non-Javadoc)
-         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getName()
-         */
-        public String getName() {
-            return name;
-        }
-
-        /*
-         * (non-Javadoc)
-         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getRecipients()
-         */
-        public String[] getRecipients() {
-            return recipients;
-        }
-
-        /*
-         * (non-Javadoc)
-         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getSender()
-         */
-        public String getSender() {
-            return sender;
-        }
-
-        /*
-         * (non-Javadoc)
-         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getSize()
-         */
-        public long getSize() {
-            return size;
-        }
-
-        /*
-         * (non-Javadoc)
-         * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getNextRetry()
-         */
-        public long getNextRetry() {
-            return retry;
-        }
-        
     }
 
 }

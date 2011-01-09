@@ -40,6 +40,7 @@ import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.queue.api.ManageableMailQueue;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
+import org.apache.james.queue.api.ManageableMailQueue.MailQueueIterator;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
@@ -387,6 +388,39 @@ public class JMSMailQueueTest extends TestCase{
 
         // should be empty
         assertEquals(0, queue.getSize());
+    }
+    
+    public void testBrowse() throws MessagingException, InterruptedException, IOException {
+        // should be empty
+        assertEquals(0, queue.getSize());
+        
+        Mail mail = createMail();
+        Mail mail2 =createMail();
+
+        queue.enQueue(mail);
+        queue.enQueue(mail2);
+        
+        Thread.sleep(200);
+        
+        assertEquals(2, queue.getSize());
+        
+        MailQueueIterator it = queue.browse();
+        checkMail(mail, it.next());
+        checkMail(mail2, it.next());
+        assertFalse(it.hasNext());
+        it.close();
+
+        assertEquals(2, queue.getSize());
+        MailQueueItem item2 = queue.deQueue();
+        checkMail(mail, item2.getMail());
+        item2.done(true);
+        Thread.sleep(200);
+
+        assertEquals(1, queue.getSize());
+        it = queue.browse();
+        checkMail(mail2, it.next());
+        assertFalse(it.hasNext());
+        it.close();
     }
     
 
