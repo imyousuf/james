@@ -76,7 +76,6 @@
     <module>user-ldap</module>
     <module>util</module>
     <module>cli</module>
-    <module>?</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
