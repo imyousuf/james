@@ -118,42 +118,42 @@ public class ServerCmd {
         String cmdName = arguments[0];
         try {
             if (cmdName.equals("adduser")) {
-                if (arguments.length == 2) {
-                    probe.addUser(arguments[0], arguments[1]);
+                if (arguments.length == 3) {
+                    probe.addUser(arguments[1], arguments[2]);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
             } else if (cmdName.equals("removeuser")) {
-                if (arguments.length == 1) {
-                    probe.removeUser(arguments[0]);
+                if (arguments.length == 2) {
+                    probe.removeUser(arguments[1]);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
             } else if (cmdName.equals("listusers")) {
-                if (arguments.length == 0) {
+                if (arguments.length == 1) {
                     sCmd.print(probe.listUsers(), System.out);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
             } else if (cmdName.equals("adddomain")) {
-                if (arguments.length == 1) {
-                    probe.addDomain(arguments[0]);
+                if (arguments.length == 2) {
+                    probe.addDomain(arguments[1]);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
             } else if (cmdName.equals("removedomain")) {
-                if (arguments.length == 1) {
-                    probe.removeDomain(arguments[0]);
+                if (arguments.length == 2) {
+                    probe.removeDomain(arguments[1]);
                 } else {
                     printUsage();
                     System.exit(1);
                 }
             } else if (cmdName.equals("listdomains")) {
-                if (arguments.length == 0) {
+                if (arguments.length == 1) {
                     sCmd.print(probe.listDomains(), System.out);
                 } else {
                     printUsage();
