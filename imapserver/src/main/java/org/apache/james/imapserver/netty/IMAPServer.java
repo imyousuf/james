@@ -32,7 +32,7 @@ import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.protocols.impl.ChannelGroupHandler;
 import org.apache.james.protocols.impl.TimeoutHandler;
-import org.apache.james.protocols.library.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;

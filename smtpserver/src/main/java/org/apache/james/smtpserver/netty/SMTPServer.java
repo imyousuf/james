@@ -27,7 +27,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
-import org.apache.james.protocols.library.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;

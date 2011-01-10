@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.protocols.library.jmx;
+package org.apache.james.protocols.lib.jmx;
 
 /**
  * JMX MBean interface for servers

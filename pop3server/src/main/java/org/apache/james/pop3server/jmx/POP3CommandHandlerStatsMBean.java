@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.pop3server.jmx;
 
-import org.apache.james.protocols.library.jmx.CommandHandlerStatsMBean;
+import org.apache.james.protocols.lib.jmx.CommandHandlerStatsMBean;
 
 public interface POP3CommandHandlerStatsMBean extends CommandHandlerStatsMBean{
 

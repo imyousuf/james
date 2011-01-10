@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.jmx;
 
-import org.apache.james.protocols.library.jmx.AbstractConnectHandlerResultJMXMonitor;
+import org.apache.james.protocols.lib.jmx.AbstractConnectHandlerResultJMXMonitor;
 import org.apache.james.protocols.smtp.SMTPSession;
 
 public class ConnectHandlerResultJMXMonitor extends AbstractConnectHandlerResultJMXMonitor<SMTPSession>{

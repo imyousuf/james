@@ -25,7 +25,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.impl.AbstractSSLAwareChannelPipelineFactory;
-import org.apache.james.protocols.library.netty.AbstractConfigurableAsyncServer;
+import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.smtpserver.netty.SMTPChannelUpstreamHandler;
 import org.apache.james.smtpserver.netty.SMTPResponseEncoder;

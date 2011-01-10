@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.protocols.library.netty;
+package org.apache.james.protocols.lib.netty;
 
 import java.io.FileInputStream;
 import java.net.InetAddress;
@@ -39,7 +39,7 @@ import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.impl.AbstractAsyncServer;
-import org.apache.james.protocols.library.jmx.ServerMBean;
+import org.apache.james.protocols.lib.jmx.ServerMBean;
 import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
 
 

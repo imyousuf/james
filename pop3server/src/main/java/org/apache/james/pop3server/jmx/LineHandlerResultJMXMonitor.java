@@ -19,7 +19,7 @@
 package org.apache.james.pop3server.jmx;
 
 import org.apache.james.pop3server.POP3Session;
-import org.apache.james.protocols.library.jmx.AbstractLineHandlerResultJMXMonitor;
+import org.apache.james.protocols.lib.jmx.AbstractLineHandlerResultJMXMonitor;
 
 public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<POP3Session>{
 

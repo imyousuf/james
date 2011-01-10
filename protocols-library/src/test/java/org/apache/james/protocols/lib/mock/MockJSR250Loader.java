@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.server.mock;
+package org.apache.james.protocols.lib.mock;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

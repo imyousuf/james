@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.server.mock;
+package org.apache.james.protocols.lib.mock;
 
 import java.util.Iterator;
 import java.util.LinkedList;

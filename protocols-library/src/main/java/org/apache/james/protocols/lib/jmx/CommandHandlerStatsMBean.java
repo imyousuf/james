@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.protocols.library.jmx;
+package org.apache.james.protocols.lib.jmx;
 
-import org.apache.james.protocols.library.jmx.HandlerStatsMBean;
+import org.apache.james.protocols.lib.jmx.HandlerStatsMBean;
 
 
 /**

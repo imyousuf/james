@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.server;
+package org.apache.james.protocols.lib;
 
 
 

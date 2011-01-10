@@ -24,8 +24,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.protocols.api.CommandHandler;
-import org.apache.james.protocols.library.jmx.AbstractCommandHandlerResultJMXMonitor;
-import org.apache.james.protocols.library.jmx.AbstractCommandHandlerStats;
+import org.apache.james.protocols.lib.jmx.AbstractCommandHandlerResultJMXMonitor;
+import org.apache.james.protocols.lib.jmx.AbstractCommandHandlerStats;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPSession;
 
