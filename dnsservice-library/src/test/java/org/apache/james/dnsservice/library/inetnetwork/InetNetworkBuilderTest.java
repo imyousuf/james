@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.util.inetnetwork;
+package org.apache.james.dnsservice.library.inetnetwork;
 
 import java.net.UnknownHostException;
 
 import junit.framework.TestCase;
 
 import org.apache.james.dnsservice.api.mock.DNSFixture;
-import org.apache.james.util.inetnetwork.InetNetworkBuilder;
-import org.apache.james.util.inetnetwork.model.InetNetwork;
+import org.apache.james.dnsservice.library.inetnetwork.InetNetworkBuilder;
+import org.apache.james.dnsservice.library.inetnetwork.model.InetNetwork;
 
 /**
  * Test the InetNetworkBuilder.

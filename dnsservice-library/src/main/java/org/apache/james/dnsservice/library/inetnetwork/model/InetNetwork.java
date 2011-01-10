@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.util.inetnetwork.model;
+package org.apache.james.dnsservice.library.inetnetwork.model;
 
 import java.net.InetAddress;
 

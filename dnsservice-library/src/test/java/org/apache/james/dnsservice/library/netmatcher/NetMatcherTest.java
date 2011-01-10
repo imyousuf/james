@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.util.netmatcher;
+package org.apache.james.dnsservice.library.netmatcher;
 
 import java.net.UnknownHostException;
 
 import junit.framework.TestCase;
 
 import org.apache.james.dnsservice.api.mock.DNSFixture;
-import org.apache.james.util.netmatcher.NetMatcher;
+import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 
 /**
  * Test the NetMatcher class with various IPv4 and IPv6 parameters.

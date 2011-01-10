@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.util.netmatcher;
+package org.apache.james.dnsservice.library.netmatcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.james.dnsservice.api.DNSService;
-import org.apache.james.util.inetnetwork.InetNetworkBuilder;
-import org.apache.james.util.inetnetwork.model.InetNetwork;
+import org.apache.james.dnsservice.library.inetnetwork.InetNetworkBuilder;
+import org.apache.james.dnsservice.library.inetnetwork.model.InetNetwork;
 
 /**
  * NetMatcher Class is used to check if an ipAddress match a network.

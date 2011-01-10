@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.util.inetnetwork.model;
+package org.apache.james.dnsservice.library.inetnetwork.model;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -24,8 +24,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
 
-import org.apache.james.util.inetnetwork.model.Inet4Network;
-import org.apache.james.util.inetnetwork.model.Inet6Network;
+import org.apache.james.dnsservice.library.inetnetwork.model.Inet4Network;
+import org.apache.james.dnsservice.library.inetnetwork.model.Inet6Network;
 
 import junit.framework.TestCase;
 
