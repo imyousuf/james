@@ -24,7 +24,6 @@ import java.util.Iterator;
 
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.dnsservice.library.MXHostAddressIterator;
-import org.apache.james.mailetcontainer.lib.JamesMailetContext;
 import org.apache.mailet.HostAddress;
 
 public class CamelMailetContext extends JamesMailetContext {

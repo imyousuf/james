@@ -17,7 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-package org.apache.james.mailetcontainer.lib;
+package org.apache.james.mailetcontainer.camel;
 
 import java.util.ArrayList;
 import java.util.Collection;
