@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.server.jmx;
+package org.apache.james.protocols.library.jmx;
 
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.atomic.AtomicLong;
@@ -31,7 +31,12 @@ import javax.management.StandardMBean;
 
 import org.apache.james.lifecycle.api.Disposable;
 
-public class ConnectHandlerStats extends StandardMBean implements HandlerStatsMBean, Disposable{
+/**
+ * Gather stats for LineHandlers
+ * 
+ *
+ */
+public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean, Disposable{
 
     private String name;
     private String handlerName;
@@ -39,20 +44,20 @@ public class ConnectHandlerStats extends StandardMBean implements HandlerStatsMB
     private AtomicLong disconnect = new AtomicLong(0);
     private AtomicLong all = new AtomicLong(0);
 
-    public ConnectHandlerStats(String jmxName, String handlerName) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
+    public LineHandlerStats(String jmxName, String handlerName) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
         super(HandlerStatsMBean.class);
         this.handlerName = handlerName;
         
-        this.name = "org.apache.james:type=server,name=" + jmxName + ",chain=handlerchain,handler=connecthandler,connecthandler=" + handlerName;
+        this.name =  "org.apache.james:type=server,name=" + jmxName + ",chain=handlerchain,handler=linehandler,linehandler=" + handlerName;
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         ObjectName baseObjectName = new ObjectName(name);
         mbeanserver.registerMBean(this, baseObjectName);
     }
     
     /**
-     * Increment stats
+     * Increment the stats 
      * 
-     * @param disconnected
+     * @param result
      */
     public void increment(boolean disconnected) {
         if (disconnected) {

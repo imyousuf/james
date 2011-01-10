@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.netty;
 
-import org.apache.james.server.jmx.ServerMBean;
+import org.apache.james.protocols.library.jmx.ServerMBean;
 
 /**
  * JMX MBean interface for the SMTPServer

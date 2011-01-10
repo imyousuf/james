@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.smtpserver.jmx;
 
-import org.apache.james.server.jmx.CommandHandlerStatsMBean;
+import org.apache.james.protocols.library.jmx.CommandHandlerStatsMBean;
 
 
 /**

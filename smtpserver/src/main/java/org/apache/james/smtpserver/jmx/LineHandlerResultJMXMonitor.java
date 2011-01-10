@@ -18,8 +18,8 @@
  ****************************************************************/
 package org.apache.james.smtpserver.jmx;
 
+import org.apache.james.protocols.library.jmx.AbstractLineHandlerResultJMXMonitor;
 import org.apache.james.protocols.smtp.SMTPSession;
-import org.apache.james.server.jmx.AbstractLineHandlerResultJMXMonitor;
 
 public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<SMTPSession>{
 
