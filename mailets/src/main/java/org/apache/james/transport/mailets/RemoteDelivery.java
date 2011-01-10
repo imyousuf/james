@@ -23,6 +23,7 @@ package org.apache.james.transport.mailets;
 
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
+import org.apache.james.dnsservice.library.MXHostAddressIterator;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.LifecycleUtil;
@@ -30,7 +31,6 @@ import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.api.MailQueue.MailQueueException;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
-import org.apache.james.util.MXHostAddressIterator;
 import org.apache.james.util.MailetContextLog;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.base.GenericMailet;

@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.dnsservice.library.MXHostAddressIterator;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.smtp.DNSService;
 import org.apache.james.protocols.smtp.TemporaryResolutionException;
-import org.apache.james.util.MXHostAddressIterator;
 import org.apache.mailet.HostAddress;
 
 public class SMTPServerDNSServiceAdapter implements DNSService, LogEnabled{
