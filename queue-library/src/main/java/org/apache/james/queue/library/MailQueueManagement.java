@@ -18,8 +18,11 @@
  ****************************************************************/
 package org.apache.james.queue.library;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,9 +37,11 @@ import javax.management.openmbean.SimpleType;
 import org.apache.james.queue.api.MailQueueManagementMBean;
 import org.apache.james.queue.api.ManageableMailQueue;
 import org.apache.james.queue.api.MailQueue.MailQueueException;
+import org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView;
 import org.apache.james.queue.api.ManageableMailQueue.MailQueueIterator;
 import org.apache.james.queue.api.ManageableMailQueue.Type;
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 
 /**
  * 
@@ -129,16 +134,96 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
      * (non-Javadoc)
      * @see org.apache.james.queue.api.MailQueueManagementMBean#browse()
      */
+    @SuppressWarnings("unchecked")
     public List<CompositeData> browse() throws Exception {
         MailQueueIterator it = queue.browse();
         List<CompositeData> data = new ArrayList<CompositeData>();
+        String[] names = new String[] { 
+                "name", 
+                "sender", 
+                "state", 
+                "recipients", 
+                "size", 
+                "lastUpdated", 
+                "remoteAddress", 
+                "remoteHost", 
+                "errorMessage", 
+                "attributes", 
+                "nextDelivery"
+                };
+        String[] descs = new String[] { 
+                "Unique name", 
+                "Sender", 
+                "Current state", 
+                "Recipients", 
+                "Size in bytes", 
+                "Timestamp of last update", 
+                "IPAddress of the sender", 
+                "Hostname of the sender", 
+                "Errormessage if any", 
+                "Attributes stored", 
+                "Timestamp of when the next delivery attempt will be make"
+                };
+        OpenType<?>[] types = new OpenType[] { 
+                SimpleType.STRING, 
+                SimpleType.STRING, 
+                SimpleType.STRING, 
+                SimpleType.STRING,  
+                SimpleType.LONG, 
+                SimpleType.LONG, 
+                SimpleType.STRING, 
+                SimpleType.STRING,
+                SimpleType.STRING,
+                SimpleType.STRING,
+                SimpleType.LONG
+                };
+
         while(it.hasNext()) {
-            Mail m = it.next();
+
+            MailQueueItemView mView = it.next();
+            Mail m = mView.getMail();
+            long nextDelivery = mView.getNextDelivery();
             Map<String, Object> map = new HashMap<String, Object>();
-            map.put("name", m.getName());
-            map.put("sender", m.getSender());
-            map.put("state", m.getState());
-            CompositeDataSupport c = new CompositeDataSupport(new CompositeType(Mail.class.getName(), "Mail", new String[] {"name", "sender", "state"}, new String[] {"The name of the Mail", "The sender of the Mail", "The state of the Mail"}, new OpenType[] { SimpleType.STRING, SimpleType.STRING, SimpleType.STRING}), map);
+            map.put(names[0], m.getName());
+            String sender = null;
+            MailAddress senderAddress = m.getSender();
+            if (senderAddress != null) {
+                sender = senderAddress.toString();
+            }
+            map.put(names[1], sender);
+            map.put(names[2], m.getState());
+            
+            StringBuilder rcptsBuilder = new StringBuilder();
+            Collection<MailAddress> rcpts = m.getRecipients();
+            if (rcpts != null) {
+                Iterator<MailAddress> rcptsIt = rcpts.iterator();
+                while(rcptsIt.hasNext()) {
+                    rcptsBuilder.append(rcptsIt.next().toString());
+                    if (rcptsIt.hasNext()) {
+                        rcptsBuilder.append(",");
+                    }
+                }
+            }
+            map.put(names[3], rcptsBuilder.toString());
+            map.put(names[4], m.getMessageSize());
+            map.put(names[5], m.getLastUpdated().getTime());
+            map.put(names[6], m.getRemoteAddr());
+            map.put(names[7], m.getRemoteHost());
+            map.put(names[8], m.getErrorMessage());
+            Map<String, String> attrs = new HashMap<String, String>();
+            Iterator<String> attrNames = m.getAttributeNames();
+            while(attrNames.hasNext()) {
+                String attrName = attrNames.next();
+                String attrValueString = null;
+                Serializable attrValue = m.getAttribute(attrName);
+                if (attrValue != null) {
+                    attrValueString = attrValue.toString(); 
+                }
+                attrs.put(attrName, attrValueString);
+            }
+            map.put(names[9], attrs.toString());
+            map.put(names[10], nextDelivery);
+            CompositeDataSupport c = new CompositeDataSupport(new CompositeType(Mail.class.getName(), "Queue Mail", names, descs, types), map);
             data.add(c);
         }
         it.close();

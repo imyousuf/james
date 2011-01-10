@@ -495,7 +495,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
             browser = session.createBrowser(queue);
             
-            Enumeration messages = browser.getEnumeration();
+            Enumeration<Message> messages = browser.getEnumeration();
             
             while(messages.hasMoreElements()) {
                 messages.nextElement();
@@ -740,6 +740,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
      * (non-Javadoc)
      * @see org.apache.james.queue.api.ManageableMailQueue#browse()
      */
+    @SuppressWarnings("unchecked")
     public MailQueueIterator browse() throws MailQueueException {
         Connection connection = null;
         Session session = null;
@@ -752,7 +753,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
             browser = session.createBrowser(queue);
             
-            final Enumeration messages = browser.getEnumeration();
+            final Enumeration<Message> messages = browser.getEnumeration();
             
             final Connection myconnection = connection;
             final Session mysession = session;
@@ -771,10 +772,30 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                  * (non-Javadoc)
                  * @see java.util.Iterator#next()
                  */
-                public Mail next() {
+                public MailQueueItemView next() {
                     while (hasNext()) {
                         try {
-                            return createMail((Message) messages.nextElement());
+                            Message m = messages.nextElement();
+                            final Mail mail = createMail(m);
+                            final long nextDelivery = m.getLongProperty(JAMES_NEXT_DELIVERY);
+                            return new MailQueueItemView() {
+                                
+                                /*
+                                 * (non-Javadoc)
+                                 * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getNextDelivery()
+                                 */
+                                public long getNextDelivery() {
+                                    return nextDelivery;
+                                }
+                                
+                                /*
+                                 * (non-Javadoc)
+                                 * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getMail()
+                                 */
+                                public Mail getMail() {
+                                    return mail;
+                                }
+                            };
                         } catch (MessagingException e) {
                             logger.error("Unable to browse queue", e);
                         } catch (JMSException e) {
@@ -794,6 +815,10 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                     return messages.hasMoreElements();
                 }
                 
+                /*
+                 * (non-Javadoc)
+                 * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueIterator#close()
+                 */
                 public void close() {
                     
                     try {

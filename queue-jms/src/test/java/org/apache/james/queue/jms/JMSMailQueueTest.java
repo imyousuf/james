@@ -405,8 +405,8 @@ public class JMSMailQueueTest extends TestCase{
         assertEquals(2, queue.getSize());
         
         MailQueueIterator it = queue.browse();
-        checkMail(mail, it.next());
-        checkMail(mail2, it.next());
+        checkMail(mail, it.next().getMail());
+        checkMail(mail2, it.next().getMail());
         assertFalse(it.hasNext());
         it.close();
 
@@ -418,7 +418,7 @@ public class JMSMailQueueTest extends TestCase{
 
         assertEquals(1, queue.getSize());
         it = queue.browse();
-        checkMail(mail2, it.next());
+        checkMail(mail2, it.next().getMail());
         assertFalse(it.hasNext());
         it.close();
     }

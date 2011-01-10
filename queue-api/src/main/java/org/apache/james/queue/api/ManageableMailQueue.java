@@ -83,12 +83,34 @@ public interface ManageableMailQueue extends MailQueue{
      * 
      *
      */
-    public interface MailQueueIterator extends Iterator<Mail> {
+    public interface MailQueueIterator extends Iterator<MailQueueItemView> {
         
         /**
          * Close the iterator. After this was called the iterator MUST NOT be used again
          */
         public void close();
+    }
+    
+    /**
+     * Represent a View over a queue {@link MailQueueItem}
+     * 
+     *
+     */
+    public interface MailQueueItemView {
+        
+        /**
+         * Return the Mail 
+         * 
+         * @return mail
+         */
+        public Mail getMail();
+        
+        /**
+         * Return the timestamp when the mail will be ready for dequeuing or -1 if there is no restriction set..
+         *  
+         * @return nextDelivery
+         */
+        public long getNextDelivery();
     }
   
 }
