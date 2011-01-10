@@ -37,6 +37,7 @@
     <module>core</module>
     <module>dnsservice-api</module>
     <module>dnsservice-dnsjava</module>
+    <module>dnsservice-library</module>
     <module>fetchmail</module>
     <module>filesystem-api</module>
     <module>imapserver</module>
@@ -75,6 +76,7 @@
     <module>user-ldap</module>
     <module>util</module>
     <module>cli</module>
+    <module>?</module>
   </modules>
   <ciManagement>
     <system>hudson</system>
@@ -353,6 +355,18 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-dnsservice-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-dnsservice-library</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-dnsservice-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
       <version>${project.version}</version>
