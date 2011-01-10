@@ -25,8 +25,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-nio-netty</artifactId>
-  <name>Apache James Server NIO Netty</name>
+  <artifactId>james-server-protocols-library</artifactId>
+  <name>Apache James Server Protocols Library</name>
 
   <properties>
     <!-- OSGI stuff -->

@@ -62,7 +62,7 @@
     </dependency>    
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-nio-netty</artifactId>
+      <artifactId>james-server-protocols-library</artifactId>
     </dependency>           
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -187,7 +187,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-nio-netty</artifactId>
+      <artifactId>james-server-protocols-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
