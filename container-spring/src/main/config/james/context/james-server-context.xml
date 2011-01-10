@@ -190,7 +190,7 @@
       otherwise LogEnabled injection via LogEnabledBeanPostProcessor will not occur before 
       it is used - Seems like a Spring bug.
     -->
-    <bean id="mailetcontext" class="org.apache.james.mailetcontainer.lib.JamesMailetContext"/>
+    <bean id="mailetcontext" class="org.apache.james.mailetcontainer.camel.CamelMailetContext"/>
     <bean id="mailspooler" class="org.apache.james.mailetcontainer.lib.JamesMailSpooler"/>
 
     <!-- 

@@ -53,22 +53,21 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
-import org.apache.james.util.MXHostAddressIterator;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.base.RFC2822Headers;
 
-public class JamesMailetContext implements MailetContext, LogEnabled, Configurable {
+public abstract class JamesMailetContext implements MailetContext, LogEnabled, Configurable {
 
     /**
      * A hash table of server attributes These are the MailetContext attributes
      */
     private Hashtable<String, Object> attributes = new Hashtable<String, Object>();
-    private DNSService dns;
+    protected DNSService dns;
 
-    private Log log;
+    protected Log log;
 
     private UsersRepository localusers;
 
@@ -318,15 +317,7 @@ public class JamesMailetContext implements MailetContext, LogEnabled, Configurab
      *            - the domain for which to find mail servers
      * @return an Iterator over HostAddress instances, sorted by priority
      */
-    public Iterator<HostAddress> getSMTPHostAddresses(String domainName) {
-        try {
-            return new MXHostAddressIterator(dns.findMXRecords(domainName).iterator(), dns, false, log);
-        } catch (TemporaryResolutionException e) {
-            // TODO: We only do this to not break backward compatiblity. Should
-            // fixed later
-            return Collections.unmodifiableCollection(new ArrayList<HostAddress>(0)).iterator();
-        }
-    }
+    public abstract Iterator<HostAddress> getSMTPHostAddresses(String domainName);
 
     /*
      * (non-Javadoc)
