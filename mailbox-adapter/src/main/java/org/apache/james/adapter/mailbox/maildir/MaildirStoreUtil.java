@@ -46,9 +46,9 @@ public class MaildirStoreUtil{
         StringBuffer root = new StringBuffer();
         root.append(fs.getFile(rootURL).getAbsolutePath());
         if (usersRepos.supportVirtualHosting()) {
-            root.append("/%domain/%user/");
+            root.append("/").append(MaildirStore.PATH_DOMAIN).append("/").append(MaildirStore.PATH_USER).append("/");
         } else {
-            root.append("/%user/");
+            root.append("/").append(MaildirStore.PATH_USER).append("/");
         }
 
         return new MaildirStore(root.toString());
