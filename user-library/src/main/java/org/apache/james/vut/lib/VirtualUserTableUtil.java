@@ -24,15 +24,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.james.util.XMLResources;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
 
 /**
  * This helper class contains methods for the VirtualUserTable implementations
@@ -55,14 +53,14 @@ public class VirtualUserTableUtil {
      * @param targetString a String specifying the mapping
      * @throws MalformedPatternException 
      */
-    public static String regexMap( MailAddress address, String targetString) throws MalformedPatternException {
+    public static String regexMap( MailAddress address, String targetString) {
         String result = null;
         int identifierLength = VirtualUserTable.REGEX_PREFIX.length();
 
         int msgPos = targetString.indexOf(':', identifierLength + 1);
 
         // Throw exception on invalid format
-        if (msgPos < identifierLength + 1) throw new MalformedPatternException("Regex should be formatted as regex:<regular-expression>:<parameterized-string>");
+        if (msgPos < identifierLength + 1) throw new PatternSyntaxException("Regex should be formatted as regex:<regular-expression>:<parameterized-string>", targetString, 0);
         
         // log("regex: targetString = " + targetString);
         // log("regex: msgPos = " + msgPos);
@@ -70,13 +68,12 @@ public class VirtualUserTableUtil {
         // log("regex: address = " + address.toString());
         // log("regex: replace = " + targetString.substring(msgPos + 1));
 
-        Pattern pattern = new Perl5Compiler().compile(targetString.substring(identifierLength, msgPos));
-        Perl5Matcher matcher = new Perl5Matcher();
+        Pattern pattern = Pattern.compile(targetString.substring(identifierLength, msgPos));
+        Matcher match = pattern.matcher(address.toString());
 
-        if (matcher.matches(address.toString(), pattern)) {
-            MatchResult match = matcher.getMatch();
-            Map parameters = new HashMap(match.groups());
-            for (int i = 1; i < match.groups(); i++) {
+        if (match.matches()) {
+            Map<String, String> parameters = new HashMap<String, String>(match.groupCount());
+            for (int i = 1; i < match.groupCount(); i++) {
                 parameters.put(Integer.toString(i), match.group(i));
             }
             result = XMLResources.replaceParameters(targetString.substring(msgPos + 1), parameters);
@@ -91,7 +88,7 @@ public class VirtualUserTableUtil {
      * @param domain the virtual domain
      * @return the real recipient address, or <code>null</code> if no mapping exists
      */
-    public static String getTargetString(String user, String domain, Map mappings) {
+    public static String getTargetString(String user, String domain, Map<String, String> mappings) {
          StringBuffer buf;
          String target;
          
@@ -137,8 +134,8 @@ public class VirtualUserTableUtil {
       * @param mapping A String which contains a list of mappings
       * @return Map which contains the mappings
       */
-     public static Map getXMLMappings(String mapping) {
-         Map mappings = new HashMap();
+     public static Map<String, String> getXMLMappings(String mapping) {
+         Map<String, String> mappings = new HashMap<String, String>();
          StringTokenizer tokenizer = new StringTokenizer(mapping, ",");
          while(tokenizer.hasMoreTokens()) {
            String mappingItem = tokenizer.nextToken();
@@ -184,9 +181,9 @@ public class VirtualUserTableUtil {
       * @param map the Collection
       * @return mapping the mapping String
       */
-     public static String CollectionToMapping(Collection map) {
+     public static String CollectionToMapping(Collection<String> map) {
          StringBuffer mapping = new StringBuffer();
-         Iterator mappings = map.iterator();
+         Iterator<String> mappings = map.iterator();
          while (mappings.hasNext()) {
              mapping.append(mappings.next());
              if (mappings.hasNext()) {

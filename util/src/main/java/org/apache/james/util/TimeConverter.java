@@ -16,21 +16,15 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
-
 package org.apache.james.util;
 
 import java.util.HashMap;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TimeConverter {
 
-    private static HashMap multipliers = new HashMap(10);
+    private static HashMap<String, Integer> multipliers = new HashMap<String, Integer>(10);
 
     private static final String PATTERN_STRING = "\\s*([0-9]+)\\s*([a-z,A-Z]+)\\s*";
 
@@ -49,13 +43,7 @@ public class TimeConverter {
         multipliers.put("day", new Integer(1000 * 60 * 60 * 24));
         multipliers.put("days", new Integer(1000 * 60 * 60 * 24));
 
-        try {
-            Perl5Compiler compiler = new Perl5Compiler();
-            PATTERN = compiler.compile(PATTERN_STRING,
-                    Perl5Compiler.READ_ONLY_MASK);
-        } catch (MalformedPatternException mpe) {
-            // Will never happen cause its hardcoded
-        }
+        PATTERN = Pattern.compile(PATTERN_STRING);
 
     }
 
@@ -96,18 +84,9 @@ public class TimeConverter {
      */
     public static long getMilliSeconds(String rawString)
             throws NumberFormatException {
-        Perl5Matcher matcher = new Perl5Matcher();
-
-        try {
-            Perl5Compiler compiler = new Perl5Compiler();
-            PATTERN = compiler.compile(PATTERN_STRING,
-                    Perl5Compiler.READ_ONLY_MASK);
-        } catch (MalformedPatternException mpe) {
-            // Will never happen
-        }
-
-        if (matcher.matches(rawString, PATTERN)) {
-            MatchResult res = matcher.getMatch();
+        PATTERN = Pattern.compile(PATTERN_STRING);
+        Matcher res = PATTERN.matcher(rawString);
+        if (res.matches()) {
 
             if (res.group(1) != null && res.group(2) != null) {
                 long time = Integer.parseInt(res.group(1).trim());

@@ -47,33 +47,14 @@
 
 package org.apache.james.mailrepository.file;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.james.core.MailImpl;
-import org.apache.james.lifecycle.api.Configurable;
-import org.apache.james.lifecycle.api.LogEnabled;
-import org.apache.james.mailrepository.api.MailRepository;
-import org.apache.mailet.Mail;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Matcher;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -83,6 +64,21 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.james.core.MailImpl;
+import org.apache.james.lifecycle.api.Configurable;
+import org.apache.james.lifecycle.api.LogEnabled;
+import org.apache.james.mailrepository.api.MailRepository;
+import org.apache.mailet.Mail;
 
 /**
  * Implementation of a MailRepository using UNIX mbox files.
@@ -298,9 +294,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
         }
         try {
 
-            Perl5Compiler sepMatchCompiler = new Perl5Compiler();
-            Pattern sepMatchPattern = sepMatchCompiler.compile("^From (.*) (.*):(.*):(.*)$");
-            Perl5Matcher sepMatch = new Perl5Matcher();
+            Pattern sepMatchPattern = Pattern.compile("^From (.*) (.*):(.*):(.*)$");
 
             int c;
             boolean inMessage = false;
@@ -312,7 +306,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
             if (BUFFERING) {
             String line = null;
             while ((line = ins.readLine()) != null) {
-                foundSep = sepMatch.contains(line + "\n", sepMatchPattern);
+                foundSep = sepMatchPattern.matcher(line).matches();
 
                 if (foundSep && inMessage) {
 //                    if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
@@ -341,7 +335,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
             StringBuffer line = new StringBuffer();
             while ((c = ins.read()) != -1) {
                 if (c == 10) {
-                    foundSep = sepMatch.contains(line.toString(), sepMatchPattern);
+                    foundSep = sepMatchPattern.matcher(line).matches();
                     if (foundSep && inMessage) {
 //                        if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {
 //                            getLogger().debug(this.getClass().getName() + " Invoking " + messAct.getClass() + " at " + prevMessageStart);
@@ -377,7 +371,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
             }
         } catch (IOException ioEx) {
             getLogger().error("Unable to write file (General I/O problem) " + mboxFile, ioEx);
-        } catch (MalformedPatternException e) {
+        } catch (PatternSyntaxException e) {
             getLogger().error("Bad regex passed " + mboxFile, e);
         } finally {
             if ((DEEP_DEBUG) && (getLogger().isDebugEnabled())) {

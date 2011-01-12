@@ -22,8 +22,8 @@
 package org.apache.james.transport.matchers;
 
 import java.io.IOException;
+import java.util.regex.PatternSyntaxException;
 
-import org.apache.oro.text.regex.MalformedPatternException;
 import javax.mail.MessagingException;
 
 /**
@@ -57,7 +57,7 @@ public class FileRegexMatcher extends GenericRegexMatcher {
         catch (java.io.IOException ioe) {
             throw new MessagingException("Could not read patterns.", ioe);
         }
-        catch(MalformedPatternException mp) {
+        catch(PatternSyntaxException mp) {
             throw new MessagingException("Could not initialize regex patterns", mp);
         } finally {
             if (patternSource != null) {

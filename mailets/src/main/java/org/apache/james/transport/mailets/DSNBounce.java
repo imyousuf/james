@@ -31,6 +31,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
@@ -46,11 +49,6 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.RFC2822Headers;
 import org.apache.mailet.base.RFC822DateFormat;
 import org.apache.mailet.base.mail.MimeMultipartReport;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
 
 
 
@@ -106,21 +104,18 @@ public class DSNBounce extends AbstractNotify {
      * Compiles patterns for processing exception messages.<p>
      */
     static {
-        Perl5Compiler compiler = new Perl5Compiler();
         String status_pattern_string = ".*\\s*([245]\\.\\d{1,3}\\.\\d{1,3}).*\\s*";
         String diag_pattern_string = "^\\d{3}\\s.*$";
         try {
-            statusPattern = compiler.
-                compile(status_pattern_string, Perl5Compiler.READ_ONLY_MASK);
-        } catch(MalformedPatternException mpe) {
+            statusPattern = Pattern.compile(status_pattern_string);
+        } catch(PatternSyntaxException mpe) {
             //this should not happen as the pattern string is hardcoded.
             System.err.println ("Malformed pattern: " + status_pattern_string);
             mpe.printStackTrace (System.err);
         }
         try {
-            diagPattern = compiler.
-                compile(diag_pattern_string, Perl5Compiler.READ_ONLY_MASK);
-        } catch(MalformedPatternException mpe) {
+            diagPattern = Pattern.compile(diag_pattern_string);
+        } catch(PatternSyntaxException mpe) {
             //this should not happen as the pattern string is hardcoded.
             System.err.println ("Malformed pattern: " + diag_pattern_string);
         }
@@ -177,7 +172,7 @@ public class DSNBounce extends AbstractNotify {
             if (isDebug)
                 log("Processing a bounce request for a message with a reverse path.  The bounce will be sent to " + reversePath);
     
-            Collection newRecipients = new HashSet();
+            Collection<MailAddress> newRecipients = new HashSet<MailAddress>();
             newRecipients.add(reversePath);
             newMail.setRecipients(newRecipients);
     
@@ -276,7 +271,7 @@ public class DSNBounce extends AbstractNotify {
         }
         out.println(bounceBuffer.toString());
         out.println("Failed recipient(s):");
-        for (Iterator i = originalMail.getRecipients().iterator(); i.hasNext(); ) {
+        for (Iterator<?> i = originalMail.getRecipients().iterator(); i.hasNext(); ) {
             out.println(i.next());
         }
         String ex = (String)originalMail.getAttribute("delivery-error");
@@ -341,7 +336,7 @@ public class DSNBounce extends AbstractNotify {
         // per recipient fields //
         //////////////////////////
 
-        Iterator recipients = originalMail.getRecipients().iterator();
+        Iterator<MailAddress> recipients = originalMail.getRecipients().iterator();
         while (recipients.hasNext())
             {
                 MailAddress rec = (MailAddress)recipients.next();
@@ -379,9 +374,7 @@ public class DSNBounce extends AbstractNotify {
                 String diagnosticCode = ex;
                 // Sometimes this is the smtp diagnostic code,
                 // but James often gives us other messages
-                Perl5Matcher diagMatcher = new Perl5Matcher();
-                boolean smtpDiagCodeAvailable =
-                    diagMatcher.matches(diagnosticCode, diagPattern);
+                boolean smtpDiagCodeAvailable = diagPattern.matcher(diagnosticCode).matches();
                 if (smtpDiagCodeAvailable){
                     diagnosticType = "smtp";
                 } else {
@@ -454,11 +447,10 @@ public class DSNBounce extends AbstractNotify {
     protected String getStatus(MessagingException me) {
         if (me.getNextException() == null) {
             String mess = me.getMessage();
-            Perl5Matcher m = new Perl5Matcher();
+            Matcher m = statusPattern.matcher(mess);
             StringBuffer sb = new StringBuffer();
-            if (m.matches(mess, statusPattern)) {
-                MatchResult res = m.getMatch();
-                sb.append(res.group(1));
+            if (m.matches()) {
+                sb.append(m.group(1));
                 return sb.toString();
             }
             // bad destination system adress
@@ -474,11 +466,10 @@ public class DSNBounce extends AbstractNotify {
             return DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.UNDEFINED_STATUS);
         } else {
             Exception ex1 = me.getNextException();
-            Perl5Matcher m = new Perl5Matcher ();
+            Matcher m = statusPattern.matcher(ex1.getMessage());
             StringBuffer sb = new StringBuffer();
-            if (m.matches(ex1.getMessage(), statusPattern)) {
-                MatchResult res = m.getMatch();
-                sb.append(res.group(1));
+            if (m.matches()) {
+                sb.append(m.group(1));
                 return sb.toString();
             } else if (ex1 instanceof SendFailedException) {
                 // other/undefined protocol status
@@ -578,8 +569,8 @@ public class DSNBounce extends AbstractNotify {
     /**
      * @return <CODE>SpecialAddress.REVERSE_PATH</CODE>
      */
-    protected Collection getRecipients() {
-        Collection newRecipients = new HashSet();
+    protected Collection<MailAddress> getRecipients() {
+        Collection<MailAddress> newRecipients = new HashSet<MailAddress>();
         newRecipients.add(SpecialAddress.REVERSE_PATH);
         return newRecipients;
     }

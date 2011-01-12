@@ -20,8 +20,6 @@
 
 package org.apache.james.util;
 
-import org.apache.oro.text.perl.MalformedPerl5PatternException;
-import org.apache.oro.text.perl.Perl5Util;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,6 +32,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /*
  * This is derived from the SQLResources.java class that we have been
@@ -79,17 +78,12 @@ public class XMLResources
     /**
      * A map of statement types to resource strings
      */
-    private Map m_resource = new HashMap();
+    private Map<String, String> m_resource = new HashMap<String, String>();
 
     /**
      * A set of all used String values
      */
-    static private Map stringTable = java.util.Collections.synchronizedMap(new HashMap());
-
-    /**
-     * A Perl5 regexp matching helper class
-     */
-    private Perl5Util m_perl5Util = new Perl5Util();
+    static private Map<String, String> stringTable = java.util.Collections.synchronizedMap(new HashMap<String, String>());
 
     /**
      * Configures an XMLResources object to provide string statements from a file.
@@ -105,7 +99,7 @@ public class XMLResources
      *                   replaced where found in the input strings
      */
     public void init(File xmlFile, String group,
-                     String select, Map configParameters)
+                     String select, Map<String, String> configParameters)
         throws Exception
     {
         // Parse the xmlFile as an XML document.
@@ -119,7 +113,6 @@ public class XMLResources
         String selectTag = null;
         if ( matcherElement != null ) {
             selectTag = match(select, matcherElement);
-            m_perl5Util = null;     // release the PERL matcher!
         }
 
         // Now get the section defining strings for the group required.
@@ -146,7 +139,7 @@ public class XMLResources
 
         // Get parameters defined within the file as defaults,
         // and use supplied parameters as overrides.
-        Map parameters = new HashMap();
+        Map<String, String> parameters = new HashMap<String, String>();
         // First read from the <params> element, if it exists.
         Element parametersElement = 
             (Element)(sectionElement.getElementsByTagName("parameters").item(0));
@@ -166,8 +159,8 @@ public class XMLResources
         // 2 maps - one for storing default statements,
         // the other for statements with a "for" attribute matching this 
         // connection.
-        Map defaultStrings = new HashMap();
-        Map selectTagStrings = new HashMap();
+        Map<String, String> defaultStrings = new HashMap<String, String>();
+        Map<String, String> selectTagStrings = new HashMap<String, String>();
 
         // Process each string resource, replacing string parameters,
         // and adding to the appropriate map..
@@ -177,7 +170,7 @@ public class XMLResources
             // See if this needs to be processed (is default or product specific)
             Element resElement = (Element)(resDefs.item(i));
             String resSelect = resElement.getAttribute("for");
-            Map resMap;
+            Map<String, String> resMap;
             if ( resSelect.equals("")) {
                 // default
                 resMap = defaultStrings;
@@ -200,7 +193,7 @@ public class XMLResources
             String resString = resElement.getFirstChild().getNodeValue();
 
             // Do parameter replacements for this string resource.
-            Iterator paramNames = parameters.keySet().iterator();
+            Iterator<String> paramNames = parameters.keySet().iterator();
             while ( paramNames.hasNext() ) {
                 String paramName = (String)paramNames.next();
                 String paramValue = (String)parameters.get(paramName);
@@ -243,9 +236,7 @@ public class XMLResources
      * @return the selector tag that will be used to select custom resources
      *
      */
-    private String match(String select, Element matchersElement)
-        throws MalformedPerl5PatternException
-    {
+    private String match(String select, Element matchersElement) {
         String selectTagName = select;
     
         NodeList matchers = matchersElement.getElementsByTagName("matcher");
@@ -253,15 +244,11 @@ public class XMLResources
             // Get the values for this matcher element.
             Element matcher = (Element)matchers.item(i);
             String matchName = matcher.getAttribute("for");
-            StringBuffer selectTagPatternBuffer =
-                new StringBuffer(64)
-                        .append("/")
-                        .append(matcher.getAttribute("match"))
-                        .append("/i");
+            Pattern selectTagPattern = Pattern.compile(matcher.getAttribute("match"), Pattern.CASE_INSENSITIVE);
 
             // If the select string matches the pattern, use the match
             // name from this matcher.
-            if ( m_perl5Util.match(selectTagPatternBuffer.toString(), selectTagName) ) {
+            if ( selectTagPattern.matcher(selectTagName).find() ) {
                 return matchName;
             }
         }
@@ -338,7 +325,7 @@ public class XMLResources
      *                      replaced where found in the input strings
      * @return the requested resource
      */
-    public String getString(String name, Map parameters)
+    public String getString(String name, Map<String, String> parameters)
     {
         return replaceParameters(getString(name), parameters);
     }
@@ -351,7 +338,7 @@ public class XMLResources
      *                      replaced where found in the input strings
      * @return the requested resource
      */
-    public String getString(String name, Map parameters, boolean required)
+    public String getString(String name, Map<String, String> parameters, boolean required)
     {
         return replaceParameters(getString(name, required), parameters);
     }
@@ -364,11 +351,11 @@ public class XMLResources
      *                      replaced where found in the input strings
      * @return the requested resource
      */
-    static public String replaceParameters(String str, Map parameters)
+    static public String replaceParameters(String str, Map<String, String> parameters)
     {
         if (str != null && parameters != null) {
             // Do parameter replacements for this string resource.
-            Iterator paramNames = parameters.keySet().iterator();
+            Iterator<String> paramNames = parameters.keySet().iterator();
             StringBuffer replaceBuffer = new StringBuffer(64);
             while ( paramNames.hasNext() ) {
                 String paramName = (String)paramNames.next();

@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.mail.internet.ParseException;
 
@@ -34,8 +36,6 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.MailAddress;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Perl5Compiler;
 
 /**
  * 
@@ -120,7 +120,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
                     if (target.startsWith(VirtualUserTable.REGEX_PREFIX)) {
                         try {
                             target = VirtualUserTableUtil.regexMap(new MailAddress(user,domain), target);
-                        } catch (MalformedPatternException e) {
+                        } catch (PatternSyntaxException e) {
                             getLogger().error("Exception during regexMap processing: ", e);
                         } catch (ParseException e) {
                             // should never happen
@@ -186,8 +186,8 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
      */
     public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {     
         try {
-            new Perl5Compiler().compile(regex);
-        } catch (MalformedPatternException e) {
+            Pattern.compile(regex);
+        } catch (PatternSyntaxException e) {
             throw new VirtualUserTableException("Invalid regex: " + regex, e);
         }
         

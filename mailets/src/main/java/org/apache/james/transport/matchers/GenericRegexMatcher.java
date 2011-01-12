@@ -24,14 +24,12 @@ package org.apache.james.transport.matchers;
 import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Collection;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * This is a generic matcher that uses regular expressions.  If any of
@@ -48,12 +46,12 @@ import java.util.Collection;
 abstract public class GenericRegexMatcher extends GenericMatcher {
     protected Object[][] patterns;
 
-    public void compile(Object[][] patterns) throws MalformedPatternException {
+    public void compile(Object[][] patterns) throws PatternSyntaxException {
         // compile a bunch of regular expressions
         this.patterns = patterns;
         for (int i = 0; i < patterns.length; i++) {
             String pattern = (String)patterns[i][1];
-            patterns[i][1] = new Perl5Compiler().compile(pattern, Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
+            patterns[i][1] = Pattern.compile(pattern);
         }
     }
 
@@ -67,7 +65,6 @@ abstract public class GenericRegexMatcher extends GenericMatcher {
      */
     public Collection<MailAddress> match(Mail mail) throws MessagingException {
         MimeMessage message = mail.getMessage();
-        Perl5Matcher matcher = new Perl5Matcher();
 
         //Loop through all the patterns
         if (patterns != null) for (int i = 0; i < patterns.length; i++) {
@@ -79,7 +76,7 @@ abstract public class GenericRegexMatcher extends GenericMatcher {
             String headers[] = message.getHeader(headerName);
             //Loop through the header values
             if (headers != null) for (int j = 0; j < headers.length; j++) {
-                if (matcher.matches(headers[j], pattern)) {
+                if (pattern.matcher(headers[j]).matches()) {
                     // log("Match: " + headerName + "[" + j + "]: " + headers[j]);
                     return mail.getRecipients();
                 }

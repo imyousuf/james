@@ -20,8 +20,6 @@
 
 package org.apache.james.util.sql;
 
-import org.apache.oro.text.perl.MalformedPerl5PatternException;
-import org.apache.oro.text.perl.Perl5Util;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,6 +35,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 
 /**
@@ -63,11 +62,6 @@ public class SqlResources
      * A set of all used String values
      */
     static private Map<String, String> stringTable = java.util.Collections.synchronizedMap(new HashMap<String, String>());
-
-    /**
-     * A Perl5 regexp matching helper class
-     */
-    private Perl5Util m_perl5Util = new Perl5Util();
 
     /**
      * Configures a DbResources object to provide SQL statements from a file.
@@ -146,7 +140,6 @@ public class SqlResources
         String dbProduct = null;
         if ( dbMatcherElement != null ) {
             dbProduct = matchDbConnection(conn, dbMatcherElement);
-            m_perl5Util = null;     // release the PERL matcher!
         }
 
         // Now get the options valid for the database product used.
@@ -285,7 +278,7 @@ public class SqlResources
      */
     private String matchDbConnection(Connection conn, 
                                      Element dbMatchersElement)
-        throws MalformedPerl5PatternException, SQLException
+        throws SQLException
     {
         String dbProductName = conn.getMetaData().getDatabaseProductName();
     
@@ -295,15 +288,11 @@ public class SqlResources
             // Get the values for this matcher element.
             Element dbMatcher = (Element)dbMatchers.item(i);
             String dbMatchName = dbMatcher.getAttribute("db");
-            StringBuilder dbProductPatternBuffer =
-                new StringBuilder(64)
-                        .append("/")
-                        .append(dbMatcher.getAttribute("databaseProductName"))
-                        .append("/i");
+            Pattern dbProductPattern = Pattern.compile(dbMatcher.getAttribute("databaseProductName"), Pattern.CASE_INSENSITIVE);
 
             // If the connection databaseProcuctName matches the pattern,
             // use the match name from this matcher.
-            if ( m_perl5Util.match(dbProductPatternBuffer.toString(), dbProductName) ) {
+            if ( dbProductPattern.matcher(dbProductName).find() ) {
                 return dbMatchName;
             }
         }

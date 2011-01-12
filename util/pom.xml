@@ -76,10 +76,6 @@
       <artifactId>apache-mailet</artifactId>
     </dependency>
     <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-    </dependency>
-    <dependency>
       <groupId>${javax.mail.groupId}</groupId>
       <artifactId>${javax.mail.artifactId}</artifactId>
     </dependency>

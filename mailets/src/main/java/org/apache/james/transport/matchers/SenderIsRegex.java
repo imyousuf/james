@@ -24,12 +24,10 @@ package org.apache.james.transport.matchers;
 import org.apache.mailet.base.GenericMatcher;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.mail.MessagingException;
 
@@ -65,10 +63,9 @@ public class SenderIsRegex extends GenericMatcher {
         }
         
         patternString = patternString.trim();
-        Perl5Compiler compiler = new Perl5Compiler();
         try {
-            pattern = compiler.compile(patternString, Perl5Compiler.READ_ONLY_MASK);
-        } catch(MalformedPatternException mpe) {
+            pattern = Pattern.compile(patternString);
+        } catch(PatternSyntaxException mpe) {
             throw new MessagingException("Malformed pattern: " + patternString, mpe);
         }
     }
@@ -79,8 +76,7 @@ public class SenderIsRegex extends GenericMatcher {
             return null;
         }
         String senderString = mailAddress.toString();
-        Perl5Matcher matcher  = new Perl5Matcher();
-        if (matcher.matches(senderString, pattern)) {
+        if (pattern.matcher(senderString).matches()) {
             return mail.getRecipients();
         }
         return null;

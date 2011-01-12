@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.PatternSyntaxException;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -42,7 +43,6 @@ import org.apache.james.vut.lib.VirtualUserTableUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.GenericMailet;
-import org.apache.oro.text.regex.MalformedPatternException;
 
 /**
  * Provides an abstraction of common functionality needed for implementing
@@ -121,7 +121,7 @@ public abstract class AbstractVirtualUserTable extends GenericMailet
                         if (targetAddress.startsWith("regex:")) {
                             try {
                                 targetAddress = VirtualUserTableUtil.regexMap(source, targetAddress);
-                            } catch (MalformedPatternException e) {
+                            } catch (PatternSyntaxException e) {
                                 log("Exception during regexMap processing: ", e);
                             }
                             if (targetAddress == null) continue;

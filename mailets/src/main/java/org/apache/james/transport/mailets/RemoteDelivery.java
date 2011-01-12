@@ -38,11 +38,6 @@ import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
 
 import javax.annotation.Resource;
 import javax.mail.Address;
@@ -75,6 +70,9 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 /**
@@ -122,9 +120,8 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      */
     static {
         try {
-            Perl5Compiler compiler = new Perl5Compiler(); 
-            PATTERN = compiler.compile(PATTERN_STRING, Perl5Compiler.READ_ONLY_MASK);
-        } catch(MalformedPatternException mpe) {
+            PATTERN = Pattern.compile(PATTERN_STRING);
+        } catch(PatternSyntaxException mpe) {
             //this should not happen as the pattern string is hardcoded.
             mpe.printStackTrace (System.err);
         }
@@ -237,14 +234,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             if (getInitParameter("delayTime") != null) {
 
                 // parses delayTimes specified in config file.
-                final Perl5Matcher delayTimeMatcher = new Perl5Matcher();
                 String delayTimesParm = getInitParameter("delayTime");
 
                 // Split on commas
                 StringTokenizer st = new StringTokenizer (delayTimesParm,",");
                 while (st.hasMoreTokens()) {
                     String delayTime = st.nextToken();
-                    delayTimesList.add (new Delay(delayTimeMatcher, delayTime));
+                    delayTimesList.add (new Delay(delayTime));
                 }
             } else {
                 // Use default delayTime.
@@ -475,13 +471,12 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
          * @param initString
          *            the string to initialize this Delay object from
          **/
-        public Delay(final Perl5Matcher delayTimeMatcher, String initString) throws MessagingException {
+        public Delay(String initString) throws MessagingException {
             // Default unit value to 'msec'.
             String unit = "msec";
 
-            if (delayTimeMatcher.matches(initString, PATTERN)) {
-                MatchResult res = delayTimeMatcher.getMatch();
-
+            Matcher res = PATTERN.matcher(initString);
+            if (res.matches()) {
                 // The capturing groups will now hold:
                 // at 1: attempts * (if present)
                 // at 2: delaytime
@@ -659,17 +654,6 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      * there are any
      */
     public void run() {
-
-        /* TODO: CHANGE ME!!! The problem is that we need to wait for James to
-         * finish initializing.  We expect the HELLO_NAME to be put into
-         * the MailetContext, but in the current configuration we get
-         * started before the SMTP Server, which establishes the value.
-         * Since there is no contractual guarantee that there will be a
-         * HELLO_NAME value, we can't just wait for it.  As a temporary
-         * measure, I'm inserting this philosophically unsatisfactory
-         * fix.
-         */
-        long stop = System.currentTimeMillis() + 60000;
 
         //Checks the pool and delivers a mail message
         Properties props = new Properties();

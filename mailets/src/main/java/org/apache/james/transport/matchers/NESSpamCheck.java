@@ -21,10 +21,11 @@
 
 package org.apache.james.transport.matchers;
 
+import java.util.regex.PatternSyntaxException;
+
 import javax.mail.MessagingException;
 
 import org.apache.mailet.base.RFC2822Headers;
-import org.apache.oro.text.regex.MalformedPatternException;
 
 /**
  * This is based on a sample filter.cfg for a Netscape Mail Server to stop
@@ -94,7 +95,7 @@ public class NESSpamCheck extends GenericRegexMatcher {
         //No condition passed... just compile a bunch of regular expressions
         try {
             compile(NESPatterns);
-        } catch(MalformedPatternException mp) {
+        } catch(PatternSyntaxException mp) {
             throw new MessagingException("Could not initialize NES patterns", mp);
         }
     }

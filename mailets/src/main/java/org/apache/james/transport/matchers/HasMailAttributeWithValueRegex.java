@@ -27,13 +27,11 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MatcherConfig;
 import java.util.Collection;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import javax.mail.MessagingException;
 import java.io.Serializable;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
 
 /**
  * <P>This Matcher determines if the mail contains the attribute specified in the
@@ -53,7 +51,6 @@ public class HasMailAttributeWithValueRegex extends GenericMatcher
 {
     
     private String attributeName;
-    private Perl5Matcher matcher  = new Perl5Matcher();
     private Pattern pattern   = null;
 
     /**
@@ -73,9 +70,8 @@ public class HasMailAttributeWithValueRegex extends GenericMatcher
             attributeName = condition.substring(0,idx).trim();
             String pattern_string = condition.substring (idx+1, condition.length()).trim();
             try {
-                Perl5Compiler compiler = new Perl5Compiler();
-                pattern = compiler.compile(pattern_string);
-            } catch(MalformedPatternException mpe) {
+                pattern = Pattern.compile(pattern_string);
+            } catch(PatternSyntaxException mpe) {
                 throw new MessagingException("Malformed pattern: " + pattern_string, mpe);
             }
         } else {
@@ -94,7 +90,7 @@ public class HasMailAttributeWithValueRegex extends GenericMatcher
     {
         Serializable obj = mail.getAttribute (attributeName);
         //to be a little more generic the toString of the value is what is matched against
-        if ( obj != null && matcher.matches(obj.toString(), pattern)) {
+        if ( obj != null && pattern.matcher(obj.toString()).matches()) {
             return mail.getRecipients();
         } 
         return null;
