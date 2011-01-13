@@ -20,16 +20,19 @@
 package org.apache.james.user.jpa.model;
 
 import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import javax.persistence.Version;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.james.user.api.model.User;
 
 @Entity(name = "JamesUser")
+@Table(name = "JAMES_USER")
 @NamedQueries( { 
     @NamedQuery(name = "findUserByName", query = "SELECT user FROM JamesUser user WHERE user.name=:name"),
     @NamedQuery(name = "deleteUserByName", query = "DELETE FROM JamesUser user WHERE user.name=:name"),
@@ -72,12 +75,16 @@ public class JPAUser implements User {
 
     /** Key by user name */
     @Id
+    @Column(name = "USER_NAME", nullable = false, length = 100)
     private String name;
+
     /** Hashed password */
     @Basic
+    @Column(name = "PASSWORD", nullable = false, length = 100)
     private String password;
     
     @Basic
+    @Column(name = "PASSWORD_HASH_ALGORITHM", nullable = false, length = 100)
     private String alg;
 
     protected JPAUser() {

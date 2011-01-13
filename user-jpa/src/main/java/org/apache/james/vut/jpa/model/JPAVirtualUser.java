@@ -32,7 +32,7 @@ import javax.persistence.Table;
  * VirtualUserTable class for the James Virtual User Table to be used for JPA persistence.
  */
 @Entity(name = "JamesVirtualUserTable")
-@Table(name = "VIRTUALUSERTABLE")
+@Table(name = "JAMES_VIRTUAL_USER_TABLE")
 @NamedQueries( { 
     @NamedQuery(name = "selectMappings", query = "SELECT vut FROM JamesVirtualUserTable vut WHERE (vut.user LIKE :user OR vut.user='*') and (vut.domain like :domain or vut.domain='*') ORDER BY vut.domain DESC"),
     @NamedQuery(name = "selectUserDomainMapping", query = "SELECT vut FROM JamesVirtualUserTable vut WHERE vut.user=:user AND vut.domain=:domain"),
@@ -81,11 +81,9 @@ public class JPAVirtualUser {
 
     /**
      * The name of the user. 
-     * Column name is chosen to be compatible with the JDBCVirtualUserTableList 
-     * (even if user will be probably translated by JPA to another name (example: USER0).
      */
     @Id
-    @Column(name = "user", nullable = false, length = 64)
+    @Column(name = "USER_NAME", nullable = false, length = 100)
     private String user = "";
     
     /**
@@ -93,13 +91,13 @@ public class JPAVirtualUser {
      * Column name is chosen to be compatible with the JDBCVirtualUserTableList.
      */
     @Id
-    @Column(name = "DOMAIN", nullable = false, length = 255)
+    @Column(name = "DOMAIN_NAME", nullable = false, length = 100)
     private String domain = "";
     
     /**
      * The target address. column name is chosen to be compatible with the JDBCVirtualUserTableList.
      */
-    @Column(name = "TARGET_ADDRESS", nullable = false, length = 255)
+    @Column(name = "TARGET_ADDRESS", nullable = false, length = 100)
     private String targetAddress = "";
     
     /**
