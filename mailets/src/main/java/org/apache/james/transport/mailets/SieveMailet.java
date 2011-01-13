@@ -169,12 +169,12 @@ public class SieveMailet extends SieveMailboxMailet implements Poster{
 
                     // This allows Sieve scripts to use a standard delimiter
                     // regardless of mailbox implementation
-                    String destination = urlPath.replace('/', MailboxConstants.DEFAULT_DELIMITER);
+                    String destination = urlPath.replace('/', session.getPathDelimiter());
 
                     if (destination == null || "".equals(destination)) {
                         destination = "INBOX";
                     }
-                    if (destination.startsWith(MailboxConstants.DEFAULT_DELIMITER_STRING))
+                    if (destination.startsWith(session.getPathDelimiter() +""))
                         destination = destination.substring(1);
                     final MailboxPath path = new MailboxPath(MailboxConstants.USER_NAMESPACE, user, destination);
                     try {
