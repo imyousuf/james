@@ -21,6 +21,7 @@ package org.apache.james.user.jpa;
 
 import java.util.HashMap;
 
+import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.jpa.JPAUsersRepository;
@@ -79,6 +80,7 @@ public class JpaUsersRepositoryTest extends AbstractUsersRepositoryTest {
         JPAUsersRepository repos =  new JPAUsersRepository();
         repos.setLog(new SimpleLog("JPA"));
         repos.setEntityManagerFactory(factory);
+        repos.configure(new DefaultConfigurationBuilder());
         return repos;
     }
 }
