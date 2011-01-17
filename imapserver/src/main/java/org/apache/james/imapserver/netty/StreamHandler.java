@@ -48,8 +48,8 @@ public abstract class StreamHandler extends ReadTimeoutHandler{
     
     private final ExecutorService executor;
     
-    private static final String KEY_IN = "stream.in";
-    private static final String KEY_OUT = "stream.out";
+    public static final String KEY_IN = "stream.in";
+    public static final String KEY_OUT = "stream.out";
     
     /**
      *  Create a new Instance which use a cached ThreadPool with no limit to perform the stream handling

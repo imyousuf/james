@@ -90,7 +90,7 @@ public class ChannelOutputStream extends OutputStream{
         lastChannelFuture.awaitUninterruptibly();
         if (!lastChannelFuture.isSuccess()) {
             throw new IOException(
-                    "The bytes could not be written to the session");
+                    "The bytes could not be written to the session", lastChannelFuture.getCause());
         }
     }
     

@@ -36,6 +36,8 @@ import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
+import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.connection.ConnectionLimitUpstreamHandler;
 import org.jboss.netty.handler.connection.ConnectionPerIpLimitUpstreamHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
@@ -102,7 +104,8 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
             
             // Timeout of 30 minutes See rfc2060 5.4 for details
             private final static int TIMEOUT = 30 * 60;
-            
+            public final static int MAX_LINE_LENGTH = 8192;
+
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
                 pipeline.addLast("groupHandler", groupHandler);
@@ -111,6 +114,12 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
 
                 pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(IMAPServer.this.connPerIP));
 
+
+                
+                // Add the text line decoder which limit the max line length, don't strip the delimiter and use CRLF as delimiter
+                pipeline.addLast("framer", new DelimiterBasedFrameDecoder(MAX_LINE_LENGTH, false, Delimiters.lineDelimiter()));
+               
+                
                 if (isSSLSocket()) {
                     // We need to set clientMode to false.
                     // See https://issues.apache.org/jira/browse/JAMES-1025
