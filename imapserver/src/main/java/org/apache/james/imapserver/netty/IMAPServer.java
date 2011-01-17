@@ -57,6 +57,8 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
 
     private ImapDecoder decoder;
 
+    private boolean compress;
+
     @Resource(name="imapDecoder")
     public void setImapDecoder(ImapDecoder decoder) {
         this.decoder = decoder;
@@ -76,6 +78,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
     public void doConfigure( final HierarchicalConfiguration configuration ) throws ConfigurationException {
         super.doConfigure(configuration);
         hello  = softwaretype + " Server " + getHelloName() + " is ready.";
+        compress = configuration.getBoolean("compress", false);
     }
     
     
@@ -133,9 +136,9 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 final ImapRequestStreamHandler handler = new ImapRequestStreamHandler(decoder, processor, encoder);
                 
                 if (isStartTLSSupported())  {
-                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), timer, IMAPServer.this.getTimeout(), getSSLContext(), getEnabledCipherSuites()));
+                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), timer, IMAPServer.this.getTimeout(), compress, getSSLContext(), getEnabledCipherSuites()));
                 } else {
-                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), timer, IMAPServer.this.getTimeout()));
+                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), timer, IMAPServer.this.getTimeout(), compress));
                 }
                 
                 return pipeline;

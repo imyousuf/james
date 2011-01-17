@@ -25,6 +25,8 @@
   <connectionBacklog>200</connectionBacklog>
   <tls socketTLS="false" startTLS="false">
   </tls>
+  <!-- COMPRESS extension -->
+  <compress>false</compress>
   <handler>
       <connectionLimit> 0 </connectionLimit>
       <connectionLimitPerIP> 0 </connectionLimitPerIP>

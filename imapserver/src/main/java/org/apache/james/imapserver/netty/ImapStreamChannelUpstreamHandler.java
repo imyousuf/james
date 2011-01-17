@@ -61,21 +61,24 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
 
     private SSLContext context;
 
+    private boolean compress;
+
     private final static String IMAP_SESSION = "IMAP_SESSION"; 
     private final static String BUFFERED_OUT = "BUFFERED_OUT";
     
-    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final Timer timer, final long readTimeout) {
-        this(hello, handler, logger, timer, readTimeout, null, null);
+    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final Timer timer, final long readTimeout, boolean compress) {
+        this(hello, handler, logger, timer, readTimeout, compress, null, null);
     }
     
 
-    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final Timer timer, final long readTimeout, SSLContext context, String[] enabledCipherSuites) {
+    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final Timer timer, final long readTimeout, boolean compress, SSLContext context, String[] enabledCipherSuites) {
         super(timer, readTimeout, TimeUnit.SECONDS);
         this.logger = logger;
         this.hello = hello;
         this.handler = handler;
         this.context = context;
         this.enabledCipherSuites = enabledCipherSuites;
+        this.compress = compress;
     }
     
     private Log getLogger(Channel channel) {
@@ -145,8 +148,9 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
                  return context != null;
             }
 
+            @Override
             public boolean isCompressionSupported() {
-                return true;
+                return compress;
             }
 
             @Override
