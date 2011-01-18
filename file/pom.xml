@@ -52,7 +52,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
@@ -86,6 +85,12 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-filesystem-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
