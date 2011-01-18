@@ -60,7 +60,7 @@
           <configurationDirectory>conf</configurationDirectory>
           <target>${project.build.directory}/appassembler</target>
           <repositoryLayout>flat</repositoryLayout>
-		  <repositoryName>lib</repositoryName>
+          <repositoryName>lib</repositoryName>
           <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
           <environmentSetupFileName>setenv</environmentSetupFileName>
           <!--  set some sane defaults for memory -->
@@ -251,7 +251,7 @@
         </executions>
       </plugin>
       
-	  <plugin>
+      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
           <descriptorSourceDirectory>src/assemble/</descriptorSourceDirectory>
@@ -549,7 +549,27 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-data-library</artifactId>
+      <artifactId>james-server-user-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-file</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-jcr</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-jdbc</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-user-jpa</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -560,6 +580,21 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-domainlist-api</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domainlist-library</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domainlist-xml</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-domainlist-jpa</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -642,17 +677,22 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-file</artifactId>
+      <artifactId>james-server-mail-library</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-jdbc</artifactId>
+      <artifactId>james-server-mail-file</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-jcr</artifactId>
+      <artifactId>james-server-mail-jdbc</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mail-jcr</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>

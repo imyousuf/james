@@ -83,7 +83,7 @@
             </entry>
             <entry>
               <key>
-                <value>importjames23-usersrepository</value>
+                <value>usersrepository23</value>
               </key>
 <!--               no alias needed -->
               <value></value>
@@ -307,7 +307,7 @@
     <!-- 
       Mailbox Import
      -->
-    <bean id="importjames23" class="org.apache.james.container.spring.tool.James23Importer"/>
+    <bean id="james23importer" class="org.apache.james.container.spring.tool.James23Importer"/>
           
     <!-- 
     ===========================================================================
@@ -384,6 +384,7 @@
           <entry key="org.apache.james:type=component,component=mailetcontainer,name=mailspooler" value-ref="mailspooler"/>
           <entry key="org.apache.james:type=mailbox,name=mailboxcopier" value-ref="mailboxcopiermanagement"/>
           <entry key="org.apache.james:type=container,name=logprovider" value-ref="logprovider"/>
+          <entry key="org.apache.james:type=mailbox,name=james23importer" value-ref="james23importermanagement"/>
         </map>
       </property>
       <property name="assembler">
@@ -397,5 +398,6 @@
     <bean id="domainlistmanagement" class="org.apache.james.domainlist.lib.DomainListManagement" />
     <bean id="mailboxmanagermanagement" class="org.apache.james.adapter.mailbox.MailboxManagerManagement" />
     <bean id="mailboxcopiermanagement" class="org.apache.james.container.spring.mailbox.MailboxCopierManagement" />
+    <bean id="james23importermanagement" class="org.apache.james.container.spring.tool.James23ImporterManagement" />
 
 </beans>
