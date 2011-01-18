@@ -39,7 +39,7 @@ import org.apache.james.mailbox.MessageResult.FetchGroup;
 import org.apache.james.mailbox.util.FetchGroupImpl;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.model.JamesUser;
-import org.apache.james.util.MailetContextLog;
+import org.apache.james.transport.util.MailetContextLog;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;

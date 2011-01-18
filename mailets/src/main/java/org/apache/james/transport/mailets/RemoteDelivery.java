@@ -31,7 +31,7 @@ import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.api.MailQueue.MailQueueException;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
-import org.apache.james.util.MailetContextLog;
+import org.apache.james.transport.util.MailetContextLog;
 import org.apache.james.util.TimeConverter;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.HostAddress;

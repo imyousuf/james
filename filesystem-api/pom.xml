@@ -60,15 +60,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <dependencies>
-    <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-  </dependencies>
 </project>

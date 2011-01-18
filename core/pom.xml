@@ -43,12 +43,17 @@
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-util</artifactId>
     </dependency>   
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-lifecycle-api</artifactId>
+    </dependency>   
 
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>
 
+    <!-- RFC2822Headers constants imported from mailet-base (undetected by bytecode analyzers because constants are inlined) -->
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet-base</artifactId>

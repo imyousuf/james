@@ -35,7 +35,7 @@ import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
-import org.apache.james.util.MailetContextLog;
+import org.apache.james.transport.util.MailetContextLog;
 import org.apache.jsieve.mailet.Poster;
 import org.apache.jsieve.mailet.SieveMailboxMailet;
 import org.apache.mailet.Mail;

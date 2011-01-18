@@ -65,14 +65,6 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-lifecycle-api</artifactId>
-    </dependency>
-     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-dnsservice-api</artifactId>
-    </dependency> 
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>
     <dependency>
@@ -84,11 +76,5 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-     <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-dnsservice-api</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency> 
   </dependencies>
 </project>
