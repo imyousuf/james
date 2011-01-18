@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-package org.apache.james.util;
+package org.apache.james.transport.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.mailet.MailetContext;
