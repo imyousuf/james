@@ -46,7 +46,7 @@
             </property>   
             <property>
               <name>metaDataFactory</name>
-              <value>jpa(Types=org.apache.james.user.jpa.model.JPAUser;org.apache.james.vut.jpa.model.JPAVirtualUser,org.apache.james.domainlist.jpa.model.JPADomain)</value>
+              <value>jpa(Types=org.apache.james.user.jpa.model.JPAUser;org.apache.james.vut.jpa.model.JPAVirtualUser;org.apache.james.domainlist.jpa.model.JPADomain)</value>
             </property>           
           </toolProperties>
         </configuration>  
