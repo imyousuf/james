@@ -43,9 +43,11 @@
     <module>imapserver</module>
     <module>lmtpserver</module>
     <module>data-library</module>
+    <module>jpa</module>
+    <module>jcr</module>
+    <module>jdbc</module>
+    <module>file</module>
     <module>domainlist-api</module>
-    <module>domainlist-jpa</module>
-    <module>domainlist-xml</module>
     <module>lifecycle-api</module>
     <module>mailbox-adapter</module>
     <module>mailetcontainer-api</module>
@@ -53,9 +55,6 @@
     <module>mailetcontainer-camel</module>
     <module>mailets</module>
     <module>mail-api</module>
-    <module>mail-file</module>
-    <module>mail-jcr</module>
-    <module>mail-jdbc</module>
     <module>protocols-library</module>
     <module>osgi</module>
     <module>pop3server</module>
@@ -63,14 +62,9 @@
     <module>repository-file</module>
     <module>smtpserver</module>
     <module>queue-api</module>
-    <module>queue-library</module>
     <module>queue-jms</module>
     <module>queue-activemq</module>
     <module>user-api</module>
-    <module>user-file</module>
-    <module>user-jcr</module>
-    <module>user-jdbc</module>
-    <module>user-jpa</module>
     <module>user-ldap</module>
     <module>util</module>
     <module>cli</module>
@@ -301,11 +295,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-repository-file</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-queue-library</artifactId>
       <version>${project.version}</version>
     </dependency>
     
@@ -555,12 +544,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domainlist-xml</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domainlist-jpa</artifactId>
+      <artifactId>james-server-jpa</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -570,17 +554,17 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mail-file</artifactId>
+      <artifactId>james-server-file</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mail-jdbc</artifactId>
+      <artifactId>james-server-jdbc</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mail-jcr</artifactId>
+      <artifactId>james-server-jcr</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -635,26 +619,6 @@
           <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-file</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-jcr</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-jdbc</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-jpa</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>

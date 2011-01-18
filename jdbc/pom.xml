@@ -25,8 +25,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
-  <artifactId>james-server-user-jdbc</artifactId>
-  <name>Apache James Server User JDBC</name>
+  <artifactId>james-server-jdbc</artifactId>
+  <name>Apache James Server JDBC Data Persistence</name>
   
   <dependencies>
     <dependency>
@@ -40,6 +40,30 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-filesystem-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-repository-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-repository-file</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-mail-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-core</artifactId>
+    </dependency> 
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>apache-mailet</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
