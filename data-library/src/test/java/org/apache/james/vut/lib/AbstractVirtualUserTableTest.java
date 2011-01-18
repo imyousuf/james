@@ -82,8 +82,10 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
         
         String user = "test";
         String domain = "localhost";
-        String regex = "(.*):{$1}@localhost";
-        String regex2 = "(.+):{$1}@test"; 
+        // String regex = "(.*):{$1}@localhost";
+        // String regex2 = "(.+):{$1}@test"; 
+        String regex = "(.*)@localhost";
+        String regex2 = "(.+)@test"; 
         String invalidRegex = ".*):";
         boolean catched = false;
         
@@ -93,7 +95,7 @@ public abstract class AbstractVirtualUserTableTest extends TestCase {
 
             assertTrue("Added virtual mapping", addMapping(user, domain, regex, REGEX_TYPE));
             assertTrue("Added virtual mapping", addMapping(user, domain, regex2, REGEX_TYPE));
-            assertEquals("Two mappings", virtualUserTable.getMappings(user, domain).size(), 2);           
+            assertEquals("Two mappings", virtualUserTable.getMappings(user, domain).size(), 2);
             assertEquals("One mappingline", virtualUserTable.getAllMappings().size(), 1);
 
             assertTrue("remove virtual mapping", removeMapping(user, domain, regex, REGEX_TYPE));
