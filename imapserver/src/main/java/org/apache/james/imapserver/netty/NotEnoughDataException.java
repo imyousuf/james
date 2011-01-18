@@ -19,6 +19,10 @@
 
 package org.apache.james.imapserver.netty;
 
+/**
+ *
+ */
+@SuppressWarnings("serial")
 public class NotEnoughDataException extends RuntimeException{
 
     public final static int UNKNOWN_SIZE = -1;
@@ -31,7 +35,13 @@ public class NotEnoughDataException extends RuntimeException{
     public NotEnoughDataException() {
         this(UNKNOWN_SIZE);
     }
-    public int getDataSize() {
+    
+    /**
+     * Return the size of the data which is needed
+     * 
+     * @return size
+     */
+    public int getNeededSize() {
         return size;
     }
 }

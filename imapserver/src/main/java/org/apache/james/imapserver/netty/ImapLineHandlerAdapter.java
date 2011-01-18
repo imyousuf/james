@@ -26,6 +26,10 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
+/**
+ * {@link SimpleChannelUpstreamHandler} implementation which will delegate the data received on {@link #messageReceived(ChannelHandlerContext, MessageEvent)} to a {@link ImapLineHandler#onLine(ImapSession, byte[])}
+ *
+ */
 public class ImapLineHandlerAdapter extends SimpleChannelUpstreamHandler implements ChannelAttributeSupport{
 
     private ImapLineHandler lineHandler;
@@ -36,7 +40,15 @@ public class ImapLineHandlerAdapter extends SimpleChannelUpstreamHandler impleme
     
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        lineHandler.onLine((ImapSession) attributes.get(ctx.getChannel()), ((ChannelBuffer)e.getMessage()).array());
+        ChannelBuffer buf = (ChannelBuffer)e.getMessage();
+        byte data[];
+        if (buf.hasArray()) {
+            data = buf.array();
+        } else {
+            data = new byte[buf.readableBytes()];
+            buf.readBytes(data);
+        }
+        lineHandler.onLine((ImapSession) attributes.get(ctx.getChannel()), data);
     }
 
 }

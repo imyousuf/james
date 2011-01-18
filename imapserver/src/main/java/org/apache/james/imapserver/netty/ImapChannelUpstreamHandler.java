@@ -18,9 +18,7 @@
  ****************************************************************/
 package org.apache.james.imapserver.netty;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
 import javax.net.ssl.SSLContext;
@@ -36,18 +34,15 @@ import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
 import org.apache.james.imap.main.ResponseEncoder;
 import org.apache.james.protocols.impl.ChannelAttributeSupport;
 import org.apache.james.protocols.impl.SessionLog;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.handler.ssl.SslHandler;
 
 /**
- * {@link StreamHandler} which handles IMAP
+ * {@link SimpleChannelUpstreamHandler} which handles IMAP
  * 
  *
  */
@@ -163,66 +158,6 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
         
         
         super.messageReceived(ctx, e);
-    }
-
-    /**
-     * Because Netty {@link SslHandler} need to NOT encrypt the first response send to client this {@link FilterOutputStream} is needed. It
-     * buffer the data till the complete response was written to the stream (searching for the CRLF). 
-     * 
-     * Once this was done it just pass the data to the wrapped {@link OutputStream} without doing any more buffering
-     *
-     */
-    private final class StartTLSOutputStream extends FilterOutputStream {
-        private int lastChar;
-        private boolean bufferData = false;
-        private final ChannelBuffer buffer = ChannelBuffers.dynamicBuffer();
-        
-        public StartTLSOutputStream(OutputStream out) {
-            super(out);   
-        }
-        
-        /**
-         * Buffer the data till the next CLRF was found
-         */
-        public synchronized final void bufferTillCRLF() {
-            bufferData = true;
-        }
-
-        @Override
-        public synchronized void write(byte[] b, int off, int len) throws IOException {
-            if (bufferData) {
-                for (int i = off; i < len; i++) {
-                    write(b[i]);
-                }
-            } else {
-                out.write(b, off, len);
-            }
-        }
-
-        @Override
-        public void write(byte[] b) throws IOException {
-            write(b, 0, b.length);
-        }
-
-        @Override
-        public synchronized void write(int b) throws IOException {
-            if (bufferData) {
-                buffer.writeByte((byte)b);
-                // check for CLRF and if found write the data and disable buffering
-                if (b == '\n' && lastChar == '\r') {
-                    byte[] line = new byte[buffer.capacity()];
-                    buffer.getBytes(0, line);
-                    out.write(line);
-                    bufferData = false;
-                }
-                lastChar = b;
-
-            } else {
-                out.write(b);
-            }
-        }
-        
-        
     }
 
 

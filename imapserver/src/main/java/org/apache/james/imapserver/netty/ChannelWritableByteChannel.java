@@ -16,47 +16,48 @@
  * specific language governing permissions and limitations      *
  * under the License.                                           *
  ****************************************************************/
-
 package org.apache.james.imapserver.netty;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.james.imap.main.AbstractImapResponseWriter;
-import org.apache.james.imap.message.response.Literal;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 
 /**
- * {@link AbstractImapResponseWriter} implementation which writes the data to a {@link Channel}
+ * Some adapter class which allows to write to {@link Channel} via a {@link WritableByteChannel} interface
  * 
  *
  */
-public class ChannelImapResponseWriter extends AbstractImapResponseWriter{
+public class ChannelWritableByteChannel implements WritableByteChannel {
 
-    private Channel channel;
-    private WritableByteChannel wChannel;
-    public ChannelImapResponseWriter(Channel channel) {
+    private final Channel channel;
+
+    public ChannelWritableByteChannel(Channel channel) {
         this.channel = channel;
-        this.wChannel = new ChannelWritableByteChannel(channel);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.imap.main.AbstractImapResponseWriter#write(java.nio.ByteBuffer)
-     */
-    protected void write(ByteBuffer buffer) throws IOException {
-        channel.write(ChannelBuffers.wrappedBuffer(buffer));
+    public void close() throws IOException {
+        // do nothing
+    }
+
+    public boolean isOpen() {
+        return channel.isOpen();
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.imap.main.AbstractImapResponseWriter#write(org.apache.james.imap.message.response.Literal)
+     * @see java.nio.channels.WritableByteChannel#write(java.nio.ByteBuffer)
      */
-    protected void write(Literal literal) throws IOException {
-        literal.writeTo(wChannel);
+    public int write(ByteBuffer src) throws IOException {
+        if (src.remaining() == 0) return 0;
+        byte data[] = new byte[src.remaining()];
+        src.get(data);
+        
+        channel.write(ChannelBuffers.wrappedBuffer(data));
+        return data.length;
     }
-
    
+
 }

@@ -28,6 +28,11 @@ import org.jboss.netty.buffer.ChannelBufferInputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 
+/**
+ * {@link ImapRequestLineReader} implementation which will write to a {@link Channel} and read from a {@link ChannelBuffer}. Please
+ * see the docs on {@link #nextChar()} and {@link #read(int)} to understand the special behavoir of this implementation
+ *
+ */
 public class NettyImapRequestLineReader extends ImapRequestLineReader{
 
     private ChannelBuffer buffer;
@@ -39,9 +44,12 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
         this.channel = channel;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.imap.decode.ImapRequestLineReader#nextChar()
+
+    /**
+     * Return the next char to read. This will return the same char on every call till {@link #consume()} was called.
+     * 
+     * This implementation will throw a {@link NotEnoughDataException} if the wrapped {@link ChannelBuffer} contains not enough
+     * data to read the next char
      */
     public char nextChar() throws DecodingException {
         if (!nextSeen) {
@@ -59,9 +67,9 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
         return nextChar;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.imap.decode.ImapRequestLineReader#read(int)
+    /**
+     * Return a {@link ChannelBufferInputStream} if the wrapped {@link ChannelBuffer} contains enough data. If not
+     * it will throw a {@link NotEnoughDataException} 
      */
     public InputStream read(int size) throws DecodingException {
         if (size > buffer.readableBytes()) {

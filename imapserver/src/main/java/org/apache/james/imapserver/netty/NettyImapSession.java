@@ -141,21 +141,8 @@ public class NettyImapSession implements ImapSession{
      */
     public boolean startTLS() {
         if (supportStartTLS() == false) return false; 
-        
-        
-        /*
-        OutputStream out =  (OutputStream)getAttachment(ctx).get(KEY_OUT);
-        try {
-            out.flush();
-        } catch (IOException e) {
-            getLog().info("Unable to start TLS", e);
-            return false;
-        }
-        
-        
-        // enable buffering of the stream
-        //((StartTLSOutputStream)getAttachment(ctx).get(BUFFERED_OUT)).bufferTillCRLF();
-*/
+        context.getChannel().setReadable(false);           
+
         SslHandler filter = new SslHandler(sslContext.createSSLEngine(), false);
         filter.getEngine().setUseClientMode(false);
         if (enabledCipherSuites != null && enabledCipherSuites.length > 0) {
@@ -167,6 +154,7 @@ public class NettyImapSession implements ImapSession{
             context.getPipeline().addAfter("zlibDecoder", "sslHandler", filter);
 
         }
+        context.getChannel().setReadable(true);           
 
         return true;
     }
@@ -192,17 +180,9 @@ public class NettyImapSession implements ImapSession{
      * @see org.apache.james.imap.api.process.ImapSession#startCompression()
      */
     public boolean startCompression() {
-        context.getChannel().setReadable(false);
-        /*
-        // enable buffering of the stream
-        OutputStream out =  (OutputStream)getAttachment(ctx).get(KEY_OUT);
-        try {
-            out.flush();
-        } catch (IOException e) {
-            getLog().info("Unable to start compression", e);
-            return false;
-        }  
-        */              
+        if (isCompressionSupported() == false) return false;
+        
+        context.getChannel().setReadable(false);           
         context.getPipeline().addFirst("zlibDecoder", new ZlibDecoder(ZlibWrapper.NONE));
         context.getPipeline().addFirst("zlibEncoder", new ZlibEncoder(ZlibWrapper.NONE, 5));
 

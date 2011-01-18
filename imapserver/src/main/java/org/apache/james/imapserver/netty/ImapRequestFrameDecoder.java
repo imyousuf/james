@@ -67,7 +67,7 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
             return message;
         } catch (NotEnoughDataException e) {
             // this exception was thrown because we don't have enough data yet 
-            int neededData = e.getDataSize();
+            int neededData = e.getNeededSize();
             ctx.setAttachment(neededData);
             buffer.resetReaderIndex();
             return null;
