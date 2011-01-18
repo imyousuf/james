@@ -29,7 +29,6 @@ import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
-import org.apache.james.imap.main.ImapRequestStreamHandler;
 import org.apache.james.protocols.impl.ChannelGroupHandler;
 import org.apache.james.protocols.impl.TimeoutHandler;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
@@ -121,7 +120,8 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 
                 // Add the text line decoder which limit the max line length, don't strip the delimiter and use CRLF as delimiter
                 pipeline.addLast("framer", new DelimiterBasedFrameDecoder(MAX_LINE_LENGTH, false, Delimiters.lineDelimiter()));
-               
+                pipeline.addLast("requestDecoder", new ImapRequestFrameDecoder(decoder));
+
                 
                 if (isSSLSocket()) {
                     // We need to set clientMode to false.
@@ -133,12 +133,11 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 }
                 pipeline.addLast("connectionCountHandler", getConnectionCountHandler());
                 
-                final ImapRequestStreamHandler handler = new ImapRequestStreamHandler(decoder, processor, encoder);
                 
                 if (isStartTLSSupported())  {
-                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), timer, IMAPServer.this.getTimeout(), compress, getSSLContext(), getEnabledCipherSuites()));
+                    pipeline.addLast("coreHandler",  new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, getSSLContext(), getEnabledCipherSuites()));
                 } else {
-                    pipeline.addLast("coreHandler",  new ImapStreamChannelUpstreamHandler(hello, handler, getLogger(), timer, IMAPServer.this.getTimeout(), compress));
+                    pipeline.addLast("coreHandler",  new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress));
                 }
                 
                 return pipeline;

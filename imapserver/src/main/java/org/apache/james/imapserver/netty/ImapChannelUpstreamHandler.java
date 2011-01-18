@@ -20,17 +20,21 @@ package org.apache.james.imapserver.netty;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
-import org.apache.james.imap.api.ImapConstants;
-import org.apache.james.imap.main.ImapRequestStreamHandler;
-import org.apache.james.imap.main.ImapSessionImpl;
+import org.apache.james.imap.api.ImapMessage;
+import org.apache.james.imap.api.ImapSessionState;
+import org.apache.james.imap.api.process.ImapProcessor;
+import org.apache.james.imap.api.process.ImapSession;
+import org.apache.james.imap.encode.ImapEncoder;
+import org.apache.james.imap.encode.ImapResponseComposer;
+import org.apache.james.imap.encode.base.ImapResponseComposerImpl;
+import org.apache.james.imap.main.ResponseEncoder;
+import org.apache.james.protocols.impl.ChannelAttributeSupport;
 import org.apache.james.protocols.impl.SessionLog;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -38,24 +42,21 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.handler.codec.compression.ZlibDecoder;
-import org.jboss.netty.handler.codec.compression.ZlibEncoder;
-import org.jboss.netty.handler.codec.compression.ZlibWrapper;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
-import org.jboss.netty.util.Timer;
 
 /**
  * {@link StreamHandler} which handles IMAP
  * 
  *
  */
-public class ImapStreamChannelUpstreamHandler extends StreamHandler{
+public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler implements ChannelAttributeSupport{
 
     private final Log logger;
 
     private final String hello;
 
-    private final ImapRequestStreamHandler handler;
 
     private String[] enabledCipherSuites;
 
@@ -63,19 +64,20 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
 
     private boolean compress;
 
-    private final static String IMAP_SESSION = "IMAP_SESSION"; 
-    private final static String BUFFERED_OUT = "BUFFERED_OUT";
-    
-    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final Timer timer, final long readTimeout, boolean compress) {
-        this(hello, handler, logger, timer, readTimeout, compress, null, null);
+    private ImapProcessor processor;
+
+    private ImapEncoder encoder;
+
+    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Log logger,  boolean compress) {
+        this(hello, processor, encoder, logger, compress, null, null);
     }
     
 
-    public ImapStreamChannelUpstreamHandler(final String hello, final ImapRequestStreamHandler handler, final Log logger, final Timer timer, final long readTimeout, boolean compress, SSLContext context, String[] enabledCipherSuites) {
-        super(timer, readTimeout, TimeUnit.SECONDS);
+    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Log logger, boolean compress, SSLContext context, String[] enabledCipherSuites) {
         this.logger = logger;
         this.hello = hello;
-        this.handler = handler;
+        this.processor = processor;
+        this.encoder = encoder;
         this.context = context;
         this.enabledCipherSuites = enabledCipherSuites;
         this.compress = compress;
@@ -84,98 +86,12 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
     private Log getLogger(Channel channel) {
         return new SessionLog(""+channel.getId(), logger);
     }
-    @Override
-    protected void processStreamIo(final ChannelHandlerContext ctx, final InputStream in, final OutputStream out) {
-        final ImapSessionImpl imapSession = (ImapSessionImpl) getAttachment(ctx).get(IMAP_SESSION);
-        Channel channel = ctx.getChannel();
-       
-        // Store the stream as attachment
-        OutputStream bufferedOut = new StartTLSOutputStream(out);
-        getAttachment(ctx).put(BUFFERED_OUT, bufferedOut);
-
-        
-        // handle requests in a loop
-        while (channel.isConnected() && handler.handleRequest(in, bufferedOut, imapSession));
-        
-        if (imapSession != null) imapSession.logout();
-        
-        getLogger(ctx.getChannel()).debug("Thread execution complete for session " + channel.getId());
-
-        channel.close();
-    }
-    
 
     @Override
     public void channelBound(final ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         
-        // create the imap session and store it in the IoSession for later usage
-        ImapSessionImpl imapsession = new ImapSessionImpl() {
-
-            @Override
-            public boolean startTLS() {
-                if (supportStartTLS() == false) return false; 
-                
-              
-                OutputStream out =  (OutputStream)getAttachment(ctx).get(KEY_OUT);
-                try {
-                    out.flush();
-                } catch (IOException e) {
-                    getLog().info("Unable to start TLS", e);
-                    return false;
-                }
-                
-                
-                // enable buffering of the stream
-                ((StartTLSOutputStream)getAttachment(ctx).get(BUFFERED_OUT)).bufferTillCRLF();
-
-                SslHandler filter = new SslHandler(context.createSSLEngine(), true);
-                filter.getEngine().setUseClientMode(false);
-                if (enabledCipherSuites != null && enabledCipherSuites.length > 0) {
-                    filter.getEngine().setEnabledCipherSuites(enabledCipherSuites);
-                }
-                if (ctx.getPipeline().get("zlibDecoder") == null) {
-                    ctx.getPipeline().addFirst("sslHandler", filter);
-                } else {
-                    ctx.getPipeline().addAfter("zlibDecoder", "sslHandler", filter);
-
-                }
-
-                return true;
-            }
-
-            @Override
-            public boolean supportStartTLS() {
-                 return context != null;
-            }
-
-            @Override
-            public boolean isCompressionSupported() {
-                return compress;
-            }
-
-            @Override
-            public boolean startCompression() {
-                ctx.getChannel().setReadable(false);
-                // enable buffering of the stream
-                OutputStream out =  (OutputStream)getAttachment(ctx).get(KEY_OUT);
-                try {
-                    out.flush();
-                } catch (IOException e) {
-                    getLog().info("Unable to start compression", e);
-                    return false;
-                }                
-                ctx.getPipeline().addFirst("zlibDecoder", new ZlibDecoder(ZlibWrapper.NONE));
-                ctx.getPipeline().addFirst("zlibEncoder", new ZlibEncoder(ZlibWrapper.NONE, 5));
-
-                ctx.getChannel().setReadable(true);
-
-                return true;
-            }
-            
-        };
-        imapsession.setLog(getLogger(ctx.getChannel()));
-        
-        getAttachment(ctx).put(IMAP_SESSION, imapsession);
+        ImapSession imapsession = new NettyImapSession(ctx, logger, context, enabledCipherSuites, compress);
+        attributes.set(ctx.getChannel(), imapsession);
         super.channelBound(ctx, e);
     }
 
@@ -194,8 +110,13 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
         InetSocketAddress address = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
         getLogger(ctx.getChannel()).info("Connection established from " + address.getHostName() + " (" + address.getAddress().getHostAddress()+ ")");
 
+        ImapResponseComposer response = new ImapResponseComposerImpl(
+                new ChannelImapResponseWriter(ctx.getChannel()));
+        ctx.setAttachment(response);
+        
         // write hello to client
-        ctx.getChannel().write(ChannelBuffers.copiedBuffer((ImapConstants.UNTAGGED + " OK " + hello +" " + new String(ImapConstants.BYTES_LINE_END)).getBytes()));
+        response.hello(hello);
+        //ctx.getChannel().write(ChannelBuffers.copiedBuffer((ImapConstants.UNTAGGED + " OK " + hello +" " + new String(ImapConstants.BYTES_LINE_END)).getBytes()));
         
         super.channelConnected(ctx, e);
         
@@ -206,7 +127,7 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
         getLogger(ctx.getChannel()).debug("Error while processing imap request" ,e.getCause());
         
         // logout on error not sure if that is the best way to handle it
-        final ImapSessionImpl imapSession = (ImapSessionImpl) getAttachment(ctx).get(IMAP_SESSION);     
+        final ImapSession imapSession = (ImapSession) attributes.get(ctx.getChannel());    
         if (imapSession != null) imapSession.logout();
 
         // just close the channel now!
@@ -215,6 +136,35 @@ public class ImapStreamChannelUpstreamHandler extends StreamHandler{
         super.exceptionCaught(ctx, e);
     }
     
+    @Override
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        ImapSession session = (ImapSession) attributes.get(ctx.getChannel());
+        ImapResponseComposer response = (ImapResponseComposer) ctx.getAttachment();
+        ImapMessage message = (ImapMessage) e.getMessage();
+
+        
+        final ResponseEncoder responseEncoder = new ResponseEncoder(encoder,
+                response, session);
+        processor.process(message, responseEncoder, session);
+        
+        if (session.getState() == ImapSessionState.LOGOUT) {
+            ctx.getChannel().close();
+        }
+        final IOException failure = responseEncoder.getFailure();
+        
+        if (failure != null) {
+            final Log logger = session.getLog();
+            logger.info(failure.getMessage());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Failed to write " + message, failure);
+            }
+            throw failure;
+        }
+        
+        
+        super.messageReceived(ctx, e);
+    }
+
     /**
      * Because Netty {@link SslHandler} need to NOT encrypt the first response send to client this {@link FilterOutputStream} is needed. It
      * buffer the data till the complete response was written to the stream (searching for the CRLF). 
