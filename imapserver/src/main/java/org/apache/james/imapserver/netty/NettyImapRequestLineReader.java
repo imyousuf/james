@@ -85,4 +85,30 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
     protected void commandContinuationRequest() throws DecodingException {
         channel.write(cRequest);
     }
+    
+    
+    @SuppressWarnings("serial")
+    public final class NotEnoughDataException extends RuntimeException{
+
+        public final static int UNKNOWN_SIZE = -1;
+        private int size;
+
+        public NotEnoughDataException(int size) {
+            this.size = size;
+        }
+        
+        public NotEnoughDataException() {
+            this(UNKNOWN_SIZE);
+        }
+        
+        /**
+         * Return the size of the data which is needed
+         * 
+         * @return size
+         */
+        public int getNeededSize() {
+            return size;
+        }
+    }
+
 }

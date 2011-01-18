@@ -41,7 +41,10 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
         this.decoder = decoder;
     }
     
-    @Override
+    /*
+     * (non-Javadoc)
+     * @see org.jboss.netty.handler.codec.frame.FrameDecoder#decode(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.Channel, org.jboss.netty.buffer.ChannelBuffer)
+     */
     protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {
         buffer.markReaderIndex();
         
@@ -49,7 +52,8 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
         Object attachment = ctx.getAttachment();
         if (attachment != null) {
             int size = (Integer) attachment;
-            if (size != NotEnoughDataException.UNKNOWN_SIZE && size > buffer.readableBytes()) {
+            // now see if the buffer hold enough data to process.
+            if (size != NettyImapRequestLineReader.NotEnoughDataException.UNKNOWN_SIZE && size > buffer.readableBytes()) {
                 buffer.resetReaderIndex();
                 
                 return null;
@@ -57,6 +61,7 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
         }
         
         try {
+            
             ImapRequestLineReader reader = new NettyImapRequestLineReader(channel, buffer);
             ImapMessage message = decoder.decode(reader, (ImapSession) attributes.get(channel));
 
@@ -65,9 +70,10 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
 
             ctx.setAttachment(null);
             return message;
-        } catch (NotEnoughDataException e) {
+        } catch (NettyImapRequestLineReader.NotEnoughDataException e) {
             // this exception was thrown because we don't have enough data yet 
             int neededData = e.getNeededSize();
+            // store the needed data size for later usage
             ctx.setAttachment(neededData);
             buffer.resetReaderIndex();
             return null;
