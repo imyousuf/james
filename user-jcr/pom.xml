@@ -39,7 +39,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
+      <artifactId>james-server-data-library</artifactId>
     </dependency>
      <dependency>
       <groupId>commons-configuration</groupId>
@@ -66,7 +66,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
+      <artifactId>james-server-data-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

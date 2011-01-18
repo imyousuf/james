@@ -130,12 +130,12 @@
     </dependency>
    <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
+      <artifactId>james-server-data-library</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-library</artifactId>
+      <artifactId>james-server-data-library</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -166,12 +166,6 @@
    	  <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mail-library</artifactId>
-      <scope>test</scope>
-      <type>test-jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
