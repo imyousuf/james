@@ -638,7 +638,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>apache-james-mailbox-copier</artifactId>
+      <artifactId>apache-james-mailbox-tool</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
