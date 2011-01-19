@@ -28,18 +28,25 @@ import org.apache.james.mailbox.MailboxManager;
 public interface James23ImporterManagementMBean {
     
     /**
+     * First import users (each user is created with the given default  password), the
+     * import the mails for each users from the given mail repository path.
+     * 
      * @param james23MailRepositoryPath
      * @param defaultPassword
      */
     void importUsersAndMailsFromJames23(String james23MailRepositoryPath, String defaultPassword) throws Exception;
 
     /**
+     * Import users (each user is created with the given default  password).
+     * 
      * @param defaultPassword
      * @throws Exception
      */
     void importUsersFromJames23(String defaultPassword) throws Exception;
     
     /**
+     * Import the mails for each users from the given mail repository path.
+     * 
      * @param james23MailRepositoryPath
      * @throws Exception
      */
