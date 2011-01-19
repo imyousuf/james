@@ -43,20 +43,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-repository-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mail-api</artifactId>
+      <artifactId>james-server-data-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core</artifactId>
     </dependency> 
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-api</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-data-library</artifactId>

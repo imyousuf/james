@@ -439,10 +439,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mailetcontainer-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>apache-mailet</artifactId>
     </dependency>
     <dependency>
@@ -545,21 +541,17 @@
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
       <artifactId>james-server-data-library</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-user-ldap</artifactId>
+      <artifactId>james-server-ldap</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
-      <artifactId>james-server-domainlist-api</artifactId>
+      <artifactId>james-server-data-api</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -631,10 +623,6 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>apache-james-mailbox-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.james</groupId>
-      <artifactId>james-server-mail-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
