@@ -461,7 +461,7 @@
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-core</artifactId>
-      <scope>runtime</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
