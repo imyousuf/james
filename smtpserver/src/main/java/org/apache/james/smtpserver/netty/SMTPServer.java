@@ -157,14 +157,6 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
             } else {
                 getLogger().info("No maximum message size is enforced for this server.");
             }
-            // How many bytes to read before updating the timer that data is being transfered
-            lengthReset = configuration.getInt("lengthReset", lengthReset);
-            if (lengthReset <= 0) {
-                throw new ConfigurationException("The configured value for the idle timeout reset, " + lengthReset + ", is not valid.");
-            }
-            if (getLogger().isInfoEnabled()) {
-                getLogger().info("The idle timeout will be reset every " + lengthReset + " bytes.");
-            }
 
             heloEhloEnforcement = configuration.getBoolean("heloEhloEnforcement",true);
 
@@ -298,17 +290,15 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
             super(timeout, maxConnections, maxConnectsPerIp, group, enabledCipherSuites);
         }
 
-        
         @Override
-		public ChannelPipeline getPipeline() throws Exception {
-			ChannelPipeline pipeline = super.getPipeline();
-			pipeline.addBefore("coreHandler", "connectionCount", getConnectionCountHandler());
-			
-			return pipeline;
-		}
+        public ChannelPipeline getPipeline() throws Exception {
+            ChannelPipeline pipeline = super.getPipeline();
+            pipeline.addBefore("coreHandler", "connectionCount", getConnectionCountHandler());
 
+            return pipeline;
+        }
 
-		@Override
+        @Override
         protected SSLContext getSSLContext() {
             return SMTPServer.this.getSSLContext();
         }
@@ -369,9 +359,48 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
         return "unknown";
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#getDefaultJMXName()
+     */
     protected String getDefaultJMXName() {
         return "smtpserver";
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#setMaximalMessageSize(long)
+     */
+    public void setMaximalMessageSize(long maxSize) {
+        this.maxMessageSize = maxSize;
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#setAddressBracketsEnforcement(boolean)
+     */
+    public void setAddressBracketsEnforcement(boolean enforceAddressBrackets) {
+        this.addressBracketsEnforcement  = enforceAddressBrackets;
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#setHeloEhloEnforcement(boolean)
+     */
+    public void setHeloEhloEnforcement(boolean enforceHeloEHlo) {
+        this.heloEhloEnforcement = enforceHeloEHlo;
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#getHeloName()
+     */
+    public String getHeloName() {
+        return theConfigData.getHelloName();
     }
    
 
