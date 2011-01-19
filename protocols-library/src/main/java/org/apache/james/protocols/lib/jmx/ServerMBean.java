@@ -104,4 +104,11 @@ public interface ServerMBean {
      * @return stop
      */
     public boolean stop();
+
+    /**
+     * Return the timeout in seconds 
+     * 
+     * @return timeout
+     */
+    public int getTimeout();
 }
