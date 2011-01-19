@@ -164,7 +164,7 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
                 "Attributes stored", 
                 "Timestamp of when the next delivery attempt will be make"
                 };
-        OpenType<?>[] types = new OpenType[] { 
+        OpenType[] types = new OpenType[] { 
                 SimpleType.STRING, 
                 SimpleType.STRING, 
                 SimpleType.STRING, 
