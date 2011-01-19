@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.management.JMX;
 import javax.management.MBeanServerConnection;
+import javax.management.MBeanServerInvocationHandler;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
@@ -93,11 +93,11 @@ public class ServerProbe {
         try
         {
             ObjectName name = new ObjectName(DOMAINLIST_OBJECT_NAME);
-            domainListProcxy = JMX.newMBeanProxy(mbeanServerConn, name, DomainListManagementMBean.class);
+            domainListProcxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, DomainListManagementMBean.class, true);
             name = new ObjectName(VIRTUALUSERTABLE_OBJECT_NAME);
-            virtualUserTableProxy = JMX.newMBeanProxy(mbeanServerConn, name, VirtualUserTableManagementMBean.class);
+            virtualUserTableProxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, VirtualUserTableManagementMBean.class, true);
             name = new ObjectName(USERSREPOSITORY_OBJECT_NAME);
-            usersRepositoryProxy = JMX.newMBeanProxy(mbeanServerConn, name, UsersRepositoryManagementMBean.class);
+            usersRepositoryProxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, UsersRepositoryManagementMBean.class, true);
         } catch (MalformedObjectNameException e)
         {
             throw new RuntimeException(
