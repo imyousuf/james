@@ -93,11 +93,11 @@ public class ServerProbe {
         try
         {
             ObjectName name = new ObjectName(DOMAINLIST_OBJECT_NAME);
-            domainListProcxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, DomainListManagementMBean.class, true);
+            domainListProcxy = (DomainListManagementMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, DomainListManagementMBean.class, true);
             name = new ObjectName(VIRTUALUSERTABLE_OBJECT_NAME);
-            virtualUserTableProxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, VirtualUserTableManagementMBean.class, true);
+            virtualUserTableProxy = (VirtualUserTableManagementMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, VirtualUserTableManagementMBean.class, true);
             name = new ObjectName(USERSREPOSITORY_OBJECT_NAME);
-            usersRepositoryProxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, UsersRepositoryManagementMBean.class, true);
+            usersRepositoryProxy = (UsersRepositoryManagementMBean) MBeanServerInvocationHandler.newProxyInstance(mbeanServerConn, name, UsersRepositoryManagementMBean.class, true);
         } catch (MalformedObjectNameException e)
         {
             throw new RuntimeException(
