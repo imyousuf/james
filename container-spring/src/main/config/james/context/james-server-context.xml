@@ -382,9 +382,9 @@
           <entry key="org.apache.james:type=component,name=fetchmail" value-ref="fetchmail"/>
           <entry key="org.apache.james:type=component,name=mailboxmanagement" value-ref="mailboxmanagermanagement"/>
           <entry key="org.apache.james:type=component,component=mailetcontainer,name=mailspooler" value-ref="mailspooler"/>
-          <entry key="org.apache.james:type=mailbox,name=mailboxcopier" value-ref="mailboxcopiermanagement"/>
+          <entry key="org.apache.james:type=component,name=mailboxcopier" value-ref="mailboxcopiermanagement"/>
+          <entry key="org.apache.james:type=component,name=james23importer" value-ref="james23importermanagement"/>
           <entry key="org.apache.james:type=container,name=logprovider" value-ref="logprovider"/>
-          <entry key="org.apache.james:type=mailbox,name=james23importer" value-ref="james23importermanagement"/>
         </map>
       </property>
       <property name="assembler">
