@@ -27,6 +27,7 @@ import javax.mail.Flags;
 import javax.mail.MessagingException;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.LogEnabled;
@@ -152,7 +153,7 @@ public class James23Importer implements LogEnabled {
                 mailboxManager.createMailbox(mailboxPath, mailboxSession);
             }
             catch (MailboxExistsException e) {
-                // Do nothing.
+                // Do nothing, the mailbox already exists.
             }
             mailboxManager.endProcessingRequest(mailboxSession);
 
@@ -161,9 +162,8 @@ public class James23Importer implements LogEnabled {
             while (mailRepositoryIterator.hasNext()) {
                 Mail mail = mailRepository.retrieve(mailRepositoryIterator.next());
                 mailboxManager.startProcessingRequest(mailboxSession);
-                // TODO We need to build the full message, not only the body.
-                messageManager.appendMessage(mail.getMessage().getInputStream(), 
-                        mail.getMessage().getReceivedDate(), 
+                messageManager.appendMessage(new MimeMessageInputStream(mail.getMessage()), 
+                        new Date(), 
                         mailboxSession, 
                         isRecent, 
                         flags);
