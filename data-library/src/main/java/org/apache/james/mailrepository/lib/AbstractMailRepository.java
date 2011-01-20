@@ -27,7 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailrepository.api.MailRepository;
-import org.apache.james.util.Lock;
 import org.apache.mailet.Mail;
 
 import javax.mail.MessagingException;

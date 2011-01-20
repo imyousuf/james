@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util;
+package org.apache.james.mailrepository.lib;
 
 import java.util.Hashtable;
 

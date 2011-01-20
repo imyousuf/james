@@ -28,7 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.james.util.XMLResources;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
 
@@ -76,11 +75,64 @@ public class VirtualUserTableUtil {
             for (int i = 1; i < match.groupCount(); i++) {
                 parameters.put(Integer.toString(i), match.group(i));
             }
-            result = XMLResources.replaceParameters(targetString.substring(msgPos + 1), parameters);
+            result = replaceParameters(targetString.substring(msgPos + 1), parameters);
         }    
         return result;
      }
-     
+
+    /**
+     * Returns a named string, replacing parameters with the values set.
+     * 
+     * @param str          the name of the String resource required.
+     * @param parameters    a map of parameters (name-value string pairs) which are
+     *                      replaced where found in the input strings
+     * @return the requested resource
+     */
+    static public String replaceParameters(String str, Map<String, String> parameters) {
+        if (str != null && parameters != null) {
+            // Do parameter replacements for this string resource.
+            Iterator<String> paramNames = parameters.keySet().iterator();
+            StringBuffer replaceBuffer = new StringBuffer(64);
+            while ( paramNames.hasNext() ) {
+                String paramName = (String)paramNames.next();
+                String paramValue = (String)parameters.get(paramName);
+                replaceBuffer.append("${").append(paramName).append("}");
+                str = substituteSubString(str, replaceBuffer.toString(), paramValue);
+                if (paramNames.hasNext()) replaceBuffer.setLength(0);
+            }
+        }
+
+        return str;
+    }
+    
+    /**
+     * Replace substrings of one string with another string and return altered string.
+     * @param input input string
+     * @param find the string to replace
+     * @param replace the string to replace with
+     * @return the substituted string
+     */
+    static private String substituteSubString( String input, 
+                                               String find,
+                                               String replace ) {
+        int find_length = find.length();
+        int replace_length = replace.length();
+
+        StringBuffer output = new StringBuffer(input);
+        int index = input.indexOf(find);
+        int outputOffset = 0;
+
+        while ( index > -1 ) {
+            output.replace(index + outputOffset, index + outputOffset + find_length, replace);
+            outputOffset = outputOffset + (replace_length - find_length);
+
+            index = input.indexOf(find, index + find_length);
+        }
+
+        String result = output.toString();
+        return result;
+    }
+    
     /**
      * Returns the real recipient given a virtual username and domain.
      * 
