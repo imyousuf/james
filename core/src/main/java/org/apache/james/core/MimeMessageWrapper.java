@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
+import java.io.SequenceInputStream;
 import java.util.Enumeration;
 import java.util.UUID;
 
@@ -41,7 +42,6 @@ import javax.mail.util.SharedByteArrayInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.james.lifecycle.api.Disposable;
 import org.apache.james.lifecycle.api.LifecycleUtil;
-import org.apache.james.util.stream.CombinedInputStream;
 
 /**
  * This object wraps a MimeMessage, only loading the underlying MimeMessage
@@ -645,7 +645,7 @@ public class MimeMessageWrapper
                     new MailHeaders(in);
                 
                     // now construct the new stream using the in memory headers and the body from the original source
-                    return new CombinedInputStream(new InputStream[]{new InternetHeadersInputStream(getAllHeaderLines()), in});
+                    return new SequenceInputStream(new InternetHeadersInputStream(getAllHeaderLines()), in);
                 } else {
                     // the body was changed so we have no other solution to copy it into memory first :(
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
