@@ -54,7 +54,6 @@ import org.apache.james.domainlist.api.mock.SimpleDomainList;
 import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.mailrepository.mock.MockMailRepositoryStore;
 import org.apache.james.user.lib.mock.MockUsersRepository;
-import org.apache.james.util.codec.Base64;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.HostAddress;

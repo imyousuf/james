@@ -19,7 +19,7 @@
 
 
 
-package org.apache.james.util.codec;
+package org.apache.james.smtpserver;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeUtility;
