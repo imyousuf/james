@@ -20,10 +20,10 @@
 
 package org.apache.james.smtpserver;
 
+import org.apache.james.protocols.lib.POP3BeforeSMTPHelper;
 import org.apache.james.protocols.smtp.BaseFakeSMTPSession;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.POP3BeforeSMTPHandler;
-import org.apache.james.util.POP3BeforeSMTPHelper;
 
 import junit.framework.TestCase;
 

@@ -49,12 +49,12 @@ import org.apache.james.mailbox.inmemory.InMemoryMailboxSessionMapperFactory;
 import org.apache.james.mailbox.inmemory.mail.InMemoryCachingUidProvider;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.pop3server.netty.POP3Server;
+import org.apache.james.protocols.lib.POP3BeforeSMTPHelper;
 import org.apache.james.protocols.lib.PortUtil;
 import org.apache.james.protocols.lib.mock.MockJSR250Loader;
 import org.apache.james.protocols.lib.mock.MockProtocolHandlerChain;
 import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.lib.mock.MockUsersRepository;
-import org.apache.james.util.POP3BeforeSMTPHelper;
 
 public class POP3ServerTest extends TestCase {
 

@@ -35,7 +35,7 @@ import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
-import org.apache.james.util.POP3BeforeSMTPHelper;
+import org.apache.james.protocols.lib.POP3BeforeSMTPHelper;
 
 /**
  * Handles PASS command
