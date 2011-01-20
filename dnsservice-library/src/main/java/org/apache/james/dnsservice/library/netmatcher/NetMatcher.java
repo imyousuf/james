@@ -21,9 +21,10 @@ package org.apache.james.dnsservice.library.netmatcher;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.library.inetnetwork.InetNetworkBuilder;
@@ -45,7 +46,7 @@ public class NetMatcher {
     /**
      * The Set of InetNetwork to match against.
      */
-    private Set<InetNetwork> networks;
+    private SortedSet<InetNetwork> networks;
 
     /**
      * Create a new instance of Netmatcher.
@@ -111,6 +112,8 @@ public class NetMatcher {
     }
 
     /**
+     * Return a sorted representation of the inet networks.
+     * 
      * @see InetNetwork#toString()
      */
     public String toString() {
@@ -141,7 +144,11 @@ public class NetMatcher {
      */
     private void initInetNetworks(final String[] nets) {
 
-        networks = new HashSet<InetNetwork>();
+        networks = new TreeSet<InetNetwork>(new Comparator<InetNetwork>() {
+            public int compare(InetNetwork in1, InetNetwork in2) {
+                return in1.toString().compareTo(in2.toString());
+            }
+        });
 
         final InetNetworkBuilder inetNetwork = new InetNetworkBuilder(dnsServer);
 
