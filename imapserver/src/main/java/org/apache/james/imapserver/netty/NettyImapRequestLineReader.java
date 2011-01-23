@@ -58,12 +58,11 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
         if (!nextSeen) {
             int next = -1;
 
-            try {
+            if (buffer.readable()) {
                 next = buffer.readByte();
-            } catch (IndexOutOfBoundsException e) {
+            } else {
                 throw new NotEnoughDataException();
             }
-
             nextSeen = true;
             nextChar = (char) next;
         }
