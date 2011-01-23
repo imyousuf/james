@@ -47,10 +47,11 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
      */
     protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {
         buffer.markReaderIndex();
-        
+        boolean retry = false;
         // check if we failed before and if we already know how much data we need to sucess next run
         Object attachment = ctx.getAttachment();
         if (attachment != null) {
+            retry = true;
             int size = (Integer) attachment;
             // now see if the buffer hold enough data to process.
             if (size != NettyImapRequestLineReader.NotEnoughDataException.UNKNOWN_SIZE && size > buffer.readableBytes()) {
@@ -62,7 +63,7 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
         
         try {
             
-            ImapRequestLineReader reader = new NettyImapRequestLineReader(channel, buffer);
+            ImapRequestLineReader reader = new NettyImapRequestLineReader(channel, buffer, retry);
             ImapMessage message = decoder.decode(reader, (ImapSession) attributes.get(channel));
 
             // ok no errors found consume the rest of the line

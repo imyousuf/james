@@ -38,10 +38,13 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
     private ChannelBuffer buffer;
     private Channel channel;
     private ChannelBuffer cRequest = ChannelBuffers.wrappedBuffer("+\r\n".getBytes());
-
-    public NettyImapRequestLineReader(Channel channel, ChannelBuffer buffer) {
+    private boolean retry;
+    
+    public NettyImapRequestLineReader(Channel channel, ChannelBuffer buffer, boolean retry) {
         this.buffer = buffer;
         this.channel = channel;
+        this.retry = retry;
+        
     }
 
 
@@ -83,7 +86,9 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
      * @see org.apache.james.imap.decode.ImapRequestLineReader#commandContinuationRequest()
      */
     protected void commandContinuationRequest() throws DecodingException {
-        channel.write(cRequest);
+        // only write the request out if this is not a retry to process the request..
+        
+        if (!retry) channel.write(cRequest);
     }
     
     /**
