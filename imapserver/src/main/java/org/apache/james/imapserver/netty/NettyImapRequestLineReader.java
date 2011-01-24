@@ -23,6 +23,7 @@ import java.io.InputStream;
 
 import org.apache.james.imap.decode.DecodingException;
 import org.apache.james.imap.decode.ImapRequestLineReader;
+import org.apache.james.imap.decode.base.EolInputStream;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -73,11 +74,26 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
      * Return a {@link ChannelBufferInputStream} if the wrapped {@link ChannelBuffer} contains enough data. If not
      * it will throw a {@link NotEnoughDataException} 
      */
-    public InputStream read(int size) throws DecodingException {
-        if (size > buffer.readableBytes()) {
+    public InputStream read(int size, boolean extraCRLF) throws DecodingException {
+        int crlf = 0;
+        if (extraCRLF) {
+            crlf = 2;
+        }
+        // Check if we have enough data
+        if (size  + crlf> buffer.readableBytes()) {
             throw new NotEnoughDataException(size);
         }
-        return new ChannelBufferInputStream(buffer, size);
+        
+        // Unset the next char.
+        nextSeen = false;
+        nextChar = 0;
+        
+        ChannelBufferInputStream in = new ChannelBufferInputStream(buffer, size);
+        if (extraCRLF) {
+            return new EolInputStream(this, in);
+        } else {
+            return in;
+        }
     }
 
     /*
