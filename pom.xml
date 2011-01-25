@@ -279,6 +279,12 @@
     <dependencies>
     <dependency>
       <groupId>org.apache.james</groupId>
+      <artifactId>james-server-cli</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.james</groupId>
       <artifactId>james-server-container-spring</artifactId>
       <version>${project.version}</version>
     </dependency>

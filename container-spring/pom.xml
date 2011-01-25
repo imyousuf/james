@@ -88,6 +88,25 @@
                 <platform>unix</platform>
               </platforms>
             </program>
+            
+            <!-- This create the scripts for the command line administration client. Maybe this should better be moved to the cli module, but I'm not sure yet -->
+            <program>
+              <mainClass>org.apache.james.cli.ServerCmd</mainClass>
+              <!-- call it only run because appassemble will add .bat by default on windows -->              
+              <name>james-cli</name>
+              <!-- Only generate windows bat script for this application -->
+              <platforms>
+                <platform>windows</platform>
+              </platforms>
+            </program>
+            <program>
+              <mainClass>org.apache.james.cli.ServerCmd</mainClass>
+              <name>james-cli.sh</name>
+              <!-- Only generate unix shell script for the client -->
+              <platforms>
+                <platform>unix</platform>
+              </platforms>
+            </program>
           </programs>
                    
           <daemons>
@@ -241,6 +260,12 @@
                 
                 <!--  copy the linux wrapper-linux-x86-32 to wrapper, so use it as default if no matching wrapper was found-->
                 <copy file="${project.build.directory}/appassembler/jsw/james/bin/wrapper-linux-x86-32" tofile="${project.build.directory}/appassembler/jsw/james/bin/wrapper" />
+             
+                <!-- this is only needed because windows freak out on long cmd lines, so we strip of the absolute path
+                     from the lib dir to make windows happy again
+                -->
+                <replace file="${project.build.directory}/appassembler/bin/james-cli.bat" token="%BASEDIR%\lib" value="..\lib" />
+                <replace file="${project.build.directory}/appassembler/bin/james-cli.sh" token="setenv" value="setenv.sh" />
               </tasks>
 
             </configuration>
@@ -401,6 +426,10 @@
   </build>
   
   <dependencies>
+    <dependency>
+      <groupId>org.apache.james</groupId>
+      <artifactId>james-server-cli</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.james</groupId>
       <artifactId>james-server-lifecycle-api</artifactId>
