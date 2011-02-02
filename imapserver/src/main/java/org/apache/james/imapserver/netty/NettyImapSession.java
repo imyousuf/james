@@ -46,7 +46,10 @@ public class NettyImapSession implements ImapSession{
     private SessionLog log;
     private ChannelHandlerContext context;
     private int handlerCount;
-    
+    private final static String ZLIB_DECODER = "zlibDecoder";
+    private final static String ZLIB_ENCODER = "zlibEncoder";
+    private final static String SSL_HANDLER = "sslHandler";
+
     public NettyImapSession(ChannelHandlerContext context, Log log, SSLContext sslContext, String[] enabledCipherSuites, boolean compress) {
         this.context = context;
         this.log = new SessionLog(context.getChannel().getId() + "", log);
@@ -148,12 +151,8 @@ public class NettyImapSession implements ImapSession{
         if (enabledCipherSuites != null && enabledCipherSuites.length > 0) {
             filter.getEngine().setEnabledCipherSuites(enabledCipherSuites);
         }
-        if (context.getPipeline().get("zlibDecoder") == null) {
-            context.getPipeline().addFirst("sslHandler", filter);
-        } else {
-            context.getPipeline().addAfter("zlibDecoder", "sslHandler", filter);
-
-        }
+        context.getPipeline().addFirst(SSL_HANDLER, filter);
+        
         context.getChannel().setReadable(true);           
 
         return true;
@@ -182,9 +181,22 @@ public class NettyImapSession implements ImapSession{
     public boolean startCompression() {
         if (isCompressionSupported() == false) return false;
         
-        context.getChannel().setReadable(false);           
-        context.getPipeline().addFirst("zlibDecoder", new ZlibDecoder(ZlibWrapper.NONE));
-        context.getPipeline().addFirst("zlibEncoder", new ZlibEncoder(ZlibWrapper.NONE, 5));
+        context.getChannel().setReadable(false);     
+        ZlibDecoder decoder = new ZlibDecoder(ZlibWrapper.NONE);
+        ZlibEncoder encoder = new ZlibEncoder(ZlibWrapper.NONE, 5);
+        
+        // Check if we have the SslHandler in the pipeline already
+        // if so we need to move the compress encoder and decoder
+        // behind it in the chain
+        // See JAMES-1186
+        if (context.getPipeline().get(SSL_HANDLER) == null) {
+            context.getPipeline().addFirst(ZLIB_DECODER, decoder);
+            context.getPipeline().addFirst(ZLIB_ENCODER, encoder);
+        } else {
+            context.getPipeline().addAfter(SSL_HANDLER, ZLIB_DECODER,decoder);
+            context.getPipeline().addAfter(SSL_HANDLER, ZLIB_ENCODER,encoder);
+        }
+
 
         context.getChannel().setReadable(true);
 
