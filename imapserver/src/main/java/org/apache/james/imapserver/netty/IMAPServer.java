@@ -46,7 +46,7 @@ import org.jboss.netty.util.HashedWheelTimer;
  * NIO IMAP Server which use Netty
  *
  */
-public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapConstants, IMAPServerMBean {
+public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapConstants, IMAPServerMBean, NettyConstants {
 
     private static final String softwaretype = "JAMES "+VERSION+" Server ";
     
@@ -110,17 +110,17 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
 
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
-                pipeline.addLast("groupHandler", groupHandler);
-                pipeline.addLast("timeoutHandler", new TimeoutHandler(timer, TIMEOUT));
-                pipeline.addLast("connectionLimit", new ConnectionLimitUpstreamHandler(IMAPServer.this.connectionLimit));
+                pipeline.addLast(GROUP_HANDLER, groupHandler);
+                pipeline.addLast(TIMEOUT_HANDLER, new TimeoutHandler(timer, TIMEOUT));
+                pipeline.addLast(CONNECTION_LIMIT_HANDLER, new ConnectionLimitUpstreamHandler(IMAPServer.this.connectionLimit));
 
-                pipeline.addLast("connectionPerIpLimit", new ConnectionPerIpLimitUpstreamHandler(IMAPServer.this.connPerIP));
+                pipeline.addLast(CONNECTION_LIMIT_PER_IP_HANDLER, new ConnectionPerIpLimitUpstreamHandler(IMAPServer.this.connPerIP));
 
 
                 
                 // Add the text line decoder which limit the max line length, don't strip the delimiter and use CRLF as delimiter
-                pipeline.addLast("framer", new DelimiterBasedFrameDecoder(MAX_LINE_LENGTH, false, Delimiters.lineDelimiter()));
-                pipeline.addLast("requestDecoder", new ImapRequestFrameDecoder(decoder));
+                pipeline.addLast(FRAMER, new DelimiterBasedFrameDecoder(MAX_LINE_LENGTH, false, Delimiters.lineDelimiter()));
+                pipeline.addLast(REQUEST_DECODER, new ImapRequestFrameDecoder(decoder));
 
                 
                 if (isSSLSocket()) {
@@ -128,16 +128,16 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                     // See https://issues.apache.org/jira/browse/JAMES-1025
                     SSLEngine engine = getSSLContext().createSSLEngine();
                     engine.setUseClientMode(false);
-                    pipeline.addFirst("sslHandler", new SslHandler(engine));
+                    pipeline.addFirst(SSL_HANDLER, new SslHandler(engine));
                     
                 }
-                pipeline.addLast("connectionCountHandler", getConnectionCountHandler());
+                pipeline.addLast(CONNECTION_COUNT_HANDLER, getConnectionCountHandler());
                 
                 
                 if (isStartTLSSupported())  {
-                    pipeline.addLast("coreHandler",  new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, getSSLContext(), getEnabledCipherSuites()));
+                    pipeline.addLast(CORE_HANDLER,  new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, getSSLContext(), getEnabledCipherSuites()));
                 } else {
-                    pipeline.addLast("coreHandler",  new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress));
+                    pipeline.addLast(CORE_HANDLER,  new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress));
                 }
                 
                 return pipeline;

@@ -35,7 +35,7 @@ import org.jboss.netty.handler.codec.compression.ZlibEncoder;
 import org.jboss.netty.handler.codec.compression.ZlibWrapper;
 import org.jboss.netty.handler.ssl.SslHandler;
 
-public class NettyImapSession implements ImapSession{
+public class NettyImapSession implements ImapSession, NettyConstants{
 
     private ImapSessionState state = ImapSessionState.NON_AUTHENTICATED;
     private SelectedMailbox selectedMailbox;
@@ -46,9 +46,7 @@ public class NettyImapSession implements ImapSession{
     private SessionLog log;
     private ChannelHandlerContext context;
     private int handlerCount;
-    private final static String ZLIB_DECODER = "zlibDecoder";
-    private final static String ZLIB_ENCODER = "zlibEncoder";
-    private final static String SSL_HANDLER = "sslHandler";
+
 
     public NettyImapSession(ChannelHandlerContext context, Log log, SSLContext sslContext, String[] enabledCipherSuites, boolean compress) {
         this.context = context;
