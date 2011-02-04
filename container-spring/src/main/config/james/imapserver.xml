@@ -31,6 +31,9 @@
   <!-- Maximal allowed line-length before a BAD response will get returned to the client -->
   <!-- This should be set with caution as a to high value can make the server a target for DOS! -->
   <maxLineLength>65536</maxLineLength>
+  
+  <!-- 10MB size limit before we will start to stream to a temporary file -->
+  <inMemorySizeLimit>10485760</inMemorySizeLimit>
   <handler>
       <connectionLimit> 0 </connectionLimit>
       <connectionLimitPerIP> 0 </connectionLimitPerIP>

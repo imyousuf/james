@@ -59,9 +59,14 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
     private boolean compress;
 
     private int maxLineLength;
+
+    private int inMemorySizeLimit;
     
     // Use a big default
     public final static int DEFAULT_MAX_LINE_LENGTH = 65536;
+    
+    // Use 10MB as default
+    public final static int DEFAULT_IN_MEMORY_SIZE_LIMIT = 10485760;
 
     @Resource(name="imapDecoder")
     public void setImapDecoder(ImapDecoder decoder) {
@@ -84,6 +89,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
         hello  = softwaretype + " Server " + getHelloName() + " is ready.";
         compress = configuration.getBoolean("compress", false);
         maxLineLength = configuration.getInt("maxLineLength", DEFAULT_MAX_LINE_LENGTH);
+        inMemorySizeLimit = configuration.getInt("inMemorySizeLimit", DEFAULT_IN_MEMORY_SIZE_LIMIT);
     }
     
     
@@ -125,7 +131,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 
                 // Add the text line decoder which limit the max line length, don't strip the delimiter and use CRLF as delimiter
                 pipeline.addLast(FRAMER, new DelimiterBasedFrameDecoder(maxLineLength, false, Delimiters.lineDelimiter()));
-                pipeline.addLast(REQUEST_DECODER, new ImapRequestFrameDecoder(decoder));
+                pipeline.addLast(REQUEST_DECODER, new ImapRequestFrameDecoder(decoder, inMemorySizeLimit));
 
                 
                 if (isSSLSocket()) {

@@ -26,7 +26,6 @@ import org.apache.james.imap.decode.ImapRequestLineReader;
 import org.apache.james.imap.decode.base.EolInputStream;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 
 /**
@@ -34,17 +33,14 @@ import org.jboss.netty.channel.Channel;
  * see the docs on {@link #nextChar()} and {@link #read(int)} to understand the special behavior of this implementation
  *
  */
-public class NettyImapRequestLineReader extends ImapRequestLineReader{
+public class NettyImapRequestLineReader extends AbstractNettyImapRequestLineReader{
 
     private ChannelBuffer buffer;
-    private Channel channel;
-    private ChannelBuffer cRequest = ChannelBuffers.wrappedBuffer("+\r\n".getBytes());
-    private boolean retry;
+    private int read = 0;
     
     public NettyImapRequestLineReader(Channel channel, ChannelBuffer buffer, boolean retry) {
+        super(channel, retry);
         this.buffer = buffer;
-        this.channel = channel;
-        this.retry = retry;
         
     }
 
@@ -61,6 +57,7 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
 
             if (buffer.readable()) {
                 next = buffer.readByte();
+                read++;
             } else {
                 throw new NotEnoughDataException();
             }
@@ -81,7 +78,8 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
         }
         // Check if we have enough data
         if (size  + crlf> buffer.readableBytes()) {
-            throw new NotEnoughDataException(size);
+            // ok let us throw a exception which till the decoder how many more bytes we need
+            throw new NotEnoughDataException(size + read + crlf);
         }
         
         // Unset the next char.
@@ -96,16 +94,7 @@ public class NettyImapRequestLineReader extends ImapRequestLineReader{
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.imap.decode.ImapRequestLineReader#commandContinuationRequest()
-     */
-    protected void commandContinuationRequest() throws DecodingException {
-        // only write the request out if this is not a retry to process the request..
-        
-        if (!retry) channel.write(cRequest);
-    }
-    
+
     /**
      * {@link RuntimeException} which will get thrown by {@link NettyImapRequestLineReader#nextChar()} and {@link NettyImapRequestLineReader#read(int)} if not 
      * enough data is readable in the underlying {@link ChannelBuffer}
