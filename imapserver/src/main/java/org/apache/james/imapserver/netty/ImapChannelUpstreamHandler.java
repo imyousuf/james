@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.logging.Log;
+import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.ImapMessage;
 import org.apache.james.imap.api.ImapSessionState;
 import org.apache.james.imap.api.process.ImapProcessor;
@@ -40,6 +41,7 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.handler.codec.frame.TooLongFrameException;
 
 /**
  * {@link SimpleChannelUpstreamHandler} which handles IMAP
@@ -121,14 +123,32 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         getLogger(ctx.getChannel()).debug("Error while processing imap request" ,e.getCause());
         
-        // logout on error not sure if that is the best way to handle it
-        final ImapSession imapSession = (ImapSession) attributes.get(ctx.getChannel());    
-        if (imapSession != null) imapSession.logout();
+        if (e.getCause() instanceof TooLongFrameException) {
+            
+            
+            // Max line length exceeded
+            // See RFC 2683 section 3.2.1
+            //
+            // "For its part, a server should allow for a command line of at least
+            // 8000 octets. This provides plenty of leeway for accepting reasonable
+            // length commands from clients. The server should send a BAD response
+            // to a command that does not end within the server's maximum accepted
+            // command length." 
+            //
+            // See also JAMES-1190
+            ImapResponseComposer composer = (ImapResponseComposer) ctx.getAttachment();
+            composer.untaggedResponse(ImapConstants.BAD + " failed. Maximum command line length exceeded");
+        } else {
+            // logout on error not sure if that is the best way to handle it
+            final ImapSession imapSession = (ImapSession) attributes.get(ctx.getChannel());    
+            if (imapSession != null) imapSession.logout();
 
-        // just close the channel now!
-        ctx.getChannel().close();
-        
-        super.exceptionCaught(ctx, e);
+            // just close the channel now!
+            ctx.getChannel().close();
+            
+            super.exceptionCaught(ctx, e);  
+        }
+
     }
     
     @Override
