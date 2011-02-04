@@ -58,6 +58,11 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
 
     private boolean compress;
 
+    private int maxLineLength;
+    
+    // Use a big default
+    public final static int DEFAULT_MAX_LINE_LENGTH = 65536;
+
     @Resource(name="imapDecoder")
     public void setImapDecoder(ImapDecoder decoder) {
         this.decoder = decoder;
@@ -78,6 +83,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
         super.doConfigure(configuration);
         hello  = softwaretype + " Server " + getHelloName() + " is ready.";
         compress = configuration.getBoolean("compress", false);
+        maxLineLength = configuration.getInt("maxLineLength", DEFAULT_MAX_LINE_LENGTH);
     }
     
     
@@ -106,7 +112,6 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
             
             // Timeout of 30 minutes See rfc2060 5.4 for details
             private final static int TIMEOUT = 30 * 60;
-            public final static int MAX_LINE_LENGTH = 8192;
 
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
@@ -119,7 +124,7 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
 
                 
                 // Add the text line decoder which limit the max line length, don't strip the delimiter and use CRLF as delimiter
-                pipeline.addLast(FRAMER, new DelimiterBasedFrameDecoder(MAX_LINE_LENGTH, false, Delimiters.lineDelimiter()));
+                pipeline.addLast(FRAMER, new DelimiterBasedFrameDecoder(maxLineLength, false, Delimiters.lineDelimiter()));
                 pipeline.addLast(REQUEST_DECODER, new ImapRequestFrameDecoder(decoder));
 
                 

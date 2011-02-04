@@ -27,6 +27,10 @@
   </tls>
   <!-- COMPRESS extension -->
   <compress>false</compress>
+  
+  <!-- Maximal allowed line-length before a BAD response will get returned to the client -->
+  <!-- This should be set with caution as a to high value can make the server a target for DOS! -->
+  <maxLineLength>65536</maxLineLength>
   <handler>
       <connectionLimit> 0 </connectionLimit>
       <connectionLimitPerIP> 0 </connectionLimitPerIP>
