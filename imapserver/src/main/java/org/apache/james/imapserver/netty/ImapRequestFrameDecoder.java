@@ -158,7 +158,7 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
         
         try {      
             ImapMessage message = decoder.decode(reader, (ImapSession) attributes.get(channel));
-
+            reader.consumeLine();
             attachment.clear();
             return message;
         } catch (NettyImapRequestLineReader.NotEnoughDataException e) {
