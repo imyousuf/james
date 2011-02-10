@@ -26,11 +26,14 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.annotation.Resource;
 import javax.mail.internet.ParseException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
+import org.apache.james.domainlist.api.DomainList;
+import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.vut.api.VirtualUserTable;
@@ -48,6 +51,13 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
     
     private Log logger;
 
+    private DomainList domainList;
+
+    @Resource(name="domainlist")
+    public void setDomainList(DomainList domainList) {
+        this.domainList = domainList;
+    }
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
@@ -211,7 +221,11 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
      */
     public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException{
         if (address.indexOf('@') < 0) {
-            address =  address + "@localhost";
+            try {
+                address =  address + "@" + domainList.getDefaultDomain();
+            } catch (DomainListException e) {
+                throw new VirtualUserTableException("Unable to retrieve default domain", e);
+            }
         } 
         try {
             new MailAddress(address);
@@ -229,7 +243,11 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
      */
     public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
         if (address.indexOf('@') < 0) {
-            address =  address + "@localhost";
+            try {
+                address =  address + "@" + domainList.getDefaultDomain();
+            } catch (DomainListException e) {
+                throw new VirtualUserTableException("Unable to retrieve default domain", e);
+            }
         } 
         getLogger().info("Remove address mapping => " + address + " for user: " + user + " domain: " + domain);
         removeMappingInternal(user,domain,address);
