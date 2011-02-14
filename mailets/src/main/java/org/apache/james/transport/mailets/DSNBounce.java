@@ -360,6 +360,10 @@ public class DSNBounce extends AbstractNotify {
                 // get Exception for getting status information
                 // TODO: it would be nice if the SMTP-handler would set a status attribute we can use here
                 String ex =(String) originalMail.getAttribute("delivery-error");
+                
+                if (ex == null) {
+                    ex = "unknown";
+                }
                 out.println("Status: "+ ex);
 
                 //optional: remote MTA
