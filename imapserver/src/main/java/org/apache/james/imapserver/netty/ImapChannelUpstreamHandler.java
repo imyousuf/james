@@ -97,6 +97,11 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         InetSocketAddress address = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
         getLogger(ctx.getChannel()).info("Connection closed for " + address.getHostName() + " (" + address.getAddress().getHostAddress()+ ")");
+        
+        // remove the stored attribute for the channel to free up resources
+        // See JAMES-1195
+        ImapSession imapSession = (ImapSession) attributes.remove(ctx.getChannel());
+        if (imapSession != null) imapSession.logout();
 
         super.channelClosed(ctx, e);
     }
