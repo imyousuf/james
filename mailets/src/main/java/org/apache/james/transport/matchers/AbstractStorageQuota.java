@@ -74,7 +74,7 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
      */
     private UsersRepository localusers;
 
-    private final MailetContextLog log = new MailetContextLog(getMailetContext());
+    private MailetContextLog log;
     
     /** 
      * Checks the recipient.
@@ -88,6 +88,14 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
     protected boolean isRecipientChecked(MailAddress recipient) throws MessagingException {
         MailetContext mailetContext = getMailetContext();
         return super.isRecipientChecked(recipient) && (mailetContext.isLocalEmail(recipient));
+    }
+
+    @Override
+    public void init() throws MessagingException {
+        super.init();
+        
+        // init the log
+        log = new MailetContextLog(getMailetContext());
     }
 
     /** 
