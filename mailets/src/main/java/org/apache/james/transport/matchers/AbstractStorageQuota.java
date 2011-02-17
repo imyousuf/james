@@ -22,6 +22,7 @@
 package org.apache.james.transport.matchers;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Resource;
@@ -29,9 +30,10 @@ import javax.mail.MessagingException;
 
 import org.apache.james.mailbox.BadCredentialsException;
 import org.apache.james.mailbox.MailboxException;
+import org.apache.james.mailbox.MailboxMetaData;
 import org.apache.james.mailbox.MailboxPath;
+import org.apache.james.mailbox.MailboxQuery;
 import org.apache.james.mailbox.MessageManager;
-import org.apache.james.mailbox.MailboxConstants;
 import org.apache.james.mailbox.MailboxManager;
 import org.apache.james.mailbox.MailboxSession;
 import org.apache.james.mailbox.MessageRange;
@@ -122,13 +124,16 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
             }
             session = manager.createSystemSession(username,log); 
             manager.startProcessingRequest(session);
-            MessageManager mailbox = manager.getMailbox(new MailboxPath(MailboxConstants.USER_NAMESPACE,
-                                                session.getUser().getUserName(), "INBOX"),
-                                                session);
-            Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);
             
-            while (results.hasNext()) {
-            	size += results.next().getSize();
+            // get all mailboxes for the user to calculate the size
+            // See JAMES-1198
+            List<MailboxMetaData> mList = manager.search(new MailboxQuery(MailboxPath.inbox(username), "", session.getPathDelimiter()), session);
+            for (int i = 0; i < mList.size(); i++) {
+                MessageManager mailbox = manager.getMailbox(mList.get(i).getPath(), session);
+                Iterator<MessageResult> results = mailbox.getMessages(MessageRange.all(), new FetchGroupImpl(FetchGroup.MINIMAL), session);                 
+                while (results.hasNext()) {
+                    size += results.next().getSize();
+                }
             }
             manager.endProcessingRequest(session);
             manager.logout(session, true);
