@@ -22,6 +22,7 @@
 package org.apache.james.transport.matchers;
 
 import java.util.Iterator;
+import java.util.Locale;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -38,7 +39,7 @@ import org.apache.james.mailbox.MessageResult;
 import org.apache.james.mailbox.MessageResult.FetchGroup;
 import org.apache.james.mailbox.util.FetchGroupImpl;
 import org.apache.james.user.api.UsersRepository;
-import org.apache.james.user.api.model.JamesUser;
+import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.transport.util.MailetContextLog;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
@@ -107,7 +108,19 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
         long size = 0;
         MailboxSession session;
         try {
-            session = manager.createSystemSession(getPrimaryName(recipient.getLocalPart()),log); 
+            String username;
+            try {
+                // see if we need use the full email address as username or not. 
+                // See JAMES-1197
+                if (localusers.supportVirtualHosting()) {
+                    username = recipient.toString().toLowerCase(Locale.US);
+                } else {
+                    username = recipient.getLocalPart().toLowerCase(Locale.US);
+                }
+            } catch (UsersRepositoryException e) {
+                throw new MessagingException("Unable to access UsersRepository", e);
+            }
+            session = manager.createSystemSession(username,log); 
             manager.startProcessingRequest(session);
             MessageManager mailbox = manager.getMailbox(new MailboxPath(MailboxConstants.USER_NAMESPACE,
                                                 session.getUser().getUserName(), "INBOX"),
@@ -129,25 +142,5 @@ abstract public class AbstractStorageQuota extends AbstractQuotaMatcher {
 
     }
 
-    /**
-     * Gets the main name of a local customer, handling aliases.
-     *
-     * @param originalUsername the user name to look for; it can be already the primary name or an alias
-     * @return the primary name, or originalUsername unchanged if not found
-     */
-    protected String getPrimaryName(String originalUsername) {
-        String username;
-        try {
-            username = originalUsername;
-            JamesUser user = (JamesUser) localusers.getUserByName(username);
-            if (user.getAliasing()) {
-                username = user.getAlias();
-            }
-        }
-        catch (Exception e) {
-            username = originalUsername;
-        }
-        return username;
-    }
     
 }
