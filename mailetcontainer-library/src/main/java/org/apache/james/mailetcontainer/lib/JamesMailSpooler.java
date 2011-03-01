@@ -31,7 +31,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.lifecycle.api.LogEnabled;
@@ -41,6 +40,7 @@ import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.mailet.Mail;
+import org.slf4j.Logger;
 
 /**
  * Manages the mail spool.  This class is responsible for retrieving
@@ -86,7 +86,7 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
      */
     private MailProcessor mailProcessor;
 
-    private Log logger;
+    private Logger logger;
 
     private MailQueueFactory queueFactory;
 
@@ -229,9 +229,9 @@ public class JamesMailSpooler implements Runnable, Configurable, LogEnabled, Mai
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.logger = log;
     }
 

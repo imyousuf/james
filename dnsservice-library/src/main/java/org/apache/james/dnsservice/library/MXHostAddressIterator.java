@@ -22,9 +22,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.mailet.HostAddress;
+import org.slf4j.Logger;
 
 /**
  * 
@@ -37,15 +37,15 @@ public class MXHostAddressIterator implements Iterator<HostAddress>{
     private Iterator<String> hosts;
     private DNSService dns;
     private boolean useSingleIP;
-    private Log logger;
+    private Logger logger;
     private int defaultPort;
 
-    public MXHostAddressIterator(Iterator<String> hosts, DNSService dns, boolean useSingleIP, Log logger) {
+    public MXHostAddressIterator(Iterator<String> hosts, DNSService dns, boolean useSingleIP, Logger logger) {
         this(hosts, 25, dns, useSingleIP, logger);
     }
     
 
-    public MXHostAddressIterator(Iterator<String> hosts, int defaultPort, DNSService dns, boolean useSingleIP, Log logger) {
+    public MXHostAddressIterator(Iterator<String> hosts, int defaultPort, DNSService dns, boolean useSingleIP, Logger logger) {
         this.hosts = hosts;
         this.dns = dns;
         this.useSingleIP = useSingleIP;

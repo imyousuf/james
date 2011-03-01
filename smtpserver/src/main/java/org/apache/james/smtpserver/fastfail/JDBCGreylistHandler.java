@@ -39,8 +39,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
 import org.apache.james.filesystem.api.FileSystem;
@@ -54,6 +52,8 @@ import org.apache.james.util.TimeConverter;
 import org.apache.james.util.sql.JDBCUtil;
 import org.apache.james.util.sql.SqlResources;
 import org.apache.mailet.MailAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * GreylistHandler which can be used to activate Greylisting
@@ -62,10 +62,10 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
 
     
     /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(JDBCGreylistHandler.class);
+    private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(JDBCGreylistHandler.class);
     
     /** Non context specific log should only be used when no context specific log is available */
-    private Log serviceLog = FALLBACK_LOG;
+    private Logger serviceLog = FALLBACK_LOG;
 
     private DataSource datasource = null;
 
@@ -406,7 +406,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
                 sqlFile = fileSystem.getFile(sqlFileUrl);
                 sqlFileUrl = null;
             } catch (Exception e) {
-                serviceLog.fatal(e.getMessage(), e);
+                serviceLog.error(e.getMessage(), e);
                 throw e;
             }
 
@@ -481,7 +481,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     /**
      * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.apache.commons.logging.Log)
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.serviceLog = log;
     }
 }

@@ -22,12 +22,13 @@ package org.apache.james.mailetcontainer.camel;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailetcontainer.api.mock.MockMailetContext;
 import org.apache.james.mailetcontainer.api.mock.MockMailetLoader;
 import org.apache.james.mailetcontainer.api.mock.MockMatcherLoader;
 import org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor;
 import org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessorTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CamelMailetProcessorTest extends AbstractStateMailetProcessorTest {
 
@@ -36,8 +37,9 @@ public class CamelMailetProcessorTest extends AbstractStateMailetProcessorTest {
         CamelMailetProcessor processor = null;
         try {
             processor = new CamelMailetProcessor();
-            SimpleLog log = new SimpleLog("MockLog");
-            log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
+            Logger log = LoggerFactory.getLogger("MockLog");
+            // slf4j can't set programmatically any log level. It's just a facade
+            //log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
             processor.setLog(log);
             processor.setCamelContext(new DefaultCamelContext());
             processor.setMailetContext(new MockMailetContext());

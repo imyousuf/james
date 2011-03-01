@@ -22,12 +22,12 @@ package org.apache.james.user.jcr;
 import java.io.File;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.jcr.JCRUsersRepository;
 import org.apache.james.user.lib.AbstractUsersRepositoryTest;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 public class JcrUserRepositoryTest extends AbstractUsersRepositoryTest {
@@ -42,7 +42,7 @@ public class JcrUserRepositoryTest extends AbstractUsersRepositoryTest {
         config.addProperty("username", "admin");
         config.addProperty("password", "test");
         repos.configure(config);
-        repos.setLog(new SimpleLog("MockLog"));
+        repos.setLog(LoggerFactory.getLogger("MockLog"));
         return repos;
     }
 

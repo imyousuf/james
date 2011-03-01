@@ -73,12 +73,12 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.mailet.Mail;
+import org.slf4j.Logger;
 
 /**
  * Implementation of a MailRepository using UNIX mbox files.
@@ -156,10 +156,10 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
      */
     private HierarchicalConfiguration configuration;
 
-    private Log logger;
+    private Logger logger;
 
     
-    public void setLog(Log logger) {
+    public void setLog(Logger logger) {
         this.logger = logger;
     }
     
@@ -191,7 +191,7 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
         }
     }
 
-    protected Log getLogger() {
+    protected Logger getLogger() {
         return logger;
     }
     

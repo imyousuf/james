@@ -45,7 +45,6 @@ import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.BlobMessage;
 import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.activemq.util.JMSExceptionSupport;
-import org.apache.commons.logging.Log;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.core.MimeMessageInputStreamSource;
@@ -54,6 +53,7 @@ import org.apache.james.core.MimeMessageWrapper;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.jms.JMSMailQueue;
 import org.apache.mailet.Mail;
+import org.slf4j.Logger;
 import org.springframework.jms.connection.SessionProxy;
 
 /**
@@ -94,7 +94,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
      * 
      * @see #ActiveMQMailQueue(ConnectionFactory, String, boolean, Log)
      */
-    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
+    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Logger logger) {
         this(connectionFactory, queuename, true, logger);
     }
     
@@ -110,7 +110,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
      * @param logger
      * @throws NotCompliantMBeanException 
      */
-    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, boolean useBlob, final Log logger) {
+    public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, boolean useBlob, final Logger logger) {
         super(connectionFactory, queuename, logger);
         this.useBlob = useBlob;
     }

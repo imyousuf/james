@@ -41,7 +41,6 @@ import javax.mail.internet.ParseException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
@@ -58,6 +57,7 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.base.RFC2822Headers;
+import org.slf4j.Logger;
 
 public abstract class JamesMailetContext implements MailetContext, LogEnabled, Configurable {
 
@@ -67,7 +67,7 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
     private Hashtable<String, Object> attributes = new Hashtable<String, Object>();
     protected DNSService dns;
 
-    protected Log log;
+    protected Logger log;
 
     private UsersRepository localusers;
 
@@ -438,9 +438,9 @@ public abstract class JamesMailetContext implements MailetContext, LogEnabled, C
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.log = log;
     }
 

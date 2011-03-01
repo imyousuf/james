@@ -29,10 +29,10 @@ import java.util.List;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.domainlist.xml.XMLDomainList;
+import org.slf4j.LoggerFactory;
 
 import junit.framework.TestCase;
 
@@ -72,7 +72,7 @@ public class XMLDomainListTest extends TestCase {
     public void testNoConfiguredDomains() throws Exception {
         List<String> domains = new ArrayList<String>();
         XMLDomainList dom = new XMLDomainList();
-        dom.setLog(new SimpleLog("MockLog"));
+        dom.setLog(LoggerFactory.getLogger("MockLog"));
         dom.configure(setUpConfiguration(false, false, domains));
         dom.setDNSService(setUpDNSServer("localhost"));
 
@@ -85,7 +85,7 @@ public class XMLDomainListTest extends TestCase {
         domains.add("domain2.");
     
         XMLDomainList dom = new XMLDomainList();
-        dom.setLog(new SimpleLog("MockLog"));
+        dom.setLog(LoggerFactory.getLogger("MockLog"));
         dom.configure(setUpConfiguration(false,false,domains));
         dom.setDNSService(setUpDNSServer("localhost"));
         
@@ -97,7 +97,7 @@ public class XMLDomainListTest extends TestCase {
         domains.add("domain1.");
     
         XMLDomainList dom = new XMLDomainList();
-        dom.setLog(new SimpleLog("MockLog"));
+        dom.setLog(LoggerFactory.getLogger("MockLog"));
         dom.configure(setUpConfiguration(true,false,domains));
 
         dom.setDNSService(setUpDNSServer("local"));
@@ -109,7 +109,7 @@ public class XMLDomainListTest extends TestCase {
         domains.add("domain1.");
     
         XMLDomainList dom = new XMLDomainList();
-        dom.setLog(new SimpleLog("MockLog"));
+        dom.setLog(LoggerFactory.getLogger("MockLog"));
         dom.configure(setUpConfiguration(true,false,domains));
 
         dom.setDNSService(setUpDNSServer("localhost"));

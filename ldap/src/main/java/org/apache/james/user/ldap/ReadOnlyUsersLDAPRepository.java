@@ -37,12 +37,12 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.api.model.User;
+import org.slf4j.Logger;
 
 /**
  * <p>
@@ -213,7 +213,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      */
     private SimpleLDAPConnection ldapConnection;
 
-    private Log log;
+    private Logger log;
 
     /**
      * <p>
@@ -587,10 +587,9 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging
-     * .Log)
+     * org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.log = log;
     }
 

@@ -47,7 +47,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.core.MimeMessageCopyOnWriteProxy;
 import org.apache.james.queue.api.MailPrioritySupport;
@@ -55,6 +54,7 @@ import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.ManageableMailQueue;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.slf4j.Logger;
 
 /**
  * {@link MailQueue} implementation which use a JMS Queue for the
@@ -69,11 +69,11 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
     protected final String queuename;
     protected final ConnectionFactory connectionFactory;
-    protected final Log logger;
+    protected final Logger logger;
     public final static String FORCE_DELIVERY = "FORCE_DELIVERY";
 
 
-    public JMSMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Log logger) {
+    public JMSMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Logger logger) {
         this.connectionFactory = connectionFactory;
         this.queuename = queuename;
         this.logger = logger;

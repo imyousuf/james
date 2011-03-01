@@ -32,7 +32,6 @@ import javax.mail.Flags;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.pop3.POP3Client;
 import org.apache.commons.net.pop3.POP3MessageInfo;
 import org.apache.commons.net.pop3.POP3Reply;
@@ -55,6 +54,8 @@ import org.apache.james.protocols.lib.mock.MockJSR250Loader;
 import org.apache.james.protocols.lib.mock.MockProtocolHandlerChain;
 import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.james.user.lib.mock.MockUsersRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class POP3ServerTest extends TestCase {
 
@@ -93,8 +94,9 @@ public class POP3ServerTest extends TestCase {
         m_pop3Server.setProtocolHandlerChain(chain);
        
         
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
+        Logger log = LoggerFactory.getLogger("Mock");
+        // slf4j can't set programmatically any log level. It's just a facade
+        // log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         m_pop3Server.setLog(log);
     }
 
@@ -104,7 +106,7 @@ public class POP3ServerTest extends TestCase {
         
         chain = new MockProtocolHandlerChain();
         chain.setLoader(serviceManager);
-        chain.setLog(new SimpleLog("ChainLog"));
+        chain.setLog(LoggerFactory.getLogger("ChainLog"));
    
         setUpPOP3Server();
         m_testConfiguration = new POP3TestConfiguration(m_pop3ListenerPort);
@@ -281,7 +283,7 @@ public class POP3ServerTest extends TestCase {
 
         m_pop3Protocol.disconnect();
         MailboxPath mailboxPath = new MailboxPath(MailboxConstants.USER_NAMESPACE, "foo", "INBOX");
-        MailboxSession session = manager.login("foo", "bar", new SimpleLog("Test"));
+        MailboxSession session = manager.login("foo", "bar", LoggerFactory.getLogger("Test"));
         if (manager.mailboxExists(mailboxPath, session) == false) {
             manager.createMailbox(mailboxPath, session);
         }
@@ -363,7 +365,7 @@ public class POP3ServerTest extends TestCase {
         m_usersRepository.addUser("foo2", "bar2");
 
         MailboxPath mailboxPath = new MailboxPath(MailboxConstants.USER_NAMESPACE, "foo2", "INBOX");
-        MailboxSession session = manager.login("foo2", "bar2", new SimpleLog("Test"));
+        MailboxSession session = manager.login("foo2", "bar2", LoggerFactory.getLogger("Test"));
         
         if (manager.mailboxExists(mailboxPath, session) == false) {
             manager.createMailbox(mailboxPath, session);
@@ -595,7 +597,7 @@ public class POP3ServerTest extends TestCase {
         m_usersRepository.addUser("foo6", "bar6");
 
         MailboxPath mailboxPath = MailboxPath.inbox("foo6");
-        MailboxSession session = manager.login("foo6", "bar6", new SimpleLog("Test"));
+        MailboxSession session = manager.login("foo6", "bar6", LoggerFactory.getLogger("Test"));
         
         manager.startProcessingRequest(session);
         if (manager.mailboxExists(mailboxPath, session) == false) {

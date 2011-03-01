@@ -24,7 +24,6 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.mock.MockDNSService;
 import org.apache.james.domainlist.api.DomainListException;
@@ -32,6 +31,7 @@ import org.apache.james.domainlist.jpa.JPADomainList;
 import org.apache.james.domainlist.jpa.model.JPADomain;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAPersistence;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test the JPA implementation of the DomainList.
@@ -77,7 +77,7 @@ public class JPADomainListTest extends TestCase {
         
         // Initialize the JPADomainList (no autodetect,...).
         jpaDomainList = new JPADomainList();
-        jpaDomainList.setLog(new SimpleLog("JPADomainListMockLog"));
+        jpaDomainList.setLog(LoggerFactory.getLogger("JPADomainListMockLog"));
         jpaDomainList.setDNSService(setUpDNSServer("localhost"));
         jpaDomainList.setAutoDetect(false);
         jpaDomainList.setAutoDetectIP(false);

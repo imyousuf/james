@@ -39,7 +39,6 @@ import javax.mail.internet.MimeMessage;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.commons.net.smtp.SMTPClient;
 import org.apache.commons.net.smtp.SMTPReply;
 import org.apache.james.protocols.impl.AbstractChannelPipelineFactory;
@@ -59,6 +58,8 @@ import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class SMTPServerTest extends TestCase {
 
@@ -160,8 +161,9 @@ public abstract class SMTPServerTest extends TestCase {
 
     protected void setUp() throws Exception {
         setUpFakeLoader();
-        SimpleLog log = new SimpleLog("Mock");
-        log.setLevel(SimpleLog.LOG_LEVEL_ALL);
+        Logger log = LoggerFactory.getLogger("Mock");
+        // slf4j can't set programmatically any log level. It's just a facade
+        // log.setLevel(SimpleLog.LOG_LEVEL_ALL);
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
 
         
@@ -180,8 +182,9 @@ public abstract class SMTPServerTest extends TestCase {
     }
 
     protected void setUpSMTPServer() throws Exception {
-        SimpleLog log = new SimpleLog("SMTP");
-        log.setLevel(SimpleLog.LOG_LEVEL_ALL);
+        Logger log = LoggerFactory.getLogger("SMTP");
+        // slf4j can't set programmatically any log level. It's just a facade
+        // log.setLevel(SimpleLog.LOG_LEVEL_ALL);
         m_smtpServer = new SMTPServer();
         m_smtpServer.setDNSService(m_dnsServer);
         m_smtpServer.setFileSystem(fileSystem);      

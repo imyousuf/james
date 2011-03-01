@@ -23,12 +23,12 @@ import java.util.Map;
 
 import javax.net.ssl.SSLEngine;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.impl.AbstractSession;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
 
 /**
  * {@link POP3Session} implementation which use Netty
@@ -44,12 +44,12 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
     private MessageManager mailbox;
 
 
-    public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext) {
+    public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger, ChannelHandlerContext handlerContext) {
         this(configData, logger, handlerContext, null);
     }
 
 
-    public POP3NettySession(POP3HandlerConfigurationData configData, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
+    public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         super(logger, handlerContext, engine);
         this.configData = configData;
     }

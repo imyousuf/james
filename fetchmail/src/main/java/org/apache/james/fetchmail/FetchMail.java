@@ -37,7 +37,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration.Node;
-import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.lifecycle.api.Configurable;
@@ -45,6 +44,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
+import org.slf4j.Logger;
 
 /**
  * <p>Class <code>FetchMail</code> is an Avalon task that is periodically
@@ -400,7 +400,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
      */
     private DNSService dnsServer;
 
-    private Log logger;
+    private Logger logger;
 
     private MailQueue queue;
 
@@ -660,7 +660,7 @@ public class FetchMail implements Runnable, LogEnabled, Configurable {
         this.fieldLocalUsers = urepos;
     }
 
-    public final void setLog(Log logger) {
+    public final void setLog(Logger logger) {
         this.logger = logger;
     }
     

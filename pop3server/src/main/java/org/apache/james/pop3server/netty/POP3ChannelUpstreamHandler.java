@@ -21,13 +21,13 @@ package org.apache.james.pop3server.netty;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.pop3server.POP3HandlerConfigurationData;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
 import org.apache.james.protocols.impl.AbstractChannelUpstreamHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
+import org.slf4j.Logger;
 
 /**
  * {@link ChannelUpstreamHandler} which is used for the POP3 Server
@@ -36,12 +36,12 @@ import org.jboss.netty.channel.ChannelUpstreamHandler;
  */
 public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
 
-    private final Log logger;
+    private final Logger logger;
     private final POP3HandlerConfigurationData conf;
     private final  SSLContext context;
     private String[] enabledCipherSuites;
     
-    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Log logger, SSLContext context, String[] enabledCipherSuites) {
+    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Logger logger, SSLContext context, String[] enabledCipherSuites) {
         super(chain);
         this.logger = logger;
         this.conf = conf;
@@ -49,7 +49,7 @@ public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
         this.enabledCipherSuites = enabledCipherSuites;
     }
 
-    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Log logger) {
+    public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Logger logger) {
         this(chain, conf, logger, null, null);
     }
 

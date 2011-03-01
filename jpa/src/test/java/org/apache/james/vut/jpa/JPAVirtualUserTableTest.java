@@ -21,7 +21,6 @@ package org.apache.james.vut.jpa;
 import java.util.HashMap;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.jpa.JPAVirtualUserTable;
 import org.apache.james.vut.jpa.model.JPAVirtualUser;
@@ -29,6 +28,7 @@ import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTableTest;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAPersistence;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test the JPA Virtual User Table implementation.
@@ -68,7 +68,7 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
      */
     protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
         JPAVirtualUserTable virtualUserTable = new JPAVirtualUserTable();
-        virtualUserTable.setLog(new SimpleLog("MockLog"));
+        virtualUserTable.setLog(LoggerFactory.getLogger("MockLog"));
         virtualUserTable.setEntityManagerFactory(factory);
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
         virtualUserTable.configure(defaultConfiguration);

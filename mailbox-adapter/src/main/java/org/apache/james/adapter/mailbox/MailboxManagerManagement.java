@@ -27,7 +27,6 @@ import javax.annotation.Resource;
 import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailbox.MailboxException;
 import org.apache.james.mailbox.MailboxManager;
@@ -35,6 +34,7 @@ import org.apache.james.mailbox.MailboxMetaData;
 import org.apache.james.mailbox.MailboxPath;
 import org.apache.james.mailbox.MailboxQuery;
 import org.apache.james.mailbox.MailboxSession;
+import org.slf4j.Logger;
 
 /**
  * JMX managmenent for Mailboxes
@@ -44,7 +44,7 @@ import org.apache.james.mailbox.MailboxSession;
 public class MailboxManagerManagement extends StandardMBean implements MailboxManagerManagementMBean, LogEnabled {
 
     private MailboxManager mailboxManager;
-    private Log log;
+    private Logger log;
     
     @Resource(name="mailboxmanager")
     public void setMailboxManager(MailboxManager mailboxManager) {
@@ -87,9 +87,9 @@ public class MailboxManagerManagement extends StandardMBean implements MailboxMa
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.log = log;
     }
 

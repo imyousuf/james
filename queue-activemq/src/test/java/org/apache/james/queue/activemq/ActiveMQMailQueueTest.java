@@ -26,6 +26,8 @@ import org.apache.activemq.plugin.StatisticsBrokerPlugin;
 import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.queue.jms.JMSMailQueue;
 import org.apache.james.queue.jms.JMSMailQueueTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ActiveMQMailQueueTest extends JMSMailQueueTest{
 
@@ -43,8 +45,9 @@ public class ActiveMQMailQueueTest extends JMSMailQueueTest{
 
     @Override
     protected JMSMailQueue createQueue(ConnectionFactory factory, String queueName) {
-        SimpleLog log = new SimpleLog("MockLog");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
+        Logger log = LoggerFactory.getLogger("MockLog");
+        // slf4j can't set programmatically any log level. It's just a facade
+        // log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         ActiveMQMailQueue queue = new ActiveMQMailQueue(factory, queueName, useBlobMessages(),log);
         return queue;
     }

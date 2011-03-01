@@ -26,10 +26,10 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.file.MBoxMailRepository;
+import org.slf4j.LoggerFactory;
 
 /**
  * NOTE this test *WAS* disabled because MBoxMailRepository does not
@@ -51,7 +51,7 @@ public class MBoxMailRepositoryTest extends TestCase {
         
         defaultConfiguration.addProperty("[@destinationURL]",mboxPath);
         defaultConfiguration.addProperty("[@type]","MAIL");
-        mr.setLog(new SimpleLog("MockLog"));;
+        mr.setLog(LoggerFactory.getLogger("MockLog"));;
         mr.configure(defaultConfiguration);
 
         return mr;

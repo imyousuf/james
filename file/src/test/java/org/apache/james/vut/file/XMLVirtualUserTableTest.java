@@ -23,13 +23,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.file.XMLVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTableTest;
 import org.apache.james.vut.lib.VirtualUserTableUtil;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test the XML Virtual User Table implementation.
@@ -46,7 +46,7 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
 
     protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
         XMLVirtualUserTable virtualUserTable = new XMLVirtualUserTable();
-        virtualUserTable.setLog(new SimpleLog("MockLog"));
+        virtualUserTable.setLog(LoggerFactory.getLogger("MockLog"));
         return virtualUserTable;
     }
     

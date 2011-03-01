@@ -28,11 +28,11 @@ import javax.jms.MessageConsumer;
 import javax.jms.Session;
 
 import org.apache.activemq.command.ActiveMQBlobMessage;
-import org.apache.commons.logging.Log;
 import org.apache.james.queue.api.MailQueue.MailQueueException;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
 import org.apache.james.queue.jms.JMSMailQueueItem;
 import org.apache.mailet.Mail;
+import org.slf4j.Logger;
 
 /**
  * ActiveMQ {@link MailQueueItem} implementation which handles Blob-Messages as
@@ -42,9 +42,9 @@ import org.apache.mailet.Mail;
 public class ActiveMQMailQueueItem extends JMSMailQueueItem implements ActiveMQSupport{
 
     private final Message message;
-    private final Log logger;
+    private final Logger logger;
 
-    public ActiveMQMailQueueItem(Mail mail, Connection connection, Session session, MessageConsumer consumer, Message message, Log logger) {
+    public ActiveMQMailQueueItem(Mail mail, Connection connection, Session session, MessageConsumer consumer, Message message, Logger logger) {
         super(mail, connection, session, consumer);
         this.message = message;
         this.logger = logger;

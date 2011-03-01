@@ -54,7 +54,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.util.ISO9075;
 import org.apache.jackrabbit.util.Text;
@@ -63,6 +62,7 @@ import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.lib.AbstractMailRepository;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.slf4j.Logger;
 
 /**
  * Mail repository that is backed by a JCR content repository.
@@ -76,7 +76,7 @@ public class JCRMailRepository extends AbstractMailRepository implements MailRep
 	private SimpleCredentials creds;
 	private String workspace;
 
-	private Log logger;
+	private Logger logger;
 	
     @Resource(name="jcrRepository")
     public void setRepository(Repository repository) {

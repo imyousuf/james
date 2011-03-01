@@ -26,10 +26,10 @@ import java.util.Collection;
 
 import javax.mail.MessagingException;
 
-import org.apache.commons.logging.Log;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetException;
+import org.slf4j.Logger;
 
 public class ProcessorUtil {
 
@@ -44,7 +44,7 @@ public class ProcessorUtil {
      *
      * @throws MessagingException thrown always, rethrowing the passed in exception
      */
-    public static void handleException(MessagingException me, Mail mail, String offendersName, String nextState, Log logger) throws MessagingException {
+    public static void handleException(MessagingException me, Mail mail, String offendersName, String nextState, Logger logger) throws MessagingException {
         mail.setState(nextState);
         StringWriter sout = new StringWriter();
         PrintWriter out = new PrintWriter(sout, true);

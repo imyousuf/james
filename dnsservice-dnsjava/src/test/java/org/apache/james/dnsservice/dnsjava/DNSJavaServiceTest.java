@@ -20,8 +20,8 @@
 package org.apache.james.dnsservice.dnsjava;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.dnsservice.dnsjava.DNSJavaService;
+import org.slf4j.LoggerFactory;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;
@@ -111,7 +111,7 @@ public class DNSJavaServiceTest extends TestCase {
         DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();
 
         db.load(new ByteArrayInputStream("<dnsserver><autodiscover>true</autodiscover><authoritative>false</authoritative></dnsserver>".getBytes()));
-        dnsServer.setLog(new SimpleLog("MockLog"));
+        dnsServer.setLog(LoggerFactory.getLogger("MockLog"));
         dnsServer.configure(db);
         dnsServer.init();
         

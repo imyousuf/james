@@ -30,13 +30,13 @@ import javax.mail.internet.ParseException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.mailet.MailAddress;
+import org.slf4j.Logger;
 
 /**
  * <p>Parses and validates an 
@@ -50,7 +50,7 @@ class ParsedConfiguration
     /**
      * The logger.
      */
-    private Log fieldLogger;
+    private Logger fieldLogger;
     
     /**
      * The name of the folder to fetch from the javamail provider
@@ -327,7 +327,7 @@ class ParsedConfiguration
      * @param dnsServer
      * @throws ConfigurationException
      */
-    public ParsedConfiguration(HierarchicalConfiguration configuration, Log logger, UsersRepository localUsers,DNSService dnsServer, DomainList domainList, MailQueue queue) throws ConfigurationException
+    public ParsedConfiguration(HierarchicalConfiguration configuration, Logger logger, UsersRepository localUsers,DNSService dnsServer, DomainList domainList, MailQueue queue) throws ConfigurationException
     {
         this();
         setLogger(logger);
@@ -569,7 +569,7 @@ class ParsedConfiguration
      * Returns the logger.
      * @return Logger
      */
-    public Log getLogger()
+    public Logger getLogger()
     {
         return fieldLogger;
     }
@@ -578,7 +578,7 @@ class ParsedConfiguration
      * Sets the logger.
      * @param logger The logger to set
      */
-    protected void setLogger(Log logger)
+    protected void setLogger(Logger logger)
     {
         fieldLogger = logger;
     }

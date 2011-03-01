@@ -29,11 +29,12 @@ import junit.framework.TestCase;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.api.mock.MockMailProcessor;
 import org.apache.mailet.Mail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractStateCompositeProcessorTest extends TestCase{
 
@@ -55,8 +56,9 @@ public abstract class AbstractStateCompositeProcessorTest extends TestCase{
                 };
             }
         };
-        SimpleLog log = new SimpleLog("MockLog");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
+        Logger log = LoggerFactory.getLogger("MockLog");
+        // slf4j can't set programmatically any log level. It's just a facade
+        // log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         processor.setLog(log);
         processor.configure(createConfig(Arrays.asList("root","error","test")));
         processor.init();

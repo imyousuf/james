@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.user.api.UsersRepository;
@@ -38,6 +37,7 @@ import org.apache.james.user.file.UsersFileRepository;
 import org.apache.james.user.lib.AbstractUsersRepositoryTest;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test basic behaviours of UsersFileRepository
@@ -75,7 +75,7 @@ public class UsersFileRepositoryTest extends AbstractUsersRepositoryTest {
         
 
         res.setFileSystem(fs);
-        res.setLog(new SimpleLog("MockLog"));
+        res.setLog(LoggerFactory.getLogger("MockLog"));
         res.configure(configuration);
         res.init();
         return res;

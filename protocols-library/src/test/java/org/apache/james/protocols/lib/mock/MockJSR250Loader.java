@@ -31,7 +31,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 public class MockJSR250Loader {
 
@@ -65,7 +65,7 @@ public class MockJSR250Loader {
         return newInstance(clazz, null, null);
     }
 
-    public  final <T> T newInstance(Class<T> clazz, Log log, HierarchicalConfiguration config)  throws Exception{
+    public  final <T> T newInstance(Class<T> clazz, Logger log, HierarchicalConfiguration config)  throws Exception{
             T obj = clazz.newInstance();
             injectResources(obj);
             postConstruct(obj);

@@ -36,13 +36,14 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.core.MailImpl;
 import org.apache.james.queue.api.ManageableMailQueue;
 import org.apache.james.queue.api.MailQueue.MailQueueItem;
 import org.apache.james.queue.api.ManageableMailQueue.MailQueueIterator;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import junit.framework.TestCase;
 
@@ -85,8 +86,9 @@ public class JMSMailQueueTest extends TestCase{
     }
     
     protected JMSMailQueue createQueue(ConnectionFactory factory, String queueName) {
-        SimpleLog log = new SimpleLog("MockLog");
-        log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
+        Logger log = LoggerFactory.getLogger("MockLog");
+        // slf4j can't set programmatically any log level. It's just a facade
+        // log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
         JMSMailQueue queue = new JMSMailQueue(factory, queueName, log );
         return queue;
     }

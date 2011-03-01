@@ -33,7 +33,6 @@ import javax.management.NotCompliantMBeanException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
@@ -50,6 +49,7 @@ import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 import org.apache.mailet.base.GenericMailet;
 import org.apache.mailet.base.MatcherInverter;
+import org.slf4j.Logger;
 
 /**
  * Abstract base class for {@link MailProcessor} implementations which want to process {@link Mail} via {@link Matcher} and {@link Mailet}
@@ -62,7 +62,7 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
     private List<MailetProcessorListener> listeners = Collections.synchronizedList(new ArrayList<MailetProcessorListener>());
     private JMXStateMailetProcessorListener jmxListener;
     private boolean enableJmx = true;
-    private Log logger;
+    private Logger logger;
     private HierarchicalConfiguration config;
     private MailetLoader mailetLoader;
     private List<MatcherMailetPair> pairs = new ArrayList<MatcherMailetPair>();
@@ -86,9 +86,9 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.logger = log;
     }
 
@@ -163,7 +163,7 @@ public abstract class AbstractStateMailetProcessor implements MailProcessor, Con
         mailetContext.sendMail(mail);
     }
     
-    protected Log getLogger() {
+    protected Logger getLogger() {
         return logger;
     }
     

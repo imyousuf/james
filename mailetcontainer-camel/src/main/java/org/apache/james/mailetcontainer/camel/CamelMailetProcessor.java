@@ -32,7 +32,6 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.processor.aggregate.UseLatestAggregationStrategy;
-import org.apache.commons.logging.Log;
 import org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor;
 import org.apache.james.mailetcontainer.lib.MailetConfigImpl;
 import org.apache.james.mailetcontainer.lib.MatcherMailetPair;
@@ -40,6 +39,7 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.Matcher;
+import org.slf4j.Logger;
 
 
 /**
@@ -146,7 +146,7 @@ public class CamelMailetProcessor extends AbstractStateMailetProcessor implement
             Processor stateChangedProcessor = new StateChangedProcessor();
             
             String state = getState();
-            Log logger = getLogger();
+            Logger logger = getLogger();
 
             RouteDefinition processorDef = from(getEndpoint()).routeId(state).inOnly()
             // store the logger in properties

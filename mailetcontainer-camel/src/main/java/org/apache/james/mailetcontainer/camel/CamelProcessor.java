@@ -25,13 +25,13 @@ import javax.mail.MessagingException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.commons.logging.Log;
 import org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor.MailetProcessorListener;
 import org.apache.james.mailetcontainer.lib.MailetConfigImpl;
 import org.apache.james.mailetcontainer.lib.ProcessorUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
+import org.slf4j.Logger;
 
 /**
  * Mailet wrapper which execute a Mailet in a Processor
@@ -40,7 +40,7 @@ import org.apache.mailet.MailetConfig;
 public class CamelProcessor implements Processor{
 
     private Mailet mailet;
-    private Log logger;
+    private Logger logger;
     private CamelMailetProcessor processor;
     
     /**
@@ -48,7 +48,7 @@ public class CamelProcessor implements Processor{
      * 
      * @param mailet
      */
-    public CamelProcessor(Mailet mailet, Log logger, CamelMailetProcessor processor) {
+    public CamelProcessor(Mailet mailet, Logger logger, CamelMailetProcessor processor) {
         this.mailet = mailet;
         this.logger = logger;
         this.processor = processor;

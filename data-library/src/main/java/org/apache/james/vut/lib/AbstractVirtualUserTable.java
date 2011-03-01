@@ -31,7 +31,6 @@ import javax.mail.internet.ParseException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.Configurable;
@@ -39,6 +38,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.MailAddress;
+import org.slf4j.Logger;
 
 /**
  * 
@@ -49,7 +49,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
        
     private boolean recursive = true;
     
-    private Log logger;
+    private Logger logger;
 
     private DomainList domainList;
 
@@ -72,7 +72,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
         doConfigure(config);
     }
 
-    public void setLog(Log logger) {
+    public void setLog(Logger logger) {
         this.logger = logger;
     }
     
@@ -350,7 +350,7 @@ public abstract class AbstractVirtualUserTable implements VirtualUserTable, LogE
         removeMappingInternal(null, aliasDomain, VirtualUserTable.ALIASDOMAIN_PREFIX + realDomain);
     }
     
-    protected Log getLogger() {
+    protected Logger getLogger() {
         return logger;
     }
     

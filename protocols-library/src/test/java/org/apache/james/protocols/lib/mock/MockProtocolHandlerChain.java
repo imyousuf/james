@@ -28,13 +28,13 @@ import javax.annotation.Resource;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.WiringException;
+import org.slf4j.Logger;
 
 
 /**
@@ -46,7 +46,7 @@ import org.apache.james.protocols.api.WiringException;
 @SuppressWarnings("unchecked")
 public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configurable, LogEnabled {
   
-    private Log log;
+    private Logger log;
     private String coreHandlersPackage;
     private LinkedList handlers = new LinkedList();
     private HierarchicalConfiguration config;
@@ -211,9 +211,9 @@ public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configura
     
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.log = log;
     }
 }

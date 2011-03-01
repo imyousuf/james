@@ -23,11 +23,11 @@ package org.apache.james.mailrepository.lib;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.mailet.Mail;
+import org.slf4j.Logger;
 
 import javax.mail.MessagingException;
 
@@ -51,14 +51,14 @@ public abstract class AbstractMailRepository implements MailRepository, LogEnabl
      */
     private final Lock lock = new Lock();;
     
-    private Log logger;
+    private Logger logger;
 
     
-    public void setLog(Log logger) {
+    public void setLog(Logger logger) {
         this.logger = logger;
     }
     
-    protected Log getLogger() {
+    protected Logger getLogger() {
         return logger;
     }
       

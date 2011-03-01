@@ -21,12 +21,12 @@ package org.apache.james.mailetcontainer.camel;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.mailetcontainer.api.mock.MockMailetContext;
 import org.apache.james.mailetcontainer.api.mock.MockMailetLoader;
 import org.apache.james.mailetcontainer.api.mock.MockMatcherLoader;
 import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessorTest;
 import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor;
+import org.slf4j.LoggerFactory;
 
 public class CamelCompositeProcessorTest extends AbstractStateCompositeProcessorTest{
 
@@ -34,7 +34,7 @@ public class CamelCompositeProcessorTest extends AbstractStateCompositeProcessor
     protected AbstractStateCompositeProcessor createProcessor(HierarchicalConfiguration config) throws ConfigurationException, Exception {
         CamelCompositeProcessor processor = new CamelCompositeProcessor();
         try {
-            processor.setLog(new SimpleLog("MockLog"));
+            processor.setLog(LoggerFactory.getLogger("MockLog"));
             processor.setCamelContext(new DefaultCamelContext());
             processor.setMailetLoader(new MockMailetLoader());
             processor.setMatcherLoader(new MockMatcherLoader());

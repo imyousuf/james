@@ -33,7 +33,6 @@ import javax.net.ssl.SSLContext;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.filesystem.api.FileSystem;
 import org.apache.james.lifecycle.api.Configurable;
@@ -41,6 +40,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.impl.AbstractAsyncServer;
 import org.apache.james.protocols.lib.jmx.ServerMBean;
 import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
+import org.slf4j.Logger;
 
 
 /**
@@ -82,7 +82,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     
     private FileSystem fileSystem;
 
-    private Log logger;
+    private Logger logger;
 
     private DNSService dns;
 
@@ -121,9 +121,9 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public final void setLog(Log logger) {
+    public final void setLog(Logger logger) {
        this.logger = logger;
     }
 
@@ -135,7 +135,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         
         enabled = config.getBoolean("[@enabled]", true);
         
-        final Log logger = getLogger();
+        final Logger logger = getLogger();
         if (!enabled) {
           logger.info(getServiceType() + " disabled by configuration");
           return;
@@ -348,7 +348,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
      * 
      * @return logger
      */
-    protected Log getLogger() {
+    protected Logger getLogger() {
         return logger;
     }
     

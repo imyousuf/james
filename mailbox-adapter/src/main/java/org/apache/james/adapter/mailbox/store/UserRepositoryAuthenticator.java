@@ -21,11 +21,11 @@ package org.apache.james.adapter.mailbox.store;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailbox.store.Authenticator;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
+import org.slf4j.Logger;
 
 /**
  * Authenticator which use an UsersRepository to check if the user and password match
@@ -34,7 +34,7 @@ import org.apache.james.user.api.UsersRepositoryException;
 public class UserRepositoryAuthenticator implements Authenticator, LogEnabled{
 
     private UsersRepository repos;
-    private Log log;
+    private Logger log;
 
     @Resource(name="usersrepository")
     public void setUsersRepository(UsersRepository repos) {
@@ -54,7 +54,7 @@ public class UserRepositoryAuthenticator implements Authenticator, LogEnabled{
         return false;
     }
 
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.log = log;
     }
     

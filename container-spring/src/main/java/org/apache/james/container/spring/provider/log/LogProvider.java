@@ -18,10 +18,10 @@
  ****************************************************************/
 package org.apache.james.container.spring.provider.log;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 /**
- * Provide {@link Log} instances for Beans
+ * Provide {@link Logger} instances for Beans
  * 
  *
  */
@@ -33,13 +33,13 @@ public interface LogProvider {
      * @param name
      * @return log
      */
-    public Log getLog(String beanName);
+    public Logger getLog(String beanName);
     
     /**
-     * Register a {@link Log} for a beanName. The registered Log will get returned by {@link #getLog(String)}
+     * Register a {@link Logger} for a beanName. The registered Log will get returned by {@link #getLog(String)}
      * 
      * @param beanName
      * @param log
      */
-    public void registerLog(String beanName, Log log);
+    public void registerLog(String beanName, Logger log);
 }

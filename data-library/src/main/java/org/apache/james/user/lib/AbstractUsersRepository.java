@@ -24,31 +24,31 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
+import org.slf4j.Logger;
 
 public abstract class AbstractUsersRepository implements UsersRepository, LogEnabled, Configurable{
 
     private DomainList domainList;
     private boolean virtualHosting;
-    private Log logger;
+    private Logger logger;
 
 
-    protected Log getLogger() {
+    protected Logger getLogger() {
         return logger;
     }
     
     
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log logger) {
+    public void setLog(Logger logger) {
         this.logger = logger;
     }
     

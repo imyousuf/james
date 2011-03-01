@@ -31,13 +31,13 @@ import javax.mail.MessagingException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.james.mailetcontainer.lib.jmx.JMXStateCompositeProcessorListener;
 import org.apache.mailet.Mail;
+import org.slf4j.Logger;
 
 /**
  * Abstract base class for {@link CompositeProcessor} which service the {@link Mail} with a {@link CamelProcessor} instances
@@ -48,7 +48,7 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
 
     private List<CompositeProcessorListener> listeners = Collections.synchronizedList(new ArrayList<CompositeProcessorListener>());
     private final Map<String,MailProcessor> processors = new HashMap<String,MailProcessor>();
-    protected Log logger;
+    protected Logger logger;
     protected HierarchicalConfiguration config;
 
     private JMXStateCompositeProcessorListener jmxListener;
@@ -56,9 +56,9 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
     
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.logger = log;
 
     }

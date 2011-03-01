@@ -26,7 +26,6 @@ import javax.annotation.Resource;
 import javax.mail.Flags;
 import javax.mail.MessagingException;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.core.MimeMessageInputStream;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
@@ -43,6 +42,7 @@ import org.apache.james.mailrepository.api.MailRepositoryStore.MailRepositorySto
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.api.UsersRepositoryException;
 import org.apache.mailet.Mail;
+import org.slf4j.Logger;
 
 /**
  * Tool to import James 2.3 users and mails into James 3.0.
@@ -52,7 +52,7 @@ public class James23Importer implements LogEnabled {
     /**
      * The logger.
      */
-    private Log log;
+    private Logger log;
     
     /**
      * James 3.0 users repository.
@@ -175,9 +175,9 @@ public class James23Importer implements LogEnabled {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.api.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.log = log;
     }
     

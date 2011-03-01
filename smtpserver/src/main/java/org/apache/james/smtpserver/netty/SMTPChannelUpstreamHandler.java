@@ -21,7 +21,6 @@ package org.apache.james.smtpserver.netty;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.ProtocolSession;
@@ -36,24 +35,25 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
+import org.slf4j.Logger;
 
 /**
  * {@link ChannelUpstreamHandler} which is used by the SMTPServer
  *
  */
 public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
-    private final Log logger;
+    private final Logger logger;
     private final SMTPConfiguration conf;
     private final SSLContext context;
     private String[] enabledCipherSuites;
 
     public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain,
-            SMTPConfiguration conf, Log logger) {
+            SMTPConfiguration conf, Logger logger) {
         this(chain, conf, logger, null, null);
     }
     
     public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain,
-            SMTPConfiguration conf, Log logger, SSLContext context, String[] enabledCipherSuites) {
+            SMTPConfiguration conf, Logger logger, SSLContext context, String[] enabledCipherSuites) {
         super(chain);
         this.conf = conf;
         this.logger = logger;

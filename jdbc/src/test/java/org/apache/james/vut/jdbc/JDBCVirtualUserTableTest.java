@@ -22,13 +22,13 @@ package org.apache.james.vut.jdbc;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.james.vut.jdbc.JDBCVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTable;
 import org.apache.james.vut.lib.AbstractVirtualUserTableTest;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test the JDBC Virtual User Table implementation.
@@ -40,7 +40,7 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
      */
     protected AbstractVirtualUserTable getVirtualUserTable() throws Exception {
         JDBCVirtualUserTable virtualUserTable = new JDBCVirtualUserTable();
-        virtualUserTable.setLog(new SimpleLog("MockLog"));
+        virtualUserTable.setLog(LoggerFactory.getLogger("MockLog"));
         virtualUserTable.setDataSource(getDataSource());
         virtualUserTable.setFileSystem(new MockFileSystem());
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();

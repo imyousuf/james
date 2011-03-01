@@ -22,7 +22,6 @@ package org.apache.james.user.jpa;
 import java.util.HashMap;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.user.jpa.JPAUsersRepository;
 import org.apache.james.user.jpa.model.JPAUser;
@@ -31,6 +30,7 @@ import org.apache.openjpa.persistence.OpenJPAEntityManager;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAEntityTransaction;
 import org.apache.openjpa.persistence.OpenJPAPersistence;
+import org.slf4j.LoggerFactory;
 
 public class JpaUsersRepositoryTest extends AbstractUsersRepositoryTest {
 
@@ -78,7 +78,7 @@ public class JpaUsersRepositoryTest extends AbstractUsersRepositoryTest {
     protected UsersRepository getUsersRepository() throws Exception  {
         factory = OpenJPAPersistence.getEntityManagerFactory(properties);
         JPAUsersRepository repos =  new JPAUsersRepository();
-        repos.setLog(new SimpleLog("JPA"));
+        repos.setLog(LoggerFactory.getLogger("JPA"));
         repos.setEntityManagerFactory(factory);
         repos.configure(new DefaultConfigurationBuilder());
         return repos;

@@ -18,9 +18,9 @@
  ****************************************************************/
 package org.apache.james.container.osgi;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.container.spring.provider.log.LogProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,11 +33,11 @@ public class OsgiLogProvider implements LogProvider{
      * (non-Javadoc)
      * @see org.apache.james.container.spring.lifecycle.LogProvider#getLog(java.lang.String)
      */
-    public Log getLog(String beanName) {
-        return LogFactory.getLog(beanName);
+    public Logger getLog(String beanName) {
+        return LoggerFactory.getLogger(beanName);
     }
 
-    public void registerLog(String beanName, Log log) {
+    public void registerLog(String beanName, Logger log) {
         // TODO Auto-generated method stub
         
     }

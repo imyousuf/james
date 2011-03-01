@@ -30,12 +30,12 @@ import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.container.spring.bean.AbstractBeanFactory;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.mailrepository.api.MailRepository;
 import org.apache.james.mailrepository.api.MailRepositoryStore;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
@@ -67,7 +67,7 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
     /**
      * The Logger
      */
-    private Log logger;
+    private Logger logger;
 
     /* (non-Javadoc)
      * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
@@ -261,11 +261,11 @@ public class MailRepositoryStoreBeanFactory extends AbstractBeanFactory implemen
         return new ArrayList<String>(repositories.keySet());
     }
 
-    public void setLog(Log logger) {
+    public void setLog(Logger logger) {
         this.logger = logger;
     }
     
-    private Log getLogger() {
+    private Logger getLogger() {
         return logger;
     }
       

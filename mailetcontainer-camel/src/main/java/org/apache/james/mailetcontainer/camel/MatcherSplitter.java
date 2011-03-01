@@ -31,13 +31,13 @@ import org.apache.camel.Body;
 import org.apache.camel.Handler;
 import org.apache.camel.InOnly;
 import org.apache.camel.Property;
-import org.apache.commons.logging.Log;
 import org.apache.james.core.MailImpl;
 import org.apache.james.mailetcontainer.lib.AbstractStateMailetProcessor.MailetProcessorListener;
 import org.apache.james.mailetcontainer.lib.ProcessorUtil;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
+import org.slf4j.Logger;
 
 /**
  * A Splitter for use with Camel to split the MailMessage into many pieces if needed. This is done
@@ -77,7 +77,7 @@ public class MatcherSplitter {
      */
     @SuppressWarnings("unchecked")
     @Handler
-    public List<Mail> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Log logger, @Property(MAILETCONTAINER_PROPERTY) CamelMailetProcessor container,
+    public List<Mail> split(@Property(MATCHER_PROPERTY) Matcher matcher, @Property(ON_MATCH_EXCEPTION_PROPERTY) String onMatchException, @Property(LOGGER_PROPERTY) Logger logger, @Property(MAILETCONTAINER_PROPERTY) CamelMailetProcessor container,
             @Body Mail mail) throws MessagingException {
         Collection<MailAddress> matchedRcpts = null;
         Collection<MailAddress> origRcpts = new ArrayList<MailAddress>(mail.getRecipients());

@@ -32,12 +32,12 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSServiceMBean;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
+import org.slf4j.Logger;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.Credibility;
@@ -112,14 +112,14 @@ public class DNSJavaService implements DNSService, DNSServiceMBean, LogEnabled, 
     private String localAddress;
     
     
-    private Log logger;
+    private Logger logger;
     
     
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public void setLog(Log logger) {
+    public void setLog(Logger logger) {
         this.logger = logger;
     }
     

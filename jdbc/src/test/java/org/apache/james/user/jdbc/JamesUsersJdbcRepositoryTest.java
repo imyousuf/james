@@ -23,7 +23,6 @@ package org.apache.james.user.jdbc;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.logging.impl.SimpleLog;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.apache.james.filesystem.api.mock.MockFileSystem;
 import org.apache.james.lifecycle.api.LifecycleUtil;
@@ -35,6 +34,7 @@ import org.apache.james.user.jdbc.JamesUsersJdbcRepository;
 import org.apache.james.user.lib.AbstractUsersRepositoryTest;
 import org.apache.james.vut.api.VirtualUserTable;
 import org.apache.mailet.MailAddress;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -72,7 +72,7 @@ public class JamesUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
         configuration.addProperty("[@destinationURL]", "db://maildb/"+tableString);
         configuration.addProperty("sqlFile","file://conf/sqlResources.xml");
-        res.setLog(new SimpleLog("MockLog"));
+        res.setLog(LoggerFactory.getLogger("MockLog"));
         res.configure(configuration);
         res.init();
     }

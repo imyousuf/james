@@ -32,12 +32,12 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
+import org.slf4j.Logger;
 
 /**
  * All implementations of the DomainList interface should extends this abstract class
@@ -46,7 +46,7 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled, Con
     private DNSService dns;
     private boolean autoDetect = true;
     private boolean autoDetectIP = true;
-    private Log logger;
+    private Logger logger;
     private String defaultDomain;
     
     @Resource(name="dnsservice")
@@ -55,11 +55,11 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled, Con
     }
     
     
-    public void setLog(Log logger) {
+    public void setLog(Logger logger) {
         this.logger = logger;
     }
     
-    protected Log getLogger() {
+    protected Logger getLogger() {
         return logger;
     }
 
@@ -130,7 +130,7 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled, Con
      * @param domains List of domains
      * @return domainIP List of ipaddress for domains
      */
-    private static List<String> getDomainsIP(List<String> domains,DNSService dns,Log log) {
+    private static List<String> getDomainsIP(List<String> domains,DNSService dns,Logger log) {
         List<String> domainIP = new ArrayList<String>();
         if (domains.size() > 0 ) {
             for (int i = 0; i < domains.size(); i++) {
@@ -149,7 +149,7 @@ public abstract class AbstractDomainList implements  DomainList, LogEnabled, Con
     /**
      * @see #getDomainsIP(List, DNSService, Logger)
      */
-    private static List<String> getDomainIP(String domain, DNSService dns, Log log) {
+    private static List<String> getDomainIP(String domain, DNSService dns, Logger log) {
         List<String> domainIP = new ArrayList<String>();
         try {
             InetAddress[]  addrs = dns.getAllByName(domain);

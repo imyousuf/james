@@ -27,7 +27,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.container.spring.provider.configuration.ConfigurationProvider;
 import org.apache.james.container.spring.provider.log.LogProvider;
 import org.apache.james.lifecycle.api.Configurable;
@@ -35,6 +34,7 @@ import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.api.ExtensibleHandler;
 import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.api.ProtocolHandlerChain;
+import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -83,7 +83,7 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
         
         try {
 
-            Log log = logProvider.getLog(beanname);
+            Logger log = logProvider.getLog(beanname);
             
             HierarchicalConfiguration config = confProvider.getConfiguration(beanname);
             String jmxName = config.getString("jmxName", beanname);;

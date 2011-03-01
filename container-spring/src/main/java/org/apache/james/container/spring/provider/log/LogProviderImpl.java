@@ -26,10 +26,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -39,18 +38,18 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class LogProviderImpl implements LogProvider, InitializingBean, LogProviderManagementMBean {
 
-    private final ConcurrentHashMap<String, Log> logMap = new ConcurrentHashMap<String, Log>();
+    private final ConcurrentHashMap<String, Logger> logMap = new ConcurrentHashMap<String, Logger>();
     private Map<String, String> logs;
     private final static String PREFIX = "james.";
 
     /**
-     * Use {@link Log4JLogger} to create the Log
+     * Use {@link Logger} to create the Log
      * 
      * @param loggerName
      * @return log
      */
-    protected Log createLog(String loggerName) {
-        return new Log4JLogger(loggerName);
+    protected Logger createLog(String loggerName) {
+        return LoggerFactory.getLogger(loggerName);
     }
 
 
@@ -77,16 +76,16 @@ public class LogProviderImpl implements LogProvider, InitializingBean, LogProvid
      * (non-Javadoc)
      * @see org.apache.james.container.spring.lifecycle.LogProvider#getLog(java.lang.String)
      */
-    public Log getLog(String name) {
+    public Logger getLog(String name) {
         logMap.putIfAbsent(name, createLog(PREFIX + name));
         return logMap.get(name);
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.lifecycle.LogProvider#registerLog(java.lang.String, org.apache.commons.logging.Log)
+     * @see org.apache.james.container.spring.lifecycle.LogProvider#registerLog(java.lang.String, org.slf4j.Logger)
      */
-    public void registerLog(String beanName, Log log) {
+    public void registerLog(String beanName, Logger log) {
         logMap.put(beanName, log);
     }
 
@@ -122,11 +121,11 @@ public class LogProviderImpl implements LogProvider, InitializingBean, LogProvid
      * @see org.apache.james.container.spring.provider.log.LogProviderManagementMBean#getLogLevel(java.lang.String)
      */
     public String getLogLevel(String component) {
-        Log log = logMap.get(component);
+        Logger log = logMap.get(component);
         if (log == null) {
             throw new IllegalArgumentException("No Log for component "+ component);
         }
-        Logger logger = ((Log4JLogger)log).getLogger();
+        org.apache.log4j.Logger logger = ((org.apache.log4j.Logger)log).getRootLogger();
         if (logger == null || logger.getLevel() == null) {
             return null;
         }
@@ -143,7 +142,7 @@ public class LogProviderImpl implements LogProvider, InitializingBean, LogProvid
         if (getSupportedLogLevels().contains(loglevel) == false) {
             throw new IllegalArgumentException("Not supported loglevel given");
         } else {
-            ((Log4JLogger)logMap.get(component)).getLogger().setLevel(Level.toLevel(loglevel));
+            ((org.apache.log4j.Logger)logMap.get(component)).getRootLogger().setLevel(Level.toLevel(loglevel));
         }
     }
     

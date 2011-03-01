@@ -19,7 +19,7 @@
 
 package org.apache.james.lifecycle.api;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 /**
  * Indicates that a services requires general logging.
@@ -33,5 +33,5 @@ public interface LogEnabled {
      * Sets the service log.
      * @param log not null
      */
-    public void setLog(Log log);
+    public void setLog(Logger log);
 }

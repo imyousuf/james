@@ -23,7 +23,6 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.ImapSessionState;
 import org.apache.james.imap.api.process.ImapLineHandler;
 import org.apache.james.imap.api.process.ImapSession;
@@ -34,6 +33,7 @@ import org.jboss.netty.handler.codec.compression.ZlibDecoder;
 import org.jboss.netty.handler.codec.compression.ZlibEncoder;
 import org.jboss.netty.handler.codec.compression.ZlibWrapper;
 import org.jboss.netty.handler.ssl.SslHandler;
+import org.slf4j.Logger;
 
 public class NettyImapSession implements ImapSession, NettyConstants{
 
@@ -48,7 +48,7 @@ public class NettyImapSession implements ImapSession, NettyConstants{
     private int handlerCount;
 
 
-    public NettyImapSession(ChannelHandlerContext context, Log log, SSLContext sslContext, String[] enabledCipherSuites, boolean compress) {
+    public NettyImapSession(ChannelHandlerContext context, Logger log, SSLContext sslContext, String[] enabledCipherSuites, boolean compress) {
         this.context = context;
         this.log = new SessionLog(context.getChannel().getId() + "", log);
         this.sslContext = sslContext;
@@ -221,7 +221,7 @@ public class NettyImapSession implements ImapSession, NettyConstants{
      * (non-Javadoc)
      * @see org.apache.james.imap.api.process.ImapSession#getLog()
      */
-    public Log getLog() {
+    public Logger getLog() {
         return log;
     }
 

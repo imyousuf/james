@@ -29,8 +29,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.dnsservice.api.TemporaryResolutionException;
 import org.apache.james.dnsservice.library.netmatcher.NetMatcher;
@@ -43,6 +41,8 @@ import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.protocols.smtp.hook.RcptHook;
 import org.apache.mailet.MailAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class can be used to reject email with bogus MX which is send from a authorized user or an authorized
@@ -51,10 +51,10 @@ import org.apache.mailet.MailAddress;
 public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
 
     /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(ValidRcptMX.class);
+    private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(ValidRcptMX.class);
     
     /** Non context specific log should only be used when no context specific log is available */
-    private Log serviceLog = FALLBACK_LOG;
+    private Logger serviceLog = FALLBACK_LOG;
     
     private DNSService dnsService = null;
 
@@ -68,7 +68,7 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
      * Where available, a context sensitive log should be used.
      * @param Log not null
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.serviceLog = log;
     }
     

@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.net.ssl.SSLEngine;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.protocols.api.LineHandler;
 import org.apache.james.protocols.impl.AbstractSession;
 import org.apache.james.protocols.impl.LineHandlerUpstreamHandler;
@@ -32,6 +31,7 @@ import org.apache.james.protocols.smtp.SMTPConfiguration;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.smtpserver.netty.SMTPServer.SMTPHandlerConfigurationDataImpl;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
 
 /**
  * {@link SMTPSession} implementation for use with Netty
@@ -50,7 +50,7 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
 
     private int lineHandlerCount = 0;
     
-    public SMTPNettySession(SMTPConfiguration theConfigData, Log logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
+    public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         super(logger, handlerContext, engine);
         this.theConfigData = theConfigData;
         connectionState = new HashMap<String, Object>();
@@ -58,7 +58,7 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
         relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());    
     }
    
-    public SMTPNettySession(SMTPConfiguration theConfigData, Log logger, ChannelHandlerContext handlerContext) {
+    public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, ChannelHandlerContext handlerContext) {
         this(theConfigData, logger, handlerContext, null);  
     }
 

@@ -23,7 +23,6 @@ import java.net.InetSocketAddress;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.imap.api.ImapConstants;
 import org.apache.james.imap.api.ImapMessage;
 import org.apache.james.imap.api.ImapSessionState;
@@ -42,6 +41,7 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.frame.TooLongFrameException;
+import org.slf4j.Logger;
 
 /**
  * {@link SimpleChannelUpstreamHandler} which handles IMAP
@@ -50,7 +50,7 @@ import org.jboss.netty.handler.codec.frame.TooLongFrameException;
  */
 public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler implements ChannelAttributeSupport{
 
-    private final Log logger;
+    private final Logger logger;
 
     private final String hello;
 
@@ -65,12 +65,12 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
 
     private ImapEncoder encoder;
 
-    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Log logger,  boolean compress) {
+    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Logger logger,  boolean compress) {
         this(hello, processor, encoder, logger, compress, null, null);
     }
     
 
-    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Log logger, boolean compress, SSLContext context, String[] enabledCipherSuites) {
+    public ImapChannelUpstreamHandler(final String hello, final ImapProcessor processor, ImapEncoder encoder, final Logger logger, boolean compress, SSLContext context, String[] enabledCipherSuites) {
         this.logger = logger;
         this.hello = hello;
         this.processor = processor;
@@ -80,7 +80,7 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
         this.compress = compress;
     }
     
-    private Log getLogger(Channel channel) {
+    private Logger getLogger(Channel channel) {
         return new SessionLog(""+channel.getId(), logger);
     }
 
@@ -173,7 +173,7 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
         final IOException failure = responseEncoder.getFailure();
         
         if (failure != null) {
-            final Log logger = session.getLog();
+            final Logger logger = session.getLog();
             logger.info(failure.getMessage());
             if (logger.isDebugEnabled()) {
                 logger.debug("Failed to write " + message, failure);

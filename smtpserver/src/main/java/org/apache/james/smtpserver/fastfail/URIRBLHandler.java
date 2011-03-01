@@ -38,8 +38,6 @@ import javax.mail.internet.MimePart;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.lifecycle.api.LogEnabled;
@@ -49,6 +47,8 @@ import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.james.smtpserver.JamesMessageHook;
 import org.apache.mailet.Mail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
@@ -56,10 +56,10 @@ import org.apache.mailet.Mail;
 public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable {
 
     /** This log is the fall back shared by all instances */
-    private static final Log FALLBACK_LOG = LogFactory.getLog(URIRBLHandler.class);
+    private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(URIRBLHandler.class);
     
     /** Non context specific log should only be used when no context specific log is available */
-    private Log serviceLog = FALLBACK_LOG;
+    private Logger serviceLog = FALLBACK_LOG;
     
     private final static String LISTED_DOMAIN ="LISTED_DOMAIN";
     
@@ -77,7 +77,7 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
      * Where available, a context sensitive log should be used.
      * @param Log not null
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.serviceLog = log;
     }
     

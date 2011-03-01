@@ -34,7 +34,6 @@ import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.lifecycle.api.Configurable;
@@ -43,6 +42,7 @@ import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.user.api.UsersRepository;
 import org.apache.james.util.concurrent.JMXEnabledScheduledThreadPoolExecutor;
+import org.slf4j.Logger;
 
 /**
  *  A class to instantiate and schedule a set of mail fetching tasks
@@ -77,7 +77,7 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
 
     private UsersRepository urepos;
     
-    private Log logger;
+    private Logger logger;
 
 
     private MailQueue queue;
@@ -114,9 +114,9 @@ public class FetchScheduler implements FetchSchedulerMBean, LogEnabled, Configur
     
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.apache.commons.logging.Log)
+     * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
-    public final void setLog(Log logger) {
+    public final void setLog(Logger logger) {
         this.logger = logger;
     }
     

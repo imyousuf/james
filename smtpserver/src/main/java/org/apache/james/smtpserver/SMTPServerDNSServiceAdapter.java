@@ -23,17 +23,17 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
 import org.apache.james.dnsservice.library.MXHostAddressIterator;
 import org.apache.james.lifecycle.api.LogEnabled;
 import org.apache.james.protocols.smtp.DNSService;
 import org.apache.james.protocols.smtp.TemporaryResolutionException;
 import org.apache.mailet.HostAddress;
+import org.slf4j.Logger;
 
 public class SMTPServerDNSServiceAdapter implements DNSService, LogEnabled{
 
     private org.apache.james.dnsservice.api.DNSService dns;
-    private Log log;
+    private Logger log;
     
     public SMTPServerDNSServiceAdapter(org.apache.james.dnsservice.api.DNSService dns) {    
         this.dns = dns;
@@ -95,7 +95,7 @@ public class SMTPServerDNSServiceAdapter implements DNSService, LogEnabled{
     /*
      * 
      */
-    public void setLog(Log log) {
+    public void setLog(Logger log) {
         this.log = log;
     }
 

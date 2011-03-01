@@ -21,16 +21,16 @@ package org.apache.james.container.spring;
 import java.io.IOException;
 import java.util.Calendar;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.james.container.spring.context.JamesServerApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bootstraps James using a Spring container.
  */
 public class Main {
 
-    private static Log log = LogFactory.getLog(Main.class.getName());
+    private static Logger log = LoggerFactory.getLogger(Main.class.getName());
 
     public static void main(String[] args) throws IOException {
         
