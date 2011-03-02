@@ -858,7 +858,6 @@ public class MailetContextLog implements Logger {
             // TODO Use with apache-mailet-2.5
             // context.log(MailetContext.LogLevel.WARN, s.toString(), t);
             context.log(s.toString(), t);
-            t.printStackTrace();
         } else {
             // TODO Use with apache-mailet-2.5
             // context.log(MailetContext.LogLevel.WARN, s.toString());
