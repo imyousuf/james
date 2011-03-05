@@ -25,13 +25,7 @@
 
   <head>
   
-    <script type="text/javascript">
-
-      $(function(){
-        $('#tabs').tabs();
-      });
-      
-    </script>
+    <script type="text/javascript" src="./scripts/tab_function.js" />
     
   </head>
 
