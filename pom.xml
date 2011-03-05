@@ -32,6 +32,11 @@
   <url>http://james.apache.org/server/head/</url>
   <inceptionYear>2002</inceptionYear>
   <packaging>pom</packaging>
+  
+  <prerequisites>
+    <maven>3.0.2</maven>
+  </prerequisites>
+
   <modules>
     <module>container-spring</module>
     <module>core</module>
@@ -113,13 +118,84 @@
   </pluginRepositories>
   
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.3.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>2.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.0-beta-3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>2.3.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>2.4.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>2.1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.7</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jxr-plugin</artifactId>
+          <version>2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>2.5</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-changes-plugin</artifactId>
+          <version>2.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>2.3.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.1.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-report-plugin</artifactId>
+          <version>2.7.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <optimize>true</optimize>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>${target.jdk}</source>
+          <target>${target.jdk}</target>
         </configuration>
       </plugin>
       <!-- Use maven deploy plugin version 2.4 as workaround -->
@@ -127,11 +203,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.4</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <!-- This configuration is used by all goals -->
         <configuration>
           <archive>
             <manifest>
@@ -140,9 +216,6 @@
             </manifest>
           </archive>
         </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
         <executions>
           <execution>
             <goals>
@@ -154,7 +227,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
-        <version>2.4.1</version>
         <configuration>
           <filesets>
             <fileset>
@@ -168,7 +240,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>2.1.0</version>
         <extensions>true</extensions>
         <executions>
           <execution>
@@ -192,83 +263,137 @@
           </instructions>
         </configuration>
       </plugin>
-    </plugins>
-  </build>
-  
-  <reporting>
-    <plugins>
-    <!--
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
-      -->
-      <!-- disable this till we released a new version with javamil 1.4.3 as dependency -->
-      <!-- 
-      <plugin>
-        <groupId>org.apache.james</groupId>
-        <artifactId>maven-mailetdocs-plugin</artifactId>
-        <version>0.1</version>
-      </plugin>
-      -->
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.7</version>
-        <configuration>
-          <aggregate>true</aggregate>
-        </configuration>
-      </plugin>
-      <!--
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
-      </plugin>
-      -->
-      <plugin>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.1</version>
-        <configuration>
-          <aggregate>true</aggregate>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <aggregate>true</aggregate>
-          <targetJdk>1.5</targetJdk>
-          <rulesets>
-            <ruleset>/rulesets/basic.xml</ruleset>
-            <ruleset>/rulesets/controversial.xml</ruleset>
-          </rulesets>
-          <format>xml</format>
-          <linkXref>true</linkXref>
-          <sourceEncoding>utf-8</sourceEncoding>
-          <minimumTokens>100</minimumTokens>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>2.0</version>
-      </plugin>
+
+      <!-- Site generation -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-changes-plugin</artifactId>
-        <version>2.3</version>
+        <artifactId>maven-site-plugin</artifactId>
         <configuration>
-            <onlyCurrentVersion>true</onlyCurrentVersion>
-            <resolutionIds>Closed</resolutionIds>
-            <maxEntries>1000</maxEntries>
-        </configuration>
-        <reportSets>
-            <reportSet>
-                <reports>
+          <siteDirectory>${server.siteDirectory}</siteDirectory>
+          <generateReports>${server.generateReports}</generateReports>
+          <reportPlugins>
+            <!-- Must come first, order matters -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jxr-plugin</artifactId>
+              <configuration>
+                <aggregate>true</aggregate>
+              </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-project-info-reports-plugin</artifactId>
+              <configuration>
+                <reportSets>
+                  <reportSet>
+                    <report>index</report>
+                    <report>project-team</report>
+                    <report>mailing-list</report>
+                    <report>cim</report>
+                    <report>issue-tracking</report>
+                    <report>license</report>
+                    <report>scm</report>
+                    <report>dependencies</report>
+                  </reportSet>
+                </reportSets>
+              </configuration>
+            </plugin>
+            <!-- disable this till we released a new version with javamail 1.4.3 as dependency -->
+            <!-- 
+            <plugin>
+              <groupId>org.apache.james</groupId>
+              <artifactId>maven-mailetdocs-plugin</artifactId>
+              <version>0.1</version>
+            </plugin>
+            -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <configuration>
+                <minmemory>256m</minmemory>
+                <maxmemory>1g</maxmemory>
+                <linksource>true</linksource>
+                <tags>
+                  <tag>
+                    <name>note</name>
+                    <placement>a</placement>
+                    <head>NOTE</head>
+                  </tag>
+                  <tag>
+                    <name>todo</name>
+                    <placement>a</placement>
+                    <head>TODO</head>
+                  </tag>
+                  <tag>
+                    <name>warning</name>
+                    <placement>a</placement>
+                    <head>WARNING</head>
+                  </tag>
+                </tags>
+                <source>${target.jdk}</source>
+              </configuration>
+              <reportSets>
+                <reportSet>
+                  <reports>
+                    <report>aggregate</report>
+                    <report>test-aggregate</report>
+                  </reports>
+                </reportSet>
+              </reportSets>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-pmd-plugin</artifactId>
+              <configuration>
+                <linkXref>true</linkXref>
+                <aggregate>true</aggregate>
+                <targetJdk>${target.jdk}</targetJdk>
+                <rulesets>
+                  <ruleset>/rulesets/basic.xml</ruleset>
+                  <ruleset>/rulesets/controversial.xml</ruleset>
+                </rulesets>
+                <format>xml</format>
+                <xrefLocation>${project.reporting.outputDirectory}/xref</xrefLocation>
+                <xrefTestLocation>${project.reporting.outputDirectory}/xref-test</xrefTestLocation>
+                <sourceEncoding>utf-8</sourceEncoding>
+                <minimumTokens>100</minimumTokens>
+              </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-changes-plugin</artifactId>
+              <configuration>
+                  <onlyCurrentVersion>true</onlyCurrentVersion>
+                  <resolutionIds>Closed</resolutionIds>
+                  <maxEntries>1000</maxEntries>
+              </configuration>
+              <reportSets>
+                <reportSet>
+                  <reports>
                     <report>jira-report</report>
-                </reports>
-            </reportSet>
-        </reportSets>
+                  </reports>
+                </reportSet>
+              </reportSets>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-report-plugin</artifactId>
+              <configuration>
+                <argLine>-Xmx1024m -XX:MaxPermSize=512m</argLine>
+                <aggregate>true</aggregate>
+                <linkXref>true</linkXref>
+                <xrefLocation>${project.reporting.outputDirectory}</xrefLocation>
+              </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+          </reportPlugins>
+        </configuration>
       </plugin>
     </plugins>
-  </reporting>
+  </build>
   <distributionManagement>
     <site>
       <id>server-trunk-website</id>
@@ -1205,7 +1330,15 @@
       </build>
     </profile>
     
+    <profile>
+      <id>site-reports</id>
+      <properties>
+        <server.siteDirectory>${basedir}/src/reporting-site</server.siteDirectory>
+        <server.generateReports>true</server.generateReports>
+      </properties>
+    </profile>
   </profiles>
+
   <properties>
     <javax.activation.groupId>javax.activation</javax.activation.groupId>
     <javax.activation.artifactId>activation</javax.activation.artifactId>
@@ -1246,6 +1379,10 @@
     <!-- Use filesystem to copy message by default -->
     <james.system-property1>-Djames.message.usememorycopy=false</james.system-property1>
     <james.system-properties>${james.system-property1}</james.system-properties>
+
+    <target.jdk>1.5</target.jdk>
+    <server.siteDirectory>${basedir}/src/site</server.siteDirectory>
+    <server.generateReports>false</server.generateReports>
   </properties>
 
 </project>
