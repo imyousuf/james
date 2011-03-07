@@ -446,6 +446,48 @@ public class POP3ServerTest extends TestCase {
         mailbox.appendMessage(new ByteArrayInputStream(content2), new Date(), session, true, new Flags());
     }
 
+    // Test for JAMES-1202
+    // Which shows that UIDL,STAT and LIST all show the same message numbers
+    public void testStatUidlList() throws Exception {
+        finishSetUp(m_testConfiguration);
+
+        m_pop3Protocol = new POP3Client();
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+
+        m_usersRepository.addUser("foo2", "bar2");
+
+        MailboxPath mailboxPath = new MailboxPath(MailboxConstants.USER_NAMESPACE, "foo2", "INBOX");
+        MailboxSession session = manager.login("foo2", "bar2", LoggerFactory.getLogger("Test"));
+        
+        if (manager.mailboxExists(mailboxPath, session) == false) {
+            manager.createMailbox(mailboxPath, session);
+        }
+        
+        int msgCount = 100;
+        for (int i = 0; i < msgCount;i++) {
+            manager.getMailbox(mailboxPath, session).appendMessage(new ByteArrayInputStream(("Subject: test\r\n\r\n" +i).getBytes()), new Date(), session, true, new Flags());
+        }
+        
+        m_pop3Protocol.login("foo2", "bar2");
+        assertEquals(1, m_pop3Protocol.getState());
+
+        POP3MessageInfo[] listEntries = m_pop3Protocol.listMessages();
+        POP3MessageInfo[] uidlEntries = m_pop3Protocol.listUniqueIdentifiers();
+        POP3MessageInfo statInfo = m_pop3Protocol.status();
+        assertEquals(msgCount, listEntries.length);
+        assertEquals(msgCount, uidlEntries.length);
+        assertEquals(msgCount, statInfo.number);
+
+        m_pop3Protocol.sendCommand("quit");
+        m_pop3Protocol.disconnect();
+
+        m_pop3Protocol.connect("127.0.0.1",m_pop3ListenerPort);
+
+        m_pop3Protocol.login("foo2", "bar2");
+        assertEquals(1, m_pop3Protocol.getState());
+
+        manager.deleteMailbox(mailboxPath, session);
+    }
     /*
     public void testTwoSimultaneousMails() throws Exception {
         finishSetUp(m_testConfiguration);
