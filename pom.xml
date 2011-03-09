@@ -21,7 +21,7 @@
   <parent>
     <artifactId>james-server-root</artifactId>
     <groupId>org.apache.james</groupId>
-    <version>1.5</version>
+    <version>1.6-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.james</groupId>
@@ -268,24 +268,28 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+        <executions>
+          <!-- Attach non-reporting site-descriptor when installing -->
+          <execution>
+            <id>attach-descriptor</id>
+            <goals>
+              <goal>attach-descriptor</goal>
+            </goals>
+            <configuration>
+              <siteDirectory>${basedir}/src/site</siteDirectory>
+              <generateReports>false</generateReports>
+            </configuration>
+          </execution>
+        </executions>
         <configuration>
-          <siteDirectory>${server.siteDirectory}</siteDirectory>
-          <generateReports>${server.generateReports}</generateReports>
+          <siteDirectory>${maven-site-plugin.siteDirectory}</siteDirectory>
+          <generateReports>${maven-site-plugin.generateReports}</generateReports>
           <reportPlugins>
-            <!-- Must come first, order matters -->
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-jxr-plugin</artifactId>
-              <configuration>
-                <aggregate>true</aggregate>
-              </configuration>
-            </plugin>
+            <!-- Order matters. First project-info-reports, second jxr. -->
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-project-info-reports-plugin</artifactId>
-              <configuration>
-                <reportSets>
-                  <reportSet>
+              <reports>
                     <report>index</report>
                     <report>project-team</report>
                     <report>mailing-list</report>
@@ -294,8 +298,13 @@
                     <report>license</report>
                     <report>scm</report>
                     <report>dependencies</report>
-                  </reportSet>
-                </reportSets>
+              </reports>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jxr-plugin</artifactId>
+              <configuration>
+                <aggregate>true</aggregate>
               </configuration>
             </plugin>
             <!-- disable this till we released a new version with javamail 1.4.3 as dependency -->
@@ -1337,14 +1346,6 @@
         </plugins>
       </build>
     </profile>
-    
-    <profile>
-      <id>site-reports</id>
-      <properties>
-        <server.siteDirectory>${basedir}/src/reporting-site</server.siteDirectory>
-        <server.generateReports>true</server.generateReports>
-      </properties>
-    </profile>
   </profiles>
 
   <properties>
@@ -1389,8 +1390,6 @@
     <james.system-properties>${james.system-property1}</james.system-properties>
 
     <target.jdk>1.5</target.jdk>
-    <server.siteDirectory>${basedir}/src/site</server.siteDirectory>
-    <server.generateReports>false</server.generateReports>
   </properties>
 
 </project>
