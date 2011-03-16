@@ -234,7 +234,13 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         userIdAttribute = configuration.getString("[@userIdAttribute]");
         userObjectClass = configuration.getString("[@userObjectClass]");
 
-        restriction = new ReadOnlyLDAPGroupRestriction(configuration.configurationAt("restriction"));
+        HierarchicalConfiguration restrictionConfig = null;
+        // Check if we have a restriction we can use
+        // See JAMES-1204
+        if (configuration.containsKey("restriction")) {
+            restrictionConfig = configuration.configurationAt("restriction");
+        }
+        restriction = new ReadOnlyLDAPGroupRestriction(restrictionConfig);
 
     }
 
