@@ -131,6 +131,6 @@ public interface UsersRepositoryManagementMBean {
      * @return virtual
      * @throws UsersRepositoryException 
      */
-    public boolean getVirtualHostingEnabled() throws Exception;
+    boolean getVirtualHostingEnabled() throws Exception;
 
 }

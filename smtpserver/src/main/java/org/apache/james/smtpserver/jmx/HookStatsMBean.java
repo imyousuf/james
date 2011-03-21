@@ -31,40 +31,40 @@ public interface HookStatsMBean {
      * 
      * @return name
      */
-    public String getName();
+    String getName();
     
     /**
      * Return the count of how many OK the hook returned
      * 
      * @return ok
      */
-    public long getOk();
+    long getOk();
     
     /**
      * Return the count of how many DECLINED the hook returned
      * 
      * @return declined
      */
-    public long getDeclined();
+    long getDeclined();
     
     /**
      * Return the count of how many DENY the hook returned
      * 
      * @return deny
      */
-    public long getDeny();
+    long getDeny();
     
     /**
      * Return the count of how many DENYSOFT the hook returned
      * 
      * @return denysoft
      */
-    public long getDenysoft();
+    long getDenysoft();
     
     /**
      * Return the count of how many transaction this hook as processed
      *  
      * @return all
      */
-    public long getAll();
+    long getAll();
 }

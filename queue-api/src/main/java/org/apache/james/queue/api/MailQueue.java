@@ -48,7 +48,7 @@ public interface MailQueue {
     /**
      * No delay for queued {@link MailQueueItem}
      */
-    public final static int NO_DELAY = -1;
+    final static int NO_DELAY = -1;
 
     /**
      * Enqueue the Mail to the queue. The given delay and unit are used to calculate the time when the 
@@ -59,7 +59,7 @@ public interface MailQueue {
      * @param unit
      * @throws MailQueueException
      */
-    public void enQueue(Mail mail, long delay, TimeUnit unit) throws MailQueueException;
+    void enQueue(Mail mail, long delay, TimeUnit unit) throws MailQueueException;
     
     
     /**
@@ -68,7 +68,7 @@ public interface MailQueue {
      * @param mail
      * @throws MailQueueException
      */
-    public void enQueue(Mail mail) throws MailQueueException;
+    void enQueue(Mail mail) throws MailQueueException;
     
     
     /**
@@ -78,7 +78,7 @@ public interface MailQueue {
      * @param dequeueOperation
      * @throws MailQueueException
      */
-    public MailQueueItem deQueue() throws MailQueueException;
+    MailQueueItem deQueue() throws MailQueueException;
     
     
     /**
@@ -87,7 +87,7 @@ public interface MailQueue {
      *
      */
     @SuppressWarnings("serial")
-    public class MailQueueException extends MessagingException {
+    class MailQueueException extends MessagingException {
         public MailQueueException(String msg, Exception e) {
             super(msg, e);
         }
@@ -109,7 +109,7 @@ public interface MailQueue {
          * 
          * @return mail
          */
-        public Mail getMail();
+        Mail getMail();
         
         /**
          * Callback which MUST get called after the operation on the dequeued {@link Mail} was complete. 
@@ -119,6 +119,6 @@ public interface MailQueue {
          * @param success 
          * @throws MailQueueException
          */
-        public void done(boolean success) throws MailQueueException;
+        void done(boolean success) throws MailQueueException;
     }
 }

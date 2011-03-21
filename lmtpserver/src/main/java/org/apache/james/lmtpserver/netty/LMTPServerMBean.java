@@ -28,14 +28,14 @@ public interface LMTPServerMBean extends ServerMBean, SMTPServerMBean{
      * 
      * @return maxMessageSize
      */
-    public long getMaximalMessageSize();
+    long getMaximalMessageSize();
     
     /**
      * Set the maximum allowed size of messages. Set this to 0 to accept every message
      * 
      * @param maxSize
      */
-    public void setMaximalMessageSize(long maxSize);
+    void setMaximalMessageSize(long maxSize);
     
     
     /**
@@ -43,6 +43,6 @@ public interface LMTPServerMBean extends ServerMBean, SMTPServerMBean{
      * 
      * @return helo
      */
-    public String getHeloName();
+    String getHeloName();
     
 }

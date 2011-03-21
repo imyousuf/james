@@ -25,33 +25,33 @@ public interface JMXEnabledThreadPoolExecutorMBean {
      * 
      * @return aThreads
      */
-    public int getActiveThreads();
+    int getActiveThreads();
 
     /**
      * Return the active Tasks
      * 
      * @return aTasks
      */
-    public int getActiveTasks();
+    int getActiveTasks();
 
     /**
      * Return the total tasks handled by this executor
      * 
      * @return tTasks
      */
-    public int getTotalTasks();
+    int getTotalTasks();
 
     /**
      * Return the queued tasks
      * 
      * @return qTasks
      */
-    public int getQueuedTasks();
+    int getQueuedTasks();
 
     /**
      * Return the average time for a task (in ms)
      * 
      * @return aTime
      */
-    public double getAverageTaskTime();
+    double getAverageTaskTime();
 }

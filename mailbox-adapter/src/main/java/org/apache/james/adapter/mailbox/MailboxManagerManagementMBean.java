@@ -32,7 +32,7 @@ public interface MailboxManagerManagementMBean {
      * @param username
      * @return successful
      */
-    public boolean deleteMailboxes(String username);
+    boolean deleteMailboxes(String username);
     
     /**
      * List all mailboxes for a user
@@ -40,5 +40,5 @@ public interface MailboxManagerManagementMBean {
      * @param username
      * @return mailboxes
      */
-    public List<String> listMailboxes(String username);
+    List<String> listMailboxes(String username);
 }

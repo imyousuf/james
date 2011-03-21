@@ -34,18 +34,18 @@ public interface JamesUsersRepository extends UsersRepository, VirtualUserTable 
      * enable/disable aliases in case of JamesUsers
      * @param enableAliases enable
      */
-    public void setEnableAliases(boolean enableAliases);
+    void setEnableAliases(boolean enableAliases);
 
     /**
      * enable/disable aliases in case of JamesUsers
      * @param enableForwarding enable
      */
-    public void setEnableForwarding(boolean enableForwarding);
+    void setEnableForwarding(boolean enableForwarding);
 
     /**
      * set case sensitive/insensitive operations
      * @param ignoreCase ignore
      */
-    public void setIgnoreCase(boolean ignoreCase);
+    void setIgnoreCase(boolean ignoreCase);
 
 }

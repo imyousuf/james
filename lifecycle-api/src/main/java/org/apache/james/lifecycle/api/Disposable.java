@@ -30,5 +30,5 @@ public interface Disposable {
     /**
      * Dispose the object
      */
-    public void dispose();
+    void dispose();
 }

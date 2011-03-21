@@ -29,7 +29,7 @@ public interface MailQueueFactory {
     /**
      * {@link MailQueue} which is used for spooling the messages 
      */
-    public final static String SPOOL = "spool";
+    final static String SPOOL = "spool";
     
     /**
      * Return the {@link MailQueue} for the name. 
@@ -37,5 +37,5 @@ public interface MailQueueFactory {
      * @param name
      * @return queue
      */
-    public MailQueue getQueue(String name);
+    MailQueue getQueue(String name);
 }

@@ -48,7 +48,7 @@ public interface ManageableMailQueue extends MailQueue{
      * @return count the count of all flushed mails
      * @throws MailQueueException
      */
-    public long flush() throws MailQueueException;
+    long flush() throws MailQueueException;
     
     /**
      * Remove all mails from the queue
@@ -56,7 +56,7 @@ public interface ManageableMailQueue extends MailQueue{
      * @return count the count of all removed mails
      * @throws MailQueueException
      */
-    public long clear() throws MailQueueException;
+    long clear() throws MailQueueException;
     
     /**
      * Remove all mails from the queue that match
@@ -66,7 +66,7 @@ public interface ManageableMailQueue extends MailQueue{
      * @return count the count of all removed mails
      * @throws MailQueueException
      */
-    public long remove(Type type, String value) throws MailQueueException;
+    long remove(Type type, String value) throws MailQueueException;
     
     /**
      * Allow to browse the queues content. The returned content may get modified
@@ -75,7 +75,7 @@ public interface ManageableMailQueue extends MailQueue{
      * 
      * @return content
      */
-    public MailQueueIterator browse() throws MailQueueException;
+    MailQueueIterator browse() throws MailQueueException;
     
     
     /**
@@ -88,7 +88,7 @@ public interface ManageableMailQueue extends MailQueue{
         /**
          * Close the iterator. After this was called the iterator MUST NOT be used again
          */
-        public void close();
+        void close();
     }
     
     /**
@@ -103,14 +103,14 @@ public interface ManageableMailQueue extends MailQueue{
          * 
          * @return mail
          */
-        public Mail getMail();
+        Mail getMail();
         
         /**
          * Return the timestamp when the mail will be ready for dequeuing or -1 if there is no restriction set..
          *  
          * @return nextDelivery
          */
-        public long getNextDelivery();
+        long getNextDelivery();
     }
   
 }

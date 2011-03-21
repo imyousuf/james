@@ -33,5 +33,5 @@ public interface CommandHandlerStatsMBean extends HandlerStatsMBean{
      * 
      * @return commands
      */
-    public String[] getCommands();
+    String[] getCommands();
 }

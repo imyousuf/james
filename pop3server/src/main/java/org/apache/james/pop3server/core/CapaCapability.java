@@ -38,5 +38,5 @@ public interface CapaCapability {
      * @param session
      * @return list
      */
-    public List<String> getImplementedCapabilities(POP3Session session);
+    List<String> getImplementedCapabilities(POP3Session session);
 }

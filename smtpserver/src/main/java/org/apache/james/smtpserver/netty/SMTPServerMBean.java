@@ -32,14 +32,14 @@ public interface SMTPServerMBean extends org.apache.james.protocols.smtp.SMTPSer
 	 * 
 	 * @return maxMessageSize
 	 */
-	public long getMaximalMessageSize();
+	long getMaximalMessageSize();
 	
 	/**
 	 * Set the maximum allowed size of messages. Set this to 0 to accept every message
 	 * 
 	 * @param maxSize
 	 */
-	public void setMaximalMessageSize(long maxSize);
+	void setMaximalMessageSize(long maxSize);
 	
 	
 	/**
@@ -47,21 +47,21 @@ public interface SMTPServerMBean extends org.apache.james.protocols.smtp.SMTPSer
 	 * 
 	 * @return bracketsEnforcement
 	 */
-	public boolean getAddressBracketsEnforcement();
+	boolean getAddressBracketsEnforcement();
 	
 	/**
 	 * Enable or disable brackets enforcement around addressed in the MAIL and RCPT command
 	 * 
 	 * @param enforceAddressBrackets
 	 */
-	public void setAddressBracketsEnforcement(boolean enforceAddressBrackets);
+	void setAddressBracketsEnforcement(boolean enforceAddressBrackets);
 	
 	/**
 	 * Return true if a HELO/EHLO is required when connecting to this server
 	 * 
 	 * @return heloEhloEnforcement
 	 */
-	public boolean getHeloEhloEnforcement();
+	boolean getHeloEhloEnforcement();
 	
 	
 	/**
@@ -69,12 +69,12 @@ public interface SMTPServerMBean extends org.apache.james.protocols.smtp.SMTPSer
 	 * 
 	 * @param enforceHeloEHlo
 	 */
-	public void setHeloEhloEnforcement(boolean enforceHeloEHlo);
+	void setHeloEhloEnforcement(boolean enforceHeloEHlo);
 	
 	/**
 	 * Return the hello name
 	 * 
 	 * @return helo
 	 */
-	public String getHeloName();
+	String getHeloName();
 }

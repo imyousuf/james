@@ -28,35 +28,35 @@ public interface ServerMBean {
 	 *  
 	 * @return maxConcurrentConnections
 	 */
-	public int getMaximumConcurrentConnections();
+	int getMaximumConcurrentConnections();
 	
 	/**
 	 * Return the current connection count
 	 * 
 	 * @return currentConnection
 	 */
-	public int getCurrentConnections();
+	int getCurrentConnections();
 	
 	/**
 	 * Return the count of handled connections till startup
 	 * 
 	 * @return handledConnections
 	 */
-	public long getHandledConnections();
+	long getHandledConnections();
 	
 	/**
 	 * Return true if the server is enabled
 	 * 
 	 * @return isEnabled
 	 */
-    public boolean isEnabled();
+    boolean isEnabled();
 
     /**
      * Return true if startTLS is supported by the server
      * 
      * @return startTLS
      */
-	public boolean getStartTLSSupported();
+	boolean getStartTLSSupported();
 
 
     /**
@@ -64,51 +64,51 @@ public interface ServerMBean {
      *  
      * @return ipAddress or null if not bound to some specifc ip
      */
-    public String getIPAddress();
+    String getIPAddress();
     
     /**
      * Return the port number to which ther server is bound
      * @return
      */
-    public int  getPort();
+    int  getPort();
     
     /**
      * Return the socket type of the server. Which can either be plain or secure
      * 
      */  
-    public String getSocketType();
+    String getSocketType();
     
     /**
      * Return the service type of the server
      * 
      */  
-    public String getServiceType();
+    String getServiceType();
     
     /**
      * Return true if the server is started, which basicly means it is bound to a address and accept connections
      * 
      * @return started
      */
-    public boolean isStarted();
+    boolean isStarted();
     
     /**
      * Start the server
      * 
      * @return start
      */
-    public boolean start();
+    boolean start();
     
     /**
      * Stop the server
      * 
      * @return stop
      */
-    public boolean stop();
+    boolean stop();
 
     /**
      * Return the timeout in seconds 
      * 
      * @return timeout
      */
-    public int getTimeout();
+    int getTimeout();
 }

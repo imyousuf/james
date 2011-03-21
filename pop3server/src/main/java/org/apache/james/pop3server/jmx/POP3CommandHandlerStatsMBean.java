@@ -27,7 +27,7 @@ public interface POP3CommandHandlerStatsMBean extends CommandHandlerStatsMBean{
      * 
      * @return error
      */
-    public long getError();
+    long getError();
 
     
     
@@ -36,6 +36,6 @@ public interface POP3CommandHandlerStatsMBean extends CommandHandlerStatsMBean{
      * 
      * @return tempCount
      */
-    public long getOk();
+    long getOk();
     
 }

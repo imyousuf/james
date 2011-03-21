@@ -40,7 +40,7 @@ public interface MailetLoader {
      * @param config
      * @throws MessagingException if an error occurs
      */
-    public Mailet getMailet(MailetConfig config)
+    Mailet getMailet(MailetConfig config)
             throws MessagingException;
 
 }

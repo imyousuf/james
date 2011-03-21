@@ -243,7 +243,7 @@ public abstract class AbstractStateCompositeProcessor implements MailProcessor, 
          * @param processTime in ms
          * @param e or null if no exception was thrown
          */
-        public void afterProcessor(MailProcessor processor, String mailName, long processTime, MessagingException e);
+        void afterProcessor(MailProcessor processor, String mailName, long processTime, MessagingException e);
 
     }
 

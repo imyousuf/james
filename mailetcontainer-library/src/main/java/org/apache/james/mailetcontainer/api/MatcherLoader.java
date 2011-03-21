@@ -40,6 +40,6 @@ public interface MatcherLoader {
      * @param config
      * @throws MessagingException if an error occurs
      */
-    public Matcher getMatcher(MatcherConfig config) throws MessagingException;
+    Matcher getMatcher(MatcherConfig config) throws MessagingException;
 
 }

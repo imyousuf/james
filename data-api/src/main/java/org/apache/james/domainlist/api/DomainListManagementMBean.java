@@ -30,7 +30,7 @@ public interface DomainListManagementMBean{
      * 
      * @return domains
      */
-    public String[] getDomains() throws Exception;
+    String[] getDomains() throws Exception;
     
     /**
      * Return true if the domain exists in the service 
@@ -38,7 +38,7 @@ public interface DomainListManagementMBean{
      * @param domain the domain
      * @return true if the given domain exists in the service
      */
-    public boolean containsDomain(String domain) throws Exception;
+    boolean containsDomain(String domain) throws Exception;
 
     
     /**
@@ -47,7 +47,7 @@ public interface DomainListManagementMBean{
      * @param domain domain to add
      * @return true if successfull
      */
-    public void addDomain(String domain) throws Exception;
+    void addDomain(String domain) throws Exception;
     
     /**
      * Remove domain from the service
@@ -55,7 +55,7 @@ public interface DomainListManagementMBean{
      * @param domain domain to remove
      * @return true if successfull
      */
-    public void removeDomain(String domain) throws Exception;
+    void removeDomain(String domain) throws Exception;
     
     
     

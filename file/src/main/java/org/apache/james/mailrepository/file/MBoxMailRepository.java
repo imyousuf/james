@@ -146,8 +146,8 @@ public class MBoxMailRepository implements MailRepository, LogEnabled, Configura
      * A callback used when a message is read from the mbox file
      */
     public interface MessageAction {
-        public boolean isComplete();  // *** Not valid until AFTER each call to messageAction(...)!
-        public MimeMessage messageAction(String messageSeparator, String bodyText, long messageStart);
+        boolean isComplete();  // *** Not valid until AFTER each call to messageAction(...)!
+        MimeMessage messageAction(String messageSeparator, String bodyText, long messageStart);
     }
 
 

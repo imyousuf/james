@@ -32,7 +32,7 @@ public interface JamesResourceLoader extends ResourceLoader{
      * 
      * @return confDir
      */
-    public String getAbsoluteDirectory();
+    String getAbsoluteDirectory();
 
     
     /**
@@ -40,7 +40,7 @@ public interface JamesResourceLoader extends ResourceLoader{
      * 
      * @return var
      */
-    public String getConfDirectory();
+    String getConfDirectory();
 
     
     /**
@@ -48,14 +48,14 @@ public interface JamesResourceLoader extends ResourceLoader{
      * 
      * @return absolute
      */
-    public String getVarDirectory();
+    String getVarDirectory();
 
     /**
      * Return the root directory of the application
      * 
      * @return rootDir
      */
-    public String getRootDirectory();
+    String getRootDirectory();
 
     
 }

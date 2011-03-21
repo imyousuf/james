@@ -36,27 +36,27 @@ public interface FileSystem {
     /**
      * Prefix for loading of a filesystem based on the current directory
      */
-    public static final String FILE_PROTOCOL = "file://";
+    static final String FILE_PROTOCOL = "file://";
     
     /**
      * Prefix for loading of a filesystem using the absolute path
      */
-    public static final String FILE_PROTOCOL_ABSOLUTE = "file:///";
+    static final String FILE_PROTOCOL_ABSOLUTE = "file:///";
 
     /**
      * Prefix for loading of the config directory
      */
-    public static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
+    static final String FILE_PROTOCOL_AND_CONF = "file://conf/";
     
     /**
      * Prefix for loading of the var directory
      */
-    public static final String FILE_PROTOCOL_AND_VAR = "file://var/";
+    static final String FILE_PROTOCOL_AND_VAR = "file://var/";
     
     /**
      * Prefix for loading of the classpath
      */
-    public static final String CLASSPATH_PROTOCOL = "classpath:";
+    static final String CLASSPATH_PROTOCOL = "classpath:";
 
     /**
      * to retrieve a resource. this is typically a file resource,
@@ -67,7 +67,7 @@ public interface FileSystem {
      * @return the resource as an input stream
      * @throws IOException if the resource could not be accessed
      */
-    public InputStream getResource(String url) throws IOException;
+    InputStream getResource(String url) throws IOException;
 
     /**
      * Used to retrieve a specific file in the application context 
@@ -76,11 +76,11 @@ public interface FileSystem {
      * @return the File found
      * @throws FileNotFoundException if the file cannot be found/read
      */
-    public File getFile(String fileURL) throws FileNotFoundException;
+    File getFile(String fileURL) throws FileNotFoundException;
 
     /**
      * Return the base folder used by the application 
      */
-    public File getBasedir() throws FileNotFoundException;
+    File getBasedir() throws FileNotFoundException;
 
 }

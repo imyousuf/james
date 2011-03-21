@@ -27,61 +27,61 @@ public interface JMSSupport {
     /**
      * JMS Property which holds the recipient as String
      */
-    public final static String JAMES_MAIL_RECIPIENTS = "JAMES_MAIL_RECIPIENTS";
+    final static String JAMES_MAIL_RECIPIENTS = "JAMES_MAIL_RECIPIENTS";
     
     /**
      * JMS Property which holds the sender as String
      */
-    public final static String JAMES_MAIL_SENDER = "JAMES_MAIL_SENDER";
+    final static String JAMES_MAIL_SENDER = "JAMES_MAIL_SENDER";
     
     /**
      * JMS Property which holds the error message as String
      */
-    public final static String JAMES_MAIL_ERROR_MESSAGE = "JAMES_MAIL_ERROR_MESSAGE";
+    final static String JAMES_MAIL_ERROR_MESSAGE = "JAMES_MAIL_ERROR_MESSAGE";
     
     /**
      * JMS Property which holds the last updated time as long (ms)
      */
-    public final static String JAMES_MAIL_LAST_UPDATED = "JAMES_MAIL_LAST_UPDATED";
+    final static String JAMES_MAIL_LAST_UPDATED = "JAMES_MAIL_LAST_UPDATED";
     
     /**
      * JMS Property which holds the mail size as long (bytes)
      */
-    public final static String JAMES_MAIL_MESSAGE_SIZE = "JAMES_MAIL_MESSAGE_SIZE";
+    final static String JAMES_MAIL_MESSAGE_SIZE = "JAMES_MAIL_MESSAGE_SIZE";
     
     /**
      * JMS Property which holds the mail name as String
      */
-    public final static String JAMES_MAIL_NAME = "JAMES_MAIL_NAME";
+    final static String JAMES_MAIL_NAME = "JAMES_MAIL_NAME";
     
     /**
      * Separator which is used for separate an array of String values in the JMS Property value
      */
-    public final static String JAMES_MAIL_SEPARATOR = ";";
+    final static String JAMES_MAIL_SEPARATOR = ";";
     
     /**
      * JMS Property which holds the remote hostname as String
      */
-    public final static String JAMES_MAIL_REMOTEHOST = "JAMES_MAIL_REMOTEHOST";
+    final static String JAMES_MAIL_REMOTEHOST = "JAMES_MAIL_REMOTEHOST";
     
     /**
      * JMS Property which holds the remote ipaddress as String
      */
-    public final static String JAMES_MAIL_REMOTEADDR = "JAMES_MAIL_REMOTEADDR";
+    final static String JAMES_MAIL_REMOTEADDR = "JAMES_MAIL_REMOTEADDR";
     
     /**
      * JMS Property which holds the mail state as String
      */
-    public final static String JAMES_MAIL_STATE = "JAMES_MAIL_STATE";
+    final static String JAMES_MAIL_STATE = "JAMES_MAIL_STATE";
     
     /**
      * JMS Property which holds the mail attribute names as String
      */
-    public final static String JAMES_MAIL_ATTRIBUTE_NAMES = "JAMES_MAIL_ATTRIBUTE_NAMES";
+    final static String JAMES_MAIL_ATTRIBUTE_NAMES = "JAMES_MAIL_ATTRIBUTE_NAMES";
     
     /**
      * JMS Property which holds next delivery time as long (ms)
      */
-    public final static String JAMES_NEXT_DELIVERY = "JAMES_NEXT_DELIVERY";
+    final static String JAMES_NEXT_DELIVERY = "JAMES_NEXT_DELIVERY";
 
 }

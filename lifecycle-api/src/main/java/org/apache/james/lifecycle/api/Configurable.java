@@ -36,6 +36,6 @@ public interface Configurable {
 	 * @param config
 	 * @throws ConfigurationException
 	 */
-	public void configure(HierarchicalConfiguration config) throws ConfigurationException;
+	void configure(HierarchicalConfiguration config) throws ConfigurationException;
 	
 }

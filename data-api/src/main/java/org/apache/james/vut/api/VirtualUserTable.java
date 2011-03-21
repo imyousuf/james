@@ -29,22 +29,22 @@ public interface VirtualUserTable {
     /**
      * The prefix which is used for error mappings
      */
-    public static final String ERROR_PREFIX = "error:";
+    static final String ERROR_PREFIX = "error:";
     
     /**
      * The prefix which is used for regex mappings
      */
-    public static final String REGEX_PREFIX = "regex:";
+    static final String REGEX_PREFIX = "regex:";
     
     /**
      * The prefix which is used for alias domain mappings
      */
-    public static final String ALIASDOMAIN_PREFIX = "domain:";
+    static final String ALIASDOMAIN_PREFIX = "domain:";
     
     /**
      * The wildcard used for alias domain mappings
      */
-    public final static String WILDCARD = "*";
+    final static String WILDCARD = "*";
 
     /**
      * Return the mapped MailAddress for the given address. Return null if no 
@@ -55,7 +55,7 @@ public interface VirtualUserTable {
      * @throws ErrorMappingException get thrown if an error mapping was found
      * @throws VirtualUserTableException 
      */
-    public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, VirtualUserTableException;
+    Collection<String> getMappings(String user, String domain) throws ErrorMappingException, VirtualUserTableException;
     
     
     /**
@@ -66,7 +66,7 @@ public interface VirtualUserTable {
      * @param regex the regex.
      * @throws VirtualUserTableException 
      */
-    public void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException;
+    void addRegexMapping(String user, String domain, String regex) throws VirtualUserTableException;
     
     /**
      * Remove regex mapping
@@ -76,7 +76,7 @@ public interface VirtualUserTable {
      * @param regex the regex.
      * @throws VirtualUserTableException 
      */
-    public void removeRegexMapping(String user,String domain, String regex) throws VirtualUserTableException 
+    void removeRegexMapping(String user,String domain, String regex) throws VirtualUserTableException 
 ;
     
     /***
@@ -87,7 +87,7 @@ public interface VirtualUserTable {
      * @param address 
      * @throws VirtualUserTableException 
      */
-    public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException;
+    void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException;
     
     /**
      * Remove address mapping
@@ -97,7 +97,7 @@ public interface VirtualUserTable {
      * @param address 
      * @throws VirtualUserTableException 
      */
-    public void removeAddressMapping(String user,String domain, String address) throws VirtualUserTableException;
+    void removeAddressMapping(String user,String domain, String address) throws VirtualUserTableException;
     
     /**
      * Add error mapping
@@ -107,7 +107,7 @@ public interface VirtualUserTable {
      * @param error the regex.
      * @throws VirtualUserTableException 
      */
-    public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException;
+    void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException;
 
     /**
      * Remove error mapping
@@ -118,7 +118,7 @@ public interface VirtualUserTable {
      * @return true if successfully
      * @throws VirtualUserTableException 
      */
-    public void removeErrorMapping(String user,String domain, String error) throws VirtualUserTableException;
+    void removeErrorMapping(String user,String domain, String error) throws VirtualUserTableException;
     
     /**
      * Return the explicit mapping stored for the given user and domain. Return null
@@ -129,7 +129,7 @@ public interface VirtualUserTable {
      * @return the collection which holds the mappings. 
      * @throws VirtualUserTableException 
      */
-    public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException;
+    Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException;
     
     /**
      * Add mapping
@@ -139,7 +139,7 @@ public interface VirtualUserTable {
      * @param mapping the mapping
      * @throws VirtualUserTableException 
      */
-    public void addMapping(String user, String domain, String mapping)throws VirtualUserTableException;
+    void addMapping(String user, String domain, String mapping)throws VirtualUserTableException;
     
     /**
      * Remove mapping
@@ -149,7 +149,7 @@ public interface VirtualUserTable {
      * @param mapping the mapping
      * @throws VirtualUserTableException 
      */
-    public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException;
+    void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException;
 
 
     /**
@@ -159,7 +159,7 @@ public interface VirtualUserTable {
      * @return Map which holds all mappings
      * @throws VirtualUserTableException 
      */
-    public Map<String,Collection<String>> getAllMappings() throws VirtualUserTableException;
+    Map<String,Collection<String>> getAllMappings() throws VirtualUserTableException;
     
     /**
      * Add aliasDomain mapping
@@ -168,7 +168,7 @@ public interface VirtualUserTable {
      * @param realDomain the realDomain
      * @throws VirtualUserTableException 
      */
-    public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException;
+    void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException;
     
     /**
      * Remove aliasDomain mapping
@@ -177,9 +177,9 @@ public interface VirtualUserTable {
      * @param realDomain the realDomain
      * @return true if successfully
      */
-    public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException;
+    void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException;
 
-    public class ErrorMappingException extends Exception {
+    class ErrorMappingException extends Exception {
 
         private static final long serialVersionUID = 2348752938798L;
 

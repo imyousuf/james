@@ -40,7 +40,7 @@ public interface VirtualUserTableManagementMBean {
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
      */
-    public void addRegexMapping(String user, String domain, String regex) throws Exception;
+    void addRegexMapping(String user, String domain, String regex) throws Exception;
     
     /**
      * Remove regex mapping
@@ -51,7 +51,7 @@ public interface VirtualUserTableManagementMBean {
      * @param domain the domain. Null if no domain should be used
      * @param regex the regex.
      */
-    public void removeRegexMapping(String user,String domain, String regex) throws Exception;
+    void removeRegexMapping(String user,String domain, String regex) throws Exception;
     
     /***
      * Add address mapping
@@ -62,7 +62,7 @@ public interface VirtualUserTableManagementMBean {
      * @param domain the domain. Null if no domain should be used
      * @param address the address.
      */
-    public void addAddressMapping(String user, String domain, String address) throws Exception;
+    void addAddressMapping(String user, String domain, String address) throws Exception;
     
     /**
      * Remove address mapping
@@ -73,7 +73,7 @@ public interface VirtualUserTableManagementMBean {
      * @param domain the domain. Null if no domain should be used
      * @param address
      */
-    public void removeAddressMapping(String user,String domain, String address) throws Exception;
+    void removeAddressMapping(String user,String domain, String address) throws Exception;
     
     /**
      * Add error mapping
@@ -84,7 +84,7 @@ public interface VirtualUserTableManagementMBean {
      * @param domain the domain. Null if no domain should be used
      * @param error
      */
-    public void addErrorMapping(String user, String domain, String error) throws Exception;
+    void addErrorMapping(String user, String domain, String error) throws Exception;
 
     /**
      * Remove error mapping
@@ -96,7 +96,7 @@ public interface VirtualUserTableManagementMBean {
      * @param error
      * @return true if successfully
      */
-    public void removeErrorMapping(String user,String domain, String error) throws Exception;
+    void removeErrorMapping(String user,String domain, String error) throws Exception;
     
     /**
      * Return the explicit mapping stored for the given user and domain. Return null
@@ -109,7 +109,7 @@ public interface VirtualUserTableManagementMBean {
      * @param domain the domain
      * @return the collection which holds the mappings. 
      */
-    public Collection<String> getUserDomainMappings(String user, String domain) throws Exception;
+    Collection<String> getUserDomainMappings(String user, String domain) throws Exception;
     
     /**
     * Try to identify the right method based on the prefix of the mapping and add it.
@@ -120,7 +120,7 @@ public interface VirtualUserTableManagementMBean {
     * @param domain the domain. Null if no domain should be used
     * @param mapping the mapping.
     */
-    public void addMapping(String user, String domain, String mapping) throws Exception;
+    void addMapping(String user, String domain, String mapping) throws Exception;
     
     /**
      * Try to identify the right method based on the prefix of the mapping and remove it.
@@ -131,7 +131,7 @@ public interface VirtualUserTableManagementMBean {
      * @param domain the domain. Null if no domain should be used
      * @param mapping the mapping.
      */
-    public void removeMapping(String user, String domain, String mapping) throws Exception;
+    void removeMapping(String user, String domain, String mapping) throws Exception;
     
 
     /**
@@ -140,5 +140,5 @@ public interface VirtualUserTableManagementMBean {
      * 
      * @return Map which holds all mappings
      */
-    public Map<String,Collection<String>> getAllMappings() throws Exception;
+    Map<String,Collection<String>> getAllMappings() throws Exception;
 }

@@ -21,5 +21,5 @@ package org.apache.james.repository.api;
 
 public interface Repository {
 
-    public Repository getChildRepository(String childName);
+    Repository getChildRepository(String childName);
 }

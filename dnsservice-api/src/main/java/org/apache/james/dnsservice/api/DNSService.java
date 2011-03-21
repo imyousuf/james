@@ -62,7 +62,7 @@ public interface DNSService {
      * 
      * @return An array of InetAddress
      */
-    public InetAddress[] getAllByName(String host) throws UnknownHostException;
+    InetAddress[] getAllByName(String host) throws UnknownHostException;
  
     /**
      * Resolve the given hostname to an InetAddress based on the DNS Server.
@@ -71,7 +71,7 @@ public interface DNSService {
      * 
      * @return The resolved InetAddress or null if not resolved
      */
-    public InetAddress getByName(String host) throws UnknownHostException;
+    InetAddress getByName(String host) throws UnknownHostException;
 
     /**
      * Resolve the local hostname of the machine and returns it.
@@ -79,7 +79,7 @@ public interface DNSService {
      * 
      * @return The local InetAddress of the machine.
      */
-    public InetAddress getLocalHost() throws UnknownHostException;
+    InetAddress getLocalHost() throws UnknownHostException;
 
     /**
      * Resolve the given InetAddress to an host name based on the DNS Server.
@@ -88,6 +88,6 @@ public interface DNSService {
      * 
      * @return The resolved hostname String or null if not resolved
      */
-    public String getHostName(InetAddress addr);
+    String getHostName(InetAddress addr);
     
 }

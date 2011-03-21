@@ -26,7 +26,7 @@ package org.apache.james.smtpserver;
  */
 public interface SMTPConstants {
 
-    public static final String DATA_MIMEMESSAGE_STREAMSOURCE = "org.apache.james.core.DataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE";    
-    public static final String MAIL = "MAIL";
+    static final String DATA_MIMEMESSAGE_STREAMSOURCE = "org.apache.james.core.DataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE";    
+    static final String MAIL = "MAIL";
 
 }

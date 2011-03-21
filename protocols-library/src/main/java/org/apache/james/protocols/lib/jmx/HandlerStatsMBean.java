@@ -31,14 +31,14 @@ public interface HandlerStatsMBean {
      * 
      * @return all
      */
-    public long getAll();
+    long getAll();
     
     /**
      * Return the name of the handler
      * 
      * @return name
      */
-    public String getName();
+    String getName();
     
 
     
@@ -47,6 +47,6 @@ public interface HandlerStatsMBean {
      * 
      * @return disconnect
      */
-    public long getDisconnect();
+    long getDisconnect();
     
 }

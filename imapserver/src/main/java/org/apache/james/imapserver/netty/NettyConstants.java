@@ -24,15 +24,15 @@ package org.apache.james.imapserver.netty;
  *
  */
 public interface NettyConstants {
-    public final static String ZLIB_DECODER = "zlibDecoder";
-    public final static String ZLIB_ENCODER = "zlibEncoder";
-    public final static String SSL_HANDLER = "sslHandler";
-    public final static String REQUEST_DECODER = "requestDecoder";
-    public final static String FRAMER = "framer";
-    public final static String TIMEOUT_HANDLER = "timeoutHandler";
-    public final static String CORE_HANDLER = "coreHandler";
-    public final static String GROUP_HANDLER = "groupHandler";
-    public final static String CONNECTION_LIMIT_HANDLER = "connectionLimitHandler";
-    public final static String CONNECTION_LIMIT_PER_IP_HANDLER = "connectionPerIpLimitHandler";
-    public final static String CONNECTION_COUNT_HANDLER= "connectionCountHandler";
+    final static String ZLIB_DECODER = "zlibDecoder";
+    final static String ZLIB_ENCODER = "zlibEncoder";
+    final static String SSL_HANDLER = "sslHandler";
+    final static String REQUEST_DECODER = "requestDecoder";
+    final static String FRAMER = "framer";
+    final static String TIMEOUT_HANDLER = "timeoutHandler";
+    final static String CORE_HANDLER = "coreHandler";
+    final static String GROUP_HANDLER = "groupHandler";
+    final static String CONNECTION_LIMIT_HANDLER = "connectionLimitHandler";
+    final static String CONNECTION_LIMIT_PER_IP_HANDLER = "connectionPerIpLimitHandler";
+    final static String CONNECTION_COUNT_HANDLER= "connectionCountHandler";
 }

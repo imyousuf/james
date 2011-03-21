@@ -35,7 +35,7 @@ public interface ConfigurationProvider {
      * @param beanName The bean name for which the configuration has to be registered.
      * @param conf The hierarchical configuration to register for the bean name. 
      */
-    public void registerConfiguration(String beanName, HierarchicalConfiguration conf);
+    void registerConfiguration(String beanName, HierarchicalConfiguration conf);
 
     /**
      * Load and return the configuration for the bean with the given name.
@@ -47,6 +47,6 @@ public interface ConfigurationProvider {
      * @return config
      * @throws ConfigurationException
      */
-    public HierarchicalConfiguration getConfiguration(String beanName) throws ConfigurationException;
+    HierarchicalConfiguration getConfiguration(String beanName) throws ConfigurationException;
 
 }

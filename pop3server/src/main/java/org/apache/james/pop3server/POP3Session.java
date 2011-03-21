@@ -32,21 +32,21 @@ import org.apache.james.protocols.api.TLSSupportedSession;
 
 public interface POP3Session extends TLSSupportedSession {
 
-    public final static String UID_LIST = "UID_LIST";
-    public final static String DELETED_UID_LIST = "DELETED_UID_LIST";
-    public final static String MAILBOX_SESSION = "MAILBOX_SESSION";
+    final static String UID_LIST = "UID_LIST";
+    final static String DELETED_UID_LIST = "DELETED_UID_LIST";
+    final static String MAILBOX_SESSION = "MAILBOX_SESSION";
    
     // Authentication states for the POP3 interaction
     /** Waiting for user id */
-    public final static int AUTHENTICATION_READY = 0;
+    final static int AUTHENTICATION_READY = 0;
     /** User id provided, waiting for password */
-    public final static int AUTHENTICATION_USERSET = 1;  
+    final static int AUTHENTICATION_USERSET = 1;  
     /**
      * A valid user id/password combination has been provided.
      * In this state the client can access the mailbox
      * of the specified user.
      */
-    public final static int TRANSACTION = 2;              
+    final static int TRANSACTION = 2;              
 
     /**
      * Returns POP3Handler service wide configuration

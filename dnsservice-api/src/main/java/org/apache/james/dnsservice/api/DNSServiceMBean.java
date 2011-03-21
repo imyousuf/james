@@ -32,24 +32,24 @@ public interface DNSServiceMBean {
 	 * 
 	 * @return servers
 	 */
-    public String[] getDNSServers();
+    String[] getDNSServers();
     
     /**
      * Return the maximum cache size
      * 
      * @return maxCacheSize
      */
-    public int getMaximumCacheSize();
+    int getMaximumCacheSize();
     
     /**
      * Return the current size of the cache
      * 
      * @return currentCacheSize
      */
-    public int getCurrentCacheSize();
+    int getCurrentCacheSize();
 
     /**
      * Clear the cache of the service
      */
-    public void clearCache();
+    void clearCache();
 }

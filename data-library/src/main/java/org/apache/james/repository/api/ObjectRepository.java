@@ -23,16 +23,16 @@ import java.util.Iterator;
 
 public interface ObjectRepository extends Repository{
 
-    public boolean containsKey(String key);
+    boolean containsKey(String key);
     
-    public Object get(String key);
+    Object get(String key);
     
-    public Object get(String key, ClassLoader loader);
+    Object get(String key, ClassLoader loader);
 
     
-    public Iterator<String> list();
+    Iterator<String> list();
     
-    public void put(String key, Object value);
+    void put(String key, Object value);
     
-    public void remove(String key);
+    void remove(String key);
 }

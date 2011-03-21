@@ -30,6 +30,6 @@ public interface FetchSchedulerMBean {
     * 
     * @return boolean The enabled flag     
     */  
-    public boolean isEnabled();
+    boolean isEnabled();
 
 }

@@ -57,7 +57,7 @@ public interface CompositeMatcher extends Matcher {
     /**
      * @return Iterator if child Matchers
      */
-    public Iterator iterator();
+    Iterator iterator();
 
     /**
      * Add a child matcher to this composite matcher. This is called by
@@ -66,6 +66,6 @@ public interface CompositeMatcher extends Matcher {
      * @param matcher
      *            Matcher is the child that this composite treats.
      */
-    public void add(Matcher matcher);
+    void add(Matcher matcher);
 
 }

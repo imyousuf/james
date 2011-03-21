@@ -29,12 +29,12 @@ public interface MailetManagementMBean extends MailProcessorManagementMBean{
      * 
      * @return mailet
      */
-    public String getMailetName();
+    String getMailetName();
     
     /**
      * Return the parameters which are configured for the mailet
      * 
      * @return params
      */
-    public String[] getMailetParameters();
+    String[] getMailetParameters();
 }

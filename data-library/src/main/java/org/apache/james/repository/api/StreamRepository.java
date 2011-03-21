@@ -25,11 +25,11 @@ import java.util.Iterator;
 
 public interface StreamRepository extends Repository{
 
-    public InputStream get(String key);
+    InputStream get(String key);
     
-    public Iterator<String> list();
+    Iterator<String> list();
     
-    public OutputStream put(String key);
+    OutputStream put(String key);
     
-    public void remove(String key);
+    void remove(String key);
 }

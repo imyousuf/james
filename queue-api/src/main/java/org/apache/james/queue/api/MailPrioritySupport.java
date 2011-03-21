@@ -28,17 +28,17 @@ public interface MailPrioritySupport {
     /**
      * Handle mail with lowest priority
      */
-    public final static int LOW_PRIORITY = 0;
+    final static int LOW_PRIORITY = 0;
 
     /**
      * Handle mail with normal priority (this is the default)
      */
-    public final static int NORMAL_PRIORITY = 5;
+    final static int NORMAL_PRIORITY = 5;
 
     /**
      * Handle mail with highest priority
      */
-    public final static int HIGH_PRIORITY = 9;
+    final static int HIGH_PRIORITY = 9;
 
     /**
      * Attribute name for support if priority. If the attribute is set and
@@ -47,5 +47,5 @@ public interface MailPrioritySupport {
      * handled).
      * 
      */
-    public final static String MAIL_PRIORITY = "MAIL_PRIORITY";
+    final static String MAIL_PRIORITY = "MAIL_PRIORITY";
 }

@@ -27,12 +27,12 @@ import java.util.Map;
  */
 public interface LogProviderManagementMBean {
     
-    public List<String> getSupportedLogLevels();
+    List<String> getSupportedLogLevels();
     
-    public Map<String, String> getLogLevels();
+    Map<String, String> getLogLevels();
     
-    public String getLogLevel(String component);
+    String getLogLevel(String component);
     
-    public void setLogLevel(String component, String loglevel);
+    void setLogLevel(String component, String loglevel);
 
 }

@@ -33,5 +33,5 @@ public interface LogEnabled {
      * Sets the service log.
      * @param log not null
      */
-    public void setLog(Logger log);
+    void setLog(Logger log);
 }

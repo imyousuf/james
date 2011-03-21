@@ -31,41 +31,41 @@ public interface MailProcessorManagementMBean {
      * 
      * @return handledCount
      */
-    public long getHandledMailCount();
+    long getHandledMailCount();
     
     /**
      * Return the time in ms of the fastest processing
      * 
      * @return fastest
      */
-    public long getFastestProcessing();
+    long getFastestProcessing();
    
     /**
      * Return the time in ms of the slowest processing
      * 
      * @return slowest
      */
-    public long getSlowestProcessing();
+    long getSlowestProcessing();
   
     /**
      * Return the count of how many time the processing was done without and error
      * 
      * @return successCount
      */
-    public long getSuccessCount();
+    long getSuccessCount();
    
     /**
      * Return the count of how many times an error was detected while processing
      * 
      * @return errorCount
      */
-    public long getErrorCount();
+    long getErrorCount();
     
     /**
      * Return the time in ms of the last processing
      * 
      * @return last
      */
-    public long getLastProcessing();
+    long getLastProcessing();
     
 }

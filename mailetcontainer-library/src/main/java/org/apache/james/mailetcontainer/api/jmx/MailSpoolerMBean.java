@@ -30,13 +30,13 @@ public interface MailSpoolerMBean {
      * 
      * @return threadCount
      */
-    public int getThreadCount();
+    int getThreadCount();
     
     /**
      * 
      * @return
      */
-    public int getCurrentSpoolCount();
+    int getCurrentSpoolCount();
     
 
 }

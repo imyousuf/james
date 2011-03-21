@@ -33,7 +33,7 @@ public interface LogProvider {
      * @param name
      * @return log
      */
-    public Logger getLog(String beanName);
+    Logger getLog(String beanName);
     
     /**
      * Register a {@link Logger} for a beanName. The registered Log will get returned by {@link #getLog(String)}
@@ -41,5 +41,5 @@ public interface LogProvider {
      * @param beanName
      * @param log
      */
-    public void registerLog(String beanName, Logger log);
+    void registerLog(String beanName, Logger log);
 }

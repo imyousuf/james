@@ -31,17 +31,17 @@ public interface MailRepositoryStore {
      * @return repository
      * @throws MailRepositoryStoreException
      */
-    public MailRepository select(String url) throws MailRepositoryStoreException;
+    MailRepository select(String url) throws MailRepositoryStoreException;
     
     /**
      * Return a {@link List} which contains all urls of the selected {@link MailRepository}'s
      * 
      * @return urls
      */
-    public List<String> getUrls();
+    List<String> getUrls();
     
     @SuppressWarnings("serial")
-    public class MailRepositoryStoreException extends Exception {
+    class MailRepositoryStoreException extends Exception {
         public MailRepositoryStoreException(String msg, Throwable t) {
             super(msg, t);
         }
