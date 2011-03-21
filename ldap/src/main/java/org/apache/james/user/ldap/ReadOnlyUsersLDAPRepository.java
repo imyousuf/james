@@ -237,7 +237,7 @@ public class ReadOnlyUsersLDAPRepository implements UsersRepository, Configurabl
         HierarchicalConfiguration restrictionConfig = null;
         // Check if we have a restriction we can use
         // See JAMES-1204
-        if (configuration.containsKey("restriction")) {
+        if (configuration.containsKey("restriction[@memberAttribute]")) {
             restrictionConfig = configuration.configurationAt("restriction");
         }
         restriction = new ReadOnlyLDAPGroupRestriction(restrictionConfig);
