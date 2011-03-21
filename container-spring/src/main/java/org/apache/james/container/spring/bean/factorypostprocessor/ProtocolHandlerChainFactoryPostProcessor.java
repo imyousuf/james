@@ -86,7 +86,7 @@ public abstract class ProtocolHandlerChainFactoryPostProcessor implements Protoc
             Logger log = logProvider.getLog(beanname);
             
             HierarchicalConfiguration config = confProvider.getConfiguration(beanname);
-            String jmxName = config.getString("jmxName", beanname);;
+            String jmxName = config.getString("jmxName", beanname);
             HierarchicalConfiguration handlerchainConfig = config.configurationAt("handlerchain");
             List<org.apache.commons.configuration.HierarchicalConfiguration> children = handlerchainConfig.configurationsAt("handler");
 

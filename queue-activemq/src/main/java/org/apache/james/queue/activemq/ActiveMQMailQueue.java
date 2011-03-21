@@ -323,7 +323,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
             replyTo = session.createTemporaryQueue();
             consumer = session.createConsumer(replyTo);
 
-            Queue myQueue = session.createQueue(queuename);;
+            Queue myQueue = session.createQueue(queuename);
             producer = session.createProducer(null);
 
             String queueName = "ActiveMQ.Statistics.Destination." + myQueue.getQueueName();

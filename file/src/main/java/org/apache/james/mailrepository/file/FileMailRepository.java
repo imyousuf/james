@@ -210,7 +210,7 @@ public class FileMailRepository
                     ((MimeMessageWrapper)message).loadMessage();
                     out = streamRepository.put(key);
 
-                    ((MimeMessageWrapper)message).writeTo(out, out, null, true);;
+                    ((MimeMessageWrapper)message).writeTo(out, out, null, true);
 
                 } else {
                     out = streamRepository.put(key);
