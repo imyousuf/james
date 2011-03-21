@@ -224,7 +224,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
      */
     public void init() throws MessagingException {
         // Set isDebug flag.
-        isDebug = (getInitParameter("debug") == null) ? false : new Boolean(getInitParameter("debug")).booleanValue();
+        isDebug = (getInitParameter("debug") == null) ? false : Boolean.valueOf(getInitParameter("debug"));
 
         logAdapter = new MailetContextLog(getMailetContext(), isDebug);
         
@@ -325,13 +325,13 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             log("Invalid timeout setting: " + getInitParameter("timeout"));
         }
 
-        sendPartial = (getInitParameter("sendpartial") == null) ? false : new Boolean(getInitParameter("sendpartial")).booleanValue();
+        sendPartial = (getInitParameter("sendpartial") == null) ? false : Boolean.valueOf(getInitParameter("sendpartial"));
 
         bounceProcessor = getInitParameter("bounceProcessor");
 
         String sTLS = getInitParameter("startTLS");
         if (sTLS != null) {
-            startTLS  = new Boolean(sTLS).booleanValue();
+            startTLS  = Boolean.valueOf(sTLS);
         }
         String gateway = getInitParameter("gateway");
         String gatewayPort = getInitParameter("gatewayPort");

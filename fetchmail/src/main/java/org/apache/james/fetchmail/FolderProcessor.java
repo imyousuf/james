@@ -228,7 +228,7 @@ public class FolderProcessor extends ProcessorAbstract
      */
     protected Boolean computeMarkSeenPermanent()
     {
-        return new Boolean(
+        return Boolean.valueOf(
             getFolder().getPermanentFlags().contains(Flags.Flag.SEEN));
     }
 

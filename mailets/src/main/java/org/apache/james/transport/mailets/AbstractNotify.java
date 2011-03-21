@@ -81,7 +81,7 @@ public abstract class AbstractNotify extends AbstractRedirect {
      * @return the <CODE>passThrough</CODE> init parameter, or true if missing
      */
     protected boolean getPassThrough() throws MessagingException {
-        return new Boolean(getInitParameter("passThrough","true")).booleanValue();
+        return Boolean.valueOf(getInitParameter("passThrough","true"));
     }
 
     /**

@@ -275,7 +275,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return the <CODE>passThrough</CODE> init parameter, or false if missing
      */
     protected boolean getPassThrough() throws MessagingException {
-        return new Boolean(getInitParameter("passThrough")).booleanValue();
+        return Boolean.valueOf(getInitParameter("passThrough"));
     }
 
     /**
@@ -297,7 +297,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return the <CODE>fakeDomainCheck</CODE> init parameter, or true if missing
      */
     protected boolean getFakeDomainCheck() throws MessagingException {
-        return new Boolean(getInitParameter("fakeDomainCheck")).booleanValue();
+        return Boolean.valueOf(getInitParameter("fakeDomainCheck"));
     }
 
     /**
@@ -867,7 +867,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return the <CODE>attachError</CODE> init parameter; false if missing
      */
     protected boolean attachError() throws MessagingException {
-        return new Boolean(getInitParameter("attachError")).booleanValue();
+        return Boolean.valueOf(getInitParameter("attachError"));
     }
 
     /**
@@ -891,7 +891,7 @@ public abstract class AbstractRedirect extends GenericMailet {
      * @return the <CODE>isReply</CODE> init parameter; false if missing
      */
     protected boolean isReply() throws MessagingException {
-        return new Boolean(getInitParameter("isReply")).booleanValue();
+        return Boolean.valueOf(getInitParameter("isReply"));
     }
 
     /**
@@ -931,9 +931,9 @@ public abstract class AbstractRedirect extends GenericMailet {
      * using getX(), if {@link #isStatic()} returns true.
      */
     public void init() throws MessagingException {
-        isDebug = new Boolean(getInitParameter("debug","false")).booleanValue();
+        isDebug = Boolean.valueOf(getInitParameter("debug","false"));
 
-        isStatic = new Boolean(getInitParameter("static","false")).booleanValue();
+        isStatic = Boolean.valueOf(getInitParameter("static","false"));
 
         if (isDebug) {
             log("Initializing");

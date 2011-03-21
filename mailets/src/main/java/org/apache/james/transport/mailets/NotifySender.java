@@ -155,7 +155,7 @@ public class NotifySender extends AbstractNotify {
         if (parameter == null) {
             return super.attachError();
         }        
-        return new Boolean(parameter).booleanValue();
+        return Boolean.valueOf(parameter);
     }
 
     /* ******************************************************************** */

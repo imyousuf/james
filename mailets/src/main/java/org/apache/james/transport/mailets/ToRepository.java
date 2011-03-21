@@ -69,7 +69,7 @@ public class ToRepository extends GenericMailet {
     public void init() throws MessagingException{
         repositoryPath = getInitParameter("repositoryPath");
         try {
-            passThrough = new Boolean(getInitParameter("passThrough")).booleanValue();
+            passThrough = Boolean.valueOf(getInitParameter("passThrough"));
         } catch (Exception e) {
             // Ignore exception, default to false
         }

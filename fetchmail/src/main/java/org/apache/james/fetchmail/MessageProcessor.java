@@ -1215,9 +1215,9 @@ public class MessageProcessor extends ProcessorAbstract
         messageBuffer.append("Message ID: ");
         messageBuffer.append(getMessageIn().getMessageID());
         messageBuffer.append(". Flags: Seen = ");
-        messageBuffer.append(new Boolean(isMessageSeen()));
+        messageBuffer.append(Boolean.valueOf(isMessageSeen()));
         messageBuffer.append(", Delete = ");
-        messageBuffer.append(new Boolean(isMessageDeleted()));
+        messageBuffer.append(Boolean.valueOf(isMessageDeleted()));
         messageBuffer.append('.');
         return messageBuffer;
     }    
@@ -1641,7 +1641,7 @@ public class MessageProcessor extends ProcessorAbstract
     {
         if (0 == getMaxMessageSizeLimit())
             return Boolean.FALSE;
-        return new Boolean(getMessageIn().getSize() > getMaxMessageSizeLimit());
+        return Boolean.valueOf(getMessageIn().getSize() > getMaxMessageSizeLimit());
     }
     
     /**

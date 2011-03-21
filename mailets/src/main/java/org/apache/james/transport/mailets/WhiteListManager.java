@@ -181,7 +181,7 @@ public class WhiteListManager extends GenericMailet {
     /** Initializes the mailet.
      */
     public void init() throws MessagingException {
-        automaticInsert = new Boolean(getInitParameter("automaticInsert")).booleanValue();
+        automaticInsert = Boolean.valueOf(getInitParameter("automaticInsert"));
         log("automaticInsert: " + automaticInsert);
 
         displayFlag = getInitParameter("displayFlag");
