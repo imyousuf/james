@@ -268,7 +268,8 @@
     <!-- 
       IMAP Server
      -->
-    <bean id="imapserver" class="org.apache.james.imapserver.netty.IMAPServer">
+    <!-- Use non NIO implementation as workaround for IMAP-265 -->
+    <bean id="imapserver" class="org.apache.james.imapserver.netty.OioIMAPServer">
         <property name="imapDecoder" ref="imapDecoder"/>
         <property name="imapEncoder" ref="imapEncoder"/>    
     </bean>
