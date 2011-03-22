@@ -377,12 +377,15 @@ public class MimeMessageWrapper
         }
         //Wrap input stream in LineNumberReader
         //Not sure what encoding to use really...
+        InputStreamReader isr = null;
         try {
             LineNumberReader counter;
             if (getEncoding() != null) {
-                counter = new LineNumberReader(new InputStreamReader(in, getEncoding()));
+                isr = new InputStreamReader(in, getEncoding());
+                counter = new LineNumberReader(isr);
             } else {
-                counter = new LineNumberReader(new InputStreamReader(in));
+                isr = new InputStreamReader(in);
+                counter = new LineNumberReader(isr);
             }
             //Read through all the data
             char[] block = new char[4096];
@@ -393,6 +396,7 @@ public class MimeMessageWrapper
         } catch (IOException ioe) {
             return -1;
         } finally {
+            IOUtils.closeQuietly(isr);
             IOUtils.closeQuietly(in);
         }
     }
