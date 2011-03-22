@@ -33,8 +33,6 @@ public interface VirtualUserTableManagementMBean {
     
     /**
      * Add regex mapping
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Add regex mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
@@ -44,8 +42,6 @@ public interface VirtualUserTableManagementMBean {
     
     /**
      * Remove regex mapping
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Remove regex mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
@@ -55,8 +51,6 @@ public interface VirtualUserTableManagementMBean {
     
     /***
      * Add address mapping
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Add address mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
@@ -66,8 +60,6 @@ public interface VirtualUserTableManagementMBean {
     
     /**
      * Remove address mapping
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Remove address mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
@@ -77,8 +69,6 @@ public interface VirtualUserTableManagementMBean {
     
     /**
      * Add error mapping
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Add error mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
@@ -88,8 +78,6 @@ public interface VirtualUserTableManagementMBean {
 
     /**
      * Remove error mapping
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Remove error mapping
      * 
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
@@ -101,9 +89,6 @@ public interface VirtualUserTableManagementMBean {
     /**
      * Return the explicit mapping stored for the given user and domain. Return null
      * if no mapping was found
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Return the explicit mapping stored for the given user and domain. Return null
-     *                         if no mapping was found
      *
      * @param user the username
      * @param domain the domain
@@ -113,8 +98,6 @@ public interface VirtualUserTableManagementMBean {
     
     /**
     * Try to identify the right method based on the prefix of the mapping and add it.
-    * @phoenix:mx-operation
-    * @phoenix:mx-description Try to identify the right method based on the prefix of the mapping and add it
     * 
     * @param user the username. Null if no username should be used
     * @param domain the domain. Null if no domain should be used
@@ -124,8 +107,6 @@ public interface VirtualUserTableManagementMBean {
     
     /**
      * Try to identify the right method based on the prefix of the mapping and remove it.
-     * @phoenix:mx-operation
-     * @phoenix:mx-description Try to identify the right method based on the prefix of the mapping and remove it
      *
      * @param user the username. Null if no username should be used
      * @param domain the domain. Null if no domain should be used
