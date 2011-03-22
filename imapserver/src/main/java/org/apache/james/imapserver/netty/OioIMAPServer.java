@@ -34,14 +34,6 @@ public class OioIMAPServer extends IMAPServer{
     }
 
     /**
-     * Throws {@link UnsupportedOperationException}
-     */
-    @Override
-    public void setIoWorkerCount(int ioWorker) {
-        throw new UnsupportedOperationException("Setting the IoWorkerCount is not supported with IO implementation");
-    }
-
-    /**
      * Return -1 as it is not known
      * 
      * 
