@@ -438,31 +438,35 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     private boolean createTable(String tableNameSqlStringName,
     String createSqlStringName) throws SQLException {
         Connection conn = datasource.getConnection();
-        String tableName = sqlQueries.getSqlString(tableNameSqlStringName, true);
-
-        DatabaseMetaData dbMetaData = conn.getMetaData();
-
-        // Try UPPER, lower, and MixedCase, to see if the table is there.
-        if (theJDBCUtil.tableExists(dbMetaData, tableName)) {
-            return false;
-        }
-
-        PreparedStatement createStatement = null;
-
         try {
-            createStatement = conn.prepareStatement(sqlQueries.getSqlString(createSqlStringName, true));
-            createStatement.execute();
-
-            StringBuilder logBuffer = null;
-            logBuffer = new StringBuilder(64).append("Created table '").append(tableName)
-            .append("' using sqlResources string '")
-            .append(createSqlStringName).append("'.");
-            serviceLog.info(logBuffer.toString());
-
+            String tableName = sqlQueries.getSqlString(tableNameSqlStringName, true);
+    
+            DatabaseMetaData dbMetaData = conn.getMetaData();
+    
+            // Try UPPER, lower, and MixedCase, to see if the table is there.
+            if (theJDBCUtil.tableExists(dbMetaData, tableName)) {
+                return false;
+            }
+    
+            PreparedStatement createStatement = null;
+    
+            try {
+                createStatement = conn.prepareStatement(sqlQueries.getSqlString(createSqlStringName, true));
+                createStatement.execute();
+    
+                StringBuilder logBuffer = null;
+                logBuffer = new StringBuilder(64).append("Created table '").append(tableName)
+                .append("' using sqlResources string '")
+                .append(createSqlStringName).append("'.");
+                serviceLog.info(logBuffer.toString());
+    
+            } finally {
+                theJDBCUtil.closeJDBCStatement(createStatement);
+            }
+            return true;
         } finally {
-            theJDBCUtil.closeJDBCStatement(createStatement);
+            theJDBCUtil.closeJDBCConnection(conn);
         }
-        return true;
     }
 
     
