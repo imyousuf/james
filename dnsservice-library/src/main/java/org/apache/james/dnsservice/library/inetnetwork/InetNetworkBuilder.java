@@ -136,7 +136,7 @@ public class InetNetworkBuilder {
         }
         
         // Netmask can be separated with %
-        netspec.replaceAll("%", "/");
+        netspec = netspec.replaceAll("%", "/");
         
         if (netspec.indexOf('/') == -1) {
             netspec += "/32768";
