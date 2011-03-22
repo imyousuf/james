@@ -161,7 +161,10 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
         
         // check if we need to create the queue folder
         if (queueF.exists() == false) {
-            queueF.mkdirs();
+            if (!queueF.mkdirs()) {
+                throw new IOException("Unable to create directory "
+                        + queueF.getAbsolutePath());
+            }
         }
         return fs.getFile(queueUrl+ "/" + filename);
         
