@@ -397,18 +397,24 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     
     private void buildSSLContext() throws Exception {
         if (useStartTLS || useSSL) {
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream(fileSystem.getFile(keystore)), secret.toCharArray());
-
-            // Set up key manager factory to use our key store
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(x509Algorithm);
-            kmf.init(ks, secret.toCharArray());
-
-            // Initialize the SSLContext to work with our key managers.
-            context = SSLContext.getInstance("TLS");
-            context.init(kmf.getKeyManagers(), null, null);
-            
-
+            FileInputStream fis = null;
+            try {
+                KeyStore ks = KeyStore.getInstance("JKS");
+                fis = new FileInputStream(fileSystem.getFile(keystore));
+                ks.load(fis, secret.toCharArray());
+    
+                // Set up key manager factory to use our key store
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance(x509Algorithm);
+                kmf.init(ks, secret.toCharArray());
+    
+                // Initialize the SSLContext to work with our key managers.
+                context = SSLContext.getInstance("TLS");
+                context.init(kmf.getKeyManagers(), null, null);
+            } finally {
+                if (fis != null) {
+                    fis.close();
+                }
+            }
         }
     }
    

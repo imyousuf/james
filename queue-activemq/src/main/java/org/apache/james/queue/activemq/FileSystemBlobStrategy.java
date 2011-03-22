@@ -59,6 +59,7 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
      * (non-Javadoc)
      * @see org.apache.activemq.blob.BlobUploadStrategy#uploadFile(org.apache.activemq.command.ActiveMQBlobMessage, java.io.File)
      */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value="OBL_UNSATISFIED_OBLIGATION", justification="Closed in uploadStream")
     public URL uploadFile(ActiveMQBlobMessage message, File file) throws JMSException, IOException {
         return uploadStream(message, new FileInputStream(file));
     }
