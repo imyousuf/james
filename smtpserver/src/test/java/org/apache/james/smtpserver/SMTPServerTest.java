@@ -181,11 +181,14 @@ public abstract class SMTPServerTest extends TestCase {
       
     }
 
+    protected SMTPServer createSMTPServer() {
+        return new SMTPServer();
+    }
     protected void setUpSMTPServer() throws Exception {
         Logger log = LoggerFactory.getLogger("SMTP");
         // slf4j can't set programmatically any log level. It's just a facade
         // log.setLevel(SimpleLog.LOG_LEVEL_ALL);
-        m_smtpServer = new SMTPServer();
+        m_smtpServer = createSMTPServer();
         m_smtpServer.setDNSService(m_dnsServer);
         m_smtpServer.setFileSystem(fileSystem);      
         

@@ -79,6 +79,9 @@ public class POP3ServerTest extends TestCase {
 
     private POP3Server m_pop3Server;
 
+    protected POP3Server createPOP3Server() {
+        return new POP3Server();
+    }
     
     protected void initPOP3Server(POP3TestConfiguration testConfiguration) throws Exception {
         m_pop3Server.configure(testConfiguration);
@@ -88,7 +91,7 @@ public class POP3ServerTest extends TestCase {
     
     protected void setUpPOP3Server() throws Exception {
         
-        m_pop3Server = new POP3Server();
+        m_pop3Server = createPOP3Server();
         m_pop3Server.setDNSService(dnsservice);
         m_pop3Server.setFileSystem(fSystem);
         m_pop3Server.setProtocolHandlerChain(chain);
