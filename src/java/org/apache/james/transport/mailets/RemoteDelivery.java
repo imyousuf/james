@@ -336,22 +336,7 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             log("Failed to retrieve Store component:" + e.getMessage());
         }
 
-        //Start up a number of threads
-        try {
-            deliveryThreadCount = Integer.parseInt(getInitParameter("deliveryThreads"));
-        } catch (Exception e) {
-        }
-        for (int i = 0; i < deliveryThreadCount; i++) {
-            StringBuffer nameBuffer =
-                new StringBuffer(32)
-                        .append("Remote delivery thread (")
-                        .append(i)
-                        .append(")");
-            Thread t = new Thread(this, nameBuffer.toString());
-            t.start();
-            deliveryThreads.add(t);
-        }
-
+       
         bindAddress = getInitParameter("bind");
         isBindUsed = bindAddress != null;
         try {
@@ -366,6 +351,20 @@ public class RemoteDelivery extends GenericMailet implements Runnable {
             if (name.startsWith("mail.")) {
                 defprops.put(name,getInitParameter(name));
             }
+        }
+        
+
+        //Start up a number of threads
+        deliveryThreadCount = Integer.parseInt(getInitParameter("deliveryThreads"));
+        initDeliveryThreads();
+    }
+
+    private void initDeliveryThreads() {
+        for (int a = 0; a < deliveryThreadCount; a++) {
+            String threadName = "Remote delivery thread (" + a + ")";
+            Thread t = new Thread(this, threadName);
+            t.start();
+            deliveryThreads.add(t);
         }
     }
 
