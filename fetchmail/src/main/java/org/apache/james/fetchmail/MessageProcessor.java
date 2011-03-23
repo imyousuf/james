@@ -434,8 +434,6 @@ public class MessageProcessor extends ProcessorAbstract
         messageBuffer.append(recipient);
         messageBuffer.append('.');          
         logStatusInfo(messageBuffer.toString());
-
-        return;
     }
     
     /**
@@ -457,8 +455,6 @@ public class MessageProcessor extends ProcessorAbstract
         messageBuffer.append(recipient);
         messageBuffer.append('.');        
         logStatusInfo(messageBuffer.toString());
-
-        return;
     }
 
     /**
@@ -485,7 +481,6 @@ public class MessageProcessor extends ProcessorAbstract
         }
         messageBuffer.append('.');          
         logStatusInfo(messageBuffer.toString());
-        return;
     }
     
     /**
@@ -508,8 +503,6 @@ public class MessageProcessor extends ProcessorAbstract
         messageBuffer.append(recipient);
         messageBuffer.append('.');          
         logStatusInfo(messageBuffer.toString());
-
-        return;
     }
     
     /**
@@ -532,8 +525,6 @@ public class MessageProcessor extends ProcessorAbstract
         messageBuffer.append(messageSize/1024);
         messageBuffer.append("KB.");          
         logStatusInfo(messageBuffer.toString());
-
-        return;
     }
     
     /**
@@ -555,7 +546,6 @@ public class MessageProcessor extends ProcessorAbstract
         messageBuffer.append(getRemoteReceivedHeaderIndex());
         messageBuffer.append(".");          
         logStatusInfo(messageBuffer.toString());       
-        return;
     }           
     
     /**

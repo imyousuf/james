@@ -149,8 +149,6 @@ public class FolderProcessor extends ProcessorAbstract
                 "A MessagingException has terminated recursing through sub-folders",
                 mex);
         }
-
-        return;
     }
     
     /**
