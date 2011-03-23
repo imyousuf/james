@@ -18,9 +18,11 @@
  ****************************************************************/
 package org.apache.james.container.spring;
 
-import java.io.IOException;
 import java.util.Calendar;
 
+import org.apache.commons.daemon.Daemon;
+import org.apache.commons.daemon.DaemonContext;
+import org.apache.commons.daemon.DaemonInitException;
 import org.apache.james.container.spring.context.JamesServerApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,21 +30,57 @@ import org.slf4j.LoggerFactory;
 /**
  * Bootstraps James using a Spring container.
  */
-public class Main {
+public class Main implements Daemon{
 
     private static Logger log = LoggerFactory.getLogger(Main.class.getName());
-
-    public static void main(String[] args) throws IOException {
+    private JamesServerApplicationContext context;
+    
+    public static void main(String[] args) throws DaemonInitException, Exception {
         
         long start = Calendar.getInstance().getTimeInMillis();
         
-        final JamesServerApplicationContext context = new JamesServerApplicationContext(new String[] { "context/james-server-context.xml" });
-        context.registerShutdownHook();
+        Main main = new Main();
+        main.init(null);
         
         long end = Calendar.getInstance().getTimeInMillis();
 
         log.info("Apache James Server is successfully started in " + (end-start) + " milliseconds.");
         
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.commons.daemon.Daemon#destroy()
+     */
+    public void destroy() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.commons.daemon.Daemon#init(org.apache.commons.daemon.DaemonContext)
+     */
+    public void init(DaemonContext arg0) throws DaemonInitException, Exception {
+        context = new JamesServerApplicationContext(new String[] { "context/james-server-context.xml" });
+        context.registerShutdownHook();       
+        context.start();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.commons.daemon.Daemon#start()
+     */
+    public void start() throws Exception {
+       context.start();
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.commons.daemon.Daemon#stop()
+     */
+    public void stop() throws Exception {
+        if (context != null) {
+            context.stop();
+        }
     }
 
 }
