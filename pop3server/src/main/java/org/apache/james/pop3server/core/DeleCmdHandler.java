@@ -44,6 +44,7 @@ public class DeleCmdHandler implements CommandHandler<POP3Session> {
      * mailbox.	 
      * 
 	 */
+    @SuppressWarnings("unchecked")
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
@@ -55,10 +56,10 @@ public class DeleCmdHandler implements CommandHandler<POP3Session> {
                 return response;
             }
             try {
-                List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+                List<MessageMetaData> uidList = (List<MessageMetaData>) session.getState().get(POP3Session.UID_LIST);
                 List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
 
-                Long uid = uidList.get(num -1);
+                Long uid = uidList.get(num -1).getUid();
                 
                 if (deletedUidList.contains(uid)) {
                     StringBuilder responseBuffer =
@@ -68,7 +69,7 @@ public class DeleCmdHandler implements CommandHandler<POP3Session> {
                                 .append(") already deleted.");
                     response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
                 } else {
-                	deletedUidList.add(uid);
+                    deletedUidList.add(uid);
                     // we are replacing our reference with "DELETED", so we have
                     // to dispose the no-more-referenced mail object.
                     response = new POP3Response(POP3Response.OK_RESPONSE,"Message deleted");

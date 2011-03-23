@@ -21,15 +21,8 @@ package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.james.mailbox.MailboxException;
-import org.apache.james.mailbox.MailboxSession;
-import org.apache.james.mailbox.MessageRange;
-import org.apache.james.mailbox.MessageResult;
-import org.apache.james.mailbox.MessageResult.FetchGroup;
-import org.apache.james.mailbox.util.FetchGroupImpl;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.api.CommandHandler;
@@ -47,34 +40,29 @@ public class StatCmdHandler implements CommandHandler<POP3Session> {
      * of messages in the mailbox and its aggregate size.
      * 
      */
+    @SuppressWarnings("unchecked")
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
 
-            try {
-                List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
-                List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
-                long size = 0;
-                int count = 0;
-                if (uidList.isEmpty() == false) {
-                    MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
-                    Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.range(uidList.get(0), uidList.get(uidList.size() - 1)), new FetchGroupImpl(FetchGroup.MINIMAL), mailboxSession);
-
-                    List<MessageResult> validResults = new ArrayList<MessageResult>();
-                    while (results.hasNext()) {
-                        MessageResult result = results.next();
-                        if (deletedUidList.contains(result.getUid()) == false) {
-                            size += result.getSize();
-                            count++;
-                            validResults.add(result);
-                        }
+            List<MessageMetaData> uidList = (List<MessageMetaData>) session.getState().get(POP3Session.UID_LIST);
+            List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
+            long size = 0;
+            int count = 0;
+            if (uidList.isEmpty() == false) {                    
+                List<MessageMetaData> validResults = new ArrayList<MessageMetaData>();
+                for (int i = 0; i < uidList.size(); i++) {
+                    MessageMetaData data = uidList.get(i);
+                    if (deletedUidList.contains(data.getUid()) == false) {
+                        size += data.getSize();
+                        count++;
+                        validResults.add(data);
                     }
                 }
-                StringBuilder responseBuffer = new StringBuilder(32).append(count).append(" ").append(size);
-                response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
-            } catch (MailboxException me) {
-                response = new POP3Response(POP3Response.ERR_RESPONSE);
             }
+            StringBuilder responseBuffer = new StringBuilder(32).append(count).append(" ").append(size);
+            response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
+           
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
         }

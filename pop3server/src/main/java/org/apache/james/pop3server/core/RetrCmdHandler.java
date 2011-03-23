@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.apache.james.mailbox.Content;
 import org.apache.james.mailbox.InputStreamContent;
@@ -55,6 +56,7 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
      * retrieves a particular mail message from the mailbox.
      * 
      */
+    @SuppressWarnings("unchecked")
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
@@ -67,35 +69,41 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                 return response;
             }
             try {
-                List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+                List<MessageMetaData> uidList = (List<MessageMetaData>) session.getState().get(POP3Session.UID_LIST);
                 List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
 
                 MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
-                Long uid = uidList.get(num - 1);
+                Long uid = uidList.get(num - 1).getUid();
                 if (deletedUidList.contains(uid) == false) {
                     Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
                     
-                    session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
-                    // response = new POP3Response(POP3Response.OK_RESPONSE,
-                    // "Message follows");
-                    try {
+                    if (results.hasNext()) {
                         MessageResult result = results.next();
-                        Content content = result.getFullContent();
-                        InputStream in;
-                        if (content instanceof InputStreamContent) {
-                            in =((InputStreamContent) content).getInputStream();
-                        } else {
-                            in = createInputStream(content);
+
+                        try {
+                            session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
+                            // response = new POP3Response(POP3Response.OK_RESPONSE,
+                            // "Message follows");
+                            Content content = result.getFullContent();
+                            InputStream in;
+                            if (content instanceof InputStreamContent) {
+                                in =((InputStreamContent) content).getInputStream();
+                            } else {
+                                in = createInputStream(content);
+                            }
+                            //session.writeStream(new ExtraDotInputStream(in));
+                            session.writeStream(new ExtraDotInputStream(new CRLFTerminatedInputStream(in)));
+
+                        } finally {                         
+                            // write a single dot to mark message as complete
+                            session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
                         }
-                        //session.writeStream(new ExtraDotInputStream(in));
-                        session.writeStream(new ExtraDotInputStream(new CRLFTerminatedInputStream(in)));
 
-                    } finally {                         
-                        // write a single dot to mark message as complete
-                        session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
+                        return null;
+                    } else {
+                        StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
+                        response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                     }
-
-                    return null;
                 } else {
 
                     StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") already deleted.");
@@ -106,6 +114,9 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
             } catch (MailboxException me) {
                 response = new POP3Response(POP3Response.ERR_RESPONSE, "Error while retrieving message.");
             } catch (IndexOutOfBoundsException iob) {
+                StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
+                response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
+            } catch (NoSuchElementException e) {
                 StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
                 response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
             }

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.apache.james.mailbox.Content;
 import org.apache.james.mailbox.InputStreamContent;
@@ -89,54 +90,59 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                 return response;
             }
             try {
-                List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+                List<MessageMetaData> uidList = (List<MessageMetaData>) session.getState().get(POP3Session.UID_LIST);
                 List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
 
                 MailboxSession mailboxSession = (MailboxSession) session.getState().get(POP3Session.MAILBOX_SESSION);
-                Long uid = uidList.get(num - 1);
+                Long uid = uidList.get(num - 1).getUid();
                 if (deletedUidList.contains(uid) == false) {
                     FetchGroupImpl fetchGroup = new FetchGroupImpl(FetchGroup.BODY_CONTENT);
                     fetchGroup.or(FetchGroup.HEADERS);
                     Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), fetchGroup, mailboxSession);
                     
-                    session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
-                    try {
+                    if (results.hasNext()) {
                         MessageResult result = results.next();
-
-                        ByteArrayOutputStream headersOut = new ByteArrayOutputStream();
-                        WritableByteChannel headersChannel = Channels.newChannel(headersOut);
-                        
-                        // write headers
-                        Iterator<Header> headers = result.headers();
-                        while (headers.hasNext()) {
-                            headers.next().writeTo(headersChannel);
-
-                            // we need to write out the CRLF after each header
-                            headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
-
-                        }
-                        // headers and body are seperated by a CRLF
-                        headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
-                        session.writeStream(new ByteArrayInputStream(headersOut.toByteArray()));
-                        
-                        InputStream bodyIn;
-                        Content content = result.getBody();
-                        if (content instanceof InputStreamContent) {
-                            bodyIn = ((InputStreamContent) content).getInputStream();
-                        } else {
-                            bodyIn = createInputStream(content);
-                        }
-                        // write body
-                        session.writeStream(new CountingBodyInputStream(new CRLFTerminatedInputStream(bodyIn), lines));
-
-                    } finally {
-                        // write a single dot to mark message as complete
-                        session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
                        
+                        session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
+                        try {
+
+                            ByteArrayOutputStream headersOut = new ByteArrayOutputStream();
+                            WritableByteChannel headersChannel = Channels.newChannel(headersOut);
+                        
+                            // write headers
+                            Iterator<Header> headers = result.headers();
+                            while (headers.hasNext()) {
+                                headers.next().writeTo(headersChannel);
+
+                                // we need to write out the CRLF after each header
+                                headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
+                            }
+                            // headers and body are seperated by a CRLF
+                            headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
+                            session.writeStream(new ByteArrayInputStream(headersOut.toByteArray()));
+                        
+                            InputStream bodyIn;
+                            Content content = result.getBody();
+                            if (content instanceof InputStreamContent) {
+                                bodyIn = ((InputStreamContent) content).getInputStream();
+                            } else {
+                                bodyIn = createInputStream(content);
+                            }
+                            // write body
+                            session.writeStream(new CountingBodyInputStream(new CRLFTerminatedInputStream(bodyIn), lines));
+
+                        } finally {
+                            // write a single dot to mark message as complete
+                            session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
+                       
+                        }
+
+                        return null;
+                    } else {
+                        StringBuilder exceptionBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
+                        response = new POP3Response(POP3Response.ERR_RESPONSE, exceptionBuffer.toString());
                     }
-
-                    return null;
-
+                    
                 } else {
                     StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") already deleted.");
                     response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
@@ -148,8 +154,9 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
             } catch (IndexOutOfBoundsException iob) {
                 StringBuilder exceptionBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
                 response = new POP3Response(POP3Response.ERR_RESPONSE, exceptionBuffer.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (NoSuchElementException iob) {
+                StringBuilder exceptionBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
+                response = new POP3Response(POP3Response.ERR_RESPONSE, exceptionBuffer.toString());
             }
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);

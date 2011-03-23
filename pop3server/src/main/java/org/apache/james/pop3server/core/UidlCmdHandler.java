@@ -40,17 +40,18 @@ public class UidlCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
      * of message ids to the client.
      * 
      */
+    @SuppressWarnings("unchecked")
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
         String parameters = request.getArgument();
         if (session.getHandlerState() == POP3Session.TRANSACTION) {
-            List<Long> uidList = (List<Long>) session.getState().get(POP3Session.UID_LIST);
+            List<MessageMetaData> uidList = (List<MessageMetaData>) session.getState().get(POP3Session.UID_LIST);
             List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
 
             if (parameters == null) {
                 response = new POP3Response(POP3Response.OK_RESPONSE, "unique-id listing follows");
                 for (int i = 0; i < uidList.size(); i++) {
-                    Long uid = uidList.get(i);
+                    Long uid = uidList.get(i).getUid();
                     if (deletedUidList.contains(uid) == false) {
                         StringBuilder responseBuffer = new StringBuilder(64).append(i + 1).append(" ").append(uid);
                         response.appendLine(responseBuffer.toString());
@@ -62,7 +63,7 @@ public class UidlCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
                 int num = 0;
                 try {
                     num = Integer.parseInt(parameters);
-                    Long uid = uidList.get(num - 1);
+                    Long uid = uidList.get(num - 1).getUid();
                     if (deletedUidList.contains(uid) == false) {
 
                         StringBuilder responseBuffer = new StringBuilder(64).append(num).append(" ").append(uid.hashCode());
