@@ -22,7 +22,6 @@ import java.util.Calendar;
 
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
-import org.apache.commons.daemon.DaemonInitException;
 import org.apache.james.container.spring.context.JamesServerApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class Main implements Daemon{
     private static Logger log = LoggerFactory.getLogger(Main.class.getName());
     private JamesServerApplicationContext context;
     
-    public static void main(String[] args) throws DaemonInitException, Exception {
+    public static void main(String[] args) throws Exception {
         
         long start = Calendar.getInstance().getTimeInMillis();
         
@@ -59,7 +58,7 @@ public class Main implements Daemon{
      * (non-Javadoc)
      * @see org.apache.commons.daemon.Daemon#init(org.apache.commons.daemon.DaemonContext)
      */
-    public void init(DaemonContext arg0) throws DaemonInitException, Exception {
+    public void init(DaemonContext arg0) throws Exception {
         context = new JamesServerApplicationContext(new String[] { "context/james-server-context.xml" });
         context.registerShutdownHook();       
         context.start();
