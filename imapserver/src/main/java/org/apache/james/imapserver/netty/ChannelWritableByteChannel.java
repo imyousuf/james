@@ -24,6 +24,7 @@ import java.nio.channels.WritableByteChannel;
 
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
 
 /**
  * Some adapter class which allows to write to {@link Channel} via a {@link WritableByteChannel} interface
@@ -55,7 +56,11 @@ public class ChannelWritableByteChannel implements WritableByteChannel {
         byte data[] = new byte[src.remaining()];
         src.get(data);
         
-        channel.write(ChannelBuffers.wrappedBuffer(data));
+        ChannelFuture future = channel.write(ChannelBuffers.wrappedBuffer(data)).awaitUninterruptibly();
+        Throwable t = future.getCause();
+        if (t != null) {
+            throw new IOException(t);
+        }
         return data.length;
     }
    

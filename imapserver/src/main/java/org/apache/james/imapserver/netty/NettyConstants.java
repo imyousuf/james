@@ -35,4 +35,6 @@ public interface NettyConstants {
     final static String CONNECTION_LIMIT_HANDLER = "connectionLimitHandler";
     final static String CONNECTION_LIMIT_PER_IP_HANDLER = "connectionPerIpLimitHandler";
     final static String CONNECTION_COUNT_HANDLER= "connectionCountHandler";
+    final static String CHUNK_WRITE_HANDLER= "chunkWriteHandler";
+
 }

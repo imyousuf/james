@@ -27,6 +27,7 @@ import org.apache.james.imap.main.AbstractImapResponseWriter;
 import org.apache.james.imap.message.response.Literal;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
 
 /**
  * {@link AbstractImapResponseWriter} implementation which writes the data to a {@link Channel}
@@ -47,7 +48,11 @@ public class ChannelImapResponseWriter extends AbstractImapResponseWriter{
      * @see org.apache.james.imap.main.AbstractImapResponseWriter#write(java.nio.ByteBuffer)
      */
     protected void write(ByteBuffer buffer) throws IOException {
-        channel.write(ChannelBuffers.wrappedBuffer(buffer));
+        ChannelFuture f = channel.write(ChannelBuffers.wrappedBuffer(buffer)).awaitUninterruptibly();
+        Throwable t = f.getCause();
+        if (t != null) {
+            throw new IOException(t);
+        }
     }
 
     /*

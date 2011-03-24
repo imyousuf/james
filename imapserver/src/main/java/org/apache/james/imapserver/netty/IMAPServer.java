@@ -40,6 +40,7 @@ import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.connection.ConnectionLimitUpstreamHandler;
 import org.jboss.netty.handler.connection.ConnectionPerIpLimitUpstreamHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
+import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 import org.jboss.netty.util.HashedWheelTimer;
 
 /**
@@ -145,6 +146,8 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
                 pipeline.addLast(CONNECTION_COUNT_HANDLER, getConnectionCountHandler());
                 
                 
+                pipeline.addLast(CHUNK_WRITE_HANDLER, new ChunkedWriteHandler());
+
                 if (isStartTLSSupported())  {
                     pipeline.addLast(CORE_HANDLER,  new ImapChannelUpstreamHandler(hello, processor, encoder, getLogger(), compress, getSSLContext(), getEnabledCipherSuites()));
                 } else {

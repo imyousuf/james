@@ -28,6 +28,7 @@ import org.apache.james.imap.api.process.ImapLineHandler;
 import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.api.process.SelectedMailbox;
 import org.apache.james.protocols.impl.SessionLog;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.compression.ZlibDecoder;
 import org.jboss.netty.handler.codec.compression.ZlibEncoder;
@@ -56,6 +57,15 @@ public class NettyImapSession implements ImapSession, NettyConstants{
         this.compress = compress;
     }
 
+    /**
+     * Return the wrapped {@link Channel} which this {@link ImapSession} is bound to
+     * 
+     * @return channel
+     */
+    public Channel getChannel() {
+        return context.getChannel();
+    }
+    
     /*
      * (non-Javadoc)
      * @see org.apache.james.imap.api.process.ImapSession#logout()
