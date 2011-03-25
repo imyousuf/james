@@ -51,7 +51,7 @@ public class ChannelImapResponseWriter extends AbstractImapResponseWriter{
         ChannelFuture f = channel.write(ChannelBuffers.wrappedBuffer(buffer)).awaitUninterruptibly();
         Throwable t = f.getCause();
         if (t != null) {
-            throw new IOException("Unable to write buffer to channel", t);
+            throw new IOException(t.getMessage());
         }
     }
 

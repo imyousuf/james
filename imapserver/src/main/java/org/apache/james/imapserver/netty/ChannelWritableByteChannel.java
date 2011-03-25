@@ -59,7 +59,7 @@ public class ChannelWritableByteChannel implements WritableByteChannel {
         ChannelFuture future = channel.write(ChannelBuffers.wrappedBuffer(data)).awaitUninterruptibly();
         Throwable t = future.getCause();
         if (t != null) {
-            throw new IOException("Unable to write buffer to channel",t);
+            throw new IOException(t.getMessage());
         }
         return data.length;
     }
