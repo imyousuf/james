@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.james.imap.api.ImapMessage;
 import org.apache.james.imap.api.process.ImapSession;
 import org.apache.james.imap.decode.ImapDecoder;
@@ -118,12 +119,8 @@ public class ImapRequestFrameDecoder extends FrameDecoder implements ChannelAttr
                        
                         
                     } finally {
-                       if (bufferIn != null) {
-                           bufferIn.close();
-                       }
-                       if (out != null) {
-                           out.close();
-                       }
+                       IOUtils.closeQuietly(bufferIn);
+                       IOUtils.closeQuietly(out);
                     }                    
                     // Check if all needed data was streamed to the file. 
                     if (written == size) {
