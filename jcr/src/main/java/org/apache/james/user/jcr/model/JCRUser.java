@@ -84,7 +84,7 @@ public class JCRUser implements User {
         if (pass == null) {
             result = false;
         } else {
-            result = hashedSaltedPassword == hashPassword(userName, pass);
+            result = hashedSaltedPassword.equals(hashPassword(userName, pass));
         }
         return result;
     }
