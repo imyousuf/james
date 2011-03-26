@@ -151,7 +151,6 @@ public class ImapChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
             // just close the channel now!
             ctx.getChannel().close();
             
-            super.exceptionCaught(ctx, e);  
         }
 
     }
