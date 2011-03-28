@@ -20,8 +20,11 @@ package org.apache.james.protocols.lib.netty;
 
 import java.io.FileInputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
@@ -140,29 +143,31 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
           logger.info(getServiceType() + " disabled by configuration");
           return;
         }
-        setPort(config.getInt("port", getDefaultPort()));
-
-     
-
-        StringBuilder infoBuffer;
         
-
-        try {
-            final String bindAddress = config.getString("bind",null);
-            if( null != bindAddress ) {
-                String bindTo = InetAddress.getByName(bindAddress).getHostName();
-                infoBuffer =
-                    new StringBuilder(64)
-                            .append(getServiceType())
-                            .append(" bound to: ")
-                            .append(bindTo);
-                logger.info(infoBuffer.toString());
-                setIP(bindTo);
+        String listen[] = config.getString("bind", "0.0.0.0:" + getDefaultPort()).split(",");
+        List<InetSocketAddress> bindAddresses = new ArrayList<InetSocketAddress>();
+        for (int i = 0; i < listen.length; i++) {
+            String bind[] = listen[i].split(":");
+            
+            InetSocketAddress address;
+            String ip = bind[0].trim();
+            int port = Integer.parseInt(bind[1].trim());
+            if (ip.equals("0.0.0.0") == false) {
+                try {
+                        ip = InetAddress.getByName(ip).getHostName();
+                } catch (final UnknownHostException unhe) {
+                    throw new ConfigurationException("Malformed bind parameter in configuration of service " + getServiceType(), unhe);
+                }
             }
+            address = new InetSocketAddress(ip, port);
+
+            StringBuilder infoBuffer = new StringBuilder(64).append(getServiceType()).append(" bound to: ").append(ip).append(":").append(port);
+            logger.info(infoBuffer.toString());
+
+            bindAddresses.add(address);
         }
-        catch( final UnknownHostException unhe ) {
-            throw new ConfigurationException( "Malformed bind parameter in configuration of service " + getServiceType(), unhe );
-        }
+        setListenAddresses(bindAddresses);
+       
 
         jmxName = config.getString("jmxName",getDefaultJMXName());
         int ioWorker = config.getInt("ioWorkerCount", DEFAULT_IO_WORKER_COUNT);
@@ -172,7 +177,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
         setTimeout(config.getInt(TIMEOUT_NAME,DEFAULT_TIMEOUT));
 
-        infoBuffer =
+        StringBuilder infoBuffer =
             new StringBuilder(64)
                     .append(getServiceType())
                     .append(" handler connection timeout is: ")
@@ -519,14 +524,6 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.socket.ServerMBean#getIPAddress()
-     */
-    public String getIPAddress() {
-        return getIP();
-    }
-
-    /*
-     * (non-Javadoc)
      * @see org.apache.james.server.jmx.ServerMBean#getHandledConnections()
      */
     public long getHandledConnections() {
@@ -546,4 +543,22 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     protected ConnectionCountHandler getConnectionCountHandler() {
         return countHandler;
     }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.james.protocols.lib.jmx.ServerMBean#getBoundAddresses()
+     */
+    public String[] getBoundAddresses() {
+        
+        List<InetSocketAddress> addresses = getListenAddresses();
+        String[] addrs = new String[addresses.size()];
+        for (int i = 0; i < addresses.size(); i++) {
+            InetSocketAddress address = addresses.get(i);
+            addrs[i] = address.getHostName() + ":" + address.getPort();
+        }
+        
+        return addrs;
+    }
+    
+    
 }

@@ -21,7 +21,7 @@
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
 <imapserver enabled="true">
-  <port>143</port>
+  <bind>0.0.0.0:143</bind>
   <connectionBacklog>200</connectionBacklog>
   <tls socketTLS="false" startTLS="false">
   </tls>

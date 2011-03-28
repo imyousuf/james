@@ -20,7 +20,7 @@
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
 <smtpserver enabled="true">
-  <port>25</port>
+  <bind>0.0.0.0:25</bind>
   <connectionBacklog>200</connectionBacklog>
   <tls socketTLS="false" startTLS="false">
   </tls>

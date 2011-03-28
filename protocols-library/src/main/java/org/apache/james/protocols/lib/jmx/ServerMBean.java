@@ -58,19 +58,9 @@ public interface ServerMBean {
      */
 	boolean getStartTLSSupported();
 
-
-    /**
-     * Return the IPAddress to which the server is bound
-     *  
-     * @return ipAddress or null if not bound to some specifc ip
-     */
-    String getIPAddress();
-    
-    /**
-     * Return the port number to which ther server is bound
-     * @return
-     */
-    int  getPort();
+	
+    String[] getBoundAddresses();
+  
     
     /**
      * Return the socket type of the server. Which can either be plain or secure

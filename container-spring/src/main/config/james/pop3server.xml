@@ -21,7 +21,7 @@
 <!-- See http://james.apache.org/server/3/config.html for usage -->
 
 <pop3server enabled="true">
-  <port>110</port>
+  <bind>0.0.0.0:110</bind>
   <connectionBacklog>200</connectionBacklog>
   <tls socketTLS="false" startTLS="false">
       <keystore>file://conf/keystore</keystore>

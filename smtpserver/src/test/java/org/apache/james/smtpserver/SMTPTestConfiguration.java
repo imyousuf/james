@@ -147,7 +147,7 @@ public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
 
         addProperty("[@enabled]", true);
 
-        addProperty("port", m_smtpListenerPort);
+        addProperty("bind", "127.0.0.1:" + m_smtpListenerPort);
         if (m_connectionLimit != null) addProperty("connectionLimit",  ""+m_connectionLimit.intValue());
         if (m_connectionBacklog != null) addProperty("connectionBacklog", ""+ m_connectionBacklog.intValue());
         
