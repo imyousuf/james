@@ -119,8 +119,8 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
             private final HashedWheelTimer timer = new HashedWheelTimer();
             
             // Timeout of 30 minutes See rfc2060 5.4 for details
-            private final static int TIMEOUT = 60;
-            private final TimeUnit TIMEOUT_UNIT = TimeUnit.MINUTES;
+            private final static int TIMEOUT = 60 * 30;
+            private final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
 
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
