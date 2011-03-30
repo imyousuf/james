@@ -20,6 +20,8 @@ package org.apache.james.imapserver.netty;
 
 import static org.jboss.netty.channel.Channels.pipeline;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Resource;
 import javax.net.ssl.SSLEngine;
 
@@ -30,7 +32,6 @@ import org.apache.james.imap.api.process.ImapProcessor;
 import org.apache.james.imap.decode.ImapDecoder;
 import org.apache.james.imap.encode.ImapEncoder;
 import org.apache.james.protocols.impl.ChannelGroupHandler;
-import org.apache.james.protocols.impl.TimeoutHandler;
 import org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -118,12 +119,13 @@ public class IMAPServer extends AbstractConfigurableAsyncServer implements ImapC
             private final HashedWheelTimer timer = new HashedWheelTimer();
             
             // Timeout of 30 minutes See rfc2060 5.4 for details
-            private final static int TIMEOUT = 30 * 60;
+            private final static int TIMEOUT = 60;
+            private final TimeUnit TIMEOUT_UNIT = TimeUnit.MINUTES;
 
             public ChannelPipeline getPipeline() throws Exception {
                 ChannelPipeline pipeline = pipeline();
                 pipeline.addLast(GROUP_HANDLER, groupHandler);
-                pipeline.addLast(TIMEOUT_HANDLER, new TimeoutHandler(timer, TIMEOUT));
+                pipeline.addLast(TIMEOUT_HANDLER, new ImapIdleStateHandler(timer, TIMEOUT, TIMEOUT_UNIT));
                 pipeline.addLast(CONNECTION_LIMIT_HANDLER, new ConnectionLimitUpstreamHandler(IMAPServer.this.connectionLimit));
 
                 pipeline.addLast(CONNECTION_LIMIT_PER_IP_HANDLER, new ConnectionPerIpLimitUpstreamHandler(IMAPServer.this.connPerIP));
