@@ -4,15 +4,30 @@
 /  _  \ |_) | (_| | (__| | | |  __/ /\_/ / (_| | | | | | |  __|__ \
 \_/ \_/ .__/ \__,_|\___|_| |_|\___| \___/ \__,_|_| |_| |_|\___|___/
       |_|                                                          
- __                            _____    ___           ____  
-/ _\ ___ _ ____   _____ _ __  |___ /   / _ \    /\/\ |___ \ 
-\ \ / _ \ '__\ \ / / _ \ '__|   |_ \  | | | |  /    \  __) |
-_\ \  __/ |   \ V /  __/ |     ___) |_| |_| | / /\/\ \/ __/ 
-\__/\___|_|    \_/ \___|_|    |____/(_)\___/  \/    \/_____|
-                                                            
+
+ __                            _____    ___               _____ 
+/ _\ ___ _ ____   _____ _ __  |___ /   / _ \        /\/\ |___ / 
+\ \ / _ \ '__\ \ / / _ \ '__|   |_ \  | | | |_____ /    \  |_ \ 
+_\ \  __/ |   \ V /  __/ |     ___) |_| |_| |_____/ /\/\ \___) |
+\__/\___|_|    \_/ \___|_|    |____/(_)\___/      \/    \/____/ 
+                                                                
+--------------------------------------------------------------------                                                            
 ### http://james.apache.org/server/3/ ###
 
-Thank you for testing Apache James Server 3.0-M2!
+Thank you for testing Apache James Server 3.0-M3!
+
+  * What's new in 3.0-M3
+    - Numerous IMAP bug fixes (client support outlook,..., memory leaks, NIO and IO)
+    - Telnet Management has been removed in favor of JMX
+    - JPA validated against more databases (among others Oracle)
+    - Multiple port configurations per protocol
+    - POP3 is now operational (was buggy in 3.0-M2)
+    - Mailbox Copier
+    - Upgrade tool for James 2.3 are available
+    - Better logging
+    - More documentation on web site for configuration,...
+    - For developers: Less modules - Upgrade to latest frameworks versions - Various code reports generation.
+    - ... and much more (see details on https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10411&version=12315512)
 
   * Quick Start  http://james.apache.org/server/3/quick-start.html
 
@@ -21,10 +36,10 @@ Thank you for testing Apache James Server 3.0-M2!
   * Manage       http://james.apache.org/server/3/manage.html
   * Monitor      http://james.apache.org/server/3/monitor.html
 
-  * Upgrade from James 3.0-M1
-    Move ./var/derbydb to ./var/store/derby
-
-  * Upgrade from James 2.3 http://james.apache.org/server/3/upgrade-2.3.html
+  * Upgrade from James 3.0-M2
+      For JPA Mailbox, database table names have changes.
+        You have to manually migrate the database...
+          or use the mailbox-copier to backup to maildir, recreate database from scratch, and recopy from maildir
 
   * Develop      http://james.apache.org/server/3/dev.html
 
@@ -32,5 +47,6 @@ Thank you for testing Apache James Server 3.0-M2!
       Mailing lists    http://james.apache.org/mail.html
       Twitter          http://twitter.com/ApacheJames
 
+  * Upgrade from James 2.3 http://james.apache.org/server/3/upgrade-2.3.html
 
 (asciiart on http://patorjk.com/software/taag/ with Ogre font)
