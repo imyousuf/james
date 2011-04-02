@@ -29,32 +29,31 @@ import org.jboss.netty.handler.timeout.IdleStateHandler;
 import org.jboss.netty.util.Timer;
 
 /**
- * {@link IdleStateHandler} which will call {@link ImapSession#logout()} if the connected client did not receive or send any traffic in a given timeframe
+ * {@link IdleStateHandler} which will call {@link ImapSession#logout()} if the
+ * connected client did not receive or send any traffic in a given timeframe
  * 
- *
+ * 
  */
-public class ImapIdleStateHandler extends IdleStateHandler implements ChannelAttributeSupport{
+public class ImapIdleStateHandler extends IdleStateHandler implements ChannelAttributeSupport {
 
-	public ImapIdleStateHandler(Timer timer, long allIdleTime, TimeUnit unit) {
-		super(timer, 0, 0, allIdleTime, unit);
-	}
+    public ImapIdleStateHandler(Timer timer, long allIdleTime, TimeUnit unit) {
+        super(timer, 0, 0, allIdleTime, unit);
+    }
 
-	@Override
-	protected void channelIdle(ChannelHandlerContext ctx, IdleState state,
-			long lastActivityTimeMillis) throws Exception {
-		
-		// check if the client did nothing for too long
-		if (state.equals(IdleState.ALL_IDLE)) {
-	        ImapSession session = (ImapSession) attributes.get(ctx.getChannel());
-	        InetSocketAddress address = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
-	        
-	       
-	        session.getLog().info("Logout client "+ address.getHostName() + " (" + address.getAddress().getHostAddress()+ ") because it idled for too long...");
-	        
-	        // logout the client
-	        session.logout();
+    @Override
+    protected void channelIdle(ChannelHandlerContext ctx, IdleState state, long lastActivityTimeMillis) throws Exception {
 
-		}
-	}
+        // check if the client did nothing for too long
+        if (state.equals(IdleState.ALL_IDLE)) {
+            ImapSession session = (ImapSession) attributes.get(ctx.getChannel());
+            InetSocketAddress address = (InetSocketAddress) ctx.getChannel().getRemoteAddress();
+
+            session.getLog().info("Logout client " + address.getHostName() + " (" + address.getAddress().getHostAddress() + ") because it idled for too long...");
+
+            // logout the client
+            session.logout();
+
+        }
+    }
 
 }
