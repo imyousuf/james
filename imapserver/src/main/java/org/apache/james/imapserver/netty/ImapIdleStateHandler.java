@@ -52,6 +52,10 @@ public class ImapIdleStateHandler extends IdleStateHandler implements ChannelAtt
 
             // logout the client
             session.logout();
+            
+            
+            // close the channel
+            ctx.getChannel().close();
 
         }
     }
