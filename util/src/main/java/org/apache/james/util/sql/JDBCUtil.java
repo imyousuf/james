@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.util.sql;
 
 import java.sql.Connection;
@@ -29,51 +27,54 @@ import java.sql.Statement;
 import java.util.Locale;
 
 /**
- * <p>Helper class for managing common JDBC tasks.</p>
- *
- * <p>This class is abstract to allow implementations to 
- * take advantage of different logging capabilities/interfaces in
- * different parts of the code.</p>
- *
- * @version CVS $Revision$ $Date$
+ * <p>
+ * Helper class for managing common JDBC tasks.
+ * </p>
+ * 
+ * <p>
+ * This class is abstract to allow implementations to take advantage of
+ * different logging capabilities/interfaces in different parts of the code.
+ * </p>
  */
-abstract public class JDBCUtil
-{
+abstract public class JDBCUtil {
     /**
      * An abstract method which child classes override to handle logging of
      * errors in their particular environments.
-     *
-     * @param errorString the error message generated
+     * 
+     * @param errorString
+     *            the error message generated
      */
     abstract protected void delegatedLog(String errorString);
 
     /**
-     * Checks database metadata to see if a table exists.
-     * Try UPPER, lower, and MixedCase, to see if the table is there.
-     *
-     * @param dbMetaData the database metadata to be used to look up this table
-     * @param tableName the table name
-     *
-     * @throws SQLException if an exception is encountered while accessing the database
+     * Checks database metadata to see if a table exists. Try UPPER, lower, and
+     * MixedCase, to see if the table is there.
+     * 
+     * @param dbMetaData
+     *            the database metadata to be used to look up this table
+     * @param tableName
+     *            the table name
+     * 
+     * @throws SQLException
+     *             if an exception is encountered while accessing the database
      */
-    public boolean tableExists(DatabaseMetaData dbMetaData, String tableName)
-        throws SQLException {
-        return ( tableExistsCaseSensitive(dbMetaData, tableName) ||
-                 tableExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US)) ||
-                 tableExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US)) );
+    public boolean tableExists(DatabaseMetaData dbMetaData, String tableName) throws SQLException {
+        return (tableExistsCaseSensitive(dbMetaData, tableName) || tableExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US)) || tableExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US)));
     }
 
     /**
-     * Checks database metadata to see if a table exists.  This method
-     * is sensitive to the case of the provided table name.
-     *
-     * @param dbMetaData the database metadata to be used to look up this table
-     * @param tableName the case sensitive table name
-     *
-     * @throws SQLException if an exception is encountered while accessing the database
+     * Checks database metadata to see if a table exists. This method is
+     * sensitive to the case of the provided table name.
+     * 
+     * @param dbMetaData
+     *            the database metadata to be used to look up this table
+     * @param tableName
+     *            the case sensitive table name
+     * 
+     * @throws SQLException
+     *             if an exception is encountered while accessing the database
      */
-    public boolean tableExistsCaseSensitive(DatabaseMetaData dbMetaData, String tableName)
-        throws SQLException {
+    public boolean tableExistsCaseSensitive(DatabaseMetaData dbMetaData, String tableName) throws SQLException {
         ResultSet rsTables = dbMetaData.getTables(null, null, tableName, null);
         try {
             boolean found = rsTables.next();
@@ -84,40 +85,43 @@ abstract public class JDBCUtil
     }
 
     /**
-     * Checks database metadata to see if a column exists in a table
-     * Try UPPER, lower, and MixedCase, both on the table name and the column name, to see if the column is there.
-     *
-     * @param dbMetaData the database metadata to be used to look up this column
-     * @param tableName the table name
-     * @param columnName the column name
-     *
-     * @throws SQLException if an exception is encountered while accessing the database
+     * Checks database metadata to see if a column exists in a table. Try UPPER,
+     * lower, and MixedCase, both on the table name and the column name, to see
+     * if the column is there.
+     * 
+     * @param dbMetaData
+     *            the database metadata to be used to look up this column
+     * @param tableName
+     *            the table name
+     * @param columnName
+     *            the column name
+     * 
+     * @throws SQLException
+     *             if an exception is encountered while accessing the database
      */
-    public boolean columnExists(DatabaseMetaData dbMetaData, String tableName, String columnName)
-        throws SQLException {
-        return ( columnExistsCaseSensitive(dbMetaData, tableName, columnName) ||
-                 columnExistsCaseSensitive(dbMetaData, tableName, columnName.toUpperCase(Locale.US)) ||
-                 columnExistsCaseSensitive(dbMetaData, tableName, columnName.toLowerCase(Locale.US)) ||
-                 columnExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US), columnName) ||
-                 columnExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US), columnName.toUpperCase(Locale.US)) ||
-                 columnExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US), columnName.toLowerCase(Locale.US)) ||
-                 columnExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US), columnName) ||
-                 columnExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US), columnName.toUpperCase(Locale.US)) ||
-                 columnExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US), columnName.toLowerCase(Locale.US)) );
+    public boolean columnExists(DatabaseMetaData dbMetaData, String tableName, String columnName) throws SQLException {
+        return (columnExistsCaseSensitive(dbMetaData, tableName, columnName) || columnExistsCaseSensitive(dbMetaData, tableName, columnName.toUpperCase(Locale.US)) || columnExistsCaseSensitive(dbMetaData, tableName, columnName.toLowerCase(Locale.US))
+                || columnExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US), columnName) || columnExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US), columnName.toUpperCase(Locale.US))
+                || columnExistsCaseSensitive(dbMetaData, tableName.toUpperCase(Locale.US), columnName.toLowerCase(Locale.US)) || columnExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US), columnName)
+                || columnExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US), columnName.toUpperCase(Locale.US)) || columnExistsCaseSensitive(dbMetaData, tableName.toLowerCase(Locale.US), columnName.toLowerCase(Locale.US)));
     }
 
     /**
-     * Checks database metadata to see if a column exists in a table.  This method
-     * is sensitive to the case of both the provided table name and column name.
-     *
-     * @param dbMetaData the database metadata to be used to look up this column
-     * @param tableName the case sensitive table name
-     * @param columnName the case sensitive column name
-     *
-     * @throws SQLException if an exception is encountered while accessing the database
+     * Checks database metadata to see if a column exists in a table. This
+     * method is sensitive to the case of both the provided table name and
+     * column name.
+     * 
+     * @param dbMetaData
+     *            the database metadata to be used to look up this column
+     * @param tableName
+     *            the case sensitive table name
+     * @param columnName
+     *            the case sensitive column name
+     * 
+     * @throws SQLException
+     *             if an exception is encountered while accessing the database
      */
-    public boolean columnExistsCaseSensitive(DatabaseMetaData dbMetaData, String tableName, String columnName)
-        throws SQLException {
+    public boolean columnExistsCaseSensitive(DatabaseMetaData dbMetaData, String tableName, String columnName) throws SQLException {
         ResultSet rsTables = dbMetaData.getColumns(null, null, tableName, columnName);
         try {
             boolean found = rsTables.next();
@@ -128,10 +132,10 @@ abstract public class JDBCUtil
     }
 
     /**
-     * Closes database connection and logs if an error
-     * is encountered
-     *
-     * @param conn the connection to be closed
+     * Closes database connection and logs if an error is encountered
+     * 
+     * @param conn
+     *            the connection to be closed
      */
     public void closeJDBCConnection(Connection conn) {
         try {
@@ -145,10 +149,10 @@ abstract public class JDBCUtil
     }
 
     /**
-     * Closes database statement and logs if an error
-     * is encountered
-     *
-     * @param stmt the statement to be closed
+     * Closes database statement and logs if an error is encountered
+     * 
+     * @param stmt
+     *            the statement to be closed
      */
     public void closeJDBCStatement(Statement stmt) {
         try {
@@ -162,12 +166,12 @@ abstract public class JDBCUtil
     }
 
     /**
-     * Closes database result set and logs if an error
-     * is encountered
-     *
-     * @param aResultSet the result set to be closed
+     * Closes database result set and logs if an error is encountered
+     * 
+     * @param aResultSet
+     *            the result set to be closed
      */
-    public void closeJDBCResultSet(ResultSet aResultSet ) {
+    public void closeJDBCResultSet(ResultSet aResultSet) {
         try {
             if (aResultSet != null) {
                 aResultSet.close();
@@ -180,18 +184,17 @@ abstract public class JDBCUtil
 
     /**
      * Wraps the delegated call to the subclass logging method with a Throwable
-     * wrapper.  All throwables generated by the subclass logging method are
+     * wrapper. All throwables generated by the subclass logging method are
      * caught and ignored.
-     *
-     * @param logString the raw string to be passed to the logging method implemented
-     *                  by the subclass
+     * 
+     * @param logString
+     *            the raw string to be passed to the logging method implemented
+     *            by the subclass
      */
-    private void subclassLogWrapper(String logString)
-    {
+    private void subclassLogWrapper(String logString) {
         try {
             delegatedLog(logString);
-        }
-        catch(Throwable t) {
+        } catch (Throwable t) {
             // Throwables generated by the logging system are ignored
         }
     }

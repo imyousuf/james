@@ -62,8 +62,7 @@ public class TimeConverter {
      * @throws NumberFormatException
      *             Get thrown if an illegal unit was used
      */
-    public static long getMilliSeconds(long amount, String unit)
-            throws NumberFormatException {
+    public static long getMilliSeconds(long amount, String unit) throws NumberFormatException {
         Object multiplierObject = multipliers.get(unit);
         if (multiplierObject == null) {
             throw new NumberFormatException("Unknown unit: " + unit);
@@ -74,7 +73,7 @@ public class TimeConverter {
 
     /**
      * Helper method to get the milliseconds for the given rawstring. Allowed
-     * rawstrings must mach pattern: "\\s*([0-9]+)\\s*([a-z,A-Z]+)\\s*"
+     * rawstrings must match pattern: "\\s*([0-9]+)\\s*([a-z,A-Z]+)\\s*"
      * 
      * @param rawString
      *            The rawstring which we use to extract the amount and unit
@@ -82,8 +81,7 @@ public class TimeConverter {
      * @throws NumberFormatException
      *             Get thrown if an illegal rawString was used
      */
-    public static long getMilliSeconds(String rawString)
-            throws NumberFormatException {
+    public static long getMilliSeconds(String rawString) throws NumberFormatException {
         PATTERN = Pattern.compile(PATTERN_STRING);
         Matcher res = PATTERN.matcher(rawString);
         if (res.matches()) {
@@ -95,15 +93,11 @@ public class TimeConverter {
             } else {
 
                 // This should never Happen anyway throw an exception
-                throw new NumberFormatException(
-                        "The supplied String is not a supported format "
-                                + rawString);
+                throw new NumberFormatException("The supplied String is not a supported format " + rawString);
             }
         } else {
             // The rawString not match our pattern. So its not supported
-            throw new NumberFormatException(
-                    "The supplied String is not a supported format "
-                            + rawString);
+            throw new NumberFormatException("The supplied String is not a supported format " + rawString);
         }
     }
 

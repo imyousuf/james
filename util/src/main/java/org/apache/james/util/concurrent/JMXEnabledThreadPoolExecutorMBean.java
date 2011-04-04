@@ -19,7 +19,7 @@
 package org.apache.james.util.concurrent;
 
 public interface JMXEnabledThreadPoolExecutorMBean {
-    
+
     /**
      * Return the active threads
      * 

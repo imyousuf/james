@@ -32,7 +32,6 @@ import javax.management.ObjectName;
 
 /**
  * {@link ThreadPoolExecutor} which expose statistics via JMX
- *
  */
 public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements JMXEnabledThreadPoolExecutorMBean {
 
@@ -68,46 +67,44 @@ public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements 
 
     private void registerMBean() {
         if (jmxPath != null) {
-            mbeanServer = ManagementFactory.getPlatformMBeanServer(); 
-            mbeanName = jmxPath + ",threadpool=" + ((NamedThreadFactory)getThreadFactory()).getName();
+            mbeanServer = ManagementFactory.getPlatformMBeanServer();
+            mbeanName = jmxPath + ",threadpool=" + ((NamedThreadFactory) getThreadFactory()).getName();
             try {
                 mbeanServer.registerMBean(this, new ObjectName(mbeanName));
             } catch (Exception e) {
-                throw new RuntimeException("Unable to register mbean" , e);
+                throw new RuntimeException("Unable to register mbean", e);
             }
         }
     }
-    
-    private void unregisterMBean(){
+
+    private void unregisterMBean() {
         if (jmxPath != null) {
             try {
                 mbeanServer.unregisterMBean(new ObjectName(mbeanName));
-           
+
             } catch (Exception e) {
-                throw new RuntimeException("Unable to unregister mbean" , e);
+                throw new RuntimeException("Unable to unregister mbean", e);
             }
         }
     }
-    
+
     @Override
-    public synchronized void shutdown()
-    {
-        // synchronized, because there is no way to access super.mainLock, which would be
+    public synchronized void shutdown() {
+        // synchronized, because there is no way to access super.mainLock, which
+        // would be
         // the preferred way to make this threadsafe
-        if (!isShutdown())
-        {
+        if (!isShutdown()) {
             unregisterMBean();
         }
         super.shutdown();
     }
 
     @Override
-    public synchronized List<Runnable> shutdownNow()
-    {
-        // synchronized, because there is no way to access super.mainLock, which would be
+    public synchronized List<Runnable> shutdownNow() {
+        // synchronized, because there is no way to access super.mainLock, which
+        // would be
         // the preferred way to make this threadsafe
-        if (!isShutdown())
-        {
+        if (!isShutdown()) {
             unregisterMBean();
         }
         return super.shutdownNow();
@@ -115,7 +112,9 @@ public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements 
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getTotalTasks()
+     * 
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
+     * getTotalTasks()
      */
     public synchronized int getTotalTasks() {
         return totalTasks;
@@ -123,7 +122,9 @@ public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements 
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getAverageTaskTime()
+     * 
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
+     * getAverageTaskTime()
      */
     public synchronized double getAverageTaskTime() {
         return (totalTasks == 0) ? 0 : totalTime / totalTasks;
@@ -131,7 +132,9 @@ public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements 
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getActiveThreads()
+     * 
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
+     * getActiveThreads()
      */
     public int getActiveThreads() {
         return getPoolSize();
@@ -139,7 +142,9 @@ public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements 
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getActiveTasks()
+     * 
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
+     * getActiveTasks()
      */
     public int getActiveTasks() {
         return getActiveCount();
@@ -147,14 +152,17 @@ public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements 
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#getQueuedTasks()
+     * 
+     * @see org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutorMBean#
+     * getQueuedTasks()
      */
     public int getQueuedTasks() {
         return getQueue().size();
     }
-    
+
     /**
-     * Create a cached instance of this class. If jmxPath is null it will not register itself to the {@link MBeanServer}
+     * Create a cached instance of this class. If jmxPath is null it will not
+     * register itself to the {@link MBeanServer}
      * 
      * @param jmxPath
      * @param name
@@ -162,22 +170,19 @@ public class JMXEnabledThreadPoolExecutor extends ThreadPoolExecutor implements 
      * 
      */
     public static JMXEnabledThreadPoolExecutor newCachedThreadPool(String jmxPath, String name) {
-        return new JMXEnabledThreadPoolExecutor(0, Integer.MAX_VALUE,
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(), new NamedThreadFactory(name), jmxPath);
+        return new JMXEnabledThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory(name), jmxPath);
 
     }
-    
+
     /**
-     * Create a cached instance of this class. If jmxPath is null it will not register itself to the {@link MBeanServer}
+     * Create a cached instance of this class. If jmxPath is null it will not
+     * register itself to the {@link MBeanServer}
      * 
      * @param jmxPath
      * @param factory
      * @return pool
      */
     public static JMXEnabledThreadPoolExecutor newCachedThreadPool(String jmxPath, NamedThreadFactory factory) {
-        return new JMXEnabledThreadPoolExecutor(0, Integer.MAX_VALUE,
-                60L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(), factory, jmxPath);
+        return new JMXEnabledThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), factory, jmxPath);
     }
 }

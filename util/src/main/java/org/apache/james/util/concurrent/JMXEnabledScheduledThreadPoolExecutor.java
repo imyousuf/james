@@ -27,7 +27,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class JMXEnabledScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor implements JMXEnabledScheduledThreadPoolExecutorMBean{
+public class JMXEnabledScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor implements JMXEnabledScheduledThreadPoolExecutorMBean {
 
     private String jmxPath;
     private final List<Runnable> inProgress = Collections.synchronizedList(new ArrayList<Runnable>());
@@ -44,14 +44,13 @@ public class JMXEnabledScheduledThreadPoolExecutor extends ScheduledThreadPoolEx
         registerMBean();
     }
 
-
     public JMXEnabledScheduledThreadPoolExecutor(int corePoolSize, String jmxPath, String name) {
         super(corePoolSize, new NamedThreadFactory(name));
 
         this.jmxPath = jmxPath;
         registerMBean();
     }
-    
+
     protected void beforeExecute(Thread t, Runnable r) {
         super.beforeExecute(t, r);
         inProgress.add(r);

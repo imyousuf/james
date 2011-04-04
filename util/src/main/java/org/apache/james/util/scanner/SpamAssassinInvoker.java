@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.util.scanner;
 
 import javax.mail.MessagingException;
@@ -38,14 +37,10 @@ import java.util.StringTokenizer;
  */
 public class SpamAssassinInvoker {
 
-    /**
-     * The mail attribute under which the status get stored
-     */
+    /** The mail attribute under which the status get stored */
     public final static String STATUS_MAIL_ATTRIBUTE_NAME = "org.apache.james.spamassassin.status";
 
-    /**
-     * The mail attribute under which the flag get stored
-     */
+    /** The mail attribute under which the flag get stored */
     public final static String FLAG_MAIL_ATTRIBUTE_NAME = "org.apache.james.spamassassin.flag";
 
     private String spamdHost;
@@ -56,13 +51,15 @@ public class SpamAssassinInvoker {
 
     private String required = "?";
 
-    private Map<String,String> headers = new HashMap<String,String>();
+    private Map<String, String> headers = new HashMap<String, String>();
 
     /**
      * Init the spamassassin invoker
      * 
-     * @param spamdHost The host on which spamd runs
-     * @param spamdPort The port on which spamd listen
+     * @param spamdHost
+     *            The host on which spamd runs
+     * @param spamdPort
+     *            The port on which spamd listen
      */
     public SpamAssassinInvoker(String spamdHost, int spamdPort) {
         this.spamdHost = spamdHost;
@@ -87,8 +84,7 @@ public class SpamAssassinInvoker {
             socket = new Socket(spamdHost, spamdPort);
 
             out = socket.getOutputStream();
-            in = new BufferedReader(new InputStreamReader(socket
-                    .getInputStream()));
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out.write("CHECK SPAMC/1.2\r\n\r\n".getBytes());
 
             // pass the message to spamd
@@ -115,20 +111,14 @@ public class SpamAssassinInvoker {
                     if (spam) {
                         // message was spam
                         headers.put(FLAG_MAIL_ATTRIBUTE_NAME, "YES");
-                        headers.put(STATUS_MAIL_ATTRIBUTE_NAME,
-                                new StringBuffer("Yes, hits=").append(hits)
-                                        .append(" required=").append(required)
-                                        .toString());
+                        headers.put(STATUS_MAIL_ATTRIBUTE_NAME, new StringBuffer("Yes, hits=").append(hits).append(" required=").append(required).toString());
 
                         // spam detected
                         return true;
                     } else {
                         // add headers
                         headers.put(FLAG_MAIL_ATTRIBUTE_NAME, "NO");
-                        headers.put(STATUS_MAIL_ATTRIBUTE_NAME,
-                                new StringBuffer("No, hits=").append(hits)
-                                        .append(" required=").append(required)
-                                        .toString());
+                        headers.put(STATUS_MAIL_ATTRIBUTE_NAME, new StringBuffer("No, hits=").append(hits).append(" required=").append(required).toString());
 
                         return false;
                     }
@@ -136,15 +126,11 @@ public class SpamAssassinInvoker {
             }
             return false;
         } catch (UnknownHostException e1) {
-            throw new MessagingException(
-                    "Error communicating with spamd. Unknown host: "
-                            + spamdHost);
+            throw new MessagingException("Error communicating with spamd. Unknown host: " + spamdHost);
         } catch (IOException e1) {
-            throw new MessagingException("Error communicating with spamd on "
-                    + spamdHost + ":" + spamdPort + " Exception: " + e1);
+            throw new MessagingException("Error communicating with spamd on " + spamdHost + ":" + spamdPort + " Exception: " + e1);
         } catch (MessagingException e1) {
-            throw new MessagingException("Error communicating with spamd on "
-                    + spamdHost + ":" + spamdPort + " Exception: " + e1);
+            throw new MessagingException("Error communicating with spamd on " + spamdHost + ":" + spamdPort + " Exception: " + e1);
         } finally {
             try {
                 in.close();
@@ -180,7 +166,7 @@ public class SpamAssassinInvoker {
      * 
      * @return headers Map of headers to add as attributes
      */
-    public Map<String,String> getHeadersAsAttribute() {
+    public Map<String, String> getHeadersAsAttribute() {
         return headers;
     }
 }

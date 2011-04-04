@@ -22,15 +22,14 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * ThreadPool which use name  and a counter for thread names
- *
+ * ThreadPool which use name and a counter for thread names
  */
-public class NamedThreadFactory implements ThreadFactory{
+public class NamedThreadFactory implements ThreadFactory {
 
     public final String name;
     private final AtomicLong count = new AtomicLong();
     private int priority;
-    
+
     public NamedThreadFactory(final String name, final int priority) {
         if (priority > Thread.MAX_PRIORITY || priority < Thread.MIN_PRIORITY) {
             throw new IllegalArgumentException("Priority must be <= " + Thread.MAX_PRIORITY + " and >=" + Thread.MIN_PRIORITY);
@@ -38,13 +37,14 @@ public class NamedThreadFactory implements ThreadFactory{
         this.name = name;
         this.priority = priority;
     }
-    
+
     public NamedThreadFactory(final String name) {
         this(name, Thread.NORM_PRIORITY);
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see java.util.concurrent.ThreadFactory#newThread(java.lang.Runnable)
      */
     public Thread newThread(Runnable r) {
@@ -67,5 +67,5 @@ public class NamedThreadFactory implements ThreadFactory{
     public String toString() {
         return "NamedTreadFactory: " + getName();
     }
-    
+
 }

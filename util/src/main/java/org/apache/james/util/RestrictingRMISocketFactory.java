@@ -25,8 +25,8 @@ import java.net.Socket;
 import java.rmi.server.RMISocketFactory;
 
 /**
- * {@link RMISocketFactory} implementation which allow to bind JMX to a specific IP
- *
+ * {@link RMISocketFactory} implementation which allow to bind JMX to a specific
+ * IP
  */
 public class RestrictingRMISocketFactory extends RMISocketFactory {
 
@@ -35,16 +35,15 @@ public class RestrictingRMISocketFactory extends RMISocketFactory {
     public RestrictingRMISocketFactory(String address) {
         this.address = address;
     }
-    
+
     public RestrictingRMISocketFactory() {
         this("localhost");
     }
 
-
     /**
-     * Create a {@link ServerSocket} which is bound to an specific address and the given port.
-     * The address can be specified by the System Property james.jmx.address. If none is given it will use
-     * localhost
+     * Create a {@link ServerSocket} which is bound to an specific address and
+     * the given port. The address can be specified by the System Property
+     * james.jmx.address. If none is given it will use localhost
      */
     public ServerSocket createServerSocket(int port) throws IOException {
         ServerSocket socket = new ServerSocket();
@@ -56,7 +55,7 @@ public class RestrictingRMISocketFactory extends RMISocketFactory {
      * Create a new {@link Socket} for the given host and port
      */
     public Socket createSocket(String host, int port) throws IOException {
-        return new Socket(host, port); 
+        return new Socket(host, port);
     }
 
 }

@@ -18,6 +18,6 @@
  ****************************************************************/
 package org.apache.james.util.concurrent;
 
-public interface JMXEnabledScheduledThreadPoolExecutorMBean extends JMXEnabledThreadPoolExecutorMBean{
+public interface JMXEnabledScheduledThreadPoolExecutorMBean extends JMXEnabledThreadPoolExecutorMBean {
 
 }
