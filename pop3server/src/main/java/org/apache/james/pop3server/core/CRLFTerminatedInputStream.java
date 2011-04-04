@@ -24,20 +24,20 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * This {@link FilterInputStream} makes sure that the last chars of the stream are \r\n
+ * This {@link FilterInputStream} makes sure that the last chars of the stream
+ * are \r\n
  * 
  * See JAMES-1174 for an use case
- *
  */
-public class CRLFTerminatedInputStream extends FilterInputStream{
+public class CRLFTerminatedInputStream extends FilterInputStream {
 
     private int last;
     private byte[] extraData;
     private int pos = 0;
     private boolean complete = false;
-    
+
     private boolean endOfStream = false;
-    
+
     public CRLFTerminatedInputStream(InputStream in) {
         super(in);
     }
@@ -50,10 +50,10 @@ public class CRLFTerminatedInputStream extends FilterInputStream{
             if (r == -1) {
                 endOfStream = true;
                 calculateExtraData();
-                
+
                 return fillArray(b, off, len);
-            } else  {
-                last = b[r -1];
+            } else {
+                last = b[r - 1];
                 return r;
             }
         } else {
@@ -67,7 +67,7 @@ public class CRLFTerminatedInputStream extends FilterInputStream{
         if (complete) {
             return -1;
         }
-        while( i < len) {
+        while (i < len) {
             a = readNext();
             if (a == -1) {
                 complete = true;
@@ -79,7 +79,7 @@ public class CRLFTerminatedInputStream extends FilterInputStream{
         }
         return i;
     }
-    
+
     @Override
     public int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
@@ -102,7 +102,7 @@ public class CRLFTerminatedInputStream extends FilterInputStream{
             return readNext();
         }
     }
-    
+
     private void calculateExtraData() {
         if (last == '\n') {
             extraData = null;
@@ -114,8 +114,9 @@ public class CRLFTerminatedInputStream extends FilterInputStream{
             extraData[0] = '\r';
             extraData[1] = '\n';
         }
-       
+
     }
+
     private int readNext() {
         if (extraData == null || extraData.length == pos) {
             return -1;

@@ -18,30 +18,24 @@
  ****************************************************************/
 package org.apache.james.queue.activemq;
 
-
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.james.queue.jms.JMSMailQueueFactory;
 
-
 /**
- * {@link MailQueueFactory} implementations which return {@link ActiveMQMailQueue} instances
- * 
- * 
- * 
- *
+ * {@link MailQueueFactory} implementations which return
+ * {@link ActiveMQMailQueue} instances
  */
 public class ActiveMQMailQueueFactory extends JMSMailQueueFactory {
 
     private boolean useBlob = true;
-    
-    public void setUseBlobMessages(boolean useBlob){
+
+    public void setUseBlobMessages(boolean useBlob) {
         this.useBlob = useBlob;
     }
 
-    
     @Override
     protected MailQueue createMailQueue(String name) {
-        return new ActiveMQMailQueue(connectionFactory, name, useBlob, log);  
+        return new ActiveMQMailQueue(connectionFactory, name, useBlob, log);
     }
 }

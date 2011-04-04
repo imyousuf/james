@@ -57,13 +57,15 @@ import org.apache.mailet.MailAddress;
 import org.slf4j.Logger;
 
 /**
- * {@link MailQueue} implementation which use a JMS Queue for the
+ * <p>
+ * {@link MailQueue} implementation which use a JMS Queue for the<br>
  * {@link MailQueue}. This implementation should work with every JMS 1.1.0
  * implementation
- * 
- * It use {@link ObjectMessage} with a byte array as payload to store the {@link Mail} objects.
- * 
- * 
+ * </p>
+ * <p>
+ * It use {@link ObjectMessage} with a byte array as payload to store the
+ * {@link Mail} objects.
+ * </p>
  */
 public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPrioritySupport {
 
@@ -72,18 +74,24 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
     protected final Logger logger;
     public final static String FORCE_DELIVERY = "FORCE_DELIVERY";
 
-
     public JMSMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Logger logger) {
         this.connectionFactory = connectionFactory;
         this.queuename = queuename;
         this.logger = logger;
     }
-/**
-     * Execute the given {@link DequeueOperation} when a mail is ready to process. As JMS does not support delay scheduling out-of-the box, we use 
-     * a messageselector to check if a mail is ready. For this a {@link MessageConsumer#receive(long) is used with a timeout of 10 seconds. 
-     * 
-     * Many JMS implementations support better solutions for this, so this should get overridden by these implementations
-     * 
+
+    /**
+     * <p>
+     * Execute the given {@link DequeueOperation} when a mail is ready to
+     * process. As JMS does not support delay scheduling out-of-the box, we use
+     * a messageselector to check if a mail is ready. For this a
+     * {@link MessageConsumer#receive(long) is used with a timeout of 10
+     * seconds.
+     * </p>
+     * <p>
+     * Many JMS implementations support better solutions for this, so this
+     * should get overridden by these implementations
+     * </p>
      */
     public MailQueueItem deQueue() throws MailQueueException {
         Connection connection = null;
@@ -187,17 +195,17 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             connection = connectionFactory.createConnection();
             connection.start();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            
+
             int msgPrio = NORMAL_PRIORITY;
             Object prio = mail.getAttribute(MAIL_PRIORITY);
             if (prio instanceof Integer) {
                 msgPrio = (Integer) prio;
             }
-            
+
             Map<String, Object> props = getJMSProperties(mail, mydelay);
-            
+
             produceMail(session, props, msgPrio, mail);
-            
+
         } catch (Exception e) {
             if (session != null) {
                 try {
@@ -237,7 +245,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
     /**
      * Produce the mail to the JMS Queue
      */
-    protected void produceMail(Session session, Map<String,Object> props, int msgPrio, Mail mail) throws JMSException, MessagingException, IOException {
+    protected void produceMail(Session session, Map<String, Object> props, int msgPrio, Mail mail) throws JMSException, MessagingException, IOException {
         MessageProducer producer = null;
 
         try {
@@ -247,26 +255,27 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             ObjectMessage message = session.createObjectMessage();
 
             Iterator<String> keys = props.keySet().iterator();
-            while(keys.hasNext()) {
+            while (keys.hasNext()) {
                 String key = keys.next();
                 message.setObjectProperty(key, props.get(key));
             }
-            
+
             long size = mail.getMessageSize();
             ByteArrayOutputStream out;
             if (size > -1) {
-                out = new ByteArrayOutputStream((int)size);
+                out = new ByteArrayOutputStream((int) size);
             } else {
                 out = new ByteArrayOutputStream();
             }
             mail.getMessage().writeTo(out);
-            
-            // store the byte array in a ObjectMessage so we can use a SharedByteArrayInputStream later
-            // without the need of copy the day 
+
+            // store the byte array in a ObjectMessage so we can use a
+            // SharedByteArrayInputStream later
+            // without the need of copy the day
             message.setObject(out.toByteArray());
 
             producer.send(message, Message.DEFAULT_DELIVERY_MODE, msgPrio, Message.DEFAULT_TIME_TO_LIVE);
-            
+
         } finally {
 
             try {
@@ -276,9 +285,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                 // ignore here
             }
         }
-        
-        
-        
+
     }
 
     /**
@@ -291,7 +298,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
      * @throws MessagingException
      */
     @SuppressWarnings("unchecked")
-    protected Map<String,Object> getJMSProperties(Mail mail, long delayInMillis) throws JMSException, MessagingException {
+    protected Map<String, Object> getJMSProperties(Mail mail, long delayInMillis) throws JMSException, MessagingException {
         Map<String, Object> props = new HashMap<String, Object>();
         long nextDelivery = -1;
         if (delayInMillis > 0) {
@@ -373,7 +380,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
      */
     protected void populateMailMimeMessage(Message message, Mail mail) throws MessagingException, JMSException {
         if (message instanceof ObjectMessage) {
-            mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageObjectMessageSource((ObjectMessage)message)));
+            mail.setMessage(new MimeMessageCopyOnWriteProxy(new MimeMessageObjectMessageSource((ObjectMessage) message)));
         } else {
             throw new MailQueueException("Not supported JMS Message received " + message);
         }
@@ -469,16 +476,14 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
         final Mail mail = createMail(message);
         return new JMSMailQueueItem(mail, connection, session, consumer);
     }
-    
+
     protected String getMessageSelector() {
         return JAMES_NEXT_DELIVERY + " <= " + System.currentTimeMillis() + " OR " + FORCE_DELIVERY + " = true";
     }
 
-    
-   
-
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.queue.api.ManageableMailQueue#getSize()
      */
     @SuppressWarnings("unchecked")
@@ -494,10 +499,10 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             Queue queue = session.createQueue(queuename);
 
             browser = session.createBrowser(queue);
-            
+
             Enumeration<Message> messages = browser.getEnumeration();
-            
-            while(messages.hasMoreElements()) {
+
+            while (messages.hasMoreElements()) {
                 messages.nextElement();
                 size++;
             }
@@ -531,6 +536,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.queue.api.ManageableMailQueue#flush()
      */
     public long flush() throws MailQueueException {
@@ -558,7 +564,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                     message = consumer.receiveNoWait();
                 }
                 first = false;
-                
+
                 if (message != null) {
                     Message m = copy(session, message);
                     m.setBooleanProperty(FORCE_DELIVERY, true);
@@ -569,7 +575,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             session.commit();
             return count;
         } catch (Exception e) {
-            logger.error("Unable to flush mail" , e);
+            logger.error("Unable to flush mail", e);
             try {
                 session.rollback();
             } catch (JMSException e1) {
@@ -593,7 +599,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                     // ignore on rollback
                 }
             }
-            
+
             try {
                 if (session != null)
                     session.close();
@@ -607,11 +613,12 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             } catch (JMSException e1) {
                 // ignore here
             }
-        }   
+        }
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.queue.api.MailQueueManagementMBean#clear()
      */
     public long clear() throws MailQueueException {
@@ -625,21 +632,21 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             return msgs.size();
         }
     }
-    
+
     /**
      * Remove messages with the given selector
      * 
      * @param selector
      * @return messages
      */
-    public List<Message> removeWithSelector(String selector) throws MailQueueException{
+    public List<Message> removeWithSelector(String selector) throws MailQueueException {
         Connection connection = null;
         Session session = null;
         Message message = null;
         MessageConsumer consumer = null;
         boolean first = true;
         List<Message> messages = new ArrayList<Message>();
-        
+
         try {
             connection = connectionFactory.createConnection();
             connection.start();
@@ -667,7 +674,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             } catch (JMSException e1) {
                 // ignore on rollback
             }
-            throw new MailQueueException("Unable to remove mails" , e);
+            throw new MailQueueException("Unable to remove mails", e);
 
         } finally {
             if (consumer != null) {
@@ -678,7 +685,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                     // ignore on rollback
                 }
             }
-            
+
             try {
                 if (session != null)
                     session.close();
@@ -692,15 +699,15 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             } catch (JMSException e1) {
                 // ignore here
             }
-        }    
+        }
     }
-    
+
     /**
-     * Create a copy of the given {@link Message}. This includes the properties and the payload
-     * 
+     * Create a copy of the given {@link Message}. This includes the properties
+     * and the payload
      * 
      * @param session
-     * @param m 
+     * @param m
      * @return copy
      * @throws JMSException
      */
@@ -714,22 +721,25 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             String name = properties.nextElement();
             copy.setObjectProperty(name, message.getObjectProperty(name));
         }
-                
+
         return copy;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.api.ManageableMailQueue#remove(org.apache.james.queue.api.ManageableMailQueue.Type, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.queue.api.ManageableMailQueue#remove(org.apache.james
+     * .queue.api.ManageableMailQueue.Type, java.lang.String)
      */
-    public long remove(Type type, String value) throws MailQueueException{
+    public long remove(Type type, String value) throws MailQueueException {
         switch (type) {
         case Name:
-            return count(removeWithSelector(JAMES_MAIL_NAME + " = '" + value +"'"));
+            return count(removeWithSelector(JAMES_MAIL_NAME + " = '" + value + "'"));
         case Sender:
-            return count(removeWithSelector(JAMES_MAIL_SENDER + " = '" + value +"'"));
+            return count(removeWithSelector(JAMES_MAIL_SENDER + " = '" + value + "'"));
         case Recipient:
-            return count(removeWithSelector(JAMES_MAIL_RECIPIENTS+ " = '" + value +"' or " + JAMES_MAIL_RECIPIENTS+ " = '%," + value + "' or " + JAMES_MAIL_RECIPIENTS+ " = '%," + value +"%'"));
+            return count(removeWithSelector(JAMES_MAIL_RECIPIENTS + " = '" + value + "' or " + JAMES_MAIL_RECIPIENTS + " = '%," + value + "' or " + JAMES_MAIL_RECIPIENTS + " = '%," + value + "%'"));
         default:
             break;
         }
@@ -738,6 +748,7 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.queue.api.ManageableMailQueue#browse()
      */
     @SuppressWarnings("unchecked")
@@ -752,24 +763,25 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
             Queue queue = session.createQueue(queuename);
 
             browser = session.createBrowser(queue);
-            
+
             final Enumeration<Message> messages = browser.getEnumeration();
-            
+
             final Connection myconnection = connection;
             final Session mysession = session;
             final QueueBrowser mybrowser = browser;
-            
+
             return new MailQueueIterator() {
-                
+
                 /**
                  * Not supported, read-only
                  */
                 public void remove() {
                     throw new UnsupportedOperationException("Read-only");
                 }
-                
+
                 /*
                  * (non-Javadoc)
+                 * 
                  * @see java.util.Iterator#next()
                  */
                 public MailQueueItemView next() {
@@ -779,18 +791,24 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                             final Mail mail = createMail(m);
                             final long nextDelivery = m.getLongProperty(JAMES_NEXT_DELIVERY);
                             return new MailQueueItemView() {
-                                
+
                                 /*
                                  * (non-Javadoc)
-                                 * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getNextDelivery()
+                                 * 
+                                 * @see
+                                 * org.apache.james.queue.api.ManageableMailQueue
+                                 * .MailQueueItemView#getNextDelivery()
                                  */
                                 public long getNextDelivery() {
                                     return nextDelivery;
                                 }
-                                
+
                                 /*
                                  * (non-Javadoc)
-                                 * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueItemView#getMail()
+                                 * 
+                                 * @see
+                                 * org.apache.james.queue.api.ManageableMailQueue
+                                 * .MailQueueItemView#getMail()
                                  */
                                 public Mail getMail() {
                                     return mail;
@@ -802,25 +820,29 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                             logger.error("Unable to browse queue", e);
                         }
                     }
-                        
+
                     throw new NoSuchElementException();
-                    
+
                 }
-                
+
                 /*
                  * (non-Javadoc)
+                 * 
                  * @see java.util.Iterator#hasNext()
                  */
                 public boolean hasNext() {
                     return messages.hasMoreElements();
                 }
-                
+
                 /*
                  * (non-Javadoc)
-                 * @see org.apache.james.queue.api.ManageableMailQueue.MailQueueIterator#close()
+                 * 
+                 * @see
+                 * org.apache.james.queue.api.ManageableMailQueue.MailQueueIterator
+                 * #close()
                  */
                 public void close() {
-                    
+
                     try {
                         if (mybrowser != null)
                             mybrowser.close();
@@ -840,12 +862,12 @@ public class JMSMailQueue implements ManageableMailQueue, JMSSupport, MailPriori
                             myconnection.close();
                     } catch (JMSException e1) {
                         // ignore here
-                    }                    
+                    }
                 }
             };
-            
+
         } catch (Exception e) {
-            
+
             try {
                 if (browser != null)
                     browser.close();

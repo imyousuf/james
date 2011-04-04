@@ -105,43 +105,47 @@ public class ValidRcptHandler extends AbstractValidRcptHandler implements Config
         // check if the server use virtualhosting, if not use only the localpart
         // as username
         try {
-        if (users.supportVirtualHosting() == false) {
-            username = recipient.getLocalPart();
-        }
-
-        if (users.contains(username) == true) {
-            return true;
-        } else {
-
-            if (useVut == true) {
-                session.getLogger().debug("Unknown user " + username + " check if its an alias");
-
-                try {
-                    Collection<String> targetString = vut.getMappings(recipient.getLocalPart(), recipient.getDomain());
-
-                    if (targetString != null && targetString.isEmpty() == false) {
-                        return true;
-                    }
-                } catch (ErrorMappingException e) {
-                    return false;
-                } catch (VirtualUserTableException e) {
-                    session.getLogger().info("Unable to access VirtualUserTable", e);
-                    return false;
-                }
+            if (users.supportVirtualHosting() == false) {
+                username = recipient.getLocalPart();
             }
 
-            return false;
-        }
+            if (users.contains(username) == true) {
+                return true;
+            } else {
+
+                if (useVut == true) {
+                    session.getLogger().debug("Unknown user " + username + " check if its an alias");
+
+                    try {
+                        Collection<String> targetString = vut.getMappings(recipient.getLocalPart(), recipient.getDomain());
+
+                        if (targetString != null && targetString.isEmpty() == false) {
+                            return true;
+                        }
+                    } catch (ErrorMappingException e) {
+                        return false;
+                    } catch (VirtualUserTableException e) {
+                        session.getLogger().info("Unable to access VirtualUserTable", e);
+                        return false;
+                    }
+                }
+
+                return false;
+            }
         } catch (UsersRepositoryException e) {
             session.getLogger().info("Unable to access UsersRepository", e);
             return false;
 
         }
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler#isLocalDomain(org.apache.james.protocols.smtp.SMTPSession, java.lang.String)
+     * 
+     * @see
+     * org.apache.james.protocols.smtp.core.fastfail.AbstractValidRcptHandler
+     * #isLocalDomain(org.apache.james.protocols.smtp.SMTPSession,
+     * java.lang.String)
      */
     protected boolean isLocalDomain(SMTPSession session, String domain) {
         try {

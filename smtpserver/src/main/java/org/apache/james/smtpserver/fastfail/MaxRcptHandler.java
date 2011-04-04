@@ -23,14 +23,16 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.api.Configurable;
 
-public class MaxRcptHandler extends org.apache.james.protocols.smtp.core.fastfail.MaxRcptHandler implements Configurable{
+public class MaxRcptHandler extends org.apache.james.protocols.smtp.core.fastfail.MaxRcptHandler implements Configurable {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
-    public void configure(HierarchicalConfiguration handlerConfiguration)
-            throws ConfigurationException {
+    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
         int maxRcpt = handlerConfiguration.getInt("maxRcpt", 0);
         setMaxRcpt(maxRcpt);
     }

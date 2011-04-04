@@ -23,10 +23,10 @@ import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.impl.log.AbstractCommandHandlerResultLogger;
 
 /**
- * Log {@link POP3Response} with {@link POP3Response#ERR_RESPONSE} return code to INFO. The rest to DEBUG
- *
+ * Log {@link POP3Response} with {@link POP3Response#ERR_RESPONSE} return code
+ * to INFO. The rest to DEBUG
  */
-public class POP3CommandHandlerResultLogger extends AbstractCommandHandlerResultLogger<POP3Response, POP3Session>{
+public class POP3CommandHandlerResultLogger extends AbstractCommandHandlerResultLogger<POP3Response, POP3Session> {
 
     @Override
     protected boolean logWithInfo(String code) {

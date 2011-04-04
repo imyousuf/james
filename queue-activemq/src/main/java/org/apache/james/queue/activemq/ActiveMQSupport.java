@@ -21,24 +21,23 @@ package org.apache.james.queue.activemq;
 import org.apache.james.queue.jms.JMSSupport;
 
 /**
- * Interface which should get implemented by ActiveMQ depending implementions 
- *
+ * Interface which should get implemented by ActiveMQ depending implementions
  */
-public interface ActiveMQSupport extends JMSSupport{
+public interface ActiveMQSupport extends JMSSupport {
 
     /**
      * The name of the Queue the mail is stored in
      */
     final static String JAMES_QUEUE_NAME = "JAMES_QUEUE_NAME";
-    
+
     /**
      * The URL of the Blobmessage content
      */
     final static String JAMES_BLOB_URL = "JAMES_BLOB_URL";
-    
+
     /**
      * Indicate that the Blobmessage content is reused for a new message
      */
-    final static String JAMES_REUSE_BLOB_URL =" JAMES_REUSE_BLOB_URL";
+    final static String JAMES_REUSE_BLOB_URL = " JAMES_REUSE_BLOB_URL";
 
 }

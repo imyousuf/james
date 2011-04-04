@@ -20,6 +20,6 @@ package org.apache.james.pop3server.netty;
 
 import org.apache.james.protocols.lib.jmx.ServerMBean;
 
-public interface POP3ServerMBean extends ServerMBean{
+public interface POP3ServerMBean extends ServerMBean {
 
 }

@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.smtpserver;
 
-
 import javax.mail.MessagingException;
 
 import org.apache.james.core.MailImpl;
@@ -28,35 +27,33 @@ import org.apache.james.protocols.smtp.SMTPRetCode;
 import org.apache.james.protocols.smtp.SMTPSession;
 import org.apache.james.protocols.smtp.core.DataCmdHandler;
 
-
 /**
-  * handles DATA command
+ * handles DATA command
  */
 public class JamesDataCmdHandler extends DataCmdHandler {
 
-  
- 
     /**
-     * Handler method called upon receipt of a DATA command.
-     * Reads in message data, creates header, and delivers to
-     * mail server service for delivery.
-     *
-     * @param session SMTP session object
-     * @param argument the argument passed in with the command by the SMTP client
+     * Handler method called upon receipt of a DATA command. Reads in message
+     * data, creates header, and delivers to mail server service for delivery.
+     * 
+     * @param session
+     *            SMTP session object
+     * @param argument
+     *            the argument passed in with the command by the SMTP client
      */
     protected SMTPResponse doDATA(SMTPSession session, String argument) {
         try {
             MimeMessageInputStreamSource mmiss = new MimeMessageInputStreamSource(MailImpl.getId());
             session.getState().put(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE, mmiss);
         } catch (MessagingException e) {
-            session.getLogger().warn("Error creating mimemessagesource for incoming data",e);
+            session.getLogger().warn("Error creating mimemessagesource for incoming data", e);
             return new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error preparing to receive DATA.");
         }
-        
+
         // out = new PipedOutputStream(messageIn);
         session.pushLineHandler(getLineHandler());
-        
+
         return new SMTPResponse(SMTPRetCode.DATA_READY, "Ok Send data ending with <CRLF>.<CRLF>");
     }
-    
+
 }

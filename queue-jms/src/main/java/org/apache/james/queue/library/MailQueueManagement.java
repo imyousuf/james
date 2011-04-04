@@ -44,25 +44,24 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
- * 
- * JMX MBean implementation which expose management functions by wrapping a {@link ManageableMailQueue}
- * 
- *
+ * JMX MBean implementation which expose management functions by wrapping a
+ * {@link ManageableMailQueue}
  */
-public class MailQueueManagement extends StandardMBean implements MailQueueManagementMBean{
+public class MailQueueManagement extends StandardMBean implements MailQueueManagementMBean {
     private final ManageableMailQueue queue;
 
     public MailQueueManagement(ManageableMailQueue queue) throws NotCompliantMBeanException {
         super(MailQueueManagementMBean.class);
         this.queue = queue;
-        
+
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.queue.api.MailQueueManagementMBean#clear()
      */
-    public long clear() throws Exception{
+    public long clear() throws Exception {
         try {
             return queue.clear();
         } catch (MailQueueException e) {
@@ -72,6 +71,7 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.queue.api.MailQueueManagementMBean#flush()
      */
     public long flush() throws Exception {
@@ -84,6 +84,7 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.queue.api.MailQueueManagementMBean#getSize()
      */
     public long getSize() throws Exception {
@@ -96,7 +97,10 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.api.MailQueueManagementMBean#removeWithName(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.queue.api.MailQueueManagementMBean#removeWithName(java
+     * .lang.String)
      */
     public long removeWithName(String name) throws Exception {
         try {
@@ -108,7 +112,10 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.api.MailQueueManagementMBean#removeWithRecipient(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.queue.api.MailQueueManagementMBean#removeWithRecipient
+     * (java.lang.String)
      */
     public long removeWithRecipient(String address) throws Exception {
         try {
@@ -120,7 +127,10 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.api.MailQueueManagementMBean#removeWithSender(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.queue.api.MailQueueManagementMBean#removeWithSender(
+     * java.lang.String)
      */
     public long removeWithSender(String address) throws Exception {
         try {
@@ -132,53 +142,18 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.queue.api.MailQueueManagementMBean#browse()
      */
     @SuppressWarnings("unchecked")
     public List<CompositeData> browse() throws Exception {
         MailQueueIterator it = queue.browse();
         List<CompositeData> data = new ArrayList<CompositeData>();
-        String[] names = new String[] { 
-                "name", 
-                "sender", 
-                "state", 
-                "recipients", 
-                "size", 
-                "lastUpdated", 
-                "remoteAddress", 
-                "remoteHost", 
-                "errorMessage", 
-                "attributes", 
-                "nextDelivery"
-                };
-        String[] descs = new String[] { 
-                "Unique name", 
-                "Sender", 
-                "Current state", 
-                "Recipients", 
-                "Size in bytes", 
-                "Timestamp of last update", 
-                "IPAddress of the sender", 
-                "Hostname of the sender", 
-                "Errormessage if any", 
-                "Attributes stored", 
-                "Timestamp of when the next delivery attempt will be make"
-                };
-        OpenType[] types = new OpenType[] { 
-                SimpleType.STRING, 
-                SimpleType.STRING, 
-                SimpleType.STRING, 
-                SimpleType.STRING,  
-                SimpleType.LONG, 
-                SimpleType.LONG, 
-                SimpleType.STRING, 
-                SimpleType.STRING,
-                SimpleType.STRING,
-                SimpleType.STRING,
-                SimpleType.LONG
-                };
+        String[] names = new String[] { "name", "sender", "state", "recipients", "size", "lastUpdated", "remoteAddress", "remoteHost", "errorMessage", "attributes", "nextDelivery" };
+        String[] descs = new String[] { "Unique name", "Sender", "Current state", "Recipients", "Size in bytes", "Timestamp of last update", "IPAddress of the sender", "Hostname of the sender", "Errormessage if any", "Attributes stored", "Timestamp of when the next delivery attempt will be make" };
+        OpenType[] types = new OpenType[] { SimpleType.STRING, SimpleType.STRING, SimpleType.STRING, SimpleType.STRING, SimpleType.LONG, SimpleType.LONG, SimpleType.STRING, SimpleType.STRING, SimpleType.STRING, SimpleType.STRING, SimpleType.LONG };
 
-        while(it.hasNext()) {
+        while (it.hasNext()) {
 
             MailQueueItemView mView = it.next();
             Mail m = mView.getMail();
@@ -192,12 +167,12 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
             }
             map.put(names[1], sender);
             map.put(names[2], m.getState());
-            
+
             StringBuilder rcptsBuilder = new StringBuilder();
             Collection<MailAddress> rcpts = m.getRecipients();
             if (rcpts != null) {
                 Iterator<MailAddress> rcptsIt = rcpts.iterator();
-                while(rcptsIt.hasNext()) {
+                while (rcptsIt.hasNext()) {
                     rcptsBuilder.append(rcptsIt.next().toString());
                     if (rcptsIt.hasNext()) {
                         rcptsBuilder.append(",");
@@ -212,12 +187,12 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
             map.put(names[8], m.getErrorMessage());
             Map<String, String> attrs = new HashMap<String, String>();
             Iterator<String> attrNames = m.getAttributeNames();
-            while(attrNames.hasNext()) {
+            while (attrNames.hasNext()) {
                 String attrName = attrNames.next();
                 String attrValueString = null;
                 Serializable attrValue = m.getAttribute(attrName);
                 if (attrValue != null) {
-                    attrValueString = attrValue.toString(); 
+                    attrValueString = attrValue.toString();
                 }
                 attrs.put(attrName, attrValueString);
             }
@@ -229,6 +204,5 @@ public class MailQueueManagement extends StandardMBean implements MailQueueManag
         it.close();
         return data;
     }
-    
-    
+
 }

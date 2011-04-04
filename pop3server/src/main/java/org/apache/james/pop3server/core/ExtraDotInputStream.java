@@ -23,9 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Adds extra dot if dot occurs in message body at beginning of line (according to RFC1939)
+ * Adds extra dot if dot occurs in message body at beginning of line (according
+ * to RFC1939)
  */
-public class ExtraDotInputStream extends ReadByteFilterInputStream{
+public class ExtraDotInputStream extends ReadByteFilterInputStream {
 
     byte[] buf = new byte[3];
     int pos = 0;
@@ -33,41 +34,41 @@ public class ExtraDotInputStream extends ReadByteFilterInputStream{
     boolean extraDot = false;
     boolean startLine;
     int last;
-    
+
     public ExtraDotInputStream(InputStream in) {
         super(in);
         startLine = true;
     }
 
-  
     @Override
     public synchronized int read() throws IOException {
-        if (end) return -1;
-        
+        if (end)
+            return -1;
+
         if (startLine) {
             int i = 0;
             // check if we still have something in the buffer
             // if so we need to copy it so we don't lose data
-            
+
             // See JAMES-1152
             if (pos != -1 && pos != 0) {
                 byte[] tmpBuf = new byte[3];
-                while(pos < buf.length) {
+                while (pos < buf.length) {
                     tmpBuf[i++] = buf[pos++];
                 }
-                
+
                 buf = tmpBuf;
             }
             while (i < buf.length) {
                 buf[i++] = (byte) in.read();
             }
-            if (buf[0] == '.' && buf[1] == '\r' && buf[2] ==  '\n') {
+            if (buf[0] == '.' && buf[1] == '\r' && buf[2] == '\n') {
                 extraDot = true;
             }
             startLine = false;
             pos = 0;
         }
-        
+
         int a;
         if (pos == -1) {
             a = in.read();
@@ -77,7 +78,7 @@ public class ExtraDotInputStream extends ReadByteFilterInputStream{
                 return '.';
             } else {
                 a = buf[pos++];
-                
+
                 if (pos == buf.length) {
                     pos = -1;
                 }
@@ -85,14 +86,14 @@ public class ExtraDotInputStream extends ReadByteFilterInputStream{
                     end = true;
                 }
             }
-            
+
         }
         if (last == '\r' && a == '\n') {
             startLine = true;
         }
         last = a;
         return a;
-       
+
     }
 
 }

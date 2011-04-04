@@ -30,11 +30,11 @@ import org.apache.james.lifecycle.api.Disposable;
 import org.apache.james.lifecycle.api.LifecycleUtil;
 
 /**
- * {@link MimeMessageSource} implementation which reads the data from the payload of an {@link ObjectMessage}. 
- * Its important that the payload is a byte array otherwise it will throw an {@link ClassCastException}
- *
+ * {@link MimeMessageSource} implementation which reads the data from the
+ * payload of an {@link ObjectMessage}. Its important that the payload is a byte
+ * array otherwise it will throw an {@link ClassCastException}
  */
-public class MimeMessageObjectMessageSource extends MimeMessageSource implements Disposable{
+public class MimeMessageObjectMessageSource extends MimeMessageSource implements Disposable {
 
     private final ObjectMessage message;
     private final SharedByteArrayInputStream in;
@@ -55,6 +55,7 @@ public class MimeMessageObjectMessageSource extends MimeMessageSource implements
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.core.MimeMessageSource#getInputStream()
      */
     public InputStream getInputStream() throws IOException {
@@ -63,6 +64,7 @@ public class MimeMessageObjectMessageSource extends MimeMessageSource implements
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.core.MimeMessageSource#getSourceId()
      */
     public String getSourceId() {
@@ -71,6 +73,7 @@ public class MimeMessageObjectMessageSource extends MimeMessageSource implements
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.Disposable#dispose()
      */
     public void dispose() {

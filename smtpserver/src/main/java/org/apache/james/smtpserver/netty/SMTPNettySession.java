@@ -35,31 +35,28 @@ import org.slf4j.Logger;
 
 /**
  * {@link SMTPSession} implementation for use with Netty
- *
  */
-public class SMTPNettySession extends AbstractSession implements SMTPSession{
+public class SMTPNettySession extends AbstractSession implements SMTPSession {
     public final static String SMTP_SESSION = "SMTP_SESSION";
-    
 
     private boolean relayingAllowed;
-
 
     private Map<String, Object> connectionState;
 
     private SMTPConfiguration theConfigData;
 
     private int lineHandlerCount = 0;
-    
+
     public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         super(logger, handlerContext, engine);
         this.theConfigData = theConfigData;
         connectionState = new HashMap<String, Object>();
 
-        relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());    
+        relayingAllowed = theConfigData.isRelayingAllowed(getRemoteIPAddress());
     }
-   
+
     public SMTPNettySession(SMTPConfiguration theConfigData, Logger logger, ChannelHandlerContext handlerContext) {
-        this(theConfigData, logger, handlerContext, null);  
+        this(theConfigData, logger, handlerContext, null);
     }
 
     /**
@@ -68,15 +65,13 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
     public Map<String, Object> getConnectionState() {
         return connectionState;
     }
-    
 
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#getState()
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getState() {
-        Map<String, Object> res = (Map<String, Object>) getConnectionState()
-                .get(SMTPSession.SESSION_STATE_MAP);
+        Map<String, Object> res = (Map<String, Object>) getConnectionState().get(SMTPSession.SESSION_STATE_MAP);
         if (res == null) {
             res = new HashMap<String, Object>();
             getConnectionState().put(SMTPSession.SESSION_STATE_MAP, res);
@@ -111,8 +106,7 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
      */
     public void popLineHandler() {
         if (lineHandlerCount > 0) {
-            getChannelHandlerContext().getPipeline()
-            .remove("lineHandler" + lineHandlerCount);
+            getChannelHandlerContext().getPipeline().remove("lineHandler" + lineHandlerCount);
             lineHandlerCount--;
         }
     }
@@ -123,12 +117,8 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
     public void pushLineHandler(LineHandler<SMTPSession> overrideCommandHandler) {
         lineHandlerCount++;
 
-        getChannelHandlerContext().getPipeline().addAfter("timeoutHandler",
-                "lineHandler" + lineHandlerCount,
-                new LineHandlerUpstreamHandler<SMTPSession>(overrideCommandHandler));
+        getChannelHandlerContext().getPipeline().addAfter("timeoutHandler", "lineHandler" + lineHandlerCount, new LineHandlerUpstreamHandler<SMTPSession>(overrideCommandHandler));
     }
-
-
 
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#getHelloName()
@@ -137,14 +127,12 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
         return theConfigData.getHelloName();
     }
 
-
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#getMaxMessageSize()
      */
     public long getMaxMessageSize() {
         return theConfigData.getMaxMessageSize();
     }
-
 
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#getRcptCount()
@@ -168,14 +156,12 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
         return theConfigData.getSMTPGreeting();
     }
 
-
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#isAuthSupported()
      */
     public boolean isAuthSupported() {
         return theConfigData.isAuthRequired(socketAddress.getAddress().getHostAddress());
     }
-
 
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#setRelayingAllowed(boolean)
@@ -184,14 +170,13 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
         this.relayingAllowed = relayingAllowed;
     }
 
-
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#sleep(long)
      */
     public void sleep(long ms) {
-        //session.getFilterChain().addAfter("connectionFilter", "tarpitFilter",new TarpitFilter(ms));
+        // session.getFilterChain().addAfter("connectionFilter",
+        // "tarpitFilter",new TarpitFilter(ms));
     }
-
 
     /**
      * @see org.apache.james.protocols.smtp.SMTPSession#useAddressBracketsEnforcement()
@@ -206,10 +191,12 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
     public boolean useHeloEhloEnforcement() {
         return theConfigData.useHeloEhloEnforcement();
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.smtp.SMTPSession#getPushedLineHandlerCount()
+     * 
+     * @see
+     * org.apache.james.protocols.smtp.SMTPSession#getPushedLineHandlerCount()
      */
     public int getPushedLineHandlerCount() {
         return lineHandlerCount;
@@ -217,7 +204,7 @@ public class SMTPNettySession extends AbstractSession implements SMTPSession{
 
     public boolean verifyIdentity() {
         if (theConfigData instanceof SMTPHandlerConfigurationDataImpl) {
-            return ((SMTPHandlerConfigurationDataImpl)theConfigData).verifyIdentity();
+            return ((SMTPHandlerConfigurationDataImpl) theConfigData).verifyIdentity();
         } else {
             return true;
         }

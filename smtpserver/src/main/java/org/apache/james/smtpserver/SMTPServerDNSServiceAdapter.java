@@ -30,15 +30,15 @@ import org.apache.james.protocols.smtp.TemporaryResolutionException;
 import org.apache.mailet.HostAddress;
 import org.slf4j.Logger;
 
-public class SMTPServerDNSServiceAdapter implements DNSService, LogEnabled{
+public class SMTPServerDNSServiceAdapter implements DNSService, LogEnabled {
 
     private org.apache.james.dnsservice.api.DNSService dns;
     private Logger log;
-    
-    public SMTPServerDNSServiceAdapter(org.apache.james.dnsservice.api.DNSService dns) {    
+
+    public SMTPServerDNSServiceAdapter(org.apache.james.dnsservice.api.DNSService dns) {
         this.dns = dns;
     }
-    
+
     /**
      * @see org.apache.james.protocols.smtp.DNSService#findMXRecords(java.lang.String)
      */

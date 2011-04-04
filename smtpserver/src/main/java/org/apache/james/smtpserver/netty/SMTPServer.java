@@ -18,7 +18,6 @@
  ****************************************************************/
 package org.apache.james.smtpserver.netty;
 
-
 import javax.annotation.Resource;
 import javax.net.ssl.SSLContext;
 
@@ -37,22 +36,18 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 /**
  * NIO SMTPServer which use Netty
- * 
- *
  */
-public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPServerMBean{
+public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPServerMBean {
 
-    
     /**
      * The handler chain - SMTPhandlers can lookup handlerchain to obtain
-     * Command handlers , Message handlers and connection handlers
-     * Constructed during initialisation to allow dependency injection.
+     * Command handlers , Message handlers and connection handlers Constructed
+     * during initialisation to allow dependency injection.
      */
     private ProtocolHandlerChain handlerChain;
 
     /**
-     * Whether authentication is required to use
-     * this SMTP server.
+     * Whether authentication is required to use this SMTP server.
      */
     private final static int AUTH_DISABLED = 0;
     private final static int AUTH_REQUIRED = 1;
@@ -65,26 +60,25 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
     private boolean heloEhloEnforcement = false;
 
     /**
-     * SMTPGreeting to use 
+     * SMTPGreeting to use
      */
     private String smtpGreeting = null;
 
     /**
-     * This is a Network Matcher that should be configured to contain
-     * authorized networks that bypass SMTP AUTH requirements.
+     * This is a Network Matcher that should be configured to contain authorized
+     * networks that bypass SMTP AUTH requirements.
      */
     private NetMatcher authorizedNetworks = null;
 
     /**
-     * The maximum message size allowed by this SMTP server.  The default
-     * value, 0, means no limit.
+     * The maximum message size allowed by this SMTP server. The default value,
+     * 0, means no limit.
      */
     private long maxMessageSize = 0;
 
     /**
-     * The number of bytes to read before resetting
-     * the connection timeout timer.  Defaults to
-     * 20 KB.
+     * The number of bytes to read before resetting the connection timeout
+     * timer. Defaults to 20 KB.
      */
     private int lengthReset = 20 * 1024;
 
@@ -96,41 +90,41 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
     private boolean addressBracketsEnforcement = true;
 
     private boolean verifyIdentity;
-       
 
-    @Resource(name="smtphandlerchain")
+    @Resource(name = "smtphandlerchain")
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
 
-    
     public void doConfigure(final HierarchicalConfiguration configuration) throws ConfigurationException {
         if (isEnabled()) {
-            String authRequiredString = configuration.getString("authRequired","false").trim().toLowerCase();
-            if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
-            else if (authRequiredString.equals("announce")) authRequired = AUTH_ANNOUNCE;
-            else authRequired = AUTH_DISABLED;
+            String authRequiredString = configuration.getString("authRequired", "false").trim().toLowerCase();
+            if (authRequiredString.equals("true"))
+                authRequired = AUTH_REQUIRED;
+            else if (authRequiredString.equals("announce"))
+                authRequired = AUTH_ANNOUNCE;
+            else
+                authRequired = AUTH_DISABLED;
             if (authRequired != AUTH_DISABLED) {
                 getLogger().info("This SMTP server requires authentication.");
             } else {
                 getLogger().info("This SMTP server does not require authentication.");
             }
 
-            String authorizedAddresses = configuration.getString("authorizedAddresses",null);
+            String authorizedAddresses = configuration.getString("authorizedAddresses", null);
             if (authRequired == AUTH_DISABLED && authorizedAddresses == null) {
-                /* if SMTP AUTH is not requred then we will use
-                 * authorizedAddresses to determine whether or not to
-                 * relay e-mail.  Therefore if SMTP AUTH is not
-                 * required, we will not relay e-mail unless the
-                 * sending IP address is authorized.
-                 *
-                 * Since this is a change in behavior for James v2,
-                 * create a default authorizedAddresses network of
-                 * 0.0.0.0/0, which matches all possible addresses, thus
-                 * preserving the current behavior.
-                 *
-                 * James v3 should require the <authorizedAddresses>
-                 * element.
+                /*
+                 * if SMTP AUTH is not required then we will use
+                 * authorizedAddresses to determine whether or not to relay
+                 * e-mail. Therefore if SMTP AUTH is not required, we will not
+                 * relay e-mail unless the sending IP address is authorized.
+                 * 
+                 * Since this is a change in behavior for James v2, create a
+                 * default authorizedAddresses network of 0.0.0.0/0, which
+                 * matches all possible addresses, thus preserving the current
+                 * behavior.
+                 * 
+                 * James v3 should require the <authorizedAddresses> element.
                  */
                 authorizedAddresses = "0.0.0.0/0.0.0.0";
             }
@@ -151,23 +145,24 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
             // get the message size limit from the conf file and multiply
             // by 1024, to put it in bytes
-            maxMessageSize = configuration.getLong( "maxmessagesize",maxMessageSize ) * 1024;
+            maxMessageSize = configuration.getLong("maxmessagesize", maxMessageSize) * 1024;
             if (maxMessageSize > 0) {
                 getLogger().info("The maximum allowed message size is " + maxMessageSize + " bytes.");
             } else {
                 getLogger().info("No maximum message size is enforced for this server.");
             }
 
-            heloEhloEnforcement = configuration.getBoolean("heloEhloEnforcement",true);
+            heloEhloEnforcement = configuration.getBoolean("heloEhloEnforcement", true);
 
-            if (authRequiredString.equals("true")) authRequired = AUTH_REQUIRED;
+            if (authRequiredString.equals("true"))
+                authRequired = AUTH_REQUIRED;
 
             // get the smtpGreeting
-            smtpGreeting = configuration.getString("smtpGreeting",null);
+            smtpGreeting = configuration.getString("smtpGreeting", null);
 
-            addressBracketsEnforcement = configuration.getBoolean("addressBracketsEnforcement",true);
-            
-            verifyIdentity = configuration.getBoolean("verifyIdentity",true);
+            addressBracketsEnforcement = configuration.getBoolean("addressBracketsEnforcement", true);
+
+            verifyIdentity = configuration.getBoolean("verifyIdentity", true);
 
         }
     }
@@ -181,12 +176,12 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.ServerMBean#getServiceType()
      */
     public String getServiceType() {
         return "SMTP Service";
     }
-
 
     /**
      * A class to provide SMTP handler configuration to the handlers
@@ -232,7 +227,6 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
             return SMTPServer.this.heloEhloEnforcement;
         }
 
-
         /**
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#getSMTPGreeting()
          */
@@ -251,7 +245,8 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
          * @see org.apache.james.protocols.smtp.SMTPConfiguration#isAuthRequired(java.lang.String)
          */
         public boolean isAuthRequired(String remoteIP) {
-            if (SMTPServer.this.authRequired == AUTH_ANNOUNCE) return true;
+            if (SMTPServer.this.authRequired == AUTH_ANNOUNCE)
+                return true;
             boolean authRequired = SMTPServer.this.authRequired != AUTH_DISABLED;
             if (authorizedNetworks != null) {
                 authRequired = authRequired && !SMTPServer.this.authorizedNetworks.matchInetNetwork(remoteIP);
@@ -267,7 +262,8 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
         }
 
         /**
-         * Return true if the username and mail from must match for a authorized user
+         * Return true if the username and mail from must match for a authorized
+         * user
          * 
          * @return verify
          */
@@ -276,17 +272,15 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
         }
 
     }
-    
+
     @Override
     protected ChannelPipelineFactory createPipelineFactory(ChannelGroup group) {
         return new SMTPChannelPipelineFactory(getTimeout(), connectionLimit, connPerIP, group, getEnabledCipherSuites());
     }
-    
-    
+
     private final class SMTPChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
 
-        public SMTPChannelPipelineFactory(int timeout, int maxConnections,
-                int maxConnectsPerIp, ChannelGroup group, String[] enabledCipherSuites) {
+        public SMTPChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group, String[] enabledCipherSuites) {
             super(timeout, maxConnections, maxConnectsPerIp, group, enabledCipherSuites);
         }
 
@@ -305,7 +299,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
         @Override
         protected boolean isSSLSocket() {
-            return  SMTPServer.this.isSSLSocket();
+            return SMTPServer.this.isSSLSocket();
         }
 
         @Override
@@ -317,7 +311,7 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
         protected ChannelUpstreamHandler createHandler() {
             return new SMTPChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
         }
-        
+
     }
 
     /*
@@ -361,47 +355,54 @@ public class SMTPServer extends AbstractConfigurableAsyncServer implements SMTPS
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#getDefaultJMXName()
+     * 
+     * @see
+     * org.apache.james.protocols.lib.netty.AbstractConfigurableAsyncServer#
+     * getDefaultJMXName()
      */
     protected String getDefaultJMXName() {
         return "smtpserver";
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#setMaximalMessageSize(long)
+     * 
+     * @see
+     * org.apache.james.smtpserver.netty.SMTPServerMBean#setMaximalMessageSize
+     * (long)
      */
     public void setMaximalMessageSize(long maxSize) {
         this.maxMessageSize = maxSize;
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#setAddressBracketsEnforcement(boolean)
+     * 
+     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#
+     * setAddressBracketsEnforcement(boolean)
      */
     public void setAddressBracketsEnforcement(boolean enforceAddressBrackets) {
-        this.addressBracketsEnforcement  = enforceAddressBrackets;
+        this.addressBracketsEnforcement = enforceAddressBrackets;
     }
-
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.netty.SMTPServerMBean#setHeloEhloEnforcement(boolean)
+     * 
+     * @see
+     * org.apache.james.smtpserver.netty.SMTPServerMBean#setHeloEhloEnforcement
+     * (boolean)
      */
     public void setHeloEhloEnforcement(boolean enforceHeloEHlo) {
         this.heloEhloEnforcement = enforceHeloEHlo;
     }
 
-
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.smtpserver.netty.SMTPServerMBean#getHeloName()
      */
     public String getHeloName() {
         return theConfigData.getHelloName();
     }
-   
 
 }

@@ -26,10 +26,10 @@ import org.apache.james.pop3server.POP3Response;
 import org.apache.james.protocols.impl.AbstractResponseEncoder;
 
 /**
- * {@link AbstractResponseEncoder} implementation which handles {@link POP3Response} messages
- *
+ * {@link AbstractResponseEncoder} implementation which handles
+ * {@link POP3Response} messages
  */
-public class POP3ResponseEncoder extends AbstractResponseEncoder<POP3Response>{
+public class POP3ResponseEncoder extends AbstractResponseEncoder<POP3Response> {
 
     public POP3ResponseEncoder() {
         super(POP3Response.class, Charset.forName("US-ASCII"));

@@ -81,7 +81,7 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
                     num = Integer.parseInt(parameters);
                     MessageMetaData data = uidList.get(num - 1);
                     if (deletedUidList.contains(data.getUid()) == false) {
-                       
+
                         StringBuilder responseBuffer = new StringBuilder(64).append(num).append(" ").append(data.getSize());
                         response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
                     } else {
@@ -94,7 +94,7 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
                 } catch (NumberFormatException nfe) {
                     StringBuilder responseBuffer = new StringBuilder(64).append(parameters).append(" is not a valid number");
                     response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
-                } 
+                }
             }
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
@@ -104,6 +104,7 @@ public class ListCmdHandler implements CommandHandler<POP3Session> {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.protocols.api.CommandHandler#getImplCommands()
      */
     public Collection<String> getImplCommands() {

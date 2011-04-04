@@ -25,11 +25,11 @@ import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.protocols.smtp.core.RcptCmdHandler;
 
-public class JamesRcptCmdHandler extends RcptCmdHandler{
+public class JamesRcptCmdHandler extends RcptCmdHandler {
 
     private DomainList domainList;
 
-    @Resource(name="domainlist")
+    @Resource(name = "domainlist")
     public final void setDomainList(DomainList domainList) {
         this.domainList = domainList;
     }

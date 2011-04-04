@@ -24,59 +24,58 @@ import java.util.List;
 
 import org.apache.james.protocols.api.RetCodeResponse;
 
-
 /**
  * Contains an SMTP result
  */
-public class POP3Response implements RetCodeResponse{
-
+public class POP3Response implements RetCodeResponse {
 
     // POP3 response prefixes
-    /** OK response.  Requested content will follow */
+    /** OK response. Requested content will follow */
     public final static String OK_RESPONSE = "+OK";
-    
-    /** 
-     * Error response.  
-     * Requested content will not be provided.  
-     * This prefix is followed by a more detailed error message.
+
+    /**
+     * Error response. Requested content will not be provided. This prefix is
+     * followed by a more detailed error message.
      */
-    public final static String ERR_RESPONSE = "-ERR";  
-    
+    public final static String ERR_RESPONSE = "-ERR";
+
     private String retCode = null;
     private List<CharSequence> lines = null;
     private String rawLine = null;
     private boolean endSession = false;
-    
-    
+
     /**
-     * Construct a new POP3Response. The given code and description can not be null, if null an IllegalArgumentException
-     * get thrown
+     * Construct a new POP3Response. The given code and description can not be
+     * null, if null an IllegalArgumentException get thrown
      * 
-     * @param code the returnCode
-     * @param description the description 
+     * @param code
+     *            the returnCode
+     * @param description
+     *            the description
      */
     public POP3Response(String code, CharSequence description) {
-        if (code == null) throw new IllegalArgumentException("POP3Response code can not be null");
-    
+        if (code == null)
+            throw new IllegalArgumentException("POP3Response code can not be null");
+
         this.setRetCode(code);
         if (description == null) {
-        	description = "";
+            description = "";
         }
         this.rawLine = code + " " + description;
 
         this.appendLine(description);
 
-        
     }
-    
+
     public POP3Response(String code) {
-        this(code,null);
+        this(code, null);
     }
-    
+
     /**
      * Append the responseLine to the SMTPResponse
      * 
-     * @param line the responseLine to append
+     * @param line
+     *            the responseLine to append
      */
     public void appendLine(CharSequence line) {
         if (lines == null) {
@@ -88,7 +87,6 @@ public class POP3Response implements RetCodeResponse{
     public String getRetCode() {
         return retCode;
     }
-
 
     public void setRetCode(String retCode) {
         this.retCode = retCode;

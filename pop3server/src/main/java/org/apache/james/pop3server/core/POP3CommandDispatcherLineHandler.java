@@ -31,9 +31,7 @@ import org.apache.james.protocols.api.AbstractCommandDispatcher;
 import org.apache.james.protocols.api.CommandHandler;
 
 /**
- * Dispatch POP3 {@link CommandHandler} 
- * 
- * 
+ * Dispatch POP3 {@link CommandHandler}
  */
 public class POP3CommandDispatcherLineHandler extends AbstractCommandDispatcher<POP3Session> {
     private final static String[] mandatoryCommands = { "USER", "PASS", "LIST" };
@@ -79,7 +77,7 @@ public class POP3CommandDispatcherLineHandler extends AbstractCommandDispatcher<
         // notify the mailboxmanager about the end of the processing
         manager.endProcessingRequest(mSession);
         return disconnect;
-        
+
     }
 
 }

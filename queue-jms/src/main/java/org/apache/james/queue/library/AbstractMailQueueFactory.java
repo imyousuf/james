@@ -40,46 +40,46 @@ import org.apache.james.queue.library.MailQueueManagement;
 import org.slf4j.Logger;
 
 /**
- * {@link MailQueueFactory} abstract base class which take care of register the {@link MailQueue} implementations via JMX (if possible)
- * 
- *
+ * {@link MailQueueFactory} abstract base class which take care of register the
+ * {@link MailQueue} implementations via JMX (if possible)
  */
-public abstract class AbstractMailQueueFactory implements MailQueueFactory, LogEnabled{
+public abstract class AbstractMailQueueFactory implements MailQueueFactory, LogEnabled {
 
-    
-    
     protected final Map<String, MailQueue> queues = new HashMap<String, MailQueue>();
     protected Logger log;
     private boolean useJMX = true;
     private MBeanServer mbeanServer;
     private List<String> mbeans = new ArrayList<String>();
-    
+
     public void setUseJMX(boolean useJMX) {
         this.useJMX = useJMX;
     }
-    
+
     @PostConstruct
     public void init() {
-        mbeanServer = ManagementFactory.getPlatformMBeanServer(); 
+        mbeanServer = ManagementFactory.getPlatformMBeanServer();
     }
-    
+
     @PreDestroy
     public void destroy() {
         for (int i = 0; i < mbeans.size(); i++) {
             unregisterMBean(mbeans.get(i));
         }
-        
+
         Iterator<MailQueue> it = queues.values().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             LifecycleUtil.dispose(it.next());
         }
 
     }
-    
+
     /*
      * 
      * (non-Javadoc)
-     * @see org.apache.james.queue.activemq.MailQueueFactory#getQueue(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.queue.activemq.MailQueueFactory#getQueue(java.lang.String
+     * )
      */
     public synchronized final MailQueue getQueue(String name) {
         MailQueue queue = queues.get(name);
@@ -87,14 +87,13 @@ public abstract class AbstractMailQueueFactory implements MailQueueFactory, LogE
             queue = createMailQueue(name);
             if (useJMX) {
                 registerMBean(name, queue);
-             
+
             }
             queues.put(name, queue);
         }
 
         return queue;
     }
-
 
     /**
      * Create a {@link MailQueue} for the given name
@@ -105,12 +104,12 @@ public abstract class AbstractMailQueueFactory implements MailQueueFactory, LogE
     protected abstract MailQueue createMailQueue(String name);
 
     protected synchronized void registerMBean(String queuename, MailQueue queue) {
-        
+
         String mbeanName = "org.apache.james:type=component,name=queue,queue=" + queuename;
         try {
             MailQueueManagementMBean mbean = null;
             if (queue instanceof ManageableMailQueue) {
-                mbean = new MailQueueManagement((ManageableMailQueue)queue);
+                mbean = new MailQueueManagement((ManageableMailQueue) queue);
             } else if (queue instanceof MailQueueManagementMBean) {
                 mbean = (MailQueueManagementMBean) queue;
             }
@@ -119,23 +118,24 @@ public abstract class AbstractMailQueueFactory implements MailQueueFactory, LogE
                 mbeans.add(mbeanName);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Unable to register mbean" , e);
+            throw new RuntimeException("Unable to register mbean", e);
         }
-        
+
     }
-    
-    protected synchronized void unregisterMBean(String mbeanName){
+
+    protected synchronized void unregisterMBean(String mbeanName) {
         try {
             mbeanServer.unregisterMBean(new ObjectName(mbeanName));
             mbeans.remove(mbeanName);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to unregister mbean" , e);
+            throw new RuntimeException("Unable to unregister mbean", e);
         }
-        
+
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {

@@ -31,34 +31,35 @@ import org.apache.james.protocols.smtp.SMTPSession;
 
 /**
  * Expose JMX statistics for {@link CommandHandler}
- *
  */
 public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResultJMXMonitor<SMTPResponse, SMTPSession> implements Configurable {
 
     private String jmxPath;
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.socket.AbstractCommandHandlerResultJMXMonitor#createCommandHandlerStats(org.apache.james.protocols.api.CommandHandler)
+     * 
+     * @see org.apache.james.socket.AbstractCommandHandlerResultJMXMonitor#
+     * createCommandHandlerStats(org.apache.james.protocols.api.CommandHandler)
      */
-    protected AbstractCommandHandlerStats<SMTPResponse> createCommandHandlerStats(CommandHandler<SMTPSession> handler) throws Exception{
+    protected AbstractCommandHandlerStats<SMTPResponse> createCommandHandlerStats(CommandHandler<SMTPSession> handler) throws Exception {
         Collection<String> col = handler.getImplCommands();
         String cName = handler.getClass().getName();
 
         return new SMTPCommandHandlerStats(jmxPath, cName, col.toArray(new String[col.size()]));
     }
 
-
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.jmxPath = config.getString("jmxName", getDefaultJMXName());
     }
-    
+
     protected String getDefaultJMXName() {
         return "smtpserver";
     }

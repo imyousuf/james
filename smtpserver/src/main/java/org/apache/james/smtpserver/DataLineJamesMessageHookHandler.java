@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
 
 import java.io.FileNotFoundException;
@@ -53,22 +51,23 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
 /**
- * 
  * Handles the calling of JamesMessageHooks
- *
  */
 public final class DataLineJamesMessageHookHandler implements DataLineFilter, ExtensibleHandler {
-    
-    private List<JamesMessageHook> messageHandlers;
-    
-    private List<HookResultHook> rHooks;
-    
-	private List<MessageHook> mHandlers;
 
+    private List<JamesMessageHook> messageHandlers;
+
+    private List<HookResultHook> rHooks;
+
+    private List<MessageHook> mHandlers;
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache.james.smtpserver.protocol.SMTPSession, byte[], org.apache.james.api.protocol.LineHandler)
+     * 
+     * @see
+     * org.apache.james.smtpserver.protocol.core.DataLineFilter#onLine(org.apache
+     * .james.smtpserver.protocol.SMTPSession, byte[],
+     * org.apache.james.api.protocol.LineHandler)
      */
     public void onLine(SMTPSession session, byte[] line, LineHandler<SMTPSession> next) {
         MimeMessageInputStreamSource mmiss = (MimeMessageInputStreamSource) session.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE);
@@ -81,38 +80,35 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
             if (line.length == 3 && line[0] == 46) {
                 out.flush();
                 out.close();
-                
+
                 List recipientCollection = (List) session.getState().get(SMTPSession.RCPT_LIST);
-                MailImpl mail =
-                    new MailImpl(MailImpl.getId(),
-                                 (MailAddress) session.getState().get(SMTPSession.SENDER),
-                                 recipientCollection);
-                
-                // store mail in the session so we can be sure it get disposed later
+                MailImpl mail = new MailImpl(MailImpl.getId(), (MailAddress) session.getState().get(SMTPSession.SENDER), recipientCollection);
+
+                // store mail in the session so we can be sure it get disposed
+                // later
                 session.getState().put(SMTPConstants.MAIL, mail);
-                
+
                 MimeMessageCopyOnWriteProxy mimeMessageCopyOnWriteProxy = null;
                 try {
                     mimeMessageCopyOnWriteProxy = new MimeMessageCopyOnWriteProxy(mmiss);
                     mail.setMessage(mimeMessageCopyOnWriteProxy);
-                    
+
                     processExtensions(session, mail);
-                    
+
                     session.popLineHandler();
-                    //next.onLine(session, line);
-    
+                    // next.onLine(session, line);
+
                 } catch (MessagingException e) {
                     // TODO probably return a temporary problem
-                    session.getLogger().info("Unexpected error handling DATA stream",e);
+                    session.getLogger().info("Unexpected error handling DATA stream", e);
                     session.writeResponse(new SMTPResponse(SMTPRetCode.LOCAL_ERROR, "Unexpected error handling DATA stream."));
                 } finally {
                     LifecycleUtil.dispose(mimeMessageCopyOnWriteProxy);
                     LifecycleUtil.dispose(mmiss);
                     LifecycleUtil.dispose(mail);
                 }
-    
-                
-            // DotStuffing.
+
+                // DotStuffing.
             } else if (line[0] == 46 && line[1] == 46) {
                 out.write(line, 1, line.length - 1);
                 // Standard write
@@ -211,7 +207,8 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
     }
 
     /**
-     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * @see org.apache.james.api.protocol.ExtensibleHandler#wireExtensions(java.lang.Class,
+     *      java.util.List)
      */
     public void wireExtensions(Class interfaceName, List extension) throws WiringException {
         if (JamesMessageHook.class.equals(interfaceName)) {
@@ -220,7 +217,7 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
                 throw new WiringException("No messageHandler configured");
             }
         } else if (MessageHook.class.equals(interfaceName)) {
-        	this.mHandlers = extension;
+            this.mHandlers = extension;
         } else if (HookResultHook.class.equals(interfaceName)) {
 
             this.rHooks = extension;
@@ -254,13 +251,14 @@ public final class DataLineJamesMessageHookHandler implements DataLineFilter, Ex
             return mail.getMessage().getInputStream();
         }
 
-
         /*
          * (non-Javadoc)
-         * @see org.apache.james.protocols.smtp.MailEnvelope#getMessageOutputStream()
+         * 
+         * @see
+         * org.apache.james.protocols.smtp.MailEnvelope#getMessageOutputStream()
          */
         public OutputStream getMessageOutputStream() {
-           return out;
+            return out;
         }
 
         /**

@@ -33,10 +33,8 @@ import org.apache.james.lifecycle.api.Disposable;
 
 /**
  * Gather stats for LineHandlers
- * 
- *
  */
-public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean, Disposable{
+public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean, Disposable {
 
     private String name;
     private String handlerName;
@@ -47,27 +45,28 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
     public LineHandlerStats(String jmxName, String handlerName) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
         super(HandlerStatsMBean.class);
         this.handlerName = handlerName;
-        
-        this.name =  "org.apache.james:type=server,name=" + jmxName + ",chain=handlerchain,handler=linehandler,linehandler=" + handlerName;
+
+        this.name = "org.apache.james:type=server,name=" + jmxName + ",chain=handlerchain,handler=linehandler,linehandler=" + handlerName;
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         ObjectName baseObjectName = new ObjectName(name);
         mbeanserver.registerMBean(this, baseObjectName);
     }
-    
+
     /**
-     * Increment the stats 
+     * Increment the stats
      * 
      * @param result
      */
     public void increment(boolean disconnected) {
         if (disconnected) {
-            disconnect .incrementAndGet();
+            disconnect.incrementAndGet();
         }
         all.incrementAndGet();
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.HandlerStatsMBean#getAll()
      */
     public long getAll() {
@@ -76,6 +75,7 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.HandlerStatsMBean#getName()
      */
     public String getName() {
@@ -84,14 +84,16 @@ public class LineHandlerStats extends StandardMBean implements HandlerStatsMBean
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.HandlerStatsMBean#getDisconnect()
      */
     public long getDisconnect() {
         return disconnect.get();
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.Disposable#dispose()
      */
     public void dispose() {

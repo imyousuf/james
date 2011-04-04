@@ -24,24 +24,21 @@ import org.apache.mailet.Mail;
 
 /**
  * {@link MailQueue} which is manageable
- *
  */
-public interface ManageableMailQueue extends MailQueue{
+public interface ManageableMailQueue extends MailQueue {
 
     public enum Type {
-        Sender,
-        Recipient,
-        Name
+        Sender, Recipient, Name
     }
-    
+
     /**
      * Return the size of the queue
      * 
-     * @return size 
+     * @return size
      * @throws MailQueueException
      */
     public long getSize() throws MailQueueException;
-    
+
     /**
      * Flush the queue, which means it will make all message ready for dequeue
      * 
@@ -49,7 +46,7 @@ public interface ManageableMailQueue extends MailQueue{
      * @throws MailQueueException
      */
     long flush() throws MailQueueException;
-    
+
     /**
      * Remove all mails from the queue
      * 
@@ -57,7 +54,7 @@ public interface ManageableMailQueue extends MailQueue{
      * @throws MailQueueException
      */
     long clear() throws MailQueueException;
-    
+
     /**
      * Remove all mails from the queue that match
      * 
@@ -67,50 +64,47 @@ public interface ManageableMailQueue extends MailQueue{
      * @throws MailQueueException
      */
     long remove(Type type, String value) throws MailQueueException;
-    
+
     /**
      * Allow to browse the queues content. The returned content may get modified
      * while browsing it during other threads.
      * 
-     * 
      * @return content
      */
     MailQueueIterator browse() throws MailQueueException;
-    
-    
+
     /**
-     * {@link Iterator} subclass which allows to browse the content of a queue. The content is not meant to be modifiable, everything is just READ-ONLY!
-     * 
-     *
+     * {@link Iterator} subclass which allows to browse the content of a queue.
+     * The content is not meant to be modifiable, everything is just READ-ONLY!
      */
     public interface MailQueueIterator extends Iterator<MailQueueItemView> {
-        
+
         /**
-         * Close the iterator. After this was called the iterator MUST NOT be used again
+         * Close the iterator. After this was called the iterator MUST NOT be
+         * used again
          */
         void close();
     }
-    
+
     /**
      * Represent a View over a queue {@link MailQueueItem}
-     * 
-     *
      */
     public interface MailQueueItemView {
-        
+
         /**
-         * Return the Mail 
+         * Return the Mail
          * 
          * @return mail
          */
         Mail getMail();
-        
+
         /**
-         * Return the timestamp when the mail will be ready for dequeuing or -1 if there is no restriction set..
-         *  
+         * Return the timestamp when the mail will be ready for dequeuing or -1
+         * if there is no restriction set..
+         * 
          * @return nextDelivery
          */
         long getNextDelivery();
     }
-  
+
 }

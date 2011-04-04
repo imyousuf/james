@@ -38,7 +38,6 @@ public class UidlCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
     /**
      * Handler method called upon receipt of a UIDL command. Returns a listing
      * of message ids to the client.
-     * 
      */
     @SuppressWarnings("unchecked")
     public Response onCommand(POP3Session session, Request request) {

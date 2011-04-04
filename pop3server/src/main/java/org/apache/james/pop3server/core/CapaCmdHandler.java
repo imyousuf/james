@@ -33,7 +33,6 @@ import org.apache.james.protocols.api.WiringException;
 
 /**
  * This handler is used to handle CAPA commands
- * 
  */
 public class CapaCmdHandler implements CommandHandler<POP3Session>, ExtensibleHandler, CapaCapability {
     public final static String COMMAND_NAME = "CAPA";

@@ -21,11 +21,14 @@ package org.apache.james.pop3server.jmx;
 import org.apache.james.pop3server.POP3Session;
 import org.apache.james.protocols.lib.jmx.AbstractLineHandlerResultJMXMonitor;
 
-public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<POP3Session>{
+public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<POP3Session> {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.socket.AbstractLineHandlerResultJMXMonitor#getDefaultJMXName()
+     * 
+     * @see
+     * org.apache.james.socket.AbstractLineHandlerResultJMXMonitor#getDefaultJMXName
+     * ()
      */
     protected String getDefaultJMXName() {
         return "pop3server";

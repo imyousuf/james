@@ -20,7 +20,7 @@ package org.apache.james.pop3server.jmx;
 
 import org.apache.james.protocols.lib.jmx.CommandHandlerStatsMBean;
 
-public interface POP3CommandHandlerStatsMBean extends CommandHandlerStatsMBean{
+public interface POP3CommandHandlerStatsMBean extends CommandHandlerStatsMBean {
 
     /**
      * Return the count of errors returned by the handler
@@ -29,13 +29,11 @@ public interface POP3CommandHandlerStatsMBean extends CommandHandlerStatsMBean{
      */
     long getError();
 
-    
-    
     /**
      * Return the count of successful handling returned by the handler
      * 
      * @return tempCount
      */
     long getOk();
-    
+
 }

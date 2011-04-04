@@ -22,16 +22,17 @@ import org.apache.james.container.spring.provider.log.LogProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Return {@link Log} for using within OSGI container
- *
  */
-public class OsgiLogProvider implements LogProvider{
+public class OsgiLogProvider implements LogProvider {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.lifecycle.LogProvider#getLog(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.container.spring.lifecycle.LogProvider#getLog(java.lang
+     * .String)
      */
     public Logger getLog(String beanName) {
         return LoggerFactory.getLogger(beanName);
@@ -39,7 +40,7 @@ public class OsgiLogProvider implements LogProvider{
 
     public void registerLog(String beanName, Logger log) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

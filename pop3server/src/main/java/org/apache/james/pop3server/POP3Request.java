@@ -22,14 +22,11 @@ package org.apache.james.pop3server;
 import org.apache.james.protocols.api.BaseRequest;
 
 /**
- * POP3Request object 
- *
+ * POP3Request object
  */
-public class POP3Request extends BaseRequest{
-
-
+public class POP3Request extends BaseRequest {
 
     public POP3Request(final String command, final String argument) {
-        super(command,argument);
+        super(command, argument);
     }
 }

@@ -39,22 +39,19 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
     private DomainList domains;
     private UsersRepository users;
 
-    @Resource(name="usersrepository")
+    @Resource(name = "usersrepository")
     public final void setUsersRepository(UsersRepository users) {
         this.users = users;
     }
 
-
-    @Resource(name="domainlist")
+    @Resource(name = "domainlist")
     public void setDomainList(DomainList domains) {
         this.domains = domains;
     }
-    
-    
+
     @Override
-    public HookResult doRcpt(SMTPSession session, MailAddress sender,
-            MailAddress rcpt) {
-        SMTPNettySession nSession =(SMTPNettySession) session;
+    public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
+        SMTPNettySession nSession = (SMTPNettySession) session;
         if (nSession.verifyIdentity()) {
             return super.doRcpt(session, sender, rcpt);
         } else {
@@ -75,7 +72,9 @@ public class SenderAuthIdentifyVerificationRcptHook extends AbstractSenderAuthId
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.smtp.core.AbstractSenderAuthIdentifyVerificationRcptHook#useVirtualHosting()
+     * 
+     * @see org.apache.james.protocols.smtp.core.
+     * AbstractSenderAuthIdentifyVerificationRcptHook#useVirtualHosting()
      */
     protected boolean useVirtualHosting() {
         try {

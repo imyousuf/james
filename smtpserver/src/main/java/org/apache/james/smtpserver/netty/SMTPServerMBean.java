@@ -22,59 +22,58 @@ import org.apache.james.protocols.lib.jmx.ServerMBean;
 
 /**
  * JMX MBean interface for the SMTPServer
- * 
- *
  */
 public interface SMTPServerMBean extends org.apache.james.protocols.smtp.SMTPServerMBean, ServerMBean {
 
-	/**
-	 * Return the maximum allowed size of the message
-	 * 
-	 * @return maxMessageSize
-	 */
-	long getMaximalMessageSize();
-	
-	/**
-	 * Set the maximum allowed size of messages. Set this to 0 to accept every message
-	 * 
-	 * @param maxSize
-	 */
-	void setMaximalMessageSize(long maxSize);
-	
-	
-	/**
-	 * Return true if brackets around addresses in the MAIL and RCPT are required
-	 * 
-	 * @return bracketsEnforcement
-	 */
-	boolean getAddressBracketsEnforcement();
-	
-	/**
-	 * Enable or disable brackets enforcement around addressed in the MAIL and RCPT command
-	 * 
-	 * @param enforceAddressBrackets
-	 */
-	void setAddressBracketsEnforcement(boolean enforceAddressBrackets);
-	
-	/**
-	 * Return true if a HELO/EHLO is required when connecting to this server
-	 * 
-	 * @return heloEhloEnforcement
-	 */
-	boolean getHeloEhloEnforcement();
-	
-	
-	/**
-	 * Enable or disable the need of the HELO/EHLO
-	 * 
-	 * @param enforceHeloEHlo
-	 */
-	void setHeloEhloEnforcement(boolean enforceHeloEHlo);
-	
-	/**
-	 * Return the hello name
-	 * 
-	 * @return helo
-	 */
-	String getHeloName();
+    /**
+     * Return the maximum allowed size of the message
+     * 
+     * @return maxMessageSize
+     */
+    long getMaximalMessageSize();
+
+    /**
+     * Set the maximum allowed size of messages. Set this to 0 to accept every
+     * message
+     * 
+     * @param maxSize
+     */
+    void setMaximalMessageSize(long maxSize);
+
+    /**
+     * Return true if brackets around addresses in the MAIL and RCPT are
+     * required
+     * 
+     * @return bracketsEnforcement
+     */
+    boolean getAddressBracketsEnforcement();
+
+    /**
+     * Enable or disable brackets enforcement around addressed in the MAIL and
+     * RCPT command
+     * 
+     * @param enforceAddressBrackets
+     */
+    void setAddressBracketsEnforcement(boolean enforceAddressBrackets);
+
+    /**
+     * Return true if a HELO/EHLO is required when connecting to this server
+     * 
+     * @return heloEhloEnforcement
+     */
+    boolean getHeloEhloEnforcement();
+
+    /**
+     * Enable or disable the need of the HELO/EHLO
+     * 
+     * @param enforceHeloEHlo
+     */
+    void setHeloEhloEnforcement(boolean enforceHeloEHlo);
+
+    /**
+     * Return the hello name
+     * 
+     * @return helo
+     */
+    String getHeloName();
 }

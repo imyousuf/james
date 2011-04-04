@@ -26,8 +26,6 @@ import org.apache.james.pop3server.POP3Session;
 /**
  * A handler which support the POP3 Extension Mechanism should implement this
  * interface
- * 
- * 
  */
 public interface CapaCapability {
 

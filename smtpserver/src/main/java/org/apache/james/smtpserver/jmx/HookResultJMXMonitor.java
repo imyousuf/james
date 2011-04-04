@@ -37,20 +37,24 @@ import org.apache.james.protocols.smtp.hook.HookResult;
 import org.apache.james.protocols.smtp.hook.HookResultHook;
 
 /**
- * {@link HookResultHook} implementation which will register a {@link HookStatsMBean} under JMX for every Hook it processed 
- *
+ * {@link HookResultHook} implementation which will register a
+ * {@link HookStatsMBean} under JMX for every Hook it processed
  */
-public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler,Configurable {
+public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler, Configurable {
 
     private Map<String, HookStats> hookStats = new HashMap<String, HookStats>();
     private String jmxPath;
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.smtp.hook.HookResultHook#onHookResult(org.apache.james.protocols.smtp.SMTPSession, org.apache.james.protocols.smtp.hook.HookResult, long, org.apache.james.protocols.smtp.hook.Hook)
+     * 
+     * @see
+     * org.apache.james.protocols.smtp.hook.HookResultHook#onHookResult(org.
+     * apache.james.protocols.smtp.SMTPSession,
+     * org.apache.james.protocols.smtp.hook.HookResult, long,
+     * org.apache.james.protocols.smtp.hook.Hook)
      */
-    public HookResult onHookResult(SMTPSession session, HookResult result, long executionTime,
-            Hook hook) {
+    public HookResult onHookResult(SMTPSession session, HookResult result, long executionTime, Hook hook) {
         String hookName = hook.getClass().getName();
         HookStats stats = hookStats.get(hookName);
         if (stats != null) {
@@ -59,22 +63,22 @@ public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler,C
         return result;
     }
 
-
     @PreDestroy
     public void dispose() {
         synchronized (hookStats) {
             Iterator<HookStats> stats = hookStats.values().iterator();
-            while(stats.hasNext()) {
+            while (stats.hasNext()) {
                 stats.next().dispose();
             }
             hookStats.clear();
         }
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
+     * 
+     * @see
+     * org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> marker = new ArrayList<Class<?>>();
@@ -82,39 +86,43 @@ public class HookResultJMXMonitor implements HookResultHook, ExtensibleHandler,C
         return marker;
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * 
+     * @see
+     * org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.
+     * lang.Class, java.util.List)
      */
     public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {
         if (interfaceName.equals(Hook.class)) {
-            
+
             // add stats for all hooks
-            for (int i = 0; i < extension.size(); i++ ) {
-                Object hook =  extension.get(i);
+            for (int i = 0; i < extension.size(); i++) {
+                Object hook = extension.get(i);
                 if (equals(hook) == false) {
                     String hookName = hook.getClass().getName();
                     try {
                         hookStats.put(hookName, new HookStats(jmxPath, hookName));
                     } catch (Exception e) {
-                        throw new WiringException("Unable to wire Hooks",  e);
+                        throw new WiringException("Unable to wire Hooks", e);
                     }
                 }
             }
         }
-        
+
     }
-    
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.jmxPath = config.getString("jmxName", getDefaultJMXName());
     }
-    
+
     protected String getDefaultJMXName() {
         return "smtpserver";
     }

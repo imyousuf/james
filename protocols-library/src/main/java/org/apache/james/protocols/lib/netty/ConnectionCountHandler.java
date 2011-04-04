@@ -27,7 +27,6 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 /**
  * Count active connections
- *
  */
 public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
 
@@ -55,7 +54,7 @@ public class ConnectionCountHandler extends SimpleChannelUpstreamHandler {
     public int getCurrentConnectionCount() {
         return currentConnectionCount.get();
     }
-    
+
     public long getConnectionsTillStartup() {
         return connectionsTillStartup.get();
     }

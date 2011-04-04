@@ -26,23 +26,23 @@ import org.apache.activemq.blob.BlobUploadStrategy;
 import org.apache.james.filesystem.api.FileSystem;
 
 /**
- * {@link BlobTransferPolicy} which use the {@link FileSystem} to download and upload data.
- * So this implementation is only useful when using a non-clustered ActiveMQ Broker or when using a shared Storage for the files.
- *
+ * {@link BlobTransferPolicy} which use the {@link FileSystem} to download and
+ * upload data. So this implementation is only useful when using a non-clustered
+ * ActiveMQ Broker or when using a shared Storage for the files.
  */
-public class FileSystemBlobTransferPolicy extends BlobTransferPolicy{
+public class FileSystemBlobTransferPolicy extends BlobTransferPolicy {
 
     private FileSystem fs;
     private int splitCount = 10;
     private FileSystemBlobStrategy strategy;
 
-    @Resource(name="filesystem")
+    @Resource(name = "filesystem")
     public void setFileSystem(FileSystem fs) {
         this.fs = fs;
     }
-    
+
     public void setSplitCount(int splitCount) {
-        this.splitCount  = splitCount;
+        this.splitCount = splitCount;
     }
 
     @Override
@@ -56,7 +56,6 @@ public class FileSystemBlobTransferPolicy extends BlobTransferPolicy{
         return that;
     }
 
-    
     @Override
     protected BlobDownloadStrategy createDownloadStrategy() {
         return getStrategy();

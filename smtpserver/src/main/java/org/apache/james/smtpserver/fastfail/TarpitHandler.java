@@ -17,30 +17,29 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver.fastfail;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.api.Configurable;
 
-public class TarpitHandler extends org.apache.james.protocols.smtp.core.fastfail.TarpitHandler implements Configurable{
+public class TarpitHandler extends org.apache.james.protocols.smtp.core.fastfail.TarpitHandler implements Configurable {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
-    public void configure(HierarchicalConfiguration handlerConfiguration)
-            throws ConfigurationException {
+    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
         int tarpitRcptCount = handlerConfiguration.getInt("tarpitRcptCount", 0);
         long tarpitSleepTime = handlerConfiguration.getLong("tarpitSleepTime", 5000);
         if (tarpitRcptCount == 0)
-            throw new ConfigurationException(
-                    "Please set the tarpitRcptCount bigger values as 0");
+            throw new ConfigurationException("Please set the tarpitRcptCount bigger values as 0");
 
         if (tarpitSleepTime == 0)
-            throw new ConfigurationException(
-                    "Please set the tarpitSleepTimeto a bigger values as 0");
+            throw new ConfigurationException("Please set the tarpitSleepTimeto a bigger values as 0");
 
         setTarpitRcptCount(tarpitRcptCount);
         setTarpitSleepTime(tarpitSleepTime);

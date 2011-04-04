@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver;
 
 import java.util.HashMap;
@@ -38,24 +37,27 @@ import org.apache.mailet.MailAddress;
 /**
  * Handler which set a configured {@link Mail} priority for the mail.
  * 
- * if the {@link Mail} has more then one recipient, then the highest priority (which was found) is set 
- *
+ * if the {@link Mail} has more then one recipient, then the highest priority
+ * (which was found) is set
  */
-public class MailPriorityHandler implements JamesMessageHook, Configurable{
+public class MailPriorityHandler implements JamesMessageHook, Configurable {
 
     private Map<String, Integer> prioMap = new HashMap<String, Integer>();
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.Mail)
+     * 
+     * @see
+     * org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james
+     * .protocols.smtp.SMTPSession, org.apache.mailet.Mail)
      */
     @SuppressWarnings("unchecked")
     public HookResult onMessage(SMTPSession session, Mail mail) {
         Iterator<MailAddress> rcpts = mail.getRecipients().iterator();
-        
+
         Integer p = null;
-        
-        while(rcpts.hasNext()) {
+
+        while (rcpts.hasNext()) {
             String domain = rcpts.next().getDomain();
             Integer prio = null;
             if (domain != null) {
@@ -64,22 +66,26 @@ public class MailPriorityHandler implements JamesMessageHook, Configurable{
                     if (p == null || prio > p) {
                         p = prio;
                     }
-                
+
                     // already the highest priority
-                    if (p == MailPrioritySupport.HIGH_PRIORITY) break;
+                    if (p == MailPrioritySupport.HIGH_PRIORITY)
+                        break;
                 }
             }
         }
-        
-        
+
         // set the priority if one was found
-        if (p != null) mail.setAttribute(MailPrioritySupport.MAIL_PRIORITY, p);
+        if (p != null)
+            mail.setAttribute(MailPrioritySupport.MAIL_PRIORITY, p);
         return new HookResult(HookReturnCode.DECLINED);
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {

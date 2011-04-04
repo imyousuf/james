@@ -24,11 +24,11 @@ import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.domainlist.api.DomainListException;
 import org.apache.james.protocols.smtp.core.MailCmdHandler;
 
-public class JamesMailCmdHandler extends MailCmdHandler{
+public class JamesMailCmdHandler extends MailCmdHandler {
 
     private DomainList domainList;
 
-    @Resource(name="domainlist")
+    @Resource(name = "domainlist")
     public final void setDomainList(DomainList domainList) {
         this.domainList = domainList;
     }
@@ -43,6 +43,5 @@ public class JamesMailCmdHandler extends MailCmdHandler{
             return super.getDefaultDomain();
         }
     }
-    
-    
+
 }

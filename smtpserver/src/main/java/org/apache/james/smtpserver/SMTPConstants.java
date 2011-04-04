@@ -21,12 +21,10 @@ package org.apache.james.smtpserver;
 
 /**
  * Constants which are used within SMTP Session
- * 
- *
  */
 public interface SMTPConstants {
 
-    static final String DATA_MIMEMESSAGE_STREAMSOURCE = "org.apache.james.core.DataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE";    
+    static final String DATA_MIMEMESSAGE_STREAMSOURCE = "org.apache.james.core.DataCmdHandler.DATA_MIMEMESSAGE_STREAMSOURCE";
     static final String MAIL = "MAIL";
 
 }

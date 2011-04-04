@@ -22,7 +22,7 @@ import org.apache.james.protocols.impl.log.AbstractCommandHandlerResultLogger;
 import org.apache.james.protocols.smtp.SMTPResponse;
 import org.apache.james.protocols.smtp.SMTPSession;
 
-public class SMTPCommandHandlerResultLogger extends AbstractCommandHandlerResultLogger<SMTPResponse, SMTPSession>{
+public class SMTPCommandHandlerResultLogger extends AbstractCommandHandlerResultLogger<SMTPResponse, SMTPSession> {
 
     @Override
     protected boolean logWithInfo(String retCode) {

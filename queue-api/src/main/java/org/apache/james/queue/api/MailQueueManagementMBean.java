@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.management.openmbean.CompositeData;
 
-
 public interface MailQueueManagementMBean {
 
     /**
@@ -31,42 +30,47 @@ public interface MailQueueManagementMBean {
      * @return size the size or -1 if it could not get calculated
      */
     long getSize() throws Exception;
-    
+
     /**
-     * Flush queue to make every Mail ready to consume. 
+     * Flush queue to make every Mail ready to consume.
      * 
-     * @return count the count of all flushed mails or -1 if the flush was not possible
+     * @return count the count of all flushed mails or -1 if the flush was not
+     *         possible
      */
     long flush() throws Exception;
-    
+
     /**
      * Clear the queue
      * 
-     * @return count the count of all removed mails or -1 if clear was not possible
+     * @return count the count of all removed mails or -1 if clear was not
+     *         possible
      */
     long clear() throws Exception;
-    
+
     /**
      * Remove mail with name from the queue
      * 
-     * @return count the count of all removed mails or -1 if clear was not possible
+     * @return count the count of all removed mails or -1 if clear was not
+     *         possible
      */
     long removeWithName(String name) throws Exception;
-    
+
     /**
      * Remove mail with specific sender from the queue
      * 
-     * @return count the count of all removed mails or -1 if clear was not possible
+     * @return count the count of all removed mails or -1 if clear was not
+     *         possible
      */
     long removeWithSender(String address) throws Exception;
-    
+
     /**
      * Remove mail with specific recipient from the queue
      * 
-     * @return count the count of all removed mails or -1 if clear was not possible
+     * @return count the count of all removed mails or -1 if clear was not
+     *         possible
      */
     long removeWithRecipient(String address) throws Exception;
-    
+
     /**
      * Allow to browse the content of the queue
      * 
@@ -74,5 +78,5 @@ public interface MailQueueManagementMBean {
      * @throws Exception
      */
     List<CompositeData> browse() throws Exception;
-    
+
 }

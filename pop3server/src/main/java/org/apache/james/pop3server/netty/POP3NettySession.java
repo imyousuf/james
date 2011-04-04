@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 
 /**
  * {@link POP3Session} implementation which use Netty
- *
  */
 public class POP3NettySession extends AbstractSession implements POP3Session {
     private POP3HandlerConfigurationData configData;
@@ -43,17 +42,14 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
 
     private MessageManager mailbox;
 
-
     public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger, ChannelHandlerContext handlerContext) {
         this(configData, logger, handlerContext, null);
     }
-
 
     public POP3NettySession(POP3HandlerConfigurationData configData, Logger logger, ChannelHandlerContext handlerContext, SSLEngine engine) {
         super(logger, handlerContext, engine);
         this.configData = configData;
     }
-
 
     /*
      * (non-Javadoc)
@@ -104,6 +100,7 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.pop3server.POP3Session#getUserMailbox()
      */
     public MessageManager getUserMailbox() {
@@ -112,11 +109,13 @@ public class POP3NettySession extends AbstractSession implements POP3Session {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.pop3server.POP3Session#setUserMailbox(org.apache.james.imap.mailbox.Mailbox)
+     * 
+     * @see
+     * org.apache.james.pop3server.POP3Session#setUserMailbox(org.apache.james
+     * .imap.mailbox.Mailbox)
      */
     public void setUserMailbox(MessageManager mailbox) {
         this.mailbox = mailbox;
     }
-
 
 }

@@ -23,7 +23,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ReadByteFilterInputStream extends FilterInputStream{
+public class ReadByteFilterInputStream extends FilterInputStream {
 
     protected ReadByteFilterInputStream(InputStream in) {
         super(in);
@@ -34,18 +34,18 @@ public class ReadByteFilterInputStream extends FilterInputStream{
         int i;
         for (i = 0; i < len; i++) {
             int a = read();
-            if (i == 0 && a == - 1) {
+            if (i == 0 && a == -1) {
                 return -1;
             } else {
                 if (a == -1) {
                     break;
                 } else {
-                    b[off++] =  (byte) a;
+                    b[off++] = (byte) a;
                 }
             }
         }
         return i;
-        
+
     }
 
     @Override

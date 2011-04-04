@@ -17,33 +17,29 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server;
 
 /**
- * Provides a number of server-wide constant values to the
- * POP3Handlers
- *
+ * Provides a number of server-wide constant values to the POP3Handlers
  */
 public interface POP3HandlerConfigurationData {
 
     /**
      * Returns the service wide hello name
-     *
+     * 
      * @return the hello name
      */
     String getHelloName();
 
     /**
      * Returns the service wide reset length in bytes.
-     *
+     * 
      * @return the reset length
      */
     int getResetLength();
-    
+
     /**
-     * Return if starttls is supported by the POP3Server 
+     * Return if starttls is supported by the POP3Server
      * 
      * @return startTLSSupported
      */

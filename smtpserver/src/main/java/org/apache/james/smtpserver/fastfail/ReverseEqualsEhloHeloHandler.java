@@ -24,9 +24,9 @@ import javax.annotation.Resource;
 import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.smtpserver.SMTPServerDNSServiceAdapter;
 
-public class ReverseEqualsEhloHeloHandler extends org.apache.james.protocols.smtp.core.fastfail.ReverseEqualsEhloHeloHandler{
+public class ReverseEqualsEhloHeloHandler extends org.apache.james.protocols.smtp.core.fastfail.ReverseEqualsEhloHeloHandler {
 
-    @Resource(name="dnsservice")
+    @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
     }

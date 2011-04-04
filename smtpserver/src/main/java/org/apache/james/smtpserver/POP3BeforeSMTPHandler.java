@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -31,24 +30,19 @@ import org.apache.james.util.TimeConverter;
 /**
  * This ConnectHandler can be used to activate pop-before-smtp
  */
-public class POP3BeforeSMTPHandler implements ConnectHandler<SMTPSession>,Configurable{
+public class POP3BeforeSMTPHandler implements ConnectHandler<SMTPSession>, Configurable {
 
-    /**
-     * The time after which ipAddresses should be handled as expired
-     */
+    /** The time after which ipAddresses should be handled as expired */
     private long expireTime = POP3BeforeSMTPHelper.EXPIRE_TIME;
-
 
     /*
      * 
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         try {
-            setExpireTime(config.getString("expireTime",null));
+            setExpireTime(config.getString("expireTime", null));
         } catch (NumberFormatException e) {
-            throw new ConfigurationException(
-                    "Please configure a valid expireTime: "
-                            + e.getMessage());
+            throw new ConfigurationException("Please configure a valid expireTime: " + e.getMessage());
         }
     }
 
@@ -75,8 +69,7 @@ public class POP3BeforeSMTPHandler implements ConnectHandler<SMTPSession>,Config
         }
 
         // Check if the ip is allowed to relay
-        if (!session.isRelayingAllowed()
-                && POP3BeforeSMTPHelper.isAuthorized(session.getRemoteIPAddress())) {
+        if (!session.isRelayingAllowed() && POP3BeforeSMTPHelper.isAuthorized(session.getRemoteIPAddress())) {
             session.setRelayingAllowed(true);
         }
         return false;

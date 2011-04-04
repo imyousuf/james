@@ -33,33 +33,37 @@ import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.osgi.extender.OsgiBeanFactoryPostProcessor;
 
 /**
- * {@link OsgiBeanFactoryPostProcessor} which add all life-cycle needed {@link BeanPostProcessor} to the {@link ConfigurableListableBeanFactory} on creation. This ensures that
- * the right methods are called during startup when deploying James bundles. 
+ * {@link OsgiBeanFactoryPostProcessor} which add all life-cycle needed
+ * {@link BeanPostProcessor} to the {@link ConfigurableListableBeanFactory} on
+ * creation. This ensures that the right methods are called during startup when
+ * deploying James bundles.
  * 
  * Beside this it also add support for JSR-250 annotations
- * 
- *
  */
-public class JamesOsgiBeanFactoryPostProcessor implements OsgiBeanFactoryPostProcessor{
+public class JamesOsgiBeanFactoryPostProcessor implements OsgiBeanFactoryPostProcessor {
 
     private String confDir;
+
     public void setConfigurationDirectory(String confDir) {
         this.confDir = confDir;
     }
+
     /*
      * (non-Javadoc)
-     * @see org.springframework.osgi.extender.OsgiBeanFactoryPostProcessor#postProcessBeanFactory(org.osgi.framework.BundleContext, org.springframework.beans.factory.config.ConfigurableListableBeanFactory)
+     * 
+     * @see org.springframework.osgi.extender.OsgiBeanFactoryPostProcessor#
+     * postProcessBeanFactory(org.osgi.framework.BundleContext,
+     * org.springframework.beans.factory.config.ConfigurableListableBeanFactory)
      */
     public void postProcessBeanFactory(BundleContext context, ConfigurableListableBeanFactory factory) throws BeansException, InvalidSyntaxException, BundleException {
-        
+
         // life-cycle for LogEnabled
         OsgiLogProvider logProvider = new OsgiLogProvider();
         LogEnabledBeanPostProcessor logProcessor = new LogEnabledBeanPostProcessor();
         logProcessor.setLogProvider(logProvider);
         logProcessor.setBeanFactory(factory);
         factory.addBeanPostProcessor(logProcessor);
-        
-        
+
         // Life-cycle for Configurable
         OsgiConfigurationProvider confProvider = new OsgiConfigurationProvider(confDir);
         ConfigurableBeanPostProcessor confProcessor = new ConfigurableBeanPostProcessor();
@@ -74,6 +78,6 @@ public class JamesOsgiBeanFactoryPostProcessor implements OsgiBeanFactoryPostPro
         commAnnotationProcessor.setDestroyAnnotationType(PreDestroy.class);
         commAnnotationProcessor.setResourceFactory(factory);
         factory.addBeanPostProcessor(commAnnotationProcessor);
-     
+
     }
 }

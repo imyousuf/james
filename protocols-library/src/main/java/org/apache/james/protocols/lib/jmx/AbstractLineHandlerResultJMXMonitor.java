@@ -34,27 +34,32 @@ import org.apache.james.protocols.api.WiringException;
 
 /**
  * Handler which will gather statistics for {@link LineHandler}'s
-
- *
+ * 
  * @param <S>
  */
-public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSession> implements LineHandlerResultHandler<S>, ExtensibleHandler, Configurable{
+public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSession> implements LineHandlerResultHandler<S>, ExtensibleHandler, Configurable {
 
     private Map<String, LineHandlerStats> lStats = new HashMap<String, LineHandlerStats>();
     private String jmxName;
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.LineHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, boolean, long, org.apache.james.protocols.api.LineHandler)
+     * 
+     * @see
+     * org.apache.james.protocols.api.LineHandlerResultHandler#onResponse(org
+     * .apache.james.protocols.api.ProtocolSession, boolean, long,
+     * org.apache.james.protocols.api.LineHandler)
      */
     public boolean onResponse(ProtocolSession session, boolean response, long executionTime, LineHandler<S> handler) {
         lStats.get(handler.getClass().getName()).increment(response);
         return response;
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
+     * 
+     * @see
+     * org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> marker = new ArrayList<Class<?>>();
@@ -64,35 +69,40 @@ public abstract class AbstractLineHandlerResultJMXMonitor<S extends ProtocolSess
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * 
+     * @see
+     * org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.
+     * lang.Class, java.util.List)
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {
-       
+
         if (interfaceName.equals(LineHandler.class)) {
             // add stats for all hooks
-            for (int i = 0; i < extension.size(); i++ ) {
-                LineHandler c =  (LineHandler) extension.get(i);
+            for (int i = 0; i < extension.size(); i++) {
+                LineHandler c = (LineHandler) extension.get(i);
                 if (equals(c) == false) {
                     String cName = c.getClass().getName();
                     try {
                         lStats.put(cName, new LineHandlerStats(jmxName, cName));
                     } catch (Exception e) {
-                        throw new WiringException("Unable to wire Hooks",  e);
+                        throw new WiringException("Unable to wire Hooks", e);
                     }
                 }
             }
         }
     }
 
-    
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.jmxName = config.getString("jmxName", getDefaultJMXName());
-        
+
     }
 
     /**

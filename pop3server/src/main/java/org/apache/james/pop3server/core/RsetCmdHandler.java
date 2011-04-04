@@ -45,7 +45,6 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
     /**
      * Handler method called upon receipt of a RSET command. Calls stat() to
      * reset the mailbox.
-     * 
      */
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
@@ -63,7 +62,6 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
      * this amounts to a rollback of the mailbox contents to the beginning of
      * the transaction. This method is also called when first entering the
      * transaction state to initialize the handler copies of the user inbox.
-     * 
      */
     protected void stat(POP3Session session) {
         try {
@@ -74,7 +72,7 @@ public class RsetCmdHandler implements CommandHandler<POP3Session> {
             while (it.hasNext()) {
                 MessageResult result = it.next();
                 uids.add(new MessageMetaData(result.getUid(), result.getSize()));
-                
+
             }
             session.getState().put(POP3Session.UID_LIST, uids);
             session.getState().put(POP3Session.DELETED_UID_LIST, new ArrayList<Long>());

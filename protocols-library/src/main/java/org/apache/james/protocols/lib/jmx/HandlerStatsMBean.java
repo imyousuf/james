@@ -20,33 +20,28 @@ package org.apache.james.protocols.lib.jmx;
 
 /**
  * JMX MBean for Handler statistics
- * 
- *
  */
 public interface HandlerStatsMBean {
 
-    
     /**
      * Return the count of all processed transactions by the handler
      * 
      * @return all
      */
     long getAll();
-    
+
     /**
      * Return the name of the handler
      * 
      * @return name
      */
     String getName();
-    
 
-    
     /**
      * Return how often the Handler issued a disconnect
      * 
      * @return disconnect
      */
     long getDisconnect();
-    
+
 }

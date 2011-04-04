@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver.fastfail;
 
 import java.util.Iterator;
@@ -37,49 +36,58 @@ import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
 
 /**
+ * <p>
  * This MessageHandler could be used to check message against spamd before
  * accept the email. So its possible to reject a message on smtplevel if a
  * configured hits amount is reached. The handler add the follow attributes to
- * the mail object:<br>
- * org.apache.james.spamassassin.status - Holds the status
- * org.apache.james.spamassassin.flag - Holds the flag <br>
+ * the mail object:
  * 
- * Sample Configuration: <br>
- * <br>
+ * <pre>
+ * <code>
+ * org.apache.james.spamassassin.status - Holds the status
+ * org.apache.james.spamassassin.flag - Holds the flag
+ * </code>
+ * </pre>
+ * 
+ * </p>
+ * <p>
+ * Sample Configuration:
+ * 
+ * <pre>
  * &lt;handler class="org.apache.james.smtpserver.SpamAssassinHandler"&gt;
- * &lt;spamdHost&gt;localhost&lt;/spamdHost&gt;
- * &lt;spamdPort&gt;783&lt;/spamdPort&gt; <br>
- * &lt;spamdRejectionHits&gt;15.0&lt;/spamdRejectionHits&gt;
- * &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt; &lt;/handler&gt;
+ *   &lt;spamdHost&gt;localhost&lt;/spamdHost&gt;
+ *   &lt;spamdPort&gt;783&lt;/spamdPort&gt; <br>
+ *   &lt;spamdRejectionHits&gt;15.0&lt;/spamdRejectionHits&gt;
+ *   &lt;checkAuthNetworks&gt;false&lt;/checkAuthNetworks&gt;
+ * &lt;/handler&gt;
+ * </pre>
+ * 
+ * </p>
  */
 public class SpamAssassinHandler implements JamesMessageHook, Configurable {
 
-    /**
-     * The port spamd is listen on
-     */
+    /** The port spamd is listen on */
     private int spamdPort = 783;
 
-    /**
-     * The host spamd is runnin on
-     */
+    /** The host spamd is running on */
     private String spamdHost = "localhost";
 
-    /**
-     * The hits on which the message get rejected
-     */
+    /** The hits on which the message get rejected */
     private double spamdRejectionHits = 0.0;
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        setSpamdHost(config.getString("spamdHost","localhost"));
-        setSpamdPort(config.getInt("spamdPort",783));
+        setSpamdHost(config.getString("spamdHost", "localhost"));
+        setSpamdPort(config.getInt("spamdPort", 783));
         setSpamdRejectionHits(config.getDouble("spamdRejectionHits", 0.0));
     }
 
-   
     /**
      * Set the host the spamd daemon is running at
      * 
@@ -91,7 +99,7 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
     }
 
     /**
-     * Set the port the spamd damon is listen on
+     * Set the port the spamd daemon is listen on
      * 
      * @param spamdPort
      *            the spamdPort
@@ -112,15 +120,14 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
     }
 
     /**
-     * @see org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession,
+     *      org.apache.mailet.Mail)
      */
     public HookResult onMessage(SMTPSession session, Mail mail) {
 
-     
         try {
             MimeMessage message = mail.getMessage();
-            SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost,
-                    spamdPort);
+            SpamAssassinInvoker sa = new SpamAssassinInvoker(spamdHost, spamdPort);
             sa.scanMail(message);
 
             Iterator<String> headers = sa.getHeadersAsAttribute().keySet().iterator();
@@ -129,8 +136,7 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
             while (headers.hasNext()) {
                 String key = headers.next();
 
-                mail.setAttribute(key, (String) sa.getHeadersAsAttribute().get(
-                        key));
+                mail.setAttribute(key, (String) sa.getHeadersAsAttribute().get(key));
             }
 
             // Check if rejectionHits was configured
@@ -141,19 +147,12 @@ public class SpamAssassinHandler implements JamesMessageHook, Configurable {
                     // if the hits are bigger the rejectionHits reject the
                     // message
                     if (spamdRejectionHits <= hits) {
-                        StringBuffer buffer = new StringBuffer(256).append(
-                                "Rejected message from ").append(
-                                session.getState().get(SMTPSession.SENDER)
-                                        .toString()).append(" from host ")
-                                .append(session.getRemoteHost()).append(" (")
-                                .append(session.getRemoteIPAddress()).append(") This message reach the spam hits treshold. Required rejection hits: ")
-                                .append(spamdRejectionHits).append(" hits: ")
-                                .append(hits);
+                        StringBuffer buffer = new StringBuffer(256).append("Rejected message from ").append(session.getState().get(SMTPSession.SENDER).toString()).append(" from host ").append(session.getRemoteHost()).append(" (").append(session.getRemoteIPAddress())
+                                .append(") This message reach the spam hits treshold. Required rejection hits: ").append(spamdRejectionHits).append(" hits: ").append(hits);
                         session.getLogger().info(buffer.toString());
 
                         // Message reject .. abort it!
-                        return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT,
-                                        DSNStatus.SECURITY_OTHER) + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected");
+                        return new HookResult(HookReturnCode.DENY, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER) + " This message reach the spam hits treshold. Please contact the Postmaster if the email is not SPAM. Message rejected");
                     }
                 } catch (NumberFormatException e) {
                     // hits unknown

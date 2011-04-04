@@ -31,16 +31,16 @@ import org.apache.james.protocols.lib.jmx.AbstractCommandHandlerStats;
 
 /**
  * Gather JMX stats for {@link CommandHandler}
- *
  */
-public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResultJMXMonitor<POP3Response, POP3Session> implements Configurable{
+public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResultJMXMonitor<POP3Response, POP3Session> implements Configurable {
 
     private String jmxName;
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.socket.AbstractCommandHandlerResultJMXMonitor#createCommandHandlerStats(org.apache.james.protocols.api.CommandHandler)
+     * 
+     * @see org.apache.james.socket.AbstractCommandHandlerResultJMXMonitor#
+     * createCommandHandlerStats(org.apache.james.protocols.api.CommandHandler)
      */
     protected AbstractCommandHandlerStats<POP3Response> createCommandHandlerStats(CommandHandler<POP3Session> handler) throws Exception {
         Collection<String> col = handler.getImplCommands();
@@ -49,10 +49,12 @@ public class CommandHandlerResultJMXMonitor extends AbstractCommandHandlerResult
         return new POP3CommandHandlerStats(jmxName, cName, col.toArray(new String[col.size()]));
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.jmxName = config.getString("jmxName", "pop3server");

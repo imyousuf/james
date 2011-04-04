@@ -27,24 +27,22 @@ import org.apache.james.queue.library.AbstractMailQueueFactory;
 
 /**
  * {@link MailQueueFactory} implementation which use JMS
- * 
- *
  */
-public class JMSMailQueueFactory extends AbstractMailQueueFactory{
-    
+public class JMSMailQueueFactory extends AbstractMailQueueFactory {
+
     protected ConnectionFactory connectionFactory;
-    
-  
-    
-    @Resource(name="jmsConnectionFactory")
+
+    @Resource(name = "jmsConnectionFactory")
     public void setConnectionFactory(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.queue.library.AbstractMailQueueFactory#createMailQueue(java.lang.String)
+     * 
+     * @see
+     * org.apache.james.queue.library.AbstractMailQueueFactory#createMailQueue
+     * (java.lang.String)
      */
     protected MailQueue createMailQueue(String name) {
         return new JMSMailQueue(connectionFactory, name, log);

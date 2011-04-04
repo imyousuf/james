@@ -20,19 +20,17 @@
 package org.apache.james.queue.api;
 
 /**
- * Factory for {@link MailQueue} 
- * 
- *
+ * Factory for {@link MailQueue}
  */
 public interface MailQueueFactory {
 
     /**
-     * {@link MailQueue} which is used for spooling the messages 
+     * {@link MailQueue} which is used for spooling the messages
      */
     final static String SPOOL = "spool";
-    
+
     /**
-     * Return the {@link MailQueue} for the name. 
+     * Return the {@link MailQueue} for the name.
      * 
      * @param name
      * @return queue

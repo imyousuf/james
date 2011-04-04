@@ -41,7 +41,6 @@ public class UnknownCmdHandler implements CommandHandler<POP3Session> {
     /**
      * Handler method called upon receipt of an unrecognized command. Returns an
      * error response and logs the command.
-     * 
      */
     public Response onCommand(POP3Session session, Request request) {
         return new POP3Response(POP3Response.ERR_RESPONSE);

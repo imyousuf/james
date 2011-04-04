@@ -54,7 +54,6 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
     /**
      * Handler method called upon receipt of a RETR command. This command
      * retrieves a particular mail message from the mailbox.
-     * 
      */
     @SuppressWarnings("unchecked")
     public Response onCommand(POP3Session session, Request request) {
@@ -76,25 +75,26 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
                 Long uid = uidList.get(num - 1).getUid();
                 if (deletedUidList.contains(uid) == false) {
                     Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), new FetchGroupImpl(FetchGroup.FULL_CONTENT), mailboxSession);
-                    
+
                     if (results.hasNext()) {
                         MessageResult result = results.next();
 
                         try {
                             session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
-                            // response = new POP3Response(POP3Response.OK_RESPONSE,
+                            // response = new
+                            // POP3Response(POP3Response.OK_RESPONSE,
                             // "Message follows");
                             Content content = result.getFullContent();
                             InputStream in;
                             if (content instanceof InputStreamContent) {
-                                in =((InputStreamContent) content).getInputStream();
+                                in = ((InputStreamContent) content).getInputStream();
                             } else {
                                 in = createInputStream(content);
                             }
-                            //session.writeStream(new ExtraDotInputStream(in));
+                            // session.writeStream(new ExtraDotInputStream(in));
                             session.writeStream(new ExtraDotInputStream(new CRLFTerminatedInputStream(in)));
 
-                        } finally {                         
+                        } finally {
                             // write a single dot to mark message as complete
                             session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
                         }
@@ -131,7 +131,7 @@ public class RetrCmdHandler implements CommandHandler<POP3Session> {
         content.writeTo(Channels.newChannel(out));
         return new ByteArrayInputStream(out.toByteArray());
     }
-    
+
     /*
      * (non-Javadoc)
      * 

@@ -18,7 +18,7 @@
  ****************************************************************/
 package org.apache.james.queue.activemq;
 
-import java.io.File; 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,12 +38,12 @@ import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.james.filesystem.api.FileSystem;
 
 /**
- * {@link BlobUploadStrategy} and {@link BlobDownloadStrategy} implementation which use the {@link FileSystem} to lookup the {@link File} for the {@link BlobMessage}
- *
+ * {@link BlobUploadStrategy} and {@link BlobDownloadStrategy} implementation
+ * which use the {@link FileSystem} to lookup the {@link File} for the
+ * {@link BlobMessage}
  */
-public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadStrategy, ActiveMQSupport{
+public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadStrategy, ActiveMQSupport {
 
-   
     private final FileSystem fs;
     private final BlobTransferPolicy policy;
     private final ConcurrentHashMap<String, SharedFileInputStream> map = new ConcurrentHashMap<String, SharedFileInputStream>();
@@ -54,19 +54,25 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
         this.policy = policy;
         this.splitCount = splitCount;
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.activemq.blob.BlobUploadStrategy#uploadFile(org.apache.activemq.command.ActiveMQBlobMessage, java.io.File)
+     * 
+     * @see
+     * org.apache.activemq.blob.BlobUploadStrategy#uploadFile(org.apache.activemq
+     * .command.ActiveMQBlobMessage, java.io.File)
      */
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value="OBL_UNSATISFIED_OBLIGATION", justification="Closed in uploadStream")
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OBL_UNSATISFIED_OBLIGATION", justification = "Closed in uploadStream")
     public URL uploadFile(ActiveMQBlobMessage message, File file) throws JMSException, IOException {
         return uploadStream(message, new FileInputStream(file));
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.activemq.blob.BlobUploadStrategy#uploadStream(org.apache.activemq.command.ActiveMQBlobMessage, java.io.InputStream)
+     * 
+     * @see
+     * org.apache.activemq.blob.BlobUploadStrategy#uploadStream(org.apache.activemq
+     * .command.ActiveMQBlobMessage, java.io.InputStream)
      */
     public URL uploadStream(ActiveMQBlobMessage message, InputStream in) throws JMSException, IOException {
         FileOutputStream out = null;
@@ -102,13 +108,17 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
 
     /*
      * (non-Javadoc)
-     * @see org.apache.activemq.blob.BlobDownloadStrategy#deleteFile(org.apache.activemq.command.ActiveMQBlobMessage)
+     * 
+     * @see
+     * org.apache.activemq.blob.BlobDownloadStrategy#deleteFile(org.apache.activemq
+     * .command.ActiveMQBlobMessage)
      */
     public void deleteFile(ActiveMQBlobMessage message) throws IOException, JMSException {
         File f = getFile(message);
         SharedFileInputStream in = map.remove(f.getCanonicalPath());
         try {
-            if (in != null) in .close();
+            if (in != null)
+                in.close();
         } catch (IOException e) {
             // ignore here
         }
@@ -125,7 +135,8 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
     public InputStream getInputStream(ActiveMQBlobMessage message) throws IOException, JMSException {
         File f = getFile(message);
         String key = f.getCanonicalPath();
-        // use exactly one SharedFileInputStream per file so we can keep track of filehandles
+        // use exactly one SharedFileInputStream per file so we can keep track
+        // of filehandles
         // See JAMES-1122
         SharedFileInputStream in = map.putIfAbsent(key, new SharedFileInputStream(f));
         if (in == null) {
@@ -134,10 +145,9 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
         return in;
     }
 
-    
     /**
-     * Return the {@link File} for the {@link ActiveMQBlobMessage}. 
-     * The {@link File} is lookup via the {@link FileSystem} service
+     * Return the {@link File} for the {@link ActiveMQBlobMessage}. The
+     * {@link File} is lookup via the {@link FileSystem} service
      * 
      * @param message
      * @return file
@@ -148,25 +158,24 @@ public class FileSystemBlobStrategy implements BlobUploadStrategy, BlobDownloadS
         if (message.getURL() != null) {
             return fs.getFile(message.getURL().toString());
         }
-        
-        // Make sure it works on windows in all cases and make sure 
+
+        // Make sure it works on windows in all cases and make sure
         // we use the JMS Message ID as filename so we are safe in the case
         // we try to stream from and to the same mail
         String filename = message.getJMSMessageID().replaceAll("[:\\\\/*?|<>]", "_");
-        int i = (int) (Math.random()*splitCount+1);
+        int i = (int) (Math.random() * splitCount + 1);
 
-        String queueUrl = policy.getUploadUrl() + "/" +i;
+        String queueUrl = policy.getUploadUrl() + "/" + i;
 
         File queueF = fs.getFile(queueUrl);
-        
+
         // check if we need to create the queue folder
         if (queueF.exists() == false) {
             if (!queueF.mkdirs()) {
-                throw new IOException("Unable to create directory "
-                        + queueF.getAbsolutePath());
+                throw new IOException("Unable to create directory " + queueF.getAbsolutePath());
             }
         }
-        return fs.getFile(queueUrl+ "/" + filename);
-        
+        return fs.getFile(queueUrl + "/" + filename);
+
     }
 }

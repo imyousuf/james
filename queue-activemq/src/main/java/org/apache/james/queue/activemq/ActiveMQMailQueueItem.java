@@ -37,9 +37,8 @@ import org.slf4j.Logger;
 /**
  * ActiveMQ {@link MailQueueItem} implementation which handles Blob-Messages as
  * well
- * 
  */
-public class ActiveMQMailQueueItem extends JMSMailQueueItem implements ActiveMQSupport{
+public class ActiveMQMailQueueItem extends JMSMailQueueItem implements ActiveMQSupport {
 
     private final Message message;
     private final Logger logger;
@@ -52,6 +51,7 @@ public class ActiveMQMailQueueItem extends JMSMailQueueItem implements ActiveMQS
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.queue.jms.JMSMailQueueItem#done(boolean)
      */
     public void done(boolean success) throws MailQueueException {

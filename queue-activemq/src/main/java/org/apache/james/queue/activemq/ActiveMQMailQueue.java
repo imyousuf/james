@@ -57,58 +57,62 @@ import org.slf4j.Logger;
 import org.springframework.jms.connection.SessionProxy;
 
 /**
- * *{@link MailQueue} implementation which use an ActiveMQ Queue.
- * 
+ * <p>
+ * {@link MailQueue} implementation which use an ActiveMQ Queue.
+ * <p>
+ * </p>
  * This implementation require at ActiveMQ 5.4.0+.
- * 
+ * <p>
+ * </p>
  * When a {@link Mail} attribute is found and is not one of the supported
  * primitives, then the toString() method is called on the attribute value to
  * convert it
- * 
- * The implementation use {@link BlobMessage} or {@link ObjectMessage}, depending on the constructor which was used
- * 
- * 
- * See http://activemq.apache.org/blob-messages.html for more details
- * 
- * 
- * Some other supported feature is handling of priorities. See:
- * 
- * http://activemq.apache.org/how-can-i-support-priority-queues.html
- * 
+ * <p>
+ * </p>
+ * The implementation use {@link BlobMessage} or {@link ObjectMessage},
+ * depending on the constructor which was used
+ * <p>
+ * </p>
+ * See <a
+ * href="http://activemq.apache.org/blob-messages.html">http://activemq.apache
+ * .org/blob-messages.html</a> for more details
+ * <p>
+ * </p>
+ * Some other supported feature is handling of priorities. See:<br>
+ * <a href="http://activemq.apache.org/how-can-i-support-priority-queues.html">
+ * http://activemq.apache.org/how-can-i-support-priority-queues.html</a>
+ * <p>
+ * </p>
  * For this just add a {@link Mail} attribute with name {@link #MAIL_PRIORITY}
  * to it. It should use one of the following value {@link #LOW_PRIORITY},
  * {@link #NORMAL_PRIORITY}, {@link #HIGH_PRIORITY}
- * 
- * To have a good throughput you should use a caching connection factory.
- * 
- * 
+ * <p>
+ * </p>
+ * To have a good throughput you should use a caching connection factory. </p>
  */
-public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
-    
+public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport {
+
     private boolean useBlob;
-    
-    
+
     /**
      * Construct a {@link ActiveMQMailQueue} which only use {@link BlobMessage}
-     * @throws NotCompliantMBeanException 
+     * 
+     * @throws NotCompliantMBeanException
      * 
      * @see #ActiveMQMailQueue(ConnectionFactory, String, boolean, Log)
      */
     public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, final Logger logger) {
         this(connectionFactory, queuename, true, logger);
     }
-    
+
     /**
      * Construct a new ActiveMQ based {@link MailQueue}.
-     * 
-     * 
-     * 
      * 
      * @param connectionFactory
      * @param queuename
      * @param useBlob
      * @param logger
-     * @throws NotCompliantMBeanException 
+     * @throws NotCompliantMBeanException
      */
     public ActiveMQMailQueue(final ConnectionFactory connectionFactory, final String queuename, boolean useBlob, final Logger logger) {
         super(connectionFactory, queuename, logger);
@@ -136,8 +140,10 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                 }
                 InputStream in = blobMessage.getInputStream();
                 MimeMessageSource source;
- 
-                // if its a SharedInputStream we can make use of some more performant implementation which don't need to copy the message to a temporary file
+
+                // if its a SharedInputStream we can make use of some more
+                // performant implementation which don't need to copy the
+                // message to a temporary file
                 if (in instanceof SharedInputStream) {
                     String sourceId = message.getJMSMessageID();
                     long size = message.getLongProperty(JAMES_MAIL_MESSAGE_SIZE);
@@ -145,7 +151,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                 } else {
                     source = new MimeMessageInputStreamSource(mail.getName(), in);
                 }
-        
+
                 mail.setMessage(new MimeMessageCopyOnWriteProxy(source));
             } catch (IOException e) {
                 throw new MailQueueException("Unable to populate MimeMessage for mail " + mail.getName(), e);
@@ -164,48 +170,50 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
      * org.apache.james.queue.jms.JMSMailQueue#createMessage(javax.jms.Session,
      * org.apache.mailet.Mail, long)
      */
-    protected void produceMail(Session session, Map<String,Object> props, int msgPrio, Mail mail) throws JMSException, MessagingException, IOException {
+    protected void produceMail(Session session, Map<String, Object> props, int msgPrio, Mail mail) throws JMSException, MessagingException, IOException {
         MessageProducer producer = null;
         BlobMessage blobMessage = null;
         boolean reuse = false;
 
         try {
-            
+
             // check if we should use a blob message here
-            if (useBlob) { 
+            if (useBlob) {
                 MimeMessage mm = mail.getMessage();
                 MimeMessage wrapper = mm;
-                
+
                 ActiveMQSession amqSession = getAMQSession(session);
-                
+
                 if (wrapper instanceof MimeMessageCopyOnWriteProxy) {
-                    wrapper = ((MimeMessageCopyOnWriteProxy)mm).getWrappedMessage();
+                    wrapper = ((MimeMessageCopyOnWriteProxy) mm).getWrappedMessage();
                 }
                 if (wrapper instanceof MimeMessageWrapper) {
                     URL blobUrl = (URL) mail.getAttribute(JAMES_BLOB_URL);
                     String fromQueue = (String) mail.getAttribute(JAMES_QUEUE_NAME);
                     MimeMessageWrapper mwrapper = (MimeMessageWrapper) wrapper;
 
-                    if (blobUrl != null && fromQueue != null && mwrapper.isModified() == false ) {
-                        // the message content was not changed so don't need to upload it again and can just point to the url
+                    if (blobUrl != null && fromQueue != null && mwrapper.isModified() == false) {
+                        // the message content was not changed so don't need to
+                        // upload it again and can just point to the url
                         blobMessage = amqSession.createBlobMessage(blobUrl);
-                    
-                        // thats important so we don't delete the blob file after complete the processing!
+
+                        // thats important so we don't delete the blob file
+                        // after complete the processing!
                         mail.setAttribute(JAMES_REUSE_BLOB_URL, true);
                         reuse = true;
-                    
+
                     }
 
                 }
                 if (blobMessage == null) {
-                    // just use the MimeMessageInputStream which can read every MimeMessage implementation
+                    // just use the MimeMessageInputStream which can read every
+                    // MimeMessage implementation
                     blobMessage = amqSession.createBlobMessage(new MimeMessageInputStream(wrapper));
                 }
-            
+
                 // store the queue name in the props
                 props.put(JAMES_QUEUE_NAME, queuename);
 
-              
                 Queue queue = session.createQueue(queuename);
 
                 producer = session.createProducer(queue);
@@ -232,7 +240,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                 // ignore here
             }
         }
-      
+
     }
 
     /**
@@ -244,9 +252,9 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
      */
     protected ActiveMQSession getAMQSession(Session session) throws JMSException {
         ActiveMQSession amqSession;
-        
+
         if (session instanceof SessionProxy) {
-            // handle Springs CachingConnectionFactory 
+            // handle Springs CachingConnectionFactory
             amqSession = (ActiveMQSession) ((SessionProxy) session).getTargetSession();
         } else {
             // just cast as we have no other idea
@@ -254,7 +262,6 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
         }
         return amqSession;
     }
-    
 
     @Override
     protected MailQueueItem createMailQueueItem(Connection connection, Session session, MessageConsumer consumer, Message message) throws JMSException, MessagingException {
@@ -262,11 +269,10 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
         return new ActiveMQMailQueueItem(mail, connection, session, consumer, message, logger);
     }
 
-    
     @Override
-    public List<Message> removeWithSelector(String selector) throws MailQueueException{
+    public List<Message> removeWithSelector(String selector) throws MailQueueException {
         List<Message> mList = super.removeWithSelector(selector);
-        
+
         // Handle the blob messages
         for (int i = 0; i < mList.size(); i++) {
             Message m = mList.get(i);
@@ -276,18 +282,17 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                     // https://issues.apache.org/activemq/browse/AMQ-3018
                     ((ActiveMQBlobMessage) m).deleteFile();
                 } catch (Exception e) {
-                    logger.error("Unable to delete blob file for message " +m, e);
+                    logger.error("Unable to delete blob file for message " + m, e);
                 }
             }
         }
         return mList;
     }
 
-    
     @Override
     protected Message copy(Session session, Message m) throws JMSException {
         if (m instanceof ActiveMQBlobMessage) {
-            ActiveMQBlobMessage b = (ActiveMQBlobMessage)m;
+            ActiveMQBlobMessage b = (ActiveMQBlobMessage) m;
             ActiveMQBlobMessage copy = (ActiveMQBlobMessage) getAMQSession(session).createBlobMessage(b.getURL());
             try {
                 copy.setProperties(b.getProperties());
@@ -301,20 +306,19 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
     }
 
     /**
-     * Try to use ActiveMQ StatisticsPlugin to get size and if that fails fallback to {@link JMSMailQueue#getSize()}
-     * 
-     * 
+     * Try to use ActiveMQ StatisticsPlugin to get size and if that fails
+     * fallback to {@link JMSMailQueue#getSize()}
      */
     @Override
     public long getSize() throws MailQueueException {
-         
+
         Connection connection = null;
         Session session = null;
         MessageConsumer consumer = null;
         MessageProducer producer = null;
         TemporaryQueue replyTo = null;
         long size = -1;
-        
+
         try {
             connection = connectionFactory.createConnection();
             connection.start();
@@ -328,7 +332,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
 
             String queueName = "ActiveMQ.Statistics.Destination." + myQueue.getQueueName();
             Queue query = session.createQueue(queueName);
-            
+
             Message msg = session.createMessage();
             msg.setJMSReplyTo(replyTo);
             producer.send(query, msg);
@@ -338,12 +342,13 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                     size = reply.getLong("size");
                     return size;
                 } catch (NumberFormatException e) {
-                    // if we hit this we can't calculate the size so just catch it
+                    // if we hit this we can't calculate the size so just catch
+                    // it
                 }
             }
-              
+
         } catch (Exception e) {
-            throw new MailQueueException("Unable to remove mails" , e);
+            throw new MailQueueException("Unable to remove mails", e);
 
         } finally {
 
@@ -356,7 +361,7 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                     // ignore on rollback
                 }
             }
-            
+
             if (producer != null) {
 
                 try {
@@ -365,14 +370,14 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
                     // ignore on rollback
                 }
             }
-            
+
             if (replyTo != null) {
                 try {
-                    
+
                     // we need to delete the temporary queue to be sure we will
                     // free up memory if thats not done and a pool is used
-                    // its possible that we will register a new mbean in jmx for 
-                    // every TemporaryQueue which will never get unregistered 
+                    // its possible that we will register a new mbean in jmx for
+                    // every TemporaryQueue which will never get unregistered
                     replyTo.delete();
                 } catch (JMSException e) {
                 }
@@ -390,11 +395,10 @@ public class ActiveMQMailQueue extends JMSMailQueue implements ActiveMQSupport{
             } catch (JMSException e1) {
                 // ignore here
             }
-        }    
-        
+        }
+
         // if we came to this point we should just fallback to super method
         return super.getSize();
     }
-    
-    
+
 }

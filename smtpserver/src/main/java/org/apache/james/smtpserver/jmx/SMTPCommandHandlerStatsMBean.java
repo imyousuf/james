@@ -20,12 +20,10 @@ package org.apache.james.smtpserver.jmx;
 
 import org.apache.james.protocols.lib.jmx.CommandHandlerStatsMBean;
 
-
 /**
  * JMX MBean for CommandHandler
- *
  */
-public interface SMTPCommandHandlerStatsMBean extends CommandHandlerStatsMBean{
+public interface SMTPCommandHandlerStatsMBean extends CommandHandlerStatsMBean {
 
     /**
      * Return the count of temporary errors returned by the handler
@@ -33,7 +31,7 @@ public interface SMTPCommandHandlerStatsMBean extends CommandHandlerStatsMBean{
      * @return tempCount
      */
     long getTemporaryError();
-    
+
     /**
      * Return the count of permanent errors returned by the handler
      * 
@@ -41,8 +39,6 @@ public interface SMTPCommandHandlerStatsMBean extends CommandHandlerStatsMBean{
      */
     long getPermantError();
 
-    
-    
     /**
      * Return the count of successful handling returned by the handler
      * 

@@ -45,35 +45,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class can be used to reject email with bogus MX which is send from a authorized user or an authorized
- * network.
+ * This class can be used to reject email with bogus MX which is send from a
+ * authorized user or an authorized network.
  */
-public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
+public class ValidRcptMX implements LogEnabled, RcptHook, Configurable {
 
     /** This log is the fall back shared by all instances */
     private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(ValidRcptMX.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
+
+    /**
+     * Non context specific log should only be used when no context specific log
+     * is available
+     */
     private Logger serviceLog = FALLBACK_LOG;
-    
+
     private DNSService dnsService = null;
 
     private static final String LOCALHOST = "localhost";
 
     private NetMatcher bNetwork = null;
 
-
     /**
-     * Sets the service log.
+     * Sets the service log.<br>
      * Where available, a context sensitive log should be used.
-     * @param Log not null
+     * 
+     * @param Log
+     *            not null
      */
     public void setLog(Logger log) {
         this.serviceLog = log;
     }
-    
+
     /**
      * Gets the DNS service.
+     * 
      * @return the dnsService
      */
     public final DNSService getDNSService() {
@@ -82,23 +87,25 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
 
     /**
      * Sets the DNS service.
-     * @param dnsService the dnsService to set
+     * 
+     * @param dnsService
+     *            the dnsService to set
      */
-    @Resource(name="dnsservice")
+    @Resource(name = "dnsservice")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }
-    
+
     /**
      * @see org.apache.james.lifecycle.api.Configurable#configure(org.apache.commons.configuration.Configuration)
      */
     @SuppressWarnings("unchecked")
-	public void configure(HierarchicalConfiguration config) throws ConfigurationException {
+    public void configure(HierarchicalConfiguration config) throws ConfigurationException {
 
         List<String> networks = config.getList("invalidMXNetworks");
 
         if (networks.isEmpty() == false) {
-        	
+
             Collection<String> bannedNetworks = new ArrayList<String>();
 
             for (int i = 0; i < networks.size(); i++) {
@@ -111,17 +118,18 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
             serviceLog.info("Invalid MX Networks: " + bNetwork.toString());
 
         } else {
-            throw new ConfigurationException(
-                "Please configure at least on invalid MX network");
+            throw new ConfigurationException("Please configure at least on invalid MX network");
         }
-        
+
     }
 
     /**
      * Set the banned networks
      * 
-     * @param networks Collection of networks 
-     * @param dnsServer The DNSServer
+     * @param networks
+     *            Collection of networks
+     * @param dnsServer
+     *            The DNSServer
      */
     public void setBannedNetworks(Collection<String> networks, DNSService dnsServer) {
         bNetwork = new NetMatcher(networks, dnsServer) {
@@ -132,7 +140,8 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
     }
 
     /**
-     * @see org.apache.james.protocols.smtp.hook.RcptHook#doRcpt(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     * @see org.apache.james.protocols.smtp.hook.RcptHook#doRcpt(org.apache.james.protocols.smtp.SMTPSession,
+     *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
 
@@ -140,7 +149,7 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
 
         // Email should be deliver local
         if (!domain.equals(LOCALHOST)) {
- 
+
             Iterator<String> mx = null;
             try {
                 mx = dnsService.findMXRecords(domain).iterator();
@@ -152,13 +161,12 @@ public class ValidRcptMX implements LogEnabled, RcptHook, Configurable{
                 while (mx.hasNext()) {
                     String mxRec = mx.next();
 
-                     try {
+                    try {
                         String ip = dnsService.getByName(mxRec).getHostAddress();
 
                         // Check for invalid MX
                         if (bNetwork.matchInetNetwork(ip)) {
-                            return new HookResult(HookReturnCode.DENY,SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " Invalid MX " + session.getRemoteIPAddress() 
-                                    + " for domain " + domain + ". Reject email");
+                            return new HookResult(HookReturnCode.DENY, SMTPRetCode.AUTH_REQUIRED, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " Invalid MX " + session.getRemoteIPAddress() + " for domain " + domain + ". Reject email");
                         }
                     } catch (UnknownHostException e) {
                         // Ignore this

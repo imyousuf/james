@@ -26,22 +26,34 @@ import javax.mail.MessagingException;
 import org.apache.mailet.Mail;
 
 /**
- * A Queue/Spool for Mails. How the Queue handles the ordering of the 
- * dequeuing is up to the implementation. 
- * 
- * IMPORTANT:
- * 
- * Implementations does not need to keep all {@link Mail} Attributes when enqueue emails. The implementations are only 
- * in the need of supporting at least this kind of Primitives as values:
- *     - Long
- *     - Byte
- *     - Integer
- *     - String
- *     - Boolean
- *     - Short
- *     - Float
- *     - Double
- *
+ * <p>
+ * A Queue/Spool for Mails. How the Queue handles the ordering of the dequeuing
+ * is up to the implementation.
+ * </p>
+ * <p>
+ * <strong> IMPORTANT</strong>:<br>
+ * Implementations does not need to keep all {@link Mail} Attributes when
+ * enqueue emails. The implementations are only in the need of supporting at
+ * least this kind of Primitives as values:
+ * <ul>
+ * <li>
+ * Long</li>
+ * <li>
+ * Byte</li>
+ * <li>
+ * Integer</li>
+ * <li>
+ * String</li>
+ * <li>
+ * Boolean</li>
+ * <li>
+ * Short</li>
+ * <li>
+ * Float</li>
+ * <li>
+ * Double</li>
+ * </ul>
+ * </p>
  */
 public interface MailQueue {
 
@@ -51,8 +63,8 @@ public interface MailQueue {
     final static int NO_DELAY = -1;
 
     /**
-     * Enqueue the Mail to the queue. The given delay and unit are used to calculate the time when the 
-     * Mail will be avaible for dequeue
+     * Enqueue the Mail to the queue. The given delay and unit are used to
+     * calculate the time when the Mail will be available for deQueue
      * 
      * @param mail
      * @param delay
@@ -60,8 +72,7 @@ public interface MailQueue {
      * @throws MailQueueException
      */
     void enQueue(Mail mail, long delay, TimeUnit unit) throws MailQueueException;
-    
-    
+
     /**
      * Enqueue the Mail to the queue
      * 
@@ -69,34 +80,32 @@ public interface MailQueue {
      * @throws MailQueueException
      */
     void enQueue(Mail mail) throws MailQueueException;
-    
-    
+
     /**
-     * Dequeue the next ready-to-process Mail of the queue. This method will block until a Mail is ready and then process
-     * the {@link DequeueOperation}. Implementations should take care todo some kind of transactions to not loose any mail on error
+     * Dequeue the next ready-to-process Mail of the queue. This method will
+     * block until a Mail is ready and then process the {@link DequeueOperation}
+     * . Implementations should take care todo some kind of transactions to not
+     * loose any mail on error
      * 
      * @param dequeueOperation
      * @throws MailQueueException
      */
     MailQueueItem deQueue() throws MailQueueException;
-    
-    
+
     /**
-     * Exception which will get thrown if any problems occur while working the {@link MailQueue}
-     * 
-     *
+     * Exception which will get thrown if any problems occur while working the
+     * {@link MailQueue}
      */
     @SuppressWarnings("serial")
     class MailQueueException extends MessagingException {
         public MailQueueException(String msg, Exception e) {
             super(msg, e);
         }
-        
+
         public MailQueueException(String msg) {
             super(msg);
         }
     }
-    
 
     /**
      * 
@@ -110,13 +119,14 @@ public interface MailQueue {
          * @return mail
          */
         Mail getMail();
-        
+
         /**
-         * Callback which MUST get called after the operation on the dequeued {@link Mail} was complete. 
+         * Callback which MUST get called after the operation on the dequeued
+         * {@link Mail} was complete.
          * 
-         * This is mostly used to either commit a transaction or rollback. 
-         *  
-         * @param success 
+         * This is mostly used to either commit a transaction or rollback.
+         * 
+         * @param success
          * @throws MailQueueException
          */
         void done(boolean success) throws MailQueueException;

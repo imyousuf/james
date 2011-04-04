@@ -27,33 +27,33 @@ import org.apache.james.container.spring.provider.configuration.ConfigurationPro
 
 /**
  * Load configuration files from the specified configuration directory
- * 
- *
  */
-public class OsgiConfigurationProvider implements ConfigurationProvider{
+public class OsgiConfigurationProvider implements ConfigurationProvider {
 
     private String configDir;
 
     public OsgiConfigurationProvider(String configDir) {
         this.configDir = configDir;
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.container.spring.lifecycle.ConfigurationProvider#getConfiguration(java.lang.String)
+     * 
+     * @see org.apache.james.container.spring.lifecycle.ConfigurationProvider#
+     * getConfiguration(java.lang.String)
      */
     public HierarchicalConfiguration getConfiguration(String beanName) throws ConfigurationException {
         XMLConfiguration config = new XMLConfiguration();
         config.setDelimiterParsingDisabled(true);
-        
-        config.load(new File(configDir +"/" + beanName + ".xml"));        
+
+        config.load(new File(configDir + "/" + beanName + ".xml"));
         return config;
-        
+
     }
 
     public void registerConfiguration(String beanName, HierarchicalConfiguration conf) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

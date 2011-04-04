@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.protocols.lib;
 
 import java.util.Collections;
@@ -91,7 +90,8 @@ public class POP3BeforeSMTPHelper {
 
                 // remove the ip from the map when it is expired
                 if ((currTime - clearTime) > storedTime) {
-                    // remove the entry from the iterator first to get sure that we not get 
+                    // remove the entry from the iterator first to get sure that
+                    // we not get
                     // a ConcurrentModificationException
                     storedIP.remove();
 

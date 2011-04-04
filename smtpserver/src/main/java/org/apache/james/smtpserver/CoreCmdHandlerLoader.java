@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
 
 import java.util.LinkedList;
@@ -75,7 +73,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
     // MessageHooks
     private final String ADDDEFAULTATTRIBUTESHANDLER = AddDefaultAttributesMessageHook.class.getName();
     private final String SENDMAILHANDLER = SendMailHandler.class.getName();
-    
+
     // logging stuff
     private final String COMMANDHANDLERRESULTLOGGER = SMTPCommandHandlerResultLogger.class.getName();
     private final String CONNECTHANDLERRESULTLOGGER = ConnectHandlerResultLogger.class.getName();
@@ -111,15 +109,17 @@ public class CoreCmdHandlerLoader implements HandlersPackage {
         // Add the default messageHooks
         commands.add(ADDDEFAULTATTRIBUTESHANDLER);
         commands.add(SENDMAILHANDLER);
-        
+
         // Add logging stuff
         commands.add(COMMANDHANDLERRESULTLOGGER);
         commands.add(CONNECTHANDLERRESULTLOGGER);
         commands.add(LINEHANDLERRESULTLOGGER);
         commands.add(HOOKRESULTLOGGER);
     }
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.protocols.api.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {

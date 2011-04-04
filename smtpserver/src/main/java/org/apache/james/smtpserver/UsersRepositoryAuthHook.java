@@ -31,11 +31,12 @@ import org.apache.james.user.api.UsersRepositoryException;
  * This Auth hook can be used to authenticate against the james user repository
  */
 public class UsersRepositoryAuthHook implements AuthHook {
-    
+
     private UsersRepository users;
-    
+
     /**
      * Gets the users repository.
+     * 
      * @return the users
      */
     public final UsersRepository getUsers() {
@@ -44,16 +45,18 @@ public class UsersRepositoryAuthHook implements AuthHook {
 
     /**
      * Sets the users repository.
-     * @param users the users to set
+     * 
+     * @param users
+     *            the users to set
      */
-    @Resource(name="usersrepository")
+    @Resource(name = "usersrepository")
     public final void setUsers(UsersRepository users) {
         this.users = users;
     }
 
-
     /**
-     * @see org.apache.james.protocols.smtp.hook.AuthHook#doAuth(org.apache.james.protocols.smtp.SMTPSession, java.lang.String, java.lang.String)
+     * @see org.apache.james.protocols.smtp.hook.AuthHook#doAuth(org.apache.james.protocols.smtp.SMTPSession,
+     *      java.lang.String, java.lang.String)
      */
     public HookResult doAuth(SMTPSession session, String username, String password) {
         try {

@@ -17,9 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-
 package org.apache.james.smtpserver.fastfail;
 
 import java.io.IOException;
@@ -51,38 +48,44 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Extract domains from message and check against URIRBLServer. For more informations see http://www.surbl.org
+ * Extract domains from message and check against URIRBLServer. For more
+ * informations see <a href="http://www.surbl.org">www.surbl.org</a>
  */
 public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable {
 
     /** This log is the fall back shared by all instances */
     private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(URIRBLHandler.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
+
+    /**
+     * Non context specific log should only be used when no context specific log
+     * is available
+     */
     private Logger serviceLog = FALLBACK_LOG;
-    
-    private final static String LISTED_DOMAIN ="LISTED_DOMAIN";
-    
+
+    private final static String LISTED_DOMAIN = "LISTED_DOMAIN";
+
     private final static String URBLSERVER = "URBL_SERVER";
-    
+
     private DNSService dnsService;
 
     private Collection<String> uriRbl;
 
     private boolean getDetail = false;
 
-
     /**
-     * Sets the service log.
+     * Sets the service log.<br>
      * Where available, a context sensitive log should be used.
-     * @param Log not null
+     * 
+     * @param Log
+     *            not null
      */
     public void setLog(Logger log) {
         this.serviceLog = log;
     }
-    
+
     /**
      * Gets the DNS service.
+     * 
      * @return the dnsService
      */
     public final DNSService getDNSService() {
@@ -91,23 +94,26 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
 
     /**
      * Sets the DNS service.
-     * @param dnsService the dnsService to set
+     * 
+     * @param dnsService
+     *            the dnsService to set
      */
-    @Resource(name="dnsservice")
+    @Resource(name = "dnsservice")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }
-    
-    
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         String[] servers = config.getStringArray("uriRblServers.server");
         Collection<String> serverCollection = new ArrayList<String>();
-        for ( int i = 0 ; i < servers.length ; i++ ) {
+        for (int i = 0; i < servers.length; i++) {
             String rblServerName = servers[i];
             serverCollection.add(rblServerName);
             if (serviceLog.isInfoEnabled()) {
@@ -119,31 +125,34 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
         } else {
             throw new ConfigurationException("Please provide at least one server");
         }
-            
-        setGetDetail(config.getBoolean("getDetail",false));        
-        
+
+        setGetDetail(config.getBoolean("getDetail", false));
+
     }
-   
+
     /**
      * Set the UriRBL Servers
      * 
-     * @param uriRbl The Collection holding the servers
+     * @param uriRbl
+     *            The Collection holding the servers
      */
     public void setUriRblServer(Collection<String> uriRbl) {
         this.uriRbl = uriRbl;
     }
 
     /**
-     * Set for try to get a TXT record for the blocked record. 
+     * Set for try to get a TXT record for the blocked record.
      * 
-     * @param getDetail Set to ture for enable
+     * @param getDetail
+     *            Set to ture for enable
      */
     public void setGetDetail(boolean getDetail) {
         this.getDetail = getDetail;
     }
-    
+
     /**
-     * @see org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.Mail)
+     * @see org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession,
+     *      org.apache.mailet.Mail)
      */
     public HookResult onMessage(SMTPSession session, Mail mail) {
         if (check(session, mail)) {
@@ -153,7 +162,7 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
 
             // we should try to retrieve details
             if (getDetail) {
-                Collection<String> txt = dnsService.findTXTRecords(target+ "." + uRblServer);
+                Collection<String> txt = dnsService.findTXTRecords(target + "." + uRblServer);
 
                 // Check if we found a txt record
                 if (!txt.isEmpty()) {
@@ -164,13 +173,10 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
             }
 
             if (detail != null) {
-                return new HookResult(HookReturnCode.DENY, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-                    + "Rejected: message contains domain " + target + " listed by " + uRblServer +" . Details: " 
-                    + detail);
+                return new HookResult(HookReturnCode.DENY, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER) + "Rejected: message contains domain " + target + " listed by " + uRblServer + " . Details: " + detail);
             } else {
-                return new HookResult(HookReturnCode.DENY, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER)
-                    + " Rejected: message contains domain " + target + " listed by " + uRblServer);
-            }  
+                return new HookResult(HookReturnCode.DENY, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_OTHER) + " Rejected: message contains domain " + target + " listed by " + uRblServer);
+            }
 
         } else {
             return new HookResult(HookReturnCode.DECLINED);
@@ -180,20 +186,23 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
     /**
      * Recursively scans all MimeParts of an email for domain strings. Domain
      * strings that are found are added to the supplied HashSet.
-     *
-     * @param part MimePart to scan
-     * @param session not null
-     * @return domains The HashSet that contains the domains which were extracted
+     * 
+     * @param part
+     *            MimePart to scan
+     * @param session
+     *            not null
+     * @return domains The HashSet that contains the domains which were
+     *         extracted
      */
     private HashSet<String> scanMailForDomains(MimePart part, SMTPSession session) throws MessagingException, IOException {
         HashSet<String> domains = new HashSet<String>();
         session.getLogger().debug("mime type is: \"" + part.getContentType() + "\"");
-       
+
         if (part.isMimeType("text/plain") || part.isMimeType("text/html")) {
             session.getLogger().debug("scanning: \"" + part.getContent().toString() + "\"");
             HashSet<String> newDom = URIScanner.scanContentForDomains(domains, part.getContent().toString());
-           
-            // Check if new domains are found and add the domains 
+
+            // Check if new domains are found and add the domains
             if (newDom != null && newDom.size() > 0) {
                 domains.addAll(newDom);
             }
@@ -201,14 +210,14 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
             MimeMultipart multipart = (MimeMultipart) part.getContent();
             int count = multipart.getCount();
             session.getLogger().debug("multipart count is: " + count);
-          
+
             for (int index = 0; index < count; index++) {
                 session.getLogger().debug("recursing index: " + index);
                 MimeBodyPart mimeBodyPart = (MimeBodyPart) multipart.getBodyPart(index);
                 HashSet<String> newDomains = scanMailForDomains(mimeBodyPart, session);
-                
-                // Check if new domains are found and add the domains 
-                if(newDomains != null && newDomains.size() > 0) {
+
+                // Check if new domains are found and add the domains
+                if (newDomains != null && newDomains.size() > 0) {
                     domains.addAll(newDomains);
                 }
             }
@@ -221,7 +230,7 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
      */
     protected boolean check(SMTPSession session, Mail mail) {
         MimeMessage message;
-        
+
         try {
             message = mail.getMessage();
 
@@ -232,21 +241,21 @@ public class URIRBLHandler implements LogEnabled, JamesMessageHook, Configurable
             while (fDomains.hasNext()) {
                 Iterator<String> uRbl = uriRbl.iterator();
                 String target = fDomains.next().toString();
-                
+
                 while (uRbl.hasNext()) {
                     try {
                         String uRblServer = uRbl.next().toString();
                         String address = target + "." + uRblServer;
-                        
+
                         if (session.getLogger().isDebugEnabled()) {
                             session.getLogger().debug("Lookup " + address);
                         }
-                        
+
                         dnsService.getByName(address);
-            
+
                         // store server name for later use
                         session.getState().put(URBLSERVER, uRblServer);
-                        session.getState().put(LISTED_DOMAIN,target);
+                        session.getState().put(LISTED_DOMAIN, target);
 
                         return true;
 

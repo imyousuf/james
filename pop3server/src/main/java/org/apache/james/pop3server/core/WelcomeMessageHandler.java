@@ -25,7 +25,8 @@ import org.apache.james.protocols.api.ConnectHandler;
 
 public class WelcomeMessageHandler implements ConnectHandler<POP3Session> {
     /** POP3 Server identification string used in POP3 headers */
-    private static final String softwaretype = "JAMES POP3 Server ";// + Constants.SOFTWARE_VERSION;
+    private static final String softwaretype = "JAMES POP3 Server ";// +
+                                                                    // Constants.SOFTWARE_VERSION;
 
     /**
      * @see org.apache.james.pop3server.ConnectHandler#onConnect(org.apache.james.pop3server.POP3Session)

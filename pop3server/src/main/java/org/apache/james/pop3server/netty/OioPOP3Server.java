@@ -22,12 +22,10 @@ import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
 
 /**
- * POP3Server which use old IO and not NIO. If you want to use NIO you should use {@link POP3Server}
- * 
- *
+ * POP3Server which use old IO and not NIO. If you want to use NIO you should
+ * use {@link POP3Server}
  */
-public class OioPOP3Server extends POP3Server{
-
+public class OioPOP3Server extends POP3Server {
 
     @Override
     protected ServerSocketChannelFactory createSocketChannelFactory() {
@@ -36,8 +34,6 @@ public class OioPOP3Server extends POP3Server{
 
     /**
      * Return -1 as it is not known
-     * 
-     * 
      */
     @Override
     public int getIoWorkerCount() {

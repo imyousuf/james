@@ -21,12 +21,14 @@ package org.apache.james.smtpserver.jmx;
 import org.apache.james.protocols.lib.jmx.AbstractLineHandlerResultJMXMonitor;
 import org.apache.james.protocols.smtp.SMTPSession;
 
-public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<SMTPSession>{
-
+public class LineHandlerResultJMXMonitor extends AbstractLineHandlerResultJMXMonitor<SMTPSession> {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.socket.AbstractLineHandlerResultJMXMonitor#getDefaultJMXName()
+     * 
+     * @see
+     * org.apache.james.socket.AbstractLineHandlerResultJMXMonitor#getDefaultJMXName
+     * ()
      */
     protected String getDefaultJMXName() {
         return "smtpserver";

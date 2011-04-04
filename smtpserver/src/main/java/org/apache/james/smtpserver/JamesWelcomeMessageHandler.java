@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver;
 
 import org.apache.james.protocols.smtp.core.WelcomeMessageHandler;
@@ -30,7 +29,8 @@ public class JamesWelcomeMessageHandler extends WelcomeMessageHandler {
     /**
      * SMTP Server identification string used in SMTP headers
      */
-    private final static String SOFTWARE_TYPE = "JAMES SMTP Server"; //  + Constants.SOFTWARE_VERSION;
+    private final static String SOFTWARE_TYPE = "JAMES SMTP Server"; // +
+                                                                     // Constants.SOFTWARE_VERSION;
 
     @Override
     protected String getProductName() {

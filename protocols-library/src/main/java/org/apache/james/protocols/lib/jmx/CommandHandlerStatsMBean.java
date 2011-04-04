@@ -20,14 +20,11 @@ package org.apache.james.protocols.lib.jmx;
 
 import org.apache.james.protocols.lib.jmx.HandlerStatsMBean;
 
-
 /**
  * JMX MBean for CommandHandler
- *
  */
-public interface CommandHandlerStatsMBean extends HandlerStatsMBean{
+public interface CommandHandlerStatsMBean extends HandlerStatsMBean {
 
-   
     /**
      * Return all implemented commands by this handler
      * 

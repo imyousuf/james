@@ -52,7 +52,6 @@ public class QuitCmdHandler implements CommandHandler<POP3Session> {
     /**
      * Handler method called upon receipt of a QUIT command. This method handles
      * cleanup of the POP3Handler state.
-     * 
      */
     @SuppressWarnings("unchecked")
     public Response onCommand(POP3Session session, Request request) {

@@ -28,31 +28,36 @@ import javax.management.NotCompliantMBeanException;
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.protocols.lib.jmx.AbstractCommandHandlerStats;
 
-public class POP3CommandHandlerStats extends AbstractCommandHandlerStats<POP3Response> implements POP3CommandHandlerStatsMBean{
+public class POP3CommandHandlerStats extends AbstractCommandHandlerStats<POP3Response> implements POP3CommandHandlerStatsMBean {
 
     private AtomicLong error = new AtomicLong(0);
-    private AtomicLong  ok = new AtomicLong(0);
-    
+    private AtomicLong ok = new AtomicLong(0);
+
     public POP3CommandHandlerStats(String jmxPath, String handlerName, String[] commands) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
         super(POP3CommandHandlerStatsMBean.class, jmxPath, handlerName, commands);
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.socket.AbstractCommandHandlerStats#incrementStats(org.apache.james.protocols.api.Response)
+     * 
+     * @see
+     * org.apache.james.socket.AbstractCommandHandlerStats#incrementStats(org
+     * .apache.james.protocols.api.Response)
      */
     protected void incrementStats(POP3Response response) {
-       String code = response.getRetCode(); 
-       if (POP3Response.OK_RESPONSE.equals(code)) {
-           ok.incrementAndGet();
-       } else if (POP3Response.ERR_RESPONSE.equals(code)) {
-           error.incrementAndGet();
-       }
+        String code = response.getRetCode();
+        if (POP3Response.OK_RESPONSE.equals(code)) {
+            ok.incrementAndGet();
+        } else if (POP3Response.ERR_RESPONSE.equals(code)) {
+            error.incrementAndGet();
+        }
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.pop3server.jmx.POP3CommandHandlerStatsMBean#getError()
+     * 
+     * @see
+     * org.apache.james.pop3server.jmx.POP3CommandHandlerStatsMBean#getError()
      */
     public long getError() {
         return error.get();
@@ -60,6 +65,7 @@ public class POP3CommandHandlerStats extends AbstractCommandHandlerStats<POP3Res
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.pop3server.jmx.POP3CommandHandlerStatsMBean#getOk()
      */
     public long getOk() {

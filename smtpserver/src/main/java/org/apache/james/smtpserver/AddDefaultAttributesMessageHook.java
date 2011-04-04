@@ -25,7 +25,7 @@ import org.apache.james.protocols.smtp.hook.HookReturnCode;
 import org.apache.mailet.Mail;
 
 /**
- * This hook adds the default attributes to the just created Mail 
+ * This hook adds the default attributes to the just created Mail
  */
 public class AddDefaultAttributesMessageHook implements JamesMessageHook {
 
@@ -39,19 +39,18 @@ public class AddDefaultAttributesMessageHook implements JamesMessageHook {
      */
     private final static String SMTP_AUTH_NETWORK_NAME = "org.apache.james.SMTPIsAuthNetwork";
 
-    
     public HookResult onMessage(SMTPSession session, Mail mail) {
         if (mail instanceof MailImpl) {
-            
+
             final MailImpl mailImpl = (MailImpl) mail;
             mailImpl.setRemoteHost(session.getRemoteHost());
             mailImpl.setRemoteAddr(session.getRemoteIPAddress());
             if (session.getUser() != null) {
                 mail.setAttribute(SMTP_AUTH_USER_ATTRIBUTE_NAME, session.getUser());
             }
-            
+
             if (session.isRelayingAllowed()) {
-                mail.setAttribute(SMTP_AUTH_NETWORK_NAME,"true");
+                mail.setAttribute(SMTP_AUTH_NETWORK_NAME, "true");
             }
         }
         return new HookResult(HookReturnCode.DECLINED);

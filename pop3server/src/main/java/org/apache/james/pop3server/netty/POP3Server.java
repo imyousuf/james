@@ -33,20 +33,17 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 /**
  * NIO POP3 Server which use Netty
- * 
- *
  */
-public class POP3Server extends AbstractConfigurableAsyncServer implements POP3ServerMBean{
+public class POP3Server extends AbstractConfigurableAsyncServer implements POP3ServerMBean {
 
     /**
      * The configuration data to be passed to the handler
      */
     private POP3HandlerConfigurationData theConfigData = new POP3HandlerConfigurationDataImpl();
-    
+
     private ProtocolHandlerChain handlerChain;
 
-    
-    @Resource(name="pop3handlerchain")
+    @Resource(name = "pop3handlerchain")
     public void setProtocolHandlerChain(ProtocolHandlerChain handlerChain) {
         this.handlerChain = handlerChain;
     }
@@ -58,12 +55,12 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.ServerMBean#getServiceType()
      */
     public String getServiceType() {
         return "POP3 Service";
     }
-
 
     /**
      * A class to provide POP3 handler configuration to the handlers
@@ -99,8 +96,7 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
 
     private final class POP3ChannelPipelineFactory extends AbstractSSLAwareChannelPipelineFactory {
 
-        public POP3ChannelPipelineFactory(int timeout, int maxConnections,
-                int maxConnectsPerIp, ChannelGroup group) {
+        public POP3ChannelPipelineFactory(int timeout, int maxConnections, int maxConnectsPerIp, ChannelGroup group) {
             super(timeout, maxConnections, maxConnectsPerIp, group);
         }
 
@@ -133,7 +129,7 @@ public class POP3Server extends AbstractConfigurableAsyncServer implements POP3S
             return new POP3ChannelUpstreamHandler(handlerChain, theConfigData, getLogger(), getSSLContext(), getEnabledCipherSuites());
 
         }
-        
+
     }
 
     @Override

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
 
 import java.util.Collection;
@@ -36,29 +34,27 @@ import org.apache.james.queue.api.MailQueueFactory;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 
-
 /**
-  * Queue the message
-  */
+ * Queue the message
+ */
 public class SendMailHandler implements JamesMessageHook {
 
     private MailQueue queue;
     private MailQueueFactory queueFactory;
- 
 
-    
-    @Resource(name="mailqueuefactory")
+    @Resource(name = "mailqueuefactory")
     public void setMailQueueFactory(MailQueueFactory queueFactory) {
         this.queueFactory = queueFactory;
     }
-    
+
     @PostConstruct
     public void init() {
         queue = queueFactory.getQueue(MailQueueFactory.SPOOL);
     }
-    
+
     /**
      * Adds header to the message
+     * 
      * @see org.apache.james.smtpserver#onMessage(SMTPSession)
      */
     public HookResult onMessage(SMTPSession session, Mail mail) {
@@ -72,23 +68,14 @@ public class SendMailHandler implements JamesMessageHook {
                 recipientString = theRecipients.toString();
             }
             if (session.getLogger().isInfoEnabled()) {
-                StringBuilder infoBuffer =
-                     new StringBuilder(256)
-                         .append("Successfully spooled mail ")
-                         .append(mail.getName())
-                         .append(" from ")
-                         .append(mail.getSender())
-                         .append(" on ")
-                         .append(session.getRemoteIPAddress())
-                         .append(" for ")
-                         .append(recipientString);
+                StringBuilder infoBuffer = new StringBuilder(256).append("Successfully spooled mail ").append(mail.getName()).append(" from ").append(mail.getSender()).append(" on ").append(session.getRemoteIPAddress()).append(" for ").append(recipientString);
                 session.getLogger().info(infoBuffer.toString());
             }
         } catch (MessagingException me) {
             session.getLogger().error("Unknown error occurred while processing DATA.", me);
-            return new HookResult(HookReturnCode.DENYSOFT,DSNStatus.getStatus(DSNStatus.TRANSIENT,DSNStatus.UNDEFINED_STATUS)+" Error processing message.");
+            return new HookResult(HookReturnCode.DENYSOFT, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.UNDEFINED_STATUS) + " Error processing message.");
         }
-        return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.SUCCESS,DSNStatus.CONTENT_OTHER)+" Message received");
+        return new HookResult(HookReturnCode.OK, DSNStatus.getStatus(DSNStatus.SUCCESS, DSNStatus.CONTENT_OTHER) + " Message received");
     }
 
 }

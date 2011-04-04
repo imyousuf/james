@@ -30,7 +30,6 @@ import org.apache.mailet.Mail;
 
 /**
  * JMS {@link MailQueueItem} implementation
- * 
  */
 public class JMSMailQueueItem implements MailQueueItem {
 

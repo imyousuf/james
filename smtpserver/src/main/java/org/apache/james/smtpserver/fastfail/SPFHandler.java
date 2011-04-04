@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver.fastfail;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -44,11 +43,13 @@ import org.slf4j.LoggerFactory;
 
 public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptHook, Configurable {
 
-    
     /** This log is the fall back shared by all instances */
     private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(SPFHandler.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
+
+    /**
+     * Non context specific log should only be used when no context specific log
+     * is available
+     */
     private Logger serviceLog = FALLBACK_LOG;
 
     public static final String SPF_BLOCKLISTED = "SPF_BLOCKLISTED";
@@ -61,36 +62,35 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
 
     public final static String SPF_HEADER_MAIL_ATTRIBUTE_NAME = "org.apache.james.spf.header";
 
-    /**
-     * If set to true the mail will also be rejected on a softfail
-     */
+    /** If set to true the mail will also be rejected on a softfail */
     private boolean blockSoftFail = false;
-    
+
     private boolean blockPermError = true;
 
     private SPF spf = new DefaultSPF(new SPFLogger());
 
-
     /**
-     * Sets the service log.
+     * Sets the service log.<br>
      * Where available, a context sensitive log should be used.
-     * @param Log not null
+     * 
+     * @param Log
+     *            not null
      */
     public void setLog(Logger log) {
         this.serviceLog = log;
     }
 
-    
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
-    public void configure(HierarchicalConfiguration handlerConfiguration)
-            throws ConfigurationException {
-        setBlockSoftFail(handlerConfiguration.getBoolean( "blockSoftFail", false));
+    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
+        setBlockSoftFail(handlerConfiguration.getBoolean("blockSoftFail", false));
         setBlockPermError(handlerConfiguration.getBoolean("blockPermError", true));
     }
-    
 
     /**
      * block the email on a softfail
@@ -101,7 +101,7 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
     public void setBlockSoftFail(boolean blockSoftFail) {
         this.blockSoftFail = blockSoftFail;
     }
-    
+
     /**
      * block the email on a permerror
      * 
@@ -115,12 +115,12 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
     /**
      * DNSService to use
      * 
-     * @param dnsService The DNSService
+     * @param dnsService
+     *            The DNSService
      */
     public void setDNSService(DNSService dnsService) {
         spf = new SPF(dnsService, new SPFLogger());
     }
-
 
     /**
      * Calls a SPF check
@@ -129,8 +129,7 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
      *            SMTP session object
      */
     private void doSPFCheck(SMTPSession session, MailAddress sender) {
-        String heloEhlo = (String) session.getState().get(
-                SMTPSession.CURRENT_HELO_NAME);
+        String heloEhlo = (String) session.getState().get(SMTPSession.CURRENT_HELO_NAME);
 
         // We have no Sender or HELO/EHLO yet return false
         if (sender == null || heloEhlo == null) {
@@ -165,39 +164,38 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
 
         }
 
-
     }
 
     /**
-     * @see org.apache.james.protocols.smtp.hook.RcptHook#doRcpt(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     * @see org.apache.james.protocols.smtp.hook.RcptHook#doRcpt(org.apache.james.protocols.smtp.SMTPSession,
+     *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         if (!session.isRelayingAllowed()) {
             // Check if session is blocklisted
-            if (session.getState().get(SPF_BLOCKLISTED)!= null) {
-                return new HookResult(HookReturnCode.DENY,DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " "
-                    + session.getState().get(SPF_TEMPBLOCKLISTED));
+            if (session.getState().get(SPF_BLOCKLISTED) != null) {
+                return new HookResult(HookReturnCode.DENY, DSNStatus.getStatus(DSNStatus.PERMANENT, DSNStatus.SECURITY_AUTH) + " " + session.getState().get(SPF_TEMPBLOCKLISTED));
             } else if (session.getState().get(SPF_TEMPBLOCKLISTED) != null) {
-                return new HookResult(HookReturnCode.DENYSOFT, SMTPRetCode.LOCAL_ERROR,DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) + " "
-                    + "Temporarily rejected: Problem on SPF lookup");
+                return new HookResult(HookReturnCode.DENYSOFT, SMTPRetCode.LOCAL_ERROR, DSNStatus.getStatus(DSNStatus.TRANSIENT, DSNStatus.NETWORK_DIR_SERVER) + " " + "Temporarily rejected: Problem on SPF lookup");
             }
         }
-        return new HookResult(HookReturnCode.DECLINED);      
+        return new HookResult(HookReturnCode.DECLINED);
     }
 
     /**
-     * @see org.apache.james.protocols.smtp.hook.MailHook#doMail(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.MailAddress)
+     * @see org.apache.james.protocols.smtp.hook.MailHook#doMail(org.apache.james.protocols.smtp.SMTPSession,
+     *      org.apache.mailet.MailAddress)
      */
     public HookResult doMail(SMTPSession session, MailAddress sender) {
-        doSPFCheck(session,sender);
+        doSPFCheck(session, sender);
         return new HookResult(HookReturnCode.DECLINED);
     }
-    
+
     /**
      * Adapts service log.
      */
     private final class SPFLogger implements org.apache.james.jspf.core.Logger {
-        
+
         /**
          * @see org.apache.james.jspf.core.Logger#debug(String)
          */
@@ -310,17 +308,16 @@ public class SPFHandler implements JamesMessageHook, LogEnabled, MailHook, RcptH
             return this;
         }
     }
-    
-	/**
-	 * @see org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession,
-	 *      org.apache.mailet.Mail)
-	 */
-	public HookResult onMessage(SMTPSession session, Mail mail) {
-		// Store the spf header as attribute for later using
-		mail.setAttribute(SPF_HEADER_MAIL_ATTRIBUTE_NAME, (String) session
-				.getState().get(SPF_HEADER));
 
-		return null;
-	}
+    /**
+     * @see org.apache.james.smtpserver.JamesMessageHook#onMessage(org.apache.james.protocols.smtp.SMTPSession,
+     *      org.apache.mailet.Mail)
+     */
+    public HookResult onMessage(SMTPSession session, Mail mail) {
+        // Store the spf header as attribute for later using
+        mail.setAttribute(SPF_HEADER_MAIL_ATTRIBUTE_NAME, (String) session.getState().get(SPF_HEADER));
+
+        return null;
+    }
 
 }

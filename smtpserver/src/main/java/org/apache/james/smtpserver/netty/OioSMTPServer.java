@@ -22,11 +22,10 @@ import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
 
 /**
- * SMTPServer which use old IO and not NIO. If you want to use NIO you should use {@link SMTPServer}
- * 
- *
+ * SMTPServer which use old IO and not NIO. If you want to use NIO you should
+ * use {@link SMTPServer}
  */
-public class OioSMTPServer extends SMTPServer{
+public class OioSMTPServer extends SMTPServer {
 
     @Override
     protected ServerSocketChannelFactory createSocketChannelFactory() {
@@ -35,8 +34,6 @@ public class OioSMTPServer extends SMTPServer{
 
     /**
      * Return -1 as it is not known
-     * 
-     * 
      */
     @Override
     public int getIoWorkerCount() {

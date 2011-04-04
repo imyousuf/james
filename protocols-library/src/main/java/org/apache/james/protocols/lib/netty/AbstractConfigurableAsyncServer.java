@@ -45,44 +45,33 @@ import org.apache.james.protocols.lib.jmx.ServerMBean;
 import org.apache.james.util.concurrent.JMXEnabledThreadPoolExecutor;
 import org.slf4j.Logger;
 
-
 /**
  * Abstract base class for Servers for all James Servers
- *
  */
-public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServer implements LogEnabled, Configurable, ServerMBean{
-    /**
-     * The default value for the connection backlog.
-     */
+public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServer implements LogEnabled, Configurable, ServerMBean {
+    /** The default value for the connection backlog. */
     private static final int DEFAULT_BACKLOG = 200;
-    
-    /**
-     * The default value for the connection timeout.
-     */
-    private static final int DEFAULT_TIMEOUT = 5* 60;
 
-    /**
-     * The name of the parameter defining the connection timeout.
-     */
+    /** The default value for the connection timeout. */
+    private static final int DEFAULT_TIMEOUT = 5 * 60;
+
+    /** The name of the parameter defining the connection timeout. */
     private static final String TIMEOUT_NAME = "connectiontimeout";
 
-    /**
-     * The name of the parameter defining the connection backlog.
-     */
+    /** The name of the parameter defining the connection backlog. */
     private static final String BACKLOG_NAME = "connectionBacklog";
 
-    /**
-     * The name of the parameter defining the service hello name.
-     */
+    /** The name of the parameter defining the service hello name. */
     public static final String HELLO_NAME = "helloName";
-    
-    // By default, use the Sun X509 algorithm that comes with the Sun JCE provider for SSL 
+
+    // By default, use the Sun X509 algorithm that comes with the Sun JCE
+    // provider for SSL
     // certificates
     private static final String defaultX509algorithm = "SunX509";
-    
+
     // The X.509 certificate algorithm
     private String x509Algorithm = defaultX509algorithm;
-    
+
     private FileSystem fileSystem;
 
     private Logger logger;
@@ -99,11 +88,11 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     protected int connectionLimit;
 
     private String helloName;
-    
+
     private String keystore;
 
     private String secret;
-    
+
     private SSLContext context;
 
     private String jmxName;
@@ -111,50 +100,54 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     private String[] enabledCipherSuites;
 
     private ConnectionCountHandler countHandler = new ConnectionCountHandler();
-    @Resource(name="dnsservice")
+
+    @Resource(name = "dnsservice")
     public final void setDNSService(DNSService dns) {
         this.dns = dns;
     }
-    
-    @Resource(name="filesystem")
+
+    @Resource(name = "filesystem")
     public final void setFileSystem(FileSystem filesystem) {
         this.fileSystem = filesystem;
     }
-    
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
     public final void setLog(Logger logger) {
-       this.logger = logger;
+        this.logger = logger;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
-    public final void configure(HierarchicalConfiguration config) throws ConfigurationException{
-        
+    public final void configure(HierarchicalConfiguration config) throws ConfigurationException {
+
         enabled = config.getBoolean("[@enabled]", true);
-        
+
         final Logger logger = getLogger();
         if (!enabled) {
-          logger.info(getServiceType() + " disabled by configuration");
-          return;
+            logger.info(getServiceType() + " disabled by configuration");
+            return;
         }
-        
+
         String listen[] = config.getString("bind", "0.0.0.0:" + getDefaultPort()).split(",");
         List<InetSocketAddress> bindAddresses = new ArrayList<InetSocketAddress>();
         for (int i = 0; i < listen.length; i++) {
             String bind[] = listen[i].split(":");
-            
+
             InetSocketAddress address;
             String ip = bind[0].trim();
             int port = Integer.parseInt(bind[1].trim());
             if (ip.equals("0.0.0.0") == false) {
                 try {
-                        ip = InetAddress.getByName(ip).getHostName();
+                    ip = InetAddress.getByName(ip).getHostName();
                 } catch (final UnknownHostException unhe) {
                     throw new ConfigurationException("Malformed bind parameter in configuration of service " + getServiceType(), unhe);
                 }
@@ -167,34 +160,24 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             bindAddresses.add(address);
         }
         setListenAddresses(bindAddresses);
-       
 
-        jmxName = config.getString("jmxName",getDefaultJMXName());
+        jmxName = config.getString("jmxName", getDefaultJMXName());
         int ioWorker = config.getInt("ioWorkerCount", DEFAULT_IO_WORKER_COUNT);
         setIoWorkerCount(ioWorker);
- 
+
         configureHelloName(config);
 
-        setTimeout(config.getInt(TIMEOUT_NAME,DEFAULT_TIMEOUT));
+        setTimeout(config.getInt(TIMEOUT_NAME, DEFAULT_TIMEOUT));
 
-        StringBuilder infoBuffer =
-            new StringBuilder(64)
-                    .append(getServiceType())
-                    .append(" handler connection timeout is: ")
-                    .append(getTimeout());
+        StringBuilder infoBuffer = new StringBuilder(64).append(getServiceType()).append(" handler connection timeout is: ").append(getTimeout());
         logger.info(infoBuffer.toString());
 
-        setBacklog(config.getInt(BACKLOG_NAME,DEFAULT_BACKLOG));
+        setBacklog(config.getInt(BACKLOG_NAME, DEFAULT_BACKLOG));
 
-        infoBuffer =
-                    new StringBuilder(64)
-                    .append(getServiceType())
-                    .append(" connection backlog is: ")
-                    .append(getBacklog());
+        infoBuffer = new StringBuilder(64).append(getServiceType()).append(" connection backlog is: ").append(getBacklog());
         logger.info(infoBuffer.toString());
 
-        
-        String connectionLimitString = config.getString("connectionLimit",null);
+        String connectionLimitString = config.getString("connectionLimit", null);
         if (connectionLimitString != null) {
             try {
                 connectionLimit = new Integer(connectionLimitString);
@@ -204,57 +187,48 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             if (connectionLimit < 0) {
                 logger.error("Connection limit value cannot be less than zero.");
                 throw new ConfigurationException("Connection limit value cannot be less than zero.");
-            } else if (connectionLimit > 0){
-                infoBuffer = new StringBuilder(128)
-                .append(getServiceType())
-                .append(" will allow a maximum of ")
-                .append(connectionLimitString)
-                .append(" connections.");
+            } else if (connectionLimit > 0) {
+                infoBuffer = new StringBuilder(128).append(getServiceType()).append(" will allow a maximum of ").append(connectionLimitString).append(" connections.");
                 logger.info(infoBuffer.toString());
             }
-        } 
-       
-        String connectionLimitPerIP = config.getString("connectionLimitPerIP",null);
+        }
+
+        String connectionLimitPerIP = config.getString("connectionLimitPerIP", null);
         if (connectionLimitPerIP != null) {
             try {
-            connPerIP = new Integer(connectionLimitPerIP).intValue();
+                connPerIP = new Integer(connectionLimitPerIP).intValue();
             } catch (NumberFormatException nfe) {
                 logger.error("Connection limit per IP value is not properly formatted.", nfe);
             }
             if (connPerIP < 0) {
                 logger.error("Connection limit per IP value cannot be less than zero.");
                 throw new ConfigurationException("Connection limit value cannot be less than zero.");
-            } else if (connPerIP > 0){
-                infoBuffer = new StringBuilder(128)
-                .append(getServiceType())
-                .append(" will allow a maximum of ")
-                .append(connPerIP)
-                .append(" per IP connections for " +getServiceType());
+            } else if (connPerIP > 0) {
+                infoBuffer = new StringBuilder(128).append(getServiceType()).append(" will allow a maximum of ").append(connPerIP).append(" per IP connections for " + getServiceType());
                 logger.info(infoBuffer.toString());
             }
         }
-       
 
         useStartTLS = config.getBoolean("tls.[@startTLS]", false);
         useSSL = config.getBoolean("tls.[@socketTLS]", false);
 
-        if (useSSL && useStartTLS) throw new ConfigurationException("startTLS is only supported when using plain sockets");
-       
+        if (useSSL && useStartTLS)
+            throw new ConfigurationException("startTLS is only supported when using plain sockets");
+
         if (useStartTLS || useSSL) {
             enabledCipherSuites = config.getStringArray("tls.supportedCipherSuites.cipherSuite");
             keystore = config.getString("tls.keystore", null);
             if (keystore == null) {
                 throw new ConfigurationException("keystore needs to get configured");
             }
-            secret = config.getString("tls.secret","");
+            secret = config.getString("tls.secret", "");
             x509Algorithm = config.getString("tls.algorithm", defaultX509algorithm);
         }
-             
+
         doConfigure(config);
 
     }
-    
-    
+
     @PostConstruct
     public final void init() throws Exception {
         if (isEnabled()) {
@@ -272,17 +246,17 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             unbind();
         }
     }
-    
-    
+
     /**
-     * This method is called on init of the Server. Subclasses should override this method to init stuff
-     *
-     * @throws Exception 
+     * This method is called on init of the Server. Subclasses should override
+     * this method to init stuff
+     * 
+     * @throws Exception
      */
     protected void preInit() throws Exception {
         // override me
     }
-    
+
     protected void doConfigure(HierarchicalConfiguration config) throws ConfigurationException {
         // override me
     }
@@ -295,9 +269,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     protected DNSService getDNSService() {
         return dns;
     }
-    
 
-    
     /**
      * Return the FileSystem
      * 
@@ -306,13 +278,12 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     protected FileSystem getFileSystem() {
         return fileSystem;
     }
-   
-    
+
     /**
      * Configure the helloName for the given Configuration
      * 
      * @param handlerConfiguration
-     * @throws ConfigurationException 
+     * @throws ConfigurationException
      */
     protected void configureHelloName(Configuration handlerConfiguration) throws ConfigurationException {
         StringBuilder infoBuffer;
@@ -323,11 +294,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             hostName = "localhost";
         }
 
-        infoBuffer =
-            new StringBuilder(64)
-                    .append(getServiceType())
-                    .append(" is running on: ")
-                    .append(hostName);
+        infoBuffer = new StringBuilder(64).append(getServiceType()).append(" is running on: ").append(hostName);
         getLogger().info(infoBuffer.toString());
 
         boolean autodetect = handlerConfiguration.getBoolean(HELLO_NAME + ".[@autodetect]", true);
@@ -340,11 +307,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             }
         }
 
-        infoBuffer =
-            new StringBuilder(64)
-                    .append(getServiceType())
-                    .append(" handler hello name is: ")
-                    .append(helloName);
+        infoBuffer = new StringBuilder(64).append(getServiceType()).append(" handler hello name is: ").append(helloName);
         getLogger().info(infoBuffer.toString());
     }
 
@@ -356,7 +319,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     protected Logger getLogger() {
         return logger;
     }
-    
+
     /**
      * Return if the server is enabled by the configuration
      * 
@@ -365,7 +328,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     public boolean isEnabled() {
         return enabled;
     }
-    
+
     /**
      * Return helloName for this server
      * 
@@ -374,8 +337,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     public String getHelloName() {
         return helloName;
     }
-    
-    
+
     /**
      * Return if startTLS is supported by this server
      * 
@@ -393,13 +355,13 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     protected boolean isSSLSocket() {
         return useSSL;
     }
-    
+
     /**
      * Build the SSLEngine
      * 
      * @throws Exception
      */
-    
+
     private void buildSSLContext() throws Exception {
         if (useStartTLS || useSSL) {
             FileInputStream fis = null;
@@ -407,11 +369,11 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
                 KeyStore ks = KeyStore.getInstance("JKS");
                 fis = new FileInputStream(fileSystem.getFile(keystore));
                 ks.load(fis, secret.toCharArray());
-    
+
                 // Set up key manager factory to use our key store
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance(x509Algorithm);
                 kmf.init(ks, secret.toCharArray());
-    
+
                 // Initialize the SSLContext to work with our key managers.
                 context = SSLContext.getInstance("TLS");
                 context.init(kmf.getKeyManagers(), null, null);
@@ -422,17 +384,17 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
             }
         }
     }
-   
+
     /**
-     * Return the default port which will get used for this server if non is specify in the configuration
+     * Return the default port which will get used for this server if non is
+     * specify in the configuration
      * 
      * @return port
      */
     protected abstract int getDefaultPort();
-    
-    
+
     /**
-     * Return the SSLContext to use 
+     * Return the SSLContext to use
      * 
      * @return sslContext
      */
@@ -442,6 +404,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     /**
      * Return the socket type. The Socket type can be secure or plain
+     * 
      * @return
      */
     public String getSocketType() {
@@ -450,7 +413,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
         }
         return "plain";
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -479,20 +442,22 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
     protected Executor createWorkerExecutor() {
         return JMXEnabledThreadPoolExecutor.newCachedThreadPool("org.apache.james:type=server,name=" + jmxName + ",sub-type=threadpool", "worker");
     }
-    
+
     /**
-     * Return the default name of the the server in JMX if none is configured via "jmxname" in the configuration
+     * Return the default name of the the server in JMX if none is configured
+     * via "jmxname" in the configuration
      * 
      * @return defaultJmxName
      */
     protected abstract String getDefaultJMXName();
-    
+
     protected String[] getEnabledCipherSuites() {
         return enabledCipherSuites;
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.ServerMBean#isStarted()
      */
     public boolean isStarted() {
@@ -501,6 +466,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.ServerMBean#start()
      */
     public boolean start() {
@@ -515,6 +481,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.ServerMBean#stop()
      */
     public boolean stop() {
@@ -524,6 +491,7 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.server.jmx.ServerMBean#getHandledConnections()
      */
     public long getHandledConnections() {
@@ -532,33 +500,32 @@ public abstract class AbstractConfigurableAsyncServer extends AbstractAsyncServe
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.ServerMBean#getCurrentConnections()
      */
     public int getCurrentConnections() {
         return countHandler.getCurrentConnectionCount();
     }
 
-
-    
     protected ConnectionCountHandler getConnectionCountHandler() {
         return countHandler;
     }
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.protocols.lib.jmx.ServerMBean#getBoundAddresses()
      */
     public String[] getBoundAddresses() {
-        
+
         List<InetSocketAddress> addresses = getListenAddresses();
         String[] addrs = new String[addresses.size()];
         for (int i = 0; i < addresses.size(); i++) {
             InetSocketAddress address = addresses.get(i);
             addrs[i] = address.getHostName() + ":" + address.getPort();
         }
-        
+
         return addrs;
     }
-    
-    
+
 }

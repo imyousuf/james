@@ -17,17 +17,13 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server;
-
 
 import org.apache.james.mailbox.MessageManager;
 import org.apache.james.protocols.api.TLSSupportedSession;
 
 /**
- * All the handlers access this interface to communicate with
- * POP3Handler object
+ * All the handlers access this interface to communicate with POP3Handler object
  */
 
 public interface POP3Session extends TLSSupportedSession {
@@ -35,29 +31,28 @@ public interface POP3Session extends TLSSupportedSession {
     final static String UID_LIST = "UID_LIST";
     final static String DELETED_UID_LIST = "DELETED_UID_LIST";
     final static String MAILBOX_SESSION = "MAILBOX_SESSION";
-   
+
     // Authentication states for the POP3 interaction
     /** Waiting for user id */
     final static int AUTHENTICATION_READY = 0;
     /** User id provided, waiting for password */
-    final static int AUTHENTICATION_USERSET = 1;  
+    final static int AUTHENTICATION_USERSET = 1;
     /**
-     * A valid user id/password combination has been provided.
-     * In this state the client can access the mailbox
-     * of the specified user.
+     * A valid user id/password combination has been provided. In this state the
+     * client can access the mailbox of the specified user.
      */
-    final static int TRANSACTION = 2;              
+    final static int TRANSACTION = 2;
 
     /**
      * Returns POP3Handler service wide configuration
-     *
+     * 
      * @return POP3HandlerConfigurationData
      */
     POP3HandlerConfigurationData getConfigurationData();
-    
+
     /**
      * Returns the current handler state
-     *
+     * 
      * @return handler state
      */
     int getHandlerState();
@@ -65,7 +60,8 @@ public interface POP3Session extends TLSSupportedSession {
     /**
      * Sets the new handler state
      * 
-     * @param handlerState state
+     * @param handlerState
+     *            state
      */
     void setHandlerState(int handlerState);
 
@@ -79,8 +75,8 @@ public interface POP3Session extends TLSSupportedSession {
     /**
      * Sets a new mailbox content
      * 
-     * @param userMailbox mailbox
+     * @param userMailbox
+     *            mailbox
      */
     void setUserMailbox(MessageManager mailbox);
 }
-

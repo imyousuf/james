@@ -58,13 +58,15 @@ import org.slf4j.LoggerFactory;
 /**
  * GreylistHandler which can be used to activate Greylisting
  */
-public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogEnabled, Configurable{
+public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogEnabled, Configurable {
 
-    
     /** This log is the fall back shared by all instances */
     private static final Logger FALLBACK_LOG = LoggerFactory.getLogger(JDBCGreylistHandler.class);
-    
-    /** Non context specific log should only be used when no context specific log is available */
+
+    /**
+     * Non context specific log should only be used when no context specific log
+     * is available
+     */
     private Logger serviceLog = FALLBACK_LOG;
 
     private DataSource datasource = null;
@@ -86,41 +88,35 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      */
     private SqlResources sqlQueries = new SqlResources();
 
-    /**
-     * The sqlFileUrl
-     */
+    /** The sqlFileUrl */
     private String sqlFileUrl;
 
-    /**
-     * Holds value of property sqlParameters.
-     */
+    /** Holds value of property sqlParameters. */
     private Map<String, String> sqlParameters = new HashMap<String, String>();
 
     private DNSService dnsService;
-    
 
     private NetMatcher wNetworks;
-    
 
-    
     /**
      * Gets the file system service.
+     * 
      * @return the fileSystem
      */
     public final FileSystem getFileSystem() {
         return fileSystem;
     }
-    
+
     /**
      * Sets the filesystem service
      * 
-     * @param system The filesystem service
+     * @param system
+     *            The filesystem service
      */
-    @Resource(name="filesystem")
+    @Resource(name = "filesystem")
     public void setFileSystem(FileSystem system) {
         this.fileSystem = system;
     }
-    
 
     /**
      * Set the datasources.
@@ -128,11 +124,10 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @param datasources
      *            The datasources
      */
-    @Resource(name="datasource")
+    @Resource(name = "datasource")
     public void setDataSource(DataSource datasource) {
         this.datasource = datasource;
     }
-
 
     /**
      * Set the sqlFileUrl to use for getting the sqlRessource.xml file
@@ -142,16 +137,16 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      */
     public void setSqlFileUrl(String sqlFileUrl) {
         this.sqlFileUrl = sqlFileUrl;
-    } 
+    }
 
     /**
      * Setup the temporary blocking time
      * 
      * @param tempBlockTime
-     *            The temporary blocking time 
+     *            The temporary blocking time
      */
     public void setTempBlockTime(String tempBlockTime) {
-       setTempBlockTime(TimeConverter.getMilliSeconds(tempBlockTime));
+        setTempBlockTime(TimeConverter.getMilliSeconds(tempBlockTime));
     }
 
     /**
@@ -159,7 +154,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * After this lifetime the record will be deleted
      * 
      * @param autoWhiteListLifeTime
-     *            The lifeTime 
+     *            The lifeTime
      */
     public void setAutoWhiteListLifeTime(String autoWhiteListLifeTime) {
         setAutoWhiteListLifeTime(TimeConverter.getMilliSeconds(autoWhiteListLifeTime));
@@ -170,72 +165,66 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * record will be deleted
      * 
      * @param unseenLifeTime
-     *            The lifetime 
+     *            The lifetime
      */
     public void setUnseenLifeTime(String unseenLifeTime) {
         setUnseenLifeTime(TimeConverter.getMilliSeconds(unseenLifeTime));
     }
-    
-    @Resource(name="dnsservice")
+
+    @Resource(name = "dnsservice")
     public final void setDNSService(DNSService dnsService) {
         this.dnsService = dnsService;
     }
-    
-    
+
     public void setWhiteListedNetworks(NetMatcher wNetworks) {
         this.wNetworks = wNetworks;
     }
-    
+
     protected NetMatcher getWhiteListedNetworks() {
         return wNetworks;
     }
-    
-    
+
     /**
      * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#configure(org.apache.commons.configuration.Configuration)
      */
-	public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
-	    try {
+    public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
+        try {
             setTempBlockTime(handlerConfiguration.getString("tempBlockTime"));
         } catch (NumberFormatException e) {
-           throw new ConfigurationException(e.getMessage());
+            throw new ConfigurationException(e.getMessage());
         }
-       
-    
-      
+
         try {
             setAutoWhiteListLifeTime(handlerConfiguration.getString("autoWhiteListLifeTime"));
         } catch (NumberFormatException e) {
             throw new ConfigurationException(e.getMessage());
         }
-       
 
         try {
             setUnseenLifeTime(handlerConfiguration.getString("unseenLifeTime"));
         } catch (NumberFormatException e) {
             throw new ConfigurationException(e.getMessage());
         }
-        String nets  = handlerConfiguration.getString("whitelistedNetworks");
+        String nets = handlerConfiguration.getString("whitelistedNetworks");
         if (nets != null) {
             String[] whitelistArray = nets.split(",");
             List<String> wList = new ArrayList<String>(whitelistArray.length);
-            for (int i = 0 ; i< whitelistArray.length; i++) {
+            for (int i = 0; i < whitelistArray.length; i++) {
                 wList.add(whitelistArray[i].trim());
             }
-            setWhiteListedNetworks( new NetMatcher(wList ,dnsService));
+            setWhiteListedNetworks(new NetMatcher(wList, dnsService));
             serviceLog.info("Whitelisted addresses: " + getWhiteListedNetworks().toString());
-            
-        }    	       
+
+        }
 
         // Get the SQL file location
-        String sFile = handlerConfiguration.getString("sqlFile",null);
+        String sFile = handlerConfiguration.getString("sqlFile", null);
         if (sFile != null) {
-            
-        	setSqlFileUrl(sFile);
-            
+
+            setSqlFileUrl(sFile);
+
             if (!sqlFileUrl.startsWith("file://") && !sqlFileUrl.startsWith("classpath:")) {
-                throw new ConfigurationException(
-                    "Malformed sqlFile - Must be of the format \"file://<filename>\".");
+                throw new ConfigurationException("Malformed sqlFile - Must be of the format \"file://<filename>\".");
             }
         } else {
             throw new ConfigurationException("sqlFile is not configured");
@@ -255,10 +244,10 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     }
 
     /**
-     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#getGreyListData(java.lang.String, java.lang.String, java.lang.String)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#getGreyListData(java.lang.String,
+     *      java.lang.String, java.lang.String)
      */
-    protected Iterator<String> getGreyListData(String ipAddress,
-        String sender, String recip) throws SQLException {
+    protected Iterator<String> getGreyListData(String ipAddress, String sender, String recip) throws SQLException {
         Collection<String> data = new ArrayList<String>(2);
         PreparedStatement mappingStmt = null;
         Connection conn = datasource.getConnection();
@@ -285,14 +274,13 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
         return data.iterator();
     }
 
-    
     /**
      * (non-Javadoc)
-     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#insertTriplet(java.lang.String, java.lang.String, java.lang.String, int, long)
+     * 
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#insertTriplet(java.lang.String,
+     *      java.lang.String, java.lang.String, int, long)
      */
-    protected void insertTriplet(String ipAddress,
-        String sender, String recip, int count, long createTime)
-        throws SQLException {
+    protected void insertTriplet(String ipAddress, String sender, String recip, int count, long createTime) throws SQLException {
         Connection conn = datasource.getConnection();
 
         PreparedStatement mappingStmt = null;
@@ -313,11 +301,10 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     }
 
     /**
-     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#updateTriplet(java.lang.String, java.lang.String, java.lang.String, int, long)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#updateTriplet(java.lang.String,
+     *      java.lang.String, java.lang.String, int, long)
      */
-    protected void updateTriplet(String ipAddress,
-        String sender, String recip, int count, long time)
-        throws SQLException {
+    protected void updateTriplet(String ipAddress, String sender, String recip, int count, long time) throws SQLException {
         Connection conn = datasource.getConnection();
         PreparedStatement mappingStmt = null;
 
@@ -338,8 +325,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     /**
      * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#cleanupAutoWhiteListGreyList(long)
      */
-    protected void cleanupAutoWhiteListGreyList(long time)
-        throws SQLException {
+    protected void cleanupAutoWhiteListGreyList(long time) throws SQLException {
         PreparedStatement mappingStmt = null;
         Connection conn = datasource.getConnection();
 
@@ -358,8 +344,7 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
     /**
      * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#cleanupGreyList(long)
      */
-    protected void cleanupGreyList(long time)
-        throws SQLException {
+    protected void cleanupGreyList(long time) throws SQLException {
         Connection conn = datasource.getConnection();
 
         PreparedStatement mappingStmt = null;
@@ -396,12 +381,11 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @throws Exception
      *             If any error occurs
      */
-    private void initSqlQueries(Connection conn, String sqlFileUrl)
-        throws Exception {
+    private void initSqlQueries(Connection conn, String sqlFileUrl) throws Exception {
         try {
 
             File sqlFile = null;
-    
+
             try {
                 sqlFile = fileSystem.getFile(sqlFileUrl);
                 sqlFileUrl = null;
@@ -435,31 +419,28 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
      * @return true or false
      * @throws SQLException
      */
-    private boolean createTable(String tableNameSqlStringName,
-    String createSqlStringName) throws SQLException {
+    private boolean createTable(String tableNameSqlStringName, String createSqlStringName) throws SQLException {
         Connection conn = datasource.getConnection();
         try {
             String tableName = sqlQueries.getSqlString(tableNameSqlStringName, true);
-    
+
             DatabaseMetaData dbMetaData = conn.getMetaData();
-    
+
             // Try UPPER, lower, and MixedCase, to see if the table is there.
             if (theJDBCUtil.tableExists(dbMetaData, tableName)) {
                 return false;
             }
-    
+
             PreparedStatement createStatement = null;
-    
+
             try {
                 createStatement = conn.prepareStatement(sqlQueries.getSqlString(createSqlStringName, true));
                 createStatement.execute();
-    
+
                 StringBuilder logBuffer = null;
-                logBuffer = new StringBuilder(64).append("Created table '").append(tableName)
-                .append("' using sqlResources string '")
-                .append(createSqlStringName).append("'.");
+                logBuffer = new StringBuilder(64).append("Created table '").append(tableName).append("' using sqlResources string '").append(createSqlStringName).append("'.");
                 serviceLog.info(logBuffer.toString());
-    
+
             } finally {
                 theJDBCUtil.closeJDBCStatement(createStatement);
             }
@@ -469,9 +450,9 @@ public class JDBCGreylistHandler extends AbstractGreylistHandler implements LogE
         }
     }
 
-    
     /**
-     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#doRcpt(org.apache.james.protocols.smtp.SMTPSession, org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
+     * @see org.apache.james.protocols.smtp.core.fastfail.AbstractGreylistHandler#doRcpt(org.apache.james.protocols.smtp.SMTPSession,
+     *      org.apache.mailet.MailAddress, org.apache.mailet.MailAddress)
      */
     public HookResult doRcpt(SMTPSession session, MailAddress sender, MailAddress rcpt) {
         if ((wNetworks == null) || (!wNetworks.matchInetNetwork(session.getRemoteIPAddress()))) {

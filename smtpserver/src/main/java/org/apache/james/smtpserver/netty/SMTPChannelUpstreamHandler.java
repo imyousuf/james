@@ -39,28 +39,25 @@ import org.slf4j.Logger;
 
 /**
  * {@link ChannelUpstreamHandler} which is used by the SMTPServer
- *
  */
-public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
+public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
     private final Logger logger;
     private final SMTPConfiguration conf;
     private final SSLContext context;
     private String[] enabledCipherSuites;
 
-    public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain,
-            SMTPConfiguration conf, Logger logger) {
+    public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain, SMTPConfiguration conf, Logger logger) {
         this(chain, conf, logger, null, null);
     }
-    
-    public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain,
-            SMTPConfiguration conf, Logger logger, SSLContext context, String[] enabledCipherSuites) {
+
+    public SMTPChannelUpstreamHandler(ProtocolHandlerChain chain, SMTPConfiguration conf, Logger logger, SSLContext context, String[] enabledCipherSuites) {
         super(chain);
         this.conf = conf;
         this.logger = logger;
         this.context = context;
         this.enabledCipherSuites = enabledCipherSuites;
     }
-    
+
     @Override
     protected ProtocolSession createSession(ChannelHandlerContext ctx) throws Exception {
         if (context != null) {
@@ -70,13 +67,12 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
             }
             return new SMTPNettySession(conf, logger, ctx, engine);
         } else {
-            return  new SMTPNettySession(conf, logger, ctx);
+            return new SMTPNettySession(conf, logger, ctx);
         }
     }
 
-    
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {        
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Channel channel = ctx.getChannel();
         if (e.getCause() instanceof TooLongFrameException) {
             ctx.getChannel().write(new SMTPResponse(SMTPRetCode.SYNTAX_ERROR_COMMAND_UNRECOGNIZED, "Line length exceeded. See RFC 2821 #4.5.3.1."));
@@ -88,25 +84,25 @@ public class SMTPChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
             cleanup(channel);
             channel.close();
         }
-       
+
         super.exceptionCaught(ctx, e);
     }
 
     /**
-     * Cleanup temporary files 
+     * Cleanup temporary files
      * 
      * @param channel
      */
     protected void cleanup(Channel channel) {
         // Make sure we dispose everything on exit on session close
         SMTPSession smtpSession = (SMTPSession) attributes.get(channel);
-        
+
         if (smtpSession != null) {
             LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.MAIL));
             LifecycleUtil.dispose(smtpSession.getState().get(SMTPConstants.DATA_MIMEMESSAGE_STREAMSOURCE));
         }
-        
+
         super.cleanup(channel);
     }
-    
+
 }

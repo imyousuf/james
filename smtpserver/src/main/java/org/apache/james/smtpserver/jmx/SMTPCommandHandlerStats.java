@@ -32,22 +32,22 @@ import org.apache.james.protocols.smtp.SMTPResponse;
 
 /**
  * Expose statistics for {@link CommandHandler} via JMX
- *
  */
 public class SMTPCommandHandlerStats extends AbstractCommandHandlerStats<SMTPResponse> implements SMTPCommandHandlerStatsMBean, Disposable {
 
     private AtomicLong temp = new AtomicLong(0);
     private AtomicLong perm = new AtomicLong(0);
-    private AtomicLong ok  = new AtomicLong(0);
- 
+    private AtomicLong ok = new AtomicLong(0);
+
     public SMTPCommandHandlerStats(String jmxPath, String handlerName, String[] commands) throws NotCompliantMBeanException, MalformedObjectNameException, NullPointerException, InstanceAlreadyExistsException, MBeanRegistrationException {
         super(SMTPCommandHandlerStatsMBean.class, jmxPath, handlerName, commands);
     }
 
-    
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getTemporaryError()
+     * 
+     * @see
+     * org.apache.james.smtpserver.CommandHandlerStatsMBean#getTemporaryError()
      */
     public long getTemporaryError() {
         return temp.get();
@@ -55,7 +55,9 @@ public class SMTPCommandHandlerStats extends AbstractCommandHandlerStats<SMTPRes
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getPermantError()
+     * 
+     * @see
+     * org.apache.james.smtpserver.CommandHandlerStatsMBean#getPermantError()
      */
     public long getPermantError() {
         return perm.get();
@@ -63,32 +65,35 @@ public class SMTPCommandHandlerStats extends AbstractCommandHandlerStats<SMTPRes
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getOk()
      */
     public long getOk() {
         return ok.get();
     }
 
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.socket.AbstractCommandHandlerStats#incrementStats(org.apache.james.protocols.api.Response)
+     * 
+     * @see
+     * org.apache.james.socket.AbstractCommandHandlerStats#incrementStats(org
+     * .apache.james.protocols.api.Response)
      */
     protected void incrementStats(SMTPResponse response) {
         try {
             String code = response.getRetCode();
-            char c = code.charAt(0) ;
+            char c = code.charAt(0);
             if (c == '5') {
                 perm.incrementAndGet();
             } else if (c == '4') {
                 temp.incrementAndGet();
-            } else if ( c == '2' || c == '3') {
+            } else if (c == '2' || c == '3') {
                 ok.incrementAndGet();
-            } 
-            
+            }
+
         } catch (NumberFormatException e) {
             // should never happen
-        }        
+        }
     }
 
 }

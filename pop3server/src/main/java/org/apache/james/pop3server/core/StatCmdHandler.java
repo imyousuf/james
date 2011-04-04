@@ -38,7 +38,6 @@ public class StatCmdHandler implements CommandHandler<POP3Session> {
     /**
      * Handler method called upon receipt of a STAT command. Returns the number
      * of messages in the mailbox and its aggregate size.
-     * 
      */
     @SuppressWarnings("unchecked")
     public Response onCommand(POP3Session session, Request request) {
@@ -49,7 +48,7 @@ public class StatCmdHandler implements CommandHandler<POP3Session> {
             List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
             long size = 0;
             int count = 0;
-            if (uidList.isEmpty() == false) {                    
+            if (uidList.isEmpty() == false) {
                 List<MessageMetaData> validResults = new ArrayList<MessageMetaData>();
                 for (int i = 0; i < uidList.size(); i++) {
                     MessageMetaData data = uidList.get(i);
@@ -62,7 +61,7 @@ public class StatCmdHandler implements CommandHandler<POP3Session> {
             }
             StringBuilder responseBuffer = new StringBuilder(32).append(count).append(" ").append(size);
             response = new POP3Response(POP3Response.OK_RESPONSE, responseBuffer.toString());
-           
+
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
         }

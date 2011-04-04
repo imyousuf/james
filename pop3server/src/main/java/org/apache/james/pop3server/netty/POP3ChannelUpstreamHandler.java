@@ -31,16 +31,14 @@ import org.slf4j.Logger;
 
 /**
  * {@link ChannelUpstreamHandler} which is used for the POP3 Server
- * 
- *
  */
-public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
+public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler {
 
     private final Logger logger;
     private final POP3HandlerConfigurationData conf;
-    private final  SSLContext context;
+    private final SSLContext context;
     private String[] enabledCipherSuites;
-    
+
     public POP3ChannelUpstreamHandler(ProtocolHandlerChain chain, POP3HandlerConfigurationData conf, Logger logger, SSLContext context, String[] enabledCipherSuites) {
         super(chain);
         this.logger = logger;
@@ -53,7 +51,6 @@ public class POP3ChannelUpstreamHandler extends AbstractChannelUpstreamHandler{
         this(chain, conf, logger, null, null);
     }
 
-    
     @Override
     protected ProtocolSession createSession(ChannelHandlerContext ctx) throws Exception {
         if (context != null) {

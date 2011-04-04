@@ -31,22 +31,22 @@ import org.apache.james.core.MimeMessageSource;
 /**
  *
  */
-public class MimeMessageBlobMessageSource extends MimeMessageSource implements ActiveMQSupport, Disposable{
+public class MimeMessageBlobMessageSource extends MimeMessageSource implements ActiveMQSupport, Disposable {
 
     private SharedInputStream in;
     private String sourceId;
     private long size;
     private List<InputStream> streams = new ArrayList<InputStream>();
 
-    public MimeMessageBlobMessageSource(SharedInputStream in, long size, String sourceId)  {
+    public MimeMessageBlobMessageSource(SharedInputStream in, long size, String sourceId) {
         this.in = in;
         this.size = size;
         this.sourceId = sourceId;
     }
-    
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.core.MimeMessageSource#getInputStream()
      */
     public synchronized InputStream getInputStream() throws IOException {
@@ -57,21 +57,23 @@ public class MimeMessageBlobMessageSource extends MimeMessageSource implements A
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.core.MimeMessageSource#getSourceId()
      */
     public String getSourceId() {
         return sourceId;
     }
-    
+
     @Override
     public long getMessageSize() throws IOException {
-        // if the size is < 1 we seems to not had it stored in the property, so fallback to super implementation
+        // if the size is < 1 we seems to not had it stored in the property, so
+        // fallback to super implementation
         if (size == -1) {
             super.getMessageSize();
         }
         return size;
     }
-    
+
     /**
      * Call dispose on the {@link InputStream}
      */

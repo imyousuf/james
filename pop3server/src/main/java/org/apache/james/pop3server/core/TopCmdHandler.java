@@ -59,7 +59,6 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
      * 
      * The expected command format is TOP [mail message number] [number of lines
      * to return]
-     * 
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -99,28 +98,29 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                     FetchGroupImpl fetchGroup = new FetchGroupImpl(FetchGroup.BODY_CONTENT);
                     fetchGroup.or(FetchGroup.HEADERS);
                     Iterator<MessageResult> results = session.getUserMailbox().getMessages(MessageRange.one(uid), fetchGroup, mailboxSession);
-                    
+
                     if (results.hasNext()) {
                         MessageResult result = results.next();
-                       
+
                         session.writeStream(new ByteArrayInputStream((POP3Response.OK_RESPONSE + " Message follows\r\n").getBytes()));
                         try {
 
                             ByteArrayOutputStream headersOut = new ByteArrayOutputStream();
                             WritableByteChannel headersChannel = Channels.newChannel(headersOut);
-                        
+
                             // write headers
                             Iterator<Header> headers = result.headers();
                             while (headers.hasNext()) {
                                 headers.next().writeTo(headersChannel);
 
-                                // we need to write out the CRLF after each header
+                                // we need to write out the CRLF after each
+                                // header
                                 headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
                             }
                             // headers and body are seperated by a CRLF
                             headersChannel.write(ByteBuffer.wrap("\r\n".getBytes()));
                             session.writeStream(new ByteArrayInputStream(headersOut.toByteArray()));
-                        
+
                             InputStream bodyIn;
                             Content content = result.getBody();
                             if (content instanceof InputStreamContent) {
@@ -134,7 +134,7 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                         } finally {
                             // write a single dot to mark message as complete
                             session.writeStream(new ByteArrayInputStream(".\r\n".getBytes()));
-                       
+
                         }
 
                         return null;
@@ -142,7 +142,7 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                         StringBuilder exceptionBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
                         response = new POP3Response(POP3Response.ERR_RESPONSE, exceptionBuffer.toString());
                     }
-                    
+
                 } else {
                     StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") already deleted.");
                     response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
@@ -187,11 +187,8 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
     }
 
     /**
-     * This {@link InputStream} implementation can be used to limit the body lines
-     * which will be read from the wrapped {@link InputStream}
-     * 
-     * 
-     * 
+     * This {@link InputStream} implementation can be used to limit the body
+     * lines which will be read from the wrapped {@link InputStream}
      */
     private final class CountingBodyInputStream extends FilterInputStream {
 
@@ -204,8 +201,7 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
          * @param in
          *            InputStream to read from
          * @param limit
-         *            the lines to read. -1 is used for no
-         *            limits
+         *            the lines to read. -1 is used for no limits
          */
         public CountingBodyInputStream(InputStream in, int limit) {
             super(in);
@@ -216,13 +212,13 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
         public synchronized int read() throws IOException {
             if (limit != -1) {
                 if (count <= limit) {
-                    int a  = in.read();
-                    
+                    int a = in.read();
+
                     if (lastChar == '\r' && a == '\n') {
                         count++;
                     }
                     lastChar = a;
-                    
+
                     return a;
                 } else {
                     return -1;
@@ -231,25 +227,23 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
                 return in.read();
             }
 
-            
-            
         }
 
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
             if (limit == -1) {
                 return in.read(b, off, len);
-            }  else {
+            } else {
                 int i;
                 for (i = 0; i < len; i++) {
                     int a = read();
-                    if (i == 0 && a == - 1) {
+                    if (i == 0 && a == -1) {
                         return -1;
                     } else {
                         if (a == -1) {
                             break;
                         } else {
-                            b[off++] =  (byte) a;
+                            b[off++] = (byte) a;
                         }
                     }
                 }
@@ -262,11 +256,9 @@ public class TopCmdHandler extends RetrCmdHandler implements CapaCapability {
             if (limit == -1) {
                 return in.read(b);
             } else {
-                return read(b, 0 , b.length); 
+                return read(b, 0, b.length);
             }
         }
-
-     
 
     }
 }

@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver.fastfail;
 
 import java.util.ArrayList;
@@ -31,11 +30,14 @@ import org.apache.james.dnsservice.api.DNSService;
 import org.apache.james.lifecycle.api.Configurable;
 import org.apache.james.smtpserver.SMTPServerDNSServiceAdapter;
 
-public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail.DNSRBLHandler implements Configurable{
+public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail.DNSRBLHandler implements Configurable {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration handlerConfiguration) throws ConfigurationException {
@@ -43,11 +45,11 @@ public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail
 
         ArrayList<String> rblserverCollection = new ArrayList<String>();
         List<String> whiteList = handlerConfiguration.getList("rblservers.whitelist");
-        if ( whiteList != null ) {
-            for ( int i = 0 ; i < whiteList.size() ; i++ ) {
+        if (whiteList != null) {
+            for (int i = 0; i < whiteList.size(); i++) {
                 String rblServerName = whiteList.get(i);
                 rblserverCollection.add(rblServerName);
-               
+
             }
             if (rblserverCollection != null && rblserverCollection.size() > 0) {
                 setWhitelist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
@@ -56,12 +58,12 @@ public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail
             }
         }
         List<String> blackList = handlerConfiguration.getList("rblservers.blacklist");
-        if ( blackList != null ) {
+        if (blackList != null) {
 
-            for ( int i = 0 ; i < blackList.size() ; i++ ) {
+            for (int i = 0; i < blackList.size(); i++) {
                 String rblServerName = blackList.get(i);
                 rblserverCollection.add(rblServerName);
-               
+
             }
             if (rblserverCollection != null && rblserverCollection.size() > 0) {
                 setBlacklist((String[]) rblserverCollection.toArray(new String[rblserverCollection.size()]));
@@ -69,17 +71,16 @@ public class DNSRBLHandler extends org.apache.james.protocols.smtp.core.fastfail
                 validConfig = true;
             }
         }
-        
-        
+
         // Throw an ConfiigurationException on invalid config
-        if (validConfig == false){
+        if (validConfig == false) {
             throw new ConfigurationException("Please configure whitelist or blacklist");
         }
 
-        setGetDetail(handlerConfiguration.getBoolean("getDetail",false));
+        setGetDetail(handlerConfiguration.getBoolean("getDetail", false));
     }
-    
-    @Resource(name="dnsservice")
+
+    @Resource(name = "dnsservice")
     public void setDNSService(DNSService dns) {
         super.setDNSService(new SMTPServerDNSServiceAdapter(dns));
     }

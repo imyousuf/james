@@ -34,26 +34,32 @@ import org.apache.james.protocols.api.WiringException;
 
 /**
  * Handler which will gather statistics for {@link ConnectHandler}'s
- *
+ * 
  * @param <S>
  */
-public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolSession> implements ConnectHandlerResultHandler<S>, ExtensibleHandler, Configurable{
+public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolSession> implements ConnectHandlerResultHandler<S>, ExtensibleHandler, Configurable {
 
     private Map<String, ConnectHandlerStats> cStats = new HashMap<String, ConnectHandlerStats>();
     private String jmxName;
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ConnectHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, boolean, long, org.apache.james.protocols.api.ConnectHandler)
+     * 
+     * @see
+     * org.apache.james.protocols.api.ConnectHandlerResultHandler#onResponse
+     * (org.apache.james.protocols.api.ProtocolSession, boolean, long,
+     * org.apache.james.protocols.api.ConnectHandler)
      */
     public boolean onResponse(ProtocolSession session, boolean response, long executionTime, ConnectHandler<S> handler) {
         cStats.get(handler.getClass().getName()).increment(response);
-        return response;     
+        return response;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
+     * 
+     * @see
+     * org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> marker = new ArrayList<Class<?>>();
@@ -64,26 +70,29 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolS
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * 
+     * @see
+     * org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.
+     * lang.Class, java.util.List)
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {
         if (interfaceName.equals(ConnectHandler.class)) {
             // add stats for all hooks
-            for (int i = 0; i < extension.size(); i++ ) {
-                ConnectHandler c =  (ConnectHandler) extension.get(i);
+            for (int i = 0; i < extension.size(); i++) {
+                ConnectHandler c = (ConnectHandler) extension.get(i);
                 if (equals(c) == false) {
                     String cName = c.getClass().getName();
                     try {
                         cStats.put(cName, new ConnectHandlerStats(jmxName, cName));
                     } catch (Exception e) {
-                        throw new WiringException("Unable to wire Hooks",  e);
+                        throw new WiringException("Unable to wire Hooks", e);
                     }
                 }
             }
         }
     }
-    
+
     /**
      * Return the default JMXName to use if none is configured
      * 
@@ -93,11 +102,13 @@ public abstract class AbstractConnectHandlerResultJMXMonitor<S extends ProtocolS
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.jmxName = config.getString("jmxName", getDefaultJMXName());
     }
-    
 
 }

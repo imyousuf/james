@@ -53,7 +53,6 @@ public class PassCmdHandler extends RsetCmdHandler {
     /**
      * Handler method called upon receipt of a PASS command. Reads in and
      * validates the password.
-     * 
      */
     public Response onCommand(POP3Session session, Request request) {
         String parameters = request.getArgument();
@@ -62,12 +61,13 @@ public class PassCmdHandler extends RsetCmdHandler {
             String passArg = parameters;
             try {
                 MailboxSession mSession = mailboxManager.login(session.getUser(), passArg, session.getLogger());
-                
-                // explicit call start processing because it was not stored before in the session
+
+                // explicit call start processing because it was not stored
+                // before in the session
                 mailboxManager.startProcessingRequest(mSession);
-                
+
                 MailboxPath mailboxPath = MailboxPath.inbox(session.getUser());
-                
+
                 // check if mailbox exists.. if not just create it
                 if (mailboxManager.mailboxExists(mailboxPath, mSession) == false) {
                     mailboxManager.createMailbox(mailboxPath, mSession);

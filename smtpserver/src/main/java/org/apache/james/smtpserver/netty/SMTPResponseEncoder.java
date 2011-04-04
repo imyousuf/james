@@ -27,9 +27,8 @@ import org.apache.james.protocols.smtp.SMTPResponse;
 
 /**
  * {@link AbstractResponseEncoder} which encode {@link SMTPResponse} objects
- *
  */
-public class SMTPResponseEncoder extends AbstractResponseEncoder<SMTPResponse>{
+public class SMTPResponseEncoder extends AbstractResponseEncoder<SMTPResponse> {
 
     public SMTPResponseEncoder() {
         super(SMTPResponse.class, Charset.forName("US-ASCII"));
@@ -38,7 +37,7 @@ public class SMTPResponseEncoder extends AbstractResponseEncoder<SMTPResponse>{
     @Override
     protected List<String> getResponse(SMTPResponse response) {
         List<String> responseList = new ArrayList<String>();
-        
+
         for (int k = 0; k < response.getLines().size(); k++) {
             StringBuffer respBuff = new StringBuffer(256);
             respBuff.append(response.getRetCode());
@@ -53,7 +52,7 @@ public class SMTPResponseEncoder extends AbstractResponseEncoder<SMTPResponse>{
             }
             responseList.add(respBuff.toString());
         }
-        
+
         return responseList;
     }
 

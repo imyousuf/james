@@ -18,11 +18,8 @@
  ****************************************************************/
 package org.apache.james.pop3server.core;
 
-
 /**
  * Hold meta data for a message
- * 
- *
  */
 public final class MessageMetaData {
 
@@ -33,7 +30,7 @@ public final class MessageMetaData {
         this.uid = uid;
         this.size = size;
     }
-    
+
     /**
      * Return the uid of the message
      * 
@@ -42,7 +39,7 @@ public final class MessageMetaData {
     public long getUid() {
         return uid;
     }
-    
+
     /**
      * Return the size of a message
      * 

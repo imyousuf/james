@@ -22,33 +22,33 @@ package org.apache.james.protocols.lib.jmx;
  * JMX MBean interface for servers
  */
 public interface ServerMBean {
-	
-	/**
-	 * Return the maximum allowed concurrent connections for the server
-	 *  
-	 * @return maxConcurrentConnections
-	 */
-	int getMaximumConcurrentConnections();
-	
-	/**
-	 * Return the current connection count
-	 * 
-	 * @return currentConnection
-	 */
-	int getCurrentConnections();
-	
-	/**
-	 * Return the count of handled connections till startup
-	 * 
-	 * @return handledConnections
-	 */
-	long getHandledConnections();
-	
-	/**
-	 * Return true if the server is enabled
-	 * 
-	 * @return isEnabled
-	 */
+
+    /**
+     * Return the maximum allowed concurrent connections for the server
+     * 
+     * @return maxConcurrentConnections
+     */
+    int getMaximumConcurrentConnections();
+
+    /**
+     * Return the current connection count
+     * 
+     * @return currentConnection
+     */
+    int getCurrentConnections();
+
+    /**
+     * Return the count of handled connections till startup
+     * 
+     * @return handledConnections
+     */
+    long getHandledConnections();
+
+    /**
+     * Return true if the server is enabled
+     * 
+     * @return isEnabled
+     */
     boolean isEnabled();
 
     /**
@@ -56,38 +56,37 @@ public interface ServerMBean {
      * 
      * @return startTLS
      */
-	boolean getStartTLSSupported();
+    boolean getStartTLSSupported();
 
-	
     String[] getBoundAddresses();
-  
-    
+
     /**
      * Return the socket type of the server. Which can either be plain or secure
      * 
-     */  
+     */
     String getSocketType();
-    
+
     /**
      * Return the service type of the server
      * 
-     */  
+     */
     String getServiceType();
-    
+
     /**
-     * Return true if the server is started, which basicly means it is bound to a address and accept connections
+     * Return true if the server is started, which basicly means it is bound to
+     * a address and accept connections
      * 
      * @return started
      */
     boolean isStarted();
-    
+
     /**
      * Start the server
      * 
      * @return start
      */
     boolean start();
-    
+
     /**
      * Stop the server
      * 
@@ -96,7 +95,7 @@ public interface ServerMBean {
     boolean stop();
 
     /**
-     * Return the timeout in seconds 
+     * Return the timeout in seconds
      * 
      * @return timeout
      */

@@ -32,17 +32,19 @@ import org.apache.james.protocols.api.WiringException;
 
 /**
  * Expose JMX statistics for {@link CommandHandler}
- *
  */
 public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response, S extends ProtocolSession> implements CommandHandlerResultHandler<R, S>, ExtensibleHandler {
 
     private Map<String, AbstractCommandHandlerStats<R>> cStats = new HashMap<String, AbstractCommandHandlerStats<R>>();
 
-    
-
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.CommanHandlerResultHandler#onResponse(org.apache.james.protocols.api.ProtocolSession, org.apache.james.protocols.api.Response, long, org.apache.james.protocols.api.CommandHandler)
+     * 
+     * @see
+     * org.apache.james.protocols.api.CommanHandlerResultHandler#onResponse(
+     * org.apache.james.protocols.api.ProtocolSession,
+     * org.apache.james.protocols.api.Response, long,
+     * org.apache.james.protocols.api.CommandHandler)
      */
     public Response onResponse(ProtocolSession session, R response, long executionTime, CommandHandler<S> handler) {
         String name = handler.getClass().getName();
@@ -55,7 +57,9 @@ public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response,
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
+     * 
+     * @see
+     * org.apache.james.protocols.api.ExtensibleHandler#getMarkerInterfaces()
      */
     public List<Class<?>> getMarkerInterfaces() {
         List<Class<?>> marker = new ArrayList<Class<?>>();
@@ -65,28 +69,32 @@ public abstract class AbstractCommandHandlerResultJMXMonitor<R extends Response,
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.lang.Class, java.util.List)
+     * 
+     * @see
+     * org.apache.james.protocols.api.ExtensibleHandler#wireExtensions(java.
+     * lang.Class, java.util.List)
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void wireExtensions(Class<?> interfaceName, List<?> extension) throws WiringException {
         if (interfaceName.equals(CommandHandler.class)) {
             // add stats for all hooks
-            for (int i = 0; i < extension.size(); i++ ) {
-                CommandHandler c =  (CommandHandler) extension.get(i);
+            for (int i = 0; i < extension.size(); i++) {
+                CommandHandler c = (CommandHandler) extension.get(i);
                 if (equals(c) == false) {
                     String cName = c.getClass().getName();
                     try {
                         cStats.put(cName, createCommandHandlerStats(c));
                     } catch (Exception e) {
-                        throw new WiringException("Unable to wire Hooks",  e);
+                        throw new WiringException("Unable to wire Hooks", e);
                     }
                 }
             }
         }
     }
-    
+
     /**
-     * Create the {@link AbstractCommandHandlerStats} for the given {@link CommandHandler}
+     * Create the {@link AbstractCommandHandlerStats} for the given
+     * {@link CommandHandler}
      * 
      * @param handler
      * @return stats

@@ -17,14 +17,11 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.pop3server.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 
 import org.apache.james.pop3server.POP3Response;
 import org.apache.james.pop3server.POP3Session;
@@ -33,17 +30,15 @@ import org.apache.james.protocols.api.Request;
 import org.apache.james.protocols.api.Response;
 
 /**
-  * Handles DELE command
-  */
+ * Handles DELE command
+ */
 public class DeleCmdHandler implements CommandHandler<POP3Session> {
-	private final static String COMMAND_NAME = "DELE";
+    private final static String COMMAND_NAME = "DELE";
 
-	/**
-     * Handler method called upon receipt of a DELE command.
-     * This command deletes a particular mail message from the
-     * mailbox.	 
-     * 
-	 */
+    /**
+     * Handler method called upon receipt of a DELE command. This command
+     * deletes a particular mail message from the mailbox.
+     */
     @SuppressWarnings("unchecked")
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;
@@ -52,43 +47,33 @@ public class DeleCmdHandler implements CommandHandler<POP3Session> {
             try {
                 num = Integer.parseInt(request.getArgument());
             } catch (Exception e) {
-                response = new POP3Response(POP3Response.ERR_RESPONSE,"Usage: DELE [mail number]");
+                response = new POP3Response(POP3Response.ERR_RESPONSE, "Usage: DELE [mail number]");
                 return response;
             }
             try {
                 List<MessageMetaData> uidList = (List<MessageMetaData>) session.getState().get(POP3Session.UID_LIST);
                 List<Long> deletedUidList = (List<Long>) session.getState().get(POP3Session.DELETED_UID_LIST);
 
-                Long uid = uidList.get(num -1).getUid();
-                
+                Long uid = uidList.get(num - 1).getUid();
+
                 if (deletedUidList.contains(uid)) {
-                    StringBuilder responseBuffer =
-                        new StringBuilder(64)
-                                .append("Message (")
-                                .append(num)
-                                .append(") already deleted.");
-                    response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
+                    StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") already deleted.");
+                    response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
                 } else {
                     deletedUidList.add(uid);
                     // we are replacing our reference with "DELETED", so we have
                     // to dispose the no-more-referenced mail object.
-                    response = new POP3Response(POP3Response.OK_RESPONSE,"Message deleted");
+                    response = new POP3Response(POP3Response.OK_RESPONSE, "Message deleted");
                 }
             } catch (IndexOutOfBoundsException iob) {
-                StringBuilder responseBuffer =
-                    new StringBuilder(64)
-                            .append("Message (")
-                            .append(num)
-                            .append(") does not exist.");
-                response = new POP3Response(POP3Response.ERR_RESPONSE,responseBuffer.toString());
+                StringBuilder responseBuffer = new StringBuilder(64).append("Message (").append(num).append(") does not exist.");
+                response = new POP3Response(POP3Response.ERR_RESPONSE, responseBuffer.toString());
             }
         } else {
             response = new POP3Response(POP3Response.ERR_RESPONSE);
         }
-        return response;   
+        return response;
     }
-
-
 
     /**
      * @see org.apache.james.api.protocol.CommonCommandHandler#getImplCommands()
@@ -98,6 +83,5 @@ public class DeleCmdHandler implements CommandHandler<POP3Session> {
         commands.add(COMMAND_NAME);
         return commands;
     }
-
 
 }

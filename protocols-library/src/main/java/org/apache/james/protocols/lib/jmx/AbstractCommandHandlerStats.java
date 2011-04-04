@@ -35,7 +35,6 @@ import org.apache.james.protocols.api.Response;
 
 /**
  * Expose statistics for {@link CommandHandler} via JMX
- *
  */
 public abstract class AbstractCommandHandlerStats<R extends Response> extends StandardMBean implements CommandHandlerStatsMBean, Disposable {
 
@@ -51,14 +50,13 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
         super(jmxClass);
         this.handlerName = handlerName;
         this.commands = commands;
-        
-        name = "org.apache.james:type=server,name=" + jmxName  + ",chain=handlerchain,handler=commandhandler,commandhandler=" + handlerName;
+
+        name = "org.apache.james:type=server,name=" + jmxName + ",chain=handlerchain,handler=commandhandler,commandhandler=" + handlerName;
         mbeanserver = ManagementFactory.getPlatformMBeanServer();
         ObjectName baseObjectName = new ObjectName(name);
         mbeanserver.registerMBean(this, baseObjectName);
     }
-    
-    
+
     /**
      * Increment stats based on the given response
      * 
@@ -68,19 +66,21 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
         if (response.isEndSession()) {
             disconnect.incrementAndGet();
         }
-        
+
         all.incrementAndGet();
         incrementStats(response);
     }
-    
+
     /**
      * Subclasses need to implement this to handle more precise stats
      * 
      * @param response
      */
     protected abstract void incrementStats(R response);
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getAll()
      */
     public long getAll() {
@@ -89,6 +89,7 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getName()
      */
     public String getName() {
@@ -97,6 +98,7 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.Disposable#dispose()
      */
     public void dispose() {
@@ -109,6 +111,7 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.smtpserver.CommandHandlerStatsMBean#getCommands()
      */
     public String[] getCommands() {
@@ -117,6 +120,7 @@ public abstract class AbstractCommandHandlerStats<R extends Response> extends St
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.socket.HandlerStatsMBean#getDisconnect()
      */
     public long getDisconnect() {

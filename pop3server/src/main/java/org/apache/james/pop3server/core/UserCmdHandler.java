@@ -39,7 +39,6 @@ public class UserCmdHandler implements CommandHandler<POP3Session>, CapaCapabili
     /**
      * Handler method called upon receipt of a USER command. Reads in the user
      * id.
-     * 
      */
     public Response onCommand(POP3Session session, Request request) {
         POP3Response response = null;

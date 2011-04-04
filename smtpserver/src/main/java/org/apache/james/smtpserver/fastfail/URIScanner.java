@@ -17,9 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-
 package org.apache.james.smtpserver.fastfail;
 
 import java.net.URI;
@@ -39,27 +36,23 @@ public class URIScanner {
 
     static private final String mark = "-_.!~*'()";
 
-    static private final String unreserved = "A-Za-z0-9" + escape(mark)
-        + "\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f";
+    static private final String unreserved = "A-Za-z0-9" + escape(mark) + "\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f";
 
     static private final String uricSet = escape(reserved) + unreserved + "%";
 
-    static private final String uricNoColon = escape(reservedNoColon)
-        + unreserved + "%";
+    static private final String uricNoColon = escape(reservedNoColon) + unreserved + "%";
 
     static private final String schemeRE = "(?-xism:(?:https?|ftp|mailto|javascript|file))";
 
     static private final String schemelessRE = "(?-xism:(?<![.=])(?:(?i)www\\d*\\.|(?i)ftp\\.))";
 
-    static private final String uriRE = "(?-xism:\\b(?:" + schemeRE + ":["
-        + uricNoColon + "]|" + schemelessRE + ")[" + uricSet + "#]*)";
+    static private final String uriRE = "(?-xism:\\b(?:" + schemeRE + ":[" + uricNoColon + "]|" + schemelessRE + ")[" + uricSet + "#]*)";
 
     /** Pre-compiled pattern that matches URIs */
     static private final Pattern uriPattern = Pattern.compile(uriRE);
 
     /** Pre-compiled pattern that matches URI scheme strings */
-    static private final Pattern schemePattern = Pattern.compile("^" + schemeRE
-        + ":");
+    static private final Pattern schemePattern = Pattern.compile("^" + schemeRE + ":");
 
     /** Pre-compiled pattern used to cleanup a found URI string */
     static private final Pattern uriCleanup = Pattern.compile("^<(.*)>$");
@@ -68,8 +61,7 @@ public class URIScanner {
     static private final Pattern uriCleanup2 = Pattern.compile("[\\]\\)>#]$");
 
     /** Pre-compile pattern for identifying "mailto" patterns */
-    static private final Pattern uriCleanup3 = Pattern
-        .compile("^(?i)mailto:([^\\/]{2})(.*)$");
+    static private final Pattern uriCleanup3 = Pattern.compile("^(?i)mailto:([^\\/]{2})(.*)$");
 
     // These regular expressions also "inspired" by Spamassassin
     static private final String esc = "\\\\";
@@ -90,47 +82,40 @@ public class URIScanner {
 
     static private final String qtext = "[^" + esc + nonASCII + cr_list + "\"]";
 
-    static private final String dtext = "[^" + esc + nonASCII + cr_list
-        + open_br + close_br + "]";
+    static private final String dtext = "[^" + esc + nonASCII + cr_list + open_br + close_br + "]";
 
     static private final String quoted_pair = esc + "[^" + nonASCII + "]";
 
-    static private final String atom_char = "[^(" + space + ")<>@,;:\"." + esc
-        + open_br + close_br + ctrl + nonASCII + "]";
+    static private final String atom_char = "[^(" + space + ")<>@,;:\"." + esc + open_br + close_br + ctrl + nonASCII + "]";
 
     static private final String atom = "(?>" + atom_char + "+)";
 
-    static private final String quoted_str = "\"" + qtext + "*(?:"
-        + quoted_pair + qtext + "*)*\"";
+    static private final String quoted_str = "\"" + qtext + "*(?:" + quoted_pair + qtext + "*)*\"";
 
     static private final String word = "(?:" + atom + "|" + quoted_str + ")";
 
-    static private final String local_part = word + "(?:" + period + word
-        + ")*";
+    static private final String local_part = word + "(?:" + period + word + ")*";
 
     static private final String label = "[A-Za-z\\d](?:[A-Za-z\\d-]*[A-Za-z\\d])?";
 
-    static private final String domain_ref = label + "(?:" + period + label
-        + ")*";
+    static private final String domain_ref = label + "(?:" + period + label + ")*";
 
-    static private final String domain_lit = open_br + "(?:" + dtext + "|"
-        + quoted_pair + ")*" + close_br;
+    static private final String domain_lit = open_br + "(?:" + dtext + "|" + quoted_pair + ")*" + close_br;
 
-    static private final String domain = "(?:" + domain_ref + "|" + domain_lit
-        + ")";
+    static private final String domain = "(?:" + domain_ref + "|" + domain_lit + ")";
 
-    static private final String Addr_spec_re = "(?-xism:" + local_part
-        + "\\s*\\@\\s*" + domain + ")";
+    static private final String Addr_spec_re = "(?-xism:" + local_part + "\\s*\\@\\s*" + domain + ")";
 
     /** Pre-compiled pattern for matching "schemeless" mailto strings */
-    static private final Pattern emailAddrPattern = Pattern
-        .compile(Addr_spec_re);
+    static private final Pattern emailAddrPattern = Pattern.compile(Addr_spec_re);
 
     /** Simple reqular expression to match an octet part of an IP address */
     static private final String octet = "(?:[1-2][0-9][0-9])|(?:[1-9][0-9])|(?:[0-9])";
 
-    /** Simple regular expression to match a part of a domain string in the
-     TLDLookup cache. */
+    /**
+     * Simple regular expression to match a part of a domain string in the
+     * TLDLookup cache.
+     */
     static private final String tld = "[A-Za-z0-9\\-]*";
 
     /** Simple regular expression that matches a two-part TLD */
@@ -139,59 +124,75 @@ public class URIScanner {
     /** Simple regular expression that matches a three-part TLD */
     static private final String tld3 = tld + "\\." + tld + "\\." + tld;
 
-    /** Regular expression that matches and captures parts of a possible 
-     one-part TLD domain string */
+    /**
+     * Regular expression that matches and captures parts of a possible one-part
+     * TLD domain string
+     */
     static private final String tldCap = "(" + tld + "\\.(" + tld + "))$";
 
-    /** Regular expression that matches and captures parts of a possible 
-     two-part TLD domain string */
+    /**
+     * Regular expression that matches and captures parts of a possible two-part
+     * TLD domain string
+     */
     static private final String tld2Cap = "(" + tld + "\\.(" + tld2 + "))$";
 
-    /** Regular expression that matches and captures parts of a possible 
-     three-part TLD domain string */
+    /**
+     * Regular expression that matches and captures parts of a possible
+     * three-part TLD domain string
+     */
     static private final String tld3Cap = "(" + tld + "\\.(" + tld3 + "))$";
 
     /** Regular expression that matches and captures parts of an IP address */
-    static private final String ipCap = "((" + octet + ")\\.(" + octet
-        + ")\\.(" + octet + ")\\.(" + octet + "))$";
+    static private final String ipCap = "((" + octet + ")\\.(" + octet + ")\\.(" + octet + ")\\.(" + octet + "))$";
 
     /** Pre-compiled pattern that matches IP addresses */
     static private final Pattern ipCapPattern = Pattern.compile(ipCap);
 
-    /** Pre-compiled pattern that matches domain string that is possibly
-     contained in a one-part TLD */
+    /**
+     * Pre-compiled pattern that matches domain string that is possibly
+     * contained in a one-part TLD
+     */
     static private final Pattern tldCapPattern = Pattern.compile(tldCap);
 
-    /** Pre-compiled pattern that matches domain string that is possibly
-     contained in a two-part TLD */
+    /**
+     * Pre-compiled pattern that matches domain string that is possibly
+     * contained in a two-part TLD
+     */
     static private final Pattern tld2CapPattern = Pattern.compile(tld2Cap);
 
-    /** Pre-compiled pattern that matches domain string that is possibly
-     contained in a three-part TLD */
+    /**
+     * Pre-compiled pattern that matches domain string that is possibly
+     * contained in a three-part TLD
+     */
     static private final Pattern tld3CapPattern = Pattern.compile(tld3Cap);
- 
+
     /** controls testing/debug output */
     static private boolean testing = false;
 
     /**
-     * Scans a character sequence for URIs. Then add all unique domain strings 
+     * <p>
+     * Scans a character sequence for URIs. Then add all unique domain strings
      * derived from those found URIs to the supplied HashSet.
+     * </p>
      * <p>
      * This function calls scanContentForHosts() to grab all the host strings.
      * Then it calls domainFromHost() on each host string found to distill them
-     * to their basic "registrar" domains. 
-     *
-     * @param domains a HashSet to be populated with all domain strings found in
-     *        the content
-     * @param content a character sequence to be scanned for URIs
+     * to their basic "registrar" domains.
+     * </p>
+     * 
+     * @param domains
+     *            a HashSet to be populated with all domain strings found in the
+     *            content
+     * @param content
+     *            a character sequence to be scanned for URIs
      * @return newDomains the domains which were extracted
      */
     static public HashSet<String> scanContentForDomains(HashSet<String> domains, CharSequence content) {
         HashSet<String> newDomains = new HashSet<String>();
         HashSet<String> hosts = scanContentForHosts(content);
-        for (final String host:hosts) {
+        for (final String host : hosts) {
             final String domain = domainFromHost(host);
-    
+
             if (null != domain) {
                 if (false == domains.contains(domain)) {
                     newDomains.add(domain);
@@ -202,15 +203,16 @@ public class URIScanner {
     }
 
     /**
-     * Scans a character sequence for URIs. Then returns all unique host strings 
+     * Scans a character sequence for URIs. Then returns all unique host strings
      * derived from those found URIs in a HashSet
-     *
-     * @param content a character sequence to be scanned for URIs
+     * 
+     * @param content
+     *            a character sequence to be scanned for URIs
      * @return a HashSet containing host strings
      */
     static protected HashSet<String> scanContentForHosts(CharSequence content) {
         HashSet<String> set = new HashSet<String>();
-        
+
         // look for URIs
         Matcher mat = uriPattern.matcher(content);
         while (mat.find()) {
@@ -219,17 +221,17 @@ public class URIScanner {
             if (cleanMat.find()) {
                 found = cleanMat.group(1);
             }
-                
+
             cleanMat = uriCleanup2.matcher(found);
             if (cleanMat.find()) {
-               found = cleanMat.replaceAll("");
+                found = cleanMat.replaceAll("");
             }
-                
+
             cleanMat = uriCleanup3.matcher(found);
             if (cleanMat.find()) {
                 found = "mailto://" + cleanMat.group(1) + cleanMat.group(2);
             }
-        
+
             cleanMat = schemePattern.matcher(found);
             if (!cleanMat.find()) {
                 if (found.matches("^(?i)www\\d*\\..*")) {
@@ -238,7 +240,7 @@ public class URIScanner {
                     found = "ftp://" + found;
                 }
             }
-       
+
             String host = hostFromUriStr(found);
             if (null != host) {
                 host = host.toLowerCase();
@@ -254,12 +256,11 @@ public class URIScanner {
             String found = mat.group();
             debugOut("******** mailfound=\"" + found + "\"");
             found = "mailto://" + found;
-            debugOut("*******6 mailfoundfound=\"" + found
-                + "\" after cleanup 6");
-          
+            debugOut("*******6 mailfoundfound=\"" + found + "\" after cleanup 6");
+
             String host = hostFromUriStr(found);
             if (null != host) {
-                
+
                 host = host.toLowerCase();
                 if (false == set.contains(host)) {
                     set.add(host);
@@ -271,10 +272,11 @@ public class URIScanner {
 
     /**
      * Extracts and returns the host portion of URI string.
-     *
+     * 
      * This function uses java.net.URI.
-     *
-     * @param uriStr a string containing a URI
+     * 
+     * @param uriStr
+     *            a string containing a URI
      * @return the host portion of the supplied URI, null if no host string
      *         could be found
      */
@@ -299,16 +301,17 @@ public class URIScanner {
      * the correct registrar domain is not "co.uk", but "example.co.uk". If the
      * domain string is an IP address, then the octets are returned in reverse
      * order.
-     *
-     * @param host a string containing a host name
+     * 
+     * @param host
+     *            a string containing a host name
      * @return the registrar domain portion of the supplied host string
      */
     static protected String domainFromHost(String host) {
         debugOut("domainFromHost(\"" + host + "\")");
         String domain = null;
         Matcher mat;
-            
-        // IP addrs 
+
+        // IP addrs
         mat = ipCapPattern.matcher(host);
         if (mat.find()) {
             // reverse the octets now
@@ -361,8 +364,9 @@ public class URIScanner {
 
     /**
      * A utility function that "escapes" special characters in a string.
-     *
-     * @param str a string to be processed
+     * 
+     * @param str
+     *            a string to be processed
      * @return modified "escaped" string
      */
     private static String escape(String str) {

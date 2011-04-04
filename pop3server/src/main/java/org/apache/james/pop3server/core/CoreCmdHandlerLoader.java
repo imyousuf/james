@@ -26,7 +26,7 @@ import org.apache.james.protocols.api.HandlersPackage;
 import org.apache.james.protocols.impl.log.ConnectHandlerResultLogger;
 import org.apache.james.protocols.impl.log.LineHandlerResultLogger;
 
-public class CoreCmdHandlerLoader implements HandlersPackage{
+public class CoreCmdHandlerLoader implements HandlersPackage {
 
     private final static String CAPACMDHANDLER = CapaCmdHandler.class.getName();
     private final static String USERCMDHANDLER = UserCmdHandler.class.getName();
@@ -44,12 +44,12 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
     private final static String UNKOWNCMDHANDLER = UnknownCmdHandler.class.getName();
 
     private final static String COMMANDDISPATCHER = POP3CommandDispatcherLineHandler.class.getName();
-        
+
     // logging stuff
     private final String COMMANDHANDLERRESULTLOGGER = POP3CommandHandlerResultLogger.class.getName();
     private final String CONNECTHANDLERRESULTLOGGER = ConnectHandlerResultLogger.class.getName();
     private final String LINEHANDLERRESULTLOGGER = LineHandlerResultLogger.class.getName();
-    
+
     private final List<String> commands = new LinkedList<String>();
 
     public CoreCmdHandlerLoader() {
@@ -69,8 +69,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
         commands.add(STATCMDHANDLER);
         commands.add(QUITCMDHANDLER);
         commands.add(UNKOWNCMDHANDLER);
-        
-        
+
         // Add logging stuff
         commands.add(COMMANDHANDLERRESULTLOGGER);
         commands.add(CONNECTHANDLERRESULTLOGGER);
@@ -79,6 +78,7 @@ public class CoreCmdHandlerLoader implements HandlersPackage{
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.protocols.api.HandlersPackage#getHandlers()
      */
     public List<String> getHandlers() {

@@ -25,24 +25,27 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.james.lifecycle.api.Configurable;
 
-public class SpamTrapHandler extends org.apache.james.protocols.smtp.core.fastfail.SpamTrapHandler implements Configurable{
+public class SpamTrapHandler extends org.apache.james.protocols.smtp.core.fastfail.SpamTrapHandler implements Configurable {
 
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     @SuppressWarnings("unchecked")
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
-        List<String> rcpts= config.getList("spamTrapRecip");
-    
-        if (rcpts.isEmpty() == false ) {
+        List<String> rcpts = config.getList("spamTrapRecip");
+
+        if (rcpts.isEmpty() == false) {
             setSpamTrapRecipients(rcpts);
         } else {
             throw new ConfigurationException("Please configure a spamTrapRecip.");
         }
-    
-        setBlockTime(config.getLong("blockTime",blockTime));
-        
+
+        setBlockTime(config.getLong("blockTime", blockTime));
+
     }
-    
+
 }
