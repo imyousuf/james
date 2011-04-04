@@ -43,21 +43,21 @@ public class MockFileSystem implements FileSystem {
         try {
             if (fileURL.startsWith("file://")) {
                 if (fileURL.startsWith("file://conf/")) {
-                	URL url = MockFileSystem.class.getClassLoader().getResource("./"+fileURL.substring(12));
+                    URL url = MockFileSystem.class.getClassLoader().getResource("./" + fileURL.substring(12));
                     try {
-						return new File(new URI(url.toString()));
-					} catch (URISyntaxException e) {
-						throw new FileNotFoundException("Unable to load file");
-					}
+                        return new File(new URI(url.toString()));
+                    } catch (URISyntaxException e) {
+                        throw new FileNotFoundException("Unable to load file");
+                    }
                     // return new File("./src"+fileURL.substring(6));
                 } else {
                     return new File(fileURL.substring(FileSystem.FILE_PROTOCOL.length()));
                 }
             } else {
-                throw new UnsupportedOperationException("getFile: "+fileURL);
+                throw new UnsupportedOperationException("getFile: " + fileURL);
             }
         } catch (NullPointerException npe) {
-            throw new FileNotFoundException("NPE on: "+fileURL);
+            throw new FileNotFoundException("NPE on: " + fileURL);
         }
     }
 }

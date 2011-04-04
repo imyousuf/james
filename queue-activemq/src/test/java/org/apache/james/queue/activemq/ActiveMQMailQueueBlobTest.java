@@ -26,26 +26,26 @@ import java.io.InputStream;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.james.filesystem.api.FileSystem;
 
-public class ActiveMQMailQueueBlobTest extends ActiveMQMailQueueTest{
+public class ActiveMQMailQueueBlobTest extends ActiveMQMailQueueTest {
     public final static String BASE_DIR = "file://target/james-test";
 
     private MyFileSystem fs;
-    
+
     protected ActiveMQConnectionFactory createConnectionFactory() {
-        ActiveMQConnectionFactory factory =  super.createConnectionFactory();
-        
+        ActiveMQConnectionFactory factory = super.createConnectionFactory();
+
         FileSystemBlobTransferPolicy policy = new FileSystemBlobTransferPolicy();
         policy.setFileSystem(fs);
         policy.setDefaultUploadUrl(BASE_DIR);
         factory.setBlobTransferPolicy(policy);
-        
+
         return factory;
     }
-    
+
     @Override
     public void setUp() throws Exception {
         fs = new MyFileSystem();
-        
+
         super.setUp();
     }
 
@@ -64,7 +64,6 @@ public class ActiveMQMailQueueBlobTest extends ActiveMQMailQueueTest{
 
     private final class MyFileSystem implements FileSystem {
 
-        
         public InputStream getResource(String url) throws IOException {
             return null;
         }
@@ -83,7 +82,7 @@ public class ActiveMQMailQueueBlobTest extends ActiveMQMailQueueTest{
         public File getBasedir() throws FileNotFoundException {
             throw new FileNotFoundException();
         }
-        
+
         public void destroy() throws FileNotFoundException {
             getFile(BASE_DIR).delete();
         }

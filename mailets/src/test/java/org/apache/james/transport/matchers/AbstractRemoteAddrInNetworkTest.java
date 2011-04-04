@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.transport.matchers;
 
 import java.io.Serializable;
@@ -53,8 +52,7 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
 
     private DNSService dnsServer;
 
-    public AbstractRemoteAddrInNetworkTest(String arg0)
-            throws UnsupportedEncodingException {
+    public AbstractRemoteAddrInNetworkTest(String arg0) throws UnsupportedEncodingException {
         super(arg0);
     }
 
@@ -68,49 +66,40 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
             private static final long serialVersionUID = 1L;
 
             public String getName() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public void setName(String newName) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public MimeMessage getMessage() throws MessagingException {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public Collection<MailAddress> getRecipients() {
                 ArrayList<MailAddress> r = new ArrayList<MailAddress>();
                 try {
-                    r = new ArrayList<MailAddress>(Arrays
-                            .asList(new MailAddress[] { new MailAddress(
-                                    "test@james.apache.org") }));
+                    r = new ArrayList<MailAddress>(Arrays.asList(new MailAddress[] { new MailAddress("test@james.apache.org") }));
                 } catch (ParseException e) {
                 }
                 return r;
             }
 
             public void setRecipients(Collection recipients) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public MailAddress getSender() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public String getState() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public String getRemoteHost() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public String getRemoteAddr() {
@@ -118,68 +107,55 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
             }
 
             public String getErrorMessage() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public void setErrorMessage(String msg) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public void setMessage(MimeMessage message) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public void setState(String state) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public Serializable getAttribute(String name) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public Iterator getAttributeNames() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public boolean hasAttributes() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public Serializable removeAttribute(String name) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public void removeAllAttributes() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public Serializable setAttribute(String name, Serializable object) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public long getMessageSize() throws MessagingException {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public Date getLastUpdated() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public void setLastUpdated(Date lastUpdated) {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
         };
@@ -188,25 +164,23 @@ public abstract class AbstractRemoteAddrInNetworkTest extends TestCase {
 
     protected void setupDNSServer() {
         dnsServer = new MockDNSService() {
-            public InetAddress getByName(String host)
-                    throws UnknownHostException {
+            public InetAddress getByName(String host) throws UnknownHostException {
                 if ("192.168.200.0".equals(host) || "255.255.255.0".equals(host) || "192.168.200.1".equals(host) || "192.168.0.1".equals(host) || "192.168.1.1".equals(host)) {
                     // called with an IP it only check formal validity
                     return InetAddress.getByName(host);
                 }
-                throw new UnsupportedOperationException("getByName("+host+") unimplemented in AbstractRemoteAddrInNetworkTest");
+                throw new UnsupportedOperationException("getByName(" + host + ") unimplemented in AbstractRemoteAddrInNetworkTest");
             }
 
         };
     }
 
     protected void setupMatcher() throws MessagingException {
-       
+
         FakeMailContext mmc = new FakeMailContext();
         matcher = createMatcher();
         matcher.setDNSService(dnsServer);
-        FakeMatcherConfig mci = new FakeMatcherConfig(getConfigOption()
-                + getAllowedNetworks(), mmc);
+        FakeMatcherConfig mci = new FakeMatcherConfig(getConfigOption() + getAllowedNetworks(), mmc);
         matcher.init(mci);
     }
 

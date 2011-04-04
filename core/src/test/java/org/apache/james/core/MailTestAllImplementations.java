@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.core;
 
 import junit.framework.TestCase;
@@ -28,7 +26,8 @@ import javax.mail.MessagingException;
 import org.apache.mailet.Mail;
 
 /**
- * testing common behavior of Mail implementors. subclasses automatically get their Mail-behavior tested.
+ * testing common behavior of Mail implementors. subclasses automatically get
+ * their Mail-behavior tested.
  */
 public abstract class MailTestAllImplementations extends TestCase {
 
@@ -42,7 +41,8 @@ public abstract class MailTestAllImplementations extends TestCase {
         try {
             assertTrue("no initial recipient", mail.getRecipients().isEmpty());
         } catch (NullPointerException e) {
-            // current behavior. *BUT*, shouldn't this method better return with an empty list?!
+            // current behavior. *BUT*, shouldn't this method better return with
+            // an empty list?!
         }
         assertEquals("initial remote address is localhost ip", "127.0.0.1", mail.getRemoteAddr());
         assertEquals("initial remote host is localhost", "localhost", mail.getRemoteHost());
@@ -53,7 +53,8 @@ public abstract class MailTestAllImplementations extends TestCase {
         try {
             assertEquals("initial message size == " + expectedMsgSize, expectedMsgSize, mail.getMessageSize());
         } catch (NullPointerException e) {
-            // current behavior. *BUT*, shouldn't this method return more gracefully?!
+            // current behavior. *BUT*, shouldn't this method return more
+            // gracefully?!
         }
     }
 

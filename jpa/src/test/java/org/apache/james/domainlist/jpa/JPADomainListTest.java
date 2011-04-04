@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * Test the JPA implementation of the DomainList.
  */
 public class JPADomainListTest extends TestCase {
-    
+
     // Domains we will play with.
     private final String DOMAIN_1 = "domain1.tld";
     private final String DOMAIN_2 = "domain2.tld";
@@ -54,17 +54,17 @@ public class JPADomainListTest extends TestCase {
      * The properties for the OpenJPA Entity Manager.
      */
     private HashMap<String, String> properties;
-    
+
     /**
      * The JPA DomainList service.
      */
     private JPADomainList jpaDomainList;
-    
+
     @Override
     protected void setUp() throws Exception {
 
         super.setUp();
-        
+
         // Use a memory database.
         properties = new HashMap<String, String>();
         properties.put("openjpa.ConnectionDriverName", org.apache.derby.jdbc.EmbeddedDriver.class.getName());
@@ -72,9 +72,9 @@ public class JPADomainListTest extends TestCase {
         properties.put("openjpa.Log", "JDBC=WARN, SQL=WARN, Runtime=WARN");
         properties.put("openjpa.ConnectionFactoryProperties", "PrettyPrint=true, PrettyPrintLineLength=72");
         properties.put("openjpa.jdbc.SynchronizeMappings", "buildSchema(ForeignKeys=true)");
-        properties.put("openjpa.MetaDataFactory", "jpa(Types=" + JPADomain.class.getName() +")");
+        properties.put("openjpa.MetaDataFactory", "jpa(Types=" + JPADomain.class.getName() + ")");
         factory = OpenJPAPersistence.getEntityManagerFactory(properties);
-        
+
         // Initialize the JPADomainList (no autodetect,...).
         jpaDomainList = new JPADomainList();
         jpaDomainList.setLog(LoggerFactory.getLogger("JPADomainListMockLog"));
@@ -85,17 +85,18 @@ public class JPADomainListTest extends TestCase {
 
         // Always delete everything before running any tests.
         deleteAll();
-    
+
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     /**
      * Add 3 domains and list them.
-     * @throws DomainListException 
+     * 
+     * @throws DomainListException
      */
     public void createListDomains() throws DomainListException {
         jpaDomainList.addDomain(DOMAIN_3);
@@ -106,7 +107,8 @@ public class JPADomainListTest extends TestCase {
 
     /**
      * Add a domain and check it is present.
-     * @throws DomainListException 
+     * 
+     * @throws DomainListException
      */
     public void testAddContainsDomain() throws DomainListException {
         jpaDomainList.addDomain(DOMAIN_2);
@@ -115,7 +117,8 @@ public class JPADomainListTest extends TestCase {
 
     /**
      * Add and remove a domain, and check database is empty.
-     * @throws DomainListException 
+     * 
+     * @throws DomainListException
      */
     public void testAddRemoveContainsSameDomain() throws DomainListException {
         jpaDomainList.addDomain(DOMAIN_1);
@@ -124,8 +127,10 @@ public class JPADomainListTest extends TestCase {
     }
 
     /**
-     * Add a domain and remove another domain, and check first domain is still present.
-     * @throws DomainListException 
+     * Add a domain and remove another domain, and check first domain is still
+     * present.
+     * 
+     * @throws DomainListException
      */
     public void testAddRemoveContainsDifferentDomain() throws DomainListException {
         jpaDomainList.addDomain(DOMAIN_1);
@@ -133,10 +138,11 @@ public class JPADomainListTest extends TestCase {
         assertEquals(1, jpaDomainList.getDomains().length);
         assertEquals(true, jpaDomainList.containsDomain(DOMAIN_1));
     }
-    
+
     /**
      * Delete all possible domains from database.
-     * @throws DomainListException 
+     * 
+     * @throws DomainListException
      */
     private void deleteAll() throws DomainListException {
         jpaDomainList.removeDomain(DOMAIN_1);
@@ -157,14 +163,16 @@ public class JPADomainListTest extends TestCase {
             public String getHostName(InetAddress inet) {
                 return hostName;
             }
+
             public InetAddress[] getAllByName(String name) throws UnknownHostException {
-                return new InetAddress[] { InetAddress.getByName("127.0.0.1")}; 
+                return new InetAddress[] { InetAddress.getByName("127.0.0.1") };
             }
+
             public InetAddress getLocalHost() throws UnknownHostException {
-            return InetAddress.getLocalHost();
+                return InetAddress.getLocalHost();
             }
         };
         return dns;
     }
-   
+
 }

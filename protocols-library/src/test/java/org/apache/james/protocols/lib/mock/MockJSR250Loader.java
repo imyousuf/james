@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 public class MockJSR250Loader {
 
     private final Map<String, Object> servicesByName;
-    
 
     public MockJSR250Loader() {
 
@@ -44,15 +43,14 @@ public class MockJSR250Loader {
 
     }
 
-    public Object get(String name) { 
+    public Object get(String name) {
         Object service = servicesByName.get(name);
         return service;
     }
-   
+
     public void put(String role, Object service) {
         servicesByName.put(role, service);
     }
-
 
     private List<Object> loaderRegistry = new ArrayList<Object>();
 
@@ -65,19 +63,20 @@ public class MockJSR250Loader {
         return newInstance(clazz, null, null);
     }
 
-    public  final <T> T newInstance(Class<T> clazz, Logger log, HierarchicalConfiguration config)  throws Exception{
-            T obj = clazz.newInstance();
-            injectResources(obj);
-            postConstruct(obj);
-            synchronized (this) {
-                loaderRegistry.add(obj);
-            }
-            return obj;
+    public final <T> T newInstance(Class<T> clazz, Logger log, HierarchicalConfiguration config) throws Exception {
+        T obj = clazz.newInstance();
+        injectResources(obj);
+        postConstruct(obj);
+        synchronized (this) {
+            loaderRegistry.add(obj);
+        }
+        return obj;
     }
 
     protected Object create(String className) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         return Thread.currentThread().getContextClassLoader().loadClass(className).newInstance();
     }
+
     /**
      * Dispose all loaded instances by calling the method of the instances which
      * is annotated with @PreDestroy
@@ -150,8 +149,8 @@ public class MockJSR250Loader {
         }
     }
 
-	public Object getObjectForName(String name) {
-		return get(name);
-	}
+    public Object getObjectForName(String name) {
+        return get(name);
+    }
 
 }

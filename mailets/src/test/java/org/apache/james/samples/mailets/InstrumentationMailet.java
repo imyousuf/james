@@ -1,18 +1,23 @@
-package org.apache.james.samples.mailets;
+/****************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *
+ * under the License.                                           *
+ ****************************************************************/
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */ 
+package org.apache.james.samples.mailets;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -36,13 +41,13 @@ import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
 
 /**
- * Mailet just prints out the details of a message. 
- * Sometimes Useful for debugging.
+ * Mailet just prints out the details of a message. Sometimes Useful for
+ * debugging.
  */
 public class InstrumentationMailet implements Mailet {
 
     private MailetConfig config;
-    
+
     public void destroy() {
 
     }
@@ -63,12 +68,12 @@ public class InstrumentationMailet implements Mailet {
         MailetContext context = config.getMailetContext();
         context.log("######## MAIL STARTS");
         context.log("");
-        
+
         MimeMessage message = mail.getMessage();
-        
+
         context.log("Mail named: " + mail.getName());
-        
-        for (Iterator it=mail.getAttributeNames(); it.hasNext();) {
+
+        for (Iterator it = mail.getAttributeNames(); it.hasNext();) {
             String attributeName = (String) it.next();
             context.log("Attribute " + attributeName);
         }
@@ -80,48 +85,45 @@ public class InstrumentationMailet implements Mailet {
         context.log("Sender host: " + mail.getSender().getDomain());
         context.log("Sender user: " + mail.getSender().getLocalPart());
         Collection<MailAddress> recipients = mail.getRecipients();
-        for (Iterator<MailAddress> it = recipients.iterator(); it.hasNext();)
-        {
+        for (Iterator<MailAddress> it = recipients.iterator(); it.hasNext();) {
             MailAddress address = it.next();
             context.log("Recipient: " + address.getLocalPart() + "@" + address.getDomain());
         }
-        
+
         context.log("Subject: " + message.getSubject());
         context.log("MessageID: " + message.getMessageID());
         context.log("Received: " + message.getReceivedDate());
         context.log("Sent: " + message.getSentDate());
-        
+
         Enumeration allHeadersLines = message.getAllHeaderLines();
-        while(allHeadersLines.hasMoreElements()) {
+        while (allHeadersLines.hasMoreElements()) {
             String header = (String) allHeadersLines.nextElement();
             context.log("Header Line:= " + header);
         }
-        
-        
+
         Enumeration allHeadersEnumeration = message.getAllHeaders();
-        while(allHeadersEnumeration.hasMoreElements()) {
+        while (allHeadersEnumeration.hasMoreElements()) {
             Header header = (Header) allHeadersEnumeration.nextElement();
             context.log("Header: " + header.getName() + "=" + header.getValue());
         }
-        
+
         Address[] to = message.getRecipients(RecipientType.TO);
         printAddresses(to, "TO: ");
         Address[] cc = message.getRecipients(RecipientType.CC);
-        printAddresses(cc, "CC: ");     
+        printAddresses(cc, "CC: ");
         Address[] bcc = message.getRecipients(RecipientType.BCC);
-        printAddresses(bcc, "BCC: ");   
+        printAddresses(bcc, "BCC: ");
 
-        
         Flags flags = message.getFlags();
         Flag[] systemFlags = flags.getSystemFlags();
-        for (int i=0;i<systemFlags.length;i++) {
+        for (int i = 0; i < systemFlags.length; i++) {
             context.log("System Flag:" + systemFlags[i]);
         }
         String[] userFlags = flags.getUserFlags();
-        for (int i=0;i<userFlags.length;i++) {
+        for (int i = 0; i < userFlags.length; i++) {
             context.log("User flag: " + userFlags[i]);
         }
-        
+
         String mimeType = message.getContentType();
         context.log("Mime type: " + mimeType);
         if (mimeType == "text/plain") {
@@ -131,16 +133,16 @@ public class InstrumentationMailet implements Mailet {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
         }
-        
+
         context.log("");
         context.log("######## MAIL ENDS");
     }
-    
+
     private final void printAddresses(Address[] addresses, String prefix) {
         MailetContext context = config.getMailetContext();
-        for (int i=0;i<addresses.length;i++) {
+        for (int i = 0; i < addresses.length; i++) {
             if (addresses[i] instanceof InternetAddress) {
                 InternetAddress address = (InternetAddress) addresses[i];
                 context.log(prefix + address.getPersonal() + "@" + address.getAddress());

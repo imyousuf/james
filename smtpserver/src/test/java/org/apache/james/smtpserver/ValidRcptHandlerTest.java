@@ -17,16 +17,12 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-
 package org.apache.james.smtpserver;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 
 import junit.framework.TestCase;
 
@@ -43,26 +39,25 @@ import org.apache.james.vut.api.VirtualUserTableException;
 import org.apache.mailet.MailAddress;
 
 public class ValidRcptHandlerTest extends TestCase {
-    
+
     private final static String VALID_DOMAIN = "localhost";
     private final static String VALID_USER = "postmaster";
     private final static String INVALID_USER = "invalid";
     private final static String USER1 = "user1";
     private final static String USER2 = "user2";
-    
+
     UsersRepository users;
     ValidRcptHandler handler;
-    
+
     @Override
     protected void setUp() throws Exception {
         users = new MockUsersRepository();
-        users.addUser(VALID_USER,"xxx");
+        users.addUser(VALID_USER, "xxx");
         handler = new ValidRcptHandler();
         handler.setUsers(users);
         handler.setVirtualUserTable(setUpVirtualUserTable());
-       
-        handler.setDomainList(new SimpleDomainList() {
 
+        handler.setDomainList(new SimpleDomainList() {
 
             public boolean containsDomain(String domain) {
                 return domain.equals(VALID_DOMAIN);
@@ -72,23 +67,23 @@ public class ValidRcptHandlerTest extends TestCase {
 
     private SMTPSession setupMockedSMTPSession(final SMTPConfiguration conf, final MailAddress rcpt, final boolean relayingAllowed) {
         SMTPSession session = new BaseFakeSMTPSession() {
-            HashMap<String,Object> state = new HashMap<String,Object>();
+            HashMap<String, Object> state = new HashMap<String, Object>();
 
             public boolean isRelayingAllowed() {
                 return relayingAllowed;
             }
-        
-            public Map<String,Object> getState() {
+
+            public Map<String, Object> getState() {
                 return state;
             }
         };
-    
+
         return session;
     }
-    
+
     private VirtualUserTable setUpVirtualUserTable() {
         final VirtualUserTable table = new VirtualUserTable() {
- 
+
             public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, VirtualUserTableException {
                 Collection<String> mappings = new ArrayList<String>();
                 if (user.equals(USER1)) {
@@ -105,27 +100,27 @@ public class ValidRcptHandlerTest extends TestCase {
 
             public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException {
@@ -134,12 +129,12 @@ public class ValidRcptHandlerTest extends TestCase {
 
             public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException {
@@ -148,22 +143,21 @@ public class ValidRcptHandlerTest extends TestCase {
 
             public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
         };
         return table;
     }
-    
+
     private SMTPConfiguration setupMockedSMTPConfiguration() {
         SMTPConfiguration conf = new SMTPConfiguration() {
-            
-        
+
             public String getHelloName() {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
@@ -180,7 +174,6 @@ public class ValidRcptHandlerTest extends TestCase {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
 
-
             public boolean isRelayingAllowed(String remoteIP) {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
             }
@@ -190,64 +183,64 @@ public class ValidRcptHandlerTest extends TestCase {
             }
 
             public boolean useAddressBracketsEnforcement() {
-                return  true;
+                return true;
             }
 
-			public boolean isAuthRequired(String remoteIP) {
+            public boolean isAuthRequired(String remoteIP) {
                 throw new UnsupportedOperationException("Unimplemented Stub Method");
-			}
+            }
 
-			public boolean isStartTLSSupported() {
-				return false;
-			}
+            public boolean isStartTLSSupported() {
+                return false;
+            }
         };
-    
+
         return conf;
     }
-    
+
     public void testRejectInvalidUser() throws Exception {
         MailAddress mailAddress = new MailAddress(INVALID_USER + "@localhost");
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
-    
+        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(), mailAddress, false);
+
         int rCode = handler.doRcpt(session, null, mailAddress).getResult();
-    
-        assertEquals("Rejected",rCode,HookReturnCode.DENY);
+
+        assertEquals("Rejected", rCode, HookReturnCode.DENY);
     }
-    
+
     public void testRejectInvalidUserRelay() throws Exception {
         MailAddress mailAddress = new MailAddress(INVALID_USER + "@localhost");
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,true);
+        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(), mailAddress, true);
 
         int rCode = handler.doRcpt(session, null, mailAddress).getResult();
-        
-        assertEquals("Rejected",rCode,HookReturnCode.DENY);
+
+        assertEquals("Rejected", rCode, HookReturnCode.DENY);
     }
-    
+
     public void testNotRejectValidUser() throws Exception {
         MailAddress mailAddress = new MailAddress(VALID_USER + "@localhost");
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
-    
+        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(), mailAddress, false);
+
         int rCode = handler.doRcpt(session, null, mailAddress).getResult();
-        
-        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
+
+        assertEquals("Not rejected", rCode, HookReturnCode.DECLINED);
     }
-  
+
     public void testHasAddressMapping() throws Exception {
         MailAddress mailAddress = new MailAddress(USER1 + "@localhost");
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
-    
+        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(), mailAddress, false);
+
         int rCode = handler.doRcpt(session, null, mailAddress).getResult();
-        
-        assertEquals("Not rejected",rCode,HookReturnCode.DECLINED);
+
+        assertEquals("Not rejected", rCode, HookReturnCode.DECLINED);
     }
-    
+
     public void testHasErrorMapping() throws Exception {
         MailAddress mailAddress = new MailAddress(USER2 + "@localhost");
-        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(),mailAddress,false);
+        SMTPSession session = setupMockedSMTPSession(setupMockedSMTPConfiguration(), mailAddress, false);
 
-        int rCode = handler.doRcpt(session, null,mailAddress).getResult();
-    
-        assertNull("Valid Error mapping",session.getState().get("VALID_USER"));
-        assertEquals("Error mapping",rCode, HookReturnCode.DENY);
+        int rCode = handler.doRcpt(session, null, mailAddress).getResult();
+
+        assertNull("Valid Error mapping", session.getState().get("VALID_USER"));
+        assertEquals("Error mapping", rCode, HookReturnCode.DENY);
     }
 }

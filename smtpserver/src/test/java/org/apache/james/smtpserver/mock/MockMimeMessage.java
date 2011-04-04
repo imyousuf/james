@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver.mock;
 
 import javax.mail.internet.MimeMessage;
@@ -55,11 +53,11 @@ public class MockMimeMessage extends MimeMessage {
     private boolean m_doMatch;
 
     public MockMimeMessage() throws MessagingException {
-        super((Session)null);
+        super((Session) null);
     }
 
     public MockMimeMessage(int messageNumber) throws MessagingException {
-        super((Session)null);
+        super((Session) null);
         m_iMessageNumber = messageNumber;
     }
 
@@ -68,7 +66,7 @@ public class MockMimeMessage extends MimeMessage {
     }
 
     public Address[] getFrom() throws MessagingException {
-        return (Address[])m_fromAddresses.toArray();
+        return (Address[]) m_fromAddresses.toArray();
     }
 
     public void setFrom(Address address) throws MessagingException {
@@ -100,16 +98,19 @@ public class MockMimeMessage extends MimeMessage {
             String recipient = (String) iterator.next();
             recipientAddresses.add(new InternetAddress(recipient));
         }
-        return (Address[]) (recipientAddresses.toArray(new Address[]{}));
+        return (Address[]) (recipientAddresses.toArray(new Address[] {}));
     }
 
     private List getRecipientsList(Message.RecipientType recipientType) {
-        if (Message.RecipientType.TO.equals(recipientType)) return m_toRecepients; 
-        if (Message.RecipientType.CC.equals(recipientType)) return m_ccRecepients; 
-        if (Message.RecipientType.BCC.equals(recipientType)) return m_bccRecepients;
+        if (Message.RecipientType.TO.equals(recipientType))
+            return m_toRecepients;
+        if (Message.RecipientType.CC.equals(recipientType))
+            return m_ccRecepients;
+        if (Message.RecipientType.BCC.equals(recipientType))
+            return m_bccRecepients;
         return null;
     }
-    
+
     public Address[] getAllRecipients() throws MessagingException {
         List allRecipients = new ArrayList();
         allRecipients.addAll(m_toRecepients);
@@ -151,8 +152,7 @@ public class MockMimeMessage extends MimeMessage {
     }
 
     public void setSubject(String subject, String charset) throws MessagingException {
-        if (subject == null)
-        {
+        if (subject == null) {
             m_subject = null;
             return;
         }
@@ -223,7 +223,7 @@ public class MockMimeMessage extends MimeMessage {
         return getHeader("Content-Description", null);
     }
 
-    public void setDescription(String description) throws MessagingException { 
+    public void setDescription(String description) throws MessagingException {
         setHeader("Content-Description", description);
     }
 
@@ -283,7 +283,7 @@ public class MockMimeMessage extends MimeMessage {
     }
 
     public void setContent(Object object, String mimeType) throws MessagingException {
-        m_content = object;  // trivial implementation
+        m_content = object; // trivial implementation
     }
 
     public void setText(String string) throws MessagingException {
@@ -292,7 +292,7 @@ public class MockMimeMessage extends MimeMessage {
 
     public void setText(String string, String charset) throws MessagingException {
         try {
-            setContent(new String(string.getBytes(charset)) , "text/plain");
+            setContent(new String(string.getBytes(charset)), "text/plain");
         } catch (UnsupportedEncodingException e) {
             throw new MessagingException("setting text content failed", e);
         }
@@ -316,13 +316,15 @@ public class MockMimeMessage extends MimeMessage {
 
     public String[] getHeader(String name) throws MessagingException {
         String value = (String) m_contentHeaders.get(name);
-        if (value == null) return null;
-        return new String[] {value};
+        if (value == null)
+            return null;
+        return new String[] { value };
     }
 
     public String getHeader(String name, String delimiter) throws MessagingException {
         String[] header = getHeader(name);
-        if (header == null || header.length == 0) return null;
+        if (header == null || header.length == 0)
+            return null;
         return header[0];
     }
 
@@ -347,33 +349,37 @@ public class MockMimeMessage extends MimeMessage {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             String value = getHeader(name, null);
-            if (value == null) continue;
+            if (value == null)
+                continue;
             matchingHeaders.add(value);
         }
-        return Collections.enumeration(matchingHeaders); 
+        return Collections.enumeration(matchingHeaders);
     }
 
     public Enumeration getNonMatchingHeaders(String[] names) throws MessagingException {
         List existingHeaders = Arrays.asList(names);
 
         ArrayList nonMatchingHeaders = new ArrayList();
-        
+
         Iterator iterator = m_contentHeaders.keySet().iterator();
         while (iterator.hasNext()) {
             String name = (String) iterator.next();
-            if (existingHeaders.contains(name)) continue;
+            if (existingHeaders.contains(name))
+                continue;
             String value = getHeader(name, null);
-            if (value == null) continue;
+            if (value == null)
+                continue;
             nonMatchingHeaders.add(value);
         }
-        return Collections.enumeration(nonMatchingHeaders); 
+        return Collections.enumeration(nonMatchingHeaders);
     }
 
     public void addHeaderLine(String headerLine) throws MessagingException {
         int separatorIndex = headerLine.indexOf(":");
-        if (separatorIndex < 0) throw new MessagingException("header line does not conform to standard");
-        
-        addHeader(headerLine.substring(0,separatorIndex), headerLine.substring(separatorIndex,headerLine.length()));
+        if (separatorIndex < 0)
+            throw new MessagingException("header line does not conform to standard");
+
+        addHeader(headerLine.substring(0, separatorIndex), headerLine.substring(separatorIndex, headerLine.length()));
     }
 
     public Enumeration getAllHeaderLines() throws MessagingException {
@@ -396,26 +402,29 @@ public class MockMimeMessage extends MimeMessage {
         for (int i = 0; i < names.length; i++) {
             String name = names[i];
             String value = getHeader(name, null);
-            if (value == null) continue;
+            if (value == null)
+                continue;
             matchingHeaders.add(name + ":" + value);
         }
-        return Collections.enumeration(matchingHeaders); 
+        return Collections.enumeration(matchingHeaders);
     }
 
     public Enumeration getNonMatchingHeaderLines(String[] names) throws MessagingException {
         List existingHeaders = names != null ? Arrays.asList(names) : null;
 
         ArrayList nonMatchingHeaders = new ArrayList();
-        
+
         Iterator iterator = m_contentHeaders.keySet().iterator();
         while (iterator.hasNext()) {
             String name = (String) iterator.next();
-            if (existingHeaders!=null && existingHeaders.contains(name)) continue;
+            if (existingHeaders != null && existingHeaders.contains(name))
+                continue;
             String value = getHeader(name, null);
-            if (value == null) continue;
+            if (value == null)
+                continue;
             nonMatchingHeaders.add(name + ":" + value);
         }
-        return Collections.enumeration(nonMatchingHeaders); 
+        return Collections.enumeration(nonMatchingHeaders);
     }
 
     public synchronized Flags getFlags() throws MessagingException {
@@ -427,8 +436,10 @@ public class MockMimeMessage extends MimeMessage {
     }
 
     public synchronized void setFlags(Flags flags, boolean set) throws MessagingException {
-        if (set) m_setFlags.add(flags);
-        else m_setFlags.remove(flags);
+        if (set)
+            m_setFlags.add(flags);
+        else
+            m_setFlags.remove(flags);
     }
 
     public void saveChanges() throws MessagingException {
@@ -436,7 +447,7 @@ public class MockMimeMessage extends MimeMessage {
     }
 
     protected void updateHeaders() throws MessagingException {
-        ; // trivial implementation 
+        ; // trivial implementation
     }
 
     protected InternetHeaders createInternetHeaders(InputStream inputStream) throws MessagingException {
@@ -444,16 +455,18 @@ public class MockMimeMessage extends MimeMessage {
     }
 
     public void setRecipient(Message.RecipientType recipientType, Address address) throws MessagingException {
-        setRecipients(recipientType, new Address[]{address});
+        setRecipients(recipientType, new Address[] { address });
     }
 
     public void addRecipient(Message.RecipientType recipientType, Address address) throws MessagingException {
-        setRecipients(recipientType, new Address[]{address});
+        setRecipients(recipientType, new Address[] { address });
     }
 
     public void setFlag(Flags.Flag flag, boolean set) throws MessagingException {
-        if (set) m_setFlags.add(flag);
-        else m_setFlags.remove(flag);
+        if (set)
+            m_setFlags.add(flag);
+        else
+            m_setFlags.remove(flag);
     }
 
     public int getMessageNumber() {
@@ -479,8 +492,8 @@ public class MockMimeMessage extends MimeMessage {
     public void setShouldMatch(boolean doMatch) {
         m_doMatch = doMatch;
     }
-    
+
     public boolean match(SearchTerm searchTerm) throws MessagingException {
-        return m_doMatch; 
+        return m_doMatch;
     }
 }

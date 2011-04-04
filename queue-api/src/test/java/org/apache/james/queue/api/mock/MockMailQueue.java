@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.queue.api.mock;
 
 import java.util.concurrent.Executors;
@@ -26,46 +25,45 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.james.queue.api.MailQueue;
-import org.apache.james.queue.api.MailQueue.MailQueueException;
-import org.apache.james.queue.api.MailQueue.MailQueueItem;
 import org.apache.mailet.Mail;
 
-public class MockMailQueue implements MailQueue{
+public class MockMailQueue implements MailQueue {
 
     private final LinkedBlockingQueue<Mail> queue = new LinkedBlockingQueue<Mail>();
     private boolean throwException;
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private Mail lastMail;
-    
+
     /**
      * Throw an {@link MailQueueException} on next operation
      */
     public void throwExceptionOnNextOperation() {
         this.throwException = true;
     }
-    
+
     public MailQueueItem deQueue() throws MailQueueException {
         if (throwException) {
             throwException = false;
             throw new MailQueueException("Mock");
         }
         try {
-        	final Mail mail = queue.take();
-        	if (queue.isEmpty()) lastMail = null;
+            final Mail mail = queue.take();
+            if (queue.isEmpty())
+                lastMail = null;
             return new MailQueueItem() {
-				
-				public Mail getMail() {
-					return mail;
-				}
-				
-				public void done(boolean success) throws MailQueueException {
-					// do nothing here
-					
-				}
-			};
-		
+
+                public Mail getMail() {
+                    return mail;
+                }
+
+                public void done(boolean success) throws MailQueueException {
+                    // do nothing here
+
+                }
+            };
+
         } catch (InterruptedException e) {
-            throw new MailQueueException("Mock",e);
+            throw new MailQueueException("Mock", e);
         }
     }
 
@@ -73,8 +71,8 @@ public class MockMailQueue implements MailQueue{
         if (throwException) {
             throwException = false;
             throw new MailQueueException("Mock");
-        }        
-        
+        }
+
         scheduler.schedule(new Runnable() {
 
             public void run() {
@@ -83,9 +81,9 @@ public class MockMailQueue implements MailQueue{
                     lastMail = mail;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }                
+                }
             }
-            
+
         }, delay, unit);
     }
 
@@ -98,14 +96,14 @@ public class MockMailQueue implements MailQueue{
             queue.put(mail);
             lastMail = mail;
         } catch (InterruptedException e) {
-            throw new MailQueueException("Mock",e);
+            throw new MailQueueException("Mock", e);
         }
     }
 
     public Mail getLastMail() {
         return lastMail;
     }
-    
+
     public void clear() {
         queue.clear();
     }

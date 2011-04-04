@@ -33,13 +33,14 @@ import org.apache.james.user.lib.model.DefaultUser;
 
 public class MockUsersRepository extends AbstractJamesUsersRepository {
 
-    private final HashMap<String,User> m_users = new HashMap<String,User>();
+    private final HashMap<String, User> m_users = new HashMap<String, User>();
 
     /**
-     * force the repository to hold implementations of JamesUser interface, instead of User
-     * JamesUser is _not_ required as of the UsersRepository interface, so the necessarity forcing it
-     * is due to code using UsersRepository while at the same time expecting it to hold JamesUsers
-     * (like in RemoteManagerHandler) 
+     * force the repository to hold implementations of JamesUser interface,
+     * instead of User JamesUser is _not_ required as of the UsersRepository
+     * interface, so the necessarity forcing it is due to code using
+     * UsersRepository while at the same time expecting it to hold JamesUsers
+     * (like in RemoteManagerHandler)
      */
     private boolean m_forceUseJamesUser = false;
 
@@ -47,10 +48,7 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
         m_forceUseJamesUser = true;
     }
 
- 
-
-
-    public User getUserByName(String name) throws UsersRepositoryException{
+    public User getUserByName(String name) throws UsersRepositoryException {
         if (ignoreCase) {
             return getUserByNameCaseInsensitive(name);
         } else {
@@ -58,11 +56,11 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
         }
     }
 
-    public User getUserByNameCaseInsensitive(String name)throws UsersRepositoryException {
+    public User getUserByNameCaseInsensitive(String name) throws UsersRepositoryException {
         return (User) m_users.get(name.toLowerCase(Locale.US));
     }
 
-    public String getRealName(String name) throws UsersRepositoryException{
+    public String getRealName(String name) throws UsersRepositoryException {
         if (ignoreCase) {
             return m_users.get(name.toLowerCase(Locale.US)) != null ? ((User) m_users.get(name.toLowerCase(Locale.US))).getUserName() : null;
         } else {
@@ -70,13 +68,12 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
         }
     }
 
-
-    public void removeUser(String name) throws UsersRepositoryException{
-       if ( m_users.containsKey(name) == false) {
-           throw new UsersRepositoryException("No such user");
-       } else {
-           m_users.remove(name);
-       }
+    public void removeUser(String name) throws UsersRepositoryException {
+        if (m_users.containsKey(name) == false) {
+            throw new UsersRepositoryException("No such user");
+        } else {
+            m_users.remove(name);
+        }
     }
 
     public boolean contains(String name) throws UsersRepositoryException {
@@ -91,44 +88,43 @@ public class MockUsersRepository extends AbstractJamesUsersRepository {
         throw new UnsupportedOperationException("mock");
     }
 
-
-    public boolean test(String name, String password) throws UsersRepositoryException{
+    public boolean test(String name, String password) throws UsersRepositoryException {
         User user = getUserByName(name);
-        if (user == null) return false;
+        if (user == null)
+            return false;
         return user.verifyPassword(password);
     }
 
-    public int countUsers() throws UsersRepositoryException{
+    public int countUsers() throws UsersRepositoryException {
         return m_users.size();
     }
 
     protected List<String> listUserNames() {
         Iterator<User> users = m_users.values().iterator();
         List<String> userNames = new LinkedList<String>();
-        while ( users.hasNext() ) {
+        while (users.hasNext()) {
             User user = users.next();
             userNames.add(user.getUserName());
         }
 
         return userNames;
     }
-    public Iterator<String> list() throws UsersRepositoryException{
-        return listUserNames().iterator(); 
+
+    public Iterator<String> list() throws UsersRepositoryException {
+        return listUserNames().iterator();
     }
 
-    protected void doAddUser(User user)  throws UsersRepositoryException{
-        if (m_forceUseJamesUser && user instanceof DefaultUser ) {
-            DefaultUser aUser = (DefaultUser)user;
-            user = new DefaultJamesUser(aUser.getUserName(),
-                                             aUser.getHashedPassword(),
-                                             aUser.getHashAlgorithm());
+    protected void doAddUser(User user) throws UsersRepositoryException {
+        if (m_forceUseJamesUser && user instanceof DefaultUser) {
+            DefaultUser aUser = (DefaultUser) user;
+            user = new DefaultJamesUser(aUser.getUserName(), aUser.getHashedPassword(), aUser.getHashAlgorithm());
         }
 
         String key = user.getUserName();
         m_users.put(key, user);
     }
 
-    protected void doUpdateUser(User user) throws UsersRepositoryException{
+    protected void doUpdateUser(User user) throws UsersRepositoryException {
         if (m_users.containsKey(user.getUserName())) {
             m_users.put(user.getUserName(), user);
         } else {

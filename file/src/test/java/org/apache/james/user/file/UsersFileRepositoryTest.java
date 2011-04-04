@@ -40,7 +40,7 @@ import org.apache.mailet.MailAddress;
 import org.slf4j.LoggerFactory;
 
 /**
- * Test basic behaviours of UsersFileRepository
+ * Test basic behaviors of UsersFileRepository
  */
 public class UsersFileRepositoryTest extends AbstractUsersRepositoryTest {
 
@@ -48,7 +48,7 @@ public class UsersFileRepositoryTest extends AbstractUsersRepositoryTest {
      * Create the repository to be tested.
      * 
      * @return the user repository
-     * @throws Exception 
+     * @throws Exception
      */
     protected UsersRepository getUsersRepository() throws Exception {
         FileSystem fs = new FileSystem() {
@@ -58,21 +58,19 @@ public class UsersFileRepositoryTest extends AbstractUsersRepositoryTest {
             }
 
             public InputStream getResource(String url) throws IOException {
-                return new FileInputStream(getFile(url)); 
+                return new FileInputStream(getFile(url));
             }
 
             public File getFile(String fileURL) throws FileNotFoundException {
                 return new File(fileURL.substring(FileSystem.FILE_PROTOCOL.length()));
             }
-            
+
         };
-        
+
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder("test");
         configuration.addProperty("destination.[@URL]", "file://target/var/users");
-        
-        UsersFileRepository res = new UsersFileRepository();
 
-        
+        UsersFileRepository res = new UsersFileRepository();
 
         res.setFileSystem(fs);
         res.setLog(LoggerFactory.getLogger("MockLog"));
@@ -90,45 +88,43 @@ public class UsersFileRepositoryTest extends AbstractUsersRepositoryTest {
             LifecycleUtil.dispose(this.usersRepository);
         }
     }
-    
+
     public void testVirtualUserTableImpl() throws Exception {
         String username = "test";
         String password = "pass";
         String alias = "alias";
         String domain = "localhost";
         String forward = "forward@somewhere";
-        
+
         UsersFileRepository repos = (UsersFileRepository) getUsersRepository();
         repos.setEnableAliases(true);
         repos.setEnableForwarding(true);
-        repos.addUser(username,password);
-        
-        JamesUser user = (JamesUser)repos.getUserByName(username);
+        repos.addUser(username, password);
+
+        JamesUser user = (JamesUser) repos.getUserByName(username);
         user.setAlias(alias);
         repos.updateUser(user);
-        
+
         Collection<String> map = ((VirtualUserTable) repos).getMappings(username, domain);
         assertNull("No mapping", map);
-        
+
         user.setAliasing(true);
         repos.updateUser(user);
         map = ((VirtualUserTable) repos).getMappings(username, domain);
         assertEquals("One mapping", 1, map.size());
         assertEquals("Alias found", map.iterator().next().toString(), alias + "@" + domain);
-        
-        
+
         user.setForwardingDestination(new MailAddress(forward));
         repos.updateUser(user);
         map = ((VirtualUserTable) repos).getMappings(username, domain);
         assertTrue("One mapping", map.size() == 1);
         assertEquals("Alias found", map.iterator().next().toString(), alias + "@" + domain);
-        
-        
+
         user.setForwarding(true);
         repos.updateUser(user);
         map = ((VirtualUserTable) repos).getMappings(username, domain);
         Iterator<String> mappings = map.iterator();
-        assertTrue("Two mapping",map.size() == 2);
+        assertTrue("Two mapping", map.size() == 2);
         assertEquals("Alias found", mappings.next().toString(), alias + "@" + domain);
         assertEquals("Forward found", mappings.next().toString(), forward);
     }

@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.mailrepository.jdbc;
 
 public class JDBCDBFileMailRepositoryTest extends JDBCMailRepositoryTest {
@@ -27,4 +26,3 @@ public class JDBCDBFileMailRepositoryTest extends JDBCMailRepositoryTest {
     }
 
 }
-

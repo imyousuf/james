@@ -38,8 +38,9 @@ public class CamelMailetProcessorTest extends AbstractStateMailetProcessorTest {
         try {
             processor = new CamelMailetProcessor();
             Logger log = LoggerFactory.getLogger("MockLog");
-            // slf4j can't set programmatically any log level. It's just a facade
-            //log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
+            // slf4j can't set programmatically any log level. It's just a
+            // facade
+            // log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
             processor.setLog(log);
             processor.setCamelContext(new DefaultCamelContext());
             processor.setMailetContext(new MockMailetContext());
@@ -49,7 +50,8 @@ public class CamelMailetProcessorTest extends AbstractStateMailetProcessorTest {
             processor.init();
             return processor;
         } finally {
-            if (processor != null) processor.destroy();
+            if (processor != null)
+                processor.destroy();
         }
     }
 

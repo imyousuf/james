@@ -34,7 +34,7 @@ public class JcrUserRepositoryTest extends AbstractUsersRepositoryTest {
 
     private static final String JACKRABBIT_HOME = "target/jackrabbit";
     private RepositoryImpl repository;
-        
+
     protected UsersRepository getUsersRepository() throws Exception {
         JCRUsersRepository repos = new JCRUsersRepository();
         repos.setRepository(repository);
@@ -62,7 +62,7 @@ public class JcrUserRepositoryTest extends AbstractUsersRepositoryTest {
             for (int i = 0; i < contents.length; i++) {
                 delete(contents[i]);
             }
-        } 
+        }
         file.delete();
     }
 

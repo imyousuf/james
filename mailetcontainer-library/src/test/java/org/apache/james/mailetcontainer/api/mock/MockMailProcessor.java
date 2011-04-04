@@ -23,15 +23,15 @@ import javax.mail.MessagingException;
 import org.apache.james.mailetcontainer.api.MailProcessor;
 import org.apache.mailet.Mail;
 
-public class MockMailProcessor implements MailProcessor{
+public class MockMailProcessor implements MailProcessor {
 
     private boolean shouldThrow = false;
     private String newState = null;
-    
+
     public MockMailProcessor(boolean shouldThrow) {
         this.shouldThrow = shouldThrow;
     }
-    
+
     public MockMailProcessor(String newState) {
         this.newState = newState;
     }

@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.mailrepository;
 
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
@@ -35,17 +34,16 @@ public class FileMailRepositoryTest extends AbstractMailRepositoryTest {
      * @throws Exception
      */
     protected MailRepository getMailRepository() throws Exception {
-        MockFileSystem fs =  new MockFileSystem();
+        MockFileSystem fs = new MockFileSystem();
         FileMailRepository mr = new FileMailRepository();
         mr.setFileSystem(fs);
         mr.setLog(LoggerFactory.getLogger("MockLog"));
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
-        defaultConfiguration.addProperty( "[@destinationURL]","file://target/var/mr");
-        defaultConfiguration.addProperty( "[@type]","MAIL");
+        defaultConfiguration.addProperty("[@destinationURL]", "file://target/var/mr");
+        defaultConfiguration.addProperty("[@type]", "MAIL");
         mr.configure(defaultConfiguration);
         mr.init();
         return mr;
     }
 
 }
-

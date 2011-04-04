@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Test the JPA Virtual User Table implementation.
  */
 public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
-    
+
     /**
      * The OpenJPA Entity Manager used for the tests.
      */
@@ -44,7 +44,7 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
      * The properties for the OpenJPA Entity Manager.
      */
     private HashMap<String, String> properties;
-    
+
     @Override
     protected void setUp() throws Exception {
 
@@ -55,12 +55,12 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
         properties.put("openjpa.Log", "JDBC=WARN, SQL=WARN, Runtime=WARN");
         properties.put("openjpa.ConnectionFactoryProperties", "PrettyPrint=true, PrettyPrintLineLength=72");
         properties.put("openjpa.jdbc.SynchronizeMappings", "buildSchema(ForeignKeys=true)");
-        properties.put("openjpa.MetaDataFactory", "jpa(Types=" + JPAVirtualUser.class.getName() +")");
-        
+        properties.put("openjpa.MetaDataFactory", "jpa(Types=" + JPAVirtualUser.class.getName() + ")");
+
         factory = OpenJPAPersistence.getEntityManagerFactory(properties);
 
         super.setUp();
-        
+
     }
 
     /**
@@ -73,12 +73,13 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
         virtualUserTable.configure(defaultConfiguration);
         return virtualUserTable;
-    }    
-    
+    }
+
     /**
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String,
+     *      java.lang.String, java.lang.String, int)
      */
-    protected boolean addMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException{
+    protected boolean addMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException {
         try {
             if (type == ERROR_TYPE) {
                 virtualUserTable.addErrorMapping(user, domain, mapping);
@@ -98,25 +99,26 @@ public class JPAVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
 
     /**
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String,
+     *      java.lang.String, java.lang.String, int)
      */
-    protected boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException{
+    protected boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException {
         try {
-        if (type == ERROR_TYPE) {
-            virtualUserTable.removeErrorMapping(user, domain, mapping);
-        } else if (type == REGEX_TYPE) {
-            virtualUserTable.removeRegexMapping(user, domain, mapping);
-        } else if (type == ADDRESS_TYPE) {
-            virtualUserTable.removeAddressMapping(user, domain, mapping);
-        } else if (type == ALIASDOMAIN_TYPE) {
-            virtualUserTable.removeAliasDomainMapping(domain, mapping);
-        } else {
+            if (type == ERROR_TYPE) {
+                virtualUserTable.removeErrorMapping(user, domain, mapping);
+            } else if (type == REGEX_TYPE) {
+                virtualUserTable.removeRegexMapping(user, domain, mapping);
+            } else if (type == ADDRESS_TYPE) {
+                virtualUserTable.removeAddressMapping(user, domain, mapping);
+            } else if (type == ALIASDOMAIN_TYPE) {
+                virtualUserTable.removeAliasDomainMapping(domain, mapping);
+            } else {
+                return false;
+            }
+            return true;
+        } catch (VirtualUserTableException e) {
             return false;
         }
-        return true;
-    } catch (VirtualUserTableException e) {
-        return false;
     }
-    }
-    
+
 }

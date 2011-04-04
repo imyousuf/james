@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
 
     private DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
-    
+
     @Override
     protected void setUp() throws Exception {
         defaultConfiguration.setDelimiterParsingDisabled(true);
@@ -49,10 +49,11 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         virtualUserTable.setLog(LoggerFactory.getLogger("MockLog"));
         return virtualUserTable;
     }
-    
+
     /**
-     * @throws VirtualUserTableException 
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @throws VirtualUserTableException
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String,
+     *      java.lang.String, java.lang.String, int)
      */
     protected boolean addMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException {
 
@@ -61,79 +62,80 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         if (mappings == null) {
             mappings = new ArrayList<String>();
         } else {
-            removeMappingsFromConfig(user,domain,mappings);
+            removeMappingsFromConfig(user, domain, mappings);
         }
-    
+
         if (type == ERROR_TYPE) {
             mappings.add(VirtualUserTable.ERROR_PREFIX + mapping);
         } else if (type == REGEX_TYPE) {
             mappings.add(VirtualUserTable.REGEX_PREFIX + mapping);
         } else if (type == ADDRESS_TYPE) {
             mappings.add(mapping);
-        }  else if (type == ALIASDOMAIN_TYPE) {
+        } else if (type == ALIASDOMAIN_TYPE) {
             mappings.add(VirtualUserTable.ALIASDOMAIN_PREFIX + mapping);
         }
-        
-        if (mappings.size() > 0) { 
-            defaultConfiguration.addProperty("mapping",user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings));
+
+        if (mappings.size() > 0) {
+            defaultConfiguration.addProperty("mapping", user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings));
         }
-    
+
         try {
             virtualUserTable.configure(defaultConfiguration);
-            } catch (Exception e) {
+        } catch (Exception e) {
             if (mappings.size() > 0) {
                 return false;
             } else {
                 return true;
             }
         }
-            
+
         return true;
-    
+
     }
 
     /**
-     * @throws VirtualUserTableException 
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @throws VirtualUserTableException
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String,
+     *      java.lang.String, java.lang.String, int)
      */
-    protected boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException  {       
+    protected boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException {
 
         Collection<String> mappings = virtualUserTable.getUserDomainMappings(user, domain);
-        
+
         if (mappings == null) {
             return false;
         }
-    
-        removeMappingsFromConfig(user,domain, mappings);
-    
+
+        removeMappingsFromConfig(user, domain, mappings);
+
         if (type == ERROR_TYPE) {
             mappings.remove(VirtualUserTable.ERROR_PREFIX + mapping);
         } else if (type == REGEX_TYPE) {
             mappings.remove(VirtualUserTable.REGEX_PREFIX + mapping);
         } else if (type == ADDRESS_TYPE) {
-            mappings.remove(mapping);    
-        }  else if (type == ALIASDOMAIN_TYPE) {
+            mappings.remove(mapping);
+        } else if (type == ALIASDOMAIN_TYPE) {
             mappings.remove(VirtualUserTable.ALIASDOMAIN_PREFIX + mapping);
         }
 
         if (mappings.size() > 0) {
-            defaultConfiguration.addProperty("mapping",user + "@" + domain +"=" + VirtualUserTableUtil.CollectionToMapping(mappings));
-        } 
-    
+            defaultConfiguration.addProperty("mapping", user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings));
+        }
+
         try {
             virtualUserTable.configure(defaultConfiguration);
-            } catch (Exception e) {
-           if (mappings.size() > 0) {
-               return false;
-           } else {
-               return true;
-           }
+        } catch (Exception e) {
+            if (mappings.size() > 0) {
+                return false;
+            } else {
+                return true;
+            }
         }
-            
+
         return true;
 
     }
-    
+
     @SuppressWarnings("unchecked")
     private void removeMappingsFromConfig(String user, String domain, Collection<String> mappings) {
         List<String> confs = defaultConfiguration.getList("mapping");
@@ -141,8 +143,8 @@ public class XMLVirtualUserTableTest extends AbstractVirtualUserTableTest {
         for (int i = 0; i < confs.size(); i++) {
             String c = confs.get(i);
             String mapping = user + "@" + domain + "=" + VirtualUserTableUtil.CollectionToMapping(mappings);
-                        
-            if (!c.equalsIgnoreCase(mapping)){
+
+            if (!c.equalsIgnoreCase(mapping)) {
                 stored.add(c);
             }
         }

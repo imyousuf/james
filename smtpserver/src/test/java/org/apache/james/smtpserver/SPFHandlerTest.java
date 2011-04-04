@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver;
 
 import java.util.ArrayList;
@@ -72,8 +71,7 @@ public class SPFHandlerTest extends TestCase {
         mockedDnsService = new DNSService() {
 
             public List getLocalDomainNames() {
-                throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public void setTimeOut(int arg0) {
@@ -85,40 +83,38 @@ public class SPFHandlerTest extends TestCase {
             }
 
             public void setRecordLimit(int arg0) {
-                throw new UnsupportedOperationException(
-                "Unimplemented mock service");
+                throw new UnsupportedOperationException("Unimplemented mock service");
             }
 
             public List getRecords(DNSRequest req) throws TimeoutException {
                 switch (req.getRecordType()) {
-                    case DNSRequest.TXT:
-                    case DNSRequest.SPF:
-                        List l = new ArrayList();
-                        if (req.getHostname().equals("spf1.james.apache.org")) {
-                            // pass
-                            l.add("v=spf1 +all");
-                            return l;
-                        } else if (req.getHostname().equals("spf2.james.apache.org")) {
-                            // fail
-                            l.add("v=spf1 -all");
-                            return l;
-                        } else if (req.getHostname().equals("spf3.james.apache.org")) {
-                            // softfail
-                            l.add("v=spf1 ~all");
-                            return l;
-                        } else if (req.getHostname().equals("spf4.james.apache.org")) {
-                            // permerror
-                            l.add("v=spf1 badcontent!");
-                            return l;
-                        } else if (req.getHostname().equals("spf5.james.apache.org")) {
-                            // temperror
-                            throw new TimeoutException("TIMEOUT");
-                        } else {
-                            return null;
-                        }
-                    default:
-                        throw new UnsupportedOperationException(
-                        "Unimplemented mock service");
+                case DNSRequest.TXT:
+                case DNSRequest.SPF:
+                    List l = new ArrayList();
+                    if (req.getHostname().equals("spf1.james.apache.org")) {
+                        // pass
+                        l.add("v=spf1 +all");
+                        return l;
+                    } else if (req.getHostname().equals("spf2.james.apache.org")) {
+                        // fail
+                        l.add("v=spf1 -all");
+                        return l;
+                    } else if (req.getHostname().equals("spf3.james.apache.org")) {
+                        // softfail
+                        l.add("v=spf1 ~all");
+                        return l;
+                    } else if (req.getHostname().equals("spf4.james.apache.org")) {
+                        // permerror
+                        l.add("v=spf1 badcontent!");
+                        return l;
+                    } else if (req.getHostname().equals("spf5.james.apache.org")) {
+                        // temperror
+                        throw new TimeoutException("TIMEOUT");
+                    } else {
+                        return null;
+                    }
+                default:
+                    throw new UnsupportedOperationException("Unimplemented mock service");
                 }
             }
 
@@ -187,113 +183,110 @@ public class SPFHandlerTest extends TestCase {
     }
 
     public void testSPFpass() throws Exception {
-    	MailAddress sender = new MailAddress("test@spf1.james.apache.org");
-    	MailAddress rcpt = new MailAddress("test@localhost");
+        MailAddress sender = new MailAddress("test@spf1.james.apache.org");
+        MailAddress rcpt = new MailAddress("test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf1.james.apache.org");
         SPFHandler spf = new SPFHandler();
 
-        
         spf.setDNSService(mockedDnsService);
-        
-        assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
+
+        assertEquals("declined", HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("declined", HookReturnCode.DECLINED, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
 
     public void testSPFfail() throws Exception {
-    	MailAddress sender = new MailAddress("test@spf2.james.apache.org");
-    	MailAddress rcpt = new MailAddress("test@localhost");
+        MailAddress sender = new MailAddress("test@spf2.james.apache.org");
+        MailAddress rcpt = new MailAddress("test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf2.james.apache.org");
         SPFHandler spf = new SPFHandler();
-        
-        spf.setDNSService(mockedDnsService);     
 
-        assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
+        spf.setDNSService(mockedDnsService);
+
+        assertEquals("declined", HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("fail", HookReturnCode.DENY, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
 
     public void testSPFsoftFail() throws Exception {
-    	MailAddress sender = new MailAddress("test@spf3.james.apache.org");
-    	MailAddress rcpt = new MailAddress("test@localhost");
+        MailAddress sender = new MailAddress("test@spf3.james.apache.org");
+        MailAddress rcpt = new MailAddress("test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf3.james.apache.org");
         SPFHandler spf = new SPFHandler();
-        
+
         spf.setDNSService(mockedDnsService);
-        
-        assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
+
+        assertEquals("declined", HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("softfail declined", HookReturnCode.DECLINED, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
 
     public void testSPFsoftFailRejectEnabled() throws Exception {
-    	MailAddress sender = new MailAddress("test@spf3.james.apache.org");
-    	MailAddress rcpt = new MailAddress("test@localhost");
-    	
+        MailAddress sender = new MailAddress("test@spf3.james.apache.org");
+        MailAddress rcpt = new MailAddress("test@localhost");
+
         setupMockedSMTPSession("192.168.100.1", "spf3.james.apache.org");
         SPFHandler spf = new SPFHandler();
-       
+
         spf.setDNSService(mockedDnsService);
-        
+
         spf.setBlockSoftFail(true);
 
-        assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
+        assertEquals("declined", HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("softfail reject", HookReturnCode.DENY, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
 
     public void testSPFpermError() throws Exception {
-    	MailAddress sender = new MailAddress("test@spf4.james.apache.org");
-    	MailAddress rcpt = new MailAddress("test@localhost");
-    	
+        MailAddress sender = new MailAddress("test@spf4.james.apache.org");
+        MailAddress rcpt = new MailAddress("test@localhost");
+
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org");
         SPFHandler spf = new SPFHandler();
-        
+
         spf.setDNSService(mockedDnsService);
-        
+
         spf.setBlockSoftFail(true);
 
-        assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
+        assertEquals("declined", HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("permerror reject", HookReturnCode.DENY, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
 
     public void testSPFtempError() throws Exception {
-    	MailAddress sender = new MailAddress("test@spf5.james.apache.org");
-    	MailAddress rcpt = new MailAddress("test@localhost");
-    	
+        MailAddress sender = new MailAddress("test@spf5.james.apache.org");
+        MailAddress rcpt = new MailAddress("test@localhost");
+
         setupMockedSMTPSession("192.168.100.1", "spf5.james.apache.org");
-        
+
         SPFHandler spf = new SPFHandler();
-        
+
         spf.setDNSService(mockedDnsService);
 
-        assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
+        assertEquals("declined", HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("temperror denysoft", HookReturnCode.DENYSOFT, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
 
     public void testSPFNoRecord() throws Exception {
-    	MailAddress sender = new MailAddress("test@spf6.james.apache.org");
-    	MailAddress rcpt = new MailAddress("test@localhost");
-    	
+        MailAddress sender = new MailAddress("test@spf6.james.apache.org");
+        MailAddress rcpt = new MailAddress("test@localhost");
+
         setupMockedSMTPSession("192.168.100.1", "spf6.james.apache.org");
         SPFHandler spf = new SPFHandler();
 
         spf.setDNSService(mockedDnsService);
 
-        assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
+        assertEquals("declined", HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("declined", HookReturnCode.DECLINED, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
 
-    
     public void testSPFpermErrorRejectDisabled() throws Exception {
-    	MailAddress sender = new MailAddress("test@spf4.james.apache.org");
-    	MailAddress rcpt = new MailAddress("test@localhost");
+        MailAddress sender = new MailAddress("test@spf4.james.apache.org");
+        MailAddress rcpt = new MailAddress("test@localhost");
         setupMockedSMTPSession("192.168.100.1", "spf4.james.apache.org");
         SPFHandler spf = new SPFHandler();
-        
+
         spf.setDNSService(mockedDnsService);
-        
+
         spf.setBlockPermError(false);
 
-        assertEquals("declined",HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
+        assertEquals("declined", HookReturnCode.DECLINED, spf.doMail(mockedSMTPSession, sender).getResult());
         assertEquals("declined", HookReturnCode.DECLINED, spf.doRcpt(mockedSMTPSession, sender, rcpt).getResult());
     }
-    
-   
+
 }

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.mailrepository.mock;
 
 import java.util.ArrayList;
@@ -31,12 +29,12 @@ import org.apache.james.mailrepository.api.MailRepositoryStore;
 
 public class MockMailRepositoryStore implements MailRepositoryStore {
 
-    Map<String,MailRepository> m_storedObjectMap = new HashMap<String,MailRepository>();
+    Map<String, MailRepository> m_storedObjectMap = new HashMap<String, MailRepository>();
 
     public void add(String url, MailRepository obj) {
         m_storedObjectMap.put(url, obj);
     }
-    
+
     public MailRepository select(String url) throws MailRepositoryStoreException {
         MailRepository result = get(url);
         return result;

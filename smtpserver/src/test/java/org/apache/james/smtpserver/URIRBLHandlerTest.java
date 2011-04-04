@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver;
 
 import java.io.IOException;
@@ -101,19 +100,18 @@ public class URIRBLHandlerTest extends TestCase {
         return mail;
     }
 
-    public MimeMessage setupMockedMimeMessage(String text)
-            throws MessagingException {
+    public MimeMessage setupMockedMimeMessage(String text) throws MessagingException {
         MimeMessage message = new MimeMessage(new MockMimeMessage());
         message.setText(text);
         message.saveChanges();
 
         return message;
     }
-    
+
     public MimeMessage setupMockedMimeMessageMP(String text) throws MessagingException {
         MimeMessage message = new MimeMessage(new MockMimeMessage());
-        
-        // Create the message part 
+
+        // Create the message part
         BodyPart messageBodyPart = new MimeBodyPart();
 
         // Fill the message
@@ -126,14 +124,13 @@ public class URIRBLHandlerTest extends TestCase {
 
         return message;
     }
-    
 
     /**
      * Setup the mocked dnsserver
-     *
+     * 
      */
     private DNSService setupMockedDnsServer() {
-    	DNSService mockedDnsServer = new MockDNSService() {
+        DNSService mockedDnsServer = new MockDNSService() {
 
             public Collection findTXTRecords(String hostname) {
                 List res = new ArrayList();
@@ -147,8 +144,7 @@ public class URIRBLHandlerTest extends TestCase {
                 return res;
             }
 
-            public InetAddress getByName(String host)
-                    throws UnknownHostException {
+            public InetAddress getByName(String host) throws UnknownHostException {
                 if ((BAD_DOMAIN1.substring(4) + "." + URISERVER).equals(host)) {
                     return InetAddress.getByName("127.0.0.1");
                 } else if ((BAD_DOMAIN2.substring(4) + "." + URISERVER).equals(host)) {
@@ -156,18 +152,18 @@ public class URIRBLHandlerTest extends TestCase {
                 } else if ((GOOD_DOMAIN.substring(5) + "." + URISERVER).equals(host)) {
                     throw new UnknownHostException();
                 }
-                throw new UnsupportedOperationException("getByName("+host+") not implemented by this mock");
+                throw new UnsupportedOperationException("getByName(" + host + ") not implemented by this mock");
             }
         };
-        
+
         return mockedDnsServer;
     }
-    
+
     public void testNotBlocked() throws IOException, MessagingException {
-        
+
         ArrayList servers = new ArrayList();
         servers.add(URISERVER);
-        
+
         SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessage("http://" + GOOD_DOMAIN + "/")));
 
         URIRBLHandler handler = new URIRBLHandler();
@@ -176,14 +172,14 @@ public class URIRBLHandlerTest extends TestCase {
         handler.setUriRblServer(servers);
         HookResult response = handler.onMessage(session, mockedMail);
 
-        assertEquals("Email was not rejected", response.getResult(),HookReturnCode.DECLINED);
+        assertEquals("Email was not rejected", response.getResult(), HookReturnCode.DECLINED);
     }
-    
+
     public void testBlocked() throws IOException, MessagingException {
-        
+
         ArrayList servers = new ArrayList();
         servers.add(URISERVER);
-        
+
         SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessage("http://" + BAD_DOMAIN1 + "/")));
 
         URIRBLHandler handler = new URIRBLHandler();
@@ -194,13 +190,13 @@ public class URIRBLHandlerTest extends TestCase {
 
         assertEquals("Email was rejected", response.getResult(), HookReturnCode.DENY);
     }
-    
+
     public void testBlockedMultiPart() throws IOException, MessagingException {
-        
+
         ArrayList servers = new ArrayList();
         servers.add(URISERVER);
-        
-        SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessageMP("http://" + BAD_DOMAIN1 + "/" + " " +"http://" + GOOD_DOMAIN + "/")));
+
+        SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessageMP("http://" + BAD_DOMAIN1 + "/" + " " + "http://" + GOOD_DOMAIN + "/")));
 
         URIRBLHandler handler = new URIRBLHandler();
 
@@ -212,25 +208,26 @@ public class URIRBLHandlerTest extends TestCase {
     }
 
     /*
-    public void testAddJunkScore() throws IOException, MessagingException {
-        
-        ArrayList servers = new ArrayList();
-        servers.add(URISERVER);
-        
-        SMTPSession session = setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessage("http://" + BAD_DOMAIN1 + "/")));
-        session.getState().put(JunkScore.JUNK_SCORE, new JunkScoreImpl());
-        
-        URIRBLHandler handler = new URIRBLHandler();
-
-        ContainerUtil.enableLogging(handler, new MockLogger());
-        handler.setDnsServer(setupMockedDnsServer());
-        handler.setUriRblServer(servers);
-        handler.setAction("junkScore");
-        handler.setScore(20);
-        HookResult response = handler.onMessage(session, mockedMail);
-
-        assertNull("Email was not rejected", response);
-        assertEquals("JunkScore added", ((JunkScore) session.getState().get(JunkScore.JUNK_SCORE)).getStoredScore("UriRBLCheck"), 20.0, 0d);
-    }
-    */
+     * public void testAddJunkScore() throws IOException, MessagingException {
+     * 
+     * ArrayList servers = new ArrayList(); servers.add(URISERVER);
+     * 
+     * SMTPSession session =
+     * setupMockedSMTPSession(setupMockedMail(setupMockedMimeMessage("http://" +
+     * BAD_DOMAIN1 + "/"))); session.getState().put(JunkScore.JUNK_SCORE, new
+     * JunkScoreImpl());
+     * 
+     * URIRBLHandler handler = new URIRBLHandler();
+     * 
+     * ContainerUtil.enableLogging(handler, new MockLogger());
+     * handler.setDnsServer(setupMockedDnsServer());
+     * handler.setUriRblServer(servers); handler.setAction("junkScore");
+     * handler.setScore(20); HookResult response = handler.onMessage(session,
+     * mockedMail);
+     * 
+     * assertNull("Email was not rejected", response);
+     * assertEquals("JunkScore added", ((JunkScore)
+     * session.getState().get(JunkScore
+     * .JUNK_SCORE)).getStoredScore("UriRBLCheck"), 20.0, 0d); }
+     */
 }

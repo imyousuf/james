@@ -17,9 +17,7 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.domainlist.api.mock;
-
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,17 +35,18 @@ public class SimpleDomainList implements DomainList {
         return domains.contains(domain);
     }
 
-    public String[] getDomains() throws DomainListException{
+    public String[] getDomains() throws DomainListException {
         return domains.toArray(new String[domains.size()]);
     }
 
-    public void addDomain(String domain) throws DomainListException{
-        if (domains.contains(domain)) throw new DomainListException("Domain " + domain + " already exist");
+    public void addDomain(String domain) throws DomainListException {
+        if (domains.contains(domain))
+            throw new DomainListException("Domain " + domain + " already exist");
         domains.add(domain);
     }
 
     public void removeDomain(String domain) throws DomainListException {
-        if(domains.remove(domain) == false) {
+        if (domains.remove(domain) == false) {
             throw new DomainListException("Domain " + domain + " does not exist");
         }
     }

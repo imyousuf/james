@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.queue.api.mock;
 
 import java.util.HashMap;
@@ -26,7 +25,7 @@ import java.util.Map;
 import org.apache.james.queue.api.MailQueue;
 import org.apache.james.queue.api.MailQueueFactory;
 
-public class MockMailQueueFactory implements MailQueueFactory{
+public class MockMailQueueFactory implements MailQueueFactory {
     private final Map<String, MailQueue> queues = new HashMap<String, MailQueue>();
 
     public synchronized MailQueue getQueue(String name) {

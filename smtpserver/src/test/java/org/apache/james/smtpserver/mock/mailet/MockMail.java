@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver.mock.mailet;
 
 import java.io.Serializable;
@@ -54,9 +53,9 @@ public class MockMail implements Mail {
     private static final long serialVersionUID = 1L;
 
     private long size = 0;
-    
-    private String remoteAddr ="127.0.0.1";
-    
+
+    private String remoteAddr = "127.0.0.1";
+
     public String getName() {
         return name;
     }
@@ -146,7 +145,7 @@ public class MockMail implements Mail {
     public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
-    
+
     public void setMessageSize(long size) {
         this.size = size;
     }

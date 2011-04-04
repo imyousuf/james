@@ -28,7 +28,7 @@ import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessorTest;
 import org.apache.james.mailetcontainer.lib.AbstractStateCompositeProcessor;
 import org.slf4j.LoggerFactory;
 
-public class CamelCompositeProcessorTest extends AbstractStateCompositeProcessorTest{
+public class CamelCompositeProcessorTest extends AbstractStateCompositeProcessorTest {
 
     @Override
     protected AbstractStateCompositeProcessor createProcessor(HierarchicalConfiguration config) throws ConfigurationException, Exception {

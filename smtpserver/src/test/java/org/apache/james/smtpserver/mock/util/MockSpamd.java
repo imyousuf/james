@@ -27,7 +27,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * This class can be used to run a mocked SPAMD daemom
+ * This class can be used to run a mocked SPAMD daemon
  */
 public class MockSpamd implements Runnable {
 
@@ -51,10 +51,11 @@ public class MockSpamd implements Runnable {
     /**
      * Init the mocked SPAMD daemon
      * 
-     * @param port The port on which the mocked SPAMD daemon will be bind
-     * @throws IOException 
+     * @param port
+     *            The port on which the mocked SPAMD daemon will be bind
+     * @throws IOException
      */
-    public MockSpamd(int port) throws IOException {  
+    public MockSpamd(int port) throws IOException {
         socket = new ServerSocket(port);
     }
 
@@ -63,14 +64,13 @@ public class MockSpamd implements Runnable {
      */
     public void run() {
         boolean spam = false;
-        
+
         try {
 
             // Accept connections
             spamd = socket.accept();
 
-            in = new BufferedReader(new InputStreamReader(spamd
-                    .getInputStream()));
+            in = new BufferedReader(new InputStreamReader(spamd.getInputStream()));
             out = spamd.getOutputStream();
 
             String line = null;
@@ -88,12 +88,12 @@ public class MockSpamd implements Runnable {
                 out.write(NOT_SPAM.getBytes());
                 out.flush();
             }
-            
+
             in.close();
             out.close();
             spamd.close();
             socket.close();
-            
+
         } catch (IOException e) {
             // Should not happen
             e.printStackTrace();

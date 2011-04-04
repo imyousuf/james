@@ -30,42 +30,42 @@ import org.apache.james.dnsservice.library.inetnetwork.model.InetNetwork;
  * Test the InetNetworkBuilder.
  */
 public class InetNetworkBuilderTest extends TestCase {
-    
+
     private InetNetworkBuilder inetNetworkBuilder;
     private InetNetwork inetNetwork;
-    
+
     /**
      * Verify that InetNetworkBuild return correctly initialized Inet4Network.
      * 
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     public void testInetNetworkBuilderDnsV4() throws UnknownHostException {
-        
+
         inetNetworkBuilder = new InetNetworkBuilder(DNSFixture.DNS_SERVER_IPV4_MOCK);
-        
+
         inetNetwork = inetNetworkBuilder.getFromString(DNSFixture.LOCALHOST_IP_V4_ADDRESS_0);
         assertEquals("127.0.0.0/255.255.0.0", inetNetwork.toString());
-        
+
         inetNetwork = inetNetworkBuilder.getFromString(DNSFixture.LOCALHOST_IP_V4_ADDRESS_1);
         assertEquals("172.16.0.0/255.255.0.0", inetNetwork.toString());
-    
+
     }
 
     /**
      * Verify that InetNetworkBuild return correctly initialized Inet6Network.
      * 
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     public void testInetNetworkBuilderDnsV6() throws UnknownHostException {
-    
+
         inetNetworkBuilder = new InetNetworkBuilder(DNSFixture.DNS_SERVER_IPV6_MOCK);
-        
+
         inetNetwork = inetNetworkBuilder.getFromString(DNSFixture.LOCALHOST_IP_V6_ADDRESS_0);
         assertEquals("0:0:0:0:0:0:0:1/32768", inetNetwork.toString());
-        
+
         inetNetwork = inetNetworkBuilder.getFromString(DNSFixture.LOCALHOST_IP_V6_ADDRESS_1);
         assertEquals("2781:db8:1234:0:0:0:0:0/48", inetNetwork.toString());
-    
+
     }
 
 }

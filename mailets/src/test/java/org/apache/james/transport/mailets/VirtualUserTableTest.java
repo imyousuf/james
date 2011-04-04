@@ -38,13 +38,13 @@ import org.apache.mailet.base.test.FakeMailContext;
 import org.apache.mailet.base.test.FakeMailetConfig;
 import org.apache.mailet.base.test.FakeMimeMessage;
 
-public class VirtualUserTableTest extends TestCase{
+public class VirtualUserTableTest extends TestCase {
 
     private org.apache.james.transport.mailets.VirtualUserTable table;
-    
+
     @Override
     protected void setUp() throws Exception {
-        
+
         table = new org.apache.james.transport.mailets.VirtualUserTable();
         final FakeMailContext mockMailetContext = new FakeMailContext() {
 
@@ -53,10 +53,10 @@ public class VirtualUserTableTest extends TestCase{
                 if (serverName.equals("localhost")) {
                     return true;
                 }
-                
+
                 return false;
             }
-            
+
         };
         FakeMailetConfig mockMailetConfig = new FakeMailetConfig("vut", mockMailetContext, new Properties());
         // mockMailetConfig.put("virtualusertable", "vut");
@@ -131,29 +131,27 @@ public class VirtualUserTableTest extends TestCase{
 
     }
 
-
     @Override
     protected void tearDown() throws Exception {
         table = null;
-        
-    }
 
+    }
 
     public void testAddressMapping() throws Exception {
-        Mail mail = createMail(new String[] {"test@localhost", "apache@localhost"});
+        Mail mail = createMail(new String[] { "test@localhost", "apache@localhost" });
         table.service(mail);
-        
-        assertEquals(3,mail.getRecipients().size());
+
+        assertEquals(3, mail.getRecipients().size());
         Iterator<MailAddress> it = mail.getRecipients().iterator();
-        assertEquals("whatever@localhost", ((MailAddress)it.next()).toString());
-        assertEquals("blah@localhost", ((MailAddress)it.next()).toString());
-        assertEquals("apache@localhost", ((MailAddress)it.next()).toString());
+        assertEquals("whatever@localhost", ((MailAddress) it.next()).toString());
+        assertEquals("blah@localhost", ((MailAddress) it.next()).toString());
+        assertEquals("apache@localhost", ((MailAddress) it.next()).toString());
 
     }
-    
+
     /**
      * @return
-     * @throws MessagingException 
+     * @throws MessagingException
      */
     private Mail createMail(String[] recipients) throws MessagingException {
         Mail mail = new FakeMail();

@@ -36,36 +36,32 @@ import org.apache.mailet.MailAddress;
  */
 public class Util {
 
-   
     private static final Random RANDOM = new Random();
-  
 
     public static MockMail createMockMail2Recipients(MimeMessage m) throws ParseException {
         MockMail mockedMail = new MockMail();
-        mockedMail.setName("ID="+RANDOM.nextLong());
+        mockedMail.setName("ID=" + RANDOM.nextLong());
         mockedMail.setMessage(m);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {
-                new MailAddress("test@james.apache.org"),
-                new MailAddress("test2@james.apache.org") }));
+        mockedMail.setRecipients(Arrays.asList(new MailAddress[] { new MailAddress("test@james.apache.org"), new MailAddress("test2@james.apache.org") }));
         return mockedMail;
     }
 
     public static MockMimeMessage createMimeMessage() throws MessagingException {
         return createMimeMessage(null, null);
     }
-    
+
     public static MockMimeMessage createMimeMessageWithSubject(String subject) throws MessagingException {
         return createMimeMessage(null, null, subject, 0);
     }
-    
+
     public static MockMimeMessage createMimeMessage(String subject, int number) throws MessagingException {
         return createMimeMessage(null, null, subject, number);
     }
-    
+
     public static MockMimeMessage createMimeMessage(String headerName, String headerValue) throws MessagingException {
         return createMimeMessage(headerName, headerValue, "testmail", 0);
     }
-    
+
     public static MockMimeMessage createMimeMessage(String headerName, String headerValue, String subject, int number) throws MessagingException {
         String sender = "test@james.apache.org";
         String rcpt = "test2@james.apache.org";
@@ -73,8 +69,10 @@ public class Util {
         MockMimeMessage mockedMimeMessage = new MockMimeMessage(number);
         mockedMimeMessage.setFrom(new InternetAddress(sender));
         mockedMimeMessage.setRecipients(MimeMessage.RecipientType.TO, rcpt);
-        if (headerName != null) mockedMimeMessage.setHeader(headerName, headerValue);
-        if (subject != null) mockedMimeMessage.setSubject(subject);
+        if (headerName != null)
+            mockedMimeMessage.setHeader(headerName, headerValue);
+        if (subject != null)
+            mockedMimeMessage.setSubject(subject);
         mockedMimeMessage.setText("testtext");
         mockedMimeMessage.saveChanges();
         return mockedMimeMessage;

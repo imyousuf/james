@@ -49,11 +49,11 @@ public class ValidRcptMXTest extends TestCase {
     private SMTPSession setupMockedSMTPSession(final MailAddress rcpt) {
         SMTPSession session = new BaseFakeSMTPSession() {
             HashMap state = new HashMap();
-            
+
             public Map getState() {
                 return state;
             }
-            
+
             public String getRemoteIPAddress() {
                 return "127.0.0.1";
             }
@@ -63,7 +63,7 @@ public class ValidRcptMXTest extends TestCase {
     }
 
     private DNSService setupMockedDNSServer() {
-    	DNSService dns = new MockDNSService() {
+        DNSService dns = new MockDNSService() {
 
             public Collection findMXRecords(String hostname) {
                 Collection mx = new ArrayList();
@@ -73,7 +73,7 @@ public class ValidRcptMXTest extends TestCase {
                 }
                 return mx;
             }
-            
+
             public InetAddress getByName(String host) throws UnknownHostException {
                 if (host.equals(INVALID_MX) || host.equals(LOOPBACK)) {
                     return InetAddress.getByName(LOOPBACK);
@@ -91,7 +91,7 @@ public class ValidRcptMXTest extends TestCase {
     public void testRejectLoopbackMX() throws ParseException {
         Collection bNetworks = new ArrayList();
         bNetworks.add("127.0.0.1");
-        
+
         DNSService dns = setupMockedDNSServer();
         MailAddress mailAddress = new MailAddress("test@" + INVALID_HOST);
         SMTPSession session = setupMockedSMTPSession(mailAddress);
@@ -103,5 +103,5 @@ public class ValidRcptMXTest extends TestCase {
 
         assertEquals("Reject", rCode, HookReturnCode.DENY);
     }
-    
+
 }

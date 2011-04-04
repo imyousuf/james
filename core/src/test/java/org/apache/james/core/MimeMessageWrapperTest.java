@@ -39,10 +39,10 @@ import java.util.Enumeration;
 public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
 
     private final class TestableMimeMessageWrapper extends MimeMessageWrapper {
-        
+
         boolean messageLoadable = true;
         boolean headersLoadable = true;
-        
+
         private TestableMimeMessageWrapper(MimeMessageSource source) throws MessagingException {
             super(source);
         }
@@ -94,9 +94,7 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
                 throw new IllegalStateException("messageLoadable disabled");
             }
         }
-        
-        
-        
+
     }
 
     TestableMimeMessageWrapper mw = null;
@@ -114,49 +112,46 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
     }
 
     protected void setUp() throws Exception {
-        mw = (TestableMimeMessageWrapper) getMessageFromSources(content+sep+body);
+        mw = (TestableMimeMessageWrapper) getMessageFromSources(content + sep + body);
     }
 
     protected void tearDown() throws Exception {
         LifecycleUtil.dispose(mw);
     }
 
-    
     public void testDeferredMessageLoading() throws MessagingException, IOException {
-        assertEquals("foo",mw.getSubject());
+        assertEquals("foo", mw.getSubject());
         assertFalse(mw.messageParsed());
-        assertEquals("bar\r\n",mw.getContent());
+        assertEquals("bar\r\n", mw.getContent());
         assertTrue(mw.messageParsed());
         assertFalse(mw.isModified());
     }
 
-    /** this is commented out due optimisation reverts (JAMES-559) 
-    public void testDeferredMessageLoadingWhileWriting() throws MessagingException, IOException {
-        mw.setMessageLoadable(false);
-        assertEquals("foo",mw.getSubject());
-        assertFalse(mw.isModified());
-        mw.setSubject("newSubject");
-        assertEquals("newSubject",mw.getSubject());
-        assertFalse(mw.messageParsed());
-        assertTrue(mw.isModified());
-        mw.setMessageLoadable(true);
-        
-    }
-    */
+    /**
+     * this is commented out due optimisation reverts (JAMES-559) public void
+     * testDeferredMessageLoadingWhileWriting() throws MessagingException,
+     * IOException { mw.setMessageLoadable(false);
+     * assertEquals("foo",mw.getSubject()); assertFalse(mw.isModified());
+     * mw.setSubject("newSubject"); assertEquals("newSubject",mw.getSubject());
+     * assertFalse(mw.messageParsed()); assertTrue(mw.isModified());
+     * mw.setMessageLoadable(true);
+     * 
+     * }
+     */
 
     public void testDeferredHeaderLoading() throws MessagingException, IOException {
         mw.setHeadersLoadable(false);
         try {
-            assertEquals("foo",mw.getSubject());
+            assertEquals("foo", mw.getSubject());
             fail("subject should not be loadable here, headers loading is disabled");
         } catch (IllegalStateException e) {
-            
+
         }
     }
 
     /**
-     * See JAMES-474
-     * MimeMessageWrapper(MimeMessage) should clone the original message.
+     * See JAMES-474 MimeMessageWrapper(MimeMessage) should clone the original
+     * message.
      */
     public void testMessageCloned() throws MessagingException, IOException, InterruptedException {
         MimeMessageWrapper mmw = new MimeMessageWrapper(mw);
@@ -177,10 +172,10 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
             String line;
             while (r.ready()) {
                 line = r.readLine();
-                res.append(line+"\r\n");
+                res.append(line + "\r\n");
             }
             r.close();
-            assertEquals(body,res.toString());
+            assertEquals(body, res.toString());
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -189,27 +184,27 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
             e.printStackTrace();
         }
     }
-    
+
     /*
      * Class under test for String getSubject()
      */
     public void testAddHeaderAndSave() {
         try {
             mw.addHeader("X-Test", "X-Value");
-            
+
             assertEquals("X-Value", mw.getHeader("X-Test")[0]);
-            
+
             mw.saveChanges();
 
             ByteArrayOutputStream rawMessage = new ByteArrayOutputStream();
             mw.writeTo(rawMessage);
-            
+
             assertEquals("X-Value", mw.getHeader("X-Test")[0]);
 
             String res = rawMessage.toString();
-            
+
             boolean found = res.indexOf("X-Test: X-Value") > 0;
-            assertEquals(true,found);
+            assertEquals(true, found);
 
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
@@ -220,32 +215,30 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         }
     }
 
-    
     public void testReplaceReturnPathOnBadMessage() throws Exception {
         MimeMessage message = getMessageWithBadReturnPath();
         message.setHeader(RFC2822Headers.RETURN_PATH, "<test@test.de>");
-        Enumeration e =  message.getMatchingHeaderLines(new String[] {"Return-Path"});
-        assertEquals("Return-Path: <test@test.de>",e.nextElement());
+        Enumeration e = message.getMatchingHeaderLines(new String[] { "Return-Path" });
+        assertEquals("Return-Path: <test@test.de>", e.nextElement());
         assertFalse(e.hasMoreElements());
-        Enumeration h =  message.getAllHeaderLines();
-        assertEquals("Return-Path: <test@test.de>",h.nextElement());
+        Enumeration h = message.getAllHeaderLines();
+        assertEquals("Return-Path: <test@test.de>", h.nextElement());
         assertFalse(h.nextElement().toString().startsWith("Return-Path:"));
         LifecycleUtil.dispose(message);
     }
-    
+
     public void testAddReturnPathOnBadMessage() throws Exception {
         MimeMessage message = getMessageWithBadReturnPath();
         message.addHeader(RFC2822Headers.RETURN_PATH, "<test@test.de>");
         // test that we have now 2 return-paths
-        Enumeration e = message.getMatchingHeaderLines(new String[] {"Return-Path"});
-        assertEquals("Return-Path: <test@test.de>",e.nextElement());
-        assertEquals("Return-Path: <mybadreturn@example.com>",e.nextElement());
+        Enumeration e = message.getMatchingHeaderLines(new String[] { "Return-Path" });
+        assertEquals("Return-Path: <test@test.de>", e.nextElement());
+        assertEquals("Return-Path: <mybadreturn@example.com>", e.nextElement());
         // test that return-path is the first line
-        Enumeration h =  message.getAllHeaderLines();
-        assertEquals("Return-Path: <test@test.de>",h.nextElement());
+        Enumeration h = message.getAllHeaderLines();
+        assertEquals("Return-Path: <test@test.de>", h.nextElement());
         LifecycleUtil.dispose(message);
     }
-
 
     /**
      * Test for JAMES-1154
@@ -276,8 +269,8 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
      */
     public void testMessageStreamWithUpatedContent() throws MessagingException, IOException {
         String newContent = "This is the new message content!";
-        mw.setText(newContent);        
-        assertEquals(newContent, (String)mw.getContent());
+        mw.setText(newContent);
+        assertEquals(newContent, (String) mw.getContent());
 
         mw.saveChanges();
 
@@ -294,23 +287,22 @@ public class MimeMessageWrapperTest extends MimeMessageFromStreamTest {
         reader.close();
         assertTrue(contentUpdated);
     }
-    
+
     public void testSize() throws MessagingException {
         assertEquals(body.length(), mw.getSize());
     }
-    
-    
+
     public void testSizeModifiedHeaders() throws MessagingException {
         mw.addHeader("whatever", "test");
         assertEquals(body.length(), mw.getSize());
     }
-   
+
     public void testSizeModifiedBodyWithoutSave() throws MessagingException {
         String newBody = "This is the new body of the message";
         mw.setText(newBody);
         assertEquals(body.length(), mw.getSize());
     }
-    
+
     public void testSizeModifiedBodyWithSave() throws MessagingException {
         String newBody = "This is the new body of the message";
         mw.setText(newBody);

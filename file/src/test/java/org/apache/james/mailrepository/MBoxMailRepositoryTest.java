@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.mailrepository;
 
 import java.io.File;
@@ -32,53 +31,51 @@ import org.apache.james.mailrepository.file.MBoxMailRepository;
 import org.slf4j.LoggerFactory;
 
 /**
- * NOTE this test *WAS* disabled because MBoxMailRepository does not
- * currently support most simple operations for the MailRepository interface.
+ * NOTE this test *WAS* disabled because MBoxMailRepository does not currently
+ * support most simple operations for the MailRepository interface.
  * 
  * NOTE this previously extended AbstractMailRepositoryTest to run all of the
  * common mail repository tests on the MBox implementation.
  */
 public class MBoxMailRepositoryTest extends TestCase {
 
-    
-    protected MailRepository getMailRepository() throws  Exception {
+    protected MailRepository getMailRepository() throws Exception {
         MBoxMailRepository mr = new MBoxMailRepository();
 
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
-        
+
         File fInbox = new MockFileSystem().getFile("file://conf/org/apache/james/mailrepository/testdata/Inbox");
-        String mboxPath = "mbox://"+fInbox.toURI().toString().substring(new File("").toURI().toString().length());
-        
-        defaultConfiguration.addProperty("[@destinationURL]",mboxPath);
-        defaultConfiguration.addProperty("[@type]","MAIL");
-        mr.setLog(LoggerFactory.getLogger("MockLog"));;
+        String mboxPath = "mbox://" + fInbox.toURI().toString().substring(new File("").toURI().toString().length());
+
+        defaultConfiguration.addProperty("[@destinationURL]", mboxPath);
+        defaultConfiguration.addProperty("[@type]", "MAIL");
+        mr.setLog(LoggerFactory.getLogger("MockLog"));
+        ;
         mr.configure(defaultConfiguration);
 
         return mr;
     }
 
-    // Try to write a unit test for JAMES-744. At the moment it seems that we cannot reproduce it.
+    // Try to write a unit test for JAMES-744. At the moment it seems that we
+    // cannot reproduce it.
     public void testReadMboxrdFile() throws Exception {
         MailRepository mr = getMailRepository();
-        
+
         Iterator<String> keys = mr.list();
-    
+
         assertTrue("Two messages in list", keys.hasNext());
         keys.next();
-    
+
         assertTrue("One messages in list", keys.hasNext());
         keys.next();
-    
+
         assertFalse("No messages", keys.hasNext());
     }
 
     /*
-    public void runBare() throws Throwable {
-        System.err.println("TEST DISABLED!");
-        // Decomment this or remove this method to re-enable the MBoxRepository testing
-        // super.runBare();
-    }
-    */
+     * public void runBare() throws Throwable {
+     * System.err.println("TEST DISABLED!"); // Decomment this or remove this
+     * method to re-enable the MBoxRepository testing // super.runBare(); }
+     */
 
 }
-

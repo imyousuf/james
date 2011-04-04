@@ -47,32 +47,32 @@ import org.slf4j.LoggerFactory;
 
 import junit.framework.TestCase;
 
-public class JMSMailQueueTest extends TestCase{
+public class JMSMailQueueTest extends TestCase {
     protected JMSMailQueue queue;
     private BrokerService broker;
     protected final static String QUEUE_NAME = "test";
-    
-    public void setUp() throws Exception{
+
+    public void setUp() throws Exception {
         broker = createBroker();
         broker.start();
-        
+
         ConnectionFactory connectionFactory = createConnectionFactory();
         queue = createQueue(connectionFactory, QUEUE_NAME);
-        
+
         super.setUp();
-        
+
     }
 
     protected ActiveMQConnectionFactory createConnectionFactory() {
         return new ActiveMQConnectionFactory("vm://localhost?create=false");
     }
+
     protected BrokerService createBroker() throws Exception {
         BrokerService broker = new BrokerService();
         broker.setPersistent(false);
         broker.setUseJmx(false);
         broker.addConnector("tcp://127.0.0.1:61616");
-        
-        
+
         // Enable priority support
         PolicyMap pMap = new PolicyMap();
         PolicyEntry entry = new PolicyEntry();
@@ -80,20 +80,18 @@ public class JMSMailQueueTest extends TestCase{
         entry.setQueue(QUEUE_NAME);
         pMap.setPolicyEntries(Arrays.asList(entry));
         broker.setDestinationPolicy(pMap);
-        
+
         return broker;
-        
+
     }
-    
+
     protected JMSMailQueue createQueue(ConnectionFactory factory, String queueName) {
         Logger log = LoggerFactory.getLogger("MockLog");
         // slf4j can't set programmatically any log level. It's just a facade
         // log.setLevel(SimpleLog.LOG_LEVEL_DEBUG);
-        JMSMailQueue queue = new JMSMailQueue(factory, queueName, log );
+        JMSMailQueue queue = new JMSMailQueue(factory, queueName, log);
         return queue;
     }
-    
-    
 
     @Override
     protected void tearDown() throws Exception {
@@ -105,24 +103,23 @@ public class JMSMailQueueTest extends TestCase{
     public void testFIFO() throws MessagingException, InterruptedException, IOException {
         // should be empty
         assertEquals(0, queue.getSize());
-        
+
         Mail mail = createMail();
-        Mail mail2 =createMail();
+        Mail mail2 = createMail();
 
         queue.enQueue(mail);
         queue.enQueue(mail2);
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(2, queue.getSize());
-        
+
         MailQueueItem item = queue.deQueue();
         checkMail(mail, item.getMail());
         item.done(false);
-        
+
         Thread.sleep(200);
 
-        
         // ok we should get the same email again
         assertEquals(2, queue.getSize());
         MailQueueItem item2 = queue.deQueue();
@@ -131,35 +128,32 @@ public class JMSMailQueueTest extends TestCase{
 
         Thread.sleep(200);
 
-        
-        
         assertEquals(1, queue.getSize());
         MailQueueItem item3 = queue.deQueue();
         checkMail(mail2, item3.getMail());
         item3.done(true);
-        
+
         Thread.sleep(200);
 
         // should be empty
         assertEquals(0, queue.getSize());
     }
-    
+
     public void testDelayedDeQueue() throws MessagingException, InterruptedException, IOException {
         // should be empty
         assertEquals(0, queue.getSize());
-        
+
         Mail mail = createMail();
         Mail mail2 = createMail();
 
         long enqueueTime = System.currentTimeMillis();
         queue.enQueue(mail, 3, TimeUnit.SECONDS);
         queue.enQueue(mail2);
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(2, queue.getSize());
-        
-   
+
         // as we enqueued the mail with delay we should get mail2 first
         MailQueueItem item = queue.deQueue();
         checkMail(mail2, item.getMail());
@@ -167,8 +161,6 @@ public class JMSMailQueueTest extends TestCase{
 
         Thread.sleep(200);
 
-        
-        
         assertEquals(1, queue.getSize());
         MailQueueItem item2 = queue.deQueue();
         long dequeueTime = System.currentTimeMillis() - enqueueTime;
@@ -180,23 +172,22 @@ public class JMSMailQueueTest extends TestCase{
         // should be empty
         assertEquals(0, queue.getSize());
     }
-    
+
     public void testFlush() throws MessagingException, InterruptedException, IOException {
         // should be empty
         assertEquals(0, queue.getSize());
-        
+
         final Mail mail = createMail();
 
-        
         long enqueueTime = System.currentTimeMillis();
         queue.enQueue(mail, 30, TimeUnit.SECONDS);
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(1, queue.getSize());
-        
+
         Thread flushThread = new Thread(new Runnable() {
-            
+
             public void run() {
                 try {
                     // wait for 2 seconds then flush the queue
@@ -205,7 +196,7 @@ public class JMSMailQueueTest extends TestCase{
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                
+
             }
         });
         flushThread.start();
@@ -214,96 +205,90 @@ public class JMSMailQueueTest extends TestCase{
         MailQueueItem item = queue.deQueue();
         checkMail(mail, item.getMail());
         item.done(true);
-        
+
         long dequeueTime = System.currentTimeMillis() - enqueueTime;
 
-        
         assertEquals(0, queue.getSize());
-        
+
         // check if the flush kicked in
         assertTrue(dequeueTime < 30 * 1000);
     }
-    
+
     public void testRemoveWithRecipient() throws MessagingException, InterruptedException {
         assertEquals(0, queue.getSize());
 
         Mail mail = createMail();
         mail.setRecipients(Arrays.asList(new MailAddress("remove@me1")));
 
-        Mail mail2 =createMail();
+        Mail mail2 = createMail();
         mail2.setRecipients(Arrays.asList(new MailAddress("remove@me2")));
-        
 
         queue.enQueue(mail);
         queue.enQueue(mail2);
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(2, queue.getSize());
-        assertEquals(1,queue.remove(ManageableMailQueue.Type.Recipient, "remove@me1"));
-        
+        assertEquals(1, queue.remove(ManageableMailQueue.Type.Recipient, "remove@me1"));
+
         Thread.sleep(200);
         assertEquals(1, queue.getSize());
-        
-        assertEquals(1,queue.remove(ManageableMailQueue.Type.Recipient, "remove@me2"));
+
+        assertEquals(1, queue.remove(ManageableMailQueue.Type.Recipient, "remove@me2"));
         assertEquals(0, queue.getSize());
 
-
     }
+
     public void testRemoveWithSender() throws MessagingException, InterruptedException {
         assertEquals(0, queue.getSize());
 
         MailImpl mail = createMail();
         mail.setSender(new MailAddress("remove@me1"));
 
-        MailImpl mail2 =createMail();
+        MailImpl mail2 = createMail();
         mail2.setSender(new MailAddress("remove@me2"));
-        
 
         queue.enQueue(mail);
         queue.enQueue(mail2);
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(2, queue.getSize());
-        assertEquals(1,queue.remove(ManageableMailQueue.Type.Sender, "remove@me1"));
-        
+        assertEquals(1, queue.remove(ManageableMailQueue.Type.Sender, "remove@me1"));
+
         Thread.sleep(200);
         assertEquals(1, queue.getSize());
-        
-        assertEquals(1,queue.remove(ManageableMailQueue.Type.Sender, "remove@me2"));
+
+        assertEquals(1, queue.remove(ManageableMailQueue.Type.Sender, "remove@me2"));
         assertEquals(0, queue.getSize());
 
-
     }
-     
+
     public void testRemoveWithName() throws MessagingException, InterruptedException {
         assertEquals(0, queue.getSize());
 
         MailImpl mail = createMail();
         mail.setName("remove@me1");
 
-        MailImpl mail2 =createMail();
+        MailImpl mail2 = createMail();
         mail2.setName("remove@me2");
-        
 
         queue.enQueue(mail);
         queue.enQueue(mail2);
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(2, queue.getSize());
-        assertEquals(1,queue.remove(ManageableMailQueue.Type.Name, "remove@me1"));
-        
+        assertEquals(1, queue.remove(ManageableMailQueue.Type.Name, "remove@me1"));
+
         Thread.sleep(200);
         assertEquals(1, queue.getSize());
-        
-        assertEquals(1,queue.remove(ManageableMailQueue.Type.Name, "remove@me2"));
+
+        assertEquals(1, queue.remove(ManageableMailQueue.Type.Name, "remove@me2"));
         assertEquals(0, queue.getSize());
 
-
     }
-    
+
     protected MailImpl createMail() throws MessagingException {
         MailImpl mail = new MailImpl();
         mail.setName("" + System.currentTimeMillis());
@@ -312,7 +297,7 @@ public class JMSMailQueueTest extends TestCase{
         mail.setLastUpdated(new Date());
         mail.setRecipients(Arrays.asList(new MailAddress("test@test"), new MailAddress("test@test2")));
         mail.setSender(new MailAddress("sender@senderdomain"));
-        
+
         MimeMessage message = new MimeMessage(Session.getInstance(new Properties()));
         message.setText("test");
         message.setHeader("testheader", "testvalie");
@@ -321,6 +306,7 @@ public class JMSMailQueueTest extends TestCase{
         return mail;
 
     }
+
     @SuppressWarnings("unchecked")
     protected void checkMail(Mail enqueuedMail, Mail dequeuedMail) throws MessagingException, IOException {
         assertEquals(enqueuedMail.getErrorMessage(), dequeuedMail.getErrorMessage());
@@ -331,46 +317,43 @@ public class JMSMailQueueTest extends TestCase{
         assertEquals(enqueuedMail.getLastUpdated(), dequeuedMail.getLastUpdated());
         assertEquals(enqueuedMail.getRemoteHost(), dequeuedMail.getRemoteHost());
         assertEquals(enqueuedMail.getSender(), dequeuedMail.getSender());
-        
+
         assertEquals(enqueuedMail.getRecipients().size(), dequeuedMail.getRecipients().size());
         Iterator<String> attributes = enqueuedMail.getAttributeNames();
-        while(attributes.hasNext()) {
+        while (attributes.hasNext()) {
             String name = attributes.next();
             assertNotNull(dequeuedMail.getAttribute(name));
         }
-
 
         MimeMessage enqueuedMsg = enqueuedMail.getMessage();
         MimeMessage dequeuedMsg = dequeuedMail.getMessage();
         Enumeration<String> enQueuedHeaders = enqueuedMsg.getAllHeaderLines();
         Enumeration<String> deQueuedHeaders = dequeuedMsg.getAllHeaderLines();
-        while(enQueuedHeaders.hasMoreElements()) {
+        while (enQueuedHeaders.hasMoreElements()) {
             assertEquals(enQueuedHeaders.nextElement(), deQueuedHeaders.nextElement());
-            
+
         }
         assertFalse(deQueuedHeaders.hasMoreElements());
-        
+
         assertEquals(enqueuedMsg.getContent(), dequeuedMsg.getContent());
 
-
     }
-    
+
     public void testPrioritySupport() throws InterruptedException, MessagingException, IOException {
         // should be empty
         assertEquals(0, queue.getSize());
-        
+
         Mail mail = createMail();
-        Mail mail2 =createMail();
+        Mail mail2 = createMail();
         mail2.setAttribute(JMSMailQueue.MAIL_PRIORITY, JMSMailQueue.HIGH_PRIORITY);
 
         queue.enQueue(mail);
         queue.enQueue(mail2);
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(2, queue.getSize());
 
-        
         // we should get mail2 first as it has a higher priority set
         assertEquals(2, queue.getSize());
         MailQueueItem item2 = queue.deQueue();
@@ -379,33 +362,31 @@ public class JMSMailQueueTest extends TestCase{
 
         Thread.sleep(200);
 
-        
-        
         assertEquals(1, queue.getSize());
         MailQueueItem item3 = queue.deQueue();
         checkMail(mail, item3.getMail());
         item3.done(true);
-        
+
         Thread.sleep(200);
 
         // should be empty
         assertEquals(0, queue.getSize());
     }
-    
+
     public void testBrowse() throws MessagingException, InterruptedException, IOException {
         // should be empty
         assertEquals(0, queue.getSize());
-        
+
         Mail mail = createMail();
-        Mail mail2 =createMail();
+        Mail mail2 = createMail();
 
         queue.enQueue(mail);
         queue.enQueue(mail2);
-        
+
         Thread.sleep(200);
-        
+
         assertEquals(2, queue.getSize());
-        
+
         MailQueueIterator it = queue.browse();
         checkMail(mail, it.next().getMail());
         checkMail(mail2, it.next().getMail());
@@ -424,6 +405,5 @@ public class JMSMailQueueTest extends TestCase{
         assertFalse(it.hasNext());
         it.close();
     }
-    
 
 }

@@ -37,7 +37,7 @@ import java.util.Iterator;
 import javax.sql.DataSource;
 
 /**
- * Test basic behaviours of UsersFileRepository
+ * Test basic behaviors of UsersFileRepository
  */
 public class DefaultUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
 
@@ -45,7 +45,7 @@ public class DefaultUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest 
      * Create the repository to be tested.
      * 
      * @return the user repository
-     * @throws Exception 
+     * @throws Exception
      */
     protected UsersRepository getUsersRepository() throws Exception {
         DefaultUsersJdbcRepository res = new DefaultUsersJdbcRepository();
@@ -62,19 +62,18 @@ public class DefaultUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest 
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        DataSource dataSource = getDataSource();  
-        
-        res.setDatasource(dataSource );
-        
+        DataSource dataSource = getDataSource();
+
+        res.setDatasource(dataSource);
+
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
-        configuration.addProperty("[@destinationURL]", "db://maildb/"+tableString);
-        configuration.addProperty("sqlFile","file://conf/sqlResources.xml");
+        configuration.addProperty("[@destinationURL]", "db://maildb/" + tableString);
+        configuration.addProperty("sqlFile", "file://conf/sqlResources.xml");
         res.setLog(LoggerFactory.getLogger("MockLog"));
         res.configure(configuration);
         res.init();
     }
 
-    
     private BasicDataSource getDataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(EmbeddedDriver.class.getName());
@@ -83,7 +82,7 @@ public class DefaultUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest 
         ds.setPassword("james");
         return ds;
     }
-    
+
     /**
      * @return
      */

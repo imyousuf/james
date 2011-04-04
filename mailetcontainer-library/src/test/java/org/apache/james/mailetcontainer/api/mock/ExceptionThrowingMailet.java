@@ -25,13 +25,12 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 
-public class ExceptionThrowingMailet implements Mailet{
+public class ExceptionThrowingMailet implements Mailet {
 
     private MailetConfig config;
 
     public void destroy() {
 
-        
     }
 
     public MailetConfig getMailetConfig() {

@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver;
 
 import java.io.IOException;
@@ -40,12 +39,12 @@ import org.apache.james.smtpserver.mock.mailet.MockMail;
 import org.apache.james.smtpserver.mock.util.MockSpamd;
 import org.apache.james.util.scanner.SpamAssassinInvoker;
 import org.apache.mailet.Mail;
- 
+
 public class SpamAssassinHandlerTest extends TestCase {
     private SMTPSession mockedSMTPSession;
 
     private Mail mockedMail;
- 
+
     public final static String SPAMD_HOST = "localhost";
 
     private SMTPSession setupMockedSMTPSession(final Mail mail) {
@@ -92,8 +91,7 @@ public class SpamAssassinHandlerTest extends TestCase {
         return mail;
     }
 
-    public MimeMessage setupMockedMimeMessage(String text)
-            throws MessagingException {
+    public MimeMessage setupMockedMimeMessage(String text) throws MessagingException {
         MimeMessage message = new MimeMessage(new MockMimeMessage());
         message.setText(text);
         message.saveChanges();
@@ -117,10 +115,8 @@ public class SpamAssassinHandlerTest extends TestCase {
         HookResult response = handler.onMessage(session, mockedMail);
 
         assertEquals("Email was not rejected", response.getResult(), HookReturnCode.DECLINED);
-        assertEquals("email was not spam", mockedMail.getAttribute(
-                SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "NO");
-        assertNotNull("spam hits", mockedMail.getAttribute(
-                SpamAssassinInvoker.STATUS_MAIL_ATTRIBUTE_NAME));
+        assertEquals("email was not spam", mockedMail.getAttribute(SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "NO");
+        assertNotNull("spam hits", mockedMail.getAttribute(SpamAssassinInvoker.STATUS_MAIL_ATTRIBUTE_NAME));
 
     }
 
@@ -139,10 +135,8 @@ public class SpamAssassinHandlerTest extends TestCase {
         HookResult response = handler.onMessage(session, mockedMail);
 
         assertEquals("Email was not rejected", response.getResult(), HookReturnCode.DECLINED);
-        assertEquals("email was spam", mockedMail.getAttribute(
-                SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
-        assertNotNull("spam hits", mockedMail.getAttribute(
-                SpamAssassinInvoker.STATUS_MAIL_ATTRIBUTE_NAME));
+        assertEquals("email was spam", mockedMail.getAttribute(SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
+        assertNotNull("spam hits", mockedMail.getAttribute(SpamAssassinInvoker.STATUS_MAIL_ATTRIBUTE_NAME));
     }
 
     public void testSpamReject() throws IOException, MessagingException {
@@ -160,10 +154,8 @@ public class SpamAssassinHandlerTest extends TestCase {
         HookResult response = handler.onMessage(session, mockedMail);
 
         assertEquals("Email was rejected", response.getResult(), HookReturnCode.DENY);
-        assertEquals("email was spam", mockedMail.getAttribute(
-                SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
-        assertNotNull("spam hits", mockedMail.getAttribute(
-                SpamAssassinInvoker.STATUS_MAIL_ATTRIBUTE_NAME));
+        assertEquals("email was spam", mockedMail.getAttribute(SpamAssassinInvoker.FLAG_MAIL_ATTRIBUTE_NAME), "YES");
+        assertNotNull("spam hits", mockedMail.getAttribute(SpamAssassinInvoker.STATUS_MAIL_ATTRIBUTE_NAME));
     }
 
 }

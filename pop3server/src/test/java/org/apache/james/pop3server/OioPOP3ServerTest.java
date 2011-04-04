@@ -21,12 +21,11 @@ package org.apache.james.pop3server;
 import org.apache.james.pop3server.netty.OioPOP3Server;
 import org.apache.james.pop3server.netty.POP3Server;
 
-public class OioPOP3ServerTest extends POP3ServerTest{
+public class OioPOP3ServerTest extends POP3ServerTest {
 
     @Override
     protected POP3Server createPOP3Server() {
         return new OioPOP3Server();
     }
 
-    
 }

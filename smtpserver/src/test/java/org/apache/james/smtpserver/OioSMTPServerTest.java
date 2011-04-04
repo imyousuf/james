@@ -21,17 +21,18 @@ package org.apache.james.smtpserver;
 import org.apache.james.smtpserver.netty.OioSMTPServer;
 import org.apache.james.smtpserver.netty.SMTPServer;
 
-public class OioSMTPServerTest extends SMTPServerTest{
+public class OioSMTPServerTest extends SMTPServerTest {
 
     @Override
     protected SMTPServer createSMTPServer() {
         return new OioSMTPServer();
     }
-    
+
     /**
      * TODO: This should not be needed
      */
     public void testConnectionLimit() throws Exception {
-        // TODO: Check why the connection limit is not working with IO implementation
+        // TODO: Check why the connection limit is not working with IO
+        // implementation
     }
 }

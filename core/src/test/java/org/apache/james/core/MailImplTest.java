@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.core;
 
 import org.apache.mailet.base.test.FakeMimeMessage;
@@ -70,7 +68,7 @@ public class MailImplTest extends MailTestAllImplementations {
         FakeMimeMessage mimeMessage = new FakeMimeMessage();
         MailImpl mail = new MailImpl(name, senderMailAddress, recepients, mimeMessage);
 
-        helperTestInitialState(mail); 
+        helperTestInitialState(mail);
         helperTestMessageSize(mail, 0);
         assertEquals("initial message", mimeMessage.getMessageID(), mail.getMessage().getMessageID());
         assertEquals("sender", sender, mail.getSender().toString());
@@ -88,10 +86,10 @@ public class MailImplTest extends MailTestAllImplementations {
 
     public void testDuplicateNewName() throws MessagingException {
         String newName = "aNewName";
-        
+
         MailImpl mail = new MailImpl();
         assertFalse("before + after names differ", newName.equals(mail.getName()));
-        
+
         MailImpl duplicate = (MailImpl) mail.duplicate(newName);
         assertEquals("new name set", newName, duplicate.getName());
         helperTestInitialState(duplicate);

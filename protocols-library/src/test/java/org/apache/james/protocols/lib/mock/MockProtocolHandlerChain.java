@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
@@ -36,47 +35,45 @@ import org.apache.james.protocols.api.ProtocolHandlerChain;
 import org.apache.james.protocols.api.WiringException;
 import org.slf4j.Logger;
 
-
 /**
- * ProtocolHandlerchain implementation which instance all the configured handlers
+ * ProtocolHandlerchain implementation which instance all the configured
+ * handlers
  * 
- *
+ * 
  * TODO: Move this to test package as it is the only place where it get used
  */
 @SuppressWarnings("unchecked")
 public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configurable, LogEnabled {
-  
+
     private Logger log;
     private String coreHandlersPackage;
     private LinkedList handlers = new LinkedList();
     private HierarchicalConfiguration config;
     private MockJSR250Loader factory;
 
-
     public void setCoreHandlersPackage(String coreHandlersPackage) {
         this.coreHandlersPackage = coreHandlersPackage;
     }
-   
+
     public void setLoader(MockJSR250Loader factory) {
         this.factory = factory;
     }
-    
-    
+
     @PostConstruct
     public void init() throws Exception {
         HierarchicalConfiguration handlerchainConfig = config.configurationAt("handlerchain");
         if (handlerchainConfig.getString("[@coreHandlersPackage]") == null)
             handlerchainConfig.addProperty("[@coreHandlersPackage]", coreHandlersPackage);
-        
-        loadHandlers(handlerchainConfig);     
-        
+
+        loadHandlers(handlerchainConfig);
+
         wireExtensibleHandlers();
     }
-    
+
     /**
      * ExtensibleHandler wiring
      * 
-     * @throws WiringException 
+     * @throws WiringException
      */
     private void wireExtensibleHandlers() throws WiringException {
         for (int a = 0; a < handlers.size(); a++) {
@@ -94,19 +91,22 @@ public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configura
         }
 
     }
-    
+
     /**
      * Load and add the classes to the handler map
      * 
-     * @param classLoader The classLoader to use
-     * @param className The class name 
-     * @param config The configuration 
-     * @throws ConfigurationException Get thrown on error
+     * @param classLoader
+     *            The classLoader to use
+     * @param className
+     *            The class name
+     * @param config
+     *            The configuration
+     * @throws ConfigurationException
+     *             Get thrown on error
      */
     private void loadClass(String className, org.apache.commons.configuration.HierarchicalConfiguration config) throws Exception {
         Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
         Object obj = factory.newInstance(clazz, log, config);
-
 
         // if it is a commands handler add it to the map with key as command
         // name
@@ -114,7 +114,7 @@ public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configura
 
             List<String> c = ((HandlersPackage) obj).getHandlers();
 
-            for (Iterator<String> i = c.iterator(); i.hasNext(); ) {
+            for (Iterator<String> i = c.iterator(); i.hasNext();) {
                 String cName = i.next();
 
                 HierarchicalConfiguration cmdConf = addHandler(cName);
@@ -124,7 +124,7 @@ public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configura
 
         } else {
             handlers.add(obj);
-            
+
             if (log.isInfoEnabled()) {
                 log.info("Added Handler: " + className);
             }
@@ -132,24 +132,30 @@ public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configura
         }
 
     }
-    
+
     /**
-     * Return a DefaultConfiguration build on the given command name and classname
+     * Return a DefaultConfiguration build on the given command name and
+     * classname
      * 
-     * @param cmdName The command name
-     * @param className The class name
+     * @param cmdName
+     *            The command name
+     * @param className
+     *            The class name
      * @return DefaultConfiguration
-     * @throws ConfigurationException 
+     * @throws ConfigurationException
      */
     private HierarchicalConfiguration addHandler(String className) throws ConfigurationException {
         HierarchicalConfiguration hConf = new DefaultConfigurationBuilder();
         hConf.addProperty("handler.[@class]", className);
         return hConf;
     }
-    
-    
-    /* (non-Javadoc)
-     * @see org.apache.james.socket.shared.ProtocolHandlerChain#getHandlers(java.lang.Class)
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.apache.james.socket.shared.ProtocolHandlerChain#getHandlers(java.
+     * lang.Class)
      */
     public <T> LinkedList<T> getHandlers(Class<T> type) {
         LinkedList<T> classHandlers = new LinkedList<T>();
@@ -157,7 +163,7 @@ public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configura
         while (hList.hasNext()) {
             Object obj = hList.next();
             if (type.isInstance(obj)) {
-                classHandlers.add((T)obj);
+                classHandlers.add((T) obj);
             }
         }
         return classHandlers;
@@ -171,46 +177,47 @@ public class MockProtocolHandlerChain implements ProtocolHandlerChain, Configura
      */
     private void loadHandlers(HierarchicalConfiguration commonsConf) throws Exception {
 
-            List<org.apache.commons.configuration.HierarchicalConfiguration> children = ((HierarchicalConfiguration) commonsConf).configurationsAt("handler");
+        List<org.apache.commons.configuration.HierarchicalConfiguration> children = ((HierarchicalConfiguration) commonsConf).configurationsAt("handler");
 
-            String coreCmdName = commonsConf.getString("[@coreHandlersPackage]");
-            // load the core handlers
-            loadClass(coreCmdName,
-                    addHandler(coreCmdName));
+        String coreCmdName = commonsConf.getString("[@coreHandlersPackage]");
+        // load the core handlers
+        loadClass(coreCmdName, addHandler(coreCmdName));
 
-            // load the configured handlers
-            if (children != null && children.isEmpty() == false) {
+        // load the configured handlers
+        if (children != null && children.isEmpty() == false) {
 
-                for (int i = 0; i < children.size(); i++) {
-                    org.apache.commons.configuration.HierarchicalConfiguration hConf = children.get(i);
-                    String className = hConf.getString("[@class]");
+            for (int i = 0; i < children.size(); i++) {
+                org.apache.commons.configuration.HierarchicalConfiguration hConf = children.get(i);
+                String className = hConf.getString("[@class]");
 
-                    if (className != null) {
-                        // ignore base handlers.
-                        if (!className.equals(coreCmdName)) {
+                if (className != null) {
+                    // ignore base handlers.
+                    if (!className.equals(coreCmdName)) {
 
-                            // load the handler
-                            loadClass(className, hConf);
-                        }
+                        // load the handler
+                        loadClass(className, hConf);
                     }
                 }
-               
             }
-        
-    }
-    
 
-  
+        }
+
+    }
+
     /*
      * (non-Javadoc)
-     * @see org.apache.james.lifecycle.Configurable#configure(org.apache.commons.configuration.HierarchicalConfiguration)
+     * 
+     * @see
+     * org.apache.james.lifecycle.Configurable#configure(org.apache.commons.
+     * configuration.HierarchicalConfiguration)
      */
     public void configure(HierarchicalConfiguration config) throws ConfigurationException {
         this.config = config;
     }
-    
+
     /*
      * (non-Javadoc)
+     * 
      * @see org.apache.james.lifecycle.LogEnabled#setLog(org.slf4j.Logger)
      */
     public void setLog(Logger log) {

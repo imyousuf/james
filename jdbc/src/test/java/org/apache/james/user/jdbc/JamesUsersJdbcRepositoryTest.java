@@ -19,7 +19,6 @@
 
 package org.apache.james.user.jdbc;
 
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -42,7 +41,7 @@ import java.util.Iterator;
 import javax.sql.DataSource;
 
 /**
- * Test basic behaviours of UsersFileRepository
+ * Test basic behaviors of UsersFileRepository
  */
 public class JamesUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
 
@@ -50,7 +49,7 @@ public class JamesUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
      * Create the repository to be tested.
      * 
      * @return the user repository
-     * @throws Exception 
+     * @throws Exception
      */
     protected UsersRepository getUsersRepository() throws Exception {
         JamesUsersJdbcRepository res = new JamesUsersJdbcRepository();
@@ -67,17 +66,16 @@ public class JamesUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
      */
     protected void configureAbstractJdbcUsersRepository(AbstractJdbcUsersRepository res, String tableString) throws Exception, ConfigurationException {
         res.setFileSystem(new MockFileSystem());
-        DataSource dataSource = getDataSource();  
-        res.setDatasource(dataSource );      
+        DataSource dataSource = getDataSource();
+        res.setDatasource(dataSource);
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
-        configuration.addProperty("[@destinationURL]", "db://maildb/"+tableString);
-        configuration.addProperty("sqlFile","file://conf/sqlResources.xml");
+        configuration.addProperty("[@destinationURL]", "db://maildb/" + tableString);
+        configuration.addProperty("sqlFile", "file://conf/sqlResources.xml");
         res.setLog(LoggerFactory.getLogger("MockLog"));
         res.configure(configuration);
         res.init();
     }
 
-    
     private BasicDataSource getDataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(EmbeddedDriver.class.getName());
@@ -86,7 +84,7 @@ public class JamesUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
         ds.setPassword("james");
         return ds;
     }
-    
+
     /**
      * @return
      */
@@ -101,49 +99,45 @@ public class JamesUsersJdbcRepositoryTest extends AbstractUsersRepositoryTest {
         }
         LifecycleUtil.dispose(this.usersRepository);
     }
-    
-    
+
     public void testVirtualUserTableImpl() throws Exception {
         String username = "test";
         String password = "pass";
         String alias = "alias";
         String domain = "localhost";
         String forward = "forward@somewhere";
-        
+
         JamesUsersJdbcRepository repos = (JamesUsersJdbcRepository) getUsersRepository();
         repos.setEnableAliases(true);
         repos.setEnableForwarding(true);
-        repos.addUser(username,password);
-        
-        JamesUser user = (JamesUser)repos.getUserByName(username);
+        repos.addUser(username, password);
+
+        JamesUser user = (JamesUser) repos.getUserByName(username);
         user.setAlias(alias);
         repos.updateUser(user);
-        
+
         Collection<String> map = ((VirtualUserTable) repos).getMappings(username, domain);
         assertNull("No mapping", map);
-        
+
         user.setAliasing(true);
         repos.updateUser(user);
         map = ((VirtualUserTable) repos).getMappings(username, domain);
         assertEquals("One mapping", 1, map.size());
         assertEquals("Alias found", map.iterator().next().toString(), alias + "@" + domain);
-        
-        
+
         user.setForwardingDestination(new MailAddress(forward));
         repos.updateUser(user);
         map = ((VirtualUserTable) repos).getMappings(username, domain);
         assertTrue("One mapping", map.size() == 1);
         assertEquals("Alias found", map.iterator().next().toString(), alias + "@" + domain);
-        
-        
+
         user.setForwarding(true);
         repos.updateUser(user);
         map = ((VirtualUserTable) repos).getMappings(username, domain);
         Iterator<String> mappings = map.iterator();
-        assertTrue("Two mapping",map.size() == 2);
+        assertTrue("Two mapping", map.size() == 2);
         assertEquals("Alias found", mappings.next().toString(), alias + "@" + domain);
         assertEquals("Forward found", mappings.next().toString(), forward);
     }
-
 
 }

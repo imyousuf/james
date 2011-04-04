@@ -25,11 +25,11 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 
-public class MockMailet implements Mailet{
+public class MockMailet implements Mailet {
 
     private MailetConfig config;
-    
-    public void destroy() {        
+
+    public void destroy() {
     }
 
     public MailetConfig getMailetConfig() {

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.smtpserver;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -29,7 +27,6 @@ import org.apache.james.smtpserver.fastfail.MaxRcptHandler;
 import org.apache.james.smtpserver.fastfail.ResolvableEhloHeloHandler;
 import org.apache.james.smtpserver.fastfail.ReverseEqualsEhloHeloHandler;
 import org.apache.james.smtpserver.fastfail.ValidSenderDomainHandler;
-
 
 @SuppressWarnings("serial")
 public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
@@ -51,24 +48,20 @@ public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
     private int m_maxRcpt = 0;
     private boolean m_useRBL = false;
     private boolean m_addressBracketsEnforcement = true;
-	private boolean m_startTLS = false;
+    private boolean m_startTLS = false;
 
-    
     public SMTPTestConfiguration(int smtpListenerPort) {
         m_smtpListenerPort = smtpListenerPort;
     }
-    
+
     public void setCheckAuthNetworks(boolean checkAuth) {
-        m_checkAuthNetworks = checkAuth; 
+        m_checkAuthNetworks = checkAuth;
     }
 
-
-    public void setMaxMessageSize(int kilobytes)
-    {
+    public void setMaxMessageSize(int kilobytes) {
         m_maxMessageSizeKB = kilobytes;
     }
-    
-    
+
     public int getMaxMessageSize() {
         return m_maxMessageSizeKB;
     }
@@ -83,92 +76,96 @@ public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
 
     public void setAuthorizingNotRequired() {
         m_authorizingMode = "false";
-        m_verifyIdentity = false; 
+        m_verifyIdentity = false;
     }
 
     public void setAuthorizingRequired() {
         m_authorizingMode = "true";
-        m_verifyIdentity = true; 
+        m_verifyIdentity = true;
     }
 
     public void setAuthorizingAnnounce() {
         m_authorizingMode = "announce";
-        m_verifyIdentity = true; 
+        m_verifyIdentity = true;
     }
 
     public void setConnectionLimit(int iConnectionLimit) {
         m_connectionLimit = new Integer(iConnectionLimit);
     }
-    
+
     public void setConnectionBacklog(int iConnectionBacklog) {
         m_connectionBacklog = new Integer(iConnectionBacklog);
     }
-    
+
     public void setHeloResolv() {
-        m_heloResolv = true; 
+        m_heloResolv = true;
     }
-    
+
     public void setEhloResolv() {
-        m_ehloResolv = true; 
+        m_ehloResolv = true;
     }
-    
+
     public void setReverseEqualsHelo() {
-        m_reverseEqualsHelo = true; 
+        m_reverseEqualsHelo = true;
     }
-    
+
     public void setReverseEqualsEhlo() {
-        m_reverseEqualsEhlo = true; 
+        m_reverseEqualsEhlo = true;
     }
-    
+
     public void setSenderDomainResolv() {
-        m_senderDomainResolv = true; 
+        m_senderDomainResolv = true;
     }
-    
+
     public void setMaxRcpt(int maxRcpt) {
-        m_maxRcpt = maxRcpt; 
+        m_maxRcpt = maxRcpt;
     }
-    
+
     public void setHeloEhloEnforcement(boolean heloEhloEnforcement) {
-        m_heloEhloEnforcement = heloEhloEnforcement; 
+        m_heloEhloEnforcement = heloEhloEnforcement;
     }
-    
+
     public void useRBL(boolean useRBL) {
-        m_useRBL = useRBL; 
+        m_useRBL = useRBL;
     }
-    
+
     public void setAddressBracketsEnforcement(boolean addressBracketsEnforcement) {
         this.m_addressBracketsEnforcement = addressBracketsEnforcement;
     }
-    
+
     public void setStartTLS() {
-    	m_startTLS  = true;
+        m_startTLS = true;
     }
+
     public void init() throws ConfigurationException {
 
         addProperty("[@enabled]", true);
 
         addProperty("bind", "127.0.0.1:" + m_smtpListenerPort);
-        if (m_connectionLimit != null) addProperty("connectionLimit",  ""+m_connectionLimit.intValue());
-        if (m_connectionBacklog != null) addProperty("connectionBacklog", ""+ m_connectionBacklog.intValue());
-        
+        if (m_connectionLimit != null)
+            addProperty("connectionLimit", "" + m_connectionLimit.intValue());
+        if (m_connectionBacklog != null)
+            addProperty("connectionBacklog", "" + m_connectionBacklog.intValue());
+
         addProperty("helloName", "myMailServer");
         addProperty("connectiontimeout", 360000);
         addProperty("authorizedAddresses", m_authorizedAddresses);
-        addProperty("maxmessagesize",  m_maxMessageSizeKB);
+        addProperty("maxmessagesize", m_maxMessageSizeKB);
         addProperty("authRequired", m_authorizingMode);
         addProperty("heloEhloEnforcement", m_heloEhloEnforcement);
         addProperty("addressBracketsEnforcement", m_addressBracketsEnforcement);
-        
+
         addProperty("tls.[@startTLS]", m_startTLS);
-        addProperty("tls.keystore","file://conf/test_keystore");
-        addProperty("tls.secret", "jamestest");        
-        if (m_verifyIdentity) addProperty("verifyIdentity", m_verifyIdentity);
- 
+        addProperty("tls.keystore", "file://conf/test_keystore");
+        addProperty("tls.secret", "jamestest");
+        if (m_verifyIdentity)
+            addProperty("verifyIdentity", m_verifyIdentity);
+
         // add the rbl handler
         if (m_useRBL) {
-            
+
             addProperty("handlerchain.handler.[@class]", DNSRBLHandler.class.getName());
-            addProperty("handlerchain.handler.rblservers.blacklist","bl.spamcop.net.");
+            addProperty("handlerchain.handler.rblservers.blacklist", "bl.spamcop.net.");
         }
         if (m_heloResolv || m_ehloResolv) {
             addProperty("handlerchain.handler.[@class]", ResolvableEhloHeloHandler.class.getName());
@@ -188,5 +185,5 @@ public class SMTPTestConfiguration extends DefaultConfigurationBuilder {
         }
         addProperty("handlerchain.[@coreHandlersPackage]", CoreCmdHandlerLoader.class.getName());
     }
-    
+
 }

@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.mailrepository.jdbc;
 
 import javax.sql.DataSource;
@@ -40,14 +39,14 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
      * @throws Exception
      */
     protected MailRepository getMailRepository() throws Exception {
-        MockFileSystem fs =  new MockFileSystem();
+        MockFileSystem fs = new MockFileSystem();
         DataSource datasource = getDataSource();
         JDBCMailRepository mr = new JDBCMailRepository();
-        
+
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
-        defaultConfiguration.addProperty("[@destinationURL]","db://maildb/mr/testrepo");
-        defaultConfiguration.addProperty("sqlFile","file://conf/sqlResources.xml");
-        defaultConfiguration.addProperty("[@type]","MAIL");
+        defaultConfiguration.addProperty("[@destinationURL]", "db://maildb/mr/testrepo");
+        defaultConfiguration.addProperty("sqlFile", "file://conf/sqlResources.xml");
+        defaultConfiguration.addProperty("[@type]", "MAIL");
         mr.setFileSystem(fs);
         mr.setDatasource(datasource);
         mr.setLog(LoggerFactory.getLogger("MockLog"));
@@ -55,12 +54,11 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
         mr.init();
         return mr;
     }
-    
+
     protected String getType() {
         return "db";
     }
-    
-    
+
     private BasicDataSource getDataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(EmbeddedDriver.class.getName());
@@ -71,4 +69,3 @@ public class JDBCMailRepositoryTest extends AbstractMailRepositoryTest {
     }
 
 }
-

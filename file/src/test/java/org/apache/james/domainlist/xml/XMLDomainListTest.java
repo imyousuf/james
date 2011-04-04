@@ -17,9 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
-
 package org.apache.james.domainlist.xml;
 
 import java.net.InetAddress;
@@ -37,36 +34,34 @@ import org.slf4j.LoggerFactory;
 import junit.framework.TestCase;
 
 public class XMLDomainListTest extends TestCase {
-    
-    private HierarchicalConfiguration setUpConfiguration(boolean auto,boolean autoIP, List<String> names) {
+
+    private HierarchicalConfiguration setUpConfiguration(boolean auto, boolean autoIP, List<String> names) {
         DefaultConfigurationBuilder configuration = new DefaultConfigurationBuilder();
 
         configuration.addProperty("autodetect", auto);
         configuration.addProperty("autodetectIP", autoIP);
-        for (int i= 0; i< names.size(); i++) {
+        for (int i = 0; i < names.size(); i++) {
             configuration.addProperty("domainnames.domainname", names.get(i).toString());
         }
         return configuration;
     }
-    
+
     private DNSService setUpDNSServer(final String hostName) {
         DNSService dns = new MockDNSService() {
             public String getHostName(InetAddress inet) {
                 return hostName;
             }
-            
+
             public InetAddress[] getAllByName(String name) throws UnknownHostException {
-                return new InetAddress[] { InetAddress.getByName("127.0.0.1")};        
+                return new InetAddress[] { InetAddress.getByName("127.0.0.1") };
             }
-            
+
             public InetAddress getLocalHost() throws UnknownHostException {
                 return InetAddress.getLocalHost();
             }
         };
         return dns;
     }
-
-
 
     // See https://issues.apache.org/jira/browse/JAMES-998
     public void testNoConfiguredDomains() throws Exception {
@@ -83,37 +78,37 @@ public class XMLDomainListTest extends TestCase {
         List<String> domains = new ArrayList<String>();
         domains.add("domain1.");
         domains.add("domain2.");
-    
+
         XMLDomainList dom = new XMLDomainList();
         dom.setLog(LoggerFactory.getLogger("MockLog"));
-        dom.configure(setUpConfiguration(false,false,domains));
+        dom.configure(setUpConfiguration(false, false, domains));
         dom.setDNSService(setUpDNSServer("localhost"));
-        
-        assertTrue("Two domain found",dom.getDomains().length ==2);
+
+        assertTrue("Two domain found", dom.getDomains().length == 2);
     }
-    
+
     public void testGetDomainsAutoDetectNotLocalHost() throws Exception {
         List<String> domains = new ArrayList<String>();
         domains.add("domain1.");
-    
+
         XMLDomainList dom = new XMLDomainList();
         dom.setLog(LoggerFactory.getLogger("MockLog"));
-        dom.configure(setUpConfiguration(true,false,domains));
+        dom.configure(setUpConfiguration(true, false, domains));
 
         dom.setDNSService(setUpDNSServer("local"));
-        assertEquals("Two domains found",dom.getDomains().length, 2);
+        assertEquals("Two domains found", dom.getDomains().length, 2);
     }
-    
+
     public void testGetDomainsAutoDetectLocalHost() throws Exception {
         List<String> domains = new ArrayList<String>();
         domains.add("domain1.");
-    
+
         XMLDomainList dom = new XMLDomainList();
         dom.setLog(LoggerFactory.getLogger("MockLog"));
-        dom.configure(setUpConfiguration(true,false,domains));
+        dom.configure(setUpConfiguration(true, false, domains));
 
         dom.setDNSService(setUpDNSServer("localhost"));
-        
-        assertEquals("One domain found",dom.getDomains().length, 1);
+
+        assertEquals("One domain found", dom.getDomains().length, 1);
     }
 }

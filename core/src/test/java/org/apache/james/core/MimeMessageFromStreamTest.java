@@ -26,9 +26,9 @@ import java.io.ByteArrayInputStream;
 import java.util.Properties;
 
 public class MimeMessageFromStreamTest extends MimeMessageTest {
-    
+
     protected MimeMessage getMessageFromSources(String sources) throws Exception {
-        return new MimeMessage(Session.getDefaultInstance(new Properties()),new ByteArrayInputStream(sources.getBytes()));
+        return new MimeMessage(Session.getDefaultInstance(new Properties()), new ByteArrayInputStream(sources.getBytes()));
     }
 
     protected MimeMessage getMultipartMessage() throws Exception {
@@ -50,6 +50,5 @@ public class MimeMessageFromStreamTest extends MimeMessageTest {
     protected MimeMessage getMissingEncodingMessage() throws Exception {
         return getMessageFromSources(getMissingEncodingMessageSource());
     }
-
 
 }

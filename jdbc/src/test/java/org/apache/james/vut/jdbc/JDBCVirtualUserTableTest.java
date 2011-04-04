@@ -18,8 +18,6 @@
  ****************************************************************/
 package org.apache.james.vut.jdbc;
 
-
-
 import org.apache.commons.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.derby.jdbc.EmbeddedDriver;
@@ -34,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * Test the JDBC Virtual User Table implementation.
  */
 public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
-    
+
     /**
      * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#getVirtualUserTable()
      */
@@ -44,14 +42,13 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
         virtualUserTable.setDataSource(getDataSource());
         virtualUserTable.setFileSystem(new MockFileSystem());
         DefaultConfigurationBuilder defaultConfiguration = new DefaultConfigurationBuilder();
-        defaultConfiguration.addProperty("[@destinationURL]","db://maildb/VirtualUserTable");
-        defaultConfiguration.addProperty("sqlFile","file://conf/sqlResources.xml");
+        defaultConfiguration.addProperty("[@destinationURL]", "db://maildb/VirtualUserTable");
+        defaultConfiguration.addProperty("sqlFile", "file://conf/sqlResources.xml");
         virtualUserTable.configure(defaultConfiguration);
         virtualUserTable.init();
         return virtualUserTable;
-    }    
-    
-    
+    }
+
     private BasicDataSource getDataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(EmbeddedDriver.class.getName());
@@ -60,10 +57,12 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
         ds.setPassword("james");
         return ds;
     }
+
     /**
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#addMapping(java.lang.String,
+     *      java.lang.String, java.lang.String, int)
      */
-    protected boolean addMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException{
+    protected boolean addMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException {
         try {
             if (type == ERROR_TYPE) {
                 virtualUserTable.addErrorMapping(user, domain, mapping);
@@ -83,7 +82,8 @@ public class JDBCVirtualUserTableTest extends AbstractVirtualUserTableTest {
     }
 
     /**
-     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String, java.lang.String, java.lang.String, int)
+     * @see org.apache.james.vut.lib.AbstractVirtualUserTableTest#removeMapping(java.lang.String,
+     *      java.lang.String, java.lang.String, int)
      */
     protected boolean removeMapping(String user, String domain, String mapping, int type) throws VirtualUserTableException {
         try {

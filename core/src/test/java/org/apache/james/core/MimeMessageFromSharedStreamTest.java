@@ -27,9 +27,9 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 public class MimeMessageFromSharedStreamTest extends MimeMessageFromStreamTest {
-    
+
     protected MimeMessage getMessageFromSources(String sources) throws Exception {
-        return new MimeMessage(Session.getDefaultInstance(new Properties()),new SharedByteArrayInputStream(sources.getBytes()));
+        return new MimeMessage(Session.getDefaultInstance(new Properties()), new SharedByteArrayInputStream(sources.getBytes()));
     }
 
 }

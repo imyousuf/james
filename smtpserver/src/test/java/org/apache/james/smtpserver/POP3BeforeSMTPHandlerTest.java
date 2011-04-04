@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver;
 
 import org.apache.james.protocols.lib.POP3BeforeSMTPHelper;
@@ -77,15 +76,15 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
             assertFalse(mockedSession.isRelayingAllowed());
 
         } catch (InterruptedException e) {
-            //ignore
+            // ignore
         }
     }
-    
+
     public void testThrowExceptionOnIllegalExpireTime() {
         boolean exception = false;
         POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        setupMockedSMTPSession();     
+        setupMockedSMTPSession();
 
         try {
             handler.setExpireTime("1 unit");
@@ -94,12 +93,12 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
         }
         assertTrue(exception);
     }
-    
+
     public void testValidExpireTime() {
         boolean exception = false;
         POP3BeforeSMTPHandler handler = new POP3BeforeSMTPHandler();
 
-        setupMockedSMTPSession();     
+        setupMockedSMTPSession();
 
         try {
             handler.setExpireTime("1 hour");
@@ -108,5 +107,5 @@ public class POP3BeforeSMTPHandlerTest extends TestCase {
         }
         assertFalse(exception);
     }
-    
+
 }

@@ -17,8 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
-
 package org.apache.james.user.lib;
 
 import java.util.Arrays;
@@ -40,11 +38,9 @@ public class UsersRepositoryManagementTest extends TestCase {
     protected void setUp() throws Exception {
         m_mockUsersRepository = new MockUsersRepository();
 
-        m_userManagement = new UsersRepositoryManagement();      
+        m_userManagement = new UsersRepositoryManagement();
         m_userManagement.setUsersRepository(m_mockUsersRepository);
     }
-
-   
 
     public void testUserCount() throws Exception {
         assertEquals("no user yet", 0, m_userManagement.countUsers());
@@ -55,8 +51,6 @@ public class UsersRepositoryManagementTest extends TestCase {
         m_mockUsersRepository.removeUser("testCount1");
         assertEquals("1 user", 1, m_userManagement.countUsers());
     }
-
-
 
     public void testAddUserAndVerify() throws Exception {
         m_mockUsersRepository.addUser("testCount1", "testCount");
@@ -76,7 +70,7 @@ public class UsersRepositoryManagementTest extends TestCase {
 
     public void testListUsers() throws Exception {
 
-        String[] usersArray = new String[] {"ccc", "aaa", "dddd", "bbbbb"};
+        String[] usersArray = new String[] { "ccc", "aaa", "dddd", "bbbbb" };
         List<String> users = Arrays.asList(usersArray);
 
         for (int i = 0; i < users.size(); i++) {
@@ -89,11 +83,11 @@ public class UsersRepositoryManagementTest extends TestCase {
 
         for (int i = 0; i < userNames.length; i++) {
             String user = userNames[i];
-            if (!users.contains(user)) fail("user not listed");
+            if (!users.contains(user))
+                fail("user not listed");
         }
     }
 
-    
     public void testSetPassword() throws Exception {
 
         m_userManagement.addUser("testPwdUser", "pwd1");
@@ -114,5 +108,5 @@ public class UsersRepositoryManagementTest extends TestCase {
         assertTrue("password changed to pWD2", m_mockUsersRepository.test("testPwdUser", "pWD2"));
 
     }
-    
+
 }

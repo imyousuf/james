@@ -27,7 +27,7 @@ import org.apache.james.pop3server.core.CRLFTerminatedInputStream;
 
 import junit.framework.TestCase;
 
-public class CRLFTerminatedInputStreamTest extends TestCase{
+public class CRLFTerminatedInputStreamTest extends TestCase {
 
     public void testCRLFPresent() throws IOException {
         String data = "Subject: test\r\n\r\ndata\r\n";
@@ -35,15 +35,14 @@ public class CRLFTerminatedInputStreamTest extends TestCase{
         checkWithArray(data, data);
 
     }
-    
-    
+
     public void testCRPresent() throws IOException {
         String data = "Subject: test\r\n\r\ndata\r";
         String expected = data + "\n";
         check(data, expected);
         checkWithArray(data, expected);
     }
-    
+
     public void testNonPresent() throws IOException {
         String data = "Subject: test\r\n\r\ndata";
         String expected = data + "\r\n";
@@ -51,29 +50,28 @@ public class CRLFTerminatedInputStreamTest extends TestCase{
         checkWithArray(data, expected);
 
     }
-    
-    
+
     private void check(String source, String expected) throws IOException {
         CRLFTerminatedInputStream in = new CRLFTerminatedInputStream(new ByteArrayInputStream(source.getBytes()));
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        
+
         int i = -1;
-        while((i = in.read()) != -1) {
+        while ((i = in.read()) != -1) {
             out.write(i);
         }
         in.close();
         out.close();
-        
+
         String output = new String(out.toByteArray());
         assertEquals(expected, output);
     }
-    
+
     private void checkWithArray(String source, String expected) throws IOException {
         CRLFTerminatedInputStream in = new CRLFTerminatedInputStream(new ByteArrayInputStream(source.getBytes()));
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        
+
         byte[] buf = new byte[1024];
         int i = 0;
         while ((i = in.read(buf)) != -1) {
@@ -82,7 +80,7 @@ public class CRLFTerminatedInputStreamTest extends TestCase{
 
         in.close();
         out.close();
-        
+
         String output = new String(out.toByteArray());
         assertEquals(expected, output);
     }

@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class MockMailContext implements MailetContext {
-    
+
     HashMap attributes = new HashMap();
 
     public void bounce(Mail mail, String message) throws MessagingException {
@@ -42,11 +42,11 @@ public class MockMailContext implements MailetContext {
     }
 
     public Collection getMailServers(String host) {
-        return null;  // trivial implementation
+        return null; // trivial implementation
     }
 
     public MailAddress getPostmaster() {
-        return null;  // trivial implementation
+        return null; // trivial implementation
     }
 
     public Object getAttribute(String name) {
@@ -58,11 +58,11 @@ public class MockMailContext implements MailetContext {
     }
 
     public int getMajorVersion() {
-        return 0;  // trivial implementation
+        return 0; // trivial implementation
     }
 
     public int getMinorVersion() {
-        return 0;  // trivial implementation
+        return 0; // trivial implementation
     }
 
     public String getServerInfo() {
@@ -70,15 +70,15 @@ public class MockMailContext implements MailetContext {
     }
 
     public boolean isLocalServer(String serverName) {
-        return false;  // trivial implementation
+        return false; // trivial implementation
     }
 
     public boolean isLocalUser(String userAccount) {
-        return false;  // trivial implementation
+        return false; // trivial implementation
     }
 
     public boolean isLocalEmail(MailAddress mailAddress) {
-        return false;  // trivial implementation
+        return false; // trivial implementation
     }
 
     public void log(String message) {
@@ -111,7 +111,7 @@ public class MockMailContext implements MailetContext {
     }
 
     public void setAttribute(String name, Object object) {
-        attributes.put(name,object);
+        attributes.put(name, object);
     }
 
     public void storeMail(MailAddress sender, MailAddress recipient, MimeMessage msg) throws MessagingException {
@@ -119,6 +119,6 @@ public class MockMailContext implements MailetContext {
     }
 
     public Iterator getSMTPHostAddresses(String domainName) {
-        return null;  // trivial implementation
+        return null; // trivial implementation
     }
 }

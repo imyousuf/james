@@ -142,7 +142,7 @@ public abstract class SMTPServerTest extends TestCase {
     }
 
     protected final int m_smtpListenerPort;
-    //private SMTPServer m_smtpServer;
+    // private SMTPServer m_smtpServer;
     protected SMTPTestConfiguration m_testConfiguration;
     protected MockUsersRepository m_usersRepository = new MockUsersRepository();
     protected MockJSR250Loader m_serviceManager;
@@ -153,7 +153,7 @@ public abstract class SMTPServerTest extends TestCase {
     protected MockProtocolHandlerChain chain;
     protected MockMailQueueFactory queueFactory;
     protected MockMailQueue queue;
-    
+
     public SMTPServerTest() {
         super("AsyncSMTPServerTest");
         m_smtpListenerPort = PortUtil.getNonPrivilegedPort();
@@ -166,7 +166,6 @@ public abstract class SMTPServerTest extends TestCase {
         // log.setLevel(SimpleLog.LOG_LEVEL_ALL);
         m_testConfiguration = new SMTPTestConfiguration(m_smtpListenerPort);
 
-        
         chain = new MockProtocolHandlerChain();
         chain.setLoader(m_serviceManager);
         chain.setLog(log);
@@ -176,34 +175,34 @@ public abstract class SMTPServerTest extends TestCase {
     private SMTPServer m_smtpServer;
 
     protected void initSMTPServer(SMTPTestConfiguration testConfiguration) throws Exception {
-        m_smtpServer.configure(testConfiguration);      
+        m_smtpServer.configure(testConfiguration);
         m_smtpServer.init();
-      
+
     }
 
     protected SMTPServer createSMTPServer() {
         return new SMTPServer();
     }
+
     protected void setUpSMTPServer() throws Exception {
         Logger log = LoggerFactory.getLogger("SMTP");
         // slf4j can't set programmatically any log level. It's just a facade
         // log.setLevel(SimpleLog.LOG_LEVEL_ALL);
         m_smtpServer = createSMTPServer();
         m_smtpServer.setDNSService(m_dnsServer);
-        m_smtpServer.setFileSystem(fileSystem);      
-        
+        m_smtpServer.setFileSystem(fileSystem);
+
         m_smtpServer.setProtocolHandlerChain(chain);
-        
+
         m_smtpServer.setLog(log);
     }
-
 
     public void testMaxLineLength() throws Exception {
         finishSetUp(m_testConfiguration);
 
         SMTPClient smtpProtocol = new SMTPClient();
         smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
-        
+
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < AbstractChannelPipelineFactory.MAX_LINE_LENGTH; i++) {
             sb.append("A");
@@ -215,11 +214,10 @@ public abstract class SMTPServerTest extends TestCase {
         smtpProtocol.sendCommand("EHLO test");
         assertEquals("Line length ok", 250, smtpProtocol.getReplyCode());
 
-
         smtpProtocol.quit();
         smtpProtocol.disconnect();
     }
-    
+
     public void testConnectionLimit() throws Exception {
         m_testConfiguration.setConnectionLimit(2);
         finishSetUp(m_testConfiguration);
@@ -228,7 +226,7 @@ public abstract class SMTPServerTest extends TestCase {
         smtpProtocol.connect("127.0.0.1", m_smtpListenerPort);
         SMTPClient smtpProtocol2 = new SMTPClient();
         smtpProtocol2.connect("127.0.0.1", m_smtpListenerPort);
-        
+
         SMTPClient smtpProtocol3 = new SMTPClient();
 
         try {
@@ -236,37 +234,36 @@ public abstract class SMTPServerTest extends TestCase {
             Thread.sleep(3000);
             fail("Shold disconnect connection 3");
         } catch (Exception e) {
-            
+
         }
-        
+
         smtpProtocol.quit();
         smtpProtocol.disconnect();
         smtpProtocol2.quit();
         smtpProtocol2.disconnect();
-        
+
         smtpProtocol3.connect("127.0.0.1", m_smtpListenerPort);
         Thread.sleep(3000);
 
-       
     }
 
     protected void finishSetUp(SMTPTestConfiguration testConfiguration) throws Exception {
         testConfiguration.init();
-        chain.configure(testConfiguration);        
+        chain.configure(testConfiguration);
         chain.init();
-        
-        initSMTPServer(testConfiguration);
-        
-        //m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize() * 1024);
-    }
 
+        initSMTPServer(testConfiguration);
+
+        // m_mailServer.setMaxMessageSizeBytes(m_testConfiguration.getMaxMessageSize()
+        // * 1024);
+    }
 
     protected void tearDown() throws Exception {
         queue.clear();
         m_smtpServer.destroy();
 
         super.tearDown();
-        
+
     }
 
     public void verifyLastMail(String sender, String recipient, MimeMessage msg) throws IOException, MessagingException {
@@ -311,27 +308,27 @@ public abstract class SMTPServerTest extends TestCase {
 
             public void removeRegexMapping(String user, String domain, String regex) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void addAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void removeAddressMapping(String user, String domain, String address) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void addErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void removeErrorMapping(String user, String domain, String error) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public Collection<String> getUserDomainMappings(String user, String domain) throws VirtualUserTableException {
@@ -340,12 +337,12 @@ public abstract class SMTPServerTest extends TestCase {
 
             public void addMapping(String user, String domain, String mapping) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void removeMapping(String user, String domain, String mapping) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public Map<String, Collection<String>> getAllMappings() throws VirtualUserTableException {
@@ -354,12 +351,12 @@ public abstract class SMTPServerTest extends TestCase {
 
             public void addAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public void removeAliasDomainMapping(String aliasDomain, String realDomain) throws VirtualUserTableException {
                 throw new UnsupportedOperationException("Not implemented");
-                
+
             }
 
             public Collection<String> getMappings(String user, String domain) throws ErrorMappingException, VirtualUserTableException {
@@ -410,8 +407,6 @@ public abstract class SMTPServerTest extends TestCase {
         // mail was propagated by SMTPServer
         assertNotNull("mail received by mail server", queue.getLastMail());
     }
-    
-
 
     public void testStartTLSInEHLO() throws Exception {
         m_testConfiguration.setStartTLS();
@@ -1210,95 +1205,66 @@ public abstract class SMTPServerTest extends TestCase {
     /*
      * TODO: Rewrite the test to work with ConnectionFilter
      * 
-    public void testConnectionLimitExceeded() throws Exception {
-        final int acceptLimit = 1;
-        final int backlog = 1;
-
-        m_testConfiguration.setConnectionLimit(acceptLimit); // allow no more
-                                                             // than
-                                                             // <acceptLimit>
-                                                             // connection(s) in
-                                                             // the service
-        m_testConfiguration.setConnectionBacklog(backlog); // allow <backlog>
-                                                           // additional
-                                                           // connection(s) in
-                                                           // the queue
-        finishSetUp(m_testConfiguration);
-
-        final SMTPClient[] client = new SMTPClient[acceptLimit];
-        for (int i = 0; i < client.length; i++) {
-            client[i] = new SMTPClient(); // should connect to worker
-            try {
-                client[i].connect("127.0.0.1", m_smtpListenerPort);
-            } catch (Exception _) {
-            }
-            assertTrue("client #" + (i + 1) + " established", client[i].isConnected());
-        }
-
-        // Cannot use SMTPClient. It appears that even though the
-        // client's socket is established, since the client won't be
-        // able to connect to the protocol handler, the connect call
-        // hangs.
-
-        // Different TCP/IP stacks may provide a "grace" margin above
-        // and beyond the specified backlog. So we won't try to be
-        // precise. Instead we will compute some upper limit, loop
-        // until we get a connection error (or hit the limit), and
-        // then test for the expected behavior.
-        //
-        // See: http://www.phrack.org/archives/48/P48-13
-        final Socket connection[] = new Socket[Math.max(((backlog * 3) / 2) + 1, backlog + 3)];
-
-        final java.net.SocketAddress server = new java.net.InetSocketAddress("localhost", m_smtpListenerPort);
-
-        for (int i = 0; i < connection.length; i++) {
-            connection[i] = new Socket();
-            try {
-                connection[i].connect(server, 1000);
-            } catch (Exception _) {
-                assertTrue("Accepted connections " + i + " did not meet or exceed backlog of " + backlog + ".", i >= backlog);
-                connection[i] = null; // didn't open, so don't try to close
-                                      // later
-                break; // OK to fail, since we've at least reached the backlog
-            }
-            assertTrue("connection #" + (i + 1) + " established", connection[i].isConnected());
-        }
-
-        try {
-            final Socket shouldFail = new Socket();
-            shouldFail.connect(server, 1000);
-            fail("connection # " + (client.length + connection.length + 1) + " did not fail.");
-        } catch (Exception _) {
-        }
-
-        client[0].quit();
-        client[0].disconnect();
-
-        Thread.sleep(100);
-
-        // now should be able to connect (backlog)
-        try {
-            final Socket shouldWork = new Socket();
-            shouldWork.connect(server, 1000);
-            assertTrue("Additional connection established after close.", shouldWork.isConnected());
-            shouldWork.close();
-        } catch (Exception e) {
-            fail("Could not establish additional connection after close." + e.getMessage());
-        }
-
-        // close the pending connections first, so that the server doesn't see
-        // them
-        for (int i = 0; i < connection.length; i++)
-            if (connection[i] != null)
-                connection[i].close();
-
-        // close the remaining clients
-        for (int i = 1; i < client.length; i++) {
-            client[i].quit();
-            client[i].disconnect();
-        }
-    }
-    */
+     * public void testConnectionLimitExceeded() throws Exception { final int
+     * acceptLimit = 1; final int backlog = 1;
+     * 
+     * m_testConfiguration.setConnectionLimit(acceptLimit); // allow no more //
+     * than // <acceptLimit> // connection(s) in // the service
+     * m_testConfiguration.setConnectionBacklog(backlog); // allow <backlog> //
+     * additional // connection(s) in // the queue
+     * finishSetUp(m_testConfiguration);
+     * 
+     * final SMTPClient[] client = new SMTPClient[acceptLimit]; for (int i = 0;
+     * i < client.length; i++) { client[i] = new SMTPClient(); // should connect
+     * to worker try { client[i].connect("127.0.0.1", m_smtpListenerPort); }
+     * catch (Exception _) { } assertTrue("client #" + (i + 1) + " established",
+     * client[i].isConnected()); }
+     * 
+     * // Cannot use SMTPClient. It appears that even though the // client's
+     * socket is established, since the client won't be // able to connect to
+     * the protocol handler, the connect call // hangs.
+     * 
+     * // Different TCP/IP stacks may provide a "grace" margin above // and
+     * beyond the specified backlog. So we won't try to be // precise. Instead
+     * we will compute some upper limit, loop // until we get a connection error
+     * (or hit the limit), and // then test for the expected behavior. // //
+     * See: http://www.phrack.org/archives/48/P48-13 final Socket connection[] =
+     * new Socket[Math.max(((backlog * 3) / 2) + 1, backlog + 3)];
+     * 
+     * final java.net.SocketAddress server = new
+     * java.net.InetSocketAddress("localhost", m_smtpListenerPort);
+     * 
+     * for (int i = 0; i < connection.length; i++) { connection[i] = new
+     * Socket(); try { connection[i].connect(server, 1000); } catch (Exception
+     * _) { assertTrue("Accepted connections " + i +
+     * " did not meet or exceed backlog of " + backlog + ".", i >= backlog);
+     * connection[i] = null; // didn't open, so don't try to close // later
+     * break; // OK to fail, since we've at least reached the backlog }
+     * assertTrue("connection #" + (i + 1) + " established",
+     * connection[i].isConnected()); }
+     * 
+     * try { final Socket shouldFail = new Socket(); shouldFail.connect(server,
+     * 1000); fail("connection # " + (client.length + connection.length + 1) +
+     * " did not fail."); } catch (Exception _) { }
+     * 
+     * client[0].quit(); client[0].disconnect();
+     * 
+     * Thread.sleep(100);
+     * 
+     * // now should be able to connect (backlog) try { final Socket shouldWork
+     * = new Socket(); shouldWork.connect(server, 1000);
+     * assertTrue("Additional connection established after close.",
+     * shouldWork.isConnected()); shouldWork.close(); } catch (Exception e) {
+     * fail("Could not establish additional connection after close." +
+     * e.getMessage()); }
+     * 
+     * // close the pending connections first, so that the server doesn't see //
+     * them for (int i = 0; i < connection.length; i++) if (connection[i] !=
+     * null) connection[i].close();
+     * 
+     * // close the remaining clients for (int i = 1; i < client.length; i++) {
+     * client[i].quit(); client[i].disconnect(); } }
+     */
     // Check if auth users get not rejected cause rbl. See JAMES-566
     public void testDNSRBLNotRejectAuthUser() throws Exception {
         m_testConfiguration.setAuthorizedAddresses("192.168.0.1/32");

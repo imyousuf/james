@@ -45,7 +45,7 @@ public class JpaUsersRepositoryTest extends AbstractUsersRepositoryTest {
         properties.put("openjpa.Log", "JDBC=WARN, SQL=WARN, Runtime=WARN");
         properties.put("openjpa.ConnectionFactoryProperties", "PrettyPrint=true, PrettyPrintLineLength=72");
         properties.put("openjpa.jdbc.SynchronizeMappings", "buildSchema(ForeignKeys=true)");
-        properties.put("openjpa.MetaDataFactory", "jpa(Types=" + JPAUser.class.getName() +")");
+        properties.put("openjpa.MetaDataFactory", "jpa(Types=" + JPAUser.class.getName() + ")");
         super.setUp();
         deleteAll();
     }
@@ -54,9 +54,9 @@ public class JpaUsersRepositoryTest extends AbstractUsersRepositoryTest {
     protected void tearDown() throws Exception {
         deleteAll();
         super.tearDown();
-       
+
     }
-    
+
     private void deleteAll() {
         OpenJPAEntityManager manager = factory.createEntityManager();
         final OpenJPAEntityTransaction transaction = manager.getTransaction();
@@ -75,9 +75,9 @@ public class JpaUsersRepositoryTest extends AbstractUsersRepositoryTest {
     }
 
     @Override
-    protected UsersRepository getUsersRepository() throws Exception  {
+    protected UsersRepository getUsersRepository() throws Exception {
         factory = OpenJPAPersistence.getEntityManagerFactory(properties);
-        JPAUsersRepository repos =  new JPAUsersRepository();
+        JPAUsersRepository repos = new JPAUsersRepository();
         repos.setLog(LoggerFactory.getLogger("JPA"));
         repos.setEntityManagerFactory(factory);
         repos.configure(new DefaultConfigurationBuilder());

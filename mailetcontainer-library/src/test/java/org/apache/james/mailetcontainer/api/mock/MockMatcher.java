@@ -31,14 +31,14 @@ import org.apache.mailet.MailAddress;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 
-public class MockMatcher implements Matcher{
+public class MockMatcher implements Matcher {
 
     private int matchCount = 0;
-    
+
     private MatcherConfig config;
-    
+
     public void destroy() {
-        
+
     }
 
     public MatcherConfig getMatcherConfig() {
@@ -56,12 +56,12 @@ public class MockMatcher implements Matcher{
 
     public Collection match(Mail mail) throws MessagingException {
         List<MailAddress> match = new ArrayList<MailAddress>();
-        
+
         Iterator<MailAddress> rcpts = mail.getRecipients().iterator();
         while (rcpts.hasNext() && match.size() < matchCount) {
             MailAddress addr = rcpts.next();
             match.add(addr);
-            
+
         }
         if (match.isEmpty()) {
             return null;

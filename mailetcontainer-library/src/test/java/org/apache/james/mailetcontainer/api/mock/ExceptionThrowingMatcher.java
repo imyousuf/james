@@ -27,11 +27,11 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.Matcher;
 import org.apache.mailet.MatcherConfig;
 
-public class ExceptionThrowingMatcher implements Matcher{
+public class ExceptionThrowingMatcher implements Matcher {
 
     private MatcherConfig config;
 
-    public void destroy() {        
+    public void destroy() {
     }
 
     public MatcherConfig getMatcherConfig() {

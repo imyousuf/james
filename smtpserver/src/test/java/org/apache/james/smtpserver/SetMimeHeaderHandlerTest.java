@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.smtpserver;
 
 import junit.framework.TestCase;
@@ -87,8 +86,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
         header.setHeaderValue(HEADER_VALUE);
         header.onMessage(mockedSMTPSession, mockedMail);
 
-        assertEquals(HEADER_VALUE, mockedMail.getMessage()
-                .getHeader(HEADER_NAME)[0]);
+        assertEquals(HEADER_VALUE, mockedMail.getMessage().getHeader(HEADER_NAME)[0]);
     }
 
     // test if the Header was replaced
@@ -105,8 +103,7 @@ public class SetMimeHeaderHandlerTest extends TestCase {
         header.setHeaderValue(HEADER_VALUE);
         header.onMessage(mockedSMTPSession, mockedMail);
 
-        assertEquals(HEADER_VALUE, mockedMail.getMessage()
-                .getHeader(HEADER_NAME)[0]);
+        assertEquals(HEADER_VALUE, mockedMail.getMessage().getHeader(HEADER_NAME)[0]);
     }
 
 }

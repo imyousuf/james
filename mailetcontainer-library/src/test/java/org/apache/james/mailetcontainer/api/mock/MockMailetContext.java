@@ -35,19 +35,19 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 
-public class MockMailetContext implements MailetContext{
+public class MockMailetContext implements MailetContext {
 
     private Map<String, Object> attributes = new HashMap<String, Object>();
     private List<Mail> mails = new ArrayList<Mail>();
-    
+
     public void bounce(Mail arg0, String arg1) throws MessagingException {
         throw new UnsupportedOperationException("Not implemented");
-        
+
     }
 
     public void bounce(Mail arg0, String arg1, MailAddress arg2) throws MessagingException {
         throw new UnsupportedOperationException("Not implemented");
-        
+
     }
 
     public Object getAttribute(String arg0) {
@@ -59,8 +59,8 @@ public class MockMailetContext implements MailetContext{
     }
 
     /**
-     * Return an {@link Collection} which holds "mx.localhost" if the given host was "localhost". Otherwise
-     * and empty {@link Collection} is returned
+     * Return an {@link Collection} which holds "mx.localhost" if the given host
+     * was "localhost". Otherwise and empty {@link Collection} is returned
      */
     public Collection getMailServers(String host) {
         List<String> servers = new ArrayList<String>();
@@ -123,7 +123,7 @@ public class MockMailetContext implements MailetContext{
     public void log(String arg0, Throwable arg1) {
         System.out.println(arg0);
         arg1.printStackTrace();
-        
+
     }
 
     public void removeAttribute(String arg0) {
@@ -132,21 +132,21 @@ public class MockMailetContext implements MailetContext{
 
     public void sendMail(MimeMessage arg0) throws MessagingException {
         throw new UnsupportedOperationException("Not implemented");
-        
+
     }
 
     public void sendMail(Mail mail) throws MessagingException {
-        mails.add(mail);        
+        mails.add(mail);
     }
 
     public void sendMail(MailAddress arg0, Collection arg1, MimeMessage arg2) throws MessagingException {
         throw new UnsupportedOperationException("Not implemented");
-        
+
     }
 
     public void sendMail(MailAddress arg0, Collection arg1, MimeMessage arg2, String arg3) throws MessagingException {
         throw new UnsupportedOperationException("Not implemented");
-        
+
     }
 
     public void setAttribute(String arg0, Object arg1) {

@@ -23,7 +23,6 @@ import java.net.UnknownHostException;
 
 import org.apache.james.dnsservice.api.DNSService;
 
-
 /**
  * Some DNS Fixtures used by various Test related to DNS and InetNetwork.
  */
@@ -32,31 +31,31 @@ public class DNSFixture {
     public static final String LOCALHOST_IP_V4_ADDRESS_0 = "localhost/16";
     public static final String LOCALHOST_IP_V4_ADDRESS_1 = "172.16.0.0/16";
     public static final String LOCALHOST_IP_V4_ADDRESS_2 = "192.168.1.0/255.255.255.0";
-    public static final String[] LOCALHOST_IP_V4_ADDRESSES = new String[]{LOCALHOST_IP_V4_ADDRESS_0, LOCALHOST_IP_V4_ADDRESS_1, LOCALHOST_IP_V4_ADDRESS_2};
-    public static final String[] LOCALHOST_IP_V4_ADDRESSES_DUPLICATE = new String[]{LOCALHOST_IP_V4_ADDRESS_1, LOCALHOST_IP_V4_ADDRESS_1, LOCALHOST_IP_V4_ADDRESS_2, LOCALHOST_IP_V4_ADDRESS_2};
+    public static final String[] LOCALHOST_IP_V4_ADDRESSES = new String[] { LOCALHOST_IP_V4_ADDRESS_0, LOCALHOST_IP_V4_ADDRESS_1, LOCALHOST_IP_V4_ADDRESS_2 };
+    public static final String[] LOCALHOST_IP_V4_ADDRESSES_DUPLICATE = new String[] { LOCALHOST_IP_V4_ADDRESS_1, LOCALHOST_IP_V4_ADDRESS_1, LOCALHOST_IP_V4_ADDRESS_2, LOCALHOST_IP_V4_ADDRESS_2 };
 
     public static final String LOCALHOST_IP_V6_ADDRESS_0 = "00:00:00:00:00:00:00:1";
     public static final String LOCALHOST_IP_V6_ADDRESS_1 = "2781:0db8:1234:8612:45ee:0000:f05e:0001/48";
-    public static final String[] LOCALHOST_IP_V6_ADDRESSES = new String[]{LOCALHOST_IP_V6_ADDRESS_0, LOCALHOST_IP_V6_ADDRESS_1};
-    public static final String[] LOCALHOST_IP_V6_ADDRESSES_DUPLICATE = new String[]{LOCALHOST_IP_V6_ADDRESS_0, LOCALHOST_IP_V6_ADDRESS_0, LOCALHOST_IP_V6_ADDRESS_1, LOCALHOST_IP_V6_ADDRESS_1};
-    
+    public static final String[] LOCALHOST_IP_V6_ADDRESSES = new String[] { LOCALHOST_IP_V6_ADDRESS_0, LOCALHOST_IP_V6_ADDRESS_1 };
+    public static final String[] LOCALHOST_IP_V6_ADDRESSES_DUPLICATE = new String[] { LOCALHOST_IP_V6_ADDRESS_0, LOCALHOST_IP_V6_ADDRESS_0, LOCALHOST_IP_V6_ADDRESS_1, LOCALHOST_IP_V6_ADDRESS_1 };
+
     /**
      * A Mock DNS Server that handles IPv4-only InetAddress.
      */
     public static final DNSService DNS_SERVER_IPV4_MOCK = new MockDNSService() {
-        
+
         public String getHostName(InetAddress inet) {
             return "localhost";
         }
-        
+
         public InetAddress[] getAllByName(String name) throws UnknownHostException {
-            return new InetAddress[] { InetAddress.getByName("127.0.0.1")}; 
+            return new InetAddress[] { InetAddress.getByName("127.0.0.1") };
         }
 
         public InetAddress getLocalHost() throws UnknownHostException {
             return InetAddress.getLocalHost();
         }
-        
+
         public InetAddress getByName(String host) throws UnknownHostException {
             return InetAddress.getByName(host);
         }
@@ -67,23 +66,23 @@ public class DNSFixture {
      * A Mock DNS Server that handles IPv6-only InetAddress.
      */
     public static final DNSService DNS_SERVER_IPV6_MOCK = new MockDNSService() {
-        
+
         public String getHostName(InetAddress inet) {
             return "localhost";
         }
-        
+
         public InetAddress[] getAllByName(String name) throws UnknownHostException {
-            return new InetAddress[] { InetAddress.getByName("::1")}; 
+            return new InetAddress[] { InetAddress.getByName("::1") };
         }
 
         public InetAddress getLocalHost() throws UnknownHostException {
             return InetAddress.getLocalHost();
         }
-        
+
         public InetAddress getByName(String host) throws UnknownHostException {
             return InetAddress.getByName(host);
         }
 
     };
-    
+
 }

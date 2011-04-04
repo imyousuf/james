@@ -47,29 +47,28 @@ public class DNSJavaServiceTest extends TestCase {
     private Cache defaultCache;
     private Resolver defaultResolver;
     private Name[] defaultSearchPaths;
-    
+
     public void testNoMX() throws Exception {
         dnsServer.setResolver(null);
         dnsServer.setCache(new ZoneCache("dnstest.com."));
-        //a.setSearchPath(new String[] { "searchdomain.com." });
+        // a.setSearchPath(new String[] { "searchdomain.com." });
         Collection<String> records = dnsServer.findMXRecords("nomx.dnstest.com.");
         assertEquals(1, records.size());
-        assertEquals("nomx.dnstest.com.", records.iterator()
-                .next());
+        assertEquals("nomx.dnstest.com.", records.iterator().next());
     }
-    
+
     public void testBadMX() throws Exception {
         dnsServer.setResolver(null);
         dnsServer.setCache(new ZoneCache("dnstest.com."));
-        //a.setSearchPath(new String[] { "searchdomain.com." });
+        // a.setSearchPath(new String[] { "searchdomain.com." });
         Collection<String> records = dnsServer.findMXRecords("badmx.dnstest.com.");
         assertEquals(1, records.size());
-        assertEquals("badhost.dnstest.com.", records.iterator()
-                .next());
-        //Iterator<HostAddress> it = dnsServer.getSMTPHostAddresses("badmx.dnstest.com.");
-       // assertFalse(it.hasNext());
+        assertEquals("badhost.dnstest.com.", records.iterator().next());
+        // Iterator<HostAddress> it =
+        // dnsServer.getSMTPHostAddresses("badmx.dnstest.com.");
+        // assertFalse(it.hasNext());
     }
-    
+
     public void testINARecords() throws Exception {
         // Zone z = loadZone("pippo.com.");
         dnsServer.setResolver(null);
@@ -77,8 +76,7 @@ public class DNSJavaServiceTest extends TestCase {
         // dnsServer.setLookupper(new ZoneLookupper(z));
         Collection<String> records = dnsServer.findMXRecords("www.pippo.com.");
         assertEquals(1, records.size());
-        assertEquals("pippo.com.inbound.mxlogic.net.", records.iterator()
-                .next());
+        assertEquals("pippo.com.inbound.mxlogic.net.", records.iterator().next());
     }
 
     public void testMXCatches() throws Exception {
@@ -92,20 +90,18 @@ public class DNSJavaServiceTest extends TestCase {
             fail("MX Collection should not be modifiable");
         } catch (UnsupportedOperationException e) {
         }
-        assertEquals(1,res.size());
-        assertEquals("mail.test-zone.com.",res.iterator().next());
+        assertEquals(1, res.size());
+        assertEquals("mail.test-zone.com.", res.iterator().next());
     }
 
     /*
-    public void testCNAMEasMXrecords() throws Exception {
-        // Zone z = loadZone("brandilyncollins.com.");
-        dnsServer.setResolver(null);
-        dnsServer.setCache(new ZoneCache("brandilyncollins.com."));
-        // dnsServer.setLookupper(new ZoneLookupper(z));
-        //Iterator<HostAddress> records = dnsServer.getSMTPHostAddresses("brandilyncollins.com.");
-        //assertEquals(true, records.hasNext());
-    }
-*/
+     * public void testCNAMEasMXrecords() throws Exception { // Zone z =
+     * loadZone("brandilyncollins.com."); dnsServer.setResolver(null);
+     * dnsServer.setCache(new ZoneCache("brandilyncollins.com.")); //
+     * dnsServer.setLookupper(new ZoneLookupper(z)); //Iterator<HostAddress>
+     * records = dnsServer.getSMTPHostAddresses("brandilyncollins.com.");
+     * //assertEquals(true, records.hasNext()); }
+     */
     protected void setUp() throws Exception {
         dnsServer = new TestableDNSServer();
         DefaultConfigurationBuilder db = new DefaultConfigurationBuilder();
@@ -114,8 +110,7 @@ public class DNSJavaServiceTest extends TestCase {
         dnsServer.setLog(LoggerFactory.getLogger("MockLog"));
         dnsServer.configure(db);
         dnsServer.init();
-        
-        
+
         defaultCache = Lookup.getDefaultCache(DClass.IN);
         defaultResolver = Lookup.getDefaultResolver();
         defaultSearchPaths = Lookup.getDefaultSearchPath();
@@ -137,14 +132,14 @@ public class DNSJavaServiceTest extends TestCase {
         URL zoneResource = getClass().getResource(zoneFilename);
         assertNotNull("test resource for zone could not be loaded: " + zoneFilename, zoneResource);
         String zoneFile = zoneResource.getFile();
-        Zone zone = new Zone(Name.fromString(zoneName),zoneFile);
+        Zone zone = new Zone(Name.fromString(zoneName), zoneFile);
         return zone;
     }
 
     private final class ZoneCache extends Cache {
 
         Zone z = null;
-        
+
         public ZoneCache(String string) throws IOException {
             z = loadZone(string);
         }
@@ -210,9 +205,9 @@ public class DNSJavaServiceTest extends TestCase {
         }
 
         public SetResponse lookupRecords(Name arg0, int arg1, int arg2) {
-            System.out.println("Cache.lookupRecords "+arg0+","+arg1+","+arg2);
+            System.out.println("Cache.lookupRecords " + arg0 + "," + arg1 + "," + arg2);
             return z.findRecords(arg0, arg1);
-            //return super.lookupRecords(arg0, arg1, arg2);
+            // return super.lookupRecords(arg0, arg1, arg2);
         }
 
         public void setCleanInterval(int arg0) {
@@ -233,7 +228,7 @@ public class DNSJavaServiceTest extends TestCase {
     }
 
     private final class TestableDNSServer extends DNSJavaService {
-        
+
         public void setResolver(Resolver r) {
             resolver = r;
         }
@@ -241,11 +236,11 @@ public class DNSJavaServiceTest extends TestCase {
         public Resolver getResolver() {
             return resolver;
         }
-        
+
         public void setCache(Cache c) {
             cache = c;
         }
-        
+
         public Cache getCache() {
             return cache;
         }

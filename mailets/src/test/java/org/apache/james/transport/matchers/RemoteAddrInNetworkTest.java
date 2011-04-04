@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.transport.matchers;
 
 import java.io.UnsupportedEncodingException;
@@ -31,8 +30,7 @@ public class RemoteAddrInNetworkTest extends AbstractRemoteAddrInNetworkTest {
 
     private final String ALLOWED_NETWORK = "192.168.200.0/24";
 
-    public RemoteAddrInNetworkTest(String arg0)
-            throws UnsupportedEncodingException {
+    public RemoteAddrInNetworkTest(String arg0) throws UnsupportedEncodingException {
         super(arg0);
     }
 
@@ -45,8 +43,7 @@ public class RemoteAddrInNetworkTest extends AbstractRemoteAddrInNetworkTest {
         Collection<MailAddress> matchedRecipients = matcher.match(mockedMail);
 
         assertNotNull(matchedRecipients);
-        assertEquals(matchedRecipients.size(), mockedMail.getRecipients()
-                .size());
+        assertEquals(matchedRecipients.size(), mockedMail.getRecipients().size());
     }
 
     // test if no recipient get returned cause it not match

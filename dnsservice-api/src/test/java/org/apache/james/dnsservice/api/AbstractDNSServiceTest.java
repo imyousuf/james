@@ -23,13 +23,11 @@ import java.net.UnknownHostException;
 
 import org.apache.james.dnsservice.api.mock.MockDNSService;
 
-
 import junit.framework.TestCase;
 
 /**
- * Basic tests for AbstractDNSServer.
- * The goal is to verify that the interface remains constants and
- * that the built platform has access to the Internet.
+ * Basic tests for AbstractDNSServer. The goal is to verify that the interface
+ * remains constants and that the built platform has access to the Internet.
  */
 public class AbstractDNSServiceTest extends TestCase {
 
@@ -37,25 +35,25 @@ public class AbstractDNSServiceTest extends TestCase {
      * Simple Mock DNSService relaying on InetAddress.
      */
     private static final DNSService DNS_SERVER = new MockDNSService() {
-        
+
         public String getHostName(InetAddress inet) {
             return inet.getCanonicalHostName();
         }
-        
+
         public InetAddress[] getAllByName(String name) throws UnknownHostException {
-            return InetAddress.getAllByName(name); 
+            return InetAddress.getAllByName(name);
         }
 
         public InetAddress getLocalHost() throws UnknownHostException {
             return InetAddress.getLocalHost();
         }
-        
+
         public InetAddress getByName(String host) throws UnknownHostException {
             return InetAddress.getByName(host);
         }
 
     };
-    
+
     /**
      * Simple localhost resolution.
      * 
@@ -63,14 +61,15 @@ public class AbstractDNSServiceTest extends TestCase {
      */
     public void testLocalhost() throws UnknownHostException {
 
-    	assertEquals("localhost/127.0.0.1", DNS_SERVER.getByName("localhost").toString());
-        
-    	String localHost = DNS_SERVER.getHostName(InetAddress.getByName("127.0.0.1")).toString();
-    	// We only can check if the returned localhost is not empty. Its value depends on the hosts file.
-    	assertTrue(localHost.length() > 0);
-        
+        assertEquals("localhost/127.0.0.1", DNS_SERVER.getByName("localhost").toString());
+
+        String localHost = DNS_SERVER.getHostName(InetAddress.getByName("127.0.0.1")).toString();
+        // We only can check if the returned localhost is not empty. Its value
+        // depends on the hosts file.
+        assertTrue(localHost.length() > 0);
+
     }
-    
+
     /**
      * Simple apache.org resolution.
      * 
@@ -79,5 +78,5 @@ public class AbstractDNSServiceTest extends TestCase {
     public void testApache() throws UnknownHostException {
         assertEquals(true, DNS_SERVER.getByName("www.apache.org").toString().startsWith("www.apache.org"));
     }
-    
+
 }

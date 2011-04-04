@@ -33,7 +33,6 @@ public class MockMailetConfig extends Properties implements MailetConfig {
     private String mailetName;
     private MailetContext mc;
 
-    
     public MockMailetConfig(String mailetName, MailetContext mc) {
         super();
         this.mailetName = mailetName;

@@ -17,7 +17,6 @@
  * under the License.                                           *
  ****************************************************************/
 
-
 package org.apache.james.transport.matchers;
 
 import org.apache.james.dnsservice.api.DNSService;
@@ -44,7 +43,7 @@ public class InSpammerBlacklistTest extends TestCase {
     private FakeMail mockedMail;
 
     private InSpammerBlacklist matcher;
-    
+
     private final static String BLACKLIST = "my.black.list.";
     private final static StringBuffer LISTED_HOST = new StringBuffer("111.222.111.222");
 
@@ -64,10 +63,11 @@ public class InSpammerBlacklistTest extends TestCase {
         };
         return dns;
     }
+
     private void setupMockedMail(String remoteAddr) throws ParseException {
         mockedMail = new FakeMail();
         mockedMail.setRemoteAddr(remoteAddr);
-        mockedMail.setRecipients(Arrays.asList(new MailAddress[] {new MailAddress("test@email")}));
+        mockedMail.setRecipients(Arrays.asList(new MailAddress[] { new MailAddress("test@email") }));
 
     }
 
@@ -75,11 +75,10 @@ public class InSpammerBlacklistTest extends TestCase {
         matcher = new InSpammerBlacklist();
         matcher.setDNSService(setUpDNSServer());
         FakeMailContext context = new FakeMailContext();
-        FakeMatcherConfig mci = new FakeMatcherConfig("InSpammerBlacklist=" + blacklist,context);
+        FakeMatcherConfig mci = new FakeMatcherConfig("InSpammerBlacklist=" + blacklist, context);
         matcher.init(mci);
     }
 
-    
     public void testInBlackList() throws MessagingException {
         setupMockedMail(LISTED_HOST.toString());
         setupMatcher(BLACKLIST);
@@ -89,7 +88,7 @@ public class InSpammerBlacklistTest extends TestCase {
         assertNotNull(matchedRecipients);
         assertEquals(matchedRecipients.size(), mockedMail.getRecipients().size());
     }
-    
+
     public void testNotInBlackList() throws MessagingException {
         setupMockedMail("212.12.14.1");
         setupMatcher(BLACKLIST);
